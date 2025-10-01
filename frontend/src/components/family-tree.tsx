@@ -1,499 +1,411 @@
-'use client';
+'use client'
 
-import React, { useState, useRef, useEffect } from 'react';
-import { User, Plus, Edit3, Heart, Users, Calendar, X, ZoomIn, ZoomOut, Move } from 'lucide-react';
-
-interface FamilyMember {
-  id: string;
-  name: string;
-  birthDate?: string;
-  deathDate?: string;
-  photo?: string;
-  relationship: string;
-  x: number;
-  y: number;
-  generation: number;
-  spouse?: string;
-  children: string[];
-  parents: string[];
-}
+import React, { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Users, Heart, Calendar, MapPin, Award, ChevronDown, ChevronUp, Search, Filter, Maximize2, Minimize2 } from 'lucide-react'
+import { mockFamilyMembers, FamilyMember } from '../data/mock-family-data'
 
 interface FamilyTreeProps {
-  onClose?: () => void;
+  onMemberSelect?: (member: FamilyMember) => void
 }
 
-export default function FamilyTree({ onClose }: FamilyTreeProps) {
-  const [members, setMembers] = useState<FamilyMember[]>([
-    {
-      id: '1',
-      name: 'Robert Johnson',
-      birthDate: '1925-05-12',
-      deathDate: '1995-08-20',
-      relationship: 'Grandfather',
-      x: 300,
-      y: 80,
-      generation: 0,
-      children: ['3', '4'],
-      parents: []
-    },
-    {
-      id: '2',
-      name: 'Mary Johnson',
-      birthDate: '1928-11-03',
-      deathDate: '2001-03-15',
-      relationship: 'Grandmother',
-      x: 500,
-      y: 80,
-      generation: 0,
-      children: ['3', '4'],
-      parents: []
-    },
-    {
-      id: '3',
-      name: 'David Johnson',
-      birthDate: '1955-07-22',
-      relationship: 'Father',
-      x: 250,
-      y: 220,
-      generation: 1,
-      spouse: '5',
-      children: ['6', '7'],
-      parents: ['1', '2']
-    },
-    {
-      id: '4',
-      name: 'Susan Wilson',
-      birthDate: '1958-02-14',
-      relationship: 'Aunt',
-      x: 600,
-      y: 220,
-      generation: 1,
-      children: ['8'],
-      parents: ['1', '2']
-    },
-    {
-      id: '5',
-      name: 'Linda Johnson',
-      birthDate: '1957-09-08',
-      relationship: 'Mother',
-      x: 450,
-      y: 220,
-      generation: 1,
-      spouse: '3',
-      children: ['6', '7'],
-      parents: []
-    },
-    {
-      id: '6',
-      name: 'Sarah Johnson',
-      birthDate: '1985-03-15',
-      relationship: 'Self',
-      x: 300,
-      y: 380,
-      generation: 2,
-      children: [],
-      parents: ['3', '5']
-    },
-    {
-      id: '7',
-      name: 'Michael Johnson',
-      birthDate: '1987-11-28',
-      relationship: 'Brother',
-      x: 500,
-      y: 380,
-      generation: 2,
-      children: [],
-      parents: ['3', '5']
-    },
-    {
-      id: '8',
-      name: 'Emma Wilson',
-      birthDate: '1990-06-10',
-      relationship: 'Cousin',
-      x: 650,
-      y: 380,
-      generation: 2,
-      children: [],
-      parents: ['4']
-    }
-  ]);
+const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
+  const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
+  const [hoveredMember, setHoveredMember] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterGeneration, setFilterGeneration] = useState<number | null>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [showConnections, setShowConnections] = useState(true)
+  const [zoomLevel, setZoomLevel] = useState(1)
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  
+  const treeRef = useRef<HTMLDivElement>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
 
-  const [selectedMember, setSelectedMember] = useState<string | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const svgRef = useRef<SVGSVGElement>(null);
+  // Filter members based on search and generation
+  const filteredMembers = mockFamilyMembers.filter(member => {
+    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         member.occupation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         member.birthPlace.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesGeneration = filterGeneration === null || member.generation === filterGeneration
+    return matchesSearch && matchesGeneration
+  })
 
+  // Get unique generations for filter
+  const generations = [...new Set(mockFamilyMembers.map(m => m.generation))].sort()
+
+  // Handle member selection
+  const handleMemberClick = (member: FamilyMember) => {
+    setSelectedMember(member)
+    onMemberSelect?.(member)
+  }
+
+  // Handle mouse events for panning
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === svgRef.current) {
-      setIsDragging(true);
-      setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    if (e.target === e.currentTarget) {
+      setIsDragging(true)
+      setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y })
     }
-  };
+  }
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
-      setPan({
+      setPanOffset({
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y
-      });
+      })
     }
-  };
+  }
 
   const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+    setIsDragging(false)
+  }
 
-  const handleZoomIn = () => {
-    setZoom(prev => Math.min(prev + 0.2, 2));
-  };
+  // Handle zoom
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault()
+    const delta = e.deltaY > 0 ? 0.9 : 1.1
+    setZoomLevel(prev => Math.max(0.5, Math.min(2, prev * delta)))
+  }
 
-  const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev - 0.2, 0.5));
-  };
-
-  const renderConnections = () => {
-    const connections: React.ReactElement[] = [];
-
-    members.forEach(member => {
+  // Generate connection lines between family members
+  const generateConnections = () => {
+    const connections: JSX.Element[] = []
+    
+    filteredMembers.forEach(member => {
       // Draw lines to children
-      member.children.forEach(childId => {
-        const child = members.find(m => m.id === childId);
+      member.childrenIds.forEach(childId => {
+        const child = filteredMembers.find(m => m.id === childId)
         if (child) {
+          const startX = member.position.x + 60 // Center of member card
+          const startY = member.position.y + 80
+          const endX = child.position.x + 60
+          const endY = child.position.y + 20
+          
           connections.push(
-            <line
+            <motion.line
               key={`${member.id}-${childId}`}
-              x1={member.x}
-              y1={member.y + 40}
-              x2={child.x}
-              y2={child.y - 10}
-              stroke="rgba(74, 144, 226, 0.4)"
+              x1={startX}
+              y1={startY}
+              x2={endX}
+              y2={endY}
+              stroke="rgba(212, 175, 55, 0.3)"
               strokeWidth="2"
-              className="transition-all duration-300"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             />
-          );
+          )
         }
-      });
+      })
 
-      // Draw line to spouse
-      if (member.spouse) {
-        const spouse = members.find(m => m.id === member.spouse);
-        if (spouse) {
+      // Draw lines to spouse
+      member.spouseIds.forEach(spouseId => {
+        const spouse = filteredMembers.find(m => m.id === spouseId)
+        if (spouse && member.id < spouseId) { // Avoid duplicate lines
+          const startX = member.position.x + 120
+          const startY = member.position.y + 50
+          const endX = spouse.position.x
+          const endY = spouse.position.y + 50
+          
           connections.push(
-            <line
-              key={`${member.id}-spouse-${member.spouse}`}
-              x1={member.x + 40}
-              y1={member.y + 20}
-              x2={spouse.x - 40}
-              y2={spouse.y + 20}
-              stroke="rgba(107, 70, 193, 0.6)"
+            <motion.line
+              key={`${member.id}-${spouseId}-marriage`}
+              x1={startX}
+              y1={startY}
+              x2={endX}
+              y2={endY}
+              stroke="rgba(212, 175, 55, 0.5)"
               strokeWidth="3"
               strokeDasharray="5,5"
-              className="transition-all duration-300"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             />
-          );
+          )
         }
-      }
-    });
+      })
+    })
+    
+    return connections
+  }
 
-    return connections;
-  };
-
-  const MemberCard = ({ member }: { member: FamilyMember }) => {
-    const isSelected = selectedMember === member.id;
-    const age = member.deathDate 
-      ? new Date(member.deathDate).getFullYear() - new Date(member.birthDate || '').getFullYear()
-      : new Date().getFullYear() - new Date(member.birthDate || '').getFullYear();
-
-    return (
-      <g
-        transform={`translate(${member.x}, ${member.y})`}
-        className="cursor-pointer transition-all duration-300 hover:scale-110"
-        onClick={() => setSelectedMember(isSelected ? null : member.id)}
-      >
-        {/* Glow Effect */}
-        <rect
-          x="-65"
-          y="-35"
-          width="130"
-          height="90"
-          rx="15"
-          fill="rgba(255, 215, 0, 0.1)"
-          filter="blur(8px)"
-          opacity="0"
-          className="hover:opacity-100 transition-opacity duration-300"
-        />
-        
-        {/* Card Background */}
-        <rect
-          x="-60"
-          y="-30"
-          width="120"
-          height="80"
-          rx="12"
-          fill="rgba(0, 0, 0, 0.9)"
-          stroke={isSelected ? "#FFD700" : "rgba(255, 215, 0, 0.3)"}
-          strokeWidth={isSelected ? "3" : "1"}
-          className="transition-all duration-300 hover:fill-[rgba(255,215,0,0.1)] hover:stroke-[#FFD700]"
-          filter="drop-shadow(0 4px 20px rgba(255, 215, 0, 0.2))"
-        />
-
-        {/* Photo/Avatar */}
-        <circle
-          cx="0"
-          cy="-10"
-          r="15"
-          fill="linear-gradient(135deg, #FFD700 0%, #FFA500 100%)"
-        />
-        <circle
-          cx="0"
-          cy="-10"
-          r="12"
-          fill="#000000"
-        />
-        {member.photo ? (
-          <image
-            href={member.photo}
-            x="-12"
-            y="-22"
-            width="24"
-            height="24"
-            clipPath="circle(12px at 12px 12px)"
-          />
-        ) : (
-          <User
-            x="-6"
-            y="-16"
-            width="12"
-            height="12"
-            fill="#FFD700"
-          />
-        )}
-
-        {/* Name */}
-        <text
-          x="0"
-          y="20"
-          textAnchor="middle"
-          fill="#FFD700"
-          fontSize="10"
-          fontWeight="bold"
-          className="font-display"
-        >
-          {member.name.length > 12 ? member.name.substring(0, 12) + '...' : member.name}
-        </text>
-
-        {/* Relationship */}
-        <text
-          x="0"
-          y="32"
-          textAnchor="middle"
-          fill="rgba(255, 215, 0, 0.7)"
-          fontSize="8"
-        >
-          {member.relationship}
-        </text>
-
-        {/* Age */}
-        {member.birthDate && (
-          <text
-            x="0"
-            y="42"
-            textAnchor="middle"
-            fill="rgba(255, 215, 0, 0.5)"
-            fontSize="7"
-          >
-            {member.deathDate ? `${age} years` : `Age ${age}`}
-          </text>
-        )}
-
-        {/* Selection Indicator */}
-        {isSelected && (
-          <circle
-            cx="0"
-            cy="0"
-            r="70"
-            fill="none"
-            stroke="#FFD700"
-            strokeWidth="2"
-            strokeDasharray="5,5"
-            opacity="0.5"
-            className="animate-spin-slow"
-          />
-        )}
-      </g>
-    );
-  };
-
-  const selectedMemberData = selectedMember ? members.find(m => m.id === selectedMember) : null;
+  // Calculate age
+  const calculateAge = (birthDate: string, deathDate?: string) => {
+    const birth = new Date(birthDate)
+    const end = deathDate ? new Date(deathDate) : new Date()
+    return Math.floor((end.getTime() - birth.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex z-50">
-      {/* Main Tree View */}
-      <div className="flex-1 relative overflow-hidden">
-        {/* Controls */}
-        <div className="absolute top-4 left-4 z-10 flex space-x-2">
-          <button
-            onClick={handleZoomIn}
-            className="bg-glass-bg backdrop-blur-lg border border-glass-border text-gold p-2 rounded-lg hover:bg-gold/10 transition-colors"
+    <div className={`relative ${isFullscreen ? 'fixed inset-0 z-50 bg-obsidian-900' : 'h-full'} overflow-hidden`}>
+      {/* Header Controls */}
+      <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gold-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search family members..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/60 focus:outline-none focus:border-gold-400/40"
+            />
+          </div>
+          
+          <select
+            value={filterGeneration || ''}
+            onChange={(e) => setFilterGeneration(e.target.value ? parseInt(e.target.value) : null)}
+            className="px-4 py-2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
           >
-            <ZoomIn className="w-5 h-5" />
-          </button>
-          <button
-            onClick={handleZoomOut}
-            className="bg-glass-bg backdrop-blur-lg border border-glass-border text-gold p-2 rounded-lg hover:bg-gold/10 transition-colors"
-          >
-            <ZoomOut className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="bg-secondary-gradient text-black p-2 rounded-lg hover:scale-105 transition-transform"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
+            <option value="">All Generations</option>
+            {generations.map(gen => (
+              <option key={gen} value={gen}>Generation {gen}</option>
+            ))}
+          </select>
         </div>
 
-        {/* Close Button */}
-        {onClose && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 bg-glass-bg backdrop-blur-lg border border-glass-border text-gold p-2 rounded-lg hover:bg-gold/10 transition-colors"
+            onClick={() => setShowConnections(!showConnections)}
+            className="px-3 py-2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
           >
-            <X className="w-5 h-5" />
+            {showConnections ? 'Hide' : 'Show'} Connections
           </button>
-        )}
-
-        {/* SVG Tree */}
-        <svg
-          ref={svgRef}
-          className="w-full h-full cursor-move"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-        >
-          <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
-            {/* Connections */}
-            {renderConnections()}
-            
-            {/* Members */}
-            {members.map(member => (
-              <MemberCard key={member.id} member={member} />
-            ))}
-          </g>
-        </svg>
-
-        {/* Instructions */}
-        <div className="absolute bottom-4 left-4 bg-glass-bg backdrop-blur-lg border border-glass-border rounded-lg p-3 text-gold/80 text-sm">
-          <div className="flex items-center space-x-2 mb-1">
-            <Move className="w-4 h-4" />
-            <span>Drag to pan • Click members for details</span>
-          </div>
+          
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 
-      {/* Member Details Panel */}
-      {selectedMemberData && (
-        <div className="w-80 bg-glass-bg backdrop-blur-lg border-l border-glass-border p-6 overflow-y-auto">
-          <div className="flex justify-between items-start mb-6">
-            <h3 className="text-xl font-display font-bold text-gold">Member Details</h3>
-            <button
-              onClick={() => setSelectedMember(null)}
-              className="text-gold/60 hover:text-gold transition-colors"
+      {/* Family Tree Canvas */}
+      <div
+        ref={treeRef}
+        className="w-full h-full cursor-grab active:cursor-grabbing"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onWheel={handleWheel}
+      >
+        <div
+          className="relative"
+          style={{
+            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
+            transformOrigin: 'center center',
+            width: '2000px',
+            height: '1000px'
+          }}
+        >
+          {/* Connection Lines */}
+          {showConnections && (
+            <svg
+              ref={svgRef}
+              className="absolute inset-0 pointer-events-none"
+              width="2000"
+              height="1000"
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+              {generateConnections()}
+            </svg>
+          )}
 
-          {/* Member Info */}
-          <div className="space-y-4">
-            <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-secondary-gradient p-1 mx-auto mb-3">
-                <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                  {selectedMemberData.photo ? (
-                    <img src={selectedMemberData.photo} alt="Profile" className="w-full h-full object-cover rounded-full" />
-                  ) : (
-                    <User className="w-10 h-10 text-gold" />
-                  )}
+          {/* Family Members */}
+          {filteredMembers.map((member, index) => (
+            <motion.div
+              key={member.id}
+              className="absolute cursor-pointer"
+              style={{
+                left: member.position.x,
+                top: member.position.y
+              }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ scale: 1.05, zIndex: 10 }}
+              onClick={() => handleMemberClick(member)}
+              onMouseEnter={() => setHoveredMember(member.id)}
+              onMouseLeave={() => setHoveredMember(null)}
+            >
+              <div className={`
+                relative w-32 h-24 rounded-xl border-2 transition-all duration-300
+                ${selectedMember?.id === member.id 
+                  ? 'border-gold-400 bg-gradient-to-br from-gold-900/40 to-obsidian-800/60 shadow-lg shadow-gold-400/20' 
+                  : 'border-gold-500/30 bg-gradient-to-br from-obsidian-800/60 to-obsidian-900/80 hover:border-gold-400/50'
+                }
+                backdrop-blur-sm
+              `}>
+                {/* Member Avatar */}
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-obsidian-900 font-bold text-sm">
+                    {member.name.split(' ').map(n => n[0]).join('')}
+                  </div>
                 </div>
-              </div>
-              <h4 className="text-lg font-display font-bold text-gold">{selectedMemberData.name}</h4>
-              <p className="text-gold/80">{selectedMemberData.relationship}</p>
-            </div>
 
-            {/* Birth/Death Dates */}
-            {selectedMemberData.birthDate && (
-              <div className="bg-black-light border border-gold/20 rounded-lg p-3">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Calendar className="w-4 h-4 text-gold" />
-                  <span className="text-gold font-medium">Life Dates</span>
-                </div>
-                <p className="text-gold/80">
-                  Born: {new Date(selectedMemberData.birthDate).toLocaleDateString()}
-                </p>
-                {selectedMemberData.deathDate && (
-                  <p className="text-gold/80">
-                    Died: {new Date(selectedMemberData.deathDate).toLocaleDateString()}
+                {/* Member Info */}
+                <div className="pt-4 px-2 text-center">
+                  <h3 className="text-gold-100 font-semibold text-xs leading-tight mb-1">
+                    {member.name}
+                  </h3>
+                  <p className="text-gold-400/80 text-xs mb-1">
+                    {member.occupation}
                   </p>
-                )}
-              </div>
-            )}
+                  <p className="text-gold-500/60 text-xs">
+                    {calculateAge(member.birthDate, member.deathDate)} years
+                    {member.deathDate && ' ✝'}
+                  </p>
+                </div>
 
-            {/* Family Connections */}
-            <div className="bg-black-light border border-gold/20 rounded-lg p-3">
-              <div className="flex items-center space-x-2 mb-2">
-                <Users className="w-4 h-4 text-gold" />
-                <span className="text-gold font-medium">Family Connections</span>
+                {/* Generation Indicator */}
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gold-600 text-obsidian-900 text-xs font-bold flex items-center justify-center">
+                  {member.generation}
+                </div>
+              </div>
+
+              {/* Hover Tooltip */}
+              <AnimatePresence>
+                {hoveredMember === member.id && (
+                  <motion.div
+                    className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-20"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="bg-obsidian-800/95 backdrop-blur-sm border border-gold-500/30 rounded-lg p-3 min-w-64 shadow-xl">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="w-4 h-4 text-gold-400" />
+                        <span className="text-gold-100 text-sm">
+                          {new Date(member.birthDate).getFullYear()}
+                          {member.deathDate && ` - ${new Date(member.deathDate).getFullYear()}`}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="w-4 h-4 text-gold-400" />
+                        <span className="text-gold-100 text-sm">{member.birthPlace}</span>
+                      </div>
+                      
+                      <p className="text-gold-300/80 text-sm mb-2">{member.bio}</p>
+                      
+                      {member.achievements.length > 0 && (
+                        <div className="flex items-start gap-2">
+                          <Award className="w-4 h-4 text-gold-400 mt-0.5" />
+                          <div className="text-gold-100 text-sm">
+                            {member.achievements.slice(0, 2).map((achievement, i) => (
+                              <div key={i} className="text-xs text-gold-300/80">• {achievement}</div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Selected Member Detail Panel */}
+      <AnimatePresence>
+        {selectedMember && (
+          <motion.div
+            className="absolute bottom-4 right-4 w-80 bg-obsidian-800/95 backdrop-blur-sm border border-gold-500/30 rounded-xl p-4 shadow-xl"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-gold-100 font-bold text-lg">{selectedMember.name}</h3>
+              <button
+                onClick={() => setSelectedMember(null)}
+                className="text-gold-400 hover:text-gold-300 transition-colors"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gold-400" />
+                <span className="text-gold-100">
+                  {new Date(selectedMember.birthDate).toLocaleDateString()}
+                  {selectedMember.deathDate && ` - ${new Date(selectedMember.deathDate).toLocaleDateString()}`}
+                </span>
               </div>
               
-              {selectedMemberData.parents.length > 0 && (
-                <div className="mb-2">
-                  <p className="text-gold/60 text-sm">Parents:</p>
-                  {selectedMemberData.parents.map(parentId => {
-                    const parent = members.find(m => m.id === parentId);
-                    return parent ? (
-                      <p key={parentId} className="text-gold/80 ml-2">• {parent.name}</p>
-                    ) : null;
-                  })}
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-gold-400" />
+                <span className="text-gold-100">{selectedMember.birthPlace}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-gold-400" />
+                <span className="text-gold-100">{selectedMember.occupation}</span>
+              </div>
+              
+              <p className="text-gold-300/80 mt-3">{selectedMember.bio}</p>
+              
+              {selectedMember.relationships.length > 0 && (
+                <div className="mt-3">
+                  <h4 className="text-gold-100 font-semibold mb-2">Family Connections</h4>
+                  <div className="space-y-1">
+                    {selectedMember.relationships.slice(0, 4).map((rel, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs">
+                        <Heart className="w-3 h-3 text-gold-400" />
+                        <span className="text-gold-300/80 capitalize">{rel.type}:</span>
+                        <span className="text-gold-100">{rel.name}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
-
-              {selectedMemberData.spouse && (
-                <div className="mb-2">
-                  <p className="text-gold/60 text-sm">Spouse:</p>
-                  <p className="text-gold/80 ml-2">• {members.find(m => m.id === selectedMemberData.spouse)?.name}</p>
-                </div>
-              )}
-
-              {selectedMemberData.children.length > 0 && (
-                <div>
-                  <p className="text-gold/60 text-sm">Children:</p>
-                  {selectedMemberData.children.map(childId => {
-                    const child = members.find(m => m.id === childId);
-                    return child ? (
-                      <p key={childId} className="text-gold/80 ml-2">• {child.name}</p>
-                    ) : null;
-                  })}
+              
+              {selectedMember.memories.length > 0 && (
+                <div className="mt-3">
+                  <span className="text-gold-400 text-xs">
+                    {selectedMember.memories.length} memories available
+                  </span>
                 </div>
               )}
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Actions */}
-            <div className="flex space-x-2">
-              <button className="flex-1 bg-secondary-gradient text-black py-2 rounded-lg hover:scale-105 transition-transform font-semibold">
-                <Edit3 className="w-4 h-4 inline mr-2" />
-                Edit
-              </button>
-              <button className="flex-1 border border-gold/30 text-gold py-2 rounded-lg hover:border-gold transition-colors">
-                <Heart className="w-4 h-4 inline mr-2" />
-                Memories
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Zoom Controls */}
+      <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+        <button
+          onClick={() => setZoomLevel(prev => Math.min(2, prev * 1.2))}
+          className="w-10 h-10 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors flex items-center justify-center"
+        >
+          +
+        </button>
+        <button
+          onClick={() => setZoomLevel(prev => Math.max(0.5, prev * 0.8))}
+          className="w-10 h-10 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors flex items-center justify-center"
+        >
+          −
+        </button>
+        <button
+          onClick={() => {
+            setZoomLevel(1)
+            setPanOffset({ x: 0, y: 0 })
+          }}
+          className="w-10 h-10 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors flex items-center justify-center text-xs"
+        >
+          ⌂
+        </button>
+      </div>
     </div>
-  );
+  )
 }
+
+export default FamilyTree

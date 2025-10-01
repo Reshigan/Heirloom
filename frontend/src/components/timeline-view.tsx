@@ -1,388 +1,475 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, Users, Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
-
-interface TimelineEvent {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  time?: string;
-  location?: string;
-  people: string[];
-  photos: string[];
-  type: 'memory' | 'milestone' | 'celebration' | 'achievement';
-  reactions: {
-    likes: number;
-    hearts: number;
-    comments: number;
-  };
-  tags: string[];
-}
+import React, { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Calendar, 
+  MapPin, 
+  Users, 
+  Heart, 
+  Award, 
+  Baby, 
+  GraduationCap, 
+  Briefcase, 
+  Home, 
+  Star,
+  Filter,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Minimize2,
+  Clock,
+  ArrowUp,
+  ArrowDown
+} from 'lucide-react'
+import { mockTimelineEvents, mockFamilyMembers, mockMemories, TimelineEvent } from '../data/mock-family-data'
 
 interface TimelineViewProps {
-  onClose?: () => void;
+  selectedMemberId?: string
+  onEventSelect?: (event: TimelineEvent) => void
 }
 
-export default function TimelineView({ onClose }: TimelineViewProps) {
-  const [selectedYear, setSelectedYear] = useState(2024);
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'year' | 'month' | 'day'>('year');
+const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSelect }) => {
+  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterType, setFilterType] = useState<string>('')
+  const [filterEra, setFilterEra] = useState<string>('')
+  const [filterSignificance, setFilterSignificance] = useState<string>('')
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [viewMode, setViewMode] = useState<'timeline' | 'list'>('timeline')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+  const timelineRef = useRef<HTMLDivElement>(null)
 
-  const timelineEvents: TimelineEvent[] = [
-    {
-      id: '1',
-      title: "Emma's First Birthday",
-      description: "Our little princess turned one! The house was filled with laughter, colorful balloons, and the sweetest cake smash session ever captured.",
-      date: '2024-03-15',
-      time: '14:30',
-      location: 'Home, San Francisco',
-      people: ['Emma Johnson', 'Sarah Johnson', 'Michael Johnson', 'Grandma Rose', 'Uncle Tom'],
-      photos: ['https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400', 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=400'],
-      type: 'milestone',
-      reactions: { likes: 89, hearts: 156, comments: 23 },
-      tags: ['birthday', 'milestone', 'family', 'celebration']
-    },
-    {
-      id: '2',
-      title: "Family Vacation to Yellowstone",
-      description: "An incredible week exploring the wonders of Yellowstone National Park. From geysers to wildlife, every moment was magical.",
-      date: '2024-07-22',
-      time: '09:00',
-      location: 'Yellowstone National Park',
-      people: ['Sarah Johnson', 'Michael Johnson', 'Emma Johnson', 'David Johnson'],
-      photos: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400', 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400'],
-      type: 'memory',
-      reactions: { likes: 67, hearts: 92, comments: 18 },
-      tags: ['vacation', 'nature', 'adventure', 'family-time']
-    },
-    {
-      id: '3',
-      title: "Sarah's Promotion Celebration",
-      description: "After years of hard work, Sarah finally got the promotion she deserved! We celebrated with dinner at her favorite restaurant.",
-      date: '2024-09-10',
-      time: '19:00',
-      location: 'The Golden Gate Restaurant',
-      people: ['Sarah Johnson', 'Michael Johnson', 'Emma Johnson', 'Work Colleagues'],
-      photos: ['https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400'],
-      type: 'achievement',
-      reactions: { likes: 45, hearts: 78, comments: 12 },
-      tags: ['career', 'achievement', 'celebration', 'success']
-    },
-    {
-      id: '4',
-      title: "Thanksgiving Family Gathering",
-      description: "Four generations came together for our traditional Thanksgiving feast. Grandma's recipes, family stories, and gratitude filled the air.",
-      date: '2024-11-28',
-      time: '15:00',
-      location: 'Grandma Rose\'s House',
-      people: ['Grandma Rose', 'Sarah Johnson', 'Michael Johnson', 'Emma Johnson', 'Uncle Tom', 'Aunt Mary', 'Cousins'],
-      photos: ['https://images.unsplash.com/photo-1574972166131-b78c3b4b4b6e?w=400', 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400'],
-      type: 'celebration',
-      reactions: { likes: 123, hearts: 189, comments: 34 },
-      tags: ['thanksgiving', 'family', 'tradition', 'gratitude']
-    },
-    {
-      id: '5',
-      title: "Christmas Morning Magic",
-      description: "Emma's second Christmas was pure magic. Her eyes lit up with wonder at every present, and the joy was infectious throughout the house.",
-      date: '2024-12-25',
-      time: '07:30',
-      location: 'Home, San Francisco',
-      people: ['Emma Johnson', 'Sarah Johnson', 'Michael Johnson', 'Santa Claus'],
-      photos: ['https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400', 'https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=400'],
-      type: 'celebration',
-      reactions: { likes: 156, hearts: 234, comments: 45 },
-      tags: ['christmas', 'holiday', 'magic', 'childhood']
+  // Filter and sort events
+  const filteredEvents = mockTimelineEvents
+    .filter(event => {
+      const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           event.location.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesType = !filterType || event.type === filterType
+      const matchesEra = !filterEra || event.era === filterEra
+      const matchesSignificance = !filterSignificance || event.significance === filterSignificance
+      const matchesMember = !selectedMemberId || event.participants.includes(selectedMemberId)
+      
+      return matchesSearch && matchesType && matchesEra && matchesSignificance && matchesMember
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.date).getTime()
+      const dateB = new Date(b.date).getTime()
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
+    })
+
+  // Get unique eras and types for filters
+  const eras = [...new Set(mockTimelineEvents.map(e => e.era))].sort()
+  const types = [...new Set(mockTimelineEvents.map(e => e.type))]
+
+  const handleEventClick = (event: TimelineEvent) => {
+    setSelectedEvent(event)
+    onEventSelect?.(event)
+  }
+
+  const getEventIcon = (type: string) => {
+    switch (type) {
+      case 'birth': return <Baby className="w-5 h-5" />
+      case 'marriage': return <Heart className="w-5 h-5" />
+      case 'death': return <Star className="w-5 h-5" />
+      case 'achievement': return <Award className="w-5 h-5" />
+      case 'career': return <Briefcase className="w-5 h-5" />
+      case 'family': return <Users className="w-5 h-5" />
+      case 'milestone': return <GraduationCap className="w-5 h-5" />
+      default: return <Calendar className="w-5 h-5" />
     }
-  ];
+  }
 
-  const years = [2020, 2021, 2022, 2023, 2024];
-  const eventTypes = [
-    { type: 'memory', color: 'bg-blue-500', label: 'Memory' },
-    { type: 'milestone', color: 'bg-green-500', label: 'Milestone' },
-    { type: 'celebration', color: 'bg-purple-500', label: 'Celebration' },
-    { type: 'achievement', color: 'bg-orange-500', label: 'Achievement' }
-  ];
+  const getEventColor = (type: string) => {
+    switch (type) {
+      case 'birth': return 'from-green-600 to-green-500'
+      case 'marriage': return 'from-pink-600 to-pink-500'
+      case 'death': return 'from-purple-600 to-purple-500'
+      case 'achievement': return 'from-gold-600 to-gold-500'
+      case 'career': return 'from-blue-600 to-blue-500'
+      case 'family': return 'from-orange-600 to-orange-500'
+      case 'milestone': return 'from-indigo-600 to-indigo-500'
+      default: return 'from-gray-600 to-gray-500'
+    }
+  }
 
-  const filteredEvents = timelineEvents.filter(event => 
-    new Date(event.date).getFullYear() === selectedYear
-  ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const getSignificanceSize = (significance: string) => {
+    switch (significance) {
+      case 'high': return 'w-4 h-4'
+      case 'medium': return 'w-3 h-3'
+      case 'low': return 'w-2 h-2'
+      default: return 'w-3 h-3'
+    }
+  }
 
-  const selectedEventData = selectedEvent ? timelineEvents.find(e => e.id === selectedEvent) : null;
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  };
-
-  const getEventTypeColor = (type: string) => {
-    const eventType = eventTypes.find(et => et.type === type);
-    return eventType ? eventType.color : 'bg-gray-500';
-  };
+  const scrollToYear = (year: number) => {
+    const element = document.getElementById(`year-${year}`)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex z-50">
-      {/* Main Timeline View */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-glass-bg backdrop-blur-lg border-b border-glass-border p-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-3xl font-display font-bold text-gold">Family Timeline</h2>
-              <p className="text-gold/70 mt-1">Journey through your precious memories</p>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {/* Year Selector */}
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setSelectedYear(prev => Math.max(prev - 1, 2020))}
-                  className="p-2 text-gold/60 hover:text-gold transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <span className="text-xl font-bold text-gold min-w-[80px] text-center">{selectedYear}</span>
-                <button
-                  onClick={() => setSelectedYear(prev => Math.min(prev + 1, 2024))}
-                  className="p-2 text-gold/60 hover:text-gold transition-colors"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* View Mode Toggle */}
-              <div className="flex bg-black-light rounded-lg p-1">
-                {['year', 'month', 'day'].map((mode) => (
-                  <button
-                    key={mode}
-                    onClick={() => setViewMode(mode as 'year' | 'month' | 'day')}
-                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                      viewMode === mode 
-                        ? 'bg-secondary-gradient text-black' 
-                        : 'text-gold/60 hover:text-gold'
-                    }`}
-                  >
-                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                  </button>
-                ))}
-              </div>
-
-              {onClose && (
-                <button
-                  onClick={onClose}
-                  className="p-2 text-gold/60 hover:text-gold transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Event Type Legend */}
-          <div className="flex items-center space-x-4 mt-4">
-            <span className="text-gold/60 text-sm">Event Types:</span>
-            {eventTypes.map((type) => (
-              <div key={type.type} className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${type.color.replace('bg-', 'bg-gold')}`}></div>
-                <span className="text-gold/80 text-sm">{type.label}</span>
-              </div>
-            ))}
-          </div>
+    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-obsidian-900' : 'h-full'} flex flex-col`}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gold-500/20">
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl font-bold text-gold-100">Family Timeline</h2>
+          {selectedMemberId && (
+            <span className="text-gold-400/80 text-sm">
+              Events for {mockFamilyMembers.find(m => m.id === selectedMemberId)?.name}
+            </span>
+          )}
         </div>
-
-        {/* Timeline Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-4xl mx-auto">
-            {/* Timeline Line */}
-            <div className="relative">
-              <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gold/30"></div>
-              
-              {/* Timeline Events */}
-              <div className="space-y-8">
-                {filteredEvents.map((event, index) => (
-                  <div key={event.id} className="relative flex items-start space-x-6">
-                    {/* Timeline Dot */}
-                    <div className="relative z-10">
-                      <div className={`w-4 h-4 rounded-full bg-secondary-gradient border-4 border-black`}></div>
-                      <div className="absolute -inset-2 rounded-full bg-gold/20 animate-pulse"></div>
-                    </div>
-
-                    {/* Event Card */}
-                    <div 
-                      className="flex-1 bg-glass-bg backdrop-blur-lg border border-glass-border rounded-2xl p-6 cursor-pointer hover:border-gold/50 transition-all duration-300 hover:scale-[1.02]"
-                      onClick={() => setSelectedEvent(event.id)}
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-xl font-display font-bold text-gold mb-2">{event.title}</h3>
-                          <div className="flex items-center space-x-4 text-gold/60 text-sm">
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="w-4 h-4" />
-                              <span>{formatDate(event.date)}</span>
-                            </div>
-                            {event.time && (
-                              <div className="flex items-center space-x-1">
-                                <Clock className="w-4 h-4" />
-                                <span>{event.time}</span>
-                              </div>
-                            )}
-                            {event.location && (
-                              <div className="flex items-center space-x-1">
-                                <MapPin className="w-4 h-4" />
-                                <span>{event.location}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium bg-gold/20 text-gold`}>
-                          {eventTypes.find(t => t.type === event.type)?.label}
-                        </div>
-                      </div>
-
-                      <p className="text-gold/80 mb-4 line-clamp-2">{event.description}</p>
-
-                      {/* Photos Preview */}
-                      {event.photos.length > 0 && (
-                        <div className="flex space-x-2 mb-4">
-                          {event.photos.slice(0, 3).map((photo, photoIndex) => (
-                            <div key={photoIndex} className="w-16 h-16 rounded-lg overflow-hidden">
-                              <img src={photo} alt="" className="w-full h-full object-cover" />
-                            </div>
-                          ))}
-                          {event.photos.length > 3 && (
-                            <div className="w-16 h-16 rounded-lg bg-gold/20 flex items-center justify-center text-gold text-xs font-medium">
-                              +{event.photos.length - 3}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* People and Reactions */}
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-2">
-                          <Users className="w-4 h-4 text-gold/60" />
-                          <span className="text-gold/60 text-sm">{event.people.length} people</span>
-                        </div>
-                        <div className="flex items-center space-x-4 text-gold/60 text-sm">
-                          <span className="flex items-center space-x-1">
-                            <Heart className="w-4 h-4" />
-                            <span>{event.reactions.hearts}</span>
-                          </span>
-                          <span className="flex items-center space-x-1">
-                            <MessageCircle className="w-4 h-4" />
-                            <span>{event.reactions.comments}</span>
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Tags */}
-                      {event.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {event.tags.map((tag) => (
-                            <span key={tag} className="px-2 py-1 text-xs rounded-full bg-gold/20 text-gold/80">
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            className="p-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+            title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+          >
+            {sortOrder === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+          </button>
+          
+          <button
+            onClick={() => setViewMode(viewMode === 'timeline' ? 'list' : 'timeline')}
+            className="p-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+          >
+            <Clock className="w-4 h-4" />
+          </button>
+          
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 
-      {/* Event Detail Panel */}
-      {selectedEventData && (
-        <div className="w-96 bg-glass-bg backdrop-blur-lg border-l border-glass-border p-6 overflow-y-auto">
-          <div className="flex justify-between items-start mb-6">
-            <h3 className="text-xl font-display font-bold text-gold">Event Details</h3>
-            <button
-              onClick={() => setSelectedEvent(null)}
-              className="text-gold/60 hover:text-gold transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+      {/* Filters */}
+      <div className="flex items-center gap-4 p-4 border-b border-gold-500/20">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gold-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search timeline events..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/60 focus:outline-none focus:border-gold-400/40"
+          />
+        </div>
+        
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+        >
+          <option value="">All Types</option>
+          {types.map(type => (
+            <option key={type} value={type} className="capitalize">{type}</option>
+          ))}
+        </select>
+        
+        <select
+          value={filterEra}
+          onChange={(e) => setFilterEra(e.target.value)}
+          className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+        >
+          <option value="">All Eras</option>
+          {eras.map(era => (
+            <option key={era} value={era}>{era}</option>
+          ))}
+        </select>
+        
+        <select
+          value={filterSignificance}
+          onChange={(e) => setFilterSignificance(e.target.value)}
+          className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+        >
+          <option value="">All Significance</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
 
-          <div className="space-y-6">
-            {/* Event Info */}
-            <div>
-              <h4 className="text-lg font-display font-bold text-gold mb-2">{selectedEventData.title}</h4>
-              <p className="text-gold/80 mb-4">{selectedEventData.description}</p>
+      {/* Timeline Content */}
+      <div className="flex-1 overflow-hidden">
+        {viewMode === 'timeline' ? (
+          <div className="h-full overflow-y-auto" ref={timelineRef}>
+            <div className="relative p-8">
+              {/* Timeline Line */}
+              <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-gold-600 via-gold-500 to-gold-400"></div>
               
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center space-x-2 text-gold/60">
-                  <Calendar className="w-4 h-4" />
-                  <span>{formatDate(selectedEventData.date)}</span>
+              {/* Events */}
+              <div className="space-y-8">
+                {filteredEvents.map((event, index) => {
+                  const eventYear = new Date(event.date).getFullYear()
+                  const isNewYear = index === 0 || new Date(filteredEvents[index - 1].date).getFullYear() !== eventYear
+                  
+                  return (
+                    <div key={event.id}>
+                      {/* Year Marker */}
+                      {isNewYear && (
+                        <div id={`year-${eventYear}`} className="flex items-center gap-4 mb-6">
+                          <div className="relative z-10 px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-full font-bold text-lg">
+                            {eventYear}
+                          </div>
+                          <div className="flex-1 h-0.5 bg-gradient-to-r from-gold-500 to-transparent"></div>
+                        </div>
+                      )}
+                      
+                      {/* Event */}
+                      <motion.div
+                        className="relative flex items-start gap-6 cursor-pointer group"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        onClick={() => handleEventClick(event)}
+                      >
+                        {/* Event Icon */}
+                        <div className={`relative z-10 p-3 bg-gradient-to-br ${getEventColor(event.type)} rounded-full text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                          {getEventIcon(event.type)}
+                          
+                          {/* Significance Indicator */}
+                          <div className={`absolute -top-1 -right-1 ${getSignificanceSize(event.significance)} bg-white rounded-full border-2 border-obsidian-900`}></div>
+                        </div>
+                        
+                        {/* Event Content */}
+                        <div className="flex-1 bg-gradient-to-br from-obsidian-800/60 to-obsidian-900/80 border border-gold-500/20 rounded-xl p-4 hover:border-gold-400/40 transition-all duration-300 group-hover:scale-[1.02]">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-gold-100 font-semibold text-lg">{event.title}</h3>
+                            <span className="text-gold-400/80 text-sm whitespace-nowrap ml-4">
+                              {new Date(event.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          
+                          <p className="text-gold-300/80 text-sm mb-3">{event.description}</p>
+                          
+                          <div className="flex items-center gap-4 text-xs text-gold-500/80">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              <span>{event.location}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              <span>{event.participants.length} people</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3 h-3" />
+                              <span className="capitalize">{event.significance}</span>
+                            </div>
+                          </div>
+                          
+                          {event.memories.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-gold-500/20">
+                              <span className="text-gold-400 text-xs">
+                                {event.memories.length} related memories
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="h-full overflow-y-auto p-4">
+            <div className="space-y-3">
+              {filteredEvents.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  className="flex items-center gap-4 p-4 bg-gradient-to-r from-obsidian-800/60 to-obsidian-900/80 border border-gold-500/20 rounded-xl hover:border-gold-400/40 transition-all duration-300 cursor-pointer"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  onClick={() => handleEventClick(event)}
+                >
+                  <div className={`p-2 bg-gradient-to-br ${getEventColor(event.type)} rounded-lg text-white`}>
+                    {getEventIcon(event.type)}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-gold-100 font-semibold">{event.title}</h3>
+                      <span className="px-2 py-1 bg-gold-500/20 text-gold-300 text-xs rounded capitalize">
+                        {event.type}
+                      </span>
+                    </div>
+                    
+                    <p className="text-gold-400/80 text-sm mb-2 line-clamp-1">
+                      {event.description}
+                    </p>
+                    
+                    <div className="flex items-center gap-4 text-xs text-gold-500/80">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        <span>{new Date(event.date).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        <span>{event.location}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        <span>{event.participants.length} people</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-right">
+                    <div className="text-gold-100 font-semibold text-sm">
+                      {new Date(event.date).getFullYear()}
+                    </div>
+                    <div className="text-gold-400/80 text-xs capitalize">
+                      {event.significance}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {filteredEvents.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-64 text-gold-400/60">
+            <Calendar className="w-16 h-16 mb-4" />
+            <p className="text-lg font-semibold mb-2">No events found</p>
+            <p className="text-sm">Try adjusting your search or filters</p>
+          </div>
+        )}
+      </div>
+
+      {/* Event Detail Modal */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedEvent(null)}
+          >
+            <motion.div
+              className="relative max-w-2xl w-full mx-4 bg-obsidian-900/95 border border-gold-500/30 rounded-2xl overflow-hidden shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center gap-4 p-6 border-b border-gold-500/20">
+                <div className={`p-3 bg-gradient-to-br ${getEventColor(selectedEvent.type)} rounded-full text-white`}>
+                  {getEventIcon(selectedEvent.type)}
                 </div>
-                {selectedEventData.time && (
-                  <div className="flex items-center space-x-2 text-gold/60">
-                    <Clock className="w-4 h-4" />
-                    <span>{selectedEventData.time}</span>
+                
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-gold-100 mb-1">{selectedEvent.title}</h2>
+                  <div className="flex items-center gap-4 text-sm text-gold-400/80">
+                    <span>{new Date(selectedEvent.date).toLocaleDateString()}</span>
+                    <span className="capitalize">{selectedEvent.type}</span>
+                    <span className="capitalize">{selectedEvent.significance} significance</span>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="text-gold-400 hover:text-gold-300 transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+              
+              {/* Content */}
+              <div className="p-6 space-y-4">
+                <div>
+                  <h3 className="text-gold-100 font-semibold mb-2">Description</h3>
+                  <p className="text-gold-300/80">{selectedEvent.description}</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-gold-100 font-semibold mb-2">Location</h3>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-gold-400" />
+                      <span className="text-gold-300">{selectedEvent.location}</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-gold-100 font-semibold mb-2">Era</h3>
+                    <span className="text-gold-300">{selectedEvent.era}</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-gold-100 font-semibold mb-2">Participants</h3>
+                  <div className="space-y-1">
+                    {selectedEvent.participants.map(participantId => {
+                      const participant = mockFamilyMembers.find(m => m.id === participantId)
+                      return participant ? (
+                        <div key={participantId} className="text-gold-300/80">
+                          • {participant.name}
+                        </div>
+                      ) : null
+                    })}
+                  </div>
+                </div>
+                
+                {selectedEvent.memories.length > 0 && (
+                  <div>
+                    <h3 className="text-gold-100 font-semibold mb-2">Related Memories</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {selectedEvent.memories.map(memoryId => {
+                        const memory = mockMemories.find(m => m.id === memoryId)
+                        return memory ? (
+                          <div
+                            key={memoryId}
+                            className="flex items-center gap-2 p-2 bg-obsidian-800/60 rounded-lg border border-gold-500/20 hover:border-gold-400/40 transition-colors cursor-pointer"
+                          >
+                            <img
+                              src={memory.thumbnail}
+                              alt={memory.title}
+                              className="w-8 h-8 object-cover rounded"
+                            />
+                            <span className="text-gold-300 text-sm truncate">{memory.title}</span>
+                          </div>
+                        ) : null
+                      })}
+                    </div>
                   </div>
                 )}
-                {selectedEventData.location && (
-                  <div className="flex items-center space-x-2 text-gold/60">
-                    <MapPin className="w-4 h-4" />
-                    <span>{selectedEventData.location}</span>
-                  </div>
-                )}
               </div>
-            </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Photos */}
-            {selectedEventData.photos.length > 0 && (
-              <div>
-                <h5 className="font-medium text-gold mb-3">Photos</h5>
-                <div className="grid grid-cols-2 gap-2">
-                  {selectedEventData.photos.map((photo, index) => (
-                    <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                      <img src={photo} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* People */}
-            <div>
-              <h5 className="font-medium text-gold mb-3">People ({selectedEventData.people.length})</h5>
-              <div className="space-y-2">
-                {selectedEventData.people.map((person, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-secondary-gradient flex items-center justify-center text-black text-sm font-bold">
-                      {person[0]}
-                    </div>
-                    <span className="text-gold/80">{person}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex space-x-2">
-              <button className="flex-1 bg-secondary-gradient text-black py-2 rounded-lg hover:scale-105 transition-transform font-semibold">
-                <Heart className="w-4 h-4 inline mr-2" />
-                Like
+      {/* Year Navigation */}
+      {viewMode === 'timeline' && (
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg p-2">
+          <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
+            {[...new Set(filteredEvents.map(e => new Date(e.date).getFullYear()))].sort((a, b) => b - a).map(year => (
+              <button
+                key={year}
+                onClick={() => scrollToYear(year)}
+                className="px-2 py-1 text-xs text-gold-300 hover:text-gold-100 hover:bg-gold-500/20 rounded transition-colors"
+              >
+                {year}
               </button>
-              <button className="flex-1 border border-gold/30 text-gold py-2 rounded-lg hover:border-gold transition-colors">
-                <Share2 className="w-4 h-4 inline mr-2" />
-                Share
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
+
+export default TimelineView

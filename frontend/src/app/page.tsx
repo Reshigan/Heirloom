@@ -9,7 +9,8 @@ import FamilyTree from '@/components/family-tree';
 import TimelineView from '@/components/timeline-view';
 import MemoryDetails from '@/components/memory-details';
 import SocialFeatures from '@/components/social-features';
-import RevolutionaryInterface from '@/components/revolutionary-interface';
+import LuxuryHeirloomInterface from '@/components/luxury-heirloom-interface';
+import FuturisticHeirloomInterface from '@/components/futuristic-heirloom-interface';
 import MobileConstellation from '@/components/mobile-constellation';
 import EnhancedParticleSystem from '@/components/ui/enhanced-particle-system';
 import { Upload, Users, User, Clock, Image, MessageCircle, Search, Menu, X, Sparkles, Zap } from 'lucide-react';
@@ -18,7 +19,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [viewMode, setViewMode] = useState<'classic' | 'revolutionary' | 'mobile'>('revolutionary');
+  const [viewMode, setViewMode] = useState<'classic' | 'revolutionary' | 'futuristic' | 'mobile'>('futuristic');
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -30,10 +31,10 @@ export default function Home() {
       setIsMobile(mobile);
       
       // Auto-switch to mobile constellation on mobile devices
-      if (mobile && viewMode === 'revolutionary') {
+      if (mobile && (viewMode === 'revolutionary' || viewMode === 'futuristic')) {
         setViewMode('mobile');
       } else if (!mobile && viewMode === 'mobile') {
-        setViewMode('revolutionary');
+        setViewMode('futuristic');
       }
     };
     
@@ -52,7 +53,7 @@ export default function Home() {
     setActiveModal(null);
   };
 
-  const handleViewModeChange = (mode: 'classic' | 'revolutionary' | 'mobile') => {
+  const handleViewModeChange = (mode: 'classic' | 'revolutionary' | 'futuristic' | 'mobile') => {
     setViewMode(mode);
   };
 
@@ -73,15 +74,20 @@ export default function Home() {
     { id: 'profile', label: 'Profile', icon: User }
   ];
 
+  // Futuristic Interface Mode (Default)
+  if (viewMode === 'futuristic') {
+    return (
+      <div className="relative">
+        <FuturisticHeirloomInterface />
+      </div>
+    );
+  }
+
   // Revolutionary Interface Mode
   if (viewMode === 'revolutionary') {
     return (
       <div className="relative">
-        <EnhancedParticleSystem particleCount={200} />
-        <RevolutionaryInterface 
-          onNavigate={handleRevolutionaryNavigate}
-          onClose={() => setViewMode('classic')}
-        />
+        <LuxuryHeirloomInterface />
       </div>
     );
   }
@@ -141,18 +147,29 @@ export default function Home() {
                   <Menu className="w-4 h-4" />
                 </button>
                 <button
+                  onClick={() => handleViewModeChange('futuristic')}
+                  className={`p-2 rounded transition-all duration-300 ${
+                    viewMode === 'futuristic' 
+                      ? 'bg-secondary-gradient text-black' 
+                      : 'text-gold/60 hover:text-gold'
+                  }`}
+                  title="Futuristic Interface"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </button>
+                <button
                   onClick={() => handleViewModeChange('revolutionary')}
                   className="p-2 rounded transition-all duration-300 text-gold/60 hover:text-gold"
                   title="Revolutionary Interface"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Zap className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleViewModeChange('mobile')}
                   className="p-2 rounded transition-all duration-300 text-gold/60 hover:text-gold"
                   title="Mobile Constellation"
                 >
-                  <Zap className="w-4 h-4" />
+                  <Menu className="w-4 h-4" />
                 </button>
               </div>
             </nav>
