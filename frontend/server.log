@@ -7,304 +7,382 @@
    - Network:      http://0.0.0.0:12001
 
  ✓ Starting...
- ✓ Ready in 1552ms
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 1794ms
  ○ Compiling / ...
- ✓ Compiled / in 4s (2637 modules)
- HEAD / 200 in 4604ms
- HEAD / 200 in 38ms
- GET / 200 in 83ms
- GET / 200 in 46ms
- GET / 200 in 45ms
- GET / 200 in 40ms
- GET / 200 in 46ms
- GET / 200 in 39ms
- GET / 200 in 40ms
+ ✓ Compiled / in 5.4s (2701 modules)
+ GET / 200 in 6051ms
  GET / 200 in 43ms
- ⚠ Cross origin request detected from work-2-qfryhminnhzyeegv.prod-runtime.all-hands.dev to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
-Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
- GET / 200 in 45ms
- GET / 200 in 49ms
- GET / 200 in 42ms
- GET / 200 in 39ms
- GET / 200 in 41ms
- GET / 200 in 41ms
- GET / 200 in 36ms
- GET / 200 in 43ms
- GET / 200 in 39ms
- GET / 200 in 36ms
- GET / 200 in 55ms
  GET / 200 in 37ms
- GET / 200 in 47ms
+ GET / 200 in 60ms
  GET / 200 in 42ms
- GET / 200 in 36ms
- GET / 200 in 47ms
- GET / 200 in 35ms
- GET / 200 in 42ms
- GET / 200 in 35ms
- GET / 200 in 42ms
- GET / 200 in 43ms
- GET / 200 in 65ms
- GET / 200 in 42ms
- GET / 200 in 43ms
- GET / 200 in 39ms
- GET / 200 in 36ms
- GET / 200 in 37ms
- GET / 200 in 43ms
- ✓ Compiled in 1446ms (1273 modules)
- GET / 200 in 26ms
- GET / 200 in 40ms
- GET / 200 in 36ms
- GET / 200 in 42ms
- GET / 200 in 34ms
- GET / 200 in 38ms
  GET / 200 in 44ms
+ GET / 200 in 57ms
  GET / 200 in 39ms
  GET / 200 in 40ms
- GET / 200 in 36ms
- GET / 200 in 33ms
- GET / 200 in 37ms
- GET / 200 in 35ms
- GET / 200 in 37ms
- GET / 200 in 37ms
- GET / 200 in 36ms
+ GET / 200 in 42ms
+ GET / 200 in 47ms
+ GET / 200 in 41ms
+ GET / 200 in 41ms
  GET / 200 in 38ms
- GET / 200 in 36ms
+ GET / 200 in 45ms
  GET / 200 in 40ms
- GET / 200 in 36ms
  GET / 200 in 34ms
- GET / 200 in 62ms
- GET / 200 in 53ms
- GET / 200 in 46ms
- GET / 200 in 40ms
- GET / 200 in 40ms
- ✓ Compiled in 517ms (1273 modules)
- GET / 200 in 23ms
- ✓ Compiled in 1225ms (2645 modules)
- GET / 200 in 106ms
- ✓ Compiled in 524ms (2645 modules)
- GET / 200 in 89ms
- ⚠ ./src/app/page.tsx
-Attempted import error: '@/components/family-tree' does not contain a default export (imported as 'FamilyTree').
-
-Import trace for requested module:
-./src/app/page.tsx
-
-./src/app/page.tsx
-Attempted import error: '@/components/family-tree' does not contain a default export (imported as 'FamilyTree').
-
-Import trace for requested module:
-./src/app/page.tsx
- GET / 200 in 149ms
- ⚠ ./src/app/page.tsx
-Attempted import error: '@/components/family-tree' does not contain a default export (imported as 'FamilyTree').
-
-Import trace for requested module:
-./src/app/page.tsx
-
-./src/app/page.tsx
-Attempted import error: '@/components/family-tree' does not contain a default export (imported as 'FamilyTree').
-
-Import trace for requested module:
-./src/app/page.tsx
- GET / 200 in 54ms
- ⨯ ./src/components/family-tree.tsx
-Error: 
-
-Caused by:
-    0: Failed to read source code from /workspace/project/Heirloom/frontend/src/components/family-tree.tsx
-    1: No such file or directory (os error 2)
-
-Import trace for requested module:
-./src/components/family-tree.tsx
-./src/app/page.tsx
- ✓ Compiled in 2s (2653 modules)
- GET / 200 in 112ms
- ✓ Compiled in 568ms (1274 modules)
- GET / 200 in 29ms
- GET / 200 in 353ms
- ⨯ ./src/components/timeline-view.tsx
-Error: 
-
-Caused by:
-    0: Failed to read source code from /workspace/project/Heirloom/frontend/src/components/timeline-view.tsx
-    1: No such file or directory (os error 2)
-
-Import trace for requested module:
-./src/components/timeline-view.tsx
-./src/app/page.tsx
- ○ Compiling /_error ...
- ⨯ ./src/components/timeline-view.tsx
-Error: 
-
-Caused by:
-    0: Failed to read source code from /workspace/project/Heirloom/frontend/src/components/timeline-view.tsx
-    1: No such file or directory (os error 2)
-
-Import trace for requested module:
-./src/components/timeline-view.tsx
-./src/app/page.tsx
- GET / 500 in 1699ms
- GET / 500 in 351ms
- GET / 500 in 14ms
- GET / 500 in 11ms
- GET / 500 in 12ms
- GET / 500 in 13ms
- GET / 500 in 12ms
- GET / 500 in 21ms
- GET / 500 in 18ms
- GET / 500 in 18ms
- GET / 500 in 15ms
- GET / 500 in 18ms
- GET / 500 in 16ms
- GET / 500 in 18ms
- ✓ Compiled /_error in 2.4s (3005 modules)
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
- GET / 200 in 450ms
+ GET / 200 in 45ms
+ GET / 200 in 34ms
+ GET / 200 in 75ms
  GET / 200 in 33ms
- ✓ Compiled /favicon.ico in 453ms (1590 modules)
- GET /favicon.ico 200 in 578ms
- GET / 200 in 396ms
- ⨯ ./src/components/user-profile.tsx
-Error: 
-
-Caused by:
-    0: Failed to read source code from /workspace/project/Heirloom/frontend/src/components/user-profile.tsx
-    1: No such file or directory (os error 2)
-
-Import trace for requested module:
-./src/components/user-profile.tsx
-./src/app/page.tsx
- ⨯ ./src/components/user-profile.tsx
-Error: 
-
-Caused by:
-    0: Failed to read source code from /workspace/project/Heirloom/frontend/src/components/user-profile.tsx
-    1: No such file or directory (os error 2)
-
-Import trace for requested module:
-./src/components/user-profile.tsx
-./src/app/page.tsx
- GET / 500 in 345ms
- ○ Compiling /_error ...
- GET / 500 in 17ms
- GET / 500 in 12ms
- GET / 500 in 13ms
- GET / 500 in 12ms
- ✓ Compiled /_error in 2.1s (3017 modules)
- GET / 200 in 152ms
- ✓ Compiled /favicon.ico in 208ms (1596 modules)
- GET /favicon.ico 200 in 302ms
- GET / 200 in 399ms
- ✓ Compiled in 669ms (2941 modules)
- GET / 200 in 135ms
- GET / 200 in 292ms
+ GET / 200 in 33ms
+ GET / 200 in 35ms
  GET / 200 in 31ms
- ⨯ ./src/components/luxury-heirloom-interface.tsx
-Error:   [31mx[0m Expected ';', '}' or <eof>
-    ,-[[36;1;4m/workspace/project/Heirloom/frontend/src/components/luxury-heirloom-interface.tsx[0m:46:1]
- [2m43[0m |       icon: React.ComponentType<any>
- [2m44[0m |       color: string
- [2m45[0m |     }
- [2m46[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m     date: "December 3, 2015",
- [2m47[0m | [35;1m|[0m[35;1m-[0m[35;1m>[0m     location: "Boston General Hospital",
-    : [35;1m`[0m[35;1m---[0m[33;1m            ^[0m
-    : [35;1m`[0m[35;1m---[0m[35;1m-[0m [35;1mThis is the expression part of an expression statement[0m
- [2m48[0m |         description: "The continuation of our family story",
- [2m49[0m |         gradient: "linear-gradient(135deg, #1a1a1a, #2a2a2a)"
- [2m50[0m |       },
-    `----
-
-Caused by:
-    Syntax Error
-
-Import trace for requested module:
-./src/components/luxury-heirloom-interface.tsx
-./src/app/page.tsx
- ⨯ ./src/components/luxury-heirloom-interface.tsx
-Error:   [31mx[0m Expected ';', '}' or <eof>
-    ,-[[36;1;4m/workspace/project/Heirloom/frontend/src/components/luxury-heirloom-interface.tsx[0m:46:1]
- [2m43[0m |       icon: React.ComponentType<any>
- [2m44[0m |       color: string
- [2m45[0m |     }
- [2m46[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m     date: "December 3, 2015",
- [2m47[0m | [35;1m|[0m[35;1m-[0m[35;1m>[0m     location: "Boston General Hospital",
-    : [35;1m`[0m[35;1m---[0m[33;1m            ^[0m
-    : [35;1m`[0m[35;1m---[0m[35;1m-[0m [35;1mThis is the expression part of an expression statement[0m
- [2m48[0m |         description: "The continuation of our family story",
- [2m49[0m |         gradient: "linear-gradient(135deg, #1a1a1a, #2a2a2a)"
- [2m50[0m |       },
-    `----
-
-Caused by:
-    Syntax Error
-
-Import trace for requested module:
-./src/components/luxury-heirloom-interface.tsx
-./src/app/page.tsx
- GET / 500 in 713ms
- ○ Compiling /_error ...
- GET / 500 in 15ms
- GET / 500 in 17ms
- ⨯ ./src/components/luxury-heirloom-interface.tsx
-Error: 
-
-Caused by:
-    0: Failed to read source code from /workspace/project/Heirloom/frontend/src/components/luxury-heirloom-interface.tsx
-    1: No such file or directory (os error 2)
-
-Import trace for requested module:
-./src/components/luxury-heirloom-interface.tsx
-./src/app/page.tsx
- GET / 500 in 11ms
- GET / 500 in 12ms
- GET / 500 in 13ms
- GET / 500 in 17ms
- GET / 500 in 30ms
- GET / 500 in 17ms
- GET / 500 in 16ms
- ✓ Compiled /_error in 1510ms (3029 modules)
- GET / 200 in 158ms
- GET / 200 in 307ms
+ GET / 200 in 40ms
+ GET / 200 in 36ms
+ GET / 200 in 38ms
+ GET / 200 in 33ms
+ GET / 200 in 39ms
+ GET / 200 in 31ms
+ GET / 200 in 41ms
+ GET / 200 in 35ms
+ GET / 200 in 39ms
+ GET / 200 in 34ms
+ GET / 200 in 37ms
+ GET / 200 in 31ms
+ GET / 200 in 36ms
+ GET / 200 in 37ms
+ GET / 200 in 31ms
+ GET / 200 in 50ms
+ GET / 200 in 34ms
+ GET / 200 in 40ms
+ GET / 200 in 34ms
+ GET / 200 in 30ms
+ GET / 200 in 37ms
+ GET / 200 in 32ms
+ GET / 200 in 35ms
+ GET / 200 in 42ms
+ GET / 200 in 36ms
+ GET / 200 in 30ms
+ GET / 200 in 36ms
+ GET / 200 in 29ms
+ GET / 200 in 35ms
+ GET / 200 in 31ms
+ GET / 200 in 36ms
+ GET / 200 in 31ms
+ GET / 200 in 31ms
+ GET / 200 in 38ms
+ GET / 200 in 38ms
+ GET / 200 in 32ms
  GET / 200 in 48ms
- GET / 200 in 45ms
- GET / 200 in 51ms
- GET / 200 in 55ms
- GET / 200 in 40ms
- GET / 200 in 38ms
- GET / 200 in 43ms
- GET / 200 in 43ms
- GET / 200 in 41ms
- GET / 200 in 36ms
+ GET / 200 in 31ms
+ GET / 200 in 31ms
+ GET / 200 in 42ms
  GET / 200 in 39ms
- GET / 200 in 40ms
- GET / 200 in 34ms
- GET / 200 in 46ms
- GET / 200 in 34ms
- GET / 200 in 41ms
- GET / 200 in 32ms
- GET / 200 in 40ms
+ GET / 200 in 42ms
+ GET / 200 in 39ms
  GET / 200 in 33ms
  GET / 200 in 38ms
- GET / 200 in 35ms
- GET / 200 in 41ms
- GET / 200 in 33ms
  GET / 200 in 38ms
- GET / 200 in 33ms
- GET / 200 in 82ms
- GET / 200 in 41ms
- GET / 200 in 45ms
- GET / 200 in 32ms
- GET / 200 in 46ms
- GET / 200 in 38ms
- GET / 200 in 35ms
- GET / 200 in 45ms
- GET / 200 in 33ms
- GET / 200 in 41ms
- GET / 200 in 33ms
- GET / 200 in 41ms
  GET / 200 in 36ms
+ GET / 200 in 41ms
+ GET / 200 in 33ms
+ GET / 200 in 41ms
+ GET / 200 in 33ms
+ GET / 200 in 39ms
+ GET / 200 in 57ms
+ GET / 200 in 32ms
+ GET / 200 in 30ms
+ GET / 200 in 35ms
+ GET / 200 in 31ms
  GET / 200 in 39ms
  GET / 200 in 32ms
- ✓ Compiled in 675ms (1443 modules)
- GET / 200 in 25ms
- GET / 200 in 17ms
+ GET / 200 in 36ms
+ GET / 200 in 32ms
+ GET / 200 in 38ms
+ GET / 200 in 30ms
+ GET / 200 in 38ms
+ GET / 200 in 31ms
+ GET / 200 in 38ms
+ GET / 200 in 30ms
+ GET / 200 in 38ms
+ GET / 200 in 31ms
+ GET / 200 in 32ms
+ GET / 200 in 44ms
+ GET / 200 in 30ms
+ GET / 200 in 32ms
+ GET / 200 in 30ms
+ GET / 200 in 63ms
+ GET / 200 in 34ms
+ GET / 200 in 45ms
+ GET / 200 in 42ms
+ GET / 200 in 38ms
+ GET / 200 in 39ms
+ GET / 200 in 36ms
+ GET / 200 in 34ms
+ GET / 200 in 37ms
+ GET / 200 in 43ms
+ GET / 200 in 35ms
+ GET / 200 in 39ms
+ GET / 200 in 33ms
+ GET / 200 in 47ms
+ GET / 200 in 34ms
+ GET / 200 in 45ms
+ GET / 200 in 67ms
+ GET / 200 in 33ms
+ GET / 200 in 34ms
+ GET / 200 in 44ms
+ GET / 200 in 30ms
+ GET / 200 in 42ms
+ GET / 200 in 30ms
+ GET / 200 in 40ms
+ GET / 200 in 32ms
+ GET / 200 in 43ms
+ GET / 200 in 30ms
+ ✓ Compiled in 582ms (1298 modules)
+ ✓ Compiled in 610ms (1298 modules)
+ GET / 200 in 39ms
+ GET / 200 in 54ms
+ GET / 200 in 52ms
+ GET / 200 in 45ms
+ GET / 200 in 34ms
+ GET / 200 in 34ms
+ GET / 200 in 35ms
+ GET / 200 in 36ms
+ GET / 200 in 42ms
+ GET / 200 in 33ms
+ GET / 200 in 36ms
+ GET / 200 in 33ms
+ GET / 200 in 37ms
+ ✓ Compiled in 530ms (1298 modules)
+ GET / 200 in 34ms
+ GET / 200 in 34ms
+ GET / 200 in 35ms
+ GET / 200 in 43ms
+ GET / 200 in 38ms
+ GET / 200 in 31ms
+ GET / 200 in 39ms
+ GET / 200 in 32ms
+ GET / 200 in 37ms
+ GET / 200 in 30ms
+ GET / 200 in 36ms
+ GET / 200 in 32ms
+ GET / 200 in 38ms
+ GET / 200 in 36ms
+ ✓ Compiled in 572ms (1298 modules)
+ ✓ Compiled in 1449ms (2701 modules)
+ ✓ Compiled in 521ms (2701 modules)
+ ✓ Compiled in 511ms (2701 modules)
+ ✓ Compiled in 360ms (1298 modules)
+ ⚠ ./src/components/share-invite-system.tsx
+Attempted import error: 'WhatsApp' is not exported from '__barrel_optimize__?names=AlertCircle,CheckCircle,Clock,Copy,Facebook,FileText,Heart,Instagram,Link,Linkedin,Mail,QrCode,Send,Share2,Star,Twitter,UserPlus,Users,WhatsApp!=!lucide-react' (imported as 'WhatsApp').
+
+Import trace for requested module:
+./src/components/share-invite-system.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+
+./src/components/storage-optimizer.tsx
+Attempted import error: 'Compress' is not exported from '__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Compress,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react' (imported as 'Compress').
+
+Import trace for requested module:
+./src/components/storage-optimizer.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+
+./src/components/storage-optimizer.tsx
+Attempted import error: 'Compress' is not exported from '__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Compress,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react' (imported as 'Compress').
+
+Import trace for requested module:
+./src/components/storage-optimizer.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+
+./src/components/storage-optimizer.tsx
+Attempted import error: 'Compress' is not exported from '__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Compress,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react' (imported as 'Compress').
+
+Import trace for requested module:
+./src/components/storage-optimizer.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+ ⨯ ./src/components/storage-optimizer.tsx
+Module parse failed: Identifier 'Archive' has already been declared (5:123)
+| import React, { useState } from 'react';
+| import { motion, AnimatePresence } from 'framer-motion';
+> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
+| const StorageOptimizer = ()=>{
+|     _s();
+
+Import trace for requested module:
+./src/components/storage-optimizer.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+ ⨯ ./src/components/storage-optimizer.tsx
+Module parse failed: Identifier 'Archive' has already been declared (5:123)
+| import React, { useState } from 'react';
+| import { motion, AnimatePresence } from 'framer-motion';
+> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
+| const StorageOptimizer = ()=>{
+|     _s();
+
+Import trace for requested module:
+./src/components/storage-optimizer.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+ ⨯ ./src/components/storage-optimizer.tsx
+Module parse failed: Identifier 'Archive' has already been declared (5:123)
+| import React, { useState } from 'react';
+| import { motion, AnimatePresence } from 'framer-motion';
+> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
+| const StorageOptimizer = ()=>{
+|     _s();
+
+Import trace for requested module:
+./src/components/storage-optimizer.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+ ⨯ ./src/components/storage-optimizer.tsx
+Module parse failed: Identifier 'Archive' has already been declared (5:123)
+| import React, { useState } from 'react';
+| import { motion, AnimatePresence } from 'framer-motion';
+> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
+| const StorageOptimizer = ()=>{
+|     _s();
+
+Import trace for requested module:
+./src/components/storage-optimizer.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+ ⨯ ./src/components/share-invite-system.tsx
+Module parse failed: Identifier 'MessageCircle' has already been declared (5:134)
+| import React, { useState } from 'react';
+| import { motion, AnimatePresence } from 'framer-motion';
+> import { Share2, Users, Mail, Link, QrCode, Copy, Send, UserPlus, Heart, Star, MessageCircle, Facebook, Twitter, Instagram, Linkedin, MessageCircle, CheckCircle, Clock, AlertCircle, FileText } from "__barrel_optimize__?names=AlertCircle,CheckCircle,Clock,Copy,Facebook,FileText,Heart,Instagram,Link,Linkedin,Mail,MessageCircle,QrCode,Send,Share2,Star,Twitter,UserPlus,Users!=!lucide-react";
+| const ShareInviteSystem = ()=>{
+|     _s();
+
+Import trace for requested module:
+./src/components/share-invite-system.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+ ⨯ ./src/components/storage-optimizer.tsx
+Module parse failed: Identifier 'Archive' has already been declared (5:123)
+| import React, { useState } from 'react';
+| import { motion, AnimatePresence } from 'framer-motion';
+> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
+| const StorageOptimizer = ()=>{
+|     _s();
+
+Import trace for requested module:
+./src/components/storage-optimizer.tsx
+./src/components/futuristic-heirloom-interface.tsx
+./src/app/page.tsx
+ ✓ Compiled in 444ms (1332 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 1423ms (1437 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json',
+  page: '/'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1082ms (3095 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'
+}
+ GET / 500 in 5160ms
+ GET / 500 in 304ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1175ms (3100 modules)
+ GET / 404 in 1354ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/app/page.js'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/server/app/page.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/app/page.js'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/server/app/page.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 265ms
+ GET / 500 in 48ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/app/page.js'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/server/app/page.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/app/page.js'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/server/app/page.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'] {
+  errno: -2,
+  syscall: 'open',
+  code: 'ENOENT',
+  path: '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 134ms
+ GET / 500 in 42ms

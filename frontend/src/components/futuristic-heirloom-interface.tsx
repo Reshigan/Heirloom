@@ -33,15 +33,23 @@ import {
   Upload,
   Play,
   Pause,
-  Volume2
+  Volume2,
+  Key,
+  CreditCard,
+  HardDrive,
+  UserPlus
 } from 'lucide-react'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
 import UserProfile from './user-profile'
+import LegacyTokenManager from './legacy-token-manager'
+import PricingManager from './pricing-manager'
+import StorageOptimizer from './storage-optimizer'
+import ShareInviteSystem from './share-invite-system'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share'
 
 interface MemoryOrb {
   id: string
@@ -225,13 +233,17 @@ export default function FuturisticHeirloomInterface() {
           <h1 className="font-serif text-2xl text-gold-400 tracking-[0.3em]">HEIRLOOM</h1>
         </div>
         
-        <ul className="hidden md:flex gap-12 text-xs uppercase tracking-[0.2em] text-gold-200/70">
+        <ul className="hidden md:flex gap-8 text-xs uppercase tracking-[0.2em] text-gold-200/70">
           {[
             { id: 'memories', label: 'Memories' },
             { id: 'timeline', label: 'Timeline' },
             { id: 'heritage', label: 'Heritage' },
             { id: 'wisdom', label: 'Wisdom' },
-            { id: 'family', label: 'Family' }
+            { id: 'family', label: 'Family' },
+            { id: 'tokens', label: 'Legacy' },
+            { id: 'pricing', label: 'Plans' },
+            { id: 'storage', label: 'Storage' },
+            { id: 'share', label: 'Share' }
           ].map(item => (
             <li
               key={item.id}
@@ -413,6 +425,54 @@ export default function FuturisticHeirloomInterface() {
               className="h-screen"
             >
               <FamilyTree onMemberSelect={setSelectedMember} />
+            </motion.div>
+          )}
+
+          {currentView === 'tokens' && (
+            <motion.div
+              key="tokens-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <LegacyTokenManager />
+            </motion.div>
+          )}
+
+          {currentView === 'pricing' && (
+            <motion.div
+              key="pricing-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <PricingManager />
+            </motion.div>
+          )}
+
+          {currentView === 'storage' && (
+            <motion.div
+              key="storage-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <StorageOptimizer />
+            </motion.div>
+          )}
+
+          {currentView === 'share' && (
+            <motion.div
+              key="share-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <ShareInviteSystem />
             </motion.div>
           )}
         </AnimatePresence>
