@@ -83,7 +83,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
       <div className="bg-black border border-gold/30 rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-display font-bold text-gold">Upload Memory</h2>
+          <h2 className="text-2xl font-display font-bold text-gold">💛 Preserve a Precious Memory</h2>
           {onClose && (
             <button
               onClick={onClose}
@@ -107,10 +107,10 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
           onDrop={handleDrop}
         >
           <Upload className="w-12 h-12 text-gold mx-auto mb-4" />
-          <p className="text-gold text-lg mb-2">Drag and drop your files here</p>
+          <p className="text-gold text-lg mb-2">Share your treasured moments with us</p>
           <p className="text-gold/60 mb-4">or</p>
           <label className="inline-block bg-secondary-gradient text-black px-6 py-3 rounded-lg cursor-pointer hover:scale-105 transition-transform font-semibold">
-            Choose Files
+            Choose Memories to Cherish
             <input
               type="file"
               multiple
@@ -152,29 +152,29 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
         {/* Memory Details Form */}
         <div className="space-y-4">
           <div>
-            <label className="block text-gold font-medium mb-2">Title</label>
+            <label className="block text-gold font-medium mb-2">💫 Memory Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full bg-black-light border border-gold/30 rounded-lg px-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
-              placeholder="Give your memory a title..."
+              placeholder="What makes this moment special?"
             />
           </div>
 
           <div>
-            <label className="block text-gold font-medium mb-2">Description</label>
+            <label className="block text-gold font-medium mb-2">💛 The Story Behind</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               className="w-full bg-black-light border border-gold/30 rounded-lg px-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors resize-none"
-              placeholder="Tell the story behind this memory..."
+              placeholder="Share the love, laughter, and emotions of this precious moment..."
             />
           </div>
 
           <div>
-            <label className="block text-gold font-medium mb-2">Date</label>
+            <label className="block text-gold font-medium mb-2">📅 When Love Was Captured</label>
             <input
               type="date"
               value={date}
@@ -184,7 +184,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
           </div>
 
           <div>
-            <label className="block text-gold font-medium mb-2">Tags</label>
+            <label className="block text-gold font-medium mb-2">🏷️ Memory Tags</label>
             <div className="flex space-x-2 mb-3">
               <input
                 type="text"
@@ -192,7 +192,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
                 onChange={(e) => setCurrentTag(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addTag()}
                 className="flex-1 bg-black-light border border-gold/30 rounded-lg px-4 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
-                placeholder="Add a tag..."
+                placeholder="family, celebration, love..."
               />
               <button
                 onClick={addTag}
@@ -237,7 +237,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
             disabled={files.length === 0}
             className="px-6 py-3 bg-secondary-gradient text-black rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
           >
-            Upload Memory
+            💛 Preserve Forever
           </button>
         </div>
       </div>

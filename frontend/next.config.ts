@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
   experimental: {
     serverComponentsExternalPackages: [],
   },
+  // Allow external hosts
+  async rewrites() {
+    return []
+  },
   images: {
     remotePatterns: [
       {
