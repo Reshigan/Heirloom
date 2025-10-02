@@ -2,298 +2,124 @@
 > frontend@0.1.0 dev
 > next dev --port 12000 --hostname 0.0.0.0
 
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'serverComponentsExternalPackages' at "experimental"
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ⚠ `experimental.serverComponentsExternalPackages` has been moved to `serverExternalPackages`. Please update your next.config.ts file accordingly.
    ▲ Next.js 15.5.4
    - Local:        http://localhost:12000
    - Network:      http://0.0.0.0:12000
+   - Experiments (use with caution):
+     · serverComponentsExternalPackages
 
  ✓ Starting...
- ✓ Ready in 1478ms
+ ✓ Ready in 1633ms
  ○ Compiling / ...
- ✓ Compiled / in 2.9s (1549 modules)
- GET / 200 in 3362ms
+ ✓ Compiled / in 2.2s (1535 modules)
+ GET / 200 in 2719ms
+ GET / 200 in 50ms
+ GET / 200 in 51ms
+ GET / 200 in 38ms
+ GET / 200 in 48ms
+ GET / 200 in 48ms
+ GET / 200 in 52ms
+ GET / 200 in 45ms
+ GET / 200 in 42ms
+ GET / 200 in 51ms
+ GET / 200 in 45ms
+ GET / 200 in 45ms
+ GET / 200 in 45ms
+ GET / 200 in 47ms
+ GET / 200 in 42ms
+ GET / 200 in 51ms
+ GET / 200 in 63ms
+ GET / 200 in 40ms
+ GET / 200 in 37ms
+ GET / 200 in 41ms
+ GET / 200 in 38ms
+ GET / 200 in 49ms
+ GET / 200 in 34ms
+ GET / 200 in 44ms
+ GET / 200 in 36ms
+ GET / 200 in 57ms
+ GET / 200 in 34ms
+ GET / 200 in 51ms
+ GET / 200 in 35ms
+ GET / 200 in 63ms
+ GET / 200 in 41ms
+ GET / 200 in 33ms
+ GET / 200 in 48ms
+ GET / 200 in 48ms
+ GET / 200 in 44ms
+ GET / 200 in 32ms
+ GET / 200 in 55ms
+ GET / 200 in 35ms
+ GET / 200 in 41ms
+ GET / 200 in 40ms
+ GET / 200 in 41ms
+ GET / 200 in 41ms
+ GET / 200 in 55ms
+ GET / 200 in 78ms
+ GET / 200 in 43ms
+ GET / 200 in 33ms
+ GET / 200 in 46ms
+ GET / 200 in 41ms
+ GET / 200 in 45ms
+ GET / 200 in 50ms
+ GET / 200 in 36ms
+ GET / 200 in 36ms
+ GET / 200 in 36ms
+ GET / 200 in 40ms
  ⚠ Cross origin request detected from work-1-gpixzxxrswtqhjob.prod-runtime.all-hands.dev to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
 Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
- GET / 200 in 101ms
- GET / 200 in 90ms
+ GET / 200 in 36ms
+ GET / 200 in 36ms
  GET / 200 in 48ms
- GET / 200 in 52ms
- GET / 200 in 54ms
- GET / 200 in 50ms
+ GET / 200 in 47ms
+ GET / 200 in 53ms
+ GET / 200 in 44ms
+ GET / 200 in 43ms
+ GET / 200 in 40ms
+ GET / 200 in 41ms
+ GET / 200 in 41ms
+ GET / 200 in 45ms
+ GET / 200 in 42ms
+ GET / 200 in 57ms
+ GET / 200 in 43ms
+ GET / 200 in 36ms
+ GET / 200 in 44ms
+ GET / 200 in 39ms
+ GET / 200 in 44ms
+ ✓ Compiled in 1318ms (1549 modules)
+ GET / 200 in 193ms
+ GET / 200 in 214ms
+ GET / 200 in 40ms
  GET / 200 in 51ms
- GET / 200 in 41ms
- GET / 200 in 46ms
- GET / 200 in 56ms
- GET / 200 in 53ms
- GET / 200 in 67ms
- GET / 200 in 40ms
- GET / 200 in 43ms
- GET / 200 in 41ms
- GET / 200 in 42ms
- GET / 200 in 47ms
- GET / 200 in 47ms
- GET / 200 in 48ms
- GET / 200 in 36ms
- GET / 200 in 45ms
- GET / 200 in 54ms
- GET / 200 in 46ms
- GET / 200 in 43ms
- GET / 200 in 43ms
- GET / 200 in 78ms
- GET / 200 in 39ms
- GET / 200 in 40ms
- GET / 200 in 56ms
- GET / 200 in 50ms
- GET / 200 in 44ms
- GET / 200 in 41ms
- GET / 200 in 39ms
- GET / 200 in 48ms
- GET / 200 in 48ms
- ✓ Compiled in 1339ms (1549 modules)
- GET / 200 in 1044ms
- GET / 200 in 320ms
- GET / 200 in 50ms
- GET / 200 in 47ms
- ✓ Compiled in 487ms (1549 modules)
- GET / 200 in 118ms
- GET / 200 in 22ms
- GET / 200 in 174ms
- GET / 200 in 42ms
- GET / 200 in 43ms
- GET / 200 in 35ms
- ✓ Compiled in 494ms (1549 modules)
- GET / 200 in 70ms
- GET / 200 in 28ms
- ✓ Compiled in 432ms (1549 modules)
- GET / 200 in 67ms
- GET / 200 in 24ms
- ⨯ ./src/components/timeline-view.tsx
-Error:   [31mx[0m Expected '</', got 'jsx text (
-  [31m|[0m                     )'
-     ,-[[36;1;4m/workspace/project/Heirloom/frontend/src/components/timeline-view.tsx[0m:284:1]
- [2m281[0m |                                 </div>
- [2m282[0m |                               )}
- [2m283[0m |                             </div>
- [2m284[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m                       </motion.div>
- [2m285[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m                     </div>
- [2m286[0m |                       )
- [2m287[0m |                     })}
- [2m288[0m |                   </div>
-     `----
-
-Caused by:
-    Syntax Error
-
-Import trace for requested module:
-./src/components/timeline-view.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
- ✓ Compiled in 850ms (1549 modules)
- GET / 200 in 135ms
- GET / 200 in 24ms
- ✓ Compiled in 656ms (1549 modules)
- GET / 200 in 119ms
- GET / 200 in 21ms
- ✓ Compiled in 406ms (1549 modules)
- GET / 200 in 81ms
- GET / 200 in 21ms
- ✓ Compiled in 554ms (1549 modules)
- GET / 200 in 71ms
- GET / 200 in 24ms
- ✓ Compiled in 551ms (1549 modules)
- GET / 200 in 90ms
- GET / 200 in 38ms
- ✓ Compiled in 680ms (1549 modules)
- GET / 200 in 111ms
- GET / 200 in 25ms
- ✓ Compiled in 705ms (1549 modules)
- GET / 200 in 134ms
- GET / 200 in 23ms
- ✓ Compiled in 439ms (1549 modules)
- GET / 200 in 78ms
- GET / 200 in 23ms
- ✓ Compiled in 660ms (1549 modules)
- GET / 200 in 68ms
- GET / 200 in 24ms
- GET / 200 in 194ms
- ✓ Compiled in 436ms (1549 modules)
- GET / 200 in 85ms
- GET / 200 in 22ms
- GET / 200 in 229ms
- GET / 200 in 56ms
- GET / 200 in 42ms
- GET / 200 in 42ms
- ✓ Compiled in 566ms (1549 modules)
- GET / 200 in 714ms
- GET / 200 in 187ms
- GET / 200 in 40ms
- GET / 200 in 39ms
- ✓ Compiled in 675ms (1549 modules)
- GET / 200 in 739ms
- GET / 200 in 179ms
- GET / 200 in 22ms
- GET / 200 in 48ms
- ✓ Compiled in 741ms (1549 modules)
- GET / 200 in 875ms
- GET / 200 in 277ms
  GET / 200 in 37ms
- GET / 200 in 45ms
- GET / 200 in 39ms
  GET / 200 in 49ms
- GET / 200 in 50ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 1139ms (1540 modules)
- GET / 404 in 1352ms
- GET / 200 in 147ms
- GET / 200 in 44ms
- GET / 200 in 46ms
- GET / 200 in 43ms
- GET / 200 in 54ms
- GET / 200 in 45ms
- GET / 200 in 37ms
- GET / 200 in 43ms
- GET / 200 in 136ms
- GET / 200 in 57ms
- GET / 200 in 47ms
- GET / 200 in 45ms
- GET / 200 in 44ms
- GET / 200 in 42ms
- GET / 200 in 44ms
- GET / 200 in 45ms
- GET / 200 in 36ms
- GET / 200 in 375ms
  GET / 200 in 52ms
- GET / 200 in 40ms
- GET / 200 in 43ms
- GET / 200 in 37ms
- GET / 200 in 46ms
- GET / 200 in 36ms
- GET / 200 in 58ms
- GET / 200 in 45ms
- GET / 200 in 44ms
- GET / 200 in 42ms
- GET / 200 in 52ms
- GET / 200 in 34ms
- GET / 200 in 57ms
- GET / 200 in 44ms
- GET / 200 in 45ms
- GET / 200 in 53ms
- GET / 200 in 37ms
- GET / 200 in 57ms
- GET / 200 in 49ms
- GET / 200 in 62ms
- GET / 200 in 40ms
- GET / 200 in 45ms
- GET / 200 in 38ms
- GET / 200 in 52ms
- GET / 200 in 58ms
- GET / 200 in 37ms
- GET / 200 in 48ms
- GET / 200 in 42ms
- GET / 200 in 43ms
- GET / 200 in 44ms
- GET / 200 in 41ms
- GET / 200 in 48ms
- GET / 200 in 35ms
- GET / 200 in 41ms
- GET / 200 in 34ms
- GET / 200 in 44ms
- GET / 200 in 50ms
- GET / 200 in 36ms
- GET / 200 in 40ms
- GET / 200 in 35ms
- GET / 200 in 46ms
- GET / 200 in 35ms
- GET / 200 in 46ms
- GET / 200 in 34ms
- GET / 200 in 49ms
- GET / 200 in 43ms
- GET / 200 in 44ms
- GET / 200 in 34ms
- GET / 200 in 41ms
- GET / 200 in 35ms
- GET / 200 in 48ms
- GET / 200 in 35ms
- GET / 200 in 41ms
- GET / 200 in 42ms
- GET / 200 in 57ms
- GET / 200 in 38ms
- GET / 200 in 42ms
- GET / 200 in 39ms
- GET / 200 in 36ms
- GET / 200 in 41ms
- GET / 200 in 39ms
- GET / 200 in 42ms
- GET / 200 in 36ms
- GET / 200 in 40ms
- GET / 200 in 35ms
- GET / 200 in 43ms
- GET / 200 in 35ms
- GET / 200 in 40ms
- GET / 200 in 39ms
  GET / 200 in 51ms
- GET / 200 in 34ms
- GET / 200 in 53ms
- GET / 200 in 37ms
- GET / 200 in 38ms
- GET / 200 in 47ms
- GET / 200 in 50ms
- GET / 200 in 57ms
- GET / 200 in 58ms
+ GET / 200 in 49ms
+ ✓ Compiled in 1119ms (1549 modules)
+ GET / 200 in 702ms
+ GET / 200 in 29ms
  GET / 200 in 48ms
- GET / 200 in 39ms
- GET / 200 in 54ms
- GET / 200 in 38ms
- GET / 200 in 35ms
- GET / 200 in 40ms
- GET / 200 in 53ms
- GET / 200 in 43ms
- GET / 200 in 47ms
- GET / 200 in 53ms
- GET / 200 in 45ms
- GET / 200 in 45ms
- ✓ Compiled in 1679ms (1549 modules)
- GET / 200 in 1258ms
- GET / 200 in 37ms
- GET / 200 in 63ms
- ✓ Compiled in 484ms (1549 modules)
- GET / 200 in 373ms
- GET / 200 in 33ms
- GET / 200 in 37ms
- ✓ Compiled in 513ms (1549 modules)
- GET / 200 in 172ms
- GET / 200 in 34ms
+ ✓ Compiled in 526ms (1549 modules)
+ GET / 200 in 121ms
+ GET / 200 in 176ms
+ ✓ Compiled in 870ms (1549 modules)
+ GET / 200 in 307ms
+ GET / 200 in 19ms
  GET / 200 in 41ms
- GET / 200 in 43ms
- GET / 200 in 63ms
+ GET / 200 in 44ms
+ GET / 200 in 42ms
  GET / 200 in 34ms
- ✓ Compiled in 410ms (1549 modules)
+ GET / 200 in 46ms
+ GET / 200 in 46ms
+ ✓ Compiled in 1385ms (1549 modules)
  GET / 200 in 145ms
- GET / 200 in 40ms
- GET / 200 in 44ms
- GET / 200 in 35ms
- ✓ Compiled in 411ms (1549 modules)
- GET / 200 in 134ms
- GET / 200 in 38ms
- GET / 200 in 45ms
- GET / 200 in 43ms
- GET / 200 in 40ms
- GET / 200 in 34ms
- GET / 200 in 115ms
- GET / 200 in 48ms
- GET / 200 in 43ms
- GET / 200 in 37ms
- GET / 200 in 47ms
- GET / 200 in 43ms
- GET / 200 in 39ms
- GET / 200 in 50ms
- GET / 200 in 37ms
- ✓ Compiled in 1081ms (1549 modules)
- ✓ Compiled in 397ms (1549 modules)
- ✓ Compiled in 429ms (1549 modules)
- ✓ Compiled in 405ms (1549 modules)
- ✓ Compiled in 363ms (1549 modules)
- ✓ Compiled in 421ms (1549 modules)
- ✓ Compiled in 386ms (1549 modules)
- ✓ Compiled in 391ms (1549 modules)
- ✓ Compiled in 617ms (1549 modules)
- ✓ Compiled in 532ms (1549 modules)
+ ✓ Compiled in 520ms (1549 modules)
+ GET / 200 in 96ms
+ ✓ Compiled in 656ms (1549 modules)
+ GET / 200 in 104ms
+ ✓ Compiled in 501ms (1549 modules)

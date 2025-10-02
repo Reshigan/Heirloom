@@ -234,8 +234,8 @@ const StorageOptimizer: React.FC = () => {
                   <div className="text-3xl font-bold text-amber-300 mb-2">
                     {totalOriginalSize.toFixed(2)}GB
                   </div>
-                  <p className="text-amber-400/70 text-sm">
-                    Original file sizes
+                  <p className="text-gold-400/70 text-sm">
+                    Unprocessed family memories
                   </p>
                 </motion.div>
 
@@ -257,7 +257,7 @@ const StorageOptimizer: React.FC = () => {
                     {totalArchiveedSize.toFixed(2)}GB
                   </div>
                   <p className="text-gold-400/70 text-sm">
-                    After optimization
+                    Optimized for eternity
                   </p>
                 </motion.div>
 
@@ -278,8 +278,8 @@ const StorageOptimizer: React.FC = () => {
                   <div className="text-3xl font-bold text-yellow-300 mb-2">
                     {savingsPercentage.toFixed(1)}%
                   </div>
-                  <p className="text-yellow-400/70 text-sm">
-                    {totalSavings.toFixed(2)}GB saved
+                  <p className="text-gold-400/70 text-sm">
+                    {totalSavings.toFixed(2)}GB preserved efficiently
                   </p>
                 </motion.div>
               </div>
@@ -612,7 +612,7 @@ const StorageOptimizer: React.FC = () => {
 
               {/* Save Settings */}
               <div className="flex justify-end">
-                <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
+                <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-gold-100 rounded-lg font-semibold hover:shadow-lg transition-all duration-300">
                   Save Settings
                 </button>
               </div>

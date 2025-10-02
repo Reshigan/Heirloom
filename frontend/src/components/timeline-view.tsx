@@ -232,7 +232,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
                         onClick={() => handleEventClick(event)}
                       >
                         {/* Event Icon */}
-                        <div className={`relative z-10 p-3 bg-gradient-to-br ${getEventColor(event.type)} rounded-full text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <div className={`relative z-10 p-3 bg-gradient-to-br ${getEventColor(event.type)} rounded-full text-gold-100 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                           {getEventIcon(event.type)}
                           
                           {/* Significance Indicator */}
@@ -369,7 +369,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
             >
               {/* Header */}
               <div className="flex items-center gap-4 p-6 border-b border-gold-500/20">
-                <div className={`p-3 bg-gradient-to-br ${getEventColor(selectedEvent.type)} rounded-full text-white`}>
+                <div className={`p-3 bg-gradient-to-br ${getEventColor(selectedEvent.type)} rounded-full text-gold-100`}>
                   {getEventIcon(selectedEvent.type)}
                 </div>
                 
