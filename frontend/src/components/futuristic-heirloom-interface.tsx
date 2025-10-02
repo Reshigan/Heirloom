@@ -58,7 +58,11 @@ interface MemoryOrb {
   size: number
 }
 
-export default function FuturisticHeirloomInterface() {
+interface FuturisticHeirloomInterfaceProps {
+  onViewModeChange?: (mode: 'classic' | 'revolutionary' | 'futuristic' | 'mobile') => void;
+}
+
+export default function FuturisticHeirloomInterface({ onViewModeChange }: FuturisticHeirloomInterfaceProps) {
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
@@ -263,12 +267,48 @@ export default function FuturisticHeirloomInterface() {
           ))}
         </ul>
 
-        <button
-          onClick={() => setShowProfile(true)}
-          className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
-        >
-          <User className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-4">
+          {/* Interface Mode Switcher */}
+          {onViewModeChange && (
+            <div className="flex items-center space-x-1 bg-obsidian-800/50 backdrop-blur-lg border border-gold/20 rounded-lg p-1">
+              <button
+                onClick={() => onViewModeChange('classic')}
+                className="p-2 rounded transition-all duration-300 text-gold/60 hover:text-gold-400"
+                title="Classic View"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onViewModeChange('futuristic')}
+                className="p-2 rounded transition-all duration-300 bg-gold-400/20 text-gold-400"
+                title="Futuristic Interface"
+              >
+                <Sparkles className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onViewModeChange('revolutionary')}
+                className="p-2 rounded transition-all duration-300 text-gold/60 hover:text-gold-400"
+                title="Revolutionary Interface"
+              >
+                <Star className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onViewModeChange('mobile')}
+                className="p-2 rounded transition-all duration-300 text-gold/60 hover:text-gold-400"
+                title="Mobile Constellation"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          
+          <button
+            onClick={() => setShowProfile(true)}
+            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+          >
+            <User className="w-4 h-4" />
+          </button>
+        </div>
       </nav>
 
       {/* Main Content */}

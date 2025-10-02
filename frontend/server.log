@@ -7,14 +7,9 @@
    - Network:      http://0.0.0.0:12000
 
  ✓ Starting...
-Attention: Next.js now collects completely anonymous telemetry regarding usage.
-This information is used to shape Next.js' roadmap and prioritize features.
-You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-https://nextjs.org/telemetry
-
- ✓ Ready in 1356ms
+ ✓ Ready in 1417ms
  ○ Compiling / ...
- ✓ Compiled / in 6.1s (1641 modules)
- GET / 200 in 7197ms
+ ✓ Compiled / in 3s (1623 modules)
+ GET / 200 in 3529ms
  ⚠ Cross origin request detected from work-1-gpixzxxrswtqhjob.prod-runtime.all-hands.dev to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
 Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins

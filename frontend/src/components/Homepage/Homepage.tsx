@@ -18,9 +18,10 @@ import SocialFeatures from '@/components/social-features';
 
 interface HomepageProps {
   className?: string;
+  onViewModeChange?: (mode: 'classic' | 'revolutionary' | 'futuristic' | 'mobile') => void;
 }
 
-export default function Homepage({ className = '' }: HomepageProps) {
+export default function Homepage({ className = '', onViewModeChange }: HomepageProps) {
   const [mounted, setMounted] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'classic' | 'revolutionary' | 'futuristic' | 'mobile'>('classic');
@@ -39,6 +40,9 @@ export default function Homepage({ className = '' }: HomepageProps) {
 
   const handleViewModeChange = (mode: 'classic' | 'revolutionary' | 'futuristic' | 'mobile') => {
     setViewMode(mode);
+    if (onViewModeChange) {
+      onViewModeChange(mode);
+    }
   };
 
   if (!mounted) {

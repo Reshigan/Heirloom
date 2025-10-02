@@ -27,7 +27,9 @@ import {
   List,
   Maximize2,
   ChevronRight,
-  Plus
+  Plus,
+  Sparkles,
+  Zap
 } from 'lucide-react'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
@@ -44,7 +46,11 @@ interface QuickStat {
   color: string
 }
 
-export default function LuxuryHeirloomInterface() {
+interface LuxuryHeirloomInterfaceProps {
+  onViewModeChange?: (mode: 'classic' | 'revolutionary' | 'futuristic' | 'mobile') => void;
+}
+
+export default function LuxuryHeirloomInterface({ onViewModeChange }: LuxuryHeirloomInterfaceProps) {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard')
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
@@ -219,6 +225,40 @@ export default function LuxuryHeirloomInterface() {
               >
                 <User className="w-5 h-5" />
               </button>
+
+              {/* Interface Mode Switcher */}
+              {onViewModeChange && (
+                <div className="flex items-center space-x-1 ml-2 bg-obsidian-800/50 backdrop-blur-lg border border-gold/20 rounded-lg p-1">
+                  <button
+                    onClick={() => onViewModeChange('classic')}
+                    className="p-2 rounded transition-all duration-300 text-gold/60 hover:text-gold-400"
+                    title="Classic View"
+                  >
+                    <Menu className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => onViewModeChange('futuristic')}
+                    className="p-2 rounded transition-all duration-300 text-gold/60 hover:text-gold-400"
+                    title="Futuristic Interface"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => onViewModeChange('revolutionary')}
+                    className="p-2 rounded transition-all duration-300 bg-gold-400/20 text-gold-400"
+                    title="Revolutionary Interface"
+                  >
+                    <Zap className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => onViewModeChange('mobile')}
+                    className="p-2 rounded transition-all duration-300 text-gold/60 hover:text-gold-400"
+                    title="Mobile Constellation"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
               {/* Mobile menu button */}
               <button

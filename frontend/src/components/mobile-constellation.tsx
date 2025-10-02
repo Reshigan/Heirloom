@@ -4,15 +4,16 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { 
   Camera, Clock, Heart, X, Sparkles, Music, Video,
-  FileText, Mic, Users, Play, Share2
+  FileText, Mic, Users, Play, Share2, Menu, Zap, Grid3X3
 } from 'lucide-react';
 
 interface MobileConstellationProps {
   onNavigate?: (section: string) => void;
   onClose?: () => void;
+  onViewModeChange?: (mode: 'classic' | 'revolutionary' | 'futuristic' | 'mobile') => void;
 }
 
-export default function MobileConstellation({ onClose }: MobileConstellationProps) {
+export default function MobileConstellation({ onClose, onViewModeChange }: MobileConstellationProps) {
   const [activeView, setActiveView] = useState<'constellation' | 'grid' | 'timeline'>('constellation');
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [panelHeight, setPanelHeight] = useState(0);
@@ -467,12 +468,48 @@ export default function MobileConstellation({ onClose }: MobileConstellationProp
 
       {/* Close Button */}
       {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-10 h-10 bg-glass-bg backdrop-blur-lg border border-gold/30 rounded-full flex items-center justify-center text-gold z-50"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-50">
+          {/* Interface Mode Switcher */}
+          {onViewModeChange && (
+            <div className="flex items-center space-x-1 bg-glass-bg backdrop-blur-lg border border-gold/30 rounded-full p-1">
+              <button
+                onClick={() => onViewModeChange('classic')}
+                className="p-2 rounded-full transition-all duration-300 text-gold/60 hover:text-gold"
+                title="Classic View"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onViewModeChange('futuristic')}
+                className="p-2 rounded-full transition-all duration-300 text-gold/60 hover:text-gold"
+                title="Futuristic Interface"
+              >
+                <Sparkles className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onViewModeChange('revolutionary')}
+                className="p-2 rounded-full transition-all duration-300 text-gold/60 hover:text-gold"
+                title="Revolutionary Interface"
+              >
+                <Zap className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onViewModeChange('mobile')}
+                className="p-2 rounded-full transition-all duration-300 bg-gold/20 text-gold"
+                title="Mobile Constellation"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          
+          <button
+            onClick={onClose}
+            className="w-10 h-10 bg-glass-bg backdrop-blur-lg border border-gold/30 rounded-full flex items-center justify-center text-gold"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       )}
 
       {/* Haptic Feedback Indicator */}

@@ -46,7 +46,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-2">
+          <nav className="flex items-center space-x-2">
             {navigationItems.map((item) => (
               <button
                 key={item.id}

@@ -20,12 +20,12 @@ export default function Home() {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       
-      // Auto-switch to mobile constellation on mobile devices
-      if (mobile && (viewMode === 'revolutionary' || viewMode === 'futuristic')) {
+      // Only auto-switch on initial load, not on manual interface changes
+      // Auto-switch to mobile constellation on mobile devices only if still on default classic view
+      if (mobile && viewMode === 'classic') {
         setViewMode('mobile');
-      } else if (!mobile && viewMode === 'mobile') {
-        setViewMode('classic');
       }
+      // Don't auto-switch back from mobile constellation on desktop - let user choose
     };
     
     checkMobile();
@@ -46,7 +46,7 @@ export default function Home() {
   if (viewMode === 'futuristic') {
     return (
       <div className="relative">
-        <FuturisticHeirloomInterface />
+        <FuturisticHeirloomInterface onViewModeChange={setViewMode} />
       </div>
     );
   }
@@ -55,7 +55,7 @@ export default function Home() {
   if (viewMode === 'revolutionary') {
     return (
       <div className="relative">
-        <LuxuryHeirloomInterface />
+        <LuxuryHeirloomInterface onViewModeChange={setViewMode} />
       </div>
     );
   }
@@ -66,10 +66,11 @@ export default function Home() {
       <MobileConstellation 
         onNavigate={handleRevolutionaryNavigate}
         onClose={() => setViewMode('classic')}
+        onViewModeChange={setViewMode}
       />
     );
   }
 
   // Classic Homepage Mode (New Separated UI)
-  return <Homepage />;
+  return <Homepage onViewModeChange={setViewMode} />;
 }
