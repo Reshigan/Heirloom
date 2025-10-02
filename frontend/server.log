@@ -7,9 +7,9 @@
    - Network:      http://0.0.0.0:12000
 
  ✓ Starting...
- ✓ Ready in 1417ms
+ ✓ Ready in 1478ms
  ○ Compiling / ...
- ✓ Compiled / in 3s (1623 modules)
- GET / 200 in 3529ms
+ ✓ Compiled / in 2.9s (1549 modules)
+ GET / 200 in 3362ms
  ⚠ Cross origin request detected from work-1-gpixzxxrswtqhjob.prod-runtime.all-hands.dev to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
 Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
