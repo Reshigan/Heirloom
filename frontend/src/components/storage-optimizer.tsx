@@ -174,10 +174,10 @@ const StorageOptimizer: React.FC = () => {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-gold-400 via-gold-300 to-gold-400 bg-clip-text text-transparent">
-                Legacy Vault
+                Storage Optimizer
               </h1>
               <p className="text-gold-400/80 mt-2 text-lg">
-                Preserve your family's precious memories with intelligent archival
+                Optimize your storage with intelligent compression and organization
               </p>
             </div>
           </div>
@@ -186,10 +186,10 @@ const StorageOptimizer: React.FC = () => {
         {/* Navigation Tabs */}
         <div className="flex space-x-2 mb-8 bg-obsidian-800/60 p-2 rounded-xl backdrop-blur-sm border border-gold-500/20">
           {[
-            { id: 'overview', label: 'Vault Overview', icon: Gauge },
-            { id: 'items', label: 'Memory Archive', icon: Archive },
-            { id: 'settings', label: 'Preservation Settings', icon: Settings },
-            { id: 'analytics', label: 'Legacy Analytics', icon: TrendingUp }
+            { id: 'overview', label: 'Overview', icon: Gauge },
+            { id: 'items', label: 'Items', icon: Archive },
+            { id: 'settings', label: 'Settings', icon: Settings },
+            { id: 'analytics', label: 'Analytics', icon: TrendingUp }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -228,14 +228,14 @@ const StorageOptimizer: React.FC = () => {
                       <HardDrive className="w-5 h-5 text-amber-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gold-300">
-                      Raw Memory Size
+                      Total Size
                     </h3>
                   </div>
                   <div className="text-3xl font-bold text-amber-300 mb-2">
                     {totalOriginalSize.toFixed(2)}GB
                   </div>
                   <p className="text-amber-400/70 text-sm">
-                    Unprocessed family memories
+                    Original file sizes
                   </p>
                 </motion.div>
 
@@ -250,14 +250,14 @@ const StorageOptimizer: React.FC = () => {
                       <Archive className="w-5 h-5 text-gold-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gold-300">
-                      Preserved Legacy
+                      Archived Size
                     </h3>
                   </div>
                   <div className="text-3xl font-bold text-gold-300 mb-2">
                     {totalArchiveedSize.toFixed(2)}GB
                   </div>
                   <p className="text-gold-400/70 text-sm">
-                    Optimized for eternity
+                    After optimization
                   </p>
                 </motion.div>
 
@@ -272,14 +272,14 @@ const StorageOptimizer: React.FC = () => {
                       <TrendingDown className="w-5 h-5 text-yellow-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gold-300">
-                      Legacy Efficiency
+                      Space Saved
                     </h3>
                   </div>
                   <div className="text-3xl font-bold text-yellow-300 mb-2">
                     {savingsPercentage.toFixed(1)}%
                   </div>
                   <p className="text-yellow-400/70 text-sm">
-                    {totalSavings.toFixed(2)}GB preserved efficiently
+                    {totalSavings.toFixed(2)}GB saved
                   </p>
                 </motion.div>
               </div>
@@ -288,30 +288,29 @@ const StorageOptimizer: React.FC = () => {
               <div className="bg-gradient-to-br from-obsidian-800/80 to-obsidian-900/80 backdrop-blur-sm rounded-2xl p-8 border border-gold-500/30 shadow-lg shadow-gold-500/10">
                 <h3 className="text-2xl font-semibold text-gold-300 mb-8 flex items-center gap-3">
                   <Zap className="w-6 h-6 text-gold-400" />
-                  Heritage Preservation Modes
+                  Storage Modes
                 </h3>
                 
                 <div className="grid md:grid-cols-3 gap-8">
-                  <div className="p-6 bg-gradient-to-br from-gold-600/20 to-gold-500/20 rounded-xl border border-gold-600/40 shadow-lg shadow-gold-500/10">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Star className="w-6 h-6 text-gold-400" />
-                      <h4 className="font-semibold text-gold-200 text-lg">Sacred Moments</h4>
+                  <div className="p-4 bg-gradient-to-br from-gold-600/10 to-gold-500/10 rounded-xl border border-gold-600/20">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Star className="w-5 h-5 text-gold-400" />
+                      <h4 className="font-semibold text-gold-300">Milestone Moments</h4>
                     </div>
-                    <p className="text-gold-300/90 text-sm mb-4 leading-relaxed">
-                      Museum-quality preservation for life's most precious memories
+                    <p className="text-gold-400/70 text-sm mb-3">
+                      High quality preservation for important memories
                     </p>
-                    <div className="text-xs text-gold-400/80 space-y-1">
-                      • Archival-grade quality retention
-                      • Zero-loss preservation
-                      • Premium vault allocation
-                      • Generational access guarantee
+                    <div className="text-xs text-gold-400/60">
+                      • Original quality vault option
+                      • Minimal compression
+                      • Priority storage allocation
                     </div>
                   </div>
 
                   <div className="p-6 bg-gradient-to-br from-amber-600/20 to-amber-500/20 rounded-xl border border-amber-600/40 shadow-lg shadow-amber-500/10">
                     <div className="flex items-center gap-3 mb-4">
                       <Clock className="w-6 h-6 text-amber-400" />
-                      <h4 className="font-semibold text-amber-200 text-lg">Daily Chronicles</h4>
+                      <h4 className="font-semibold text-amber-200 text-lg">Everyday Moments</h4>
                     </div>
                     <p className="text-amber-300/90 text-sm mb-4 leading-relaxed">
                       Intelligent optimization for everyday family moments
@@ -327,7 +326,7 @@ const StorageOptimizer: React.FC = () => {
                   <div className="p-6 bg-gradient-to-br from-yellow-600/20 to-yellow-500/20 rounded-xl border border-yellow-600/40 shadow-lg shadow-yellow-500/10">
                     <div className="flex items-center gap-3 mb-4">
                       <Archive className="w-6 h-6 text-yellow-400" />
-                      <h4 className="font-semibold text-yellow-200 text-lg">Legacy Vault</h4>
+                      <h4 className="font-semibold text-yellow-200 text-lg">Archive Storage</h4>
                     </div>
                     <p className="text-yellow-300/90 text-sm mb-4 leading-relaxed">
                       Long-term archival for extensive family collections
@@ -346,21 +345,21 @@ const StorageOptimizer: React.FC = () => {
               <div className="bg-gradient-to-br from-obsidian-800/80 to-obsidian-900/80 backdrop-blur-sm rounded-2xl p-6 border border-gold-500/30 shadow-lg shadow-gold-500/10">
                 <h3 className="text-xl font-semibold text-gold-300 mb-6 flex items-center gap-2">
                   <Zap className="w-5 h-5 text-gold-400" />
-                  Heritage Management
+                  Quick Actions
                 </h3>
                 
                 <div className="flex flex-wrap gap-4">
                   <button className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:shadow-lg hover:shadow-gold-500/30 transition-all duration-300 font-semibold border border-gold-400/50">
                     <Archive className="w-5 h-5" />
-                    Preserve All Memories
+                    Optimize All
                   </button>
                   <button className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-obsidian-900 rounded-lg hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 font-semibold border border-amber-400/50">
                     <Download className="w-5 h-5" />
-                    Secure Originals
+                    Backup Originals
                   </button>
                   <button className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 text-obsidian-900 rounded-lg hover:shadow-lg hover:shadow-yellow-500/30 transition-all duration-300 font-semibold border border-yellow-400/50">
                     <Cloud className="w-5 h-5" />
-                    Legacy Cloud Sync
+                    Sync to Cloud
                   </button>
                 </div>
               </div>

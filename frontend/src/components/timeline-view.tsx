@@ -203,8 +203,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
           <div className="h-full overflow-y-auto" ref={timelineRef}>
             <div className="relative p-8">
               {/* Timeline Line */}
-              <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-gold-600 via-gold-500 to-gold-400 rounded-full shadow-lg shadow-gold-500/20"></div>
-              <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-gold-300 via-gold-200 to-gold-300 rounded-full"></div>
+              <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-gold-600 via-gold-500 to-gold-400"></div>
               
               {/* Events */}
               <div className="space-y-8">
@@ -216,13 +215,11 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
                     <div key={event.id}>
                       {/* Year Marker */}
                       {isNewYear && (
-                        <div id={`year-${eventYear}`} className="flex items-center gap-6 mb-8">
-                          <div className="relative z-10 px-6 py-3 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 text-obsidian-900 rounded-full font-bold text-xl shadow-lg shadow-gold-500/30 border-2 border-gold-300">
-                            <div className="absolute inset-0 bg-gradient-to-r from-gold-300/20 to-gold-200/20 rounded-full"></div>
-                            <span className="relative">{eventYear}</span>
+                        <div id={`year-${eventYear}`} className="flex items-center gap-4 mb-6">
+                          <div className="relative z-10 px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-full font-bold text-lg">
+                            {eventYear}
                           </div>
-                          <div className="flex-1 h-1 bg-gradient-to-r from-gold-500 via-gold-400 to-transparent rounded-full shadow-sm shadow-gold-500/20"></div>
-                          <div className="w-3 h-3 bg-gradient-to-r from-gold-500 to-gold-400 rounded-full shadow-lg shadow-gold-500/30"></div>
+                          <div className="flex-1 h-0.5 bg-gradient-to-r from-gold-500 to-transparent"></div>
                         </div>
                       )}
                       
@@ -235,52 +232,46 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
                         onClick={() => handleEventClick(event)}
                       >
                         {/* Event Icon */}
-                        <div className={`relative z-10 p-4 bg-gradient-to-br ${getEventColor(event.type)} rounded-full text-obsidian-900 shadow-xl shadow-gold-500/30 group-hover:scale-110 transition-all duration-300 border-2 border-gold-300/50`}>
-                          <div className="absolute inset-0 bg-gradient-to-br from-gold-200/20 to-transparent rounded-full"></div>
-                          <div className="relative">
-                            {getEventIcon(event.type)}
-                          </div>
+                        <div className={`relative z-10 p-3 bg-gradient-to-br ${getEventColor(event.type)} rounded-full text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                          {getEventIcon(event.type)}
                           
                           {/* Significance Indicator */}
-                          <div className={`absolute -top-2 -right-2 ${getSignificanceSize(event.significance)} bg-gradient-to-r from-gold-300 to-gold-200 rounded-full border-2 border-obsidian-900 shadow-lg`}></div>
+                          <div className={`absolute -top-1 -right-1 ${getSignificanceSize(event.significance)} bg-white rounded-full border-2 border-obsidian-900`}></div>
                         </div>
                         
                         {/* Event Content */}
-                        <div className="flex-1 bg-gradient-to-br from-obsidian-800/80 to-obsidian-900/90 border border-gold-500/30 rounded-xl p-6 hover:border-gold-400/60 transition-all duration-300 group-hover:scale-[1.02] shadow-lg shadow-gold-500/10 backdrop-blur-sm">
-                          <div className="absolute inset-0 bg-gradient-to-br from-gold-500/5 to-transparent rounded-xl"></div>
-                          <div className="relative">
-                            <div className="flex items-start justify-between mb-3">
-                              <h3 className="text-gold-200 font-semibold text-lg leading-tight">{event.title}</h3>
-                              <span className="text-gold-400 text-sm whitespace-nowrap ml-4 bg-gold-500/10 px-3 py-1 rounded-full border border-gold-500/20">
-                                {new Date(event.date).toLocaleDateString()}
+                        <div className="flex-1 bg-gradient-to-br from-obsidian-800/60 to-obsidian-900/80 border border-gold-500/20 rounded-xl p-4 hover:border-gold-400/40 transition-all duration-300 group-hover:scale-[1.02]">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-gold-100 font-semibold text-lg">{event.title}</h3>
+                            <span className="text-gold-400/80 text-sm whitespace-nowrap ml-4">
+                              {new Date(event.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          
+                          <p className="text-gold-300/80 text-sm mb-3">{event.description}</p>
+                          
+                          <div className="flex items-center gap-4 text-xs text-gold-500/80">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              <span>{event.location}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              <span>{event.participants.length} people</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3 h-3" />
+                              <span className="capitalize">{event.significance}</span>
+                            </div>
+                          </div>
+                          
+                          {event.memories.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-gold-500/20">
+                              <span className="text-gold-400 text-xs">
+                                {event.memories.length} related memories
                               </span>
                             </div>
-                            
-                            <p className="text-gold-300/90 text-sm mb-4 leading-relaxed">{event.description}</p>
-                            
-                            <div className="flex items-center gap-6 text-xs text-gold-400/80">
-                              <div className="flex items-center gap-2 bg-gold-500/10 px-3 py-1 rounded-full border border-gold-500/20">
-                                <MapPin className="w-3 h-3 text-gold-400" />
-                                <span>{event.location}</span>
-                              </div>
-                              <div className="flex items-center gap-2 bg-gold-500/10 px-3 py-1 rounded-full border border-gold-500/20">
-                                <Users className="w-3 h-3 text-gold-400" />
-                                <span>{event.participants.length} people</span>
-                              </div>
-                              <div className="flex items-center gap-2 bg-gold-500/10 px-3 py-1 rounded-full border border-gold-500/20">
-                                <Star className="w-3 h-3 text-gold-400" />
-                                <span className="capitalize">{event.significance}</span>
-                              </div>
-                            </div>
-                            
-                            {event.memories.length > 0 && (
-                              <div className="mt-4 pt-4 border-t border-gold-500/30">
-                                <span className="text-gold-400 text-sm bg-gold-500/10 px-3 py-1 rounded-full border border-gold-500/20">
-                                  {event.memories.length} related memories
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </motion.div>
                     </div>
