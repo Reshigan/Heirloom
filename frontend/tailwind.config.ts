@@ -34,6 +34,40 @@ const config: Config = {
           hope: '#98FB98',       // Future growth
         },
         
+        // Modern palette - contemporary brand colors
+        modern: {
+          white: '#FFFFFF',      // Pure white background
+          blue: '#2563EB',       // Modern blue primary
+          coral: '#F97316',      // Warm coral accent
+          emerald: '#10B981',    // Fresh emerald
+          purple: '#7C3AED',     // Modern purple
+          pink: '#EC4899',       // Contemporary pink
+          amber: '#F59E0B',      // Modern amber
+          gray: {
+            50: '#F8FAFC',       // Very light
+            100: '#F1F5F9',      // Light
+            200: '#E2E8F0',      // Lighter
+            300: '#CBD5E1',      // Light medium
+            400: '#94A3B8',      // Medium
+            500: '#64748B',      // Base
+            600: '#475569',      // Dark
+            700: '#334155',      // Darker
+            800: '#1E293B',      // Very dark
+            900: '#0F172A',      // Almost black
+          },
+        },
+        
+        // Cosmic palette - updated to modern colors
+        cosmic: {
+          blue: '#2563EB',       // Modern blue
+          silver: '#EC4899',     // Modern pink
+          nebula: '#7C3AED',     // Modern purple
+          starlight: '#F8FAFC',  // Light gray
+          gold: '#F59E0B',       // Modern amber
+          coral: '#F97316',      // Modern coral
+          green: '#10B981',      // Modern emerald
+        },
+        
         // Context-specific palettes
         memorial: {
           primary: '#6B5B73',    // Gentle purple-gray
@@ -66,6 +100,25 @@ const config: Config = {
           background: '#FEFEFE', // Pure white
           text: '#4A4A4A',       // Balanced gray
         },
+        
+        // Futuristic luxury palette
+        obsidian: {
+          900: '#0A0A0A',        // Pure obsidian
+          800: '#0F0F0F',        // Dark obsidian
+          700: '#1A1A1A',        // Charcoal
+          600: '#2A2A2A',        // Smoke
+        },
+        
+        gold: {
+          600: '#B8941F',        // Dark gold
+          500: '#D4AF37',        // Primary gold
+          400: '#F4E5C2',        // Light gold
+          300: '#FFF8E7',        // Pearl
+        },
+        
+        charcoal: '#1A1A1A',
+        smoke: '#2A2A2A',
+        pearl: '#FFF8E7',
       },
       
       // Typography from specification
