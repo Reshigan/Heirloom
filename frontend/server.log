@@ -1,388 +1,125 @@
 
 > frontend@0.1.0 dev
-> next dev --port 12001 --hostname 0.0.0.0
+> next dev --port 12000 --hostname 0.0.0.0
 
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'serverComponentsExternalPackages' at "experimental"
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ⚠ `experimental.serverComponentsExternalPackages` has been moved to `serverExternalPackages`. Please update your next.config.ts file accordingly.
    ▲ Next.js 15.5.4
-   - Local:        http://localhost:12001
-   - Network:      http://0.0.0.0:12001
+   - Local:        http://localhost:12000
+   - Network:      http://0.0.0.0:12000
+   - Experiments (use with caution):
+     · serverComponentsExternalPackages
 
  ✓ Starting...
-Attention: Next.js now collects completely anonymous telemetry regarding usage.
-This information is used to shape Next.js' roadmap and prioritize features.
-You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-https://nextjs.org/telemetry
-
- ✓ Ready in 1794ms
+ ✓ Ready in 1633ms
  ○ Compiling / ...
- ✓ Compiled / in 5.4s (2701 modules)
- GET / 200 in 6051ms
- GET / 200 in 43ms
- GET / 200 in 37ms
- GET / 200 in 60ms
- GET / 200 in 42ms
- GET / 200 in 44ms
- GET / 200 in 57ms
- GET / 200 in 39ms
- GET / 200 in 40ms
- GET / 200 in 42ms
- GET / 200 in 47ms
- GET / 200 in 41ms
- GET / 200 in 41ms
- GET / 200 in 38ms
- GET / 200 in 45ms
- GET / 200 in 40ms
- GET / 200 in 34ms
- GET / 200 in 45ms
- GET / 200 in 34ms
- GET / 200 in 75ms
- GET / 200 in 33ms
- GET / 200 in 33ms
- GET / 200 in 35ms
- GET / 200 in 31ms
- GET / 200 in 40ms
- GET / 200 in 36ms
- GET / 200 in 38ms
- GET / 200 in 33ms
- GET / 200 in 39ms
- GET / 200 in 31ms
- GET / 200 in 41ms
- GET / 200 in 35ms
- GET / 200 in 39ms
- GET / 200 in 34ms
- GET / 200 in 37ms
- GET / 200 in 31ms
- GET / 200 in 36ms
- GET / 200 in 37ms
- GET / 200 in 31ms
+ ✓ Compiled / in 2.2s (1535 modules)
+ GET / 200 in 2719ms
  GET / 200 in 50ms
- GET / 200 in 34ms
- GET / 200 in 40ms
- GET / 200 in 34ms
- GET / 200 in 30ms
- GET / 200 in 37ms
- GET / 200 in 32ms
- GET / 200 in 35ms
- GET / 200 in 42ms
- GET / 200 in 36ms
- GET / 200 in 30ms
- GET / 200 in 36ms
- GET / 200 in 29ms
- GET / 200 in 35ms
- GET / 200 in 31ms
- GET / 200 in 36ms
- GET / 200 in 31ms
- GET / 200 in 31ms
+ GET / 200 in 51ms
  GET / 200 in 38ms
- GET / 200 in 38ms
- GET / 200 in 32ms
  GET / 200 in 48ms
- GET / 200 in 31ms
- GET / 200 in 31ms
- GET / 200 in 42ms
- GET / 200 in 39ms
- GET / 200 in 42ms
- GET / 200 in 39ms
- GET / 200 in 33ms
- GET / 200 in 38ms
- GET / 200 in 38ms
- GET / 200 in 36ms
- GET / 200 in 41ms
- GET / 200 in 33ms
- GET / 200 in 41ms
- GET / 200 in 33ms
- GET / 200 in 39ms
- GET / 200 in 57ms
- GET / 200 in 32ms
- GET / 200 in 30ms
- GET / 200 in 35ms
- GET / 200 in 31ms
- GET / 200 in 39ms
- GET / 200 in 32ms
- GET / 200 in 36ms
- GET / 200 in 32ms
- GET / 200 in 38ms
- GET / 200 in 30ms
- GET / 200 in 38ms
- GET / 200 in 31ms
- GET / 200 in 38ms
- GET / 200 in 30ms
- GET / 200 in 38ms
- GET / 200 in 31ms
- GET / 200 in 32ms
- GET / 200 in 44ms
- GET / 200 in 30ms
- GET / 200 in 32ms
- GET / 200 in 30ms
- GET / 200 in 63ms
- GET / 200 in 34ms
- GET / 200 in 45ms
- GET / 200 in 42ms
- GET / 200 in 38ms
- GET / 200 in 39ms
- GET / 200 in 36ms
- GET / 200 in 34ms
- GET / 200 in 37ms
- GET / 200 in 43ms
- GET / 200 in 35ms
- GET / 200 in 39ms
- GET / 200 in 33ms
- GET / 200 in 47ms
- GET / 200 in 34ms
- GET / 200 in 45ms
- GET / 200 in 67ms
- GET / 200 in 33ms
- GET / 200 in 34ms
- GET / 200 in 44ms
- GET / 200 in 30ms
- GET / 200 in 42ms
- GET / 200 in 30ms
- GET / 200 in 40ms
- GET / 200 in 32ms
- GET / 200 in 43ms
- GET / 200 in 30ms
- ✓ Compiled in 582ms (1298 modules)
- ✓ Compiled in 610ms (1298 modules)
- GET / 200 in 39ms
- GET / 200 in 54ms
+ GET / 200 in 48ms
  GET / 200 in 52ms
  GET / 200 in 45ms
- GET / 200 in 34ms
- GET / 200 in 34ms
- GET / 200 in 35ms
- GET / 200 in 36ms
  GET / 200 in 42ms
- GET / 200 in 33ms
- GET / 200 in 36ms
- GET / 200 in 33ms
+ GET / 200 in 51ms
+ GET / 200 in 45ms
+ GET / 200 in 45ms
+ GET / 200 in 45ms
+ GET / 200 in 47ms
+ GET / 200 in 42ms
+ GET / 200 in 51ms
+ GET / 200 in 63ms
+ GET / 200 in 40ms
  GET / 200 in 37ms
- ✓ Compiled in 530ms (1298 modules)
+ GET / 200 in 41ms
+ GET / 200 in 38ms
+ GET / 200 in 49ms
  GET / 200 in 34ms
+ GET / 200 in 44ms
+ GET / 200 in 36ms
+ GET / 200 in 57ms
  GET / 200 in 34ms
+ GET / 200 in 51ms
  GET / 200 in 35ms
+ GET / 200 in 63ms
+ GET / 200 in 41ms
+ GET / 200 in 33ms
+ GET / 200 in 48ms
+ GET / 200 in 48ms
+ GET / 200 in 44ms
+ GET / 200 in 32ms
+ GET / 200 in 55ms
+ GET / 200 in 35ms
+ GET / 200 in 41ms
+ GET / 200 in 40ms
+ GET / 200 in 41ms
+ GET / 200 in 41ms
+ GET / 200 in 55ms
+ GET / 200 in 78ms
  GET / 200 in 43ms
- GET / 200 in 38ms
- GET / 200 in 31ms
+ GET / 200 in 33ms
+ GET / 200 in 46ms
+ GET / 200 in 41ms
+ GET / 200 in 45ms
+ GET / 200 in 50ms
+ GET / 200 in 36ms
+ GET / 200 in 36ms
+ GET / 200 in 36ms
+ GET / 200 in 40ms
+ ⚠ Cross origin request detected from work-1-gpixzxxrswtqhjob.prod-runtime.all-hands.dev to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET / 200 in 36ms
+ GET / 200 in 36ms
+ GET / 200 in 48ms
+ GET / 200 in 47ms
+ GET / 200 in 53ms
+ GET / 200 in 44ms
+ GET / 200 in 43ms
+ GET / 200 in 40ms
+ GET / 200 in 41ms
+ GET / 200 in 41ms
+ GET / 200 in 45ms
+ GET / 200 in 42ms
+ GET / 200 in 57ms
+ GET / 200 in 43ms
+ GET / 200 in 36ms
+ GET / 200 in 44ms
  GET / 200 in 39ms
- GET / 200 in 32ms
+ GET / 200 in 44ms
+ ✓ Compiled in 1318ms (1549 modules)
+ GET / 200 in 193ms
+ GET / 200 in 214ms
+ GET / 200 in 40ms
+ GET / 200 in 51ms
  GET / 200 in 37ms
- GET / 200 in 30ms
- GET / 200 in 36ms
- GET / 200 in 32ms
- GET / 200 in 38ms
- GET / 200 in 36ms
- ✓ Compiled in 572ms (1298 modules)
- ✓ Compiled in 1449ms (2701 modules)
- ✓ Compiled in 521ms (2701 modules)
- ✓ Compiled in 511ms (2701 modules)
- ✓ Compiled in 360ms (1298 modules)
- ⚠ ./src/components/share-invite-system.tsx
-Attempted import error: 'WhatsApp' is not exported from '__barrel_optimize__?names=AlertCircle,CheckCircle,Clock,Copy,Facebook,FileText,Heart,Instagram,Link,Linkedin,Mail,QrCode,Send,Share2,Star,Twitter,UserPlus,Users,WhatsApp!=!lucide-react' (imported as 'WhatsApp').
-
-Import trace for requested module:
-./src/components/share-invite-system.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
-
-./src/components/storage-optimizer.tsx
-Attempted import error: 'Compress' is not exported from '__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Compress,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react' (imported as 'Compress').
-
-Import trace for requested module:
-./src/components/storage-optimizer.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
-
-./src/components/storage-optimizer.tsx
-Attempted import error: 'Compress' is not exported from '__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Compress,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react' (imported as 'Compress').
-
-Import trace for requested module:
-./src/components/storage-optimizer.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
-
-./src/components/storage-optimizer.tsx
-Attempted import error: 'Compress' is not exported from '__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Compress,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react' (imported as 'Compress').
-
-Import trace for requested module:
-./src/components/storage-optimizer.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
- ⨯ ./src/components/storage-optimizer.tsx
-Module parse failed: Identifier 'Archive' has already been declared (5:123)
-| import React, { useState } from 'react';
-| import { motion, AnimatePresence } from 'framer-motion';
-> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
-| const StorageOptimizer = ()=>{
-|     _s();
-
-Import trace for requested module:
-./src/components/storage-optimizer.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
- ⨯ ./src/components/storage-optimizer.tsx
-Module parse failed: Identifier 'Archive' has already been declared (5:123)
-| import React, { useState } from 'react';
-| import { motion, AnimatePresence } from 'framer-motion';
-> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
-| const StorageOptimizer = ()=>{
-|     _s();
-
-Import trace for requested module:
-./src/components/storage-optimizer.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
- ⨯ ./src/components/storage-optimizer.tsx
-Module parse failed: Identifier 'Archive' has already been declared (5:123)
-| import React, { useState } from 'react';
-| import { motion, AnimatePresence } from 'framer-motion';
-> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
-| const StorageOptimizer = ()=>{
-|     _s();
-
-Import trace for requested module:
-./src/components/storage-optimizer.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
- ⨯ ./src/components/storage-optimizer.tsx
-Module parse failed: Identifier 'Archive' has already been declared (5:123)
-| import React, { useState } from 'react';
-| import { motion, AnimatePresence } from 'framer-motion';
-> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
-| const StorageOptimizer = ()=>{
-|     _s();
-
-Import trace for requested module:
-./src/components/storage-optimizer.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
- ⨯ ./src/components/share-invite-system.tsx
-Module parse failed: Identifier 'MessageCircle' has already been declared (5:134)
-| import React, { useState } from 'react';
-| import { motion, AnimatePresence } from 'framer-motion';
-> import { Share2, Users, Mail, Link, QrCode, Copy, Send, UserPlus, Heart, Star, MessageCircle, Facebook, Twitter, Instagram, Linkedin, MessageCircle, CheckCircle, Clock, AlertCircle, FileText } from "__barrel_optimize__?names=AlertCircle,CheckCircle,Clock,Copy,Facebook,FileText,Heart,Instagram,Link,Linkedin,Mail,MessageCircle,QrCode,Send,Share2,Star,Twitter,UserPlus,Users!=!lucide-react";
-| const ShareInviteSystem = ()=>{
-|     _s();
-
-Import trace for requested module:
-./src/components/share-invite-system.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
- ⨯ ./src/components/storage-optimizer.tsx
-Module parse failed: Identifier 'Archive' has already been declared (5:123)
-| import React, { useState } from 'react';
-| import { motion, AnimatePresence } from 'framer-motion';
-> import { HardDrive, Zap, Image, Video, Mic, FileText, Settings, TrendingDown, TrendingUp, Gauge, Archive, Cloud, Download, Archive, Eye, Star, Clock, CheckCircle } from "__barrel_optimize__?names=Archive,CheckCircle,Clock,Cloud,Download,Eye,FileText,Gauge,HardDrive,Image,Mic,Settings,Star,TrendingDown,TrendingUp,Video,Zap!=!lucide-react";
-| const StorageOptimizer = ()=>{
-|     _s();
-
-Import trace for requested module:
-./src/components/storage-optimizer.tsx
-./src/components/futuristic-heirloom-interface.tsx
-./src/app/page.tsx
- ✓ Compiled in 444ms (1332 modules)
- ○ Compiling / ...
- ✓ Compiled / in 1423ms (1437 modules)
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json',
-  page: '/'
-}
- ○ Compiling /_error ...
- ✓ Compiled /_error in 1082ms (3095 modules)
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'
-}
-[Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json',
-  page: '/'
-}
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'
-}
-[Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/routes-manifest.json'
-}
- GET / 500 in 5160ms
- GET / 500 in 304ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 1175ms (3100 modules)
- GET / 404 in 1354ms
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/app/page.js'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/server/app/page.js',
-  page: '/'
-}
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'
-}
-[TypeError: Cannot read properties of undefined (reading '/_app')]
- ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
-[Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/app/page.js'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/server/app/page.js',
-  page: '/'
-}
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'
-}
-[TypeError: Cannot read properties of undefined (reading '/_app')]
- ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
-[TypeError: Cannot read properties of undefined (reading '/_app')]
- GET / 500 in 265ms
- GET / 500 in 48ms
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/app/page.js'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/server/app/page.js',
-  page: '/'
-}
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'
-}
-[TypeError: Cannot read properties of undefined (reading '/_app')]
- ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
-[Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/app/page.js'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/server/app/page.js',
-  page: '/'
-}
- ⨯ [Error: ENOENT: no such file or directory, open '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'] {
-  errno: -2,
-  syscall: 'open',
-  code: 'ENOENT',
-  path: '/workspace/project/Heirloom/frontend/.next/server/pages/_document.js'
-}
-[TypeError: Cannot read properties of undefined (reading '/_app')]
- ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
-[TypeError: Cannot read properties of undefined (reading '/_app')]
- GET / 500 in 134ms
- GET / 500 in 42ms
+ GET / 200 in 49ms
+ GET / 200 in 52ms
+ GET / 200 in 51ms
+ GET / 200 in 49ms
+ ✓ Compiled in 1119ms (1549 modules)
+ GET / 200 in 702ms
+ GET / 200 in 29ms
+ GET / 200 in 48ms
+ ✓ Compiled in 526ms (1549 modules)
+ GET / 200 in 121ms
+ GET / 200 in 176ms
+ ✓ Compiled in 870ms (1549 modules)
+ GET / 200 in 307ms
+ GET / 200 in 19ms
+ GET / 200 in 41ms
+ GET / 200 in 44ms
+ GET / 200 in 42ms
+ GET / 200 in 34ms
+ GET / 200 in 46ms
+ GET / 200 in 46ms
+ ✓ Compiled in 1385ms (1549 modules)
+ GET / 200 in 145ms
+ ✓ Compiled in 520ms (1549 modules)
+ GET / 200 in 96ms
+ ✓ Compiled in 656ms (1549 modules)
+ GET / 200 in 104ms
+ ✓ Compiled in 501ms (1549 modules)

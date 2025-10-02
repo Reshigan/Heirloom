@@ -186,7 +186,8 @@ export default function FuturisticHeirloomInterface() {
       <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center z-50">
         <div className="text-center">
           <div className="w-20 h-20 border border-gold-500/20 border-t-gold-400 rounded-full mx-auto mb-8 animate-spin"></div>
-          <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse">HEIRLOOM</div>
+          <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse mb-4">HEIRLOOM</div>
+          <div className="font-light text-sm text-gold-300/80 tracking-[0.2em] animate-pulse">Connecting Generations</div>
         </div>
       </div>
     )
@@ -263,12 +264,14 @@ export default function FuturisticHeirloomInterface() {
           ))}
         </ul>
 
-        <button
-          onClick={() => setShowProfile(true)}
-          className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
-        >
-          <User className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowProfile(true)}
+            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+          >
+            <User className="w-4 h-4" />
+          </button>
+        </div>
       </nav>
 
       {/* Main Content */}
@@ -350,13 +353,13 @@ export default function FuturisticHeirloomInterface() {
                   ))}
 
                   {/* Central Focus */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 z-10">
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 z-10">
                     <div className="w-full h-full rounded-full border-2 border-gold-400 overflow-hidden bg-gradient-to-br from-gold-400/5 to-transparent backdrop-blur-sm shadow-2xl shadow-gold-400/20">
-                      <div className="w-full h-full flex flex-col items-center justify-center text-center p-10">
-                        <div className="w-16 h-16 border border-gold-400 rounded-full flex items-center justify-center font-serif text-2xl text-gold-400 mb-5">
+                      <div className="w-full h-full flex flex-col items-center justify-center text-center p-8">
+                        <div className="w-14 h-14 border border-gold-400 rounded-full flex items-center justify-center font-serif text-xl text-gold-400 mb-4">
                           H
                         </div>
-                        <div className="font-serif text-2xl text-gold-400 mb-2 tracking-wide">The Hamilton Legacy</div>
+                        <div className="font-serif text-xl text-gold-400 mb-2 tracking-wide">The Hamilton Legacy</div>
                         <div className="text-xs uppercase tracking-[0.2em] text-gold-200/70">Five Generations • One Story</div>
                       </div>
                     </div>

@@ -85,14 +85,14 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
 
   const getEventColor = (type: string) => {
     switch (type) {
-      case 'birth': return 'from-green-600 to-green-500'
-      case 'marriage': return 'from-pink-600 to-pink-500'
-      case 'death': return 'from-purple-600 to-purple-500'
-      case 'achievement': return 'from-gold-600 to-gold-500'
-      case 'career': return 'from-blue-600 to-blue-500'
-      case 'family': return 'from-orange-600 to-orange-500'
-      case 'milestone': return 'from-indigo-600 to-indigo-500'
-      default: return 'from-gray-600 to-gray-500'
+      case 'birth': return 'from-gold-500 to-amber-400'
+      case 'marriage': return 'from-gold-600 to-gold-400'
+      case 'death': return 'from-gold-700 to-amber-600'
+      case 'achievement': return 'from-amber-500 to-yellow-400'
+      case 'career': return 'from-gold-600 to-amber-500'
+      case 'family': return 'from-amber-600 to-gold-500'
+      case 'milestone': return 'from-yellow-500 to-gold-400'
+      default: return 'from-gold-500 to-amber-400'
     }
   }
 
@@ -232,7 +232,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
                         onClick={() => handleEventClick(event)}
                       >
                         {/* Event Icon */}
-                        <div className={`relative z-10 p-3 bg-gradient-to-br ${getEventColor(event.type)} rounded-full text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <div className={`relative z-10 p-3 bg-gradient-to-br ${getEventColor(event.type)} rounded-full text-gold-100 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                           {getEventIcon(event.type)}
                           
                           {/* Significance Indicator */}
@@ -286,49 +286,52 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
               {filteredEvents.map((event, index) => (
                 <motion.div
                   key={event.id}
-                  className="flex items-center gap-4 p-4 bg-gradient-to-r from-obsidian-800/60 to-obsidian-900/80 border border-gold-500/20 rounded-xl hover:border-gold-400/40 transition-all duration-300 cursor-pointer"
+                  className="flex items-center gap-6 p-6 bg-gradient-to-r from-obsidian-800/80 to-obsidian-900/90 border border-gold-500/30 rounded-xl hover:border-gold-400/60 transition-all duration-300 cursor-pointer shadow-lg shadow-gold-500/10 backdrop-blur-sm group"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                   onClick={() => handleEventClick(event)}
                 >
-                  <div className={`p-2 bg-gradient-to-br ${getEventColor(event.type)} rounded-lg text-white`}>
-                    {getEventIcon(event.type)}
+                  <div className={`p-3 bg-gradient-to-br ${getEventColor(event.type)} rounded-lg text-obsidian-900 shadow-lg shadow-gold-500/20 border border-gold-300/50 group-hover:scale-110 transition-transform duration-300`}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-gold-200/20 to-transparent rounded-lg"></div>
+                    <div className="relative">
+                      {getEventIcon(event.type)}
+                    </div>
                   </div>
                   
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-gold-100 font-semibold">{event.title}</h3>
-                      <span className="px-2 py-1 bg-gold-500/20 text-gold-300 text-xs rounded capitalize">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-gold-200 font-semibold text-lg">{event.title}</h3>
+                      <span className="px-3 py-1 bg-gold-500/20 text-gold-300 text-xs rounded-full border border-gold-500/30 capitalize">
                         {event.type}
                       </span>
                     </div>
                     
-                    <p className="text-gold-400/80 text-sm mb-2 line-clamp-1">
+                    <p className="text-gold-300/90 text-sm mb-3 line-clamp-2 leading-relaxed">
                       {event.description}
                     </p>
                     
-                    <div className="flex items-center gap-4 text-xs text-gold-500/80">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
+                    <div className="flex items-center gap-4 text-xs text-gold-400/80">
+                      <div className="flex items-center gap-2 bg-gold-500/10 px-2 py-1 rounded-full border border-gold-500/20">
+                        <Calendar className="w-3 h-3 text-gold-400" />
                         <span>{new Date(event.date).toLocaleDateString()}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
+                      <div className="flex items-center gap-2 bg-gold-500/10 px-2 py-1 rounded-full border border-gold-500/20">
+                        <MapPin className="w-3 h-3 text-gold-400" />
                         <span>{event.location}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
+                      <div className="flex items-center gap-2 bg-gold-500/10 px-2 py-1 rounded-full border border-gold-500/20">
+                        <Users className="w-3 h-3 text-gold-400" />
                         <span>{event.participants.length} people</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-gold-100 font-semibold text-sm">
+                    <div className="text-gold-200 font-bold text-lg bg-gold-500/10 px-3 py-1 rounded-full border border-gold-500/30 mb-2">
                       {new Date(event.date).getFullYear()}
                     </div>
-                    <div className="text-gold-400/80 text-xs capitalize">
+                    <div className="text-gold-400 text-xs capitalize bg-gold-500/10 px-2 py-1 rounded-full border border-gold-500/20">
                       {event.significance}
                     </div>
                   </div>
@@ -366,7 +369,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
             >
               {/* Header */}
               <div className="flex items-center gap-4 p-6 border-b border-gold-500/20">
-                <div className={`p-3 bg-gradient-to-br ${getEventColor(selectedEvent.type)} rounded-full text-white`}>
+                <div className={`p-3 bg-gradient-to-br ${getEventColor(selectedEvent.type)} rounded-full text-gold-100`}>
                   {getEventIcon(selectedEvent.type)}
                 </div>
                 
