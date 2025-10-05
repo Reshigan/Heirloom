@@ -47,6 +47,7 @@ import LegacyTokenManager from './legacy-token-manager'
 import PricingManager from './pricing-manager'
 import StorageOptimizer from './storage-optimizer'
 import ShareInviteSystem from './share-invite-system'
+import MemoryUpload from './memory-upload'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
 type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share'
@@ -66,6 +67,7 @@ export default function FuturisticHeirloomInterface() {
   const [showProfile, setShowProfile] = useState(false)
   const [showDetailPanel, setShowDetailPanel] = useState(false)
   const [showWisdomQuote, setShowWisdomQuote] = useState(false)
+  const [showUploadModal, setShowUploadModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [particles, setParticles] = useState<Array<{ id: number; left: string; delay: number; duration: number }>>([])
   const [memoryOrbs, setMemoryOrbs] = useState<MemoryOrb[]>([])
@@ -170,8 +172,13 @@ export default function FuturisticHeirloomInterface() {
   }
 
   const handleAddMemory = () => {
-    setCurrentView('memories')
-    // This would open the memory upload modal
+    setShowUploadModal(true)
+  }
+
+  const handleUploadComplete = (files: File[]) => {
+    console.log('Files uploaded:', files)
+    setShowUploadModal(false)
+    // Here you would typically upload the files to your backend
   }
 
   // Calculate parallax transform
@@ -184,10 +191,13 @@ export default function FuturisticHeirloomInterface() {
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center z-50">
-        <div className="text-center">
+        <div className="text-center max-w-lg px-8">
           <div className="w-20 h-20 border border-gold-500/20 border-t-gold-400 rounded-full mx-auto mb-8 animate-spin"></div>
           <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse mb-4">HEIRLOOM</div>
-          <div className="font-light text-sm text-gold-300/80 tracking-[0.2em] animate-pulse">Connecting Generations</div>
+          <div className="font-light text-sm text-gold-300/80 tracking-[0.2em] animate-pulse mb-6">Connecting Generations</div>
+          <div className="text-xs text-gold-200/60 italic leading-relaxed animate-pulse">
+            "Where every photograph whispers a story, every memory holds a heart, and every moment becomes eternal..."
+          </div>
         </div>
       </div>
     )
@@ -236,15 +246,15 @@ export default function FuturisticHeirloomInterface() {
         
         <ul className="hidden md:flex gap-8 text-xs uppercase tracking-[0.2em] text-gold-200/70">
           {[
-            { id: 'memories', label: 'Memories' },
-            { id: 'timeline', label: 'Timeline' },
-            { id: 'heritage', label: 'Heritage' },
-            { id: 'wisdom', label: 'Wisdom' },
-            { id: 'family', label: 'Family' },
-            { id: 'tokens', label: 'Legacy' },
-            { id: 'pricing', label: 'Plans' },
-            { id: 'storage', label: 'Storage' },
-            { id: 'share', label: 'Share' }
+            { id: 'memories', label: 'Cherished Memories' },
+            { id: 'timeline', label: 'Life\'s Journey' },
+            { id: 'heritage', label: 'Family Heritage' },
+            { id: 'wisdom', label: 'Ancestral Wisdom' },
+            { id: 'family', label: 'Beloved Family' },
+            { id: 'tokens', label: 'Living Legacy' },
+            { id: 'pricing', label: 'Preservation Plans' },
+            { id: 'storage', label: 'Sacred Vault' },
+            { id: 'share', label: 'Share Love' }
           ].map(item => (
             <li
               key={item.id}
@@ -295,7 +305,7 @@ export default function FuturisticHeirloomInterface() {
                     exit={{ opacity: 0, x: -50 }}
                   >
                     <div className="text-6xl font-serif text-gold-400/30 leading-none">"</div>
-                    <div className="font-serif text-xl text-pearl leading-relaxed italic my-5">
+                    <div className="font-serif text-xl text-gold-300 leading-relaxed italic my-5">
                       {selectedMemory.description}
                     </div>
                     <div className="text-xs uppercase tracking-[0.15em] text-gold-200/70">
@@ -408,12 +418,15 @@ export default function FuturisticHeirloomInterface() {
               className="min-h-screen flex items-center justify-center"
             >
               <div className="text-center max-w-4xl px-8">
-                <div className="text-8xl font-serif text-gold-400/30 mb-8">"</div>
-                <div className="font-serif text-4xl text-pearl leading-relaxed italic mb-8">
-                  The stories we tell about our past shape our children's future
+                <div className="text-8xl font-serif text-gold-400/30 mb-8">💛</div>
+                <div className="font-serif text-4xl text-gold-300 leading-relaxed italic mb-8">
+                  "Love is the thread that weaves through generations, binding hearts across time and creating a tapestry of memories that will never fade"
                 </div>
-                <div className="text-sm uppercase tracking-[0.2em] text-gold-200/70">
+                <div className="text-sm uppercase tracking-[0.2em] text-gold-200/70 mb-6">
                   — Grandmother Elizabeth Hamilton, 1952
+                </div>
+                <div className="text-base text-gold-200/60 italic leading-relaxed max-w-2xl mx-auto">
+                  Every photograph holds a heartbeat. Every story carries a soul. Every memory is a gift from those who loved us first.
                 </div>
               </div>
             </motion.div>
@@ -516,23 +529,23 @@ export default function FuturisticHeirloomInterface() {
           >
             <div className="border-b border-gold-500/20 pb-5 mb-8">
               <h3 className="font-serif text-3xl text-gold-400 mb-2">{selectedMemory.title}</h3>
-              <p className="text-xs uppercase tracking-[0.15em] text-gold-200/70">A cherished family memory</p>
+              <p className="text-xs uppercase tracking-[0.15em] text-gold-200/70">💛 A treasured moment in time</p>
             </div>
             
             <div className="space-y-6">
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">Captured</div>
-                <div className="text-pearl">{new Date(selectedMemory.date).toLocaleDateString()}</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">💫 Captured with Love</div>
+                <div className="text-gold-300">{new Date(selectedMemory.date).toLocaleDateString()}</div>
               </div>
               
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">Location</div>
-                <div className="text-pearl">{selectedMemory.location}</div>
+                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">🏡 Sacred Place</div>
+                <div className="text-gold-300">{selectedMemory.location}</div>
               </div>
               
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">Present</div>
-                <div className="text-pearl">
+                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">👨‍👩‍👧‍👦 Hearts Present</div>
+                <div className="text-gold-300">
                   {selectedMemory.participants.map(id => 
                     mockFamilyMembers.find(m => m.id === id)?.name
                   ).filter(Boolean).join(', ')}
@@ -541,8 +554,8 @@ export default function FuturisticHeirloomInterface() {
               
               {selectedMemory.aiEnhanced && (
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">AI Enhancement</div>
-                  <div className="text-pearl">Restored • Colorized • Clarified</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">✨ Lovingly Enhanced</div>
+                  <div className="text-gold-300">Restored • Colorized • Clarified</div>
                 </div>
               )}
             </div>
@@ -584,6 +597,16 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showProfile && (
           <UserProfile onClose={() => setShowProfile(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Memory Upload Modal */}
+      <AnimatePresence>
+        {showUploadModal && (
+          <MemoryUpload 
+            onUpload={handleUploadComplete}
+            onClose={() => setShowUploadModal(false)} 
+          />
         )}
       </AnimatePresence>
 
