@@ -1,0 +1,190 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "🌟 Heirloom Legacy Platform - Production Overview",
+    "tags": ["heirloom", "production", "legacy"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "🚀 Platform Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"heirloom-backend\"}",
+            "legendFormat": "Backend"
+          },
+          {
+            "expr": "up{job=\"heirloom-frontend\"}",
+            "legendFormat": "Frontend"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "📊 API Response Times",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"heirloom-backend\"}[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"heirloom-backend\"}[5m]))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "Response Time (seconds)",
+            "min": 0
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "👥 Active Users",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "heirloom_active_users_total",
+            "legendFormat": "Active Users"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "💰 Revenue Metrics",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "heirloom_revenue_total",
+            "legendFormat": "Total Revenue"
+          },
+          {
+            "expr": "heirloom_subscriptions_active",
+            "legendFormat": "Active Subscriptions"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "🤖 AI Story Generation",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(heirloom_ai_stories_generated_total[5m])",
+            "legendFormat": "Stories per minute"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "📱 Mobile App Usage",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "heirloom_mobile_sessions_total",
+            "legendFormat": "Mobile Sessions"
+          },
+          {
+            "expr": "heirloom_web_sessions_total",
+            "legendFormat": "Web Sessions"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "🔒 Security Events",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"heirloom-backend\"} |= \"security\"",
+            "legendFormat": "Security Logs"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 16, "x": 8, "y": 16}
+      },
+      {
+        "id": 8,
+        "title": "💾 Database Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(postgres_queries_total[5m])",
+            "legendFormat": "Queries per second"
+          },
+          {
+            "expr": "postgres_connections_active",
+            "legendFormat": "Active connections"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 9,
+        "title": "⚡ Cache Hit Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "redis_cache_hit_rate",
+            "legendFormat": "Cache Hit Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 0.7},
+                {"color": "green", "value": 0.9}
+              ]
+            },
+            "unit": "percentunit"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      }
+    ]
+  }
+}
