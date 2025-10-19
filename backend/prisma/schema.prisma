@@ -68,6 +68,7 @@ model User {
   aiInteractions    AIInteraction[]
   timeCapsules      TimeCapsule[]
   legacyPlans       LegacyPlan[]
+  subscription      Subscription?
   
   @@map("users")
 }
@@ -78,6 +79,36 @@ enum SubscriptionTier {
   PREMIUM
   FAMILY
   LEGACY
+}
+
+model Subscription {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Stripe Integration
+  stripeSubscriptionId  String?   @unique
+  stripeCustomerId      String?
+  
+  // Subscription Details
+  tierId                String
+  status                String    @default("active") // active, canceled, past_due, etc.
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+  
+  // Limits based on tier
+  maxMemories           Int       @default(100)
+  maxFamilyMembers      Int       @default(5)
+  aiStoriesPerMonth     Int       @default(2)
+  timeCapsules          Int       @default(3)
+  
+  // Referral benefits
+  freeMonthsRemaining   Int       @default(0)
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("subscriptions")
 }
 
 // Family Structure
