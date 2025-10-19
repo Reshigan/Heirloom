@@ -1,0 +1,383 @@
+// Heirloom Platform - Comprehensive Database Schema
+// The world's first legacy platform for future generations
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  username          String    @unique
+  firstName         String
+  lastName          String
+  avatar            String?
+  bio               String?
+  dateOfBirth       DateTime?
+  location          String?
+  timezone          String    @default("UTC")
+  language          String    @default("en")
+  
+  // Authentication
+  passwordHash      String
+  emailVerified     Boolean   @default(false)
+  emailVerifiedAt   DateTime?
+  twoFactorEnabled  Boolean   @default(false)
+  twoFactorSecret   String?
+  
+  // Subscription & Billing
+  subscriptionTier  SubscriptionTier @default(FREE)
+  subscriptionId    String?
+  customerId        String?   // Stripe customer ID
+  subscriptionEndsAt DateTime?
+  
+  // Referral System
+  referralCode      String    @unique @default(cuid())
+  referredBy        String?
+  referredByUser    User?     @relation("UserReferrals", fields: [referredBy], references: [id])
+  referrals         User[]    @relation("UserReferrals")
+  referralCount     Int       @default(0)
+  freeMonthsEarned  Int       @default(0)
+  
+  // AI Preferences
+  aiPersonality     String    @default("warm")
+  aiStorytellingStyle String  @default("narrative")
+  aiPrivacyLevel    String    @default("family")
+  
+  // Activity & Engagement
+  lastActiveAt      DateTime  @default(now())
+  loginCount        Int       @default(0)
+  onboardingCompleted Boolean @default(false)
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  families          FamilyMember[]
+  memories          Memory[]
+  stories           Story[]
+  notifications     Notification[]
+  sessions          UserSession[]
+  aiInteractions    AIInteraction[]
+  timeCapsules      TimeCapsule[]
+  legacyPlans       LegacyPlan[]
+  
+  @@map("users")
+}
+
+enum SubscriptionTier {
+  FREE
+  BASIC
+  PREMIUM
+  FAMILY
+  LEGACY
+}
+
+// Family Structure
+model Family {
+  id              String         @id @default(cuid())
+  name            String
+  description     String?
+  avatar          String?
+  isPublic        Boolean        @default(false)
+  inviteCode      String         @unique @default(cuid())
+  
+  // Settings
+  allowAIStories  Boolean        @default(true)
+  privacyLevel    String         @default("family")
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  // Relations
+  members         FamilyMember[]
+  memories        Memory[]
+  stories         Story[]
+  timeCapsules    TimeCapsule[]
+  
+  @@map("families")
+}
+
+model FamilyMember {
+  id          String           @id @default(cuid())
+  userId      String
+  familyId    String
+  role        FamilyRole       @default(MEMBER)
+  joinedAt    DateTime         @default(now())
+  
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family      Family           @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, familyId])
+  @@map("family_members")
+}
+
+enum FamilyRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// Memory & Content System
+model Memory {
+  id              String         @id @default(cuid())
+  title           String
+  description     String?
+  content         String?        // Rich text content
+  type            MemoryType
+  
+  // Media
+  mediaUrls       String[]       // Array of media URLs
+  thumbnailUrl    String?
+  
+  // Metadata
+  date            DateTime?      // When the memory occurred
+  location        String?
+  tags            String[]
+  importance      Int            @default(3) // 1-5 scale
+  isPublic        Boolean        @default(false)
+  
+  // AI Enhancement
+  aiGenerated     Boolean        @default(false)
+  aiSummary       String?
+  aiTags          String[]
+  sentiment       String?        // positive, neutral, negative
+  
+  // Constellation Data
+  constellationX  Float?
+  constellationY  Float?
+  connections     String[]       // Array of connected memory IDs
+  
+  // Relations
+  authorId        String
+  familyId        String
+  author          User           @relation(fields: [authorId], references: [id])
+  family          Family         @relation(fields: [familyId], references: [id])
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("memories")
+}
+
+enum MemoryType {
+  PHOTO
+  VIDEO
+  STORY
+  MILESTONE
+  PERSON
+  PLACE
+  DOCUMENT
+  AUDIO
+}
+
+// AI-Generated Stories
+model Story {
+  id              String         @id @default(cuid())
+  title           String
+  content         String         // AI-generated story content
+  prompt          String?        // Original prompt used
+  style           String         @default("narrative")
+  
+  // AI Metadata
+  aiModel         String         @default("llama4")
+  generationTime  Int?           // Time taken to generate (ms)
+  confidence      Float?         // AI confidence score
+  
+  // Relations
+  authorId        String
+  familyId        String
+  memoryIds       String[]       // Memories used to generate story
+  
+  author          User           @relation(fields: [authorId], references: [id])
+  family          Family         @relation(fields: [familyId], references: [id])
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("stories")
+}
+
+// Time Capsules for Future Generations
+model TimeCapsule {
+  id              String         @id @default(cuid())
+  title           String
+  message         String
+  mediaUrls       String[]
+  
+  // Delivery Settings
+  deliveryDate    DateTime
+  recipients      String[]       // Email addresses or user IDs
+  isDelivered     Boolean        @default(false)
+  deliveredAt     DateTime?
+  
+  // Relations
+  creatorId       String
+  familyId        String
+  creator         User           @relation(fields: [creatorId], references: [id])
+  family          Family         @relation(fields: [familyId], references: [id])
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("time_capsules")
+}
+
+// Legacy Planning
+model LegacyPlan {
+  id              String         @id @default(cuid())
+  title           String
+  description     String
+  instructions    String         // Detailed instructions for heirs
+  
+  // Digital Assets
+  digitalAssets   Json           // Structured data about digital assets
+  accessInstructions String?
+  
+  // Activation Conditions
+  activationTrigger String       // "date", "inactivity", "manual"
+  activationDate    DateTime?
+  inactivityDays    Int?
+  
+  isActive        Boolean        @default(false)
+  isExecuted      Boolean        @default(false)
+  executedAt      DateTime?
+  
+  // Relations
+  ownerId         String
+  owner           User           @relation(fields: [ownerId], references: [id])
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("legacy_plans")
+}
+
+// Notifications & Reminders
+model Notification {
+  id              String         @id @default(cuid())
+  title           String
+  message         String
+  type            NotificationType
+  priority        NotificationPriority @default(NORMAL)
+  
+  // Delivery
+  isRead          Boolean        @default(false)
+  readAt          DateTime?
+  deliveryMethod  String[]       // ["app", "email", "push"]
+  
+  // Scheduling
+  scheduledFor    DateTime?
+  isRecurring     Boolean        @default(false)
+  recurringPattern String?       // cron-like pattern
+  
+  // Relations
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("notifications")
+}
+
+enum NotificationType {
+  MEMORY_REMINDER
+  FAMILY_INVITE
+  STORY_GENERATED
+  TIME_CAPSULE_READY
+  SUBSCRIPTION_EXPIRING
+  REFERRAL_REWARD
+  SYSTEM_UPDATE
+  LEGACY_REMINDER
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+// AI Interactions & Learning
+model AIInteraction {
+  id              String         @id @default(cuid())
+  type            String         // "story_generation", "memory_analysis", "recommendation"
+  prompt          String
+  response        String
+  model           String         @default("llama4")
+  
+  // Performance Metrics
+  responseTime    Int            // milliseconds
+  tokensUsed      Int?
+  confidence      Float?
+  userRating      Int?           // 1-5 stars
+  
+  // Relations
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  
+  createdAt       DateTime       @default(now())
+  
+  @@map("ai_interactions")
+}
+
+// User Sessions & Security
+model UserSession {
+  id              String         @id @default(cuid())
+  sessionToken    String         @unique
+  userId          String
+  
+  // Session Data
+  ipAddress       String?
+  userAgent       String?
+  location        String?
+  isActive        Boolean        @default(true)
+  
+  expiresAt       DateTime
+  createdAt       DateTime       @default(now())
+  
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
+}
+
+// Analytics & Insights
+model UserAnalytics {
+  id              String         @id @default(cuid())
+  userId          String
+  date            DateTime       @default(now())
+  
+  // Engagement Metrics
+  memoriesCreated Int            @default(0)
+  storiesGenerated Int           @default(0)
+  timeSpent       Int            @default(0) // minutes
+  featuresUsed    String[]
+  
+  // Constellation Interactions
+  nodesClicked    Int            @default(0)
+  connectionsExplored Int        @default(0)
+  
+  @@unique([userId, date])
+  @@map("user_analytics")
+}
+
+// System Configuration
+model SystemConfig {
+  id              String         @id @default(cuid())
+  key             String         @unique
+  value           String
+  description     String?
+  
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("system_config")
+}

@@ -1,0 +1,119 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Global styles for the Heirloom platform */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  /* Constellation-specific styles */
+  .constellation-node {
+    @apply relative cursor-pointer transition-all duration-300 ease-out;
+    @apply hover:scale-110 hover:z-10;
+  }
+  
+  .constellation-connection {
+    @apply absolute opacity-30 transition-opacity duration-500;
+    stroke: theme('colors.constellation.400');
+    stroke-width: 1;
+  }
+  
+  .constellation-connection.active {
+    @apply opacity-80;
+    stroke: theme('colors.legacy.400');
+    stroke-width: 2;
+  }
+  
+  /* Memory orb styles */
+  .memory-orb {
+    @apply relative rounded-full bg-gradient-to-br from-constellation-300 to-constellation-600;
+    @apply shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply border-2 border-white/20 backdrop-blur-sm;
+  }
+  
+  .memory-orb::before {
+    content: '';
+    @apply absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent;
+    @apply pointer-events-none;
+  }
+  
+  /* Legacy glow effect */
+  .legacy-glow {
+    @apply relative;
+  }
+  
+  .legacy-glow::after {
+    content: '';
+    @apply absolute inset-0 rounded-full opacity-0 transition-opacity duration-300;
+    background: radial-gradient(circle, theme('colors.legacy.400/0.3') 0%, transparent 70%);
+    @apply pointer-events-none;
+  }
+  
+  .legacy-glow:hover::after {
+    @apply opacity-100;
+  }
+  
+  /* Floating animation for UI elements */
+  .float-animation {
+    animation: memory-float 6s ease-in-out infinite;
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-base-200 rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-constellation-400 rounded-full hover:bg-constellation-500;
+  }
+  
+  /* Glass morphism effect */
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply bg-black/10 backdrop-blur-md border border-white/10;
+  }
+}
+
+@layer utilities {
+  /* Text gradients */
+  .text-gradient-constellation {
+    @apply bg-gradient-to-r from-constellation-400 to-constellation-600 bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-legacy {
+    @apply bg-gradient-to-r from-legacy-400 to-legacy-600 bg-clip-text text-transparent;
+  }
+  
+  /* Constellation grid background */
+  .constellation-bg {
+    background-image: 
+      radial-gradient(circle at 25% 25%, theme('colors.constellation.500/0.1') 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, theme('colors.legacy.500/0.1') 0%, transparent 50%);
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
