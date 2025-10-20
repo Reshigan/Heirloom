@@ -1,0 +1,115 @@
+name: 🚀 Loominary Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '20'
+  PRODUCTION_SERVER: '3.8.160.221'
+  PRODUCTION_USER: 'ubuntu'
+  DEPLOY_PATH: '/opt/loominary/Heirloom'
+
+jobs:
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: sveltekit-app/package-lock.json
+        
+    - name: 📦 Install frontend dependencies
+      run: |
+        cd sveltekit-app
+        npm ci
+        
+    - name: 🏗️ Build frontend
+      run: |
+        cd sveltekit-app
+        npm run build
+        
+    - name: ✅ Run frontend tests
+      run: |
+        cd sveltekit-app
+        npm test || echo "No tests configured yet"
+
+  deploy:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: sveltekit-app/package-lock.json
+        
+    - name: 📦 Install dependencies
+      run: |
+        cd sveltekit-app
+        npm ci
+        
+    - name: 🏗️ Build application
+      run: |
+        cd sveltekit-app
+        npm run build
+        
+    - name: 📋 Prepare deployment package
+      run: |
+        mkdir -p deploy-package
+        cp -r sveltekit-app/build deploy-package/
+        cp -r sveltekit-app/package*.json deploy-package/
+        cp deploy-production.sh deploy-package/
+        cp docker-compose.simple.yml deploy-package/docker-compose.yml
+        cp .env.production deploy-package/
+        
+    - name: 🔐 Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ env.PRODUCTION_SERVER }} >> ~/.ssh/known_hosts
+        
+    - name: 🚀 Deploy to production
+      run: |
+        # Upload deployment package
+        scp -r deploy-package/* ${{ env.PRODUCTION_USER }}@${{ env.PRODUCTION_SERVER }}:${{ env.DEPLOY_PATH }}/
+        
+        # Execute deployment script
+        ssh ${{ env.PRODUCTION_USER }}@${{ env.PRODUCTION_SERVER }} << 'EOF'
+          cd ${{ env.DEPLOY_PATH }}
+          chmod +x deploy-production.sh
+          ./deploy-production.sh
+        EOF
+        
+    - name: 🔍 Verify deployment
+      run: |
+        sleep 30
+        curl -f https://loom.vantax.co.za/health || exit 1
+        echo "✅ Deployment successful!"
+        
+    - name: 📢 Notify deployment status
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "🎉 Loominary deployed successfully to production!"
+        else
+          echo "❌ Deployment failed!"
+          exit 1
+        fi

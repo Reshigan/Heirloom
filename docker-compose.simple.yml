@@ -15,6 +15,11 @@ services:
     restart: unless-stopped
     networks:
       - loominary_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loominary_user -d loominary_prod"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   redis:
     image: redis:7-alpine
@@ -26,6 +31,11 @@ services:
     restart: unless-stopped
     networks:
       - loominary_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   ollama:
     image: ollama/ollama:latest
@@ -39,10 +49,12 @@ services:
       - loominary_network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: node:20-alpine
     container_name: loominary_backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=production
     env_file:
@@ -50,17 +62,22 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - loominary_network
+    command: sh -c "npm install && npm run dev"
 
   frontend:
-    build:
-      context: ./sveltekit-app
-      dockerfile: Dockerfile
+    image: node:20-alpine
     container_name: loominary_frontend
+    working_dir: /app
+    volumes:
+      - ./sveltekit-app:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=production
     ports:
@@ -70,6 +87,7 @@ services:
     restart: unless-stopped
     networks:
       - loominary_network
+    command: sh -c "npm install && npm run build && npm run preview -- --host 0.0.0.0 --port 3000"
 
 volumes:
   postgres_data:
