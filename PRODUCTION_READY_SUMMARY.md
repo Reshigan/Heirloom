@@ -1,4 +1,4 @@
-# 🌟 Heirloom Platform - Production Ready Summary
+# 🌟 Loominary Platform - Production Ready Summary
 
 ## 🚀 MISSION ACCOMPLISHED: World's First Legacy Platform
 
@@ -191,8 +191,8 @@
 ### Quick Start (Development)
 ```bash
 # Clone repository
-git clone https://github.com/Reshigan/Heirloom.git
-cd Heirloom
+git clone https://github.com/Reshigan/Loominary.git
+cd Loominary
 
 # Start backend
 cd backend && npm install && npm run dev
@@ -229,7 +229,7 @@ npm run test:e2e        # End-to-end tests
 
 ## 🎉 CONCLUSION
 
-**The Heirloom platform is now PRODUCTION READY and ready for GLOBAL LAUNCH!**
+**The Loominary platform is now PRODUCTION READY and ready for GLOBAL LAUNCH!**
 
 ### ✨ What We've Built
 - A **revolutionary legacy preservation platform** that's bigger than Facebook or LinkedIn
@@ -257,7 +257,7 @@ npm run test:e2e        # End-to-end tests
 
 ---
 
-**"Heirloom - Where memories become legacies"**
+**"Loominary - Where memories become legacies"**
 
 *Built with ❤️ for future generations*
 

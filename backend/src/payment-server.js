@@ -188,7 +188,7 @@ fastify.post('/api/ai/story', async (request, reply) => {
 const start = async () => {
   try {
     await fastify.listen({ port: 3001, host: '0.0.0.0' });
-    console.log('🚀 Heirloom Payment Server running on http://localhost:3001');
+    console.log('🚀 Loominary Payment Server running on http://localhost:3001');
     console.log('📊 Health check: http://localhost:3001/health');
     console.log('💰 Pricing tiers: http://localhost:3001/api/subscriptions/tiers');
   } catch (err) {

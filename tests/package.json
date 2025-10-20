@@ -1,7 +1,7 @@
 {
   "name": "heirloom-tests",
   "version": "1.0.0",
-  "description": "Comprehensive test suite for Heirloom platform",
+  "description": "Comprehensive test suite for Loominary platform",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",

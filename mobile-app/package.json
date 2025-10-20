@@ -1,7 +1,7 @@
 {
   "name": "heirloom-mobile",
   "version": "1.0.0",
-  "description": "Heirloom Mobile App - Legacy Preservation for Future Generations",
+  "description": "Loominary Mobile App - Legacy Preservation for Future Generations",
   "main": "index.js",
   "scripts": {
     "android": "react-native run-android",
@@ -10,7 +10,7 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "build:android": "cd android && ./gradlew assembleRelease",
-    "build:ios": "cd ios && xcodebuild -workspace HeirloomMobile.xcworkspace -scheme HeirloomMobile -configuration Release -destination generic/platform=iOS -archivePath HeirloomMobile.xcarchive archive"
+    "build:ios": "cd ios && xcodebuild -workspace LoominaryMobile.xcworkspace -scheme LoominaryMobile -configuration Release -destination generic/platform=iOS -archivePath LoominaryMobile.xcarchive archive"
   },
   "dependencies": {
     "react": "18.2.0",

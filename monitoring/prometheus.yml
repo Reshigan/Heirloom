@@ -17,7 +17,7 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  # Heirloom Backend API
+  # Loominary Backend API
   - job_name: 'heirloom-backend'
     static_configs:
       - targets: ['backend:3001']
@@ -25,7 +25,7 @@ scrape_configs:
     scrape_interval: 10s
     scrape_timeout: 5s
 
-  # Heirloom Frontend
+  # Loominary Frontend
   - job_name: 'heirloom-frontend'
     static_configs:
       - targets: ['frontend:3000']

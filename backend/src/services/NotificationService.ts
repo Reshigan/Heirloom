@@ -332,7 +332,7 @@ export class NotificationService {
     await this.createNotification({
       userId,
       title: '⚠️ Subscription Expiring Soon',
-      message: `Your Heirloom subscription expires in ${daysUntilExpiration} days. Renew now to keep preserving your family's legacy.`,
+      message: `Your Loominary subscription expires in ${daysUntilExpiration} days. Renew now to keep preserving your family's legacy.`,
       type: 'SUBSCRIPTION_EXPIRING',
       priority: urgency as NotificationPriority,
       deliveryMethod: ['app', 'email'],
@@ -390,7 +390,7 @@ export class NotificationService {
       const emailTemplate = this.generateEmailTemplate(notification);
       
       await this.emailTransporter.sendMail({
-        from: `"Heirloom" <${config.email.from}>`,
+        from: `"Loominary" <${config.email.from}>`,
         to: email,
         subject: notification.title,
         html: emailTemplate,
@@ -413,16 +413,16 @@ export class NotificationService {
             <p style="color: #4b5563;">${timeCapsule.message}</p>
           </div>
           <p>This message was created on ${timeCapsule.createdAt.toLocaleDateString()} to be delivered today.</p>
-          <p>Visit <a href="${config.app.url}" style="color: #0ea5e9;">Heirloom</a> to create your own time capsules and preserve your family's legacy.</p>
+          <p>Visit <a href="${config.app.url}" style="color: #0ea5e9;">Loominary</a> to create your own time capsules and preserve your family's legacy.</p>
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 14px;">
-            This time capsule was sent through Heirloom - The world's first legacy platform for future generations.
+            This time capsule was sent through Loominary - The world's first legacy platform for future generations.
           </p>
         </div>
       `;
 
       await this.emailTransporter.sendMail({
-        from: `"Heirloom Time Capsule" <${config.email.from}>`,
+        from: `"Loominary Time Capsule" <${config.email.from}>`,
         to: email,
         subject: `📮 Time Capsule: ${timeCapsule.title}`,
         html: emailTemplate,
@@ -455,7 +455,7 @@ export class NotificationService {
     return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #0ea5e9, #3b82f6); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">${emoji} Heirloom</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">${emoji} Loominary</h1>
           <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Preserving Legacy for Future Generations</p>
         </div>
         
@@ -465,7 +465,7 @@ export class NotificationService {
           
           <div style="text-align: center; margin: 30px 0;">
             <a href="${config.app.url}" style="background: #0ea5e9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Open Heirloom
+              Open Loominary
             </a>
           </div>
           
@@ -473,7 +473,7 @@ export class NotificationService {
           
           <p style="color: #6b7280; font-size: 14px; margin: 0;">
             Best regards,<br>
-            The Heirloom Team
+            The Loominary Team
           </p>
         </div>
       </div>

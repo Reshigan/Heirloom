@@ -139,7 +139,7 @@
 </script>
 
 <svelte:head>
-  <title>Pricing - Heirloom Legacy Platform</title>
+  <title>Pricing - Loominary Legacy Platform</title>
   <meta name="description" content="Choose the perfect plan to preserve your family's legacy for future generations. From basic memory storage to enterprise-grade legacy management." />
 </svelte:head>
 
@@ -264,7 +264,7 @@
     <!-- Features Comparison -->
     <div class="mt-24">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-white mb-4">Why Choose Heirloom?</h2>
+        <h2 class="text-3xl font-bold text-white mb-4">Why Choose Loominary?</h2>
         <p class="text-gray-300 max-w-2xl mx-auto">
           More than just storage - we're building the future of legacy preservation
         </p>

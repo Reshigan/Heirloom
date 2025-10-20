@@ -39,7 +39,7 @@
 </script>
 
 <svelte:head>
-  <title>Admin Dashboard - Heirloom</title>
+  <title>Admin Dashboard - Loominary</title>
 </svelte:head>
 
 <div class="space-y-6">

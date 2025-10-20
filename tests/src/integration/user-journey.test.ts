@@ -64,7 +64,7 @@ describe('User Journey Integration Tests', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'My First Memory',
-          content: 'This is my first memory on Heirloom platform',
+          content: 'This is my first memory on Loominary platform',
           type: 'text',
           familyId: familyId
         })

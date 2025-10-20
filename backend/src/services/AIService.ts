@@ -467,6 +467,277 @@ export class AIService {
     return Math.min(1.0, confidence);
   }
 
+  // Advanced AI functions for vault system
+  async analyzeMemoryForVault(memory: any) {
+    try {
+      const prompt = `
+      Analyze this memory for emotional context and search metadata:
+      
+      Title: ${memory.title}
+      Content: ${memory.content}
+      Type: ${memory.type}
+      Created: ${memory.createdAt}
+      
+      Please provide:
+      1. Emotional context (sentiment, emotions, intensity)
+      2. Age context if mentioned (subject age, age range, life stage)
+      3. Search metadata (keywords, people, places, events, time references)
+      
+      Return as JSON with this structure:
+      {
+        "emotionalContext": {
+          "sentiment": "positive|negative|neutral|very_positive|very_negative",
+          "emotions": ["joy", "love", "nostalgia", "pride"],
+          "intensity": 0.8,
+          "ageContext": {
+            "subjectAge": 35,
+            "ageRange": "30s",
+            "lifeStage": "parent"
+          }
+        },
+        "searchMetadata": {
+          "keywords": ["vacation", "beach", "family"],
+          "people": ["mom", "dad", "children"],
+          "places": ["Miami", "beach", "hotel"],
+          "events": ["vacation", "swimming", "dinner"],
+          "timeReferences": ["summer", "2023", "weekend"]
+        }
+      }
+      `;
+
+      const response = await this.ollama.chat({
+        model: this.modelName,
+        messages: [
+          { role: 'system', content: 'You are an expert memory analyst specializing in emotional context and metadata extraction for private family vaults.' },
+          { role: 'user', content: prompt }
+        ],
+        options: {
+          temperature: 0.3,
+          format: 'json'
+        }
+      });
+
+      try {
+        return JSON.parse(response.message.content);
+      } catch (parseError) {
+        // Fallback analysis if JSON parsing fails
+        return {
+          emotionalContext: {
+            sentiment: 'neutral',
+            emotions: [],
+            intensity: 0.5,
+            ageContext: {}
+          },
+          searchMetadata: {
+            keywords: [],
+            people: [],
+            places: [],
+            events: [],
+            timeReferences: []
+          }
+        };
+      }
+    } catch (error) {
+      logger.error('Memory vault analysis failed:', error);
+      throw new Error('Failed to analyze memory for vault');
+    }
+  }
+
+  async parseNaturalLanguageQuery(query: string) {
+    try {
+      const prompt = `
+      Parse this natural language query for memory search:
+      "${query}"
+      
+      Extract and return as JSON:
+      {
+        "sentiment": "positive|negative|neutral|very_positive|very_negative",
+        "emotions": ["joy", "sadness", "love", "pride"],
+        "ageRange": "20s|30s|40s|childhood|teenage|young_adult|middle_age|elderly",
+        "timeRange": {
+          "start": "YYYY-MM-DD or relative like '10 years ago'",
+          "end": "YYYY-MM-DD or relative like 'last year'"
+        },
+        "people": ["mom", "dad", "sister", "friend"],
+        "places": ["home", "school", "beach", "Paris"],
+        "events": ["birthday", "wedding", "vacation", "graduation"],
+        "keywords": ["happy", "celebration", "family"]
+      }
+      
+      Examples:
+      - "tell me when my mom was happy in her 30s" → sentiment: "positive", ageRange: "30s", people: ["mom"]
+      - "show me sad memories from childhood" → sentiment: "negative", ageRange: "childhood"
+      - "find joyful family moments from last summer" → sentiment: "positive", emotions: ["joy"], keywords: ["family"], timeRange: {"start": "last summer"}
+      `;
+
+      const response = await this.ollama.chat({
+        model: this.modelName,
+        messages: [
+          { role: 'system', content: 'You are an expert natural language processor specializing in emotional memory queries.' },
+          { role: 'user', content: prompt }
+        ],
+        options: {
+          temperature: 0.2,
+          format: 'json'
+        }
+      });
+
+      try {
+        return JSON.parse(response.message.content);
+      } catch (parseError) {
+        // Fallback parsing
+        const parsedQuery: any = {
+          sentiment: null,
+          emotions: [],
+          ageRange: null,
+          timeRange: {},
+          people: [],
+          places: [],
+          events: [],
+          keywords: []
+        };
+
+        // Simple keyword extraction as fallback
+        const lowerQuery = query.toLowerCase();
+        
+        // Sentiment detection
+        if (lowerQuery.includes('happy') || lowerQuery.includes('joy') || lowerQuery.includes('good')) {
+          parsedQuery.sentiment = 'positive';
+        } else if (lowerQuery.includes('sad') || lowerQuery.includes('upset') || lowerQuery.includes('bad')) {
+          parsedQuery.sentiment = 'negative';
+        }
+
+        // Age range detection
+        if (lowerQuery.includes('20s')) parsedQuery.ageRange = '20s';
+        else if (lowerQuery.includes('30s')) parsedQuery.ageRange = '30s';
+        else if (lowerQuery.includes('40s')) parsedQuery.ageRange = '40s';
+        else if (lowerQuery.includes('childhood')) parsedQuery.ageRange = 'childhood';
+
+        // People detection
+        const people = ['mom', 'dad', 'mother', 'father', 'sister', 'brother', 'friend', 'family'];
+        parsedQuery.people = people.filter(person => lowerQuery.includes(person));
+
+        return parsedQuery;
+      }
+    } catch (error) {
+      logger.error('Natural language query parsing failed:', error);
+      throw new Error('Failed to parse natural language query');
+    }
+  }
+
+  async rankSearchResults(vaultMemories: any[], query: string) {
+    try {
+      if (!query || vaultMemories.length === 0) {
+        return vaultMemories;
+      }
+
+      const prompt = `
+      Rank these memory search results based on relevance to the query: "${query}"
+      
+      Memories:
+      ${vaultMemories.map((vm, index) => `
+      ${index + 1}. ${vm.memory.title}
+      Content: ${vm.memory.content.substring(0, 200)}...
+      Sentiment: ${vm.emotionalContext?.sentiment || 'unknown'}
+      Emotions: ${vm.emotionalContext?.emotions?.join(', ') || 'none'}
+      Age Context: ${vm.emotionalContext?.ageContext?.ageRange || 'unknown'}
+      `).join('\n')}
+      
+      Return only the numbers (1, 2, 3, etc.) in order of relevance, separated by commas.
+      Most relevant first.
+      `;
+
+      const response = await this.ollama.chat({
+        model: this.modelName,
+        messages: [
+          { role: 'system', content: 'You are an expert at ranking memory search results based on emotional and contextual relevance.' },
+          { role: 'user', content: prompt }
+        ],
+        options: {
+          temperature: 0.1
+        }
+      });
+
+      const rankingText = response.message.content.trim();
+      
+      try {
+        const rankings = rankingText.split(',').map(n => parseInt(n.trim()) - 1);
+        const rankedResults = rankings
+          .filter(index => index >= 0 && index < vaultMemories.length)
+          .map(index => vaultMemories[index]);
+        
+        // Add any missing memories at the end
+        const usedIndices = new Set(rankings);
+        const remainingMemories = vaultMemories.filter((_, index) => !usedIndices.has(index));
+        
+        return [...rankedResults, ...remainingMemories];
+      } catch (parseError) {
+        return vaultMemories; // Return original order if parsing fails
+      }
+    } catch (error) {
+      logger.error('Search result ranking failed:', error);
+      return vaultMemories; // Return original order if ranking fails
+    }
+  }
+
+  async generateEmotionalInsights(memories: any[]) {
+    try {
+      const prompt = `
+      Analyze these memories for emotional patterns and insights:
+      
+      ${memories.map(memory => `
+      Title: ${memory.title}
+      Content: ${memory.content.substring(0, 150)}...
+      Date: ${memory.createdAt}
+      Sentiment: ${memory.aiInsights?.sentiment || 'unknown'}
+      `).join('\n')}
+      
+      Provide insights about:
+      1. Emotional journey over time
+      2. Recurring themes and patterns
+      3. Significant emotional moments
+      4. Overall emotional health indicators
+      5. Recommendations for memory preservation
+      
+      Return as JSON:
+      {
+        "emotionalJourney": "description of emotional progression",
+        "patterns": ["pattern1", "pattern2"],
+        "significantMoments": [{"title": "moment", "significance": "why important"}],
+        "healthIndicators": {"overall": "positive|neutral|concerning", "details": "explanation"},
+        "recommendations": ["recommendation1", "recommendation2"]
+      }
+      `;
+
+      const response = await this.ollama.chat({
+        model: this.modelName,
+        messages: [
+          { role: 'system', content: 'You are a compassionate family therapist and memory analyst specializing in emotional patterns and family dynamics.' },
+          { role: 'user', content: prompt }
+        ],
+        options: {
+          temperature: 0.4,
+          format: 'json'
+        }
+      });
+
+      try {
+        return JSON.parse(response.message.content);
+      } catch (parseError) {
+        return {
+          emotionalJourney: "Unable to analyze emotional journey at this time.",
+          patterns: [],
+          significantMoments: [],
+          healthIndicators: { overall: "neutral", details: "Analysis unavailable" },
+          recommendations: ["Continue preserving memories", "Add more context to memories"]
+        };
+      }
+    } catch (error) {
+      logger.error('Emotional insights generation failed:', error);
+      throw new Error('Failed to generate emotional insights');
+    }
+  }
+
   private async logAIInteraction(data: {
     userId: string;
     type: string;

@@ -116,7 +116,7 @@ async function registerPlugins() {
   await server.register(swagger, {
     swagger: {
       info: {
-        title: 'Heirloom API',
+        title: 'Loominary API',
         description: 'Revolutionary legacy platform API for future generations',
         version: '1.0.0',
       },
@@ -263,7 +263,7 @@ async function start() {
       host: config.server.host,
     });
     
-    logger.info(`🚀 Heirloom server running at ${address}`);
+    logger.info(`🚀 Loominary server running at ${address}`);
     logger.info(`📚 API documentation available at ${address}/docs`);
     logger.info(`🌟 Building the future of legacy preservation...`);
     

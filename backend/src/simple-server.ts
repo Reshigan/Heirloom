@@ -137,7 +137,7 @@ This revolutionary platform uses advanced AI to transform your precious memories
       host: '0.0.0.0'
     });
     
-    console.log(`🚀 Heirloom backend running at ${address}`);
+    console.log(`🚀 Loominary backend running at ${address}`);
     console.log(`🌟 Building the future of legacy preservation...`);
     
   } catch (error) {

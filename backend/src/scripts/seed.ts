@@ -675,7 +675,7 @@ async function main() {
     logger.info('✅ Database seeding completed successfully!');
     logger.info(`Created ${allUsers.length} users across ${SAMPLE_FAMILIES.length} families`);
     logger.info(`Created ${allMemories.length} memories with AI-generated stories and time capsules`);
-    logger.info('🚀 Your Heirloom platform is ready for testing!');
+    logger.info('🚀 Your Loominary platform is ready for testing!');
 
     // Log sample login credentials
     logger.info('\n📧 Sample Login Credentials:');

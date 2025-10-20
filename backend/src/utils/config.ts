@@ -76,7 +76,7 @@ const configSchema = z.object({
   // App Configuration
   app: z.object({
     url: z.string().default('http://localhost:12000'),
-    name: z.string().default('Heirloom'),
+    name: z.string().default('Loominary'),
   }),
 
   // Security Configuration
@@ -147,7 +147,7 @@ function loadConfig(): Config {
     },
     app: {
       url: process.env.APP_URL || 'http://localhost:12000',
-      name: process.env.APP_NAME || 'Heirloom',
+      name: process.env.APP_NAME || 'Loominary',
     },
     security: {
       bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '12'),
@@ -265,7 +265,7 @@ export const notificationTemplates = {
   },
   FAMILY_INVITE: {
     title: '👨‍👩‍👧‍👦 Family Invitation',
-    defaultMessage: 'You\'ve been invited to join a family on Heirloom!',
+    defaultMessage: 'You\'ve been invited to join a family on Loominary!',
   },
   STORY_GENERATED: {
     title: '✨ Your AI Story is Ready',
@@ -277,11 +277,11 @@ export const notificationTemplates = {
   },
   SUBSCRIPTION_EXPIRING: {
     title: '⚠️ Subscription Expiring Soon',
-    defaultMessage: 'Your Heirloom subscription is expiring soon. Renew to keep preserving your family\'s legacy.',
+    defaultMessage: 'Your Loominary subscription is expiring soon. Renew to keep preserving your family\'s legacy.',
   },
   REFERRAL_REWARD: {
     title: '🎁 Referral Reward Earned',
-    defaultMessage: 'Congratulations! You\'ve earned a reward for referring friends to Heirloom.',
+    defaultMessage: 'Congratulations! You\'ve earned a reward for referring friends to Loominary.',
   },
   LEGACY_REMINDER: {
     title: '🏛️ Legacy Planning Reminder',

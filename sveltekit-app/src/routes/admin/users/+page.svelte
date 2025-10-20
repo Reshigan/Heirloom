@@ -152,7 +152,7 @@
 </script>
 
 <svelte:head>
-  <title>User Management - Heirloom Admin</title>
+  <title>User Management - Loominary Admin</title>
 </svelte:head>
 
 <div class="space-y-6">

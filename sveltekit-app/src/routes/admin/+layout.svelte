@@ -73,7 +73,7 @@
         </div>
         
         <div class="flex-1">
-          <h1 class="text-xl font-bold text-primary">Heirloom Admin</h1>
+          <h1 class="text-xl font-bold text-primary">Loominary Admin</h1>
         </div>
         
         <div class="flex-none gap-2">

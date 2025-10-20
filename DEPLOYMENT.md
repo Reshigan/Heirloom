@@ -1,12 +1,12 @@
-# 🚀 Heirloom Production Deployment Guide
+# 🚀 Loominary Production Deployment Guide
 
 ## The World's First Legacy Platform - Bigger Than Facebook or LinkedIn
 
-This guide covers the complete production deployment of Heirloom, the revolutionary legacy preservation platform designed to leave something back for future generations.
+This guide covers the complete production deployment of Loominary, the revolutionary legacy preservation platform designed to leave something back for future generations.
 
 ## 🌟 Platform Overview
 
-Heirloom is a world-first platform that combines:
+Loominary is a world-first platform that combines:
 - **Revolutionary 3D Constellation UI** - Interactive memory visualization
 - **AI-Powered Story Generation** - Using Ollama/Llama 3.1
 - **Multi-Platform Support** - Web, mobile (React Native), and desktop
@@ -117,7 +117,7 @@ sudo ufw allow from 10.0.0.0/8 to any port 6379  # Redis (internal only)
 sudo mkdir -p /opt/heirloom
 sudo chown $USER:$USER /opt/heirloom
 cd /opt/heirloom
-git clone https://github.com/Reshigan/Heirloom.git .
+git clone https://github.com/Reshigan/Loominary.git .
 git checkout main
 ```
 
@@ -389,7 +389,7 @@ docker-compose -f docker-compose.production.yml up -d --scale frontend=2
 
 ## 🏆 Mission: Bigger Than Facebook or LinkedIn
 
-Heirloom is designed to be the world's first legacy platform that:
+Loominary is designed to be the world's first legacy platform that:
 - **Preserves memories** for future generations
 - **Connects families** across time and space
 - **Uses AI** to enhance storytelling

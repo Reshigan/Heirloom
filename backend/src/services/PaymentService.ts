@@ -258,7 +258,7 @@ export class PaymentService {
         },
         product_data: {
           name: tier.name,
-          description: `Heirloom ${tier.name} - ${tier.features.join(', ')}`
+          description: `Loominary ${tier.name} - ${tier.features.join(', ')}`
         },
         lookup_key: `heirloom_${tier.id}_${tier.interval}`
       });

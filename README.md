@@ -1,12 +1,24 @@
-# 🌟 Heirloom - The Future of Legacy Preservation
+# 🌟 Loominary - Private Memory Vaults
 
-> *Building something bigger than Facebook or LinkedIn - a platform that preserves memories and stories for future generations.*
+> *Building something bigger than Facebook or LinkedIn - private vaults that weave memories across time, accessible only through sacred tokens.*
 
 ## 🚀 Vision
 
-Heirloom is a revolutionary social platform designed to create lasting digital legacies. Unlike traditional social media that focuses on the present, Heirloom is built to preserve and share meaningful memories, stories, and connections across generations.
+Loominary is a revolutionary private vault platform designed to create lasting digital legacies. Unlike traditional social media, Loominary creates secure private vaults where memories are preserved and only accessible through special tokens - typically shared upon death. Each vault weaves memories across time, allowing future generations to search by sentiment and emotion.
 
 ## ✨ World-First Features
+
+### 🔐 Private Vault System
+- **Token-Based Access**: Memories locked in private vaults, accessible only through secure tokens
+- **Inheritance Workflow**: Tokens typically shared upon death to unlock family memories
+- **Multi-Token Security**: Support for primary, backup, and emergency access tokens
+- **Family Linking**: Connect family members after vault unlock for collaborative access
+
+### 🔍 Sentiment Search
+- **Natural Language Queries**: "Tell me when my mom was happy in her 30s"
+- **Emotional Intelligence**: AI-powered sentiment and emotion analysis
+- **Age Context Filtering**: Search by life stages, age ranges, and time periods
+- **Memory Ranking**: AI ranks results by emotional relevance and context
 
 ### 🌌 Constellation UI
 - **Interactive 3D Memory Constellation**: Visualize your life's memories as an interconnected constellation of stars
@@ -75,10 +87,10 @@ Heirloom is a revolutionary social platform designed to create lasting digital l
 
 ## 🌟 Our Mission
 
-*"To create a platform that transcends time, preserving the stories, memories, and wisdom of today for the generations of tomorrow. Every memory shared on Heirloom is a gift to the future."*
+*"To create a platform that transcends time, preserving the stories, memories, and wisdom of today for the generations of tomorrow. Every memory shared on Loominary is a gift to the future."*
 
 ---
 
 **Built with ❤️ for future generations**
 
-*Heirloom - Where memories become legacies*
+*Loominary - Where memories become legacies*

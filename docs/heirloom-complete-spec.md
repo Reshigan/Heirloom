@@ -1,4 +1,4 @@
-# Heirloom - Complete Functional Specification & UI Design System
+# Loominary - Complete Functional Specification & UI Design System
 ## Where Every Memory Becomes a Legacy
 
 > *"We don't inherit the earth from our ancestors, we borrow it from our children."*  
@@ -6,13 +6,13 @@
 
 ---
 
-## The Heart of Heirloom: An Emotional Journey
+## The Heart of Loominary: An Emotional Journey
 
-### Why Heirloom Exists
+### Why Loominary Exists
 
 Every family has a treasure trove of memories scattered across old photo albums, dusty VHS tapes, and fading documents. But more importantly, every family has stories—stories of triumph and loss, of love and laughter, of wisdom earned through lived experience. These aren't just files to be stored; they're the threads that weave generations together.
 
-**Heirloom isn't about organizing data. It's about:**
+**Loominary isn't about organizing data. It's about:**
 - A grandmother's recipe that tastes like childhood
 - A father's voice telling bedtime stories, preserved forever  
 - A child discovering they have their great-grandfather's smile
@@ -24,22 +24,22 @@ Every family has a treasure trove of memories scattered across old photo albums,
 #### 1. **The Moment of Discovery** 
 *"I never knew Dad was such a romantic"*
 
-Sarah, 45, uploads her parents' wedding photos. Heirloom's AI doesn't just organize them—it reveals her father's love letters hidden in the background of photos, transcribes her mother's laughter from old videos, and creates a love story she never fully knew.
+Sarah, 45, uploads her parents' wedding photos. Loominary's AI doesn't just organize them—it reveals her father's love letters hidden in the background of photos, transcribes her mother's laughter from old videos, and creates a love story she never fully knew.
 
 #### 2. **The Connection Across Time**
 *"Grandpa, I wish you could see me now"*
 
-Marcus, 16, uses Heirloom's Voice Synthesis to "talk" with his grandfather who passed when he was 3. Through preserved videos and audio, he hears advice about his first heartbreak in his grandfather's actual voice, contextually generated from real recordings.
+Marcus, 16, uses Loominary's Voice Synthesis to "talk" with his grandfather who passed when he was 3. Through preserved videos and audio, he hears advice about his first heartbreak in his grandfather's actual voice, contextually generated from real recordings.
 
 #### 3. **The Healing Power of Shared Memory**
 *"We're still a family, even though Mom's gone"*
 
-After losing their matriarch, the Johnson family uses Heirloom to create a collaborative memorial story. Each family member contributes memories, creating a living tribute that helps them grieve together while celebrating a life well-lived.
+After losing their matriarch, the Johnson family uses Loominary to create a collaborative memorial story. Each family member contributes memories, creating a living tribute that helps them grieve together while celebrating a life well-lived.
 
 #### 4. **The Gift of Legacy**
 *"This is who you come from"*
 
-Eight-year-old Emma opens Heirloom on her birthday to find a time capsule video from her grandmother, recorded years ago specifically for this day. She learns about her heritage, sees herself in her ancestors' faces, and understands she's part of something bigger.
+Eight-year-old Emma opens Loominary on her birthday to find a time capsule video from her grandmother, recorded years ago specifically for this day. She learns about her heritage, sees herself in her ancestors' faces, and understands she's part of something bigger.
 
 ---
 
@@ -62,13 +62,13 @@ Eight-year-old Emma opens Heirloom on her birthday to find a time capsule video 
 ### 1.1 Core Emotional Principles
 
 #### **Reverence Over Efficiency**
-While tech platforms optimize for speed, Heirloom optimizes for meaning. We intentionally slow users down at meaningful moments—a subtle pause when viewing a memorial, a gentle animation when discovering a connection.
+While tech platforms optimize for speed, Loominary optimizes for meaning. We intentionally slow users down at meaningful moments—a subtle pause when viewing a memorial, a gentle animation when discovering a connection.
 
 #### **Discovery Over Organization**  
 Users don't want to "manage files"—they want to stumble upon forgotten treasures. Our AI surfaces serendipitous connections: "Your daughter's smile matches your grandmother's at the same age."
 
 #### **Collaboration Over Isolation**
-Memory-keeping shouldn't be a solitary burden. Heirloom makes it joyful for families to contribute together, with prompts like "Can anyone identify the people in this photo from Tom's wedding?"
+Memory-keeping shouldn't be a solitary burden. Loominary makes it joyful for families to contribute together, with prompts like "Can anyone identify the people in this photo from Tom's wedding?"
 
 #### **Comfort Over Complexity**
 Technology should disappear. No intimidating interfaces or complex workflows—just intuitive, warm experiences that feel like flipping through a beloved photo album.
@@ -97,7 +97,7 @@ Privacy as Care:
 
 ### 1.3 The Feeling We Create
 
-When users open Heirloom, they should feel:
+When users open Loominary, they should feel:
 - **Welcomed** - Like entering a warm, familiar home
 - **Curious** - Excited to explore and discover
 - **Connected** - Part of a larger family story
@@ -1170,9 +1170,9 @@ Success Metric: 50,000 families, $1M ARR
 
 ---
 
-## Conclusion: The Promise of Heirloom
+## Conclusion: The Promise of Loominary
 
-Heirloom isn't just a product—it's a promise to families that their stories matter, their wisdom won't be lost, and their love will transcend time.
+Loominary isn't just a product—it's a promise to families that their stories matter, their wisdom won't be lost, and their love will transcend time.
 
 We measure success not in metrics, but in moments:
 - A child meeting their great-grandmother through preserved stories
@@ -1195,7 +1195,7 @@ To every family that trusts us with their memories, we promise:
 
 *"We are the stories we tell, the memories we share, and the love we leave behind."*
 
-**Heirloom: Where Every Memory Becomes a Legacy**
+**Loominary: Where Every Memory Becomes a Legacy**
 
 ---
 

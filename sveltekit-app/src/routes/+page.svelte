@@ -110,7 +110,7 @@
 </script>
 
 <svelte:head>
-  <title>Heirloom - The Future of Legacy Preservation</title>
+  <title>Loominary - The Future of Legacy Preservation</title>
   <meta name="description" content="Experience the world's first constellation-based legacy platform. Preserve your family's memories for future generations with revolutionary AI-powered storytelling." />
 </svelte:head>
 
@@ -133,7 +133,7 @@
           </div>
         </div>
         
-        <h1 class="text-4xl font-bold text-white mb-4 animate-pulse">Heirloom</h1>
+        <h1 class="text-4xl font-bold text-white mb-4 animate-pulse">Loominary</h1>
         <p class="text-constellation-200 text-lg mb-8">Initializing your legacy constellation...</p>
         
         <!-- Loading progress -->

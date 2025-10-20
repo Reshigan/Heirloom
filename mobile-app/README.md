@@ -1,6 +1,6 @@
-# 📱 Heirloom Mobile App
+# 📱 Loominary Mobile App
 
-The mobile companion to the revolutionary Heirloom legacy preservation platform.
+The mobile companion to the revolutionary Loominary legacy preservation platform.
 
 ## 🌟 Features
 
@@ -184,4 +184,4 @@ MIT License - see the [LICENSE](../LICENSE) file for details.
 
 **📱 Download from App Store and Google Play (Coming Soon)**
 
-*Heirloom Mobile - Your memories, always with you*
+*Loominary Mobile - Your memories, always with you*
