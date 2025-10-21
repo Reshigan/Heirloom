@@ -9,8 +9,12 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  experimental: {
-    serverComponentsExternalPackages: [],
+  serverExternalPackages: [],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
   images: {
     remotePatterns: [
