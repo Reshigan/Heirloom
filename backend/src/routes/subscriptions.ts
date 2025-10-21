@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
-import { paymentService, SUBSCRIPTION_TIERS } from '../services/PaymentService.js';
+import { paymentService, SUBSCRIPTION_TIERS } from '../services/PaymentService';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy', {

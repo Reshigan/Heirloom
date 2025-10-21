@@ -1,8 +1,8 @@
 import { PrismaClient, NotificationType, NotificationPriority } from '@prisma/client';
 import Redis from 'ioredis';
 import nodemailer from 'nodemailer';
-import { logger } from '../utils/logger.js';
-import { config } from '../utils/config.js';
+import { logger } from '../utils/logger';
+import { config } from '../utils/config';
 
 export interface NotificationRequest {
   userId: string;

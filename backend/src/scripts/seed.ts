@@ -1,6 +1,6 @@
 import { PrismaClient, MemoryType, SubscriptionTier, FamilyRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 const prisma = new PrismaClient();
 

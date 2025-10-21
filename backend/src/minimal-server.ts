@@ -11,26 +11,13 @@ import Redis from 'ioredis';
 import { logger } from './utils/logger';
 import { config } from './utils/config';
 
-// Route imports
-import authRoutes from './routes/auth';
-import userRoutes from './routes/users';
-import familyRoutes from './routes/families';
-import memoryRoutes from './routes/memories';
-import aiRoutes from './routes/ai';
-import notificationRoutes from './routes/notifications';
-import referralRoutes from './routes/referrals';
-import subscriptionRoutes from './routes/subscriptions';
-import timeCapsuleRoutes from './routes/timeCapsules';
-import legacyRoutes from './routes/legacy';
-import analyticsRoutes from './routes/analytics';
-
 // Services
 import { NotificationService } from './services/NotificationService';
 import { AIService } from './services/AIService';
 import { ReferralService } from './services/ReferralService';
 import { WebSocketService } from './services/WebSocketService';
 
-// Initialize database and cache
+// Initialize Prisma
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
@@ -63,37 +50,13 @@ try {
 // Initialize Fastify server
 const server = Fastify({
   logger: logger,
-  trustProxy: true,
-  bodyLimit: 50 * 1024 * 1024, // 50MB for media uploads
 });
 
-// Global error handler
-server.setErrorHandler(async (error, request, reply) => {
-  logger.error('Global error handler:', error);
-  
-  if (error.validation) {
-    return reply.status(400).send({
-      error: 'Validation Error',
-      message: error.message,
-      details: error.validation,
-    });
-  }
-  
-  if (error.statusCode) {
-    return reply.status(error.statusCode).send({
-      error: error.name,
-      message: error.message,
-    });
-  }
-  
-  // Log unexpected errors
-  logger.error('Unexpected error:', error);
-  
-  return reply.status(500).send({
-    error: 'Internal Server Error',
-    message: 'An unexpected error occurred',
-  });
-});
+// Initialize services
+const notificationService = new NotificationService(prisma);
+const aiService = new AIService();
+const referralService = new ReferralService(prisma);
+const webSocketService = new WebSocketService();
 
 // Register plugins
 async function registerPlugins() {
@@ -154,46 +117,19 @@ async function registerPlugins() {
   await server.register(swaggerUi, {
     routePrefix: '/docs',
     uiConfig: {
-      docExpansion: 'list',
+      docExpansion: 'full',
       deepLinking: false,
     },
+    uiHooks: {
+      onRequest: function (request, reply, next) { next(); },
+      preHandler: function (request, reply, next) { next(); },
+    },
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
+    transformSpecification: (swaggerObject, request, reply) => { return swaggerObject; },
+    transformSpecificationClone: true,
   });
 }
-
-// Authentication middleware
-server.decorate('authenticate', async function (request, reply) {
-  try {
-    await request.jwtVerify();
-  } catch (err) {
-    reply.send(err);
-  }
-});
-
-// Add database and cache to request context
-server.decorateRequest('prisma', null);
-server.decorateRequest('redis', null);
-
-server.addHook('onRequest', async (request) => {
-  request.prisma = prisma;
-  request.redis = redis;
-});
-
-// Initialize services
-const notificationService = new NotificationService(prisma, redis);
-const aiService = new AIService(prisma, redis);
-const referralService = new ReferralService(prisma, redis);
-const webSocketService = new WebSocketService(server, prisma, redis);
-
-// Add services to request context
-server.decorateRequest('notificationService', null);
-server.decorateRequest('aiService', null);
-server.decorateRequest('referralService', null);
-
-server.addHook('onRequest', async (request) => {
-  request.notificationService = notificationService;
-  request.aiService = aiService;
-  request.referralService = referralService;
-});
 
 // Health check endpoint
 server.get('/health', async (request, reply) => {
@@ -232,20 +168,14 @@ server.get('/health', async (request, reply) => {
   }
 });
 
-// Register routes
-async function registerRoutes() {
-  await server.register(authRoutes, { prefix: '/api/auth' });
-  await server.register(userRoutes, { prefix: '/api/users' });
-  await server.register(familyRoutes, { prefix: '/api/families' });
-  await server.register(memoryRoutes, { prefix: '/api/memories' });
-  await server.register(aiRoutes, { prefix: '/api/ai' });
-  await server.register(notificationRoutes, { prefix: '/api/notifications' });
-  await server.register(referralRoutes, { prefix: '/api/referrals' });
-  await server.register(subscriptionRoutes, { prefix: '/api/subscriptions' });
-  await server.register(timeCapsuleRoutes, { prefix: '/api/time-capsules' });
-  await server.register(legacyRoutes, { prefix: '/api/legacy' });
-  await server.register(analyticsRoutes, { prefix: '/api/analytics' });
-}
+// Basic route
+server.get('/', async (request, reply) => {
+  return { 
+    message: 'Loominary API - World\'s First Private Vault System',
+    version: '1.0.0',
+    status: 'running'
+  };
+});
 
 // WebSocket routes
 server.register(async function (fastify) {
@@ -279,7 +209,6 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 async function start() {
   try {
     await registerPlugins();
-    await registerRoutes();
     
     // Start background services
     await notificationService.start();

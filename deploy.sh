@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Heirloom Production Deployment Script
-# This script deploys the world-first legacy platform to production
+# Loominary Production Deployment Script
+# Deploys the complete private vault system with inheritance tokens
 
 set -e  # Exit on any error
 
@@ -10,14 +10,17 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Configuration
-ENVIRONMENT=${1:-production}
-BRANCH=${2:-main}
-BACKUP_ENABLED=${3:-true}
+PROJECT_NAME="loominary"
+BACKEND_PORT=${BACKEND_PORT:-3001}
+FRONTEND_PORT=${FRONTEND_PORT:-5173}
+NODE_ENV=${NODE_ENV:-production}
 
-echo -e "${BLUE}🚀 Heirloom Legacy Platform Deployment${NC}"
+echo -e "${BOLD}${BLUE}🏛️  LOOMINARY DEPLOYMENT SCRIPT${NC}"
+echo -e "${BLUE}====================================${NC}\n"
 echo -e "${BLUE}======================================${NC}"
 echo -e "Environment: ${YELLOW}$ENVIRONMENT${NC}"
 echo -e "Branch: ${YELLOW}$BRANCH${NC}"

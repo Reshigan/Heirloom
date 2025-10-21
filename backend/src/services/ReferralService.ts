@@ -1,6 +1,6 @@
 import { PrismaClient, SubscriptionTier } from '@prisma/client';
 import Redis from 'ioredis';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 export interface ReferralReward {
   type: 'free_month' | 'upgrade' | 'bonus_features' | 'storage_increase';

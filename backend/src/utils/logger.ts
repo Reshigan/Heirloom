@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { config } from './config.js';
+import { config } from './config';
 
 // Custom log format
 const logFormat = winston.format.combine(

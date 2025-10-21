@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import Redis from 'ioredis';
 import { Ollama } from 'ollama';
-import { logger } from '../utils/logger.js';
-import { config } from '../utils/config.js';
+import { logger } from '../utils/logger';
+import { config } from '../utils/config';
 
 export interface AIStoryRequest {
   userId: string;
