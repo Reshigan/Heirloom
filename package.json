@@ -1,0 +1,33 @@
+{
+  "name": "loominary-platform",
+  "version": "1.0.0",
+  "description": "World's First Private Vault System - Building Legacy for Future Generations",
+  "main": "backend/src/production-server.ts",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "build": "cd sveltekit-app && npm run build",
+    "preview": "cd sveltekit-app && npm run preview",
+    "deploy": "./deploy-loominary-production.sh",
+    "health": "./health-check.sh",
+    "test": "./final-system-test.sh"
+  },
+  "keywords": [
+    "private-vault",
+    "family-legacy",
+    "constellation-ui",
+    "ai-powered",
+    "memory-preservation",
+    "inheritance-system"
+  ],
+  "author": "Loominary Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Reshigan/Heirloom.git"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
