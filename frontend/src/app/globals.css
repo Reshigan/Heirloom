@@ -11,6 +11,17 @@
   --smoke: #2A2A2A;
   --crystal: rgba(255, 248, 231, 0.08);
   --champagne: #F7E7CE;
+  
+  /* Glass Design System Tokens */
+  --glass-blur-sm: 8px;
+  --glass-blur-md: 16px;
+  --glass-blur-lg: 24px;
+  --glass-blur-xl: 32px;
+  
+  --motion-fast: 150ms;
+  --motion-normal: 250ms;
+  --motion-slow: 400ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -637,6 +648,108 @@ body {
   to { opacity: 0; pointer-events: none; }
 }
 
+/* Glassmorphism Design System */
+@layer components {
+  /* Base Glass Effect */
+  .glass {
+    @apply bg-obsidian-900/40 backdrop-blur-md border border-gold-500/20 shadow-[0_10px_40px_rgba(0,0,0,0.45)];
+  }
+  
+  /* Glass Surfaces */
+  .glass-card {
+    @apply glass rounded-2xl transition-all duration-[var(--motion-normal)] ease-[var(--motion-ease)];
+  }
+  
+  .glass-panel {
+    @apply glass rounded-xl;
+  }
+  
+  .glass-modal {
+    @apply bg-obsidian-900/60 backdrop-blur-xl border border-gold-500/30 rounded-2xl shadow-[0_20px_80px_rgba(0,0,0,0.6)];
+  }
+  
+  .glass-toolbar {
+    @apply glass rounded-xl p-4;
+  }
+  
+  .glass-header {
+    @apply glass sticky top-0 z-40 backdrop-blur-xl;
+  }
+  
+  /* Glass Controls */
+  .glass-input {
+    @apply bg-obsidian-900/40 border border-gold-500/25 rounded-lg text-pearl placeholder:text-gold-400/40 px-4 py-2.5 transition-all duration-[var(--motion-normal)] ease-[var(--motion-ease)];
+    @apply focus:border-gold-400 focus:ring-2 focus:ring-gold-400/30 focus:ring-offset-1 focus:ring-offset-obsidian-900 focus:shadow-[0_0_20px_rgba(212,175,55,0.2)] outline-none;
+  }
+  
+  .glass-select {
+    @apply glass-input cursor-pointer;
+  }
+  
+  .glass-textarea {
+    @apply glass-input resize-none;
+  }
+  
+  .glass-button {
+    @apply bg-gradient-to-br from-obsidian-800/40 to-obsidian-700/30 border border-gold-500/25 text-gold-300 rounded-lg px-6 py-2.5 transition-all duration-[var(--motion-normal)] ease-[var(--motion-ease)];
+    @apply hover:text-gold-200 hover:border-gold-400 hover:shadow-[0_8px_30px_rgba(212,175,55,0.25)] active:scale-95;
+  }
+  
+  .glass-button-primary {
+    @apply bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 border-transparent shadow-[0_10px_30px_rgba(212,175,55,0.35)];
+    @apply hover:shadow-[0_14px_40px_rgba(212,175,55,0.45)] hover:scale-[1.02] active:scale-95;
+  }
+  
+  .glass-icon-button {
+    @apply glass-button p-2.5 rounded-full;
+  }
+  
+  /* Glass Navigation */
+  .glass-tab {
+    @apply px-4 py-2.5 rounded-lg text-gold-400/70 transition-all duration-[var(--motion-normal)] ease-[var(--motion-ease)];
+    @apply hover:text-gold-400 hover:bg-obsidian-700/50;
+  }
+  
+  .glass-tab-active {
+    @apply bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 shadow-[0_0_20px_rgba(212,175,55,0.4)];
+  }
+  
+  /* Glass Feedback */
+  .glass-chip {
+    @apply glass rounded-full px-3 py-1 text-xs font-medium;
+  }
+  
+  .glass-badge {
+    @apply bg-gold-500/15 text-gold-300 border border-gold-500/30 rounded-full text-[10px] uppercase tracking-[0.08em] px-2 py-0.5;
+  }
+  
+  .glass-divider {
+    @apply h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent;
+  }
+  
+  .glass-progress-track {
+    @apply bg-obsidian-800/60 rounded-full h-2 overflow-hidden backdrop-blur-sm border border-gold-500/20;
+  }
+  
+  .glass-progress-fill {
+    @apply bg-gradient-to-r from-gold-600 to-gold-500 h-full rounded-full shadow-[0_0_10px_rgba(212,175,55,0.4)];
+  }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .golden-dust,
+  .animate-spin-slow,
+  .animate-pulse {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Responsive Elegance */
 @media (max-width: 768px) {
   .luxury-nav {
@@ -664,5 +777,18 @@ body {
   
   .detail-panel.active {
     right: 5%;
+  }
+  
+  /* Reduce blur on mobile for performance */
+  .glass,
+  .glass-card,
+  .glass-panel,
+  .glass-toolbar,
+  .glass-header {
+    backdrop-filter: blur(var(--glass-blur-sm));
+  }
+  
+  .glass-modal {
+    backdrop-filter: blur(var(--glass-blur-md));
   }
 }

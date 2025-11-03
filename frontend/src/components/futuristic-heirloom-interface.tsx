@@ -510,7 +510,7 @@ export default function FuturisticHeirloomInterface() {
       </div>
 
       {/* Enhanced Elegant Timeline */}
-      <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-4/5 max-w-4xl p-8 bg-obsidian-800/90 backdrop-blur-2xl border border-gold-500/30 rounded-2xl z-30 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+      <div className="glass-panel fixed bottom-10 left-1/2 transform -translate-x-1/2 w-4/5 max-w-4xl p-8 z-30 backdrop-blur-2xl">
         <div className="relative h-1 bg-gold-500/20 my-5 rounded-full shadow-[0_0_10px_rgba(212,175,55,0.2)]">
           <motion.div 
             className="absolute h-full w-3/5 bg-gradient-to-r from-transparent via-gold-400 to-transparent rounded-full"
@@ -545,7 +545,7 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showDetailPanel && selectedMemory && (
           <motion.div
-            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-96 bg-obsidian-800/95 backdrop-blur-2xl border border-gold-500/30 rounded-2xl p-10 z-40 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+            className="glass-modal fixed right-10 top-1/2 transform -translate-y-1/2 w-96 p-10 z-40"
             initial={{ opacity: 0, x: 100, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100, scale: 0.9 }}
@@ -590,7 +590,7 @@ export default function FuturisticHeirloomInterface() {
       {/* Enhanced Floating Action Bar */}
       <div className="fixed bottom-10 right-10 flex flex-col gap-4 z-50">
         <motion.button
-          className="w-14 h-14 rounded-full bg-obsidian-800/90 backdrop-blur-2xl border border-gold-500/40 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] transition-all duration-300"
+          className="glass-icon-button w-14 h-14 text-gold-400"
           whileHover={{ scale: 1.15, y: -3, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
           onClick={handleRecordStory}
@@ -599,7 +599,7 @@ export default function FuturisticHeirloomInterface() {
         </motion.button>
         
         <motion.button
-          className="w-14 h-14 rounded-full bg-obsidian-800/90 backdrop-blur-2xl border border-gold-500/40 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] transition-all duration-300"
+          className="glass-icon-button w-14 h-14 text-gold-400"
           whileHover={{ scale: 1.15, y: -3, rotate: -5 }}
           whileTap={{ scale: 0.9 }}
           onClick={handleAIEnhance}
@@ -608,7 +608,7 @@ export default function FuturisticHeirloomInterface() {
         </motion.button>
         
         <motion.button
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-obsidian-900 hover:from-gold-500 hover:to-gold-300 transition-all duration-300 shadow-[0_0_30px_rgba(212,175,55,0.5)]"
+          className="glass-button-primary w-16 h-16 rounded-full flex items-center justify-center"
           whileHover={{ scale: 1.2, y: -4, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
           onClick={handleAddMemory}
