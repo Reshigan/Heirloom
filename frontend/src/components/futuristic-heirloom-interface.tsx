@@ -47,6 +47,7 @@ import LegacyTokenManager from './legacy-token-manager'
 import PricingManager from './pricing-manager'
 import StorageOptimizer from './storage-optimizer'
 import ShareInviteSystem from './share-invite-system'
+import PlatformTour from './platform-tour'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
 type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share'
@@ -72,8 +73,17 @@ export default function FuturisticHeirloomInterface() {
   const [currentEra, setCurrentEra] = useState('Present')
   const [isRecording, setIsRecording] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [showTour, setShowTour] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const tourCompleted = localStorage.getItem('heirloom-tour-completed')
+    if (!tourCompleted) {
+      // Show tour after loading screen
+      setTimeout(() => setShowTour(true), 3500)
+    }
+  }, [])
 
   useEffect(() => {
     // Generate golden dust particles
@@ -230,8 +240,8 @@ export default function FuturisticHeirloomInterface() {
       ))}
 
       {/* Enhanced Sophisticated Navigation */}
-      <nav className="fixed top-0 left-0 right-0 p-8 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/95 via-obsidian-900/80 to-transparent backdrop-blur-2xl border-b border-gold-500/10">
-        <div className="flex items-center gap-4">
+      <nav className="fixed top-0 left-0 right-0 p-8 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/95 via-obsidian-900/80 to-transparent backdrop-blur-2xl border-b border-gold-500/10" data-tour="navigation">
+        <div className="flex items-center gap-4" data-tour="logo">
           <motion.div 
             className="w-12 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"
             animate={{ opacity: [0.5, 1, 0.5] }}
@@ -242,15 +252,15 @@ export default function FuturisticHeirloomInterface() {
         
         <ul className="hidden md:flex gap-8 text-xs uppercase tracking-[0.2em] text-gold-200/70">
           {[
-            { id: 'memories', label: 'Memories' },
-            { id: 'timeline', label: 'Timeline' },
-            { id: 'heritage', label: 'Heritage' },
-            { id: 'wisdom', label: 'Wisdom' },
-            { id: 'family', label: 'Family' },
-            { id: 'tokens', label: 'Legacy' },
-            { id: 'pricing', label: 'Plans' },
-            { id: 'storage', label: 'Storage' },
-            { id: 'share', label: 'Share' }
+            { id: 'memories', label: 'Memories', tourId: '' },
+            { id: 'timeline', label: 'Timeline', tourId: 'timeline-nav' },
+            { id: 'heritage', label: 'Heritage', tourId: '' },
+            { id: 'wisdom', label: 'Wisdom', tourId: '' },
+            { id: 'family', label: 'Family', tourId: 'family-nav' },
+            { id: 'tokens', label: 'Legacy', tourId: 'legacy-nav' },
+            { id: 'pricing', label: 'Plans', tourId: '' },
+            { id: 'storage', label: 'Storage', tourId: 'storage-nav' },
+            { id: 'share', label: 'Share', tourId: 'share-nav' }
           ].map(item => (
             <motion.li
               key={item.id}
@@ -260,6 +270,7 @@ export default function FuturisticHeirloomInterface() {
               onClick={() => setCurrentView(item.id as ViewMode)}
               whileHover={{ scale: 1.05, y: -1 }}
               whileTap={{ scale: 0.95 }}
+              data-tour={item.tourId}
             >
               {item.label}
               {currentView === item.id && (
@@ -319,7 +330,7 @@ export default function FuturisticHeirloomInterface() {
               </AnimatePresence>
 
               {/* Memory Gallery */}
-              <div className="relative w-full max-w-6xl h-[70vh] flex items-center justify-center">
+              <div className="relative w-full max-w-6xl h-[70vh] flex items-center justify-center" data-tour="constellation">
                 <div 
                   ref={showcaseRef}
                   className="relative w-[500px] h-[500px]"
@@ -656,6 +667,14 @@ export default function FuturisticHeirloomInterface() {
           transform: scale(0.8);
         }
       `}</style>
+
+      {/* Platform Tour */}
+      {showTour && (
+        <PlatformTour
+          onComplete={() => setShowTour(false)}
+          onSkip={() => setShowTour(false)}
+        />
+      )}
     </div>
   )
 }
