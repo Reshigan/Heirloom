@@ -48,9 +48,12 @@ import PricingManager from './pricing-manager'
 import StorageOptimizer from './storage-optimizer'
 import ShareInviteSystem from './share-invite-system'
 import PlatformTour from './platform-tour'
+import NotificationCenter from './notification-center'
+import ActivityFeed from './activity-feed'
+import EngagementTracker from './engagement-tracker'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'activity' | 'engagement'
 
 interface MemoryOrb {
   id: string
@@ -74,6 +77,9 @@ export default function FuturisticHeirloomInterface() {
   const [isRecording, setIsRecording] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [showTour, setShowTour] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [unreadNotifications, setUnreadNotifications] = useState(3)
+  const [userPlan] = useState<'essential' | 'premium' | 'unlimited' | 'dynasty'>('premium')
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -287,6 +293,20 @@ export default function FuturisticHeirloomInterface() {
         </ul>
 
         <div className="flex items-center gap-4">
+          <motion.button
+            onClick={() => setShowNotifications(true)}
+            className="relative w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all duration-300 backdrop-blur-sm bg-obsidian-800/30"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Bell className="w-4 h-4" />
+            {unreadNotifications > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-gold-500 text-obsidian-900 text-xs font-bold rounded-full flex items-center justify-center">
+                {unreadNotifications}
+              </span>
+            )}
+          </motion.button>
+          
           <motion.button
             onClick={() => setShowProfile(true)}
             className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all duration-300 backdrop-blur-sm bg-obsidian-800/30"
@@ -517,6 +537,30 @@ export default function FuturisticHeirloomInterface() {
               <ShareInviteSystem />
             </motion.div>
           )}
+
+          {currentView === 'activity' && (
+            <motion.div
+              key="activity-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="container mx-auto px-8 max-w-4xl py-8"
+            >
+              <ActivityFeed />
+            </motion.div>
+          )}
+
+          {currentView === 'engagement' && (
+            <motion.div
+              key="engagement-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="container mx-auto px-8 max-w-2xl py-8"
+            >
+              <EngagementTracker />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -675,6 +719,16 @@ export default function FuturisticHeirloomInterface() {
           onSkip={() => setShowTour(false)}
         />
       )}
+
+      {/* Notification Center */}
+      <AnimatePresence>
+        {showNotifications && (
+          <NotificationCenter
+            userPlan={userPlan}
+            onClose={() => setShowNotifications(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
