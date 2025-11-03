@@ -1,6 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-obsidian-900: #0A0A0A;
+  --color-obsidian-800: #0F0F0F;
+  --color-obsidian-700: #1A1A1A;
+  --color-obsidian-600: #2A2A2A;
+  
+  --color-gold-600: #B8941F;
+  --color-gold-500: #D4AF37;
+  --color-gold-400: #F4E5C2;
+  --color-gold-300: #FFF8E7;
+  
+  --color-pearl: #FFF8E7;
+  --color-charcoal: #1A1A1A;
+}
+
 :root {
   --gold-primary: #D4AF37;
   --gold-light: #F4E5C2;
