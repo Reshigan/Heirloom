@@ -97,23 +97,26 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center">
       <motion.div
-        className="relative w-full max-w-4xl max-h-[90vh] bg-obsidian-900/95 border border-gold-500/30 rounded-2xl overflow-hidden shadow-2xl"
+        className="relative w-full max-w-4xl max-h-[90vh] bg-obsidian-900/95 border border-gold-500/40 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ type: "spring", damping: 20, stiffness: 300 }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gold-500/20">
-          <h2 className="text-2xl font-bold text-gold-100">User Profile</h2>
+        {/* Enhanced Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gold-500/30 bg-obsidian-900/50 backdrop-blur-sm">
+          <h2 className="text-2xl font-bold text-gold-100 drop-shadow-[0_0_8px_rgba(212,175,55,0.3)]">User Profile</h2>
           <div className="flex items-center gap-2">
             {isEditing && (
-              <button
+              <motion.button
                 onClick={handleSave}
-                className="px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center gap-2"
+                className="px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center gap-2 shadow-[0_0_20px_rgba(212,175,55,0.4)]"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Save className="w-4 h-4" />
                 Save Changes
-              </button>
+              </motion.button>
             )}
             {onClose && (
               <button
@@ -127,8 +130,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
         </div>
 
         <div className="flex h-[calc(90vh-100px)]">
-          {/* Sidebar */}
-          <div className="w-64 border-r border-gold-500/20 p-4">
+          {/* Enhanced Sidebar */}
+          <div className="w-64 border-r border-gold-500/30 p-4 bg-obsidian-900/30">
             <nav className="space-y-2">
               {[
                 { id: 'profile', label: 'Profile', icon: User },
@@ -136,18 +139,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
                 { id: 'settings', label: 'Settings', icon: Settings },
                 { id: 'privacy', label: 'Privacy', icon: Shield }
               ].map(tab => (
-                <button
+                <motion.button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-gold-600/20 to-gold-500/20 border border-gold-500/30 text-gold-100'
+                      ? 'bg-gradient-to-r from-gold-600/20 to-gold-500/20 border border-gold-500/40 text-gold-100 shadow-[0_0_15px_rgba(212,175,55,0.2)]'
                       : 'text-gold-400/80 hover:text-gold-100 hover:bg-obsidian-800/40'
                   }`}
+                  whileHover={{ scale: 1.02, x: 2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <tab.icon className="w-5 h-5" />
                   {tab.label}
-                </button>
+                </motion.button>
               ))}
             </nav>
           </div>
@@ -211,7 +216,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
                           value={profileData.name}
                           onChange={(e) => setProfileData({...profileData, name: e.target.value})}
                           disabled={!isEditing}
-                          className="w-full px-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40 disabled:opacity-60"
+                          className="w-full px-4 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300 disabled:opacity-60"
                         />
                       </div>
                       
@@ -224,7 +229,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
                             value={profileData.email}
                             onChange={(e) => setProfileData({...profileData, email: e.target.value})}
                             disabled={!isEditing}
-                            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40 disabled:opacity-60"
+                            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300 disabled:opacity-60"
                           />
                         </div>
                       </div>
@@ -238,7 +243,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
                             value={profileData.phone}
                             onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
                             disabled={!isEditing}
-                            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40 disabled:opacity-60"
+                            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300 disabled:opacity-60"
                           />
                         </div>
                       </div>
@@ -252,7 +257,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
                             value={profileData.location}
                             onChange={(e) => setProfileData({...profileData, location: e.target.value})}
                             disabled={!isEditing}
-                            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40 disabled:opacity-60"
+                            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300 disabled:opacity-60"
                           />
                         </div>
                       </div>
@@ -268,7 +273,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
                             value={profileData.website}
                             onChange={(e) => setProfileData({...profileData, website: e.target.value})}
                             disabled={!isEditing}
-                            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40 disabled:opacity-60"
+                            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300 disabled:opacity-60"
                           />
                         </div>
                       </div>

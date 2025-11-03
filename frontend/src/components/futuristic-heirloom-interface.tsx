@@ -195,28 +195,30 @@ export default function FuturisticHeirloomInterface() {
 
   return (
     <div className="min-h-screen bg-obsidian-900 relative overflow-hidden font-light tracking-wide">
-      {/* Refined Background */}
+      {/* Enhanced Background with Radial Gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-obsidian-900 via-obsidian-800 to-obsidian-900 z-[-3]" />
+      <div className="fixed inset-0 bg-gradient-radial from-gold-500/5 via-transparent to-transparent z-[-2]" />
       <div 
-        className="fixed inset-0 opacity-50 z-[-2]"
+        className="fixed inset-0 opacity-30 z-[-1]"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px)
+            linear-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(212, 175, 55, 0.05) 1px, transparent 1px)
           `,
-          backgroundSize: '100px 100px'
+          backgroundSize: '80px 80px'
         }}
       />
 
-      {/* Golden Dust Particles */}
+      {/* Enhanced Golden Dust Particles */}
       {particles.map(particle => (
         <motion.div
           key={particle.id}
-          className="fixed w-0.5 h-0.5 bg-gold-400 rounded-full pointer-events-none z-[-1]"
+          className="fixed w-1 h-1 bg-gold-400 rounded-full pointer-events-none z-[-1] blur-[0.5px]"
           style={{ left: particle.left }}
           animate={{
             y: ['-100vh', '100vh'],
-            opacity: [0, 0.6, 0]
+            opacity: [0, 0.8, 0],
+            scale: [0.5, 1, 0.5]
           }}
           transition={{
             duration: particle.duration,
@@ -227,11 +229,15 @@ export default function FuturisticHeirloomInterface() {
         />
       ))}
 
-      {/* Sophisticated Navigation */}
-      <nav className="fixed top-0 left-0 right-0 p-10 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/90 to-transparent backdrop-blur-xl">
+      {/* Enhanced Sophisticated Navigation */}
+      <nav className="fixed top-0 left-0 right-0 p-8 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/95 via-obsidian-900/80 to-transparent backdrop-blur-2xl border-b border-gold-500/10">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
-          <h1 className="font-serif text-2xl text-gold-400 tracking-[0.3em]">HEIRLOOM</h1>
+          <motion.div 
+            className="w-12 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <h1 className="font-serif text-2xl text-gold-400 tracking-[0.3em] drop-shadow-[0_0_10px_rgba(212,175,55,0.3)]">HEIRLOOM</h1>
         </div>
         
         <ul className="hidden md:flex gap-8 text-xs uppercase tracking-[0.2em] text-gold-200/70">
@@ -246,31 +252,38 @@ export default function FuturisticHeirloomInterface() {
             { id: 'storage', label: 'Storage' },
             { id: 'share', label: 'Share' }
           ].map(item => (
-            <li
+            <motion.li
               key={item.id}
-              className={`cursor-pointer transition-all duration-300 relative ${
-                currentView === item.id ? 'text-gold-400' : 'hover:text-gold-400'
+              className={`cursor-pointer transition-all duration-500 relative ${
+                currentView === item.id ? 'text-gold-400 drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]' : 'hover:text-gold-300'
               }`}
               onClick={() => setCurrentView(item.id as ViewMode)}
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
             >
               {item.label}
               {currentView === item.id && (
                 <motion.div
-                  className="absolute -bottom-1 left-0 w-full h-px bg-gold-400"
+                  className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-gold-400 to-transparent shadow-[0_0_8px_rgba(212,175,55,0.6)]"
                   layoutId="nav-indicator"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
                 />
               )}
-            </li>
+            </motion.li>
           ))}
         </ul>
 
         <div className="flex items-center gap-4">
-          <button
+          <motion.button
             onClick={() => setShowProfile(true)}
-            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all duration-300 backdrop-blur-sm bg-obsidian-800/30"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
           >
             <User className="w-4 h-4" />
-          </button>
+          </motion.button>
         </div>
       </nav>
 
@@ -312,10 +325,10 @@ export default function FuturisticHeirloomInterface() {
                   className="relative w-[500px] h-[500px]"
                   style={{ transform: getParallaxTransform() }}
                 >
-                  {/* Rotating Frame */}
-                  <div className="absolute inset-0 border border-gold-500/30 rounded-full animate-spin-slow">
-                    <div className="absolute inset-0 border border-gold-500/20 rounded-full scale-120"></div>
-                    <div className="absolute inset-0 border border-gold-500/20 rounded-full scale-80"></div>
+                  {/* Enhanced Rotating Frame with Glow */}
+                  <div className="absolute inset-0 border border-gold-500/40 rounded-full animate-spin-slow shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+                    <div className="absolute inset-0 border border-gold-500/25 rounded-full scale-120 shadow-[0_0_20px_rgba(212,175,55,0.15)]"></div>
+                    <div className="absolute inset-0 border border-gold-500/25 rounded-full scale-80 shadow-[0_0_15px_rgba(212,175,55,0.15)]"></div>
                   </div>
 
                   {/* Memory Orbs */}
@@ -341,28 +354,43 @@ export default function FuturisticHeirloomInterface() {
                       onMouseEnter={() => handleOrbHover(orb)}
                       onMouseLeave={handleOrbLeave}
                     >
-                      <div className="w-full h-full rounded-full overflow-hidden border border-gold-500/30 hover:border-gold-400 transition-all duration-500 hover:shadow-2xl hover:shadow-gold-400/30">
+                      <div className="w-full h-full rounded-full overflow-hidden border-2 border-gold-500/40 hover:border-gold-400 transition-all duration-500 hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] shadow-[0_0_20px_rgba(212,175,55,0.2)]">
                         <img
                           src={orb.memory.thumbnail}
                           alt={orb.memory.title}
-                          className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity"
+                          className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-all duration-500 hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-gold-400/0 hover:bg-gold-400/10 transition-all duration-500 pointer-events-none" />
                       </div>
                     </motion.div>
                   ))}
 
-                  {/* Central Focus */}
+                  {/* Enhanced Central Focus */}
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 z-10">
-                    <div className="w-full h-full rounded-full border-2 border-gold-400 overflow-hidden bg-gradient-to-br from-gold-400/5 to-transparent backdrop-blur-sm shadow-2xl shadow-gold-400/20">
+                    <motion.div 
+                      className="w-full h-full rounded-full border-2 border-gold-400 overflow-hidden bg-gradient-to-br from-gold-400/10 via-gold-500/5 to-transparent backdrop-blur-md shadow-[0_0_50px_rgba(212,175,55,0.3)]"
+                      animate={{ 
+                        boxShadow: [
+                          '0 0 50px rgba(212,175,55,0.3)',
+                          '0 0 70px rgba(212,175,55,0.4)',
+                          '0 0 50px rgba(212,175,55,0.3)'
+                        ]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    >
                       <div className="w-full h-full flex flex-col items-center justify-center text-center p-8">
-                        <div className="w-14 h-14 border border-gold-400 rounded-full flex items-center justify-center font-serif text-xl text-gold-400 mb-4">
+                        <motion.div 
+                          className="w-14 h-14 border-2 border-gold-400 rounded-full flex items-center justify-center font-serif text-xl text-gold-400 mb-4 shadow-[0_0_20px_rgba(212,175,55,0.4)]"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        >
                           H
-                        </div>
-                        <div className="font-serif text-xl text-gold-400 mb-2 tracking-wide">The Hamilton Legacy</div>
-                        <div className="text-xs uppercase tracking-[0.2em] text-gold-200/70">Five Generations • One Story</div>
+                        </motion.div>
+                        <div className="font-serif text-xl text-gold-400 mb-2 tracking-wide drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">The Hamilton Legacy</div>
+                        <div className="text-xs uppercase tracking-[0.2em] text-gold-200/80">Five Generations • One Story</div>
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -481,38 +509,47 @@ export default function FuturisticHeirloomInterface() {
         </AnimatePresence>
       </div>
 
-      {/* Elegant Timeline */}
-      <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-4/5 max-w-4xl p-8 bg-charcoal/80 backdrop-blur-xl border border-gold-500/20 rounded-2xl z-30">
-        <div className="relative h-0.5 bg-gold-500/10 my-5">
-          <div className="absolute h-full w-3/5 bg-gradient-to-r from-transparent via-gold-400 to-transparent animate-pulse"></div>
+      {/* Enhanced Elegant Timeline */}
+      <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-4/5 max-w-4xl p-8 bg-obsidian-800/90 backdrop-blur-2xl border border-gold-500/30 rounded-2xl z-30 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+        <div className="relative h-1 bg-gold-500/20 my-5 rounded-full shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+          <motion.div 
+            className="absolute h-full w-3/5 bg-gradient-to-r from-transparent via-gold-400 to-transparent rounded-full"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
           
           {['1920s', '1950s', '1980s', '2000s', 'Present'].map((era, index) => (
-            <button
+            <motion.button
               key={era}
-              className={`absolute top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 transition-all duration-300 hover:w-4 hover:h-4 ${
+              className={`absolute top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 transition-all duration-500 ${
                 currentEra === era 
-                  ? 'bg-gold-400 border-gold-400 shadow-lg shadow-gold-400/50' 
-                  : 'bg-charcoal border-gold-400 hover:shadow-lg hover:shadow-gold-400/30'
+                  ? 'bg-gold-400 border-gold-400 shadow-[0_0_20px_rgba(212,175,55,0.6)]' 
+                  : 'bg-obsidian-800 border-gold-500/50 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]'
               }`}
               style={{ left: `${10 + index * 20}%` }}
               onClick={() => handleEraClick(era)}
+              whileHover={{ scale: 1.3 }}
+              whileTap={{ scale: 0.9 }}
             >
-              <span className="absolute top-5 left-1/2 transform -translate-x-1/2 text-xs tracking-wide text-gold-200/60 whitespace-nowrap">
+              <span className={`absolute top-6 left-1/2 transform -translate-x-1/2 text-xs tracking-wide whitespace-nowrap transition-all duration-300 ${
+                currentEra === era ? 'text-gold-300 font-semibold' : 'text-gold-200/60'
+              }`}>
                 {era}
               </span>
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
 
-      {/* Detail Panel */}
+      {/* Enhanced Detail Panel */}
       <AnimatePresence>
         {showDetailPanel && selectedMemory && (
           <motion.div
-            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-96 bg-charcoal/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-10 z-40"
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
+            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-96 bg-obsidian-800/95 backdrop-blur-2xl border border-gold-500/30 rounded-2xl p-10 z-40 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+            initial={{ opacity: 0, x: 100, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 100, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
           >
             <div className="border-b border-gold-500/20 pb-5 mb-8">
               <h3 className="font-serif text-3xl text-gold-400 mb-2">{selectedMemory.title}</h3>
@@ -550,31 +587,39 @@ export default function FuturisticHeirloomInterface() {
         )}
       </AnimatePresence>
 
-      {/* Floating Action Bar */}
+      {/* Enhanced Floating Action Bar */}
       <div className="fixed bottom-10 right-10 flex flex-col gap-4 z-50">
         <motion.button
-          className="w-14 h-14 rounded-full bg-charcoal/90 backdrop-blur-xl border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-lg hover:shadow-gold-400/30 transition-all duration-300"
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          className="w-14 h-14 rounded-full bg-obsidian-800/90 backdrop-blur-2xl border border-gold-500/40 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] transition-all duration-300"
+          whileHover={{ scale: 1.15, y: -3, rotate: 5 }}
+          whileTap={{ scale: 0.9 }}
           onClick={handleRecordStory}
         >
           {isRecording ? <Pause className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
         </motion.button>
         
         <motion.button
-          className="w-14 h-14 rounded-full bg-charcoal/90 backdrop-blur-xl border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-lg hover:shadow-gold-400/30 transition-all duration-300"
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          className="w-14 h-14 rounded-full bg-obsidian-800/90 backdrop-blur-2xl border border-gold-500/40 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] transition-all duration-300"
+          whileHover={{ scale: 1.15, y: -3, rotate: -5 }}
+          whileTap={{ scale: 0.9 }}
           onClick={handleAIEnhance}
         >
           <Sparkles className="w-5 h-5" />
         </motion.button>
         
         <motion.button
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-obsidian-900 hover:from-gold-500 hover:to-gold-300 transition-all duration-300 shadow-lg shadow-gold-400/30"
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-obsidian-900 hover:from-gold-500 hover:to-gold-300 transition-all duration-300 shadow-[0_0_30px_rgba(212,175,55,0.5)]"
+          whileHover={{ scale: 1.2, y: -4, rotate: 90 }}
+          whileTap={{ scale: 0.9 }}
           onClick={handleAddMemory}
+          animate={{ 
+            boxShadow: [
+              '0 0 30px rgba(212,175,55,0.5)',
+              '0 0 40px rgba(212,175,55,0.6)',
+              '0 0 30px rgba(212,175,55,0.5)'
+            ]
+          }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
           <Plus className="w-6 h-6" />
         </motion.button>

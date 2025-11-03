@@ -141,7 +141,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
 
   return (
     <div className={`relative ${isFullscreen ? 'fixed inset-0 z-50 bg-obsidian-900' : 'h-full'} overflow-hidden`}>
-      {/* Header Controls */}
+      {/* Enhanced Header Controls */}
       <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -151,14 +151,14 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
               placeholder="Search family members..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/60 focus:outline-none focus:border-gold-400/40"
+              className="pl-10 pr-4 py-2 bg-obsidian-800/90 backdrop-blur-md border border-gold-500/30 rounded-lg text-gold-100 placeholder-gold-400/60 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
             />
           </div>
           
           <select
             value={filterGeneration || ''}
             onChange={(e) => setFilterGeneration(e.target.value ? parseInt(e.target.value) : null)}
-            className="px-4 py-2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+            className="px-4 py-2 bg-obsidian-800/90 backdrop-blur-md border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
           >
             <option value="">All Generations</option>
             {generations.map(gen => (
@@ -168,19 +168,23 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <motion.button
             onClick={() => setShowConnections(!showConnections)}
-            className="px-3 py-2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+            className="px-3 py-2 bg-obsidian-800/90 backdrop-blur-md border border-gold-500/30 rounded-lg text-gold-100 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             {showConnections ? 'Hide' : 'Show'} Connections
-          </button>
+          </motion.button>
           
-          <button
+          <motion.button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-2 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+            className="p-2 bg-obsidian-800/90 backdrop-blur-md border border-gold-500/30 rounded-lg text-gold-100 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -233,16 +237,16 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
               onMouseLeave={() => setHoveredMember(null)}
             >
               <div className={`
-                relative w-32 h-24 rounded-xl border-2 transition-all duration-300
+                relative w-32 h-24 rounded-xl border-2 transition-all duration-500
                 ${selectedMember?.id === member.id 
-                  ? 'border-gold-400 bg-gradient-to-br from-gold-900/40 to-obsidian-800/60 shadow-lg shadow-gold-400/20' 
-                  : 'border-gold-500/30 bg-gradient-to-br from-obsidian-800/60 to-obsidian-900/80 hover:border-gold-400/50'
+                  ? 'border-gold-400 bg-gradient-to-br from-gold-900/50 to-obsidian-800/70 shadow-[0_0_25px_rgba(212,175,55,0.4)]' 
+                  : 'border-gold-500/40 bg-gradient-to-br from-obsidian-800/70 to-obsidian-900/90 hover:border-gold-400 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]'
                 }
-                backdrop-blur-sm
+                backdrop-blur-md
               `}>
-                {/* Member Avatar */}
+                {/* Enhanced Member Avatar */}
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-obsidian-900 font-bold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-obsidian-900 font-bold text-sm shadow-[0_0_15px_rgba(212,175,55,0.5)] border-2 border-obsidian-900">
                     {member.name.split(' ').map(n => n[0]).join('')}
                   </div>
                 </div>
@@ -261,8 +265,8 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
                   </p>
                 </div>
 
-                {/* Generation Indicator */}
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gold-600 text-obsidian-900 text-xs font-bold flex items-center justify-center">
+                {/* Enhanced Generation Indicator */}
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-gold-500 to-gold-600 text-obsidian-900 text-xs font-bold flex items-center justify-center shadow-[0_0_10px_rgba(212,175,55,0.4)] border border-obsidian-900">
                   {member.generation}
                 </div>
               </div>
@@ -277,7 +281,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="bg-obsidian-800/95 backdrop-blur-sm border border-gold-500/30 rounded-lg p-3 min-w-64 shadow-xl">
+                    <div className="bg-obsidian-800/95 backdrop-blur-md border border-gold-500/40 rounded-lg p-3 min-w-64 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                       <div className="flex items-center gap-2 mb-2">
                         <Calendar className="w-4 h-4 text-gold-400" />
                         <span className="text-gold-100 text-sm">
@@ -312,15 +316,15 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
         </div>
       </div>
 
-      {/* Selected Member Detail Panel */}
+      {/* Enhanced Selected Member Detail Panel */}
       <AnimatePresence>
         {selectedMember && (
           <motion.div
-            className="absolute bottom-4 right-4 w-80 bg-obsidian-800/95 backdrop-blur-sm border border-gold-500/30 rounded-xl p-4 shadow-xl"
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            transition={{ duration: 0.3 }}
+            className="absolute bottom-4 right-4 w-80 bg-obsidian-800/95 backdrop-blur-md border border-gold-500/40 rounded-xl p-4 shadow-[0_0_40px_rgba(0,0,0,0.5)]"
+            initial={{ opacity: 0, x: 100, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 100, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-gold-100 font-bold text-lg">{selectedMember.name}</h3>
@@ -380,29 +384,35 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ onMemberSelect }) => {
         )}
       </AnimatePresence>
 
-      {/* Zoom Controls */}
+      {/* Enhanced Zoom Controls */}
       <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-        <button
+        <motion.button
           onClick={() => setZoomLevel(prev => Math.min(2, prev * 1.2))}
-          className="w-10 h-10 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors flex items-center justify-center"
+          className="w-10 h-10 bg-obsidian-800/90 backdrop-blur-md border border-gold-500/30 rounded-lg text-gold-100 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300 flex items-center justify-center font-bold text-lg"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           +
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           onClick={() => setZoomLevel(prev => Math.max(0.5, prev * 0.8))}
-          className="w-10 h-10 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors flex items-center justify-center"
+          className="w-10 h-10 bg-obsidian-800/90 backdrop-blur-md border border-gold-500/30 rounded-lg text-gold-100 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300 flex items-center justify-center font-bold text-lg"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           −
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           onClick={() => {
             setZoomLevel(1)
             setPanOffset({ x: 0, y: 0 })
           }}
-          className="w-10 h-10 bg-obsidian-800/80 backdrop-blur-sm border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors flex items-center justify-center text-xs"
+          className="w-10 h-10 bg-obsidian-800/90 backdrop-blur-md border border-gold-500/30 rounded-lg text-gold-100 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300 flex items-center justify-center text-lg"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           ⌂
-        </button>
+        </motion.button>
       </div>
     </div>
   )

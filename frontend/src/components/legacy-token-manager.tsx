@@ -132,25 +132,27 @@ const LegacyTokenManager: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8 bg-obsidian-800/50 p-1 rounded-xl backdrop-blur-sm">
+        {/* Enhanced Navigation Tabs */}
+        <div className="flex space-x-1 mb-8 bg-obsidian-800/60 p-1 rounded-xl backdrop-blur-md border border-gold-500/20">
           {[
             { id: 'tokens', label: 'My Tokens', icon: Key },
             { id: 'access', label: 'Access History', icon: Clock },
             { id: 'share', label: 'Share & Invite', icon: Share2 }
           ].map((tab) => (
-            <button
+            <motion.button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg transition-all duration-300 ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 shadow-lg'
+                  ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 shadow-[0_0_20px_rgba(212,175,55,0.4)]'
                   : 'text-gold-400/70 hover:text-gold-400 hover:bg-obsidian-700/50'
               }`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -170,7 +172,7 @@ const LegacyTokenManager: React.FC = () => {
                   key={token.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-gradient-to-r from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-gold-600/20"
+                  className="bg-gradient-to-r from-obsidian-800/90 to-charcoal/90 backdrop-blur-md rounded-2xl p-6 border border-gold-600/30 hover:border-gold-500/40 transition-all duration-300 hover:shadow-[0_0_25px_rgba(212,175,55,0.2)]"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -249,27 +251,33 @@ const LegacyTokenManager: React.FC = () => {
 
                   {/* Actions */}
                   <div className="flex flex-wrap gap-3">
-                    <button
+                    <motion.button
                       onClick={() => setShowRegenerateModal(token.id)}
                       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600/20 to-amber-500/20 hover:from-amber-600/30 hover:to-amber-500/30 text-amber-300 rounded-lg transition-all duration-300 border border-amber-500/30"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       <RefreshCw className="w-4 h-4" />
                       Regenerate
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                       onClick={() => setShowShareModal(token.id)}
                       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-blue-500/20 hover:from-blue-600/30 hover:to-blue-500/30 text-blue-300 rounded-lg transition-all duration-300 border border-blue-500/30"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       <Share2 className="w-4 h-4" />
                       Share
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                       onClick={() => generateQRCode(token.token)}
                       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600/20 to-purple-500/20 hover:from-purple-600/30 hover:to-purple-500/30 text-purple-300 rounded-lg transition-all duration-300 border border-purple-500/30"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       <QrCode className="w-4 h-4" />
                       QR Code
-                    </button>
+                    </motion.button>
                   </div>
                 </motion.div>
               ))}

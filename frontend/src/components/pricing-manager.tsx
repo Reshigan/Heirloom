@@ -340,25 +340,27 @@ const PricingManager: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-8 bg-obsidian-800/50 p-1 rounded-xl backdrop-blur-sm">
+        {/* Enhanced Navigation Tabs */}
+        <div className="flex space-x-1 mb-8 bg-obsidian-800/60 p-1 rounded-xl backdrop-blur-md border border-gold-500/20">
           {[
             { id: 'plans', label: 'Subscription Plans', icon: Crown },
             { id: 'addons', label: 'Add-on Services', icon: Gift },
             { id: 'usage', label: 'Storage Usage', icon: HardDrive }
           ].map((tab) => (
-            <button
+            <motion.button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg transition-all duration-300 ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 shadow-lg'
+                  ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 shadow-[0_0_20px_rgba(212,175,55,0.4)]'
                   : 'text-gold-400/70 hover:text-gold-400 hover:bg-obsidian-700/50'
               }`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -377,12 +379,12 @@ const PricingManager: React.FC = () => {
                   key={plan.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`relative bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border transition-all duration-300 hover:scale-105 ${
+                  className={`relative bg-gradient-to-br from-obsidian-800/90 to-charcoal/90 backdrop-blur-md rounded-2xl p-6 border transition-all duration-500 hover:scale-105 ${
                     plan.popular 
-                      ? 'border-gold-500/50 shadow-lg shadow-gold-500/20' 
-                      : 'border-gold-600/20 hover:border-gold-500/30'
+                      ? 'border-gold-500/60 shadow-[0_0_30px_rgba(212,175,55,0.3)]' 
+                      : 'border-gold-600/30 hover:border-gold-500/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]'
                   } ${
-                    currentPlan === plan.id ? 'ring-2 ring-gold-500' : ''
+                    currentPlan === plan.id ? 'ring-2 ring-gold-500 shadow-[0_0_35px_rgba(212,175,55,0.4)]' : ''
                   }`}
                 >
                   {plan.popular && (
@@ -438,16 +440,18 @@ const PricingManager: React.FC = () => {
                     )}
                   </div>
 
-                  <button
+                  <motion.button
                     onClick={() => setCurrentPlan(plan.id)}
                     className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 ${
                       currentPlan === plan.id
-                        ? 'bg-gradient-to-r from-green-600 to-green-500 text-white'
-                        : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-lg`
+                        ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]'
+                        : `bg-gradient-to-r ${plan.gradient} text-white hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]`
                     }`}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     {currentPlan === plan.id ? 'Current Plan' : 'Select Plan'}
-                  </button>
+                  </motion.button>
                 </motion.div>
               ))}
             </motion.div>

@@ -114,10 +114,10 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
 
   return (
     <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-obsidian-900' : 'h-full'} flex flex-col`}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gold-500/20">
+      {/* Enhanced Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gold-500/30 bg-obsidian-900/50 backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-gold-100">Family Timeline</h2>
+          <h2 className="text-xl font-bold text-gold-100 drop-shadow-[0_0_8px_rgba(212,175,55,0.3)]">Family Timeline</h2>
           {selectedMemberId && (
             <span className="text-gold-400/80 text-sm">
               Events for {mockFamilyMembers.find(m => m.id === selectedMemberId)?.name}
@@ -126,32 +126,38 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
         </div>
         
         <div className="flex items-center gap-2">
-          <button
+          <motion.button
             onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            className="p-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+            className="p-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
             title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             {sortOrder === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
-          </button>
+          </motion.button>
           
-          <button
+          <motion.button
             onClick={() => setViewMode(viewMode === 'timeline' ? 'list' : 'timeline')}
-            className="p-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+            className="p-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Clock className="w-4 h-4" />
-          </button>
+          </motion.button>
           
-          <button
+          <motion.button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+            className="p-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-          </button>
+          </motion.button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-4 p-4 border-b border-gold-500/20">
+      {/* Enhanced Filters */}
+      <div className="flex items-center gap-4 p-4 border-b border-gold-500/30 bg-obsidian-900/30 backdrop-blur-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gold-400 w-4 h-4" />
           <input
@@ -159,14 +165,14 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
             placeholder="Search timeline events..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/60 focus:outline-none focus:border-gold-400/40"
+            className="w-full pl-10 pr-4 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 placeholder-gold-400/60 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
           />
         </div>
         
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+          className="px-3 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
         >
           <option value="">All Types</option>
           {types.map(type => (
@@ -177,7 +183,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
         <select
           value={filterEra}
           onChange={(e) => setFilterEra(e.target.value)}
-          className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+          className="px-3 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
         >
           <option value="">All Eras</option>
           {eras.map(era => (
@@ -188,7 +194,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
         <select
           value={filterSignificance}
           onChange={(e) => setFilterSignificance(e.target.value)}
-          className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+          className="px-3 py-2 bg-obsidian-800/70 border border-gold-500/30 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400 focus:shadow-[0_0_15px_rgba(212,175,55,0.3)] transition-all duration-300"
         >
           <option value="">All Significance</option>
           <option value="high">High</option>
@@ -239,8 +245,8 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
                           <div className={`absolute -top-1 -right-1 ${getSignificanceSize(event.significance)} bg-white rounded-full border-2 border-obsidian-900`}></div>
                         </div>
                         
-                        {/* Event Content */}
-                        <div className="flex-1 bg-gradient-to-br from-obsidian-800/60 to-obsidian-900/80 border border-gold-500/20 rounded-xl p-4 hover:border-gold-400/40 transition-all duration-300 group-hover:scale-[1.02]">
+                        {/* Enhanced Event Content */}
+                        <div className="flex-1 bg-gradient-to-br from-obsidian-800/70 to-obsidian-900/90 border border-gold-500/30 rounded-xl p-4 hover:border-gold-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.3)] transition-all duration-500 group-hover:scale-[1.02]">
                           <div className="flex items-start justify-between mb-2">
                             <h3 className="text-gold-100 font-semibold text-lg">{event.title}</h3>
                             <span className="text-gold-400/80 text-sm whitespace-nowrap ml-4">
