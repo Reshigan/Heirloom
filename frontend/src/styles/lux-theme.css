@@ -1,0 +1,222 @@
+/**
+ * Heirloom Luxury Theme
+ * A world-class design system for eternal legacies
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
+
+:root {
+  /* Luxury Color Palette */
+  --gold-primary: #D4AF37;
+  --gold-light: #F4E5C2;
+  --gold-dark: #B8941F;
+  --pearl: #FFF8E7;
+  --obsidian: #0A0A0A;
+  --charcoal: #1A1A1A;
+  --smoke: #2A2A2A;
+  --crystal: rgba(255, 248, 231, 0.08);
+  --champagne: #F7E7CE;
+  
+  /* Typography */
+  --font-serif: 'Bodoni Moda', serif;
+  --font-sans: 'Montserrat', sans-serif;
+  
+  /* Spacing Scale */
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 40px;
+  --space-xl: 60px;
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 50%;
+  
+  /* Shadows */
+  --shadow-sm: 0 10px 40px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 20px 60px rgba(212, 175, 55, 0.3);
+  --shadow-lg: 0 30px 100px rgba(212, 175, 55, 0.2);
+  --shadow-glow: 0 0 20px rgba(212, 175, 55, 0.5);
+  
+  /* Blur */
+  --blur-sm: 10px;
+  --blur-md: 20px;
+  --blur-lg: 30px;
+  
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Z-Index Scale */
+  --z-background: -3;
+  --z-grid: -2;
+  --z-base: 0;
+  --z-elevated: 100;
+  --z-modal: 500;
+  --z-fab: 900;
+  --z-nav: 1000;
+  --z-loading: 10000;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  background: var(--obsidian);
+  color: var(--pearl);
+  overflow-x: hidden;
+  letter-spacing: 0.05em;
+  cursor: default;
+}
+
+/* Elegant Custom Cursor */
+body {
+  cursor: url('data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="2" fill="%23D4AF37" opacity="0.8"/><circle cx="16" cy="16" r="8" stroke="%23D4AF37" stroke-width="0.5" fill="none" opacity="0.4"/></svg>') 16 16, auto;
+}
+
+/* Luxury Background */
+.luxury-bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+    linear-gradient(180deg, #0A0A0A 0%, #0F0F0F 50%, #0A0A0A 100%);
+  z-index: var(--z-background);
+}
+
+/* Elegant Grid Pattern */
+.elegant-grid {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+  background-size: 100px 100px;
+  z-index: var(--z-grid);
+  opacity: 0.5;
+}
+
+/* Golden Dust Particles */
+.golden-dust {
+  position: fixed;
+  width: 2px;
+  height: 2px;
+  background: var(--gold-primary);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: dust-float 15s infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes dust-float {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(50px);
+    opacity: 0;
+  }
+}
+
+/* Animations */
+@keyframes rotate-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes timeline-flow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; pointer-events: none; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes expand-ripple {
+  0% { 
+    width: 40px;
+    height: 40px;
+    opacity: 0.8;
+  }
+  100% { 
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .golden-dust,
+  .showcase-frame,
+  .timeline-progress {
+    animation: none !important;
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  :root {
+    --space-lg: 24px;
+    --space-xl: 40px;
+  }
+  
+  body {
+    cursor: default;
+  }
+  
+  .golden-dust {
+    display: none;
+  }
+  
+  .elegant-grid {
+    background-size: 50px 50px;
+  }
+}
+
+/* Performance Optimizations */
+@media (prefers-reduced-transparency: reduce) {
+  .luxury-bg,
+  .elegant-grid {
+    opacity: 0.3;
+  }
+}

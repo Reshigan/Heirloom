@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="lux">
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Kalam:wght@300;400;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap"
@@ -40,6 +40,13 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${playfair.variable} antialiased`}>
+        {/* Luxury Background */}
+        <div className="luxury-bg" />
+        <div className="elegant-grid" />
+        
+        {/* Golden Dust Particles */}
+        <div id="particles-container" />
+        
         {children}
       </body>
     </html>
