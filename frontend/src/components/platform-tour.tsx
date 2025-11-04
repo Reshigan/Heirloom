@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronRight, ChevronLeft } from 'lucide-react'
+import { LuxButton } from './lux'
 
 interface TourStep {
   id: string

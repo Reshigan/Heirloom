@@ -24,6 +24,7 @@ import {
   ArrowDown
 } from 'lucide-react'
 import { mockTimelineEvents, mockFamilyMembers, mockMemories, TimelineEvent } from '../data/mock-family-data'
+import { LuxCard, LuxButton } from './lux'
 
 interface TimelineViewProps {
   selectedMemberId?: string

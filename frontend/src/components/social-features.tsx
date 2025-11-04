@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Heart, MessageCircle, Share2, Send, Users, Bell, Settings, UserPlus, X, Search, Filter } from 'lucide-react';
+import { LuxCard, LuxButton } from './lux';
 
 interface SocialFeaturesProps {
   onClose?: () => void;

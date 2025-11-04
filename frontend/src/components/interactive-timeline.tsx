@@ -27,6 +27,7 @@ import {
   Plane,
   Gift
 } from 'lucide-react'
+import { LuxCard, LuxButton } from './lux'
 
 interface TimelineEvent {
   id: string
