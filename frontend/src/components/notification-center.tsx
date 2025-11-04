@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bell, X, Calendar, Users, Award, Sparkles, TrendingUp, Heart } from 'lucide-react'
+import { Bell, X, Calendar, Award, Sparkles, Heart } from 'lucide-react'
 
 interface Notification {
   id: string
@@ -36,76 +36,65 @@ export default function NotificationCenter({ userPlan, onClose }: NotificationCe
       {
         id: '1',
         type: 'prompt',
-        title: 'Memory Prompt',
-        message: 'On this day 5 years ago, you celebrated your anniversary. Share that memory!',
+        title: 'Vault Backup Complete',
+        message: 'Your vault has been securely backed up. All memories are encrypted and safe.',
         timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
         read: false,
-        icon: <Calendar className="w-5 h-5 text-gold-400" />,
-        actionLabel: 'Add Memory',
-        actionUrl: '/memories/add'
+        icon: <Award className="w-5 h-5 text-green-400" />,
+        actionLabel: 'View Status'
       },
       {
         id: '2',
-        type: 'activity',
-        title: 'Family Activity',
-        message: 'Sarah Hamilton added 3 new photos to "Summer Vacation 2023"',
-        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
-        read: false,
-        icon: <Users className="w-5 h-5 text-blue-400" />,
-        actionLabel: 'View Photos'
-      },
-      {
-        id: '3',
-        type: 'milestone',
-        title: '🎉 Milestone Reached!',
-        message: 'You\'ve uploaded 50 memories! Your family story is growing.',
+        type: 'reminder',
+        title: 'Legacy Token Reminder',
+        message: 'Remember to securely store your Legacy Token with your will or estate documents.',
         timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
         read: true,
-        icon: <Award className="w-5 h-5 text-gold-500" />,
-        actionLabel: 'View Stats'
+        icon: <Bell className="w-5 h-5 text-gold-400" />,
+        actionLabel: 'View Tokens'
       }
     ]
 
     const planReminders: Record<string, Notification> = {
       essential: {
-        id: '4',
+        id: '3',
         type: 'reminder',
-        title: 'Weekly Memory Reminder',
-        message: 'It\'s been 7 days since your last upload. Keep your family story alive!',
+        title: 'Weekly Journaling Reminder',
+        message: 'Take a moment this week to document your memories for your vault.',
         timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
         read: false,
-        icon: <Bell className="w-5 h-5 text-gold-400" />,
-        actionLabel: 'Upload Now'
+        icon: <Calendar className="w-5 h-5 text-gold-400" />,
+        actionLabel: 'Add Memory'
       },
       premium: {
-        id: '4',
+        id: '3',
         type: 'reminder',
-        title: 'Bi-Weekly Check-In',
-        message: 'Share a memory from this week to keep your streak going!',
+        title: 'Bi-Weekly Vault Update',
+        message: 'Add new memories to your private vault to preserve your legacy.',
         timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
         read: false,
-        icon: <TrendingUp className="w-5 h-5 text-gold-400" />,
-        actionLabel: 'Continue Streak'
+        icon: <Calendar className="w-5 h-5 text-gold-400" />,
+        actionLabel: 'Add Memory'
       },
       unlimited: {
-        id: '4',
+        id: '3',
         type: 'reminder',
-        title: 'Daily Memory Moment',
-        message: 'Take a moment to capture today\'s special moments with your family.',
+        title: 'Daily Legacy Moment',
+        message: 'Capture today\'s moments for your private vault.',
         timestamp: new Date(Date.now() - 30 * 60 * 1000),
         read: false,
         icon: <Sparkles className="w-5 h-5 text-gold-400" />,
-        actionLabel: 'Capture Now'
+        actionLabel: 'Add Memory'
       },
       dynasty: {
-        id: '4',
+        id: '3',
         type: 'reminder',
-        title: 'Legacy Builder Alert',
-        message: 'Your daily legacy moment awaits. Document your family\'s story today.',
+        title: 'Legacy Preservation',
+        message: 'Document your story today. Your vault awaits your memories.',
         timestamp: new Date(Date.now() - 15 * 60 * 1000),
         read: false,
         icon: <Heart className="w-5 h-5 text-gold-400" />,
-        actionLabel: 'Build Legacy'
+        actionLabel: 'Add Memory'
       }
     }
 
@@ -244,7 +233,7 @@ export default function NotificationCenter({ userPlan, onClose }: NotificationCe
             <Bell className="w-12 h-12 text-pearl/20 mx-auto mb-4" />
             <p className="text-pearl/60">No notifications yet</p>
             <p className="text-sm text-pearl/40 mt-2">
-              We'll notify you about family activity and memory prompts
+              We'll notify you about vault status and journaling reminders
             </p>
           </div>
         )}

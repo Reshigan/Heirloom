@@ -19,6 +19,18 @@ export interface FamilyMember {
     type: 'parent' | 'spouse' | 'child' | 'sibling'
     name: string
   }[]
+  lifeStatus: 'alive' | 'deceased'
+  vaultStatus: 'sealed' | 'unsealed'
+  unlockedAt?: Date
+  executors?: string[]
+  guardians?: string[]
+  vaults?: { id: string; name: string; tokenId: string; audienceType: 'immediate' | 'extended' | 'custom' }[]
+  vaultHealth?: {
+    lastUpdated: Date
+    missingMetadataCount: number
+    completionPercentage: number
+    suggestions: string[]
+  }
 }
 
 export interface Memory {
@@ -29,12 +41,21 @@ export interface Memory {
   location: string
   participants: string[]
   tags: string[]
-  type: 'photo' | 'document' | 'story' | 'video' | 'audio'
+  type: 'photo' | 'document' | 'story' | 'video' | 'audio' | 'legacy-video'
   thumbnail: string
   content: string
   aiEnhanced: boolean
   emotions: string[]
   significance: 'low' | 'medium' | 'high' | 'milestone'
+  privacyLevel: 'public' | 'private' | 'restricted'
+  restrictedTo?: string[]
+  unlockDate?: string
+  isTimeLocked: boolean
+  reactions?: { userId: string; type: 'heart' | 'smile' | 'tear' | 'star'; timestamp: Date }[]
+  comments?: { userId: string; userName: string; text: string; timestamp: Date }[]
+  aiGeneratedEmotions?: { emotion: string; confidence: number }[]
+  legacyRecipient?: string
+  legacyOccasion?: string
 }
 
 export interface TimelineEvent {
@@ -72,7 +93,10 @@ export const mockFamilyMembers: FamilyMember[] = [
     relationships: [
       { id: 'gg2', type: 'spouse', name: 'Margaret Hamilton' },
       { id: 'g1', type: 'child', name: 'Robert Hamilton' }
-    ]
+    ],
+    lifeStatus: 'deceased',
+    vaultStatus: 'unsealed',
+    unlockedAt: new Date('1978-12-01')
   },
   {
     id: 'gg2',
@@ -93,7 +117,10 @@ export const mockFamilyMembers: FamilyMember[] = [
     relationships: [
       { id: 'gg1', type: 'spouse', name: 'William Hamilton' },
       { id: 'g1', type: 'child', name: 'Robert Hamilton' }
-    ]
+    ],
+    lifeStatus: 'deceased',
+    vaultStatus: 'unsealed',
+    unlockedAt: new Date('1982-06-01')
   },
   
   // Grandparents (Generation 2)

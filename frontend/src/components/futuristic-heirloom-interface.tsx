@@ -49,11 +49,9 @@ import StorageOptimizer from './storage-optimizer'
 import ShareInviteSystem from './share-invite-system'
 import PlatformTour from './platform-tour'
 import NotificationCenter from './notification-center'
-import ActivityFeed from './activity-feed'
-import EngagementTracker from './engagement-tracker'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'activity' | 'engagement'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share'
 
 interface MemoryOrb {
   id: string
@@ -535,30 +533,6 @@ export default function FuturisticHeirloomInterface() {
               className="h-screen"
             >
               <ShareInviteSystem />
-            </motion.div>
-          )}
-
-          {currentView === 'activity' && (
-            <motion.div
-              key="activity-view"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="container mx-auto px-8 max-w-4xl py-8"
-            >
-              <ActivityFeed />
-            </motion.div>
-          )}
-
-          {currentView === 'engagement' && (
-            <motion.div
-              key="engagement-view"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="container mx-auto px-8 max-w-2xl py-8"
-            >
-              <EngagementTracker />
             </motion.div>
           )}
         </AnimatePresence>
