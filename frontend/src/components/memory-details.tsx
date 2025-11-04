@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Heart, MessageCircle, Share2, Download, Edit3, Trash2, Calendar, MapPin, Users, Tag, ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
+import { LuxCard, LuxButton } from './lux';
 
 interface Comment {
   id: string;

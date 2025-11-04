@@ -12,6 +12,7 @@ import {
   Smile, Bird, BookOpen, Headphones, TreePine, Crown,
   Gem, Compass, Map, Calendar, Archive, Gift
 } from 'lucide-react';
+import { LuxCard, LuxButton, LuxOrb, LuxPanel, LuxFab } from './lux';
 import FamilyTree from './family-tree';
 import AnimatedMemoryGallery from './animated-memory-gallery';
 import InteractiveTimeline from './interactive-timeline';

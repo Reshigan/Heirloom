@@ -40,6 +40,7 @@ import {
   UserPlus,
   Video
 } from 'lucide-react'
+import { LuxCard, LuxButton, LuxOrb, LuxPanel, LuxFab } from './lux'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
