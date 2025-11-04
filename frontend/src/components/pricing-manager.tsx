@@ -23,6 +23,7 @@ import {
   Download,
   Phone
 } from 'lucide-react';
+import { LuxCard, LuxButton } from './lux';
 
 interface PricingPlan {
   id: string;

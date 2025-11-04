@@ -18,6 +18,7 @@ import {
   Download,
   Mail
 } from 'lucide-react';
+import { LuxCard, LuxButton } from './lux';
 
 interface LegacyToken {
   id: string;
