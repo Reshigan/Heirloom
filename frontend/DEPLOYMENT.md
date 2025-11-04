@@ -2,22 +2,38 @@
 
 This guide covers deploying the Heirloom platform to production.
 
+## Recommended Architecture
+
+**Hybrid Approach (Cost-Optimized for Startups):**
+- **App Hosting**: Vercel (Next.js native, global CDN)
+- **Database**: Supabase PostgreSQL (managed, PITR, connection pooling)
+- **File Storage**: AWS S3 + Glacier Deep Archive (long-term durability)
+- **Estimated Cost**: $50-100/month for first 1000 users
+
+**Alternative (Single-Cloud):**
+- **All AWS**: Vercel + RDS + S3 (higher cost, simpler networking)
+- **Estimated Cost**: $150-300/month for first 1000 users
+
 ## Prerequisites
 
 - Node.js 18+ installed
-- PostgreSQL 14+ database
-- AWS S3 or Cloudflare R2 account (for file storage)
+- Supabase account (or PostgreSQL 14+ database)
+- AWS account (for S3 file storage)
 - Stripe account (for payments)
 - Resend account (for emails)
 - Domain name with SSL certificate
+- Vercel account (for app hosting)
 
 ## Environment Variables
 
 Create a `.env.production` file with the following variables:
 
 ```bash
-# Database
-DATABASE_URL="postgresql://user:password@host:5432/heirloom?schema=public"
+# Database (Supabase with connection pooling - RECOMMENDED)
+DATABASE_URL="postgresql://user:pass@host:6543/postgres?schema=public&sslmode=require&pgbouncer=true&connection_limit=1"
+
+# Database (AWS RDS with connection pooling)
+# DATABASE_URL="postgresql://user:pass@host:5432/heirloom?schema=public&sslmode=require"
 
 # NextAuth
 NEXTAUTH_URL="https://yourdomain.com"
@@ -47,33 +63,118 @@ SENTRY_DSN="https://..."
 
 ## Database Setup
 
-### 1. Create Production Database
+### Option A: Supabase (Recommended for Startups)
+
+**1. Create Supabase Project**
 
 ```bash
-# Connect to PostgreSQL
-psql -U postgres
-
-# Create database and user
-CREATE DATABASE heirloom_production;
-CREATE USER heirloom_prod WITH PASSWORD 'secure-password';
-GRANT ALL PRIVILEGES ON DATABASE heirloom_production TO heirloom_prod;
-ALTER USER heirloom_prod CREATEDB;
-
-# Grant schema permissions
-\c heirloom_production
-GRANT ALL ON SCHEMA public TO heirloom_prod;
+# Sign up at https://supabase.com
+# Create new project (choose region close to your users)
+# Select Pro plan ($25/month) for PITR and better performance
 ```
 
-### 2. Run Migrations
+**2. Enable Point-in-Time Recovery**
+
+```bash
+# In Supabase Dashboard:
+# Settings → Database → Point in Time Recovery
+# Enable with 30-day retention
+```
+
+**3. Get Connection String**
+
+```bash
+# In Supabase Dashboard:
+# Settings → Database → Connection string
+# Use "Connection pooling" mode (port 6543)
+# Copy the connection string with pgbouncer enabled
+
+# Example format:
+# postgresql://postgres.xxxxx:password@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+```
+
+**4. Configure Environment**
+
+```bash
+# Add to .env.production and Vercel environment variables
+DATABASE_URL="postgresql://postgres.xxxxx:password@aws-0-us-east-1.pooler.supabase.com:6543/postgres?schema=public&sslmode=require&pgbouncer=true&connection_limit=1"
+```
+
+**5. Run Migrations**
 
 ```bash
 # Set production database URL
-export DATABASE_URL="postgresql://heirloom_prod:secure-password@localhost:5432/heirloom_production"
+export DATABASE_URL="your-supabase-connection-string"
 
-# Run migrations
+# Run migrations (no shadow database needed in production)
 npx prisma migrate deploy
 
 # Generate Prisma client
+npx prisma generate
+```
+
+### Option B: AWS RDS (For Larger Scale)
+
+**1. Create RDS PostgreSQL Instance**
+
+```bash
+# Create RDS instance
+aws rds create-db-instance \
+  --db-instance-identifier heirloom-prod \
+  --db-instance-class db.t3.micro \
+  --engine postgres \
+  --engine-version 14.9 \
+  --master-username heirloom_admin \
+  --master-user-password "SecurePassword123!" \
+  --allocated-storage 20 \
+  --storage-type gp3 \
+  --storage-encrypted \
+  --backup-retention-period 30 \
+  --preferred-backup-window "03:00-04:00" \
+  --publicly-accessible false \
+  --vpc-security-group-ids sg-xxxxx
+```
+
+**2. Enable Connection Pooling (RDS Proxy)**
+
+```bash
+# Create RDS Proxy for connection pooling
+aws rds create-db-proxy \
+  --db-proxy-name heirloom-proxy \
+  --engine-family POSTGRESQL \
+  --auth SecretArn=arn:aws:secretsmanager:region:account:secret:rds-secret \
+  --role-arn arn:aws:iam::account:role/RDSProxyRole \
+  --vpc-subnet-ids subnet-xxxxx subnet-yyyyy
+```
+
+**3. Configure Database**
+
+```bash
+# Connect to RDS
+psql -h heirloom-prod.xxxxx.us-east-1.rds.amazonaws.com -U heirloom_admin -d postgres
+
+# Create database and user
+CREATE DATABASE heirloom;
+CREATE USER heirloom_app WITH PASSWORD 'AppPassword123!';
+GRANT ALL PRIVILEGES ON DATABASE heirloom TO heirloom_app;
+
+# Connect to heirloom database
+\c heirloom
+
+# Grant schema permissions
+GRANT ALL ON SCHEMA public TO heirloom_app;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO heirloom_app;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO heirloom_app;
+```
+
+**4. Run Migrations**
+
+```bash
+# Use RDS Proxy endpoint for connection pooling
+export DATABASE_URL="postgresql://heirloom_app:AppPassword123!@heirloom-proxy.proxy-xxxxx.us-east-1.rds.amazonaws.com:5432/heirloom?schema=public&sslmode=require"
+
+# Run migrations
+npx prisma migrate deploy
 npx prisma generate
 ```
 
