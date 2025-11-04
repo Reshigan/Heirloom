@@ -16,58 +16,72 @@ const tourSteps: TourStep[] = [
   {
     id: 'welcome',
     title: 'Welcome to Heirloom',
-    description: 'Your family heritage preservation platform. Let\'s take a quick tour of the key features.',
+    description: 'Your private posthumous vault platform. Your memories remain sealed during your lifetime and are only accessible after death via Legacy Token redemption.',
     targetSelector: '[data-tour="logo"]',
     position: 'bottom'
   },
   {
     id: 'navigation',
     title: 'Navigation',
-    description: 'Access all major features from this navigation bar: Memories, Timeline, Family Tree, and more.',
+    description: 'Access all vault features from this navigation bar: Memories, Timeline, Family Tree, Vault Health, Executors, AI Features, and more.',
     targetSelector: '[data-tour="navigation"]',
     position: 'bottom'
   },
   {
     id: 'constellation',
     title: 'Memory Constellation',
-    description: 'Your memories displayed as floating orbs around a central showcase. Hover over orbs to explore, click to view details.',
+    description: 'Your private memories displayed as floating orbs. Add photos, videos, audio, documents, and legacy video messages. All content is encrypted and sealed until token redemption.',
     targetSelector: '[data-tour="constellation"]',
     position: 'top'
   },
   {
     id: 'timeline',
     title: 'Timeline View',
-    description: 'Navigate through your family history chronologically. Filter by era, type, and significance.',
+    description: 'Navigate through your memories chronologically. Filter by emotion (Joy, Love, Nostalgia, etc.), type, and significance.',
     targetSelector: '[data-tour="timeline-nav"]',
     position: 'bottom'
   },
   {
     id: 'family',
     title: 'Family Tree',
-    description: 'Visualize your family relationships across generations with an interactive tree diagram.',
+    description: 'Visualize your family relationships. When someone passes and their vault is unsealed via token, their memories integrate into the family tree.',
     targetSelector: '[data-tour="family-nav"]',
     position: 'bottom'
   },
   {
     id: 'legacy',
     title: 'Legacy Tokens',
-    description: 'Create secure access tokens for posthumous memory access and digital inheritance.',
+    description: 'Generate secure tokens (HLM_LEG_*) that unlock your vault after death. Tokens can be redeemed multiple times and regenerated if needed.',
     targetSelector: '[data-tour="legacy-nav"]',
     position: 'bottom'
   },
   {
-    id: 'storage',
-    title: 'Storage Optimizer',
-    description: 'Manage your media files with intelligent compression and storage analytics.',
-    targetSelector: '[data-tour="storage-nav"]',
+    id: 'health',
+    title: 'Vault Health Monitor',
+    description: 'Track your vault completion percentage, missing metadata (emotions, locations, dates), and get suggestions to improve your vault.',
+    targetSelector: '[data-tour="health-nav"]',
     position: 'bottom'
   },
   {
-    id: 'share',
-    title: 'Share & Invite',
-    description: 'Invite family members and control access to your shared memories.',
-    targetSelector: '[data-tour="share-nav"]',
+    id: 'executors',
+    title: 'Executors & Guardians',
+    description: 'Designate trusted people to manage your vault after death. They can approve token redemptions and handle administrative tasks.',
+    targetSelector: '[data-tour="executors-nav"]',
     position: 'bottom'
+  },
+  {
+    id: 'ai',
+    title: 'AI Features',
+    description: 'Auto-detect emotions from photos, generate memory books, enhance images, and create voice clones for legacy messages. All processing is private.',
+    targetSelector: '[data-tour="ai-nav"]',
+    position: 'bottom'
+  },
+  {
+    id: 'privacy',
+    title: 'Privacy Levels',
+    description: 'Set privacy levels for each memory: Public (all token redeemers), Private (only you), or Restricted (specific people). You can also time-lock memories for future dates.',
+    targetSelector: '[data-tour="constellation"]',
+    position: 'top'
   }
 ]
 

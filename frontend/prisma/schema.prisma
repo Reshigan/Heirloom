@@ -1,0 +1,310 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://heirloom_user:heirloom_password@localhost:5432/heirloom?schema=public"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String
+  avatar        String?
+  birthDate     DateTime?
+  birthPlace    String?
+  occupation    String?
+  bio           String?
+  lifeStatus    LifeStatus @default(ALIVE)
+  vaultStatus   VaultStatus @default(SEALED)
+  unlockedAt    DateTime?
+  plan          SubscriptionPlan @default(ESSENTIAL)
+  planExpiresAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  memories      Memory[]
+  vaults        Vault[]
+  executorFor   Executor[]
+  guardianFor   Guardian[]
+  tokens        LegacyToken[]
+  reactions     Reaction[]
+  comments      Comment[]
+  notifications Notification[]
+  
+  // Family relationships
+  parentIds     String[]
+  spouseIds     String[]
+  childrenIds   String[]
+  generation    Int       @default(1)
+  
+  @@index([email])
+  @@index([lifeStatus, vaultStatus])
+}
+
+enum LifeStatus {
+  ALIVE
+  DECEASED
+}
+
+enum VaultStatus {
+  SEALED
+  UNSEALED
+}
+
+enum SubscriptionPlan {
+  ESSENTIAL
+  PREMIUM
+  UNLIMITED
+  DYNASTY
+}
+
+model Memory {
+  id              String    @id @default(cuid())
+  title           String
+  description     String    @db.Text
+  date            DateTime
+  location        String?
+  type            MemoryType
+  thumbnail       String?
+  content         String?   @db.Text
+  aiEnhanced      Boolean   @default(false)
+  emotions        String[]
+  significance    Significance @default(MEDIUM)
+  privacyLevel    PrivacyLevel @default(PUBLIC)
+  restrictedTo    String[]
+  isTimeLocked    Boolean   @default(false)
+  unlockDate      DateTime?
+  tags            String[]
+  
+  // Relations
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reactions       Reaction[]
+  comments        Comment[]
+  
+  // AI Features
+  aiGeneratedEmotions Json?
+  legacyRecipient String?
+  legacyOccasion  String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([date])
+  @@index([privacyLevel])
+  @@index([isTimeLocked, unlockDate])
+}
+
+enum MemoryType {
+  PHOTO
+  VIDEO
+  AUDIO
+  DOCUMENT
+  STORY
+  LEGACY_VIDEO
+}
+
+enum Significance {
+  LOW
+  MEDIUM
+  HIGH
+  MILESTONE
+}
+
+enum PrivacyLevel {
+  PUBLIC
+  PRIVATE
+  RESTRICTED
+}
+
+model Vault {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  audienceType  AudienceType
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  tokenId       String    @unique
+  token         LegacyToken @relation(fields: [tokenId], references: [id])
+  
+  health        Json?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+}
+
+enum AudienceType {
+  IMMEDIATE
+  EXTENDED
+  CUSTOM
+}
+
+model LegacyToken {
+  id            String    @id @default(cuid())
+  token         String    @unique
+  isActive      Boolean   @default(true)
+  redemptions   Int       @default(0)
+  maxRedemptions Int?
+  expiresAt     DateTime?
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  vault         Vault?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([token])
+  @@index([userId])
+}
+
+model Executor {
+  id            String    @id @default(cuid())
+  email         String
+  name          String
+  status        ExecutorStatus @default(PENDING)
+  permissions   String[]
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([email])
+}
+
+enum ExecutorStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Guardian {
+  id            String    @id @default(cuid())
+  email         String
+  name          String
+  status        GuardianStatus @default(PENDING)
+  canApproveRedemptions Boolean @default(true)
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([email])
+}
+
+enum GuardianStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Reaction {
+  id            String    @id @default(cuid())
+  type          ReactionType
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  memoryId      String
+  memory        Memory    @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime  @default(now())
+  
+  @@unique([userId, memoryId])
+  @@index([memoryId])
+}
+
+enum ReactionType {
+  HEART
+  SMILE
+  TEAR
+  STAR
+}
+
+model Comment {
+  id            String    @id @default(cuid())
+  text          String    @db.Text
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  memoryId      String
+  memory        Memory    @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([memoryId])
+  @@index([userId])
+}
+
+model Notification {
+  id            String    @id @default(cuid())
+  type          NotificationType
+  title         String
+  message       String
+  read          Boolean   @default(false)
+  data          Json?
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime  @default(now())
+  
+  @@index([userId, read])
+}
+
+enum NotificationType {
+  VAULT_REMINDER
+  TOKEN_GENERATED
+  EXECUTOR_INVITATION
+  GUARDIAN_INVITATION
+  VAULT_UNSEALED
+  MEMORY_REACTION
+  MEMORY_COMMENT
+  SUBSCRIPTION_EXPIRING
+  SUBSCRIPTION_RENEWED
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  stripePaymentId String  @unique
+  amount        Int
+  currency      String    @default("usd")
+  status        PaymentStatus
+  plan          SubscriptionPlan
+  
+  userId        String
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([stripePaymentId])
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
