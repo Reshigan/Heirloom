@@ -31,6 +31,7 @@ import { mockMemories, mockFamilyMembers, Memory } from '../data/mock-family-dat
 import EmotionFilter, { Emotion } from './emotion-filter'
 import MemoryReactionsComments from './memory-reactions-comments'
 import MemoryPrivacySelector, { PrivacyLevel } from './memory-privacy-selector'
+import { LuxCard, LuxButton } from './lux'
 
 interface MemoryGalleryProps {
   selectedMemberId?: string

@@ -29,6 +29,7 @@ import {
   Crown,
   Shield
 } from 'lucide-react';
+import { LuxCard, LuxButton } from './lux';
 
 interface Invitation {
   id: string;
