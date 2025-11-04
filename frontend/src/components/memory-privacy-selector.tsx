@@ -3,6 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Globe, Users, Calendar } from 'lucide-react'
+import { LuxCard } from './lux'
 
 export type PrivacyLevel = 'public' | 'private' | 'restricted'
 

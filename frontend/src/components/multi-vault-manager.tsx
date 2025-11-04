@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Vault, Plus, X, Users, Key, Edit2, Trash2, Lock } from 'lucide-react'
+import { LuxCard, LuxButton } from './lux'
 
 interface VaultInfo {
   id: string

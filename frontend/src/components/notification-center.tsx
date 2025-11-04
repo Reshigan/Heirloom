@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bell, X, Calendar, Award, Sparkles, Heart } from 'lucide-react'
+import { LuxCard, LuxButton, LuxPanel } from './lux'
 
 interface Notification {
   id: string

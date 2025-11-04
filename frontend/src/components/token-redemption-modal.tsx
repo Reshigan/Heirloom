@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Key, Unlock, CheckCircle, AlertTriangle, User, Calendar } from 'lucide-react'
+import { LuxCard, LuxButton } from './lux'
 
 interface TokenRedemptionModalProps {
   onClose: () => void

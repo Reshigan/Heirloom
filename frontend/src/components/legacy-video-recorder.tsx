@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Video, Play, Pause, StopCircle, Calendar, User, Heart, X } from 'lucide-react'
+import { LuxCard, LuxButton } from './lux'
 
 interface LegacyVideoRecorderProps {
   onSave: (video: {

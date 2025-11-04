@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Smile, Droplet, Star, MessageCircle, Send, X } from 'lucide-react'
+import { LuxCard, LuxButton } from './lux'
 
 interface Reaction {
   userId: string
