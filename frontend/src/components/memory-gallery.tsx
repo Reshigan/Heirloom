@@ -30,6 +30,7 @@ import {
 import { mockMemories, mockFamilyMembers, Memory } from '../data/mock-family-data'
 import EmotionFilter, { Emotion } from './emotion-filter'
 import MemoryReactionsComments from './memory-reactions-comments'
+import MemoryPrivacySelector, { PrivacyLevel } from './memory-privacy-selector'
 
 interface MemoryGalleryProps {
   selectedMemberId?: string
@@ -46,6 +47,11 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
   const [sortBy, setSortBy] = useState<'date' | 'significance' | 'title'>('date')
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [uploadPrivacyLevel, setUploadPrivacyLevel] = useState<PrivacyLevel>('public')
+  const [uploadIsTimeLocked, setUploadIsTimeLocked] = useState(false)
+  const [uploadUnlockDate, setUploadUnlockDate] = useState('')
+  const [uploadTitle, setUploadTitle] = useState('')
+  const [uploadDescription, setUploadDescription] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Filter and sort memories
@@ -511,14 +517,14 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
       <AnimatePresence>
         {showUploadModal && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowUploadModal(false)}
           >
             <motion.div
-              className="relative max-w-md w-full mx-4 bg-obsidian-900/95 border border-gold-500/30 rounded-2xl p-6 shadow-2xl"
+              className="relative max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-obsidian-900/95 border border-gold-500/30 rounded-2xl p-6 shadow-2xl"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -534,23 +540,64 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
                 </button>
               </div>
               
-              <div
-                className="border-2 border-dashed border-gold-500/30 rounded-xl p-8 text-center hover:border-gold-400/50 transition-colors cursor-pointer"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="w-12 h-12 text-gold-400 mx-auto mb-4" />
-                <p className="text-gold-100 font-semibold mb-2">Drop files here or click to browse</p>
-                <p className="text-gold-400/80 text-sm">Support for photos, videos, documents, and audio files</p>
+              <div className="space-y-6">
+                {/* File Upload Area */}
+                <div
+                  className="border-2 border-dashed border-gold-500/30 rounded-xl p-8 text-center hover:border-gold-400/50 transition-colors cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="w-12 h-12 text-gold-400 mx-auto mb-4" />
+                  <p className="text-gold-100 font-semibold mb-2">Drop files here or click to browse</p>
+                  <p className="text-gold-400/80 text-sm">Support for photos, videos, documents, and audio files</p>
+                </div>
+                
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+
+                {/* Title Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gold-400 mb-2">
+                    Memory Title
+                  </label>
+                  <input
+                    type="text"
+                    value={uploadTitle}
+                    onChange={(e) => setUploadTitle(e.target.value)}
+                    placeholder="e.g., Family Reunion 2024"
+                    className="w-full px-4 py-2 bg-obsidian-800/50 border border-gold-500/30 rounded-lg text-pearl placeholder-pearl/40 focus:outline-none focus:border-gold-500/60 transition-colors"
+                  />
+                </div>
+
+                {/* Description Input */}
+                <div>
+                  <label className="block text-sm font-medium text-gold-400 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={uploadDescription}
+                    onChange={(e) => setUploadDescription(e.target.value)}
+                    placeholder="Share the story behind this memory..."
+                    rows={3}
+                    className="w-full px-4 py-2 bg-obsidian-800/50 border border-gold-500/30 rounded-lg text-pearl placeholder-pearl/40 focus:outline-none focus:border-gold-500/60 transition-colors resize-none"
+                  />
+                </div>
+
+                {/* Privacy Selector */}
+                <MemoryPrivacySelector
+                  selectedLevel={uploadPrivacyLevel}
+                  onLevelChange={setUploadPrivacyLevel}
+                  isTimeLocked={uploadIsTimeLocked}
+                  unlockDate={uploadUnlockDate}
+                  onTimeLockToggle={setUploadIsTimeLocked}
+                  onUnlockDateChange={setUploadUnlockDate}
+                />
               </div>
-              
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
               
               <div className="flex gap-3 mt-6">
                 <button
@@ -560,10 +607,19 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
                   Cancel
                 </button>
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    console.log('Upload memory:', {
+                      title: uploadTitle,
+                      description: uploadDescription,
+                      privacyLevel: uploadPrivacyLevel,
+                      isTimeLocked: uploadIsTimeLocked,
+                      unlockDate: uploadUnlockDate
+                    })
+                    setShowUploadModal(false)
+                  }}
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold"
                 >
-                  Browse Files
+                  Upload Memory
                 </button>
               </div>
             </motion.div>

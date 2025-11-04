@@ -146,7 +146,10 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'g2', type: 'spouse', name: 'Eleanor Hamilton' },
       { id: 'p1', type: 'child', name: 'James Hamilton' },
       { id: 'p2', type: 'child', name: 'Sarah Mitchell' }
-    ]
+    ],
+    lifeStatus: 'deceased',
+    vaultStatus: 'unsealed',
+    unlockedAt: new Date('2010-09-01')
   },
   {
     id: 'g2',
@@ -168,7 +171,10 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'g1', type: 'spouse', name: 'Robert Hamilton' },
       { id: 'p1', type: 'child', name: 'James Hamilton' },
       { id: 'p2', type: 'child', name: 'Sarah Mitchell' }
-    ]
+    ],
+    lifeStatus: 'deceased',
+    vaultStatus: 'unsealed',
+    unlockedAt: new Date('2015-02-01')
   },
   
   // Parents (Generation 3)
@@ -194,7 +200,9 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'c1', type: 'child', name: 'Michael Hamilton' },
       { id: 'c2', type: 'child', name: 'Emma Hamilton' },
       { id: 'p2', type: 'sibling', name: 'Sarah Mitchell' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   {
     id: 'p3',
@@ -215,7 +223,9 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'p1', type: 'spouse', name: 'James Hamilton' },
       { id: 'c1', type: 'child', name: 'Michael Hamilton' },
       { id: 'c2', type: 'child', name: 'Emma Hamilton' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   {
     id: 'p2',
@@ -239,7 +249,9 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'c3', type: 'child', name: 'Alex Mitchell' },
       { id: 'c4', type: 'child', name: 'Sophie Mitchell' },
       { id: 'p1', type: 'sibling', name: 'James Hamilton' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   {
     id: 'p4',
@@ -260,7 +272,9 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'p2', type: 'spouse', name: 'Sarah Mitchell' },
       { id: 'c3', type: 'child', name: 'Alex Mitchell' },
       { id: 'c4', type: 'child', name: 'Sophie Mitchell' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   
   // Current Generation (Generation 4)
@@ -285,7 +299,9 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'c5', type: 'spouse', name: 'Jessica Hamilton' },
       { id: 'gc1', type: 'child', name: 'Oliver Hamilton' },
       { id: 'c2', type: 'sibling', name: 'Emma Hamilton' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   {
     id: 'c5',
@@ -305,7 +321,9 @@ export const mockFamilyMembers: FamilyMember[] = [
     relationships: [
       { id: 'c1', type: 'spouse', name: 'Michael Hamilton' },
       { id: 'gc1', type: 'child', name: 'Oliver Hamilton' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   {
     id: 'c2',
@@ -326,7 +344,9 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'p1', type: 'parent', name: 'James Hamilton' },
       { id: 'p3', type: 'parent', name: 'Linda Hamilton' },
       { id: 'c1', type: 'sibling', name: 'Michael Hamilton' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   {
     id: 'c3',
@@ -347,7 +367,9 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'p2', type: 'parent', name: 'Sarah Mitchell' },
       { id: 'p4', type: 'parent', name: 'David Mitchell' },
       { id: 'c4', type: 'sibling', name: 'Sophie Mitchell' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   {
     id: 'c4',
@@ -368,7 +390,9 @@ export const mockFamilyMembers: FamilyMember[] = [
       { id: 'p2', type: 'parent', name: 'Sarah Mitchell' },
       { id: 'p4', type: 'parent', name: 'David Mitchell' },
       { id: 'c3', type: 'sibling', name: 'Alex Mitchell' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   },
   
   // Next Generation (Generation 5)
@@ -390,7 +414,9 @@ export const mockFamilyMembers: FamilyMember[] = [
     relationships: [
       { id: 'c1', type: 'parent', name: 'Michael Hamilton' },
       { id: 'c5', type: 'parent', name: 'Jessica Hamilton' }
-    ]
+    ],
+    lifeStatus: 'alive',
+    vaultStatus: 'sealed'
   }
 ]
 
