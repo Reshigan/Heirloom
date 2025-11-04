@@ -28,6 +28,8 @@ import {
   MessageCircle
 } from 'lucide-react'
 import { mockMemories, mockFamilyMembers, Memory } from '../data/mock-family-data'
+import EmotionFilter, { Emotion } from './emotion-filter'
+import MemoryReactionsComments from './memory-reactions-comments'
 
 interface MemoryGalleryProps {
   selectedMemberId?: string
@@ -39,6 +41,7 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('')
   const [filterSignificance, setFilterSignificance] = useState<string>('')
+  const [selectedEmotions, setSelectedEmotions] = useState<Emotion[]>([])
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [sortBy, setSortBy] = useState<'date' | 'significance' | 'title'>('date')
   const [showUploadModal, setShowUploadModal] = useState(false)
@@ -55,7 +58,15 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
       const matchesSignificance = !filterSignificance || memory.significance === filterSignificance
       const matchesMember = !selectedMemberId || memory.participants.includes(selectedMemberId)
       
-      return matchesSearch && matchesType && matchesSignificance && matchesMember
+      const matchesEmotions = selectedEmotions.length > 0
+        ? selectedEmotions.some(emotion => 
+            memory.emotions.some(memEmotion => 
+              memEmotion.toLowerCase() === emotion.toLowerCase()
+            )
+          )
+        : true
+      
+      return matchesSearch && matchesType && matchesSignificance && matchesMember && matchesEmotions
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -139,6 +150,14 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
             Upload Memory
           </motion.button>
         </div>
+      </div>
+
+      {/* Emotion Filter */}
+      <div className="px-4 pt-4">
+        <EmotionFilter
+          selectedEmotions={selectedEmotions}
+          onEmotionsChange={setSelectedEmotions}
+        />
       </div>
 
       {/* Enhanced Filters */}
@@ -464,6 +483,22 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
                         </p>
                       </div>
                     )}
+
+                    {/* Reactions and Comments */}
+                    <div className="mt-6 pt-6 border-t border-gold-500/20">
+                      <MemoryReactionsComments
+                        memoryId={selectedMemory.id}
+                        memoryTitle={selectedMemory.title}
+                        reactions={selectedMemory.reactions || []}
+                        comments={selectedMemory.comments || []}
+                        currentUserId="current-user"
+                        currentUserName="You"
+                        onAddReaction={(type) => console.log('Add reaction:', type)}
+                        onRemoveReaction={() => console.log('Remove reaction')}
+                        onAddComment={(text) => console.log('Add comment:', text)}
+                        isVaultUnsealed={true}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

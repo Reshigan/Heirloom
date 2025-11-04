@@ -53,9 +53,11 @@ import TokenRedemptionModal from './token-redemption-modal'
 import VaultHealthMonitor from './vault-health-monitor'
 import MultiVaultManager from './multi-vault-manager'
 import ExecutorGuardianManager from './executor-guardian-manager'
+import AIFeaturesPanel from './ai-features-panel'
+import LegacyVideoRecorder from './legacy-video-recorder'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'vault-health' | 'multi-vault' | 'executors'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'vault-health' | 'multi-vault' | 'executors' | 'ai-features'
 
 interface MemoryOrb {
   id: string
@@ -83,6 +85,7 @@ export default function FuturisticHeirloomInterface() {
   const [unreadNotifications, setUnreadNotifications] = useState(3)
   const [userPlan] = useState<'essential' | 'premium' | 'unlimited' | 'dynasty'>('premium')
   const [showTokenRedemption, setShowTokenRedemption] = useState(false)
+  const [showLegacyVideoRecorder, setShowLegacyVideoRecorder] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -267,6 +270,7 @@ export default function FuturisticHeirloomInterface() {
             { id: 'tokens', label: 'Legacy', tourId: 'legacy-nav' },
             { id: 'vault-health', label: 'Health', tourId: '' },
             { id: 'executors', label: 'Executors', tourId: '' },
+            { id: 'ai-features', label: 'AI', tourId: '' },
             { id: 'pricing', label: 'Plans', tourId: '' }
           ].map(item => (
             <motion.li
@@ -626,6 +630,29 @@ export default function FuturisticHeirloomInterface() {
               />
             </motion.div>
           )}
+
+          {currentView === 'ai-features' && (
+            <motion.div
+              key="ai-features-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="container mx-auto px-8 max-w-4xl py-8"
+            >
+              <AIFeaturesPanel
+                onGenerateEmotions={async () => [
+                  { emotion: 'Joy', confidence: 0.92 },
+                  { emotion: 'Love', confidence: 0.88 },
+                  { emotion: 'Nostalgia', confidence: 0.75 }
+                ]}
+                onGenerateMemoryBook={async () => ({
+                  title: 'Hamilton Family Legacy',
+                  pages: 47,
+                  url: '/downloads/memory-book.pdf'
+                })}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -714,6 +741,7 @@ export default function FuturisticHeirloomInterface() {
           whileHover={{ scale: 1.15, y: -3, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
           onClick={handleRecordStory}
+          title="Record Audio Story"
         >
           {isRecording ? <Pause className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
         </motion.button>
@@ -722,7 +750,18 @@ export default function FuturisticHeirloomInterface() {
           className="glass-icon-button w-14 h-14 text-gold-400"
           whileHover={{ scale: 1.15, y: -3, rotate: -5 }}
           whileTap={{ scale: 0.9 }}
+          onClick={() => setShowLegacyVideoRecorder(true)}
+          title="Record Legacy Video"
+        >
+          <Video className="w-5 h-5" />
+        </motion.button>
+        
+        <motion.button
+          className="glass-icon-button w-14 h-14 text-gold-400"
+          whileHover={{ scale: 1.15, y: -3, rotate: -5 }}
+          whileTap={{ scale: 0.9 }}
           onClick={handleAIEnhance}
+          title="AI Enhance"
         >
           <Sparkles className="w-5 h-5" />
         </motion.button>
@@ -740,6 +779,7 @@ export default function FuturisticHeirloomInterface() {
             ]
           }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          title="Add Memory"
         >
           <Plus className="w-6 h-6" />
         </motion.button>
@@ -813,6 +853,19 @@ export default function FuturisticHeirloomInterface() {
                 }
               }
               return { success: false, error: 'Invalid token format' }
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Legacy Video Recorder */}
+      <AnimatePresence>
+        {showLegacyVideoRecorder && (
+          <LegacyVideoRecorder
+            onClose={() => setShowLegacyVideoRecorder(false)}
+            onSave={(video) => {
+              console.log('Legacy video saved:', video)
+              setShowLegacyVideoRecorder(false)
             }}
           />
         )}
