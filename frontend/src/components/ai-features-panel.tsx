@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Brain, Mic, BookOpen, Image, Wand2, CheckCircle, Loader } from 'lucide-react'
+import { LuxCard } from './lux'
 
 interface AIFeaturesPanelProps {
   memoryId?: string
@@ -181,7 +182,7 @@ export default function AIFeaturesPanel({
         })}
       </div>
 
-      <div className="glass-card p-4 bg-gold-500/5 border-gold-500/20">
+      <LuxCard variant="glass" padding="md" className="bg-gold-500/5 border-gold-500/20">
         <div className="flex items-start gap-3">
           <Wand2 className="w-5 h-5 text-gold-400 flex-shrink-0 mt-0.5" />
           <div>
@@ -191,7 +192,7 @@ export default function AIFeaturesPanel({
             </p>
           </div>
         </div>
-      </div>
+      </LuxCard>
     </div>
   )
 }

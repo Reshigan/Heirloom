@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Shield, UserPlus, X, Mail, CheckCircle, AlertCircle } from 'lucide-react'
+import { LuxCard, LuxButton } from './lux'
 
 interface Executor {
   id: string
@@ -47,12 +48,11 @@ export default function ExecutorGuardianManager({
   const renderPersonList = (people: Executor[], type: 'executor' | 'guardian') => (
     <div className="space-y-3">
       {people.map((person) => (
-        <motion.div
+        <LuxCard
           key={person.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, x: -100 }}
-          className="glass-card p-4"
+          variant="glass"
+          padding="md"
+          className="motion-safe:animate-in"
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -80,7 +80,7 @@ export default function ExecutorGuardianManager({
               <X className="w-4 h-4" />
             </button>
           </div>
-        </motion.div>
+        </LuxCard>
       ))}
     </div>
   )
@@ -99,22 +99,23 @@ export default function ExecutorGuardianManager({
               Trusted people who can manage your vault after death
             </p>
           </div>
-          <button
+          <LuxButton
+            variant="primary"
+            size="md"
             onClick={() => setShowAddForm('executor')}
-            className="glass-button-primary text-sm px-4 py-2"
           >
             <UserPlus className="w-4 h-4 inline mr-2" />
             Add Executor
-          </button>
+          </LuxButton>
         </div>
 
         {executors.length > 0 ? (
           renderPersonList(executors, 'executor')
         ) : (
-          <div className="glass-card p-6 text-center">
+          <LuxCard variant="glass" padding="lg" className="text-center">
             <Shield className="w-12 h-12 text-pearl/20 mx-auto mb-3" />
             <p className="text-pearl/60 text-sm">No executors added yet</p>
-          </div>
+          </LuxCard>
         )}
       </div>
 
@@ -130,22 +131,23 @@ export default function ExecutorGuardianManager({
               People who can approve or deny redemption requests
             </p>
           </div>
-          <button
+          <LuxButton
+            variant="primary"
+            size="md"
             onClick={() => setShowAddForm('guardian')}
-            className="glass-button-primary text-sm px-4 py-2"
           >
             <UserPlus className="w-4 h-4 inline mr-2" />
             Add Guardian
-          </button>
+          </LuxButton>
         </div>
 
         {guardians.length > 0 ? (
           renderPersonList(guardians, 'guardian')
         ) : (
-          <div className="glass-card p-6 text-center">
+          <LuxCard variant="glass" padding="lg" className="text-center">
             <Shield className="w-12 h-12 text-pearl/20 mx-auto mb-3" />
             <p className="text-pearl/60 text-sm">No guardians added yet</p>
-          </div>
+          </LuxCard>
         )}
       </div>
 
@@ -215,13 +217,15 @@ export default function ExecutorGuardianManager({
                   />
                 </div>
 
-                <button
+                <LuxButton
+                  variant="primary"
+                  size="lg"
                   onClick={() => handleSubmit(showAddForm)}
                   disabled={!formData.name || !formData.email}
-                  className="glass-button-primary w-full"
+                  className="w-full"
                 >
                   Send Invitation
-                </button>
+                </LuxButton>
               </div>
             </motion.div>
           </motion.div>
