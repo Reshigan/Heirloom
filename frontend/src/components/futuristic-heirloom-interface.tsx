@@ -37,7 +37,8 @@ import {
   Key,
   CreditCard,
   HardDrive,
-  UserPlus
+  UserPlus,
+  Video
 } from 'lucide-react'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
