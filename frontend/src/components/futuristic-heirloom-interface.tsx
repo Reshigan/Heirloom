@@ -49,9 +49,13 @@ import StorageOptimizer from './storage-optimizer'
 import ShareInviteSystem from './share-invite-system'
 import PlatformTour from './platform-tour'
 import NotificationCenter from './notification-center'
+import TokenRedemptionModal from './token-redemption-modal'
+import VaultHealthMonitor from './vault-health-monitor'
+import MultiVaultManager from './multi-vault-manager'
+import ExecutorGuardianManager from './executor-guardian-manager'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'vault-health' | 'multi-vault' | 'executors'
 
 interface MemoryOrb {
   id: string
@@ -78,6 +82,7 @@ export default function FuturisticHeirloomInterface() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [unreadNotifications, setUnreadNotifications] = useState(3)
   const [userPlan] = useState<'essential' | 'premium' | 'unlimited' | 'dynasty'>('premium')
+  const [showTokenRedemption, setShowTokenRedemption] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -258,13 +263,11 @@ export default function FuturisticHeirloomInterface() {
           {[
             { id: 'memories', label: 'Memories', tourId: '' },
             { id: 'timeline', label: 'Timeline', tourId: 'timeline-nav' },
-            { id: 'heritage', label: 'Heritage', tourId: '' },
-            { id: 'wisdom', label: 'Wisdom', tourId: '' },
             { id: 'family', label: 'Family', tourId: 'family-nav' },
             { id: 'tokens', label: 'Legacy', tourId: 'legacy-nav' },
-            { id: 'pricing', label: 'Plans', tourId: '' },
-            { id: 'storage', label: 'Storage', tourId: 'storage-nav' },
-            { id: 'share', label: 'Share', tourId: 'share-nav' }
+            { id: 'vault-health', label: 'Health', tourId: '' },
+            { id: 'executors', label: 'Executors', tourId: '' },
+            { id: 'pricing', label: 'Plans', tourId: '' }
           ].map(item => (
             <motion.li
               key={item.id}
@@ -291,6 +294,16 @@ export default function FuturisticHeirloomInterface() {
         </ul>
 
         <div className="flex items-center gap-4">
+          <motion.button
+            onClick={() => setShowTokenRedemption(true)}
+            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all duration-300 backdrop-blur-sm bg-obsidian-800/30"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            title="Redeem Legacy Token"
+          >
+            <Key className="w-4 h-4" />
+          </motion.button>
+          
           <motion.button
             onClick={() => setShowNotifications(true)}
             className="relative w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all duration-300 backdrop-blur-sm bg-obsidian-800/30"
@@ -535,6 +548,84 @@ export default function FuturisticHeirloomInterface() {
               <ShareInviteSystem />
             </motion.div>
           )}
+
+          {currentView === 'vault-health' && (
+            <motion.div
+              key="vault-health-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="container mx-auto px-8 max-w-4xl py-8"
+            >
+              <VaultHealthMonitor
+                lastUpdated={new Date()}
+                missingMetadataCount={12}
+                completionPercentage={73}
+                suggestions={[
+                  'Add emotion tags to 8 memories from the 1950s era',
+                  'Include location information for 4 wedding photos',
+                  'Add dates to 3 family reunion memories'
+                ]}
+                totalMemories={47}
+                memoriesWithEmotions={35}
+                memoriesWithLocations={40}
+                memoriesWithDates={44}
+              />
+            </motion.div>
+          )}
+
+          {currentView === 'multi-vault' && (
+            <motion.div
+              key="multi-vault-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="container mx-auto px-8 max-w-4xl py-8"
+            >
+              <MultiVaultManager
+                vaults={[
+                  {
+                    id: 'vault1',
+                    name: 'My Children\'s Vault',
+                    tokenId: 'HLM_LEG_ABC123XYZ',
+                    audienceType: 'immediate',
+                    memoryCount: 47,
+                    createdAt: new Date('2024-01-15')
+                  }
+                ]}
+                onCreateVault={(vault) => console.log('Create vault:', vault)}
+                onDeleteVault={(id) => console.log('Delete vault:', id)}
+                onEditVault={(id, updates) => console.log('Edit vault:', id, updates)}
+              />
+            </motion.div>
+          )}
+
+          {currentView === 'executors' && (
+            <motion.div
+              key="executors-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="container mx-auto px-8 max-w-4xl py-8"
+            >
+              <ExecutorGuardianManager
+                executors={[
+                  {
+                    id: 'exec1',
+                    name: 'Sarah Hamilton',
+                    email: 'sarah@example.com',
+                    relationship: 'Daughter',
+                    status: 'accepted',
+                    invitedAt: new Date('2024-01-10')
+                  }
+                ]}
+                guardians={[]}
+                onAddExecutor={(executor) => console.log('Add executor:', executor)}
+                onAddGuardian={(guardian) => console.log('Add guardian:', guardian)}
+                onRemove={(id, type) => console.log('Remove:', id, type)}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -700,6 +791,29 @@ export default function FuturisticHeirloomInterface() {
           <NotificationCenter
             userPlan={userPlan}
             onClose={() => setShowNotifications(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Token Redemption Modal */}
+      <AnimatePresence>
+        {showTokenRedemption && (
+          <TokenRedemptionModal
+            onClose={() => setShowTokenRedemption(false)}
+            onRedeem={async (token) => {
+              if (token.startsWith('HLM_LEG_')) {
+                return {
+                  success: true,
+                  owner: {
+                    name: 'William Hamilton',
+                    avatar: '👴',
+                    birthDate: '1895-03-15',
+                    deathDate: '1978-11-22'
+                  }
+                }
+              }
+              return { success: false, error: 'Invalid token format' }
+            }}
           />
         )}
       </AnimatePresence>
