@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Search, Filter, Calendar, Tag, User, MapPin, SlidersHorizontal, X } from 'lucide-react';
+import { LuxCard, LuxButton } from './lux';
 
 interface SearchFilterProps {
   onSearch?: (query: string) => void;

@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Heart, Smile, Sparkles, Star, Sun, Cloud, Droplet, Flame } from 'lucide-react'
+import { LuxCard, LuxButton } from './lux'
 
 export type Emotion = 'joy' | 'love' | 'nostalgia' | 'pride' | 'gratitude' | 'peace' | 'hope' | 'awe'
 

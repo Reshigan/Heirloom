@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { Upload, Image, Video, FileText, X, Plus } from 'lucide-react';
+import { LuxCard, LuxButton } from './lux';
 
 interface MemoryUploadProps {
   onUpload?: (files: File[]) => void;

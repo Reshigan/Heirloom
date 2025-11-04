@@ -31,6 +31,7 @@ import {
   X
 } from 'lucide-react'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents } from '../data/mock-family-data'
+import { LuxCard, LuxButton } from './lux'
 
 interface UserProfileProps {
   userId?: string
