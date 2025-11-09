@@ -46,7 +46,7 @@ export default function MemoryPrivacySelector({
   onUnlockDateChange
 }: MemoryPrivacySelectorProps) {
   return (
-    <div className="space-y-4">
+    <LuxCard variant="default" padding="lg" className="space-y-4">
       <div>
         <h3 className="text-sm font-semibold text-gold-400 uppercase tracking-wider mb-3">
           Privacy Level
