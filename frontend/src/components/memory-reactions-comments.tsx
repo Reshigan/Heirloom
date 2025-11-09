@@ -85,19 +85,19 @@ export default function MemoryReactionsComments({
 
   if (!isVaultUnsealed) {
     return (
-      <div className="glass-card p-6 text-center">
+      <LuxCard variant="default" padding="lg" className="text-center">
         <MessageCircle className="w-12 h-12 text-pearl/20 mx-auto mb-3" />
         <p className="text-pearl/60 text-sm">
           Reactions and comments will be available after the vault is unsealed
         </p>
-      </div>
+      </LuxCard>
     )
   }
 
   return (
     <div className="space-y-4">
       {/* Reactions Bar */}
-      <div className="glass-card p-4">
+      <LuxCard variant="default" padding="md">
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-semibold text-gold-400">Reactions</h4>
           <div className="flex items-center gap-2">
@@ -116,32 +116,34 @@ export default function MemoryReactionsComments({
 
         <div className="flex items-center gap-2">
           {currentUserReaction ? (
-            <button
+            <LuxButton
               onClick={onRemoveReaction}
-              className="glass-button px-4 py-2 flex items-center gap-2"
+              variant="secondary"
+              size="md"
+              className="flex items-center gap-2"
             >
               {React.createElement(reactionConfig[currentUserReaction.type].icon, {
                 className: `w-4 h-4 ${reactionConfig[currentUserReaction.type].color}`
               })}
               <span className="text-sm">{reactionConfig[currentUserReaction.type].label}</span>
               <X className="w-3 h-3 ml-1" />
-            </button>
+            </LuxButton>
           ) : (
             <div className="relative">
-              <button
+              <LuxButton
                 onClick={() => setShowReactionPicker(!showReactionPicker)}
-                className="glass-button-primary px-4 py-2 text-sm"
+                variant="primary"
+                size="md"
               >
                 Add Reaction
-              </button>
+              </LuxButton>
 
               <AnimatePresence>
                 {showReactionPicker && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full mt-2 left-0 glass-card p-2 flex gap-2 z-10"
+                  <LuxCard
+                    variant="elevated"
+                    padding="sm"
+                    className="absolute top-full mt-2 left-0 flex gap-2 z-10"
                   >
                     {(Object.keys(reactionConfig) as Array<keyof typeof reactionConfig>).map((type) => {
                       const config = reactionConfig[type]
@@ -168,10 +170,10 @@ export default function MemoryReactionsComments({
             </div>
           )}
         </div>
-      </div>
+      </LuxCard>
 
       {/* Comments Section */}
-      <div className="glass-card p-4">
+      <LuxCard variant="default" padding="md">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-sm font-semibold text-gold-400 flex items-center gap-2">
             <MessageCircle className="w-4 h-4" />
@@ -206,23 +208,26 @@ export default function MemoryReactionsComments({
                 />
               </div>
               <div className="flex gap-2">
-                <button
+                <LuxButton
                   onClick={() => {
                     setShowCommentInput(false)
                     setCommentText('')
                   }}
-                  className="glass-button text-sm px-3 py-1"
+                  variant="secondary"
+                  size="sm"
                 >
                   Cancel
-                </button>
-                <button
+                </LuxButton>
+                <LuxButton
                   onClick={handleAddComment}
                   disabled={!commentText.trim()}
-                  className="glass-button-primary text-sm px-3 py-1 flex items-center gap-2"
+                  variant="primary"
+                  size="sm"
+                  className="flex items-center gap-2"
                 >
                   <Send className="w-3 h-3" />
                   Post Comment
-                </button>
+                </LuxButton>
               </div>
             </motion.div>
           )}
@@ -259,7 +264,7 @@ export default function MemoryReactionsComments({
             ))
           )}
         </div>
-      </div>
+      </LuxCard>
     </div>
   )
 }
