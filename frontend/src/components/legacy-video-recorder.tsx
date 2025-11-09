@@ -69,11 +69,10 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
     >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="glass-modal max-w-2xl w-full p-8"
+      <LuxCard
+        variant="elevated"
+        padding="lg"
+        className="max-w-2xl w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
@@ -81,9 +80,9 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
             <Video className="w-6 h-6" />
             Record Legacy Video Message
           </h2>
-          <button onClick={onClose} className="glass-icon-button p-2">
+          <LuxButton onClick={onClose} variant="ghost" size="sm" ariaLabel="Close">
             <X className="w-5 h-5" />
-          </button>
+          </LuxButton>
         </div>
 
         <AnimatePresence mode="wait">
@@ -127,12 +126,14 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
                     const isSelected = formData.occasion === template.id
 
                     return (
-                      <button
+                      <LuxCard
                         key={template.id}
-                        onClick={() => setFormData({ ...formData, occasion: template.id })}
-                        className={`glass-card p-4 text-left transition-all ${
+                        variant="default"
+                        padding="md"
+                        className={`cursor-pointer text-left transition-all ${
                           isSelected ? 'border-gold-500/60' : 'border-gold-500/20'
                         }`}
+                        onClick={() => setFormData({ ...formData, occasion: template.id })}
                       >
                         <div className="flex items-center gap-3 mb-2">
                           <span className="text-2xl">{template.icon}</span>
@@ -144,7 +145,7 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
                           </div>
                         </div>
                         <p className="text-xs text-pearl/60">{template.prompt}</p>
-                      </button>
+                      </LuxCard>
                     )
                   })}
                 </div>
@@ -167,7 +168,7 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
               )}
 
               {selectedOccasion && (
-                <div className="glass-card p-4 bg-gold-500/10 border-gold-500/30">
+                <LuxCard variant="default" padding="md" className="bg-gold-500/10 border-gold-500/30">
                   <div className="flex items-start gap-3">
                     <Heart className="w-5 h-5 text-gold-400 flex-shrink-0 mt-0.5" />
                     <div>
@@ -175,17 +176,19 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
                       <p className="text-xs text-pearl/80">{selectedOccasion.prompt}</p>
                     </div>
                   </div>
-                </div>
+                </LuxCard>
               )}
 
-              <button
+              <LuxButton
                 onClick={handleStartRecording}
                 disabled={!formData.title || !formData.recipient || !formData.occasion}
-                className="glass-button-primary w-full"
+                variant="primary"
+                size="lg"
+                className="w-full"
               >
                 <Video className="w-5 h-5 inline mr-2" />
                 Start Recording
-              </button>
+              </LuxButton>
             </motion.div>
           )}
 
@@ -217,29 +220,33 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
 
               {/* Recording Controls */}
               <div className="flex items-center justify-center gap-4">
-                <button
+                <LuxButton
                   onClick={() => setIsPaused(!isPaused)}
-                  className="glass-icon-button w-14 h-14"
+                  variant="ghost"
+                  size="lg"
+                  className="w-14 h-14"
+                  ariaLabel={isPaused ? "Resume" : "Pause"}
                 >
                   {isPaused ? <Play className="w-6 h-6" /> : <Pause className="w-6 h-6" />}
-                </button>
-                <button
+                </LuxButton>
+                <LuxButton
                   onClick={handleStopRecording}
-                  className="glass-button-primary px-6 py-3"
+                  variant="primary"
+                  size="lg"
                 >
                   <StopCircle className="w-5 h-5 inline mr-2" />
                   Stop Recording
-                </button>
+                </LuxButton>
               </div>
 
-              <div className="glass-card p-4">
+              <LuxCard variant="default" padding="md">
                 <h4 className="text-sm font-semibold text-gold-400 mb-2">
                   To: {formData.recipient}
                 </h4>
                 <p className="text-xs text-pearl/60">
                   {selectedOccasion?.label || formData.customOccasion}
                 </p>
-              </div>
+              </LuxCard>
             </motion.div>
           )}
 
@@ -259,7 +266,7 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
                 </div>
               </div>
 
-              <div className="glass-card p-4">
+              <LuxCard variant="default" padding="md">
                 <h4 className="text-lg font-semibold text-gold-400 mb-2">{formData.title}</h4>
                 <div className="flex items-center gap-4 text-sm text-pearl/70">
                   <span className="flex items-center gap-2">
@@ -271,26 +278,30 @@ export default function LegacyVideoRecorder({ onSave, onClose }: LegacyVideoReco
                     {selectedOccasion?.label || formData.customOccasion}
                   </span>
                 </div>
-              </div>
+              </LuxCard>
 
               <div className="flex gap-3">
-                <button
+                <LuxButton
                   onClick={() => setStep('recording')}
-                  className="glass-button flex-1"
+                  variant="secondary"
+                  size="lg"
+                  className="flex-1"
                 >
                   Re-record
-                </button>
-                <button
+                </LuxButton>
+                <LuxButton
                   onClick={handleSave}
-                  className="glass-button-primary flex-1"
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
                 >
                   Save to Vault
-                </button>
+                </LuxButton>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </LuxCard>
     </motion.div>
   )
 }
