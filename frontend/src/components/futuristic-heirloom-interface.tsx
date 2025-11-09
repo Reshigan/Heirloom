@@ -659,7 +659,11 @@ export default function FuturisticHeirloomInterface() {
       </div>
 
       {/* Enhanced Elegant Timeline */}
-      <div className="glass-panel fixed bottom-10 left-1/2 transform -translate-x-1/2 w-4/5 max-w-4xl p-8 z-30 backdrop-blur-2xl">
+      <LuxCard 
+        variant="elevated" 
+        padding="lg"
+        className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-4/5 max-w-4xl z-30"
+      >
         <div className="relative h-1 bg-gold-500/20 my-5 rounded-full shadow-[0_0_10px_rgba(212,175,55,0.2)]">
           <motion.div 
             className="absolute h-full w-3/5 bg-gradient-to-r from-transparent via-gold-400 to-transparent rounded-full"
@@ -688,7 +692,7 @@ export default function FuturisticHeirloomInterface() {
             </motion.button>
           ))}
         </div>
-      </div>
+      </LuxCard>
 
       {/* Enhanced Detail Panel */}
       <AnimatePresence>
@@ -738,53 +742,41 @@ export default function FuturisticHeirloomInterface() {
 
       {/* Enhanced Floating Action Bar */}
       <div className="fixed bottom-10 right-10 flex flex-col gap-4 z-50">
-        <motion.button
-          className="glass-icon-button w-14 h-14 text-gold-400"
-          whileHover={{ scale: 1.15, y: -3, rotate: 5 }}
-          whileTap={{ scale: 0.9 }}
+        <LuxFab
           onClick={handleRecordStory}
-          title="Record Audio Story"
+          variant="secondary"
+          size="md"
+          ariaLabel="Record Audio Story"
         >
           {isRecording ? <Pause className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-        </motion.button>
+        </LuxFab>
         
-        <motion.button
-          className="glass-icon-button w-14 h-14 text-gold-400"
-          whileHover={{ scale: 1.15, y: -3, rotate: -5 }}
-          whileTap={{ scale: 0.9 }}
+        <LuxFab
           onClick={() => setShowLegacyVideoRecorder(true)}
-          title="Record Legacy Video"
+          variant="secondary"
+          size="md"
+          ariaLabel="Record Legacy Video"
         >
           <Video className="w-5 h-5" />
-        </motion.button>
+        </LuxFab>
         
-        <motion.button
-          className="glass-icon-button w-14 h-14 text-gold-400"
-          whileHover={{ scale: 1.15, y: -3, rotate: -5 }}
-          whileTap={{ scale: 0.9 }}
+        <LuxFab
           onClick={handleAIEnhance}
-          title="AI Enhance"
+          variant="secondary"
+          size="md"
+          ariaLabel="AI Enhance"
         >
           <Sparkles className="w-5 h-5" />
-        </motion.button>
+        </LuxFab>
         
-        <motion.button
-          className="glass-button-primary w-16 h-16 rounded-full flex items-center justify-center"
-          whileHover={{ scale: 1.2, y: -4, rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
+        <LuxFab
           onClick={handleAddMemory}
-          animate={{ 
-            boxShadow: [
-              '0 0 30px rgba(212,175,55,0.5)',
-              '0 0 40px rgba(212,175,55,0.6)',
-              '0 0 30px rgba(212,175,55,0.5)'
-            ]
-          }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          title="Add Memory"
+          variant="primary"
+          size="lg"
+          ariaLabel="Add Memory"
         >
           <Plus className="w-6 h-6" />
-        </motion.button>
+        </LuxFab>
       </div>
 
       {/* User Profile Modal */}
