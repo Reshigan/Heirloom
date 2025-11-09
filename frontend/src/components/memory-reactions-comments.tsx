@@ -164,7 +164,7 @@ export default function MemoryReactionsComments({
                         </motion.button>
                       )
                     })}
-                  </motion.div>
+                  </LuxCard>
                 )}
               </AnimatePresence>
             </div>
