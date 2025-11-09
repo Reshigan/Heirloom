@@ -161,23 +161,24 @@ export default function ExecutorGuardianManager({
             className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => setShowAddForm(null)}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="glass-modal max-w-md w-full p-6"
+            <LuxCard
+              variant="elevated"
+              padding="lg"
+              className="max-w-md w-full"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-serif text-gold-400">
                   Add {showAddForm === 'executor' ? 'Executor' : 'Guardian'}
                 </h3>
-                <button
+                <LuxButton
                   onClick={() => setShowAddForm(null)}
-                  className="glass-icon-button p-2"
+                  variant="ghost"
+                  size="sm"
+                  ariaLabel="Close"
                 >
                   <X className="w-5 h-5" />
-                </button>
+                </LuxButton>
               </div>
 
               <div className="space-y-4">
@@ -227,7 +228,7 @@ export default function ExecutorGuardianManager({
                   Send Invitation
                 </LuxButton>
               </div>
-            </motion.div>
+            </LuxCard>
           </motion.div>
         )}
       </AnimatePresence>
