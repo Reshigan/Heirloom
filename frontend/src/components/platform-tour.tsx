@@ -198,19 +198,15 @@ export default function PlatformTour({ onComplete, onSkip }: PlatformTourProps) 
         />
 
         {/* Tooltip */}
-        <motion.div
-          className="absolute glass-card pointer-events-auto"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1,
-            top: tooltipPosition.top,
-            left: tooltipPosition.left,
-          }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        <LuxCard
+          variant="elevated"
+          padding="lg"
+          className="absolute pointer-events-auto"
           style={{
             width: '350px',
             transform: 'translateX(-50%)',
+            top: tooltipPosition.top,
+            left: tooltipPosition.left,
           }}
         >
           <div className="p-6">
@@ -224,13 +220,14 @@ export default function PlatformTour({ onComplete, onSkip }: PlatformTourProps) 
                   Step {currentStep + 1} of {tourSteps.length}
                 </p>
               </div>
-              <button
+              <LuxButton
                 onClick={handleSkipTour}
-                className="glass-icon-button p-2"
-                aria-label="Close tour"
+                variant="ghost"
+                size="sm"
+                ariaLabel="Close tour"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </LuxButton>
             </div>
 
             {/* Description */}
@@ -248,32 +245,35 @@ export default function PlatformTour({ onComplete, onSkip }: PlatformTourProps) 
 
             {/* Navigation buttons */}
             <div className="flex items-center justify-between">
-              <button
+              <LuxButton
                 onClick={handlePrevious}
                 disabled={currentStep === 0}
-                className="glass-button flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                variant="secondary"
+                size="sm"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous
-              </button>
+              </LuxButton>
 
-              <button
+              <LuxButton
                 onClick={handleSkipTour}
-                className="glass-button text-pearl/60 hover:text-pearl"
+                variant="ghost"
+                size="sm"
               >
                 Skip Tour
-              </button>
+              </LuxButton>
 
-              <button
+              <LuxButton
                 onClick={handleNext}
-                className="glass-button-primary flex items-center gap-2"
+                variant="primary"
+                size="sm"
               >
                 {currentStep === tourSteps.length - 1 ? 'Finish' : 'Next'}
                 <ChevronRight className="w-4 h-4" />
-              </button>
+              </LuxButton>
             </div>
           </div>
-        </motion.div>
+        </LuxCard>
       </div>
     </AnimatePresence>
   )

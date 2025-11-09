@@ -26,7 +26,7 @@ const emotionConfig: Record<Emotion, { label: string; icon: React.ReactNode; col
 
 export default function EmotionFilter({ selectedEmotions, onEmotionToggle, onClear }: EmotionFilterProps) {
   return (
-    <div className="glass-card p-4">
+    <LuxCard variant="default" padding="md">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-gold-400 uppercase tracking-wider">
           Filter by Emotion
@@ -53,7 +53,7 @@ export default function EmotionFilter({ selectedEmotions, onEmotionToggle, onCle
               className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
                 isSelected
                   ? `bg-gradient-to-r ${config.color} text-white shadow-lg`
-                  : 'glass-button text-pearl/70 hover:text-pearl'
+                  : 'bg-charcoal-900/50 border border-gold-500/20 text-pearl/70 hover:text-pearl hover:border-gold-500/40 backdrop-blur-md'
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -74,6 +74,6 @@ export default function EmotionFilter({ selectedEmotions, onEmotionToggle, onCle
           </p>
         </div>
       )}
-    </div>
+    </LuxCard>
   )
 }

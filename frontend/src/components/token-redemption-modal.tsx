@@ -52,22 +52,22 @@ export default function TokenRedemptionModal({ onClose, onRedeem }: TokenRedempt
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="glass-modal max-w-md w-full p-8"
+      <LuxCard
+        variant="elevated"
+        padding="lg"
+        className="max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-serif text-gold-400">Redeem Legacy Token</h2>
-          <button
+          <LuxButton
             onClick={onClose}
-            className="glass-icon-button p-2"
-            aria-label="Close"
+            variant="ghost"
+            size="sm"
+            ariaLabel="Close"
           >
             <X className="w-5 h-5" />
-          </button>
+          </LuxButton>
         </div>
 
         <AnimatePresence mode="wait">
@@ -96,10 +96,12 @@ export default function TokenRedemptionModal({ onClose, onRedeem }: TokenRedempt
                 </div>
               </div>
 
-              <button
+              <LuxButton
                 onClick={handleValidate}
                 disabled={!token.trim() || isValidating}
-                className="glass-button-primary w-full"
+                variant="primary"
+                size="lg"
+                className="w-full"
               >
                 {isValidating ? (
                   <span className="flex items-center justify-center gap-2">
@@ -117,7 +119,7 @@ export default function TokenRedemptionModal({ onClose, onRedeem }: TokenRedempt
                     Validate Token
                   </span>
                 )}
-              </button>
+              </LuxButton>
             </motion.div>
           )}
 
@@ -156,20 +158,24 @@ export default function TokenRedemptionModal({ onClose, onRedeem }: TokenRedempt
               </div>
 
               <div className="flex gap-3">
-                <button
+                <LuxButton
                   onClick={() => setRedemptionState('input')}
-                  className="glass-button flex-1"
+                  variant="secondary"
+                  size="lg"
+                  className="flex-1"
                   disabled={isValidating}
                 >
                   Cancel
-                </button>
-                <button
+                </LuxButton>
+                <LuxButton
                   onClick={handleConfirmRedemption}
-                  className="glass-button-primary flex-1"
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
                   disabled={isValidating}
                 >
                   {isValidating ? 'Unsealing...' : 'Confirm & Unseal'}
-                </button>
+                </LuxButton>
               </div>
             </motion.div>
           )}
@@ -196,12 +202,14 @@ export default function TokenRedemptionModal({ onClose, onRedeem }: TokenRedempt
                 {ownerInfo.name}'s memories are now accessible in your family tree.
               </p>
 
-              <button
+              <LuxButton
                 onClick={onClose}
-                className="glass-button-primary w-full"
+                variant="primary"
+                size="lg"
+                className="w-full"
               >
                 View Family Tree
-              </button>
+              </LuxButton>
             </motion.div>
           )}
 
@@ -220,20 +228,22 @@ export default function TokenRedemptionModal({ onClose, onRedeem }: TokenRedempt
                 <p className="text-pearl/70 text-sm">{errorMessage}</p>
               </div>
 
-              <button
+              <LuxButton
                 onClick={() => {
                   setRedemptionState('input')
                   setToken('')
                   setErrorMessage('')
                 }}
-                className="glass-button-primary w-full"
+                variant="primary"
+                size="lg"
+                className="w-full"
               >
                 Try Again
-              </button>
+              </LuxButton>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </LuxCard>
     </motion.div>
   )
 }

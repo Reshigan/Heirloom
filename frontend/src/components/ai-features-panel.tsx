@@ -114,15 +114,14 @@ export default function AIFeaturesPanel({
           const isActive = activeFeature === feature.id
 
           return (
-            <motion.button
+            <LuxCard
               key={feature.id}
-              onClick={() => feature.available && handleFeatureClick(feature.id)}
-              disabled={!feature.available || isProcessing}
-              className={`glass-card p-6 text-left transition-all ${
+              variant="default"
+              padding="lg"
+              className={`cursor-pointer text-left transition-all ${
                 isActive ? 'border-gold-500/60' : 'border-gold-500/20'
               } ${!feature.available ? 'opacity-50 cursor-not-allowed' : 'hover:border-gold-500/40'}`}
-              whileHover={feature.available ? { scale: 1.02 } : {}}
-              whileTap={feature.available ? { scale: 0.98 } : {}}
+              onClick={() => feature.available && handleFeatureClick(feature.id)}
             >
               <div className="flex items-start gap-4">
                 <div className={`p-3 rounded-lg bg-gradient-to-br ${feature.color} bg-opacity-20`}>
@@ -177,7 +176,7 @@ export default function AIFeaturesPanel({
                   )}
                 </div>
               </div>
-            </motion.button>
+            </LuxCard>
           )
         })}
       </div>
