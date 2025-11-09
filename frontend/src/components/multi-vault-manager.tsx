@@ -59,13 +59,14 @@ export default function MultiVaultManager({
             Create separate vaults for different audiences
           </p>
         </div>
-        <button
+        <LuxButton
           onClick={() => setShowCreateForm(true)}
-          className="glass-button-primary text-sm px-4 py-2"
+          variant="primary"
+          size="sm"
         >
           <Plus className="w-4 h-4 inline mr-2" />
           New Vault
-        </button>
+        </LuxButton>
       </div>
 
       {/* Vault Cards */}
@@ -74,11 +75,12 @@ export default function MultiVaultManager({
           const audienceConfig = audienceTypeConfig[vault.audienceType]
 
           return (
-            <motion.div
+            <LuxCard
               key={vault.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass-card p-6 hover:border-gold-500/40 transition-all"
+              variant="default"
+              padding="lg"
+              className="hover:border-gold-500/40 transition-all"
+              style={{ opacity: 1, transform: 'translateY(0)' }}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start gap-3">
@@ -92,18 +94,23 @@ export default function MultiVaultManager({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
+                  <LuxButton
                     onClick={() => {/* Edit vault */}}
-                    className="glass-icon-button p-2"
+                    variant="ghost"
+                    size="sm"
+                    ariaLabel="Edit vault"
                   >
                     <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
+                  </LuxButton>
+                  <LuxButton
                     onClick={() => onDeleteVault(vault.id)}
-                    className="glass-icon-button p-2 hover:text-red-400"
+                    variant="ghost"
+                    size="sm"
+                    ariaLabel="Delete vault"
+                    className="hover:text-red-400"
                   >
                     <Trash2 className="w-4 h-4" />
-                  </button>
+                  </LuxButton>
                 </div>
               </div>
 
@@ -128,25 +135,26 @@ export default function MultiVaultManager({
                 <Key className="w-3 h-3" />
                 <span>Created {vault.createdAt.toLocaleDateString()}</span>
               </div>
-            </motion.div>
+            </LuxCard>
           )
         })}
       </div>
 
       {vaults.length === 0 && (
-        <div className="glass-card p-12 text-center">
+        <LuxCard variant="default" padding="xl" className="text-center">
           <Vault className="w-16 h-16 text-pearl/20 mx-auto mb-4" />
           <h4 className="text-lg font-semibold text-pearl mb-2">No Vaults Yet</h4>
           <p className="text-sm text-pearl/60 mb-6">
             Create your first vault to organize memories for different audiences
           </p>
-          <button
+          <LuxButton
             onClick={() => setShowCreateForm(true)}
-            className="glass-button-primary"
+            variant="primary"
+            size="lg"
           >
             Create Your First Vault
-          </button>
-        </div>
+          </LuxButton>
+        </LuxCard>
       )}
 
       {/* Create Vault Modal */}
@@ -159,21 +167,22 @@ export default function MultiVaultManager({
             className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => setShowCreateForm(false)}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="glass-modal max-w-md w-full p-6"
+            <LuxCard
+              variant="elevated"
+              padding="lg"
+              className="max-w-md w-full"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-serif text-gold-400">Create New Vault</h3>
-                <button
+                <LuxButton
                   onClick={() => setShowCreateForm(false)}
-                  className="glass-icon-button p-2"
+                  variant="ghost"
+                  size="sm"
+                  ariaLabel="Close"
                 >
                   <X className="w-5 h-5" />
-                </button>
+                </LuxButton>
               </div>
 
               <div className="space-y-4">
@@ -196,12 +205,14 @@ export default function MultiVaultManager({
                       const isSelected = formData.audienceType === type
 
                       return (
-                        <button
+                        <LuxCard
                           key={type}
-                          onClick={() => setFormData({ ...formData, audienceType: type })}
-                          className={`w-full glass-card p-4 text-left transition-all ${
+                          variant="default"
+                          padding="md"
+                          className={`w-full cursor-pointer text-left transition-all ${
                             isSelected ? 'border-gold-500/60' : 'border-gold-500/20'
                           }`}
+                          onClick={() => setFormData({ ...formData, audienceType: type })}
                         >
                           <div className="flex items-center gap-3">
                             <span className="text-2xl">{config.icon}</span>
@@ -213,21 +224,23 @@ export default function MultiVaultManager({
                               <p className="text-xs text-pearl/60 mt-1">{config.description}</p>
                             </div>
                           </div>
-                        </button>
+                        </LuxCard>
                       )
                     })}
                   </div>
                 </div>
 
-                <button
+                <LuxButton
                   onClick={handleCreate}
                   disabled={!formData.name}
-                  className="glass-button-primary w-full"
+                  variant="primary"
+                  size="lg"
+                  className="w-full"
                 >
                   Create Vault
-                </button>
+                </LuxButton>
               </div>
-            </motion.div>
+            </LuxCard>
           </motion.div>
         )}
       </AnimatePresence>
