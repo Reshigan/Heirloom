@@ -60,7 +60,7 @@ export default function MemoryPrivacySelector({
               <motion.button
                 key={level}
                 onClick={() => onLevelChange(level)}
-                className={`glass-card p-4 text-left transition-all ${
+                className={`p-4 text-left transition-all ${
                   isSelected ? 'border-gold-500/60 shadow-lg' : 'border-gold-500/20'
                 }`}
                 whileHover={{ scale: 1.02 }}
@@ -87,7 +87,7 @@ export default function MemoryPrivacySelector({
       </div>
 
       {onTimeLockToggle && onUnlockDateChange && (
-        <div className="glass-card p-4">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-gold-400" />

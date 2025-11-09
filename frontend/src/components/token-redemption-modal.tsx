@@ -131,7 +131,7 @@ export default function TokenRedemptionModal({ onClose, onRedeem }: TokenRedempt
               exit={{ opacity: 0, y: -20 }}
             >
               <div className="mb-6">
-                <div className="flex items-center gap-4 mb-4 p-4 glass-card">
+                <div className="flex items-center gap-4 mb-4 p-4">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold-500/20 to-gold-600/20 flex items-center justify-center text-2xl border border-gold-500/30">
                     {ownerInfo.avatar || '👤'}
                   </div>

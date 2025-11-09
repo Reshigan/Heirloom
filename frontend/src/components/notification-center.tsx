@@ -139,7 +139,7 @@ export default function NotificationCenter({ userPlan, onClose }: NotificationCe
       initial={{ opacity: 0, x: 300 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 300 }}
-      className="fixed right-0 top-0 h-full w-full md:w-96 glass-panel z-50 overflow-hidden flex flex-col"
+      className="fixed right-0 top-0 h-full w-full md:w-96 z-50 overflow-hidden flex flex-col"
     >
       <div className="p-6 border-b border-gold-500/20">
         <div className="flex items-center justify-between mb-4">
@@ -151,7 +151,7 @@ export default function NotificationCenter({ userPlan, onClose }: NotificationCe
           </div>
           <button
             onClick={onClose}
-            className="glass-icon-button p-2"
+            className="p-2"
             aria-label="Close notifications"
           >
             <X className="w-5 h-5" />
@@ -176,7 +176,7 @@ export default function NotificationCenter({ userPlan, onClose }: NotificationCe
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: 100 }}
-              className={`glass-card p-4 cursor-pointer transition-all ${
+              className={`cursor-pointer transition-all ${
                 !notification.read ? 'border-gold-500/40' : 'border-gold-500/10'
               }`}
               onClick={() => markAsRead(notification.id)}

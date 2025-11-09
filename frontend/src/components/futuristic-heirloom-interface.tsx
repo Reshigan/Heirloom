@@ -698,7 +698,7 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showDetailPanel && selectedMemory && (
           <motion.div
-            className="glass-modal fixed right-10 top-1/2 transform -translate-y-1/2 w-96 p-10 z-40"
+            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-96 p-10 z-40"
             initial={{ opacity: 0, x: 100, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100, scale: 0.9 }}
