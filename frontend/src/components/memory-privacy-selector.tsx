@@ -127,6 +127,6 @@ export default function MemoryPrivacySelector({
           )}
         </div>
       )}
-    </div>
+    </LuxCard>
   )
 }
