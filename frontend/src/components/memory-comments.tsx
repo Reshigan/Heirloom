@@ -56,56 +56,75 @@ const MemoryComments: React.FC<MemoryCommentsProps> = ({ memoryId, onRequestMemo
   const [currentUserName] = useState('Michael Hamilton')
 
   useEffect(() => {
-    const stored = localStorage.getItem(`comments_${memoryId}`)
-    if (stored) {
-      const parsed = JSON.parse(stored)
-      const commentsWithDates = parsed.map((c: any) => ({
-        ...c,
-        timestamp: new Date(c.timestamp),
-        replies: c.replies?.map((r: any) => ({
-          ...r,
-          timestamp: new Date(r.timestamp)
-        }))
-      }))
-      setComments(commentsWithDates)
-    } else {
-      const mockComments: Comment[] = [
-        {
-          id: '1',
-          memoryId,
-          userId: 'p1',
-          userName: 'James Hamilton',
-          userAvatar: 'JH',
-          content: 'What a beautiful memory! I remember this day so clearly. The weather was perfect.',
-          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-          reactions: [
-            { type: 'heart', userId: 'c1', userName: 'Michael Hamilton' },
-            { type: 'smile', userId: 'c2', userName: 'Emma Hamilton' }
-          ],
-          replies: []
-        },
-        {
-          id: '2',
-          memoryId,
-          userId: 'p3',
-          userName: 'Linda Hamilton',
-          userAvatar: 'LH',
-          content: 'This brings back so many wonderful memories. We should recreate this photo!',
-          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-          reactions: [
-            { type: 'thumbsup', userId: 'c1', userName: 'Michael Hamilton' }
-          ],
-          replies: []
+    if (typeof window === 'undefined') return
+
+    try {
+      const stored = localStorage.getItem(`heirloom:comments:${memoryId}`)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) {
+          const commentsWithDates = parsed.map((c: any) => ({
+            ...c,
+            timestamp: new Date(c.timestamp),
+            replies: Array.isArray(c.replies) ? c.replies.map((r: any) => ({
+              ...r,
+              timestamp: new Date(r.timestamp)
+            })) : []
+          }))
+          setComments(commentsWithDates)
+          return
         }
-      ]
-      setComments(mockComments)
-      localStorage.setItem(`comments_${memoryId}`, JSON.stringify(mockComments))
+      }
+    } catch (error) {
+      console.error('Failed to load comments from localStorage:', error)
+    }
+
+    const mockComments: Comment[] = [
+      {
+        id: '1',
+        memoryId,
+        userId: 'p1',
+        userName: 'James Hamilton',
+        userAvatar: 'JH',
+        content: 'What a beautiful memory! I remember this day so clearly. The weather was perfect.',
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        reactions: [
+          { type: 'heart', userId: 'c1', userName: 'Michael Hamilton' },
+          { type: 'smile', userId: 'c2', userName: 'Emma Hamilton' }
+        ],
+        replies: []
+      },
+      {
+        id: '2',
+        memoryId,
+        userId: 'p3',
+        userName: 'Linda Hamilton',
+        userAvatar: 'LH',
+        content: 'This brings back so many wonderful memories. We should recreate this photo!',
+        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        reactions: [
+          { type: 'thumbsup', userId: 'c1', userName: 'Michael Hamilton' }
+        ],
+        replies: []
+      }
+    ]
+    setComments(mockComments)
+    try {
+      localStorage.setItem(`heirloom:comments:${memoryId}`, JSON.stringify(mockComments))
+    } catch (error) {
+      console.error('Failed to save comments to localStorage:', error)
     }
   }, [memoryId])
 
   const saveComments = (updatedComments: Comment[]) => {
     setComments(updatedComments)
-    localStorage.setItem(`comments_${memoryId}`, JSON.stringify(updatedComments))
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`heirloom:comments:${memoryId}`, JSON.stringify(updatedComments))
+      } catch (error) {
+        console.error('Failed to save comments to localStorage:', error)
+      }
+    }
   }
 
   const handleAddComment = () => {
