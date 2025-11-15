@@ -273,7 +273,7 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
 
                     <div className="relative">
                       <motion.div
-                        className="w-24 h-24 rounded-full bg-gradient-to-br from-red-600 to-red-500 flex items-center justify-center"
+                        className="w-24 h-24 rounded-full bg-gradient-to-br from-gold-600 to-gold-500 flex items-center justify-center"
                         animate={{
                           scale: isPaused ? 1 : [1, 1.1, 1],
                           opacity: isPaused ? 0.5 : 1
@@ -283,7 +283,7 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
                           opacity: { duration: 0.3 }
                         }}
                       >
-                        <Volume2 className="w-10 h-10 text-white" />
+                        <Volume2 className="w-10 h-10 text-obsidian-900" />
                       </motion.div>
                       <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                         <div className="flex items-center gap-2 text-gold-100 font-mono text-lg">
@@ -308,7 +308,7 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="flex items-center gap-2 text-green-400"
+                    className="flex items-center gap-2 text-gold-400"
                   >
                     <CheckCircle className="w-8 h-8" />
                     <span className="text-lg font-semibold">Recording Complete!</span>
@@ -346,13 +346,13 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
                 className="space-y-4"
               >
                 {error && (
-                  <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-sm">
+                  <div className="p-3 rounded-lg bg-gold-600/20 border border-gold-500/50 text-gold-200 text-sm">
                     {error}
                   </div>
                 )}
 
                 {!isAuthenticated && (
-                  <div className="p-3 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 text-sm">
+                  <div className="p-3 rounded-lg bg-gold-600/20 border border-gold-500/50 text-gold-200 text-sm">
                     Please sign in to save your story
                   </div>
                 )}

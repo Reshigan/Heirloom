@@ -43,10 +43,10 @@ interface MemoryCommentsProps {
 }
 
 const reactionTypes = [
-  { type: 'heart' as const, icon: Heart, label: 'Love', color: 'text-red-400' },
-  { type: 'smile' as const, icon: Smile, label: 'Joy', color: 'text-yellow-400' },
-  { type: 'thumbsup' as const, icon: ThumbsUp, label: 'Like', color: 'text-blue-400' },
-  { type: 'sparkles' as const, icon: Sparkles, label: 'Amazing', color: 'text-purple-400' }
+  { type: 'heart' as const, icon: Heart, label: 'Love', color: 'text-gold-400' },
+  { type: 'smile' as const, icon: Smile, label: 'Joy', color: 'text-gold-300' },
+  { type: 'thumbsup' as const, icon: ThumbsUp, label: 'Like', color: 'text-gold-400/80' },
+  { type: 'sparkles' as const, icon: Sparkles, label: 'Amazing', color: 'text-gold-400/70' }
 ]
 
 const MemoryComments: React.FC<MemoryCommentsProps> = ({ memoryId, onRequestMemory }) => {
@@ -227,7 +227,7 @@ const MemoryComments: React.FC<MemoryCommentsProps> = ({ memoryId, onRequestMemo
               {comment.userId === currentUserId && (
                 <button
                   onClick={() => handleDeleteComment(comment.id)}
-                  className="p-1 text-gold-400/60 hover:text-red-400 transition-colors"
+                  className="p-1 text-gold-400/60 hover:text-gold-300 transition-colors"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
@@ -320,7 +320,7 @@ const MemoryComments: React.FC<MemoryCommentsProps> = ({ memoryId, onRequestMemo
       </div>
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-sm">
+        <div className="p-3 rounded-lg bg-gold-600/20 border border-gold-500/50 text-gold-200 text-sm">
           {error}
         </div>
       )}

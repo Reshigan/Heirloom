@@ -65,7 +65,7 @@ const WeeklyDigest: React.FC = () => {
       description: '5 family members commented on 3 of your memories this week',
       timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       icon: MessageCircle,
-      color: 'from-blue-600 to-blue-500',
+      color: 'from-gold-600 to-gold-500',
       actionUrl: '/memories'
     },
     {
@@ -75,7 +75,7 @@ const WeeklyDigest: React.FC = () => {
       description: 'Emma Hamilton shared 8 new photos from her marine research trip',
       timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       icon: ImageIcon,
-      color: 'from-green-600 to-green-500',
+      color: 'from-gold-600/90 to-gold-500/90',
       actionUrl: '/memories'
     },
     {
@@ -85,7 +85,7 @@ const WeeklyDigest: React.FC = () => {
       description: 'Oliver Hamilton turns 7 in 3 days! (May 30)',
       timestamp: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
       icon: Cake,
-      color: 'from-pink-600 to-pink-500',
+      color: 'from-gold-600/80 to-gold-500/80',
       actionUrl: '/family'
     },
     {
@@ -95,7 +95,7 @@ const WeeklyDigest: React.FC = () => {
       description: 'James and Linda Hamilton got married on this day in 2000',
       timestamp: new Date(Date.now()),
       icon: Heart,
-      color: 'from-red-600 to-red-500',
+      color: 'from-gold-600/70 to-gold-500/70',
       actionUrl: '/timeline'
     },
     {
@@ -105,7 +105,7 @@ const WeeklyDigest: React.FC = () => {
       description: 'Tell me about your favorite childhood memory',
       timestamp: new Date(Date.now()),
       icon: Sparkles,
-      color: 'from-purple-600 to-purple-500',
+      color: 'from-gold-600/60 to-gold-500/60',
       actionUrl: '/record'
     },
     {
@@ -126,7 +126,7 @@ const WeeklyDigest: React.FC = () => {
       date: new Date(2025, 4, 30),
       type: 'birthday',
       icon: Cake,
-      color: 'text-pink-400'
+      color: 'text-gold-400'
     },
     {
       id: '2',
@@ -134,7 +134,7 @@ const WeeklyDigest: React.FC = () => {
       date: new Date(2025, 5, 15),
       type: 'anniversary',
       icon: Heart,
-      color: 'text-red-400'
+      color: 'text-gold-300'
     },
     {
       id: '3',
@@ -142,7 +142,7 @@ const WeeklyDigest: React.FC = () => {
       date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       type: 'prompt',
       icon: Sparkles,
-      color: 'text-purple-400'
+      color: 'text-gold-400/80'
     },
     {
       id: '4',
@@ -182,14 +182,14 @@ const WeeklyDigest: React.FC = () => {
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-purple-600 to-purple-500 rounded-xl">
-              <Bell className="w-6 h-6 text-white" />
+            <div className="p-3 bg-gradient-to-r from-gold-600 to-gold-500 rounded-xl">
+              <Bell className="w-6 h-6 text-obsidian-900" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-serif bg-gradient-to-r from-gold-400 to-gold-300 bg-clip-text text-transparent">
                 Weekly Digest & Reminders
               </h1>
-              <p className="text-purple-400/70 mt-1">
+              <p className="text-gold-400/70 mt-1">
                 Stay connected with your family's story
               </p>
             </div>
@@ -207,8 +207,8 @@ const WeeklyDigest: React.FC = () => {
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg transition-all duration-300 ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg'
-                  : 'text-purple-400/70 hover:text-purple-400 hover:bg-obsidian-700/50'
+                  ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 shadow-lg'
+                  : 'text-gold-400/70 hover:text-gold-400 hover:bg-obsidian-700/50'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -226,7 +226,7 @@ const WeeklyDigest: React.FC = () => {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
-              <div className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-600/20">
+              <div className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-gold-500/20">
                 <h3 className="text-xl font-semibold text-gold-300 mb-6 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5" />
                   Your Week in Review
@@ -234,12 +234,12 @@ const WeeklyDigest: React.FC = () => {
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
                   {[
-                    { label: 'Memories', value: activityStats.memoriesAdded, icon: ImageIcon, color: 'from-blue-600 to-blue-500' },
-                    { label: 'Comments', value: activityStats.commentsReceived, icon: MessageCircle, color: 'from-green-600 to-green-500' },
-                    { label: 'Reactions', value: activityStats.reactionsReceived, icon: Heart, color: 'from-red-600 to-red-500' },
-                    { label: 'Views', value: activityStats.profileViews, icon: Eye, color: 'from-purple-600 to-purple-500' },
-                    { label: 'Connections', value: activityStats.newConnections, icon: Users, color: 'from-gold-600 to-gold-500' },
-                    { label: 'Stories', value: activityStats.storiesRecorded, icon: Sparkles, color: 'from-pink-600 to-pink-500' }
+                    { label: 'Memories', value: activityStats.memoriesAdded, icon: ImageIcon, color: 'from-gold-600 to-gold-500' },
+                    { label: 'Comments', value: activityStats.commentsReceived, icon: MessageCircle, color: 'from-gold-600/90 to-gold-500/90' },
+                    { label: 'Reactions', value: activityStats.reactionsReceived, icon: Heart, color: 'from-gold-600/80 to-gold-500/80' },
+                    { label: 'Views', value: activityStats.profileViews, icon: Eye, color: 'from-gold-600/70 to-gold-500/70' },
+                    { label: 'Connections', value: activityStats.newConnections, icon: Users, color: 'from-gold-600/60 to-gold-500/60' },
+                    { label: 'Stories', value: activityStats.storiesRecorded, icon: Sparkles, color: 'from-gold-600/50 to-gold-500/50' }
                   ].map((stat, index) => (
                     <motion.div
                       key={stat.label}
@@ -248,7 +248,7 @@ const WeeklyDigest: React.FC = () => {
                       transition={{ delay: index * 0.05 }}
                       className="text-center p-4 bg-obsidian-900/50 rounded-lg"
                     >
-                      <div className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center text-white mb-2 mx-auto`}>
+                      <div className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center text-obsidian-900 mb-2 mx-auto`}>
                         <stat.icon className="w-5 h-5" />
                       </div>
                       <div className="text-2xl font-bold text-gold-100 mb-1">{stat.value}</div>
@@ -270,11 +270,11 @@ const WeeklyDigest: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-xl p-4 border border-purple-600/20 hover:border-purple-600/40 transition-all duration-300 group cursor-pointer"
+                    className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-xl p-4 border border-gold-500/20 hover:border-gold-500/40 transition-all duration-300 group cursor-pointer"
                   >
                     <div className="flex items-start gap-4">
                       <div className={`p-3 bg-gradient-to-r ${item.color} rounded-lg flex-shrink-0`}>
-                        <item.icon className="w-5 h-5 text-white" />
+                        <item.icon className="w-5 h-5 text-obsidian-900" />
                       </div>
                       
                       <div className="flex-1">
@@ -306,7 +306,7 @@ const WeeklyDigest: React.FC = () => {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
-              <div className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-600/20">
+              <div className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-gold-500/20">
                 <h3 className="text-xl font-semibold text-gold-300 mb-6 flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   Upcoming Events & Reminders
@@ -319,7 +319,7 @@ const WeeklyDigest: React.FC = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center justify-between p-4 bg-obsidian-900/50 rounded-lg border border-purple-600/10 hover:border-purple-600/30 transition-all"
+                      className="flex items-center justify-between p-4 bg-obsidian-900/50 rounded-lg border border-gold-500/10 hover:border-gold-500/30 transition-all"
                     >
                       <div className="flex items-center gap-4">
                         <reminder.icon className={`w-6 h-6 ${reminder.color}`} />
@@ -337,19 +337,19 @@ const WeeklyDigest: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-600/20">
+              <div className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-gold-500/20">
                 <h3 className="text-xl font-semibold text-gold-300 mb-4 flex items-center gap-2">
                   <Sparkles className="w-5 h-5" />
                   This Week's Story Prompt
                 </h3>
-                <div className="bg-gradient-to-r from-purple-600/20 to-purple-500/20 border border-purple-500/30 rounded-xl p-6">
+                <div className="bg-gradient-to-r from-gold-600/20 to-gold-500/20 border border-gold-500/30 rounded-xl p-6">
                   <p className="text-xl font-serif text-gold-100 mb-4 italic">
                     "Tell me about your favorite childhood memory"
                   </p>
                   <p className="text-gold-400/70 mb-4">
                     Take a few minutes this week to record your answer. Your family will treasure these stories for generations.
                   </p>
-                  <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-lg hover:from-purple-500 hover:to-purple-400 transition-all duration-300 font-semibold flex items-center gap-2">
+                  <button className="px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center gap-2">
                     <Sparkles className="w-5 h-5" />
                     Record Your Story
                   </button>
@@ -366,7 +366,7 @@ const WeeklyDigest: React.FC = () => {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
-              <div className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-600/20">
+              <div className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-6 border border-gold-500/20">
                 <h3 className="text-xl font-semibold text-gold-300 mb-6 flex items-center gap-2">
                   <Bell className="w-5 h-5" />
                   Notification Preferences
@@ -385,7 +385,7 @@ const WeeklyDigest: React.FC = () => {
                   ].map((setting) => (
                     <div key={setting.key} className="flex items-start justify-between p-4 bg-obsidian-900/50 rounded-lg">
                       <div className="flex items-start gap-3 flex-1">
-                        <setting.icon className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
+                        <setting.icon className="w-5 h-5 text-gold-400 mt-0.5 flex-shrink-0" />
                         <div>
                           <div className="text-gold-100 font-medium">{setting.label}</div>
                           <div className="text-gold-400/70 text-sm">{setting.description}</div>
@@ -401,7 +401,7 @@ const WeeklyDigest: React.FC = () => {
                           })}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-obsidian-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-600 peer-checked:to-purple-500"></div>
+                        <div className="w-11 h-6 bg-obsidian-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-gold-600 peer-checked:to-gold-500"></div>
                       </label>
                     </div>
                   ))}

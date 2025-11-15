@@ -52,12 +52,12 @@ const AICurator: React.FC = () => {
   })
 
   const suggestedSearches = [
-    { query: 'family gatherings with grandma', icon: Users, color: 'from-blue-600 to-blue-500' },
-    { query: 'photos from Boston', icon: MapPin, color: 'from-green-600 to-green-500' },
-    { query: 'wedding celebrations', icon: Heart, color: 'from-red-600 to-red-500' },
-    { query: 'childhood memories from the 1980s', icon: Calendar, color: 'from-purple-600 to-purple-500' },
-    { query: 'milestone achievements', icon: Star, color: 'from-gold-600 to-gold-500' },
-    { query: 'summer vacations at the beach', icon: MapPin, color: 'from-teal-600 to-teal-500' }
+    { query: 'family gatherings with grandma', icon: Users, color: 'from-gold-600 to-gold-500' },
+    { query: 'photos from Boston', icon: MapPin, color: 'from-gold-600/90 to-gold-500/90' },
+    { query: 'wedding celebrations', icon: Heart, color: 'from-gold-600/80 to-gold-500/80' },
+    { query: 'childhood memories from the 1980s', icon: Calendar, color: 'from-gold-600/70 to-gold-500/70' },
+    { query: 'milestone achievements', icon: Star, color: 'from-gold-600/60 to-gold-500/60' },
+    { query: 'summer vacations at the beach', icon: MapPin, color: 'from-gold-600/50 to-gold-500/50' }
   ]
 
   const personGroups = [
@@ -77,11 +77,11 @@ const AICurator: React.FC = () => {
   ]
 
   const themeGroups = [
-    { name: 'Family Gatherings', count: 38, icon: Users, color: 'text-blue-400' },
-    { name: 'Celebrations', count: 29, icon: Star, color: 'text-gold-400' },
-    { name: 'Travel & Adventures', count: 24, icon: MapPin, color: 'text-green-400' },
-    { name: 'Milestones', count: 19, icon: TrendingUp, color: 'text-purple-400' },
-    { name: 'Everyday Moments', count: 52, icon: Heart, color: 'text-red-400' }
+    { name: 'Family Gatherings', count: 38, icon: Users, color: 'text-gold-400' },
+    { name: 'Celebrations', count: 29, icon: Star, color: 'text-gold-300' },
+    { name: 'Travel & Adventures', count: 24, icon: MapPin, color: 'text-gold-400/80' },
+    { name: 'Milestones', count: 19, icon: TrendingUp, color: 'text-gold-400/70' },
+    { name: 'Everyday Moments', count: 52, icon: Heart, color: 'text-gold-400/60' }
   ]
 
   const handleSearch = (query: string) => {
@@ -117,14 +117,14 @@ const AICurator: React.FC = () => {
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-gradient-to-r from-purple-600 to-purple-500 rounded-xl">
-              <Brain className="w-6 h-6 text-white" />
+            <div className="p-3 bg-gradient-to-r from-gold-600 to-gold-500 rounded-xl">
+              <Brain className="w-6 h-6 text-obsidian-900" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-serif bg-gradient-to-r from-gold-400 to-gold-300 bg-clip-text text-transparent">
                 AI Curator
               </h1>
-              <p className="text-purple-400/70 mt-1">
+              <p className="text-gold-400/70 mt-1">
                 Intelligent search and organization for your memories
               </p>
             </div>
@@ -145,14 +145,14 @@ const AICurator: React.FC = () => {
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className={`p-2 rounded-lg transition-all ${
-                    showFilters ? 'bg-purple-600 text-white' : 'bg-obsidian-900 text-gold-400 hover:text-gold-300'
+                    showFilters ? 'bg-gold-600 text-obsidian-900' : 'bg-obsidian-900 text-gold-400 hover:text-gold-300'
                   }`}
                 >
                   <SlidersHorizontal className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => handleSearch(searchQuery)}
-                  className="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-lg hover:from-purple-500 hover:to-purple-400 transition-all duration-300 font-semibold flex items-center gap-2"
+                  className="px-6 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" />
                   Search
@@ -227,7 +227,7 @@ const AICurator: React.FC = () => {
                     className="flex items-center gap-3 p-4 bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-xl border border-gold-500/20 hover:border-gold-500/40 transition-all duration-300 text-left group"
                   >
                     <div className={`p-3 bg-gradient-to-r ${search.color} rounded-lg flex-shrink-0`}>
-                      <search.icon className="w-5 h-5 text-white" />
+                      <search.icon className="w-5 h-5 text-obsidian-900" />
                     </div>
                     <span className="text-gold-300 group-hover:text-gold-100 transition-colors">
                       {search.query}
@@ -281,7 +281,7 @@ const AICurator: React.FC = () => {
                       className="w-full flex items-center justify-between p-3 bg-obsidian-900/50 rounded-lg hover:bg-obsidian-900/70 transition-all group"
                     >
                       <div className="flex items-center gap-3">
-                        <location.icon className="w-5 h-5 text-green-400" />
+                        <location.icon className="w-5 h-5 text-gold-400" />
                         <span className="text-gold-300 group-hover:text-gold-100 transition-colors text-sm">
                           {location.name}
                         </span>
@@ -336,7 +336,7 @@ const AICurator: React.FC = () => {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 rounded-lg transition-all ${
-                    viewMode === 'grid' ? 'bg-purple-600 text-white' : 'bg-obsidian-800 text-gold-400'
+                    viewMode === 'grid' ? 'bg-gold-600 text-obsidian-900' : 'bg-obsidian-800 text-gold-400'
                   }`}
                 >
                   <Grid3X3 className="w-5 h-5" />
@@ -344,7 +344,7 @@ const AICurator: React.FC = () => {
                 <button
                   onClick={() => setViewMode('list')}
                   className={`p-2 rounded-lg transition-all ${
-                    viewMode === 'list' ? 'bg-purple-600 text-white' : 'bg-obsidian-800 text-gold-400'
+                    viewMode === 'list' ? 'bg-gold-600 text-obsidian-900' : 'bg-obsidian-800 text-gold-400'
                   }`}
                 >
                   <List className="w-5 h-5" />
@@ -355,7 +355,7 @@ const AICurator: React.FC = () => {
             {isSearching ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
-                  <Sparkles className="w-12 h-12 text-purple-400 animate-pulse mx-auto mb-4" />
+                  <Sparkles className="w-12 h-12 text-gold-400 animate-pulse mx-auto mb-4" />
                   <p className="text-gold-400/70">AI is searching your memories...</p>
                 </div>
               </div>
@@ -379,8 +379,8 @@ const AICurator: React.FC = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       {memory.aiEnhanced && (
-                        <div className="absolute top-2 right-2 p-1.5 bg-purple-600 rounded-lg">
-                          <Sparkles className="w-3 h-3 text-white" />
+                        <div className="absolute top-2 right-2 p-1.5 bg-gold-600 rounded-lg">
+                          <Sparkles className="w-3 h-3 text-obsidian-900" />
                         </div>
                       )}
                     </div>

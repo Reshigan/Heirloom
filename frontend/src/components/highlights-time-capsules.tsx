@@ -179,9 +179,9 @@ const HighlightsTimeCapsules: React.FC = () => {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'year-in-review': return 'from-blue-600 to-blue-500'
-      case 'this-week': return 'from-green-600 to-green-500'
-      case 'decade': return 'from-purple-600 to-purple-500'
+      case 'year-in-review': return 'from-gold-600 to-gold-500'
+      case 'this-week': return 'from-gold-600/80 to-gold-500/80'
+      case 'decade': return 'from-gold-600/60 to-gold-500/60'
       default: return 'from-gold-600 to-gold-500'
     }
   }
@@ -258,7 +258,7 @@ const HighlightsTimeCapsules: React.FC = () => {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                         <div className={`absolute top-3 right-3 p-2 bg-gradient-to-r ${getTypeColor(highlight.type)} rounded-lg`}>
-                          <TypeIcon className="w-4 h-4 text-white" />
+                          <TypeIcon className="w-4 h-4 text-obsidian-900" />
                         </div>
                         <div className="absolute bottom-3 left-3 right-3">
                           <h3 className="text-xl font-bold text-white mb-1">{highlight.title}</h3>
@@ -283,7 +283,7 @@ const HighlightsTimeCapsules: React.FC = () => {
                             </div>
                           </div>
                           {highlight.isPublic ? (
-                            <Unlock className="w-4 h-4 text-green-400" />
+                            <Unlock className="w-4 h-4 text-gold-300" />
                           ) : (
                             <Lock className="w-4 h-4 text-gold-400" />
                           )}
@@ -338,8 +338,8 @@ const HighlightsTimeCapsules: React.FC = () => {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className={`p-3 rounded-xl ${capsule.isLocked ? 'bg-gradient-to-r from-purple-600 to-purple-500' : 'bg-gradient-to-r from-green-600 to-green-500'}`}>
-                          {capsule.isLocked ? <Lock className="w-6 h-6 text-white" /> : <Unlock className="w-6 h-6 text-white" />}
+                        <div className={`p-3 rounded-xl ${capsule.isLocked ? 'bg-gradient-to-r from-gold-600/70 to-gold-500/70' : 'bg-gradient-to-r from-gold-600 to-gold-500'}`}>
+                          {capsule.isLocked ? <Lock className="w-6 h-6 text-obsidian-900" /> : <Unlock className="w-6 h-6 text-obsidian-900" />}
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-gold-100">{capsule.title}</h3>
@@ -374,15 +374,15 @@ const HighlightsTimeCapsules: React.FC = () => {
                     </div>
 
                     {!capsule.isLocked && (
-                      <button className="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg hover:from-green-500 hover:to-green-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2">
+                      <button className="w-full px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2">
                         <Eye className="w-4 h-4" />
                         View Contents
                       </button>
                     )}
 
                     {capsule.isLocked && (
-                      <div className="bg-purple-600/10 border border-purple-500/20 rounded-lg p-3 text-center">
-                        <p className="text-purple-300 text-sm">
+                      <div className="bg-gold-600/10 border border-gold-500/20 rounded-lg p-3 text-center">
+                        <p className="text-gold-300 text-sm">
                           This capsule will unlock in {Math.ceil((capsule.unlockDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
                         </p>
                       </div>
@@ -407,14 +407,14 @@ const HighlightsTimeCapsules: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-8 border border-gold-500/20 text-center hover:border-gold-500/40 transition-all duration-300 cursor-pointer group"
                 >
-                  <div className="p-4 bg-gradient-to-r from-blue-600/20 to-blue-500/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Star className="w-10 h-10 text-blue-400" />
+                  <div className="p-4 bg-gradient-to-r from-gold-600/20 to-gold-500/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Star className="w-10 h-10 text-gold-400" />
                   </div>
                   <h3 className="text-xl font-bold text-gold-100 mb-2">Create Highlight Reel</h3>
                   <p className="text-gold-400/70 mb-6">
                     Auto-generate a beautiful slideshow from selected memories
                   </p>
-                  <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 font-semibold">
+                  <button className="px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold">
                     Start Creating
                   </button>
                 </motion.div>
@@ -425,14 +425,14 @@ const HighlightsTimeCapsules: React.FC = () => {
                   transition={{ delay: 0.1 }}
                   className="bg-gradient-to-br from-obsidian-800/80 to-charcoal/80 backdrop-blur-sm rounded-2xl p-8 border border-gold-500/20 text-center hover:border-gold-500/40 transition-all duration-300 cursor-pointer group"
                 >
-                  <div className="p-4 bg-gradient-to-r from-purple-600/20 to-purple-500/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Gift className="w-10 h-10 text-purple-400" />
+                  <div className="p-4 bg-gradient-to-r from-gold-600/20 to-gold-500/20 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Gift className="w-10 h-10 text-gold-400" />
                   </div>
                   <h3 className="text-xl font-bold text-gold-100 mb-2">Create Time Capsule</h3>
                   <p className="text-gold-400/70 mb-6">
                     Lock memories to be opened at a future date
                   </p>
-                  <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-lg hover:from-purple-500 hover:to-purple-400 transition-all duration-300 font-semibold">
+                  <button className="px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold">
                     Start Creating
                   </button>
                 </motion.div>
