@@ -14,7 +14,10 @@ from app.models import (
 )
 from app.auth import hash_password, verify_password, create_access_token, get_current_user
 from app.encryption import encrypt_data, decrypt_data
-from app.compression import compress_image, generate_thumbnail, validate_image, get_image_info
+from app.compression import (
+    compress_image, generate_thumbnail, validate_image, get_image_info,
+    compress_audio, compress_video, generate_video_thumbnail, get_media_info
+)
 from app import database as db
 
 app = FastAPI(title="Heirloom API", version="1.0.0")
@@ -370,15 +373,19 @@ async def upload_file(upload_id: str, file: UploadFile = File(...), current_user
     original_size = len(contents)
     
     is_image = file.content_type and file.content_type.startswith('image/')
+    is_audio = file.content_type and file.content_type.startswith('audio/')
+    is_video = file.content_type and file.content_type.startswith('video/')
+    
     compressed_size = original_size
     thumbnail_url = None
+    media_info = {}
     
     if is_image:
         is_valid, error = validate_image(contents)
         if not is_valid:
             raise HTTPException(status_code=400, detail=error or "Invalid image file")
         
-        image_info = get_image_info(contents)
+        media_info = get_image_info(contents)
         
         compressed_contents = compress_image(contents)
         compressed_size = len(compressed_contents)
@@ -386,6 +393,29 @@ async def upload_file(upload_id: str, file: UploadFile = File(...), current_user
         thumbnail_contents = generate_thumbnail(contents)
         thumbnail_encrypted = encrypt_data(base64.b64encode(thumbnail_contents).decode('utf-8'))
         thumbnail_url = f"/api/files/{upload_id}/thumbnail"
+        
+        contents = compressed_contents
+    
+    elif is_audio:
+        file_ext = file.filename.split('.')[-1].lower() if file.filename else 'mp3'
+        media_info = get_media_info(contents, file_ext)
+        
+        compressed_contents = compress_audio(contents)
+        compressed_size = len(compressed_contents)
+        
+        contents = compressed_contents
+    
+    elif is_video:
+        file_ext = file.filename.split('.')[-1].lower() if file.filename else 'mp4'
+        media_info = get_media_info(contents, file_ext)
+        
+        compressed_contents = compress_video(contents)
+        compressed_size = len(compressed_contents)
+        
+        thumbnail_contents = generate_video_thumbnail(compressed_contents)
+        if thumbnail_contents:
+            thumbnail_encrypted = encrypt_data(base64.b64encode(thumbnail_contents).decode('utf-8'))
+            thumbnail_url = f"/api/files/{upload_id}/thumbnail"
         
         contents = compressed_contents
     
@@ -402,7 +432,8 @@ async def upload_file(upload_id: str, file: UploadFile = File(...), current_user
         "encrypted": True,
         "url": f"/api/files/{upload_id}",
         "thumbnail_url": thumbnail_url,
-        "content_type": file.content_type
+        "content_type": file.content_type,
+        "media_info": media_info
     }
 
 @app.get("/api/search")

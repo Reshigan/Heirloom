@@ -143,11 +143,36 @@ export async function compressVideo(
   }
 }
 
+export async function compressAudio(
+  file: File,
+  options: { maxSizeMB: number; bitrate?: number } = { maxSizeMB: 10, bitrate: 128 }
+): Promise<CompressionResult> {
+  const originalSize = file.size
+  const maxSizeBytes = options.maxSizeMB * 1024 * 1024
+
+  if (originalSize <= maxSizeBytes) {
+    return {
+      file,
+      originalSize,
+      compressedSize: originalSize,
+      compressionRatio: 0
+    }
+  }
+
+  return {
+    file,
+    originalSize,
+    compressedSize: originalSize,
+    compressionRatio: 0
+  }
+}
+
 export function validateFile(file: File): { valid: boolean; error?: string } {
   const MAX_FILE_SIZE = 100 * 1024 * 1024
   const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic']
-  const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/x-msvideo']
-  const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES]
+  const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm']
+  const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm', 'audio/aac', 'audio/m4a']
+  const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES, ...ALLOWED_AUDIO_TYPES]
 
   if (file.size > MAX_FILE_SIZE) {
     return {
@@ -159,11 +184,38 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
   if (!ALLOWED_TYPES.includes(file.type)) {
     return {
       valid: false,
-      error: `File type not supported. Allowed types: JPEG, PNG, WebP, HEIC, MP4, MOV, AVI`
+      error: `File type not supported. Allowed types: Images (JPEG, PNG, WebP, HEIC), Videos (MP4, MOV, AVI, WebM), Audio (MP3, WAV, OGG, AAC, M4A)`
     }
   }
 
   return { valid: true }
+}
+
+export function getMediaType(file: File): 'image' | 'video' | 'audio' | 'unknown' {
+  if (file.type.startsWith('image/')) return 'image'
+  if (file.type.startsWith('video/')) return 'video'
+  if (file.type.startsWith('audio/')) return 'audio'
+  return 'unknown'
+}
+
+export async function compressMedia(file: File): Promise<CompressionResult> {
+  const mediaType = getMediaType(file)
+  
+  switch (mediaType) {
+    case 'image':
+      return compressImage(file)
+    case 'video':
+      return compressVideo(file)
+    case 'audio':
+      return compressAudio(file)
+    default:
+      return {
+        file,
+        originalSize: file.size,
+        compressedSize: file.size,
+        compressionRatio: 0
+      }
+  }
 }
 
 export async function generateThumbnail(
