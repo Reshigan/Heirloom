@@ -14,6 +14,7 @@ from app.models import (
 )
 from app.auth import hash_password, verify_password, create_access_token, get_current_user
 from app.encryption import encrypt_data, decrypt_data
+from app.compression import compress_image, generate_thumbnail, validate_image, get_image_info
 from app import database as db
 
 app = FastAPI(title="Heirloom API", version="1.0.0")
@@ -366,15 +367,42 @@ async def presign_upload(filename: str, content_type: str, current_user: dict = 
 @app.post("/api/uploads/{upload_id}")
 async def upload_file(upload_id: str, file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     contents = await file.read()
+    original_size = len(contents)
+    
+    is_image = file.content_type and file.content_type.startswith('image/')
+    compressed_size = original_size
+    thumbnail_url = None
+    
+    if is_image:
+        is_valid, error = validate_image(contents)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=error or "Invalid image file")
+        
+        image_info = get_image_info(contents)
+        
+        compressed_contents = compress_image(contents)
+        compressed_size = len(compressed_contents)
+        
+        thumbnail_contents = generate_thumbnail(contents)
+        thumbnail_encrypted = encrypt_data(base64.b64encode(thumbnail_contents).decode('utf-8'))
+        thumbnail_url = f"/api/files/{upload_id}/thumbnail"
+        
+        contents = compressed_contents
     
     encrypted_contents = encrypt_data(base64.b64encode(contents).decode('utf-8'))
+    
+    compression_ratio = ((original_size - compressed_size) / original_size * 100) if original_size > 0 else 0
     
     return {
         "upload_id": upload_id,
         "filename": file.filename,
-        "size": len(contents),
+        "original_size": original_size,
+        "compressed_size": compressed_size,
+        "compression_ratio": round(compression_ratio, 2),
         "encrypted": True,
-        "url": f"/api/files/{upload_id}"
+        "url": f"/api/files/{upload_id}",
+        "thumbnail_url": thumbnail_url,
+        "content_type": file.content_type
     }
 
 @app.get("/api/search")
