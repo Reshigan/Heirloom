@@ -18,6 +18,8 @@ import {
   CheckCircle,
   Volume2
 } from 'lucide-react'
+import { apiClient } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface StoryRecorderProps {
   onClose: () => void
@@ -86,6 +88,7 @@ const storyPrompts = [
 ]
 
 const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
+  const { isAuthenticated } = useAuth()
   const [isRecording, setIsRecording] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
@@ -95,6 +98,8 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
   const [storyTitle, setStoryTitle] = useState('')
   const [storyLocation, setStoryLocation] = useState('')
   const [recordingComplete, setRecordingComplete] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let interval: NodeJS.Timeout
@@ -138,22 +143,42 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
     setShowFollowUp(false)
   }
 
-  const handleSave = () => {
-    const storyData: StoryData = {
-      title: storyTitle || `${currentPrompt.category} Story`,
-      transcript: transcript,
-      date: new Date().toISOString(),
-      participants: [],
-      location: storyLocation,
-      duration: recordingTime,
-      prompt: currentPrompt.prompt
+  const handleSave = async () => {
+    if (!isAuthenticated) {
+      setError('You must be signed in to save stories')
+      return
     }
-    
-    if (onSave) {
-      onSave(storyData)
+
+    setIsSaving(true)
+    setError(null)
+
+    try {
+      const storyData = {
+        title: storyTitle || `${currentPrompt.category} Story`,
+        transcript: transcript,
+        date: new Date().toISOString().split('T')[0],
+        participants: [],
+        location: storyLocation,
+        duration: recordingTime,
+        tags: [currentPrompt.category.toLowerCase()]
+      }
+      
+      await apiClient.createStory(storyData)
+      
+      if (onSave) {
+        onSave({
+          ...storyData,
+          prompt: currentPrompt.prompt
+        })
+      }
+      
+      onClose()
+    } catch (err: any) {
+      console.error('Failed to save story:', err)
+      setError(err.message || 'Failed to save story')
+    } finally {
+      setIsSaving(false)
     }
-    
-    onClose()
   }
 
   const formatTime = (seconds: number) => {
@@ -320,6 +345,18 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-4"
               >
+                {error && (
+                  <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {!isAuthenticated && (
+                  <div className="p-3 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 text-sm">
+                    Please sign in to save your story
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gold-100 font-semibold mb-2 text-sm">
@@ -330,7 +367,8 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
                       value={storyTitle}
                       onChange={(e) => setStoryTitle(e.target.value)}
                       placeholder={`${currentPrompt.category} Story`}
-                      className="w-full px-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/40 focus:outline-none focus:border-gold-400/40"
+                      disabled={isSaving}
+                      className="w-full px-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/40 focus:outline-none focus:border-gold-400/40 disabled:opacity-50"
                     />
                   </div>
                   <div>
@@ -342,7 +380,8 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
                       value={storyLocation}
                       onChange={(e) => setStoryLocation(e.target.value)}
                       placeholder="Where did this happen?"
-                      className="w-full px-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/40 focus:outline-none focus:border-gold-400/40"
+                      disabled={isSaving}
+                      className="w-full px-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/40 focus:outline-none focus:border-gold-400/40 disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -350,10 +389,20 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
                 <div className="flex gap-3">
                   <button
                     onClick={handleSave}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
+                    disabled={isSaving || !isAuthenticated}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Save className="w-5 h-5" />
-                    Save Story
+                    {isSaving ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-obsidian-900/20 border-t-obsidian-900 rounded-full animate-spin"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        Save Story
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() => {
@@ -362,8 +411,10 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
                       setRecordingTime(0)
                       setStoryTitle('')
                       setStoryLocation('')
+                      setError(null)
                     }}
-                    className="px-6 py-3 bg-obsidian-800 border border-gold-500/30 text-gold-400 rounded-lg hover:border-gold-400 transition-all duration-300 font-semibold"
+                    disabled={isSaving}
+                    className="px-6 py-3 bg-obsidian-800 border border-gold-500/30 text-gold-400 rounded-lg hover:border-gold-400 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Record Again
                   </button>
