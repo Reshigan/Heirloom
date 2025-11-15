@@ -123,9 +123,9 @@ const config: Config = {
       
       // Typography from specification
       fontFamily: {
-        'serif': ['Playfair Display', 'serif'],     // Elegant, timeless headlines
+        'serif': ['Bodoni Moda', 'serif'],          // Elegant, timeless headlines (futuristic luxury)
+        'sans': ['Montserrat', 'sans-serif'],       // Clean, modern UI (futuristic luxury)
         'story': ['Crimson Pro', 'serif'],          // Readable, warm stories
-        'ui': ['Inter', 'sans-serif'],              // Clean, modern UI
         'handwritten': ['Kalam', 'cursive'],        // Personal notes
         'timestamp': ['IBM Plex Mono', 'monospace'], // Precision of time
       },

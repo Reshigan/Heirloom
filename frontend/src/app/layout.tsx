@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Bodoni_Moda, Montserrat } from 'next/font/google';
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext';
 
-const inter = Inter({ 
+const bodoniModa = Bodoni_Moda({ 
   subsets: ['latin'],
-  variable: '--font-inter',
+  weight: ['300', '400', '600'],
+  variable: '--font-bodoni',
   display: 'swap',
 });
 
-const playfair = Playfair_Display({ 
+const montserrat = Montserrat({ 
   subsets: ['latin'],
-  variable: '--font-playfair',
+  weight: ['200', '300', '400', '500'],
+  variable: '--font-montserrat',
   display: 'swap',
 });
 
@@ -40,7 +42,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${inter.variable} ${playfair.variable} antialiased`}>
+      <body className={`${bodoniModa.variable} ${montserrat.variable} antialiased`}>
         <AuthProvider>
           {children}
         </AuthProvider>
