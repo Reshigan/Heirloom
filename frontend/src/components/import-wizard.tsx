@@ -73,7 +73,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
       name: 'Google Photos',
       icon: Cloud,
       description: 'Import from your Google Photos library',
-      color: 'from-blue-600 to-blue-500',
+      color: 'from-gold-600 to-gold-500',
       supported: true
     },
     {
@@ -81,7 +81,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
       name: 'iCloud Photos',
       icon: Cloud,
       description: 'Import from your iCloud photo library',
-      color: 'from-gray-600 to-gray-500',
+      color: 'from-gold-600/80 to-gold-500/80',
       supported: true
     },
     {
@@ -89,7 +89,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
       name: 'Facebook',
       icon: Facebook,
       description: 'Import photos and memories from Facebook',
-      color: 'from-blue-700 to-blue-600',
+      color: 'from-gold-600 to-gold-500',
       supported: true
     },
     {
@@ -97,7 +97,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
       name: 'Instagram',
       icon: Instagram,
       description: 'Import your Instagram photos and stories',
-      color: 'from-pink-600 to-purple-600',
+      color: 'from-gold-600/90 to-gold-500/90',
       supported: true
     },
     {
@@ -105,7 +105,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
       name: 'Local Files',
       icon: HardDrive,
       description: 'Upload photos and videos from your device',
-      color: 'from-green-600 to-green-500',
+      color: 'from-gold-600 to-gold-500',
       supported: true
     },
     {
@@ -113,7 +113,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
       name: 'USB Drive',
       icon: FolderOpen,
       description: 'Import from external USB drive or SD card',
-      color: 'from-orange-600 to-orange-500',
+      color: 'from-gold-600/70 to-gold-500/70',
       supported: true
     }
   ]
@@ -180,11 +180,11 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
         <div className="relative">
           <div className="flex items-center justify-between p-6 border-b border-gold-500/20">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl">
-                <Upload className="w-6 h-6 text-white" />
+              <div className="p-3 bg-gradient-to-r from-gold-600 to-gold-500 rounded-xl">
+                <Upload className="w-6 h-6 text-obsidian-900" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gold-100">Import Wizard</h2>
+                <h2 className="text-2xl font-serif text-gold-100">Import Wizard</h2>
                 <p className="text-gold-400/70 text-sm">Bring your memories into Heirloom</p>
               </div>
             </div>
@@ -203,11 +203,11 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                   <React.Fragment key={s}>
                     <div className={`flex items-center gap-2 ${
                       step === s ? 'text-gold-400' : 
-                      ['select', 'configure', 'import', 'complete'].indexOf(step) > index ? 'text-green-400' : 'text-gold-400/40'
+                      ['select', 'configure', 'import', 'complete'].indexOf(step) > index ? 'text-gold-300' : 'text-gold-400/40'
                     }`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
                         step === s ? 'border-gold-400 bg-gold-400/20' :
-                        ['select', 'configure', 'import', 'complete'].indexOf(step) > index ? 'border-green-400 bg-green-400/20' : 'border-gold-400/40'
+                        ['select', 'configure', 'import', 'complete'].indexOf(step) > index ? 'border-gold-300 bg-gold-300/20' : 'border-gold-400/40'
                       }`}>
                         {['select', 'configure', 'import', 'complete'].indexOf(step) > index ? (
                           <CheckCircle className="w-5 h-5" />
@@ -219,7 +219,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                     </div>
                     {index < 3 && (
                       <div className={`w-12 h-0.5 ${
-                        ['select', 'configure', 'import', 'complete'].indexOf(step) > index ? 'bg-green-400' : 'bg-gold-400/40'
+                        ['select', 'configure', 'import', 'complete'].indexOf(step) > index ? 'bg-gold-300' : 'bg-gold-400/40'
                       }`} />
                     )}
                   </React.Fragment>
@@ -247,7 +247,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                         whileTap={{ scale: 0.98 }}
                       >
                         <div className={`p-3 bg-gradient-to-r ${source.color} rounded-lg flex-shrink-0`}>
-                          <source.icon className="w-6 h-6 text-white" />
+                          <source.icon className="w-6 h-6 text-obsidian-900" />
                         </div>
                         <div className="flex-1">
                           <h4 className="text-gold-100 font-semibold mb-1 group-hover:text-gold-300 transition-colors">
@@ -256,7 +256,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                           <p className="text-gold-400/70 text-sm">{source.description}</p>
                         </div>
                         {source.supported && (
-                          <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                          <CheckCircle className="w-5 h-5 text-gold-400 flex-shrink-0" />
                         )}
                       </motion.button>
                     ))}
@@ -274,7 +274,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className={`p-3 bg-gradient-to-r ${selectedSourceData.color} rounded-lg`}>
-                      <selectedSourceData.icon className="w-6 h-6 text-white" />
+                      <selectedSourceData.icon className="w-6 h-6 text-obsidian-900" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-gold-100">Configure Import</h3>
@@ -326,7 +326,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                     </button>
                     <button
                       onClick={handleStartImport}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
                     >
                       <Upload className="w-5 h-5" />
                       Start Import
@@ -359,13 +359,13 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                   <div className="bg-obsidian-800/60 border border-gold-500/20 rounded-xl p-6">
                     {progress.status !== 'complete' && (
                       <div className="flex items-center justify-center mb-6">
-                        <Loader className="w-12 h-12 text-blue-400 animate-spin" />
+                        <Loader className="w-12 h-12 text-gold-400 animate-spin" />
                       </div>
                     )}
 
                     {progress.status === 'complete' && (
                       <div className="flex items-center justify-center mb-6">
-                        <CheckCircle className="w-16 h-16 text-green-400" />
+                        <CheckCircle className="w-16 h-16 text-gold-400" />
                       </div>
                     )}
 
@@ -379,7 +379,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                         </div>
                         <div className="w-full h-2 bg-obsidian-900 rounded-full overflow-hidden">
                           <motion.div
-                            className="h-full bg-gradient-to-r from-blue-600 to-blue-500"
+                            className="h-full bg-gradient-to-r from-gold-600 to-gold-500"
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min((progress.processed / progress.total) * 100, 100)}%` }}
                             transition={{ duration: 0.5 }}
@@ -389,15 +389,15 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
 
                       <div className="grid grid-cols-3 gap-4 pt-4">
                         <div className="text-center p-4 bg-obsidian-900/50 rounded-lg">
-                          <div className="text-2xl font-bold text-green-400 mb-1">{progress.imported}</div>
+                          <div className="text-2xl font-bold text-gold-400 mb-1">{progress.imported}</div>
                           <div className="text-gold-400/70 text-sm">Imported</div>
                         </div>
                         <div className="text-center p-4 bg-obsidian-900/50 rounded-lg">
-                          <div className="text-2xl font-bold text-yellow-400 mb-1">{progress.duplicates}</div>
+                          <div className="text-2xl font-bold text-gold-400/70 mb-1">{progress.duplicates}</div>
                           <div className="text-gold-400/70 text-sm">Duplicates</div>
                         </div>
                         <div className="text-center p-4 bg-obsidian-900/50 rounded-lg">
-                          <div className="text-2xl font-bold text-blue-400 mb-1">{progress.total}</div>
+                          <div className="text-2xl font-bold text-gold-300 mb-1">{progress.total}</div>
                           <div className="text-gold-400/70 text-sm">Total Found</div>
                         </div>
                       </div>
@@ -408,13 +408,13 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-gradient-to-r from-green-600/20 to-green-500/20 border border-green-500/30 rounded-xl p-6"
+                      className="bg-gradient-to-r from-gold-600/20 to-gold-500/20 border border-gold-500/30 rounded-xl p-6"
                     >
                       <div className="flex items-start gap-3">
-                        <TrendingUp className="w-6 h-6 text-green-400 flex-shrink-0 mt-1" />
+                        <TrendingUp className="w-6 h-6 text-gold-400 flex-shrink-0 mt-1" />
                         <div>
-                          <h4 className="text-green-300 font-semibold mb-2">Import Summary</h4>
-                          <ul className="text-green-200/80 text-sm space-y-1">
+                          <h4 className="text-gold-300 font-semibold mb-2">Import Summary</h4>
+                          <ul className="text-gold-200/80 text-sm space-y-1">
                             <li>✓ {progress.imported} memories successfully imported</li>
                             <li>✓ {progress.duplicates} duplicates detected and skipped</li>
                             {importSettings.autoTag && <li>✓ AI tagging applied to all memories</li>}
@@ -429,7 +429,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                   {progress.status === 'complete' && (
                     <button
                       onClick={handleComplete}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg hover:from-green-500 hover:to-green-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
+                      className="w-full px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
                     >
                       <CheckCircle className="w-5 h-5" />
                       View Imported Memories

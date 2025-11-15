@@ -67,21 +67,21 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full max-w-md rounded-2xl bg-gradient-to-br from-purple-900/90 to-blue-900/90 p-8 shadow-2xl backdrop-blur-xl"
+            className="relative w-full max-w-md rounded-2xl bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border border-gold-500/30 p-8 shadow-2xl backdrop-blur-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 text-white/60 hover:text-white transition-colors"
+              className="absolute right-4 top-4 text-gold-400 hover:text-gold-300 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
 
             <div className="mb-6">
-              <h2 className="text-3xl font-bold text-white mb-2">
+              <h2 className="text-3xl font-serif text-gold-100 mb-2">
                 {mode === 'login' ? 'Welcome Back' : 'Create Account'}
               </h2>
-              <p className="text-white/60">
+              <p className="text-gold-400/70">
                 {mode === 'login'
                   ? 'Sign in to access your family memories'
                   : 'Start preserving your family heritage'}
@@ -92,7 +92,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               {mode === 'register' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                    <label className="block text-sm font-medium text-gold-100 mb-2 uppercase tracking-wider text-xs">
                       Your Name
                     </label>
                     <input
@@ -100,12 +100,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-4 py-3 rounded-lg bg-obsidian-800/60 border border-gold-500/20 text-gold-100 placeholder-gold-400/40 focus:outline-none focus:border-gold-400/40 transition-colors"
                       placeholder="John Doe"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                    <label className="block text-sm font-medium text-gold-100 mb-2 uppercase tracking-wider text-xs">
                       Family Name
                     </label>
                     <input
@@ -113,7 +113,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       value={familyName}
                       onChange={(e) => setFamilyName(e.target.value)}
                       required
-                      className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-4 py-3 rounded-lg bg-obsidian-800/60 border border-gold-500/20 text-gold-100 placeholder-gold-400/40 focus:outline-none focus:border-gold-400/40 transition-colors"
                       placeholder="The Doe Family"
                     />
                   </div>
@@ -121,7 +121,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-gold-100 mb-2 uppercase tracking-wider text-xs">
                   Email
                 </label>
                 <input
@@ -129,13 +129,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 rounded-lg bg-obsidian-800/60 border border-gold-500/20 text-gold-100 placeholder-gold-400/40 focus:outline-none focus:border-gold-400/40 transition-colors"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-gold-100 mb-2 uppercase tracking-wider text-xs">
                   Password
                 </label>
                 <input
@@ -143,7 +143,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 rounded-lg bg-obsidian-800/60 border border-gold-500/20 text-gold-100 placeholder-gold-400/40 focus:outline-none focus:border-gold-400/40 transition-colors"
                   placeholder="••••••••"
                 />
               </div>
@@ -157,7 +157,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold hover:from-purple-600 hover:to-blue-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 font-semibold hover:from-gold-500 hover:to-gold-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   'Processing...'
@@ -178,7 +178,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="mt-6 text-center">
               <button
                 onClick={switchMode}
-                className="text-white/60 hover:text-white transition-colors text-sm"
+                className="text-gold-400/70 hover:text-gold-400 transition-colors text-sm"
               >
                 {mode === 'login'
                   ? "Don't have an account? Sign up"
