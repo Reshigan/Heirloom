@@ -37,8 +37,11 @@ import {
   Key,
   CreditCard,
   HardDrive,
-  UserPlus
+  UserPlus,
+  LogOut
 } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { AuthModal } from './auth-modal'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
@@ -65,6 +68,7 @@ interface MemoryOrb {
 }
 
 export default function FuturisticHeirloomInterface() {
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
@@ -80,6 +84,7 @@ export default function FuturisticHeirloomInterface() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [showStoryRecorder, setShowStoryRecorder] = useState(false)
   const [showImportWizard, setShowImportWizard] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -271,12 +276,33 @@ export default function FuturisticHeirloomInterface() {
         </ul>
 
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => setShowProfile(true)}
-            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
-          >
-            <User className="w-4 h-4" />
-          </button>
+          {isAuthenticated ? (
+            <>
+              <div className="text-xs text-gold-200/70">
+                {user?.name} • {user?.family_name}
+              </div>
+              <button
+                onClick={() => setShowProfile(true)}
+                className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+              >
+                <User className="w-4 h-4" />
+              </button>
+              <button
+                onClick={logout}
+                className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 transition-colors text-xs uppercase tracking-wider"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </nav>
 
@@ -658,6 +684,12 @@ export default function FuturisticHeirloomInterface() {
           />
         )}
       </AnimatePresence>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
 
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
