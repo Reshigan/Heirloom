@@ -47,9 +47,15 @@ import LegacyTokenManager from './legacy-token-manager'
 import PricingManager from './pricing-manager'
 import StorageOptimizer from './storage-optimizer'
 import ShareInviteSystem from './share-invite-system'
+import StoryRecorder from './story-recorder'
+import MemoryComments from './memory-comments'
+import HighlightsTimeCapsules from './highlights-time-capsules'
+import ImportWizard from './import-wizard'
+import WeeklyDigest from './weekly-digest'
+import AICurator from './ai-curator'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'highlights' | 'digest' | 'curator'
 
 interface MemoryOrb {
   id: string
@@ -72,6 +78,8 @@ export default function FuturisticHeirloomInterface() {
   const [currentEra, setCurrentEra] = useState('Present')
   const [isRecording, setIsRecording] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [showStoryRecorder, setShowStoryRecorder] = useState(false)
+  const [showImportWizard, setShowImportWizard] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -160,8 +168,7 @@ export default function FuturisticHeirloomInterface() {
   }
 
   const handleRecordStory = () => {
-    setIsRecording(!isRecording)
-    // In a real app, this would start/stop audio recording
+    setShowStoryRecorder(true)
   }
 
   const handleAIEnhance = () => {
@@ -170,8 +177,7 @@ export default function FuturisticHeirloomInterface() {
   }
 
   const handleAddMemory = () => {
-    setCurrentView('memories')
-    // This would open the memory upload modal
+    setShowImportWizard(true)
   }
 
   // Calculate parallax transform
@@ -234,17 +240,17 @@ export default function FuturisticHeirloomInterface() {
           <h1 className="font-serif text-2xl text-gold-400 tracking-[0.3em]">HEIRLOOM</h1>
         </div>
         
-        <ul className="hidden md:flex gap-8 text-xs uppercase tracking-[0.2em] text-gold-200/70">
+        <ul className="hidden md:flex gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
           {[
             { id: 'memories', label: 'Memories' },
+            { id: 'highlights', label: 'Highlights' },
+            { id: 'curator', label: 'Search' },
             { id: 'timeline', label: 'Timeline' },
-            { id: 'heritage', label: 'Heritage' },
-            { id: 'wisdom', label: 'Wisdom' },
             { id: 'family', label: 'Family' },
+            { id: 'digest', label: 'Digest' },
+            { id: 'share', label: 'Share' },
             { id: 'tokens', label: 'Legacy' },
-            { id: 'pricing', label: 'Plans' },
-            { id: 'storage', label: 'Storage' },
-            { id: 'share', label: 'Share' }
+            { id: 'storage', label: 'Storage' }
           ].map(item => (
             <li
               key={item.id}
@@ -478,6 +484,42 @@ export default function FuturisticHeirloomInterface() {
               <ShareInviteSystem />
             </motion.div>
           )}
+
+          {currentView === 'highlights' && (
+            <motion.div
+              key="highlights-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <HighlightsTimeCapsules />
+            </motion.div>
+          )}
+
+          {currentView === 'digest' && (
+            <motion.div
+              key="digest-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <WeeklyDigest />
+            </motion.div>
+          )}
+
+          {currentView === 'curator' && (
+            <motion.div
+              key="curator-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <AICurator />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -509,13 +551,13 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showDetailPanel && selectedMemory && (
           <motion.div
-            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-96 bg-charcoal/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-10 z-40"
+            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-[480px] max-h-[80vh] overflow-y-auto bg-charcoal/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-8 z-40"
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}
           >
-            <div className="border-b border-gold-500/20 pb-5 mb-8">
-              <h3 className="font-serif text-3xl text-gold-400 mb-2">{selectedMemory.title}</h3>
+            <div className="border-b border-gold-500/20 pb-5 mb-6">
+              <h3 className="font-serif text-2xl text-gold-400 mb-2">{selectedMemory.title}</h3>
               <p className="text-xs uppercase tracking-[0.15em] text-gold-200/70">A cherished family memory</p>
             </div>
             
@@ -545,6 +587,10 @@ export default function FuturisticHeirloomInterface() {
                   <div className="text-pearl">Restored • Colorized • Clarified</div>
                 </div>
               )}
+
+              <div className="border-t border-gold-500/20 pt-6">
+                <MemoryComments memoryId={selectedMemory.id} />
+              </div>
             </div>
           </motion.div>
         )}
@@ -584,6 +630,32 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showProfile && (
           <UserProfile onClose={() => setShowProfile(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Story Recorder Modal */}
+      <AnimatePresence>
+        {showStoryRecorder && (
+          <StoryRecorder 
+            onClose={() => setShowStoryRecorder(false)}
+            onSave={(story) => {
+              console.log('Story saved:', story)
+              setShowStoryRecorder(false)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Import Wizard Modal */}
+      <AnimatePresence>
+        {showImportWizard && (
+          <ImportWizard 
+            onClose={() => setShowImportWizard(false)}
+            onComplete={(results) => {
+              console.log('Import complete:', results)
+              setShowImportWizard(false)
+            }}
+          />
         )}
       </AnimatePresence>
 
