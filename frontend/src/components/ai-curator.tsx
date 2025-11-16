@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Search, 
@@ -24,7 +24,7 @@ import {
   List,
   SlidersHorizontal
 } from 'lucide-react'
-import { mockMemories, mockFamilyMembers, Memory } from '../data/mock-family-data'
+import { apiClient, Memory } from '../lib/api'
 
 interface SearchFilter {
   people: string[]
@@ -50,6 +50,19 @@ const AICurator: React.FC = () => {
     tags: [],
     significance: []
   })
+
+  useEffect(() => {
+    loadInitialMemories()
+  }, [])
+
+  const loadInitialMemories = async () => {
+    try {
+      const memories = await apiClient.getMemories()
+      setSearchResults(memories)
+    } catch (error) {
+      console.error('Failed to load memories:', error)
+    }
+  }
 
   const suggestedSearches = [
     { query: 'family gatherings with grandma', icon: Users, color: 'from-gold-600 to-gold-500' },
