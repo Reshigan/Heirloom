@@ -13,13 +13,10 @@ import {
   Video,
   FileText,
   Mic,
-  Filter,
   TrendingUp,
   Heart,
   Star,
-  Zap,
   Brain,
-  Eye,
   Grid3X3,
   List,
   SlidersHorizontal
@@ -41,7 +38,6 @@ const AICurator: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(false)
-  const [groupBy, setGroupBy] = useState<'none' | 'person' | 'location' | 'date' | 'theme'>('none')
   const [filters, setFilters] = useState<SearchFilter>({
     people: [],
     locations: [],
@@ -97,28 +93,33 @@ const AICurator: React.FC = () => {
     { name: 'Everyday Moments', count: 52, icon: Heart, color: 'text-gold-400/60' }
   ]
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query)
     setIsSearching(true)
     
-    setTimeout(() => {
-      const results = mockMemories.filter(memory => {
-        const searchLower = query.toLowerCase()
-        return (
-          memory.title.toLowerCase().includes(searchLower) ||
-          memory.description.toLowerCase().includes(searchLower) ||
-          memory.location.toLowerCase().includes(searchLower) ||
-          memory.tags.some(tag => tag.toLowerCase().includes(searchLower))
-        )
+    try {
+      const response = await apiClient.search(query, {
+        people: filters.people,
+        locations: filters.locations,
+        types: filters.types,
+        tags: filters.tags,
+        date_start: filters.dateRange.start,
+        date_end: filters.dateRange.end
       })
-      
-      setSearchResults(results.length > 0 ? results : mockMemories.slice(0, 8))
+      setSearchResults(response.results)
+    } catch (error) {
+      console.error('Search failed:', error)
+    } finally {
       setIsSearching(false)
-    }, 800)
+    }
   }
 
   const handleSuggestedSearch = (query: string) => {
     handleSearch(query)
+  }
+
+  const handleFilterChange = (key: keyof SearchFilter, value: any) => {
+    setFilters({ ...filters, [key]: value })
   }
 
   return (
