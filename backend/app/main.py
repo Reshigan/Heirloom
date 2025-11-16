@@ -1,9 +1,10 @@
-from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import base64
 import os
+import stripe
 
 from app.models import (
     UserRegister, UserLogin, UserResponse,
@@ -30,6 +31,9 @@ from app import database as legacy_db
 app = FastAPI(title="Heirloom API", version="1.0.0")
 
 use_postgres = os.getenv("use_postgres", "true").lower() == "true"
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 @app.on_event("startup")
 async def startup_event():
@@ -837,28 +841,152 @@ async def get_user_profile(current_user: dict = Depends(get_current_user), repo 
     )
 
 @app.post("/api/billing/create-checkout-session")
-async def create_checkout_session(plan: str, current_user: dict = Depends(get_current_user)):
-    return {
-        "session_url": f"https://checkout.stripe.com/pay/test_{plan}",
-        "session_id": f"cs_test_{legacy_db.generate_id()}"
-    }
+async def create_checkout_session(plan: str, current_user: dict = Depends(get_current_user), 
+                                  repo = Depends(get_repository)):
+    if not stripe.api_key:
+        return {
+            "session_url": f"https://checkout.stripe.com/pay/test_{plan}",
+            "session_id": f"cs_test_{legacy_db.generate_id()}"
+        }
+    
+    user = repo.get_user_by_id(current_user['user_id'])
+    user_id = user.id if use_postgres else user['id']
+    user_email = user.email if use_postgres else user['email']
+    
+    price_id = os.getenv(f"STRIPE_PRICE_ID_{plan.upper()}", "")
+    
+    try:
+        session = stripe.checkout.Session.create(
+            customer_email=user_email,
+            payment_method_types=['card'],
+            line_items=[{
+                'price': price_id,
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=f"{FRONTEND_URL}/?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{FRONTEND_URL}/settings",
+            metadata={
+                'user_id': user_id,
+                'plan': plan
+            }
+        )
+        
+        return {
+            "session_url": session.url,
+            "session_id": session.id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create checkout session: {str(e)}")
 
 @app.post("/api/billing/create-portal-session")
-async def create_portal_session(current_user: dict = Depends(get_current_user)):
-    return {
-        "portal_url": "https://billing.stripe.com/session/test",
-        "session_id": f"bps_test_{legacy_db.generate_id()}"
-    }
+async def create_portal_session(current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
+    if not stripe.api_key:
+        return {
+            "portal_url": "https://billing.stripe.com/session/test",
+            "session_id": f"bps_test_{legacy_db.generate_id()}"
+        }
+    
+    user = repo.get_user_by_id(current_user['user_id'])
+    user_id = user.id if use_postgres else user['id']
+    
+    subscription = repo.get_subscription(user_id)
+    if not subscription:
+        raise HTTPException(status_code=404, detail="No subscription found")
+    
+    subscription_dict = model_to_dict(subscription)
+    stripe_customer_id = subscription_dict.get('stripe_customer_id')
+    
+    if not stripe_customer_id:
+        raise HTTPException(status_code=400, detail="No Stripe customer ID found")
+    
+    try:
+        session = stripe.billing_portal.Session.create(
+            customer=stripe_customer_id,
+            return_url=f"{FRONTEND_URL}/settings"
+        )
+        
+        return {
+            "portal_url": session.url,
+            "session_id": session.id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create portal session: {str(e)}")
 
 @app.post("/api/webhooks/stripe")
-async def stripe_webhook(request: dict):
-    event_type = request.get('type', '')
+async def stripe_webhook(request: Request, repo = Depends(get_repository)):
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    
+    if not STRIPE_WEBHOOK_SECRET:
+        return {"received": True}
+    
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    
+    event_type = event['type']
+    data = event['data']['object']
     
     if event_type == 'checkout.session.completed':
-        pass
+        user_id = data['metadata'].get('user_id')
+        plan = data['metadata'].get('plan', 'free')
+        customer_id = data.get('customer')
+        subscription_id = data.get('subscription')
+        
+        if user_id:
+            subscription = repo.get_subscription(user_id)
+            if subscription:
+                repo.update_subscription(user_id, {
+                    'stripe_customer_id': customer_id,
+                    'stripe_subscription_id': subscription_id,
+                    'plan': plan,
+                    'status': 'active'
+                })
+            else:
+                repo.create_subscription(user_id, {
+                    'stripe_customer_id': customer_id,
+                    'stripe_subscription_id': subscription_id,
+                    'plan': plan,
+                    'status': 'active'
+                })
+    
     elif event_type == 'customer.subscription.updated':
-        pass
+        subscription_id = data.get('id')
+        status = data.get('status')
+        cancel_at = data.get('cancel_at')
+        current_period_end = data.get('current_period_end')
+        
+        subscriptions = repo.get_all_subscriptions()
+        for sub in subscriptions:
+            sub_dict = model_to_dict(sub)
+            if sub_dict.get('stripe_subscription_id') == subscription_id:
+                user_id = sub_dict['user_id']
+                from datetime import datetime
+                repo.update_subscription(user_id, {
+                    'status': status,
+                    'cancel_at': datetime.fromtimestamp(cancel_at) if cancel_at else None,
+                    'current_period_end': datetime.fromtimestamp(current_period_end) if current_period_end else None
+                })
+                break
+    
     elif event_type == 'customer.subscription.deleted':
-        pass
+        subscription_id = data.get('id')
+        
+        subscriptions = repo.get_all_subscriptions()
+        for sub in subscriptions:
+            sub_dict = model_to_dict(sub)
+            if sub_dict.get('stripe_subscription_id') == subscription_id:
+                user_id = sub_dict['user_id']
+                repo.update_subscription(user_id, {
+                    'status': 'canceled',
+                    'plan': 'free'
+                })
+                break
     
     return {"received": True}
