@@ -187,29 +187,29 @@ const HighlightsTimeCapsules: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-obsidian-900 via-obsidian-800 to-charcoal text-pearl p-8">
+    <div className="min-h-screen bg-gradient-to-br from-obsidian-900 via-obsidian-800 to-charcoal text-pearl p-4 sm:p-6 lg:p-8">
       <div className="container mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-gold-600 to-gold-500 rounded-xl">
-              <Sparkles className="w-6 h-6 text-obsidian-900" />
+          <div className="flex items-center gap-2 sm:gap-3 mb-4">
+            <div className="p-2 sm:p-3 bg-gradient-to-r from-gold-600 to-gold-500 rounded-xl">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-obsidian-900" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gold-400 to-gold-300 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gold-400 to-gold-300 bg-clip-text text-transparent">
                 Highlights & Time Capsules
               </h1>
-              <p className="text-gold-400/70 mt-1">
+              <p className="text-sm sm:text-base text-gold-400/70 mt-1 hidden sm:block">
                 Auto-curated memories and future surprises
               </p>
             </div>
           </div>
         </motion.div>
 
-        <div className="flex space-x-1 mb-8 bg-obsidian-800/50 p-1 rounded-xl backdrop-blur-sm">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-1 mb-6 sm:mb-8 bg-obsidian-800/50 p-1 rounded-xl backdrop-blur-sm">
           {[
             { id: 'highlights', label: 'Highlights', icon: Star },
             { id: 'capsules', label: 'Time Capsules', icon: Gift },
@@ -218,14 +218,15 @@ const HighlightsTimeCapsules: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg transition-all duration-300 ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-300 text-sm sm:text-base ${
                 activeTab === tab.id
                   ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 shadow-lg'
                   : 'text-gold-400/70 hover:text-gold-400 hover:bg-obsidian-700/50'
               }`}
             >
               <tab.icon className="w-4 h-4" />
-              {tab.label}
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
             </button>
           ))}
         </div>
@@ -239,7 +240,7 @@ const HighlightsTimeCapsules: React.FC = () => {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {highlights.map((highlight, index) => {
                   const TypeIcon = getTypeIcon(highlight.type)
                   return (

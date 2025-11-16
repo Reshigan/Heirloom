@@ -239,13 +239,13 @@ export default function FuturisticHeirloomInterface() {
       ))}
 
       {/* Sophisticated Navigation */}
-      <nav className="fixed top-0 left-0 right-0 p-10 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/90 to-transparent backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
-          <h1 className="font-serif text-2xl text-gold-400 tracking-[0.3em]">HEIRLOOM</h1>
+      <nav className="fixed top-0 left-0 right-0 px-4 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/90 to-transparent backdrop-blur-xl">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="w-6 sm:w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
+          <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]">HEIRLOOM</h1>
         </div>
         
-        <ul className="hidden md:flex gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
+        <ul className="hidden lg:flex gap-4 xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
           {[
             { id: 'memories', label: 'Memories' },
             { id: 'highlights', label: 'Highlights' },
@@ -275,21 +275,21 @@ export default function FuturisticHeirloomInterface() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {isAuthenticated ? (
             <>
-              <div className="text-xs text-gold-200/70">
+              <div className="hidden sm:block text-xs text-gold-200/70">
                 {user?.name} • {user?.family_name}
               </div>
               <button
                 onClick={() => setShowProfile(true)}
-                className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
               >
                 <User className="w-4 h-4" />
               </button>
               <button
                 onClick={logout}
-                className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
                 title="Logout"
               >
                 <LogOut className="w-4 h-4" />
@@ -298,7 +298,7 @@ export default function FuturisticHeirloomInterface() {
           ) : (
             <button
               onClick={() => setShowAuthModal(true)}
-              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 transition-colors text-xs uppercase tracking-wider"
+              className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 transition-colors text-xs uppercase tracking-wider"
             >
               Sign In
             </button>
@@ -307,7 +307,7 @@ export default function FuturisticHeirloomInterface() {
       </nav>
 
       {/* Main Content */}
-      <div className="pt-32 pb-20">
+      <div className="pt-20 sm:pt-24 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 sm:px-6 lg:px-8">
         <AnimatePresence mode="wait">
           {currentView === 'memories' && (
             <motion.div
@@ -317,11 +317,11 @@ export default function FuturisticHeirloomInterface() {
               exit={{ opacity: 0 }}
               className="min-h-screen flex items-center justify-center relative"
             >
-              {/* Wisdom Quote */}
+              {/* Wisdom Quote - Hidden on mobile */}
               <AnimatePresence>
                 {showWisdomQuote && selectedMemory && (
                   <motion.div
-                    className="fixed left-16 top-1/2 transform -translate-y-1/2 w-72 z-40"
+                    className="hidden lg:block fixed left-16 top-1/2 transform -translate-y-1/2 w-72 z-40"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -50 }}
@@ -337,11 +337,12 @@ export default function FuturisticHeirloomInterface() {
                 )}
               </AnimatePresence>
 
-              {/* Memory Gallery */}
-              <div className="relative w-full max-w-6xl h-[70vh] flex items-center justify-center">
+              {/* Memory Gallery - Circular on desktop, linear on mobile */}
+              <div className="relative w-full max-w-6xl h-[60vh] sm:h-[70vh] flex items-center justify-center">
+                {/* Desktop: Circular Timeline */}
                 <div 
                   ref={showcaseRef}
-                  className="relative w-[500px] h-[500px]"
+                  className="hidden lg:block relative w-[300px] h-[300px] xl:w-[500px] xl:h-[500px]"
                   style={{ transform: getParallaxTransform() }}
                 >
                   {/* Rotating Frame */}
@@ -395,6 +396,41 @@ export default function FuturisticHeirloomInterface() {
                         <div className="text-xs uppercase tracking-[0.2em] text-gold-200/70">Five Generations • One Story</div>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Mobile/Tablet: Linear Timeline */}
+                <div className="lg:hidden w-full max-w-2xl mx-auto">
+                  <div className="flex flex-col gap-4 overflow-y-auto max-h-[60vh] scroll-smooth snap-y snap-mandatory px-4">
+                    {mockMemories.slice(0, 6).map((memory, index) => (
+                      <motion.div
+                        key={memory.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="snap-start flex-shrink-0"
+                      >
+                        <div className="bg-obsidian-800/60 border border-gold-500/20 rounded-xl p-4 hover:border-gold-400/40 transition-all">
+                          <div className="flex gap-4">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gold-500/30">
+                              <img
+                                src={memory.thumbnail}
+                                alt={memory.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-serif text-base sm:text-lg text-gold-400 mb-1 truncate">{memory.title}</h3>
+                              <p className="text-xs sm:text-sm text-gold-200/70 mb-2 line-clamp-2">{memory.description}</p>
+                              <div className="flex items-center gap-2 text-xs text-gold-200/50">
+                                <Calendar className="w-3 h-3" />
+                                <span>{new Date(memory.date).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
               </div>

@@ -60,14 +60,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
           onClick={onClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full max-w-md rounded-2xl bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border border-gold-500/30 p-8 shadow-2xl backdrop-blur-xl"
+            className="relative w-full h-[100dvh] sm:h-auto sm:max-w-md rounded-none sm:rounded-2xl bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border-0 sm:border border-gold-500/30 p-6 sm:p-8 shadow-2xl backdrop-blur-xl overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -77,11 +77,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <X className="w-6 h-6" />
             </button>
 
-            <div className="mb-6">
-              <h2 className="text-3xl font-serif text-gold-100 mb-2">
+            <div className="mb-6 mt-4 sm:mt-0">
+              <h2 className="text-2xl sm:text-3xl font-serif text-gold-100 mb-2">
                 {mode === 'login' ? 'Welcome Back' : 'Create Account'}
               </h2>
-              <p className="text-gold-400/70">
+              <p className="text-sm sm:text-base text-gold-400/70">
                 {mode === 'login'
                   ? 'Sign in to access your family memories'
                   : 'Start preserving your family heritage'}
@@ -157,7 +157,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 font-semibold hover:from-gold-500 hover:to-gold-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 sm:py-3 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 font-semibold hover:from-gold-500 hover:to-gold-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px] text-base"
               >
                 {isLoading ? (
                   'Processing...'

@@ -168,9 +168,9 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
   const selectedSourceData = importSources.find(s => s.id === selectedSource)
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
       <motion.div
-        className="relative w-full max-w-4xl bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border border-gold-500/30 rounded-2xl overflow-hidden shadow-2xl"
+        className="relative w-full h-[100dvh] sm:h-auto sm:max-w-4xl bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border-0 sm:border border-gold-500/30 rounded-none sm:rounded-2xl overflow-y-auto shadow-2xl"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
@@ -178,14 +178,14 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
         <div className="absolute inset-0 bg-gradient-to-br from-gold-400/5 to-transparent pointer-events-none" />
         
         <div className="relative">
-          <div className="flex items-center justify-between p-6 border-b border-gold-500/20">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-r from-gold-600 to-gold-500 rounded-xl">
-                <Upload className="w-6 h-6 text-obsidian-900" />
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gold-500/20">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 sm:p-3 bg-gradient-to-r from-gold-600 to-gold-500 rounded-xl">
+                <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-obsidian-900" />
               </div>
               <div>
-                <h2 className="text-2xl font-serif text-gold-100">Import Wizard</h2>
-                <p className="text-gold-400/70 text-sm">Bring your memories into Heirloom</p>
+                <h2 className="text-xl sm:text-2xl font-serif text-gold-100">Import Wizard</h2>
+                <p className="text-gold-400/70 text-xs sm:text-sm hidden sm:block">Bring your memories into Heirloom</p>
               </div>
             </div>
             <button
@@ -196,7 +196,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
             </button>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <div className="flex items-center justify-center mb-8">
               <div className="flex items-center gap-2">
                 {['select', 'configure', 'import', 'complete'].map((s, index) => (
@@ -237,7 +237,7 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                   className="space-y-4"
                 >
                   <h3 className="text-xl font-bold text-gold-100 mb-4">Select Import Source</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {importSources.map((source) => (
                       <motion.button
                         key={source.id}

@@ -44,7 +44,9 @@ export default function RootLayout({
       </head>
       <body className={`${bodoniModa.variable} ${montserrat.variable} antialiased`}>
         <AuthProvider>
-          {children}
+          <main className="max-w-screen-2xl mx-auto">
+            {children}
+          </main>
         </AuthProvider>
       </body>
     </html>
