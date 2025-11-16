@@ -37,8 +37,11 @@ import {
   Key,
   CreditCard,
   HardDrive,
-  UserPlus
+  UserPlus,
+  LogOut
 } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { AuthModal } from './auth-modal'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
@@ -47,9 +50,15 @@ import LegacyTokenManager from './legacy-token-manager'
 import PricingManager from './pricing-manager'
 import StorageOptimizer from './storage-optimizer'
 import ShareInviteSystem from './share-invite-system'
+import StoryRecorder from './story-recorder'
+import MemoryComments from './memory-comments'
+import HighlightsTimeCapsules from './highlights-time-capsules'
+import ImportWizard from './import-wizard'
+import WeeklyDigest from './weekly-digest'
+import AICurator from './ai-curator'
 import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'highlights' | 'digest' | 'curator'
 
 interface MemoryOrb {
   id: string
@@ -59,6 +68,7 @@ interface MemoryOrb {
 }
 
 export default function FuturisticHeirloomInterface() {
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
@@ -72,6 +82,9 @@ export default function FuturisticHeirloomInterface() {
   const [currentEra, setCurrentEra] = useState('Present')
   const [isRecording, setIsRecording] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [showStoryRecorder, setShowStoryRecorder] = useState(false)
+  const [showImportWizard, setShowImportWizard] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -160,8 +173,7 @@ export default function FuturisticHeirloomInterface() {
   }
 
   const handleRecordStory = () => {
-    setIsRecording(!isRecording)
-    // In a real app, this would start/stop audio recording
+    setShowStoryRecorder(true)
   }
 
   const handleAIEnhance = () => {
@@ -170,8 +182,7 @@ export default function FuturisticHeirloomInterface() {
   }
 
   const handleAddMemory = () => {
-    setCurrentView('memories')
-    // This would open the memory upload modal
+    setShowImportWizard(true)
   }
 
   // Calculate parallax transform
@@ -228,23 +239,23 @@ export default function FuturisticHeirloomInterface() {
       ))}
 
       {/* Sophisticated Navigation */}
-      <nav className="fixed top-0 left-0 right-0 p-10 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/90 to-transparent backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
-          <h1 className="font-serif text-2xl text-gold-400 tracking-[0.3em]">HEIRLOOM</h1>
+      <nav className="fixed top-0 left-0 right-0 px-4 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/90 to-transparent backdrop-blur-xl">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="w-6 sm:w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
+          <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]">HEIRLOOM</h1>
         </div>
         
-        <ul className="hidden md:flex gap-8 text-xs uppercase tracking-[0.2em] text-gold-200/70">
+        <ul className="hidden lg:flex gap-4 xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
           {[
             { id: 'memories', label: 'Memories' },
+            { id: 'highlights', label: 'Highlights' },
+            { id: 'curator', label: 'Search' },
             { id: 'timeline', label: 'Timeline' },
-            { id: 'heritage', label: 'Heritage' },
-            { id: 'wisdom', label: 'Wisdom' },
             { id: 'family', label: 'Family' },
+            { id: 'digest', label: 'Digest' },
+            { id: 'share', label: 'Share' },
             { id: 'tokens', label: 'Legacy' },
-            { id: 'pricing', label: 'Plans' },
-            { id: 'storage', label: 'Storage' },
-            { id: 'share', label: 'Share' }
+            { id: 'storage', label: 'Storage' }
           ].map(item => (
             <li
               key={item.id}
@@ -264,18 +275,39 @@ export default function FuturisticHeirloomInterface() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setShowProfile(true)}
-            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
-          >
-            <User className="w-4 h-4" />
-          </button>
+        <div className="flex items-center gap-2 sm:gap-4">
+          {isAuthenticated ? (
+            <>
+              <div className="hidden sm:block text-xs text-gold-200/70">
+                {user?.name} • {user?.family_name}
+              </div>
+              <button
+                onClick={() => setShowProfile(true)}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+              >
+                <User className="w-4 h-4" />
+              </button>
+              <button
+                onClick={logout}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 transition-colors text-xs uppercase tracking-wider"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="pt-32 pb-20">
+      <div className="pt-20 sm:pt-24 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 sm:px-6 lg:px-8">
         <AnimatePresence mode="wait">
           {currentView === 'memories' && (
             <motion.div
@@ -285,11 +317,11 @@ export default function FuturisticHeirloomInterface() {
               exit={{ opacity: 0 }}
               className="min-h-screen flex items-center justify-center relative"
             >
-              {/* Wisdom Quote */}
+              {/* Wisdom Quote - Hidden on mobile */}
               <AnimatePresence>
                 {showWisdomQuote && selectedMemory && (
                   <motion.div
-                    className="fixed left-16 top-1/2 transform -translate-y-1/2 w-72 z-40"
+                    className="hidden lg:block fixed left-16 top-1/2 transform -translate-y-1/2 w-72 z-40"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -50 }}
@@ -305,11 +337,12 @@ export default function FuturisticHeirloomInterface() {
                 )}
               </AnimatePresence>
 
-              {/* Memory Gallery */}
-              <div className="relative w-full max-w-6xl h-[70vh] flex items-center justify-center">
+              {/* Memory Gallery - Circular on desktop, linear on mobile */}
+              <div className="relative w-full max-w-6xl h-[60vh] sm:h-[70vh] flex items-center justify-center">
+                {/* Desktop: Circular Timeline */}
                 <div 
                   ref={showcaseRef}
-                  className="relative w-[500px] h-[500px]"
+                  className="hidden lg:block relative w-[300px] h-[300px] xl:w-[500px] xl:h-[500px]"
                   style={{ transform: getParallaxTransform() }}
                 >
                   {/* Rotating Frame */}
@@ -363,6 +396,41 @@ export default function FuturisticHeirloomInterface() {
                         <div className="text-xs uppercase tracking-[0.2em] text-gold-200/70">Five Generations • One Story</div>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Mobile/Tablet: Linear Timeline */}
+                <div className="lg:hidden w-full max-w-2xl mx-auto">
+                  <div className="flex flex-col gap-4 overflow-y-auto max-h-[60vh] scroll-smooth snap-y snap-mandatory px-4">
+                    {mockMemories.slice(0, 6).map((memory, index) => (
+                      <motion.div
+                        key={memory.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="snap-start flex-shrink-0"
+                      >
+                        <div className="bg-obsidian-800/60 border border-gold-500/20 rounded-xl p-4 hover:border-gold-400/40 transition-all">
+                          <div className="flex gap-4">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gold-500/30">
+                              <img
+                                src={memory.thumbnail}
+                                alt={memory.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-serif text-base sm:text-lg text-gold-400 mb-1 truncate">{memory.title}</h3>
+                              <p className="text-xs sm:text-sm text-gold-200/70 mb-2 line-clamp-2">{memory.description}</p>
+                              <div className="flex items-center gap-2 text-xs text-gold-200/50">
+                                <Calendar className="w-3 h-3" />
+                                <span>{new Date(memory.date).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -478,6 +546,42 @@ export default function FuturisticHeirloomInterface() {
               <ShareInviteSystem />
             </motion.div>
           )}
+
+          {currentView === 'highlights' && (
+            <motion.div
+              key="highlights-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <HighlightsTimeCapsules />
+            </motion.div>
+          )}
+
+          {currentView === 'digest' && (
+            <motion.div
+              key="digest-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <WeeklyDigest />
+            </motion.div>
+          )}
+
+          {currentView === 'curator' && (
+            <motion.div
+              key="curator-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="h-screen"
+            >
+              <AICurator />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -509,13 +613,13 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showDetailPanel && selectedMemory && (
           <motion.div
-            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-96 bg-charcoal/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-10 z-40"
+            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-[480px] max-h-[80vh] overflow-y-auto bg-charcoal/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-8 z-40"
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}
           >
-            <div className="border-b border-gold-500/20 pb-5 mb-8">
-              <h3 className="font-serif text-3xl text-gold-400 mb-2">{selectedMemory.title}</h3>
+            <div className="border-b border-gold-500/20 pb-5 mb-6">
+              <h3 className="font-serif text-2xl text-gold-400 mb-2">{selectedMemory.title}</h3>
               <p className="text-xs uppercase tracking-[0.15em] text-gold-200/70">A cherished family memory</p>
             </div>
             
@@ -545,6 +649,10 @@ export default function FuturisticHeirloomInterface() {
                   <div className="text-pearl">Restored • Colorized • Clarified</div>
                 </div>
               )}
+
+              <div className="border-t border-gold-500/20 pt-6">
+                <MemoryComments memoryId={selectedMemory.id} />
+              </div>
             </div>
           </motion.div>
         )}
@@ -586,6 +694,38 @@ export default function FuturisticHeirloomInterface() {
           <UserProfile onClose={() => setShowProfile(false)} />
         )}
       </AnimatePresence>
+
+      {/* Story Recorder Modal */}
+      <AnimatePresence>
+        {showStoryRecorder && (
+          <StoryRecorder 
+            onClose={() => setShowStoryRecorder(false)}
+            onSave={(story) => {
+              console.log('Story saved:', story)
+              setShowStoryRecorder(false)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Import Wizard Modal */}
+      <AnimatePresence>
+        {showImportWizard && (
+          <ImportWizard 
+            onClose={() => setShowImportWizard(false)}
+            onComplete={(results) => {
+              console.log('Import complete:', results)
+              setShowImportWizard(false)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
 
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');

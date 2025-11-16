@@ -25,9 +25,20 @@ body {
   background: var(--obsidian);
   color: var(--pearl);
   overflow-x: hidden;
-  cursor: default;
   letter-spacing: 0.05em;
-  cursor: url('data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="2" fill="%23D4AF37" opacity="0.8"/><circle cx="16" cy="16" r="8" stroke="%23D4AF37" stroke-width="0.5" fill="none" opacity="0.4"/></svg>') 16 16, auto;
+}
+
+/* Luxury cursor - only on devices with hover capability */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: url('data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="2" fill="%23D4AF37" opacity="0.8"/><circle cx="16" cy="16" r="8" stroke="%23D4AF37" stroke-width="0.5" fill="none" opacity="0.4"/></svg>') 16 16, auto;
+  }
+}
+
+/* Ensure backgrounds don't block interactions */
+.luxury-bg,
+.elegant-grid {
+  pointer-events: none;
 }
 
 /* Refined Background */
