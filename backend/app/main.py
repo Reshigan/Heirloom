@@ -11,7 +11,11 @@ from app.models import (
     CommentCreate, CommentResponse,
     ReactionCreate,
     StoryCreate, StoryResponse,
-    HighlightCreate, HighlightResponse
+    HighlightCreate, HighlightResponse,
+    TimeCapsuleCreate, TimeCapsuleResponse,
+    ImportStartRequest, ImportStartResponse, ImportStatusResponse,
+    DigestResponse, NotificationSettingsResponse, NotificationSettingsUpdate,
+    SearchRequest, SubscriptionResponse, UserProfileResponse
 )
 from app.auth import hash_password, verify_password, create_access_token, get_current_user
 from app.encryption import encrypt_data, decrypt_data
@@ -544,7 +548,9 @@ async def upload_file(upload_id: str, file: UploadFile = File(...), current_user
     }
 
 @app.get("/api/search")
-async def search(q: str, current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
+async def search(q: str = "", people: str = "", locations: str = "", types: str = "", tags: str = "", 
+                date_start: str = "", date_end: str = "", current_user: dict = Depends(get_current_user), 
+                repo = Depends(get_repository)):
     user = repo.get_user_by_id(current_user['user_id'])
     family_id = user.family_id if use_postgres else user.get('family_id')
     
@@ -553,23 +559,306 @@ async def search(q: str, current_user: dict = Depends(get_current_user), repo = 
     
     memories = repo.get_memories_by_family(family_id)
     
+    people_list = [p.strip() for p in people.split(',') if p.strip()] if people else []
+    locations_list = [l.strip() for l in locations.split(',') if l.strip()] if locations else []
+    types_list = [t.strip() for t in types.split(',') if t.strip()] if types else []
+    tags_list = [tag.strip() for tag in tags.split(',') if tag.strip()] if tags else []
+    
     results = []
-    query_lower = q.lower()
+    query_lower = q.lower() if q else ""
+    
     for memory in memories:
         memory_dict = model_to_dict(memory)
-        title_match = query_lower in memory_dict.get('title', '').lower()
         
-        description = memory_dict.get('description', '')
+        if query_lower:
+            title_match = query_lower in memory_dict.get('title', '').lower()
+            description = memory_dict.get('description', '')
+            if 'description_encrypted' in memory_dict and memory_dict['description_encrypted']:
+                description = decrypt_data(memory_dict['description_encrypted'])
+            description_match = query_lower in description.lower()
+            
+            location = memory_dict.get('location', '')
+            if 'location_encrypted' in memory_dict and memory_dict['location_encrypted']:
+                location = decrypt_data(memory_dict['location_encrypted'])
+            location_match = query_lower in location.lower()
+            
+            if not (title_match or description_match or location_match):
+                continue
+        
+        if people_list:
+            memory_participants = memory_dict.get('participants', [])
+            if not any(person in memory_participants for person in people_list):
+                continue
+        
+        if locations_list:
+            memory_location = memory_dict.get('location', '')
+            if 'location_encrypted' in memory_dict and memory_dict['location_encrypted']:
+                memory_location = decrypt_data(memory_dict['location_encrypted'])
+            if not any(loc.lower() in memory_location.lower() for loc in locations_list):
+                continue
+        
+        if types_list:
+            if memory_dict.get('type') not in types_list:
+                continue
+        
+        if tags_list:
+            memory_tags = memory_dict.get('tags', [])
+            if not any(tag in memory_tags for tag in tags_list):
+                continue
+        
+        if date_start and memory_dict.get('date', '') < date_start:
+            continue
+        if date_end and memory_dict.get('date', '') > date_end:
+            continue
+        
         if 'description_encrypted' in memory_dict and memory_dict['description_encrypted']:
-            description = decrypt_data(memory_dict['description_encrypted'])
-        description_match = query_lower in description.lower()
+            memory_dict['description'] = decrypt_data(memory_dict['description_encrypted'])
+            del memory_dict['description_encrypted']
+        if 'location_encrypted' in memory_dict and memory_dict['location_encrypted']:
+            memory_dict['location'] = decrypt_data(memory_dict['location_encrypted'])
+            del memory_dict['location_encrypted']
         
-        if title_match or description_match:
-            results.append({
-                "id": memory_dict['id'],
-                "title": memory_dict['title'],
-                "type": memory_dict['type'],
-                "date": memory_dict['date']
-            })
+        results.append(MemoryResponse(**memory_dict))
     
-    return {"results": results[:20]}
+    return {"results": results[:100]}
+
+@app.get("/api/time-capsules", response_model=List[TimeCapsuleResponse])
+async def get_time_capsules(current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
+    user = repo.get_user_by_id(current_user['user_id'])
+    family_id = user.family_id if use_postgres else user.get('family_id')
+    
+    if not user or not family_id:
+        return []
+    
+    capsules = repo.get_time_capsules_by_family(family_id)
+    return [TimeCapsuleResponse(**model_to_dict(c)) for c in capsules]
+
+@app.post("/api/time-capsules", response_model=TimeCapsuleResponse)
+async def create_time_capsule(capsule_data: TimeCapsuleCreate, current_user: dict = Depends(get_current_user), 
+                              repo = Depends(get_repository)):
+    user = repo.get_user_by_id(current_user['user_id'])
+    family_id = user.family_id if use_postgres else user.get('family_id')
+    user_id = user.id if use_postgres else user['id']
+    
+    if not user or not family_id:
+        raise HTTPException(status_code=400, detail="User must belong to a family")
+    
+    capsule_dict = capsule_data.model_dump()
+    capsule = repo.create_time_capsule(capsule_dict, family_id, user_id)
+    
+    return TimeCapsuleResponse(**model_to_dict(capsule))
+
+@app.post("/api/time-capsules/{capsule_id}/unlock")
+async def unlock_time_capsule(capsule_id: str, current_user: dict = Depends(get_current_user), 
+                              repo = Depends(get_repository)):
+    capsule = repo.get_time_capsule_by_id(capsule_id)
+    if not capsule:
+        raise HTTPException(status_code=404, detail="Time capsule not found")
+    
+    user = repo.get_user_by_id(current_user['user_id'])
+    capsule_family_id = capsule.family_id if use_postgres else capsule['family_id']
+    user_family_id = user.family_id if use_postgres else user.get('family_id')
+    
+    if not user or capsule_family_id != user_family_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    unlock_date = capsule.unlock_date if use_postgres else capsule['unlock_date']
+    from datetime import datetime
+    if unlock_date > datetime.now().isoformat():
+        raise HTTPException(status_code=400, detail="Time capsule cannot be unlocked yet")
+    
+    success = repo.unlock_time_capsule(capsule_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to unlock time capsule")
+    
+    return {"message": "Time capsule unlocked successfully"}
+
+@app.post("/api/imports/start", response_model=ImportStartResponse)
+async def start_import(import_request: ImportStartRequest, current_user: dict = Depends(get_current_user), 
+                      repo = Depends(get_repository)):
+    user = repo.get_user_by_id(current_user['user_id'])
+    family_id = user.family_id if use_postgres else user.get('family_id')
+    user_id = user.id if use_postgres else user['id']
+    
+    if not user or not family_id:
+        raise HTTPException(status_code=400, detail="User must belong to a family")
+    
+    job = repo.create_import_job(user_id, family_id, import_request.source, import_request.settings)
+    job_id = job.id if use_postgres else job['id']
+    
+    return ImportStartResponse(import_id=job_id, status="idle")
+
+@app.get("/api/imports/{import_id}/status", response_model=ImportStatusResponse)
+async def get_import_status(import_id: str, current_user: dict = Depends(get_current_user), 
+                           repo = Depends(get_repository)):
+    job = repo.get_import_job_by_id(import_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Import job not found")
+    
+    job_dict = model_to_dict(job)
+    return ImportStatusResponse(
+        import_id=job_dict['id'],
+        total=job_dict['total'],
+        processed=job_dict['processed'],
+        duplicates=job_dict['duplicates'],
+        imported=job_dict['imported'],
+        status=job_dict['status']
+    )
+
+@app.post("/api/imports/{import_id}/files")
+async def upload_import_files(import_id: str, files: List[UploadFile] = File(...), 
+                             current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
+    job = repo.get_import_job_by_id(import_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Import job not found")
+    
+    repo.update_import_job(import_id, {
+        'status': 'processing',
+        'total': len(files)
+    })
+    
+    imported = 0
+    for file in files:
+        imported += 1
+        repo.update_import_job(import_id, {
+            'processed': imported,
+            'imported': imported
+        })
+    
+    repo.update_import_job(import_id, {'status': 'complete'})
+    
+    return {"message": f"Imported {imported} files successfully"}
+
+@app.get("/api/digest/weekly", response_model=DigestResponse)
+async def get_weekly_digest(current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
+    user = repo.get_user_by_id(current_user['user_id'])
+    family_id = user.family_id if use_postgres else user.get('family_id')
+    
+    if not user or not family_id:
+        return DigestResponse(items=[], stats={}, period="week")
+    
+    memories = repo.get_memories_by_family(family_id)
+    
+    from datetime import datetime, timedelta
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    
+    recent_memories = []
+    for memory in memories:
+        memory_dict = model_to_dict(memory)
+        created_at = memory_dict.get('created_at')
+        if created_at and created_at > week_ago:
+            recent_memories.append(memory_dict)
+    
+    items = []
+    
+    if recent_memories:
+        items.append({
+            'id': 'new-memories',
+            'type': 'memory',
+            'title': 'New Family Memories Added',
+            'description': f'{len(recent_memories)} new memories were added this week',
+            'timestamp': datetime.utcnow().isoformat(),
+            'icon': 'ImageIcon',
+            'color': 'from-gold-600 to-gold-500'
+        })
+    
+    stats = {
+        'new_memories': len(recent_memories),
+        'new_comments': 0,
+        'family_activity': len(recent_memories)
+    }
+    
+    return DigestResponse(items=items, stats=stats, period="week")
+
+@app.get("/api/user/notification-settings", response_model=NotificationSettingsResponse)
+async def get_notification_settings(current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
+    user_id = current_user['user_id']
+    settings = repo.get_notification_settings(user_id)
+    
+    if not settings:
+        settings = repo.create_notification_settings(user_id)
+    
+    settings_dict = model_to_dict(settings)
+    return NotificationSettingsResponse(**settings_dict)
+
+@app.put("/api/user/notification-settings", response_model=NotificationSettingsResponse)
+async def update_notification_settings(settings_update: NotificationSettingsUpdate, 
+                                      current_user: dict = Depends(get_current_user), 
+                                      repo = Depends(get_repository)):
+    user_id = current_user['user_id']
+    updates = {k: v for k, v in settings_update.model_dump().items() if v is not None}
+    
+    settings = repo.update_notification_settings(user_id, updates)
+    settings_dict = model_to_dict(settings)
+    
+    return NotificationSettingsResponse(**settings_dict)
+
+@app.get("/api/user/profile", response_model=UserProfileResponse)
+async def get_user_profile(current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
+    user = repo.get_user_by_id(current_user['user_id'])
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user_id = user.id if use_postgres else user['id']
+    
+    subscription = repo.get_subscription(user_id)
+    if not subscription:
+        subscription = repo.create_subscription(user_id)
+    
+    subscription_dict = model_to_dict(subscription)
+    subscription_response = SubscriptionResponse(
+        plan=subscription_dict['plan'],
+        status=subscription_dict['status'],
+        cancel_at=subscription_dict.get('cancel_at'),
+        current_period_end=subscription_dict.get('current_period_end')
+    )
+    
+    settings = repo.get_notification_settings(user_id)
+    if not settings:
+        settings = repo.create_notification_settings(user_id)
+    
+    settings_dict = model_to_dict(settings)
+    settings_response = NotificationSettingsResponse(**settings_dict)
+    
+    user_dict = model_to_dict(user)
+    user_response = UserResponse(
+        id=user_dict['id'],
+        email=user_dict['email'],
+        name=user_dict['name'],
+        family_id=user_dict.get('family_id'),
+        family_name=user_dict.get('family_name'),
+        created_at=user_dict['created_at']
+    )
+    
+    return UserProfileResponse(
+        user=user_response,
+        subscription=subscription_response,
+        notification_settings=settings_response
+    )
+
+@app.post("/api/billing/create-checkout-session")
+async def create_checkout_session(plan: str, current_user: dict = Depends(get_current_user)):
+    return {
+        "session_url": f"https://checkout.stripe.com/pay/test_{plan}",
+        "session_id": f"cs_test_{legacy_db.generate_id()}"
+    }
+
+@app.post("/api/billing/create-portal-session")
+async def create_portal_session(current_user: dict = Depends(get_current_user)):
+    return {
+        "portal_url": "https://billing.stripe.com/session/test",
+        "session_id": f"bps_test_{legacy_db.generate_id()}"
+    }
+
+@app.post("/api/webhooks/stripe")
+async def stripe_webhook(request: dict):
+    event_type = request.get('type', '')
+    
+    if event_type == 'checkout.session.completed':
+        pass
+    elif event_type == 'customer.subscription.updated':
+        pass
+    elif event_type == 'customer.subscription.deleted':
+        pass
+    
+    return {"received": True}

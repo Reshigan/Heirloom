@@ -9,6 +9,10 @@ comments_db: Dict[str, dict] = {}
 reactions_db: Dict[str, dict] = {}
 stories_db: Dict[str, dict] = {}
 highlights_db: Dict[str, dict] = {}
+time_capsules_db: Dict[str, dict] = {}
+import_jobs_db: Dict[str, dict] = {}
+notification_settings_db: Dict[str, dict] = {}
+subscriptions_db: Dict[str, dict] = {}
 
 user_email_index: Dict[str, str] = {}
 
@@ -158,3 +162,110 @@ def create_highlight(highlight_data: dict, family_id: str) -> dict:
 
 def get_highlights_by_family(family_id: str) -> List[dict]:
     return [h for h in highlights_db.values() if h.get('family_id') == family_id]
+
+def create_time_capsule(capsule_data: dict, family_id: str, user_id: str) -> dict:
+    capsule_id = generate_id()
+    capsule = {
+        'id': capsule_id,
+        'family_id': family_id,
+        'created_by': user_id,
+        'created_at': datetime.utcnow(),
+        'is_locked': True,
+        **capsule_data
+    }
+    time_capsules_db[capsule_id] = capsule
+    return capsule
+
+def get_time_capsules_by_family(family_id: str) -> List[dict]:
+    return [c for c in time_capsules_db.values() if c.get('family_id') == family_id]
+
+def get_time_capsule_by_id(capsule_id: str) -> Optional[dict]:
+    return time_capsules_db.get(capsule_id)
+
+def unlock_time_capsule(capsule_id: str) -> bool:
+    capsule = time_capsules_db.get(capsule_id)
+    if capsule:
+        capsule['is_locked'] = False
+        return True
+    return False
+
+def create_import_job(user_id: str, family_id: str, source: str, settings: dict) -> dict:
+    job_id = generate_id()
+    job = {
+        'id': job_id,
+        'user_id': user_id,
+        'family_id': family_id,
+        'source': source,
+        'settings': settings,
+        'total': 0,
+        'processed': 0,
+        'duplicates': 0,
+        'imported': 0,
+        'status': 'idle',
+        'created_at': datetime.utcnow()
+    }
+    import_jobs_db[job_id] = job
+    return job
+
+def get_import_job_by_id(job_id: str) -> Optional[dict]:
+    return import_jobs_db.get(job_id)
+
+def update_import_job(job_id: str, updates: dict) -> Optional[dict]:
+    job = import_jobs_db.get(job_id)
+    if job:
+        job.update(updates)
+        return job
+    return None
+
+def get_notification_settings(user_id: str) -> Optional[dict]:
+    return notification_settings_db.get(user_id)
+
+def create_notification_settings(user_id: str) -> dict:
+    settings = {
+        'id': generate_id(),
+        'user_id': user_id,
+        'weekly_digest': True,
+        'daily_reminders': False,
+        'new_comments': True,
+        'new_memories': True,
+        'birthdays': True,
+        'anniversaries': True,
+        'story_prompts': True,
+        'family_activity': True,
+        'email_notifications': True,
+        'push_notifications': False
+    }
+    notification_settings_db[user_id] = settings
+    return settings
+
+def update_notification_settings(user_id: str, updates: dict) -> dict:
+    settings = notification_settings_db.get(user_id)
+    if not settings:
+        settings = create_notification_settings(user_id)
+    settings.update({k: v for k, v in updates.items() if v is not None})
+    return settings
+
+def get_subscription(user_id: str) -> Optional[dict]:
+    return subscriptions_db.get(user_id)
+
+def create_subscription(user_id: str, plan: str = "free") -> dict:
+    subscription = {
+        'id': generate_id(),
+        'user_id': user_id,
+        'stripe_customer_id': None,
+        'stripe_subscription_id': None,
+        'plan': plan,
+        'status': 'active',
+        'cancel_at': None,
+        'current_period_end': None,
+        'created_at': datetime.utcnow()
+    }
+    subscriptions_db[user_id] = subscription
+    return subscription
+
+def update_subscription(user_id: str, updates: dict) -> Optional[dict]:
+    subscription = subscriptions_db.get(user_id)
+    if subscription:
+        subscription.update(updates)
+        return subscription
+    return None

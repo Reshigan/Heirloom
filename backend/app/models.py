@@ -117,3 +117,88 @@ class HighlightResponse(BaseModel):
     shares: int
     family_id: str
     created_at: datetime
+
+class TimeCapsuleCreate(BaseModel):
+    title: str
+    message: str
+    memory_ids: List[str]
+    unlock_date: str
+    recipients: List[str] = []
+
+class TimeCapsuleResponse(BaseModel):
+    id: str
+    title: str
+    message: str
+    memory_ids: List[str]
+    unlock_date: str
+    is_locked: bool
+    recipients: List[str]
+    family_id: str
+    created_by: str
+    created_at: datetime
+
+class ImportStartRequest(BaseModel):
+    source: str
+    settings: dict
+
+class ImportStartResponse(BaseModel):
+    import_id: str
+    status: str
+
+class ImportStatusResponse(BaseModel):
+    import_id: str
+    total: int
+    processed: int
+    duplicates: int
+    imported: int
+    status: str
+
+class DigestResponse(BaseModel):
+    items: List[dict]
+    stats: dict
+    period: str
+
+class NotificationSettingsResponse(BaseModel):
+    weekly_digest: bool
+    daily_reminders: bool
+    new_comments: bool
+    new_memories: bool
+    birthdays: bool
+    anniversaries: bool
+    story_prompts: bool
+    family_activity: bool
+    email_notifications: bool
+    push_notifications: bool
+
+class NotificationSettingsUpdate(BaseModel):
+    weekly_digest: Optional[bool] = None
+    daily_reminders: Optional[bool] = None
+    new_comments: Optional[bool] = None
+    new_memories: Optional[bool] = None
+    birthdays: Optional[bool] = None
+    anniversaries: Optional[bool] = None
+    story_prompts: Optional[bool] = None
+    family_activity: Optional[bool] = None
+    email_notifications: Optional[bool] = None
+    push_notifications: Optional[bool] = None
+
+class SearchRequest(BaseModel):
+    query: Optional[str] = ""
+    people: List[str] = []
+    locations: List[str] = []
+    date_start: Optional[str] = None
+    date_end: Optional[str] = None
+    types: List[str] = []
+    tags: List[str] = []
+    group_by: Optional[str] = None
+
+class SubscriptionResponse(BaseModel):
+    plan: str
+    status: str
+    cancel_at: Optional[datetime] = None
+    current_period_end: Optional[datetime] = None
+
+class UserProfileResponse(BaseModel):
+    user: UserResponse
+    subscription: SubscriptionResponse
+    notification_settings: NotificationSettingsResponse

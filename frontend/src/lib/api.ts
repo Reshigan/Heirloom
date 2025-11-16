@@ -64,6 +64,64 @@ export interface Highlight {
   created_at: string
 }
 
+export interface TimeCapsule {
+  id: string
+  title: string
+  message: string
+  memory_ids: string[]
+  unlock_date: string
+  is_locked: boolean
+  recipients: string[]
+  family_id: string
+  created_by: string
+  created_at: string
+}
+
+export interface ImportJob {
+  import_id: string
+  total: number
+  processed: number
+  duplicates: number
+  imported: number
+  status: string
+}
+
+export interface DigestItem {
+  id: string
+  type: string
+  title: string
+  description: string
+  timestamp: string
+  icon: string
+  color: string
+}
+
+export interface NotificationSettings {
+  weekly_digest: boolean
+  daily_reminders: boolean
+  new_comments: boolean
+  new_memories: boolean
+  birthdays: boolean
+  anniversaries: boolean
+  story_prompts: boolean
+  family_activity: boolean
+  email_notifications: boolean
+  push_notifications: boolean
+}
+
+export interface Subscription {
+  plan: string
+  status: string
+  cancel_at?: string
+  current_period_end?: string
+}
+
+export interface UserProfile {
+  user: User
+  subscription: Subscription
+  notification_settings: NotificationSettings
+}
+
 class ApiClient {
   private token: string | null = null
 
@@ -207,8 +265,111 @@ class ApiClient {
     })
   }
 
-  async search(query: string): Promise<{ results: Array<{ id: string; title: string; type: string; date: string }> }> {
-    return this.request<{ results: Array<{ id: string; title: string; type: string; date: string }> }>(`/api/search?q=${encodeURIComponent(query)}`)
+  async search(query: string, filters?: {
+    people?: string[]
+    locations?: string[]
+    types?: string[]
+    tags?: string[]
+    date_start?: string
+    date_end?: string
+  }): Promise<{ results: Memory[] }> {
+    const params = new URLSearchParams()
+    if (query) params.append('q', query)
+    if (filters?.people?.length) params.append('people', filters.people.join(','))
+    if (filters?.locations?.length) params.append('locations', filters.locations.join(','))
+    if (filters?.types?.length) params.append('types', filters.types.join(','))
+    if (filters?.tags?.length) params.append('tags', filters.tags.join(','))
+    if (filters?.date_start) params.append('date_start', filters.date_start)
+    if (filters?.date_end) params.append('date_end', filters.date_end)
+    
+    return this.request<{ results: Memory[] }>(`/api/search?${params.toString()}`)
+  }
+
+  async getTimeCapsules(): Promise<TimeCapsule[]> {
+    return this.request<TimeCapsule[]>('/api/time-capsules')
+  }
+
+  async createTimeCapsule(capsule: {
+    title: string
+    message: string
+    memory_ids: string[]
+    unlock_date: string
+    recipients?: string[]
+  }): Promise<TimeCapsule> {
+    return this.request<TimeCapsule>('/api/time-capsules', {
+      method: 'POST',
+      body: JSON.stringify(capsule),
+    })
+  }
+
+  async unlockTimeCapsule(capsuleId: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/time-capsules/${capsuleId}/unlock`, {
+      method: 'POST',
+    })
+  }
+
+  async startImport(source: string, settings: any): Promise<{ import_id: string; status: string }> {
+    return this.request<{ import_id: string; status: string }>('/api/imports/start', {
+      method: 'POST',
+      body: JSON.stringify({ source, settings }),
+    })
+  }
+
+  async getImportStatus(importId: string): Promise<ImportJob> {
+    return this.request<ImportJob>(`/api/imports/${importId}/status`)
+  }
+
+  async uploadImportFiles(importId: string, files: File[]): Promise<{ message: string }> {
+    const formData = new FormData()
+    files.forEach(file => formData.append('files', file))
+
+    const headers: HeadersInit = {}
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/imports/${importId}/files`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error('Upload failed')
+    }
+
+    return response.json()
+  }
+
+  async getWeeklyDigest(): Promise<{ items: DigestItem[]; stats: any; period: string }> {
+    return this.request<{ items: DigestItem[]; stats: any; period: string }>('/api/digest/weekly')
+  }
+
+  async getNotificationSettings(): Promise<NotificationSettings> {
+    return this.request<NotificationSettings>('/api/user/notification-settings')
+  }
+
+  async updateNotificationSettings(settings: Partial<NotificationSettings>): Promise<NotificationSettings> {
+    return this.request<NotificationSettings>('/api/user/notification-settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    })
+  }
+
+  async getUserProfile(): Promise<UserProfile> {
+    return this.request<UserProfile>('/api/user/profile')
+  }
+
+  async createCheckoutSession(plan: string): Promise<{ session_url: string; session_id: string }> {
+    return this.request<{ session_url: string; session_id: string }>(`/api/billing/create-checkout-session?plan=${encodeURIComponent(plan)}`, {
+      method: 'POST',
+    })
+  }
+
+  async createPortalSession(): Promise<{ portal_url: string; session_id: string }> {
+    return this.request<{ portal_url: string; session_id: string }>('/api/billing/create-portal-session', {
+      method: 'POST',
+    })
   }
 
   async presignUpload(filename: string, contentType: string): Promise<{ upload_id: string; url: string; method: string; fields: any }> {
