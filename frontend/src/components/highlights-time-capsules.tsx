@@ -26,7 +26,7 @@ import {
   Image as ImageIcon,
   TrendingUp
 } from 'lucide-react'
-import { mockMemories, mockTimelineEvents, Memory, TimelineEvent } from '../data/mock-family-data'
+import { apiClient, Memory, TimeCapsule as ApiTimeCapsule } from '../lib/api'
 
 interface Highlight {
   id: string
@@ -34,7 +34,6 @@ interface Highlight {
   description: string
   type: 'year-in-review' | 'this-week' | 'decade' | 'custom'
   memories: Memory[]
-  events: TimelineEvent[]
   createdAt: Date
   scheduledFor?: Date
   isPublic: boolean
@@ -42,102 +41,82 @@ interface Highlight {
   shares: number
 }
 
-interface TimeCapsule {
-  id: string
-  title: string
-  message: string
-  memories: Memory[]
-  createdAt: Date
-  unlockDate: Date
-  isLocked: boolean
-  recipients: string[]
-}
-
 const HighlightsTimeCapsules: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'highlights' | 'capsules' | 'create'>('highlights')
   const [highlights, setHighlights] = useState<Highlight[]>([])
-  const [timeCapsules, setTimeCapsules] = useState<TimeCapsule[]>([])
+  const [timeCapsules, setTimeCapsules] = useState<ApiTimeCapsule[]>([])
+  const [memories, setMemories] = useState<Memory[]>([])
   const [selectedHighlight, setSelectedHighlight] = useState<Highlight | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const currentYear = new Date().getFullYear()
-    const lastYear = currentYear - 1
-    
-    const yearInReview: Highlight = {
-      id: '1',
-      title: `${lastYear} Year in Review`,
-      description: `A beautiful collection of your family's most precious moments from ${lastYear}`,
-      type: 'year-in-review',
-      memories: mockMemories.filter(m => new Date(m.date).getFullYear() === lastYear).slice(0, 12),
-      events: mockTimelineEvents.filter(e => new Date(e.date).getFullYear() === lastYear),
-      createdAt: new Date(`${lastYear}-12-31`),
-      isPublic: false,
-      views: 247,
-      shares: 18
-    }
-
-    const thisWeekHighlight: Highlight = {
-      id: '2',
-      title: 'This Week in Family History',
-      description: 'Memories from this week across different years',
-      type: 'this-week',
-      memories: mockMemories.slice(0, 6),
-      events: mockTimelineEvents.slice(0, 3),
-      createdAt: new Date(),
-      isPublic: true,
-      views: 89,
-      shares: 5
-    }
-
-    const decadeHighlight: Highlight = {
-      id: '3',
-      title: 'The 2010s: A Decade of Growth',
-      description: 'Celebrating a decade of family milestones and memories',
-      type: 'decade',
-      memories: mockMemories.filter(m => {
-        const year = new Date(m.date).getFullYear()
-        return year >= 2010 && year < 2020
-      }).slice(0, 15),
-      events: mockTimelineEvents.filter(e => {
-        const year = new Date(e.date).getFullYear()
-        return year >= 2010 && year < 2020
-      }),
-      createdAt: new Date('2020-01-01'),
-      scheduledFor: new Date('2025-12-31'),
-      isPublic: false,
-      views: 156,
-      shares: 12
-    }
-
-    setHighlights([yearInReview, thisWeekHighlight, decadeHighlight])
-
-    const capsule1: TimeCapsule = {
-      id: '1',
-      title: 'To Our Grandchildren',
-      message: 'A collection of memories and wisdom to be opened when you turn 18. We hope these stories inspire you and help you understand where you came from.',
-      memories: mockMemories.slice(0, 8),
-      createdAt: new Date('2020-01-01'),
-      unlockDate: new Date('2036-01-01'),
-      isLocked: true,
-      recipients: ['gc1']
-    }
-
-    const capsule2: TimeCapsule = {
-      id: '2',
-      title: '50th Anniversary Memories',
-      message: 'Celebrating 50 years of love, laughter, and family. To be opened on our golden anniversary.',
-      memories: mockMemories.slice(8, 15),
-      createdAt: new Date('2023-06-15'),
-      unlockDate: new Date('2025-06-15'),
-      isLocked: false,
-      recipients: ['p1', 'p3']
-    }
-
-    setTimeCapsules([capsule1, capsule2])
+    loadData()
   }, [])
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true)
+      const [memoriesData, capsulesData] = await Promise.all([
+        apiClient.getMemories(),
+        apiClient.getTimeCapsules()
+      ])
+      
+      setMemories(memoriesData)
+      setTimeCapsules(capsulesData)
+      
+      const currentYear = new Date().getFullYear()
+      const lastYear = currentYear - 1
+      
+      const yearInReview: Highlight = {
+        id: '1',
+        title: `${lastYear} Year in Review`,
+        description: `A beautiful collection of your family's most precious moments from ${lastYear}`,
+        type: 'year-in-review',
+        memories: memoriesData.filter(m => new Date(m.date).getFullYear() === lastYear).slice(0, 12),
+        createdAt: new Date(`${lastYear}-12-31`),
+        isPublic: false,
+        views: 247,
+        shares: 18
+      }
+
+      const thisWeekHighlight: Highlight = {
+        id: '2',
+        title: 'This Week in Family History',
+        description: 'Memories from this week across different years',
+        type: 'this-week',
+        memories: memoriesData.slice(0, 6),
+        createdAt: new Date(),
+        isPublic: true,
+        views: 89,
+        shares: 5
+      }
+
+      const decadeHighlight: Highlight = {
+        id: '3',
+        title: 'The 2010s: A Decade of Growth',
+        description: 'Celebrating a decade of family milestones and memories',
+        type: 'decade',
+        memories: memoriesData.filter(m => {
+          const year = new Date(m.date).getFullYear()
+          return year >= 2010 && year < 2020
+        }).slice(0, 15),
+        createdAt: new Date('2020-01-01'),
+        scheduledFor: new Date('2025-12-31'),
+        isPublic: false,
+        views: 156,
+        shares: 12
+      }
+
+      setHighlights([yearInReview, thisWeekHighlight, decadeHighlight])
+    } catch (error) {
+      console.error('Failed to load data:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handlePlayHighlight = (highlight: Highlight) => {
     setSelectedHighlight(highlight)
@@ -184,6 +163,17 @@ const HighlightsTimeCapsules: React.FC = () => {
       case 'decade': return 'from-gold-600/60 to-gold-500/60'
       default: return 'from-gold-600 to-gold-500'
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-obsidian-900 via-obsidian-800 to-charcoal text-pearl p-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-400 mx-auto mb-4"></div>
+          <p className="text-gold-300">Loading highlights and time capsules...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -339,13 +329,13 @@ const HighlightsTimeCapsules: React.FC = () => {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className={`p-3 rounded-xl ${capsule.isLocked ? 'bg-gradient-to-r from-gold-600/70 to-gold-500/70' : 'bg-gradient-to-r from-gold-600 to-gold-500'}`}>
-                          {capsule.isLocked ? <Lock className="w-6 h-6 text-obsidian-900" /> : <Unlock className="w-6 h-6 text-obsidian-900" />}
+                        <div className={`p-3 rounded-xl ${capsule.is_locked ? 'bg-gradient-to-r from-gold-600/70 to-gold-500/70' : 'bg-gradient-to-r from-gold-600 to-gold-500'}`}>
+                          {capsule.is_locked ? <Lock className="w-6 h-6 text-obsidian-900" /> : <Unlock className="w-6 h-6 text-obsidian-900" />}
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-gold-100">{capsule.title}</h3>
                           <p className="text-gold-400/70 text-sm">
-                            {capsule.isLocked ? 'Locked' : 'Unlocked'}
+                            {capsule.is_locked ? 'Locked' : 'Unlocked'}
                           </p>
                         </div>
                       </div>
@@ -358,15 +348,15 @@ const HighlightsTimeCapsules: React.FC = () => {
                     <div className="space-y-3 mb-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gold-400/70">Created</span>
-                        <span className="text-gold-100">{capsule.createdAt.toLocaleDateString()}</span>
+                        <span className="text-gold-100">{new Date(capsule.created_at).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gold-400/70">Unlock Date</span>
-                        <span className="text-gold-100 font-semibold">{capsule.unlockDate.toLocaleDateString()}</span>
+                        <span className="text-gold-100 font-semibold">{new Date(capsule.unlock_date).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gold-400/70">Memories</span>
-                        <span className="text-gold-100">{capsule.memories.length} items</span>
+                        <span className="text-gold-100">{capsule.memory_ids.length} items</span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gold-400/70">Recipients</span>
@@ -374,17 +364,17 @@ const HighlightsTimeCapsules: React.FC = () => {
                       </div>
                     </div>
 
-                    {!capsule.isLocked && (
+                    {!capsule.is_locked && (
                       <button className="w-full px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2">
                         <Eye className="w-4 h-4" />
                         View Contents
                       </button>
                     )}
 
-                    {capsule.isLocked && (
+                    {capsule.is_locked && (
                       <div className="bg-gold-600/10 border border-gold-500/20 rounded-lg p-3 text-center">
                         <p className="text-gold-300 text-sm">
-                          This capsule will unlock in {Math.ceil((capsule.unlockDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
+                          This capsule will unlock in {Math.ceil((new Date(capsule.unlock_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
                         </p>
                       </div>
                     )}
