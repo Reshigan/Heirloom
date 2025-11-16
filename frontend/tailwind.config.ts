@@ -170,6 +170,43 @@ const config: Config = {
         'memory-gradient': 'linear-gradient(135deg, #D4A574 0%, #FFA500 100%)',
         'time-gradient': 'linear-gradient(135deg, #2C3E50 0%, #5D3A6B 100%)',
       },
+      
+      // Futuristic animations
+      keyframes: {
+        'rotate-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'timeline-flow': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(200%)' },
+        },
+        'dust-float': {
+          '0%': { transform: 'translateY(100vh) translateX(0)', opacity: '0' },
+          '10%': { opacity: '0.6' },
+          '90%': { opacity: '0.6' },
+          '100%': { transform: 'translateY(-100vh) translateX(50px)', opacity: '0' },
+        },
+        'fadeOut': {
+          'to': { opacity: '0', pointerEvents: 'none' },
+        },
+        'spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'pulse': {
+          '0%, 100%': { opacity: '0.5' },
+          '50%': { opacity: '1' },
+        },
+      },
+      animation: {
+        'rotate-slow': 'rotate-slow 60s linear infinite',
+        'timeline-flow': 'timeline-flow 10s linear infinite',
+        'dust-float': 'dust-float 15s infinite',
+        'fadeOut': 'fadeOut 1s ease 2s forwards',
+        'spin': 'spin 1.5s linear infinite',
+        'pulse': 'pulse 1.5s ease infinite',
+      },
     },
   },
   plugins: [],
