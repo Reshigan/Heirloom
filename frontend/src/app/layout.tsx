@@ -5,14 +5,14 @@ import { AuthProvider } from '@/contexts/AuthContext';
 
 const bodoniModa = Bodoni_Moda({ 
   subsets: ['latin'],
-  weight: ['300', '400', '600'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-bodoni',
   display: 'swap',
 });
 
 const montserrat = Montserrat({ 
   subsets: ['latin'],
-  weight: ['200', '300', '400', '500'],
+  weight: ['300', '400', '500', '600'],
   variable: '--font-montserrat',
   display: 'swap',
 });

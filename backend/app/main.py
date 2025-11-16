@@ -25,19 +25,19 @@ from app import database as legacy_db
 
 app = FastAPI(title="Heirloom API", version="1.0.0")
 
-USE_POSTGRES = os.getenv("USE_POSTGRES", "true").lower() == "true"
+use_postgres = os.getenv("use_postgres", "true").lower() == "true"
 
 @app.on_event("startup")
 async def startup_event():
-    if USE_POSTGRES:
+    global use_postgres
+    if use_postgres:
         try:
             init_db()
             print("✓ PostgreSQL database initialized")
         except Exception as e:
             print(f"✗ Failed to initialize PostgreSQL: {e}")
             print("  Falling back to in-memory database")
-            global USE_POSTGRES
-            USE_POSTGRES = False
+            use_postgres = False
 
 # Disable CORS. Do not remove this for full-stack development.
 app.add_middleware(
@@ -50,13 +50,13 @@ app.add_middleware(
 
 def get_repository(db: Session = Depends(get_db)):
     """Get repository instance (PostgreSQL or in-memory fallback)"""
-    if USE_POSTGRES:
+    if use_postgres and db is not None:
         return Repository(db)
     return LegacyRepository()
 
 @app.get("/healthz")
 async def healthz():
-    db_type = "postgresql" if USE_POSTGRES else "in-memory"
+    db_type = "postgresql" if use_postgres else "in-memory"
     return {"status": "ok", "encryption": "enabled", "database": db_type}
 
 @app.post("/api/auth/register", response_model=UserResponse)
@@ -74,7 +74,7 @@ async def register(user_data: UserRegister, repo = Depends(get_repository)):
         family_name=user_data.family_name
     )
     
-    if USE_POSTGRES:
+    if use_postgres:
         return UserResponse(
             id=user.id,
             email=user.email,
@@ -99,15 +99,15 @@ async def login(credentials: UserLogin, repo = Depends(get_repository)):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
-    password_hash = user.password if USE_POSTGRES else user['password']
+    password_hash = user.password if use_postgres else user['password']
     if not verify_password(credentials.password, password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
-    user_id = user.id if USE_POSTGRES else user['id']
-    user_email = user.email if USE_POSTGRES else user['email']
+    user_id = user.id if use_postgres else user['id']
+    user_email = user.email if use_postgres else user['email']
     token = create_access_token(user_id, user_email)
     
-    if USE_POSTGRES:
+    if use_postgres:
         return {
             "access_token": token,
             "token_type": "bearer",
@@ -138,7 +138,7 @@ async def get_me(current_user: dict = Depends(get_current_user), repo = Depends(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if USE_POSTGRES:
+    if use_postgres:
         return UserResponse(
             id=user.id,
             email=user.email,
@@ -159,14 +159,14 @@ async def get_me(current_user: dict = Depends(get_current_user), repo = Depends(
 
 def model_to_dict(obj):
     """Convert SQLAlchemy model to dict"""
-    if USE_POSTGRES:
+    if use_postgres:
         return {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
     return obj
 
 @app.get("/api/memories", response_model=List[MemoryResponse])
 async def get_memories(current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
     user = repo.get_user_by_id(current_user['user_id'])
-    family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or not family_id:
         return []
@@ -190,8 +190,8 @@ async def get_memories(current_user: dict = Depends(get_current_user), repo = De
 @app.post("/api/memories", response_model=MemoryResponse)
 async def create_memory(memory_data: MemoryCreate, current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
     user = repo.get_user_by_id(current_user['user_id'])
-    family_id = user.family_id if USE_POSTGRES else user.get('family_id')
-    user_id = user.id if USE_POSTGRES else user['id']
+    family_id = user.family_id if use_postgres else user.get('family_id')
+    user_id = user.id if use_postgres else user['id']
     
     if not user or not family_id:
         raise HTTPException(status_code=400, detail="User must belong to a family")
@@ -223,8 +223,8 @@ async def get_memory(memory_id: str, current_user: dict = Depends(get_current_us
         raise HTTPException(status_code=404, detail="Memory not found")
     
     user = repo.get_user_by_id(current_user['user_id'])
-    memory_family_id = memory.family_id if USE_POSTGRES else memory['family_id']
-    user_family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    memory_family_id = memory.family_id if use_postgres else memory['family_id']
+    user_family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or memory_family_id != user_family_id:
         raise HTTPException(status_code=403, detail="Access denied")
@@ -246,8 +246,8 @@ async def update_memory(memory_id: str, memory_data: MemoryCreate, current_user:
         raise HTTPException(status_code=404, detail="Memory not found")
     
     user = repo.get_user_by_id(current_user['user_id'])
-    memory_family_id = memory.family_id if USE_POSTGRES else memory['family_id']
-    user_family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    memory_family_id = memory.family_id if use_postgres else memory['family_id']
+    user_family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or memory_family_id != user_family_id:
         raise HTTPException(status_code=403, detail="Access denied")
@@ -275,8 +275,8 @@ async def delete_memory(memory_id: str, current_user: dict = Depends(get_current
         raise HTTPException(status_code=404, detail="Memory not found")
     
     user = repo.get_user_by_id(current_user['user_id'])
-    memory_family_id = memory.family_id if USE_POSTGRES else memory['family_id']
-    user_family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    memory_family_id = memory.family_id if use_postgres else memory['family_id']
+    user_family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or memory_family_id != user_family_id:
         raise HTTPException(status_code=403, detail="Access denied")
@@ -291,8 +291,8 @@ async def get_comments(memory_id: str, current_user: dict = Depends(get_current_
         raise HTTPException(status_code=404, detail="Memory not found")
     
     user = repo.get_user_by_id(current_user['user_id'])
-    memory_family_id = memory.family_id if USE_POSTGRES else memory['family_id']
-    user_family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    memory_family_id = memory.family_id if use_postgres else memory['family_id']
+    user_family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or memory_family_id != user_family_id:
         raise HTTPException(status_code=403, detail="Access denied")
@@ -302,7 +302,7 @@ async def get_comments(memory_id: str, current_user: dict = Depends(get_current_
     decrypted_comments = []
     for comment in comments:
         comment_dict = model_to_dict(comment)
-        comment_id = comment.id if USE_POSTGRES else comment['id']
+        comment_id = comment.id if use_postgres else comment['id']
         
         if 'content_encrypted' in comment_dict and comment_dict['content_encrypted']:
             comment_dict['content'] = decrypt_data(comment_dict['content_encrypted'])
@@ -329,15 +329,15 @@ async def create_comment(memory_id: str, comment_data: CommentCreate, current_us
         raise HTTPException(status_code=404, detail="Memory not found")
     
     user = repo.get_user_by_id(current_user['user_id'])
-    memory_family_id = memory.family_id if USE_POSTGRES else memory['family_id']
-    user_family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    memory_family_id = memory.family_id if use_postgres else memory['family_id']
+    user_family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or memory_family_id != user_family_id:
         raise HTTPException(status_code=403, detail="Access denied")
     
     encrypted_content = encrypt_data(comment_data.content)
-    user_id = user.id if USE_POSTGRES else user['id']
-    user_name = user.name if USE_POSTGRES else user['name']
+    user_id = user.id if use_postgres else user['id']
+    user_name = user.name if use_postgres else user['name']
     
     comment = repo.create_comment(
         memory_id=memory_id,
@@ -359,7 +359,7 @@ async def delete_comment(comment_id: str, current_user: dict = Depends(get_curre
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
     
-    comment_user_id = comment.user_id if USE_POSTGRES else comment['user_id']
+    comment_user_id = comment.user_id if use_postgres else comment['user_id']
     if comment_user_id != current_user['user_id']:
         raise HTTPException(status_code=403, detail="Access denied")
     
@@ -376,8 +376,8 @@ async def add_reaction(comment_id: str, reaction_data: ReactionCreate, current_u
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    user_id = user.id if USE_POSTGRES else user['id']
-    user_name = user.name if USE_POSTGRES else user['name']
+    user_id = user.id if use_postgres else user['id']
+    user_name = user.name if use_postgres else user['name']
     
     success = repo.add_reaction(comment_id, user_id, user_name, reaction_data.type)
     if not success:
@@ -388,8 +388,8 @@ async def add_reaction(comment_id: str, reaction_data: ReactionCreate, current_u
 @app.post("/api/stories", response_model=StoryResponse)
 async def create_story(story_data: StoryCreate, current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
     user = repo.get_user_by_id(current_user['user_id'])
-    family_id = user.family_id if USE_POSTGRES else user.get('family_id')
-    user_id = user.id if USE_POSTGRES else user['id']
+    family_id = user.family_id if use_postgres else user.get('family_id')
+    user_id = user.id if use_postgres else user['id']
     
     if not user or not family_id:
         raise HTTPException(status_code=400, detail="User must belong to a family")
@@ -414,7 +414,7 @@ async def create_story(story_data: StoryCreate, current_user: dict = Depends(get
 @app.get("/api/stories", response_model=List[StoryResponse])
 async def get_stories(current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
     user = repo.get_user_by_id(current_user['user_id'])
-    family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or not family_id:
         return []
@@ -438,7 +438,7 @@ async def get_stories(current_user: dict = Depends(get_current_user), repo = Dep
 @app.post("/api/highlights", response_model=HighlightResponse)
 async def create_highlight(highlight_data: HighlightCreate, current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
     user = repo.get_user_by_id(current_user['user_id'])
-    family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or not family_id:
         raise HTTPException(status_code=400, detail="User must belong to a family")
@@ -452,7 +452,7 @@ async def create_highlight(highlight_data: HighlightCreate, current_user: dict =
 @app.get("/api/highlights", response_model=List[HighlightResponse])
 async def get_highlights(current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
     user = repo.get_user_by_id(current_user['user_id'])
-    family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or not family_id:
         return []
@@ -546,7 +546,7 @@ async def upload_file(upload_id: str, file: UploadFile = File(...), current_user
 @app.get("/api/search")
 async def search(q: str, current_user: dict = Depends(get_current_user), repo = Depends(get_repository)):
     user = repo.get_user_by_id(current_user['user_id'])
-    family_id = user.family_id if USE_POSTGRES else user.get('family_id')
+    family_id = user.family_id if use_postgres else user.get('family_id')
     
     if not user or not family_id:
         return {"results": []}
