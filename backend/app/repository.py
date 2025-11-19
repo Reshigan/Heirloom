@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 
-from app.db_models import User, Family, Memory, Comment, Story, Highlight
+from app.db_models import User, Family, Memory, Comment, Story, Highlight, TimeCapsule, ImportJob, NotificationSettings, Subscription
 from app import database as legacy_db
 
 class Repository:
@@ -174,6 +174,108 @@ class Repository:
     
     def get_highlights_by_family(self, family_id: str) -> List[Highlight]:
         return self.db.query(Highlight).filter(Highlight.family_id == family_id).all()
+    
+    def create_time_capsule(self, capsule_data: dict, family_id: str, user_id: str) -> TimeCapsule:
+        capsule = TimeCapsule(
+            id=legacy_db.generate_id(),
+            family_id=family_id,
+            created_by=user_id,
+            created_at=datetime.utcnow(),
+            **capsule_data
+        )
+        self.db.add(capsule)
+        self.db.commit()
+        self.db.refresh(capsule)
+        return capsule
+    
+    def get_time_capsules_by_family(self, family_id: str) -> List[TimeCapsule]:
+        return self.db.query(TimeCapsule).filter(TimeCapsule.family_id == family_id).all()
+    
+    def get_time_capsule_by_id(self, capsule_id: str) -> Optional[TimeCapsule]:
+        return self.db.query(TimeCapsule).filter(TimeCapsule.id == capsule_id).first()
+    
+    def unlock_time_capsule(self, capsule_id: str) -> bool:
+        capsule = self.get_time_capsule_by_id(capsule_id)
+        if capsule:
+            capsule.is_locked = False
+            self.db.commit()
+            return True
+        return False
+    
+    def create_import_job(self, user_id: str, family_id: str, source: str, settings: dict) -> ImportJob:
+        job = ImportJob(
+            id=legacy_db.generate_id(),
+            user_id=user_id,
+            family_id=family_id,
+            source=source,
+            settings=settings,
+            created_at=datetime.utcnow()
+        )
+        self.db.add(job)
+        self.db.commit()
+        self.db.refresh(job)
+        return job
+    
+    def get_import_job_by_id(self, job_id: str) -> Optional[ImportJob]:
+        return self.db.query(ImportJob).filter(ImportJob.id == job_id).first()
+    
+    def update_import_job(self, job_id: str, updates: dict) -> Optional[ImportJob]:
+        job = self.get_import_job_by_id(job_id)
+        if job:
+            for key, value in updates.items():
+                setattr(job, key, value)
+            self.db.commit()
+            self.db.refresh(job)
+        return job
+    
+    def get_notification_settings(self, user_id: str) -> Optional[NotificationSettings]:
+        return self.db.query(NotificationSettings).filter(NotificationSettings.user_id == user_id).first()
+    
+    def create_notification_settings(self, user_id: str) -> NotificationSettings:
+        settings = NotificationSettings(
+            id=legacy_db.generate_id(),
+            user_id=user_id
+        )
+        self.db.add(settings)
+        self.db.commit()
+        self.db.refresh(settings)
+        return settings
+    
+    def update_notification_settings(self, user_id: str, updates: dict) -> NotificationSettings:
+        settings = self.get_notification_settings(user_id)
+        if not settings:
+            settings = self.create_notification_settings(user_id)
+        
+        for key, value in updates.items():
+            if value is not None and hasattr(settings, key):
+                setattr(settings, key, value)
+        self.db.commit()
+        self.db.refresh(settings)
+        return settings
+    
+    def get_subscription(self, user_id: str) -> Optional[Subscription]:
+        return self.db.query(Subscription).filter(Subscription.user_id == user_id).first()
+    
+    def create_subscription(self, user_id: str, plan: str = "free") -> Subscription:
+        subscription = Subscription(
+            id=legacy_db.generate_id(),
+            user_id=user_id,
+            plan=plan,
+            created_at=datetime.utcnow()
+        )
+        self.db.add(subscription)
+        self.db.commit()
+        self.db.refresh(subscription)
+        return subscription
+    
+    def update_subscription(self, user_id: str, updates: dict) -> Optional[Subscription]:
+        subscription = self.get_subscription(user_id)
+        if subscription:
+            for key, value in updates.items():
+                setattr(subscription, key, value)
+            self.db.commit()
+            self.db.refresh(subscription)
+        return subscription
 
 
 class LegacyRepository:
@@ -233,3 +335,42 @@ class LegacyRepository:
     
     def get_highlights_by_family(self, family_id: str) -> List[dict]:
         return legacy_db.get_highlights_by_family(family_id)
+    
+    def create_time_capsule(self, capsule_data: dict, family_id: str, user_id: str) -> dict:
+        return legacy_db.create_time_capsule(capsule_data, family_id, user_id)
+    
+    def get_time_capsules_by_family(self, family_id: str) -> List[dict]:
+        return legacy_db.get_time_capsules_by_family(family_id)
+    
+    def get_time_capsule_by_id(self, capsule_id: str) -> Optional[dict]:
+        return legacy_db.get_time_capsule_by_id(capsule_id)
+    
+    def unlock_time_capsule(self, capsule_id: str) -> bool:
+        return legacy_db.unlock_time_capsule(capsule_id)
+    
+    def create_import_job(self, user_id: str, family_id: str, source: str, settings: dict) -> dict:
+        return legacy_db.create_import_job(user_id, family_id, source, settings)
+    
+    def get_import_job_by_id(self, job_id: str) -> Optional[dict]:
+        return legacy_db.get_import_job_by_id(job_id)
+    
+    def update_import_job(self, job_id: str, updates: dict) -> Optional[dict]:
+        return legacy_db.update_import_job(job_id, updates)
+    
+    def get_notification_settings(self, user_id: str) -> Optional[dict]:
+        return legacy_db.get_notification_settings(user_id)
+    
+    def create_notification_settings(self, user_id: str) -> dict:
+        return legacy_db.create_notification_settings(user_id)
+    
+    def update_notification_settings(self, user_id: str, updates: dict) -> dict:
+        return legacy_db.update_notification_settings(user_id, updates)
+    
+    def get_subscription(self, user_id: str) -> Optional[dict]:
+        return legacy_db.get_subscription(user_id)
+    
+    def create_subscription(self, user_id: str, plan: str = "free") -> dict:
+        return legacy_db.create_subscription(user_id, plan)
+    
+    def update_subscription(self, user_id: str, updates: dict) -> Optional[dict]:
+        return legacy_db.update_subscription(user_id, updates)

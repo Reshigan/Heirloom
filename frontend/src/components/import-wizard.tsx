@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Upload, 
@@ -25,6 +25,7 @@ import {
   Zap,
   TrendingUp
 } from 'lucide-react'
+import { apiClient } from '../lib/api'
 
 interface ImportSource {
   id: string
@@ -51,6 +52,8 @@ interface ImportWizardProps {
 const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
   const [step, setStep] = useState<'select' | 'configure' | 'import' | 'complete'>('select')
   const [selectedSource, setSelectedSource] = useState<string | null>(null)
+  const [importId, setImportId] = useState<string | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [progress, setProgress] = useState<ImportProgress>({
     total: 0,
     processed: 0,
@@ -123,39 +126,54 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
     setStep('configure')
   }
 
-  const handleStartImport = () => {
-    setStep('import')
-    setProgress({
-      total: 247,
-      processed: 0,
-      duplicates: 0,
-      imported: 0,
-      status: 'scanning'
-    })
+  const handleStartImport = async () => {
+    try {
+      setStep('import')
+      setProgress({
+        total: selectedFiles.length,
+        processed: 0,
+        duplicates: 0,
+        imported: 0,
+        status: 'scanning'
+      })
 
-    setTimeout(() => {
-      setProgress(prev => ({ ...prev, status: 'processing' }))
-      
-      const interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev.processed >= prev.total) {
-            clearInterval(interval)
-            return {
-              ...prev,
-              status: 'complete',
-              duplicates: 23,
-              imported: 224
-            }
+      const importResponse = await apiClient.startImport(selectedSource || 'local', importSettings)
+      setImportId(importResponse.import_id)
+
+      if (selectedFiles.length > 0) {
+        setProgress(prev => ({ ...prev, status: 'processing' }))
+        await apiClient.uploadImportFiles(importResponse.import_id, selectedFiles)
+      }
+
+      const pollInterval = setInterval(async () => {
+        try {
+          const status = await apiClient.getImportStatus(importResponse.import_id)
+          setProgress({
+            total: status.total,
+            processed: status.processed,
+            duplicates: status.duplicates,
+            imported: status.imported,
+            status: status.status as any
+          })
+
+          if (status.status === 'complete' || status.status === 'error') {
+            clearInterval(pollInterval)
           }
-          return {
-            ...prev,
-            processed: prev.processed + Math.floor(Math.random() * 15) + 5,
-            duplicates: prev.duplicates + Math.floor(Math.random() * 2),
-            imported: prev.imported + Math.floor(Math.random() * 12) + 3
-          }
-        })
-      }, 500)
-    }, 2000)
+        } catch (error) {
+          console.error('Failed to poll import status:', error)
+          clearInterval(pollInterval)
+        }
+      }, 1000)
+    } catch (error) {
+      console.error('Failed to start import:', error)
+      setProgress(prev => ({ ...prev, status: 'error' }))
+    }
+  }
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    setSelectedFiles(files)
+    setProgress(prev => ({ ...prev, total: files.length }))
   }
 
   const handleComplete = () => {
@@ -317,6 +335,24 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                     ))}
                   </div>
 
+                  {selectedSource === 'local' && (
+                    <div className="bg-obsidian-800/60 border border-gold-500/20 rounded-xl p-6">
+                      <h4 className="text-gold-100 font-semibold mb-4">Select Files</h4>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*,video/*,audio/*"
+                        onChange={handleFileSelect}
+                        className="block w-full text-sm text-gold-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-gold-600 file:to-gold-500 file:text-obsidian-900 hover:file:from-gold-500 hover:file:to-gold-400"
+                      />
+                      {selectedFiles.length > 0 && (
+                        <p className="text-gold-400/70 text-sm mt-2">
+                          {selectedFiles.length} files selected
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex gap-3">
                     <button
                       onClick={() => setStep('select')}
@@ -326,7 +362,8 @@ const ImportWizard: React.FC<ImportWizardProps> = ({ onClose, onComplete }) => {
                     </button>
                     <button
                       onClick={handleStartImport}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2"
+                      disabled={selectedSource === 'local' && selectedFiles.length === 0}
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Upload className="w-5 h-5" />
                       Start Import
