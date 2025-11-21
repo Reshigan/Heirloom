@@ -235,6 +235,11 @@ export default function FuturisticHeirloomInterface() {
                 className="memory-orb"
                 onMouseEnter={() => handleOrbHover(memory)}
                 onMouseLeave={handleOrbLeave}
+                onClick={() => {
+                  setSelectedMemory(memory);
+                  setShowDetailPanel(true);
+                }}
+                style={{ cursor: 'pointer' }}
               >
                 <div className="orb-container">
                   <div className="orb-content">
