@@ -3,11 +3,17 @@ from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 
+class PackageTier(str, Enum):
+    free = "free"
+    premium = "premium"
+    family = "family"
+
 class UserRegister(BaseModel):
     email: EmailStr
     password: str
     name: str
     family_name: Optional[str] = None
+    package: Optional[PackageTier] = PackageTier.free
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -19,6 +25,7 @@ class UserResponse(BaseModel):
     name: str
     family_id: Optional[str] = None
     family_name: Optional[str] = None
+    package: str = "free"
     created_at: datetime
 
 class MemoryType(str, Enum):
@@ -61,6 +68,8 @@ class MemoryResponse(BaseModel):
     family_id: str
     created_by: str
     created_at: datetime
+    sentiment_score: Optional[float] = None
+    sentiment_label: Optional[str] = None
 
 class CommentCreate(BaseModel):
     content: str
