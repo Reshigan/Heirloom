@@ -33,12 +33,15 @@ export default function FuturisticHeirloomInterface() {
   useEffect(() => {
     const fetchMemories = async () => {
       if (!isAuthenticated) {
+        console.log('Not authenticated, skipping memory fetch')
         setIsLoading(false)
         return
       }
 
+      console.log('Fetching memories...')
       try {
         const data = await apiClient.getMemories()
+        console.log('Fetched memories:', data.length, data)
         setMemories(data)
       } catch (error) {
         console.error('Failed to fetch memories:', error)
