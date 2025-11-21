@@ -15,6 +15,8 @@ interface Memory {
   thumbnail_url?: string
   location?: string
   participants?: string[]
+  sentiment_score?: number
+  sentiment_label?: string
 }
 
 export default function FuturisticHeirloomInterface() {
