@@ -319,15 +319,9 @@ export default function FuturisticHeirloomInterface() {
         </div>
       )}
 
-      {/* Floating Action Bar */}
+      {/* Floating Action Bar - Quick Action Only */}
       <div className="action-bar">
-        <div className="luxury-fab">
-          <span>🎙️</span>
-        </div>
-        <div className="luxury-fab">
-          <span>✨</span>
-        </div>
-        <div className="luxury-fab primary">
+        <div className="luxury-fab primary" title="Add Memory">
           <span>+</span>
         </div>
       </div>
