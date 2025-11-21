@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   turbopack: {
     rules: {
       '*.svg': {
@@ -23,6 +24,14 @@ const nextConfig: NextConfig = {
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '3.8.160.221',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
       },
     ],
   },
