@@ -23,12 +23,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('heirloom:auth:token') : null
         if (token) {
+          apiClient.setToken(token)
           const currentUser = await apiClient.getMe()
           setUser(currentUser)
         }
       } catch (error) {
         console.error('Failed to initialize auth:', error)
         apiClient.clearToken()
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('heirloom:auth:token')
+        }
       } finally {
         setIsLoading(false)
       }
@@ -39,7 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await apiClient.login(email, password)
+      const response = await apiClient.login(email.trim().toLowerCase(), password)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('heirloom:auth:token', response.access_token)
+      }
       setUser(response.user)
     } catch (error) {
       console.error('Login failed:', error)
@@ -59,6 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     apiClient.clearToken()
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('heirloom:auth:token')
+    }
     setUser(null)
   }
 
