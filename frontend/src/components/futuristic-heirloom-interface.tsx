@@ -56,9 +56,20 @@ import HighlightsTimeCapsules from './highlights-time-capsules'
 import ImportWizard from './import-wizard'
 import WeeklyDigest from './weekly-digest'
 import AICurator from './ai-curator'
-import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
+import { apiClient } from '@/lib/api'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'highlights' | 'digest' | 'curator'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
+
+interface Memory {
+  id: string
+  title: string
+  description: string
+  date: string
+  media_url?: string
+  thumbnail_url?: string
+  location?: string
+  participants?: string[]
+}
 
 interface MemoryOrb {
   id: string
@@ -88,8 +99,38 @@ export default function FuturisticHeirloomInterface() {
   const [isWarping, setIsWarping] = useState(false)
   const [outgoingOrbs, setOutgoingOrbs] = useState<MemoryOrb[]>([])
   const [showWarpFlash, setShowWarpFlash] = useState(false)
+  const [memories, setMemories] = useState<Memory[]>([])
   
   const showcaseRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const fetchMemories = async () => {
+      if (!isAuthenticated) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const data = await apiClient.getMemories()
+        setMemories(data)
+        
+        // Create memory orbs from real data
+        const orbs: MemoryOrb[] = data.slice(0, 6).map((memory, index) => ({
+          id: memory.id,
+          memory,
+          position: getOrbPosition(index),
+          size: 120
+        }))
+        setMemoryOrbs(orbs)
+      } catch (error) {
+        console.error('Failed to fetch memories:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchMemories()
+  }, [isAuthenticated])
 
   useEffect(() => {
     // Generate golden dust particles
@@ -101,27 +142,22 @@ export default function FuturisticHeirloomInterface() {
     }))
     setParticles(newParticles)
 
-    // Create memory orbs from our data
-    const orbs: MemoryOrb[] = mockMemories.slice(0, 6).map((memory, index) => ({
-      id: memory.id,
-      memory,
-      position: getOrbPosition(index),
-      size: memory.significance === 'milestone' ? 140 : memory.significance === 'high' ? 120 : 100
-    }))
-    setMemoryOrbs(orbs)
-
     // Remove loading screen
     const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
+      if (!isAuthenticated) {
+        setIsLoading(false)
+      }
+    }, 2000)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [isAuthenticated])
 
-  // Handle mouse movement for parallax effect
+  // Handle mouse movement for parallax effect (only on desktop)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
+      if (window.innerWidth >= 1024) {
+        setMousePosition({ x: e.clientX, y: e.clientY })
+      }
     }
 
     document.addEventListener('mousemove', handleMouseMove)
@@ -152,7 +188,7 @@ export default function FuturisticHeirloomInterface() {
   }
 
   const handleEraClick = async (era: string) => {
-    if (isWarping) return
+    if (isWarping || !isAuthenticated) return
     
     setCurrentEra(era)
     setIsWarping(true)
@@ -160,7 +196,7 @@ export default function FuturisticHeirloomInterface() {
     setOutgoingOrbs(memoryOrbs)
     
     // Filter memories by era
-    const filteredMemories = mockMemories.filter(memory => {
+    const filteredMemories = memories.filter(memory => {
       const year = new Date(memory.date).getFullYear()
       switch (era) {
         case '1920s': return year >= 1920 && year < 1950
@@ -176,7 +212,7 @@ export default function FuturisticHeirloomInterface() {
       id: memory.id,
       memory,
       position: getOrbPosition(index),
-      size: memory.significance === 'milestone' ? 140 : memory.significance === 'high' ? 120 : 100
+      size: 120
     }))
     
     await new Promise(resolve => setTimeout(resolve, 450))
@@ -192,33 +228,28 @@ export default function FuturisticHeirloomInterface() {
     setIsWarping(false)
   }
 
-  const handleRecordStory = () => {
-    setShowStoryRecorder(true)
-  }
-
-  const handleAIEnhance = () => {
-    // In a real app, this would trigger AI enhancement
-    console.log('AI Enhancement triggered')
-  }
-
   const handleAddMemory = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true)
+      return
+    }
     setShowImportWizard(true)
   }
 
-  // Calculate parallax transform
+  // Calculate parallax transform (only on desktop)
   const getParallaxTransform = () => {
-    const x = (mousePosition.x - window.innerWidth / 2) / window.innerWidth * 5
-    const y = (mousePosition.y - window.innerHeight / 2) / window.innerHeight * 5
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return 'none'
+    const x = (mousePosition.x - (typeof window !== 'undefined' ? window.innerWidth : 1920) / 2) / (typeof window !== 'undefined' ? window.innerWidth : 1920) * 5
+    const y = (mousePosition.y - (typeof window !== 'undefined' ? window.innerHeight : 1080) / 2) / (typeof window !== 'undefined' ? window.innerHeight : 1080) * 5
     return `perspective(1000px) rotateY(${x}deg) rotateX(${-y}deg)`
   }
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center z-[10000]">
         <div className="text-center">
           <div className="w-20 h-20 border border-gold-500/20 border-t-gold-400 rounded-full mx-auto mb-8 animate-spin"></div>
-          <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse mb-4">HEIRLOOM</div>
-          <div className="font-light text-sm text-gold-300/80 tracking-[0.2em] animate-pulse">Connecting Generations</div>
+          <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse">HEIRLOOM</div>
         </div>
       </div>
     )
