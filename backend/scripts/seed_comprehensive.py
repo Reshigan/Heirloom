@@ -140,19 +140,19 @@ def seed_comprehensive(base_url: str):
         return False
     
     memory_templates = [
-        {"era": "1950s", "title": "Post-War Family Gathering", "description": "The family reunited after the war. Everyone was so grateful to be together again.", "year": 1952, "location": "Brooklyn, NY", "tags": ["family", "reunion", "1950s"], "sentiment": "joyful"},
-        {"era": "1950s", "title": "First Television", "description": "We got our first television set! The whole neighborhood came to watch.", "year": 1955, "location": "Home", "tags": ["milestone", "technology", "1950s"], "sentiment": "excited"},
-        {"era": "1950s", "title": "Summer at the Lake", "description": "Our annual summer trip to the lake. The kids learned to swim this year.", "year": 1958, "location": "Lake George, NY", "tags": ["vacation", "summer", "1950s"], "sentiment": "peaceful"},
+        {"era": "1950s", "title": "Post-War Family Gathering", "description": "The family reunited after the war. Everyone was so grateful to be together again.", "year": 1952, "location": "Brooklyn, NY", "type": "photo", "significance": "milestone", "tags": ["family", "reunion", "1950s"], "participants": ["John", "Mary"], "sentiment": "joyful"},
+        {"era": "1950s", "title": "First Television", "description": "We got our first television set! The whole neighborhood came to watch.", "year": 1955, "location": "Home", "type": "photo", "significance": "milestone", "tags": ["milestone", "technology", "1950s"], "participants": ["John", "Mary"], "sentiment": "excited"},
+        {"era": "1950s", "title": "Summer at the Lake", "description": "Our annual summer trip to the lake. The kids learned to swim this year.", "year": 1958, "location": "Lake George, NY", "type": "photo", "significance": "high", "tags": ["vacation", "summer", "1950s"], "participants": ["John", "Mary", "Sarah"], "sentiment": "peaceful"},
         
-        {"era": "1960s", "title": "Wedding Day", "description": "John and Mary's beautiful wedding ceremony. A perfect spring day.", "year": 1962, "location": "St. Mary's Church", "tags": ["wedding", "celebration", "1960s"], "sentiment": "joyful"},
-        {"era": "1960s", "title": "First Home Purchase", "description": "We bought our first house! A dream come true for our growing family.", "year": 1965, "location": "Suburban Home", "tags": ["milestone", "home", "1960s"], "sentiment": "proud"},
-        {"era": "1960s", "title": "Moon Landing Party", "description": "We all gathered around the TV to watch the moon landing. Historic moment!", "year": 1969, "location": "Home", "tags": ["historic", "celebration", "1960s"], "sentiment": "amazed"},
+        {"era": "1960s", "title": "Wedding Day", "description": "John and Mary's beautiful wedding ceremony. A perfect spring day.", "year": 1962, "location": "St. Mary's Church", "type": "photo", "significance": "milestone", "tags": ["wedding", "celebration", "1960s"], "participants": ["John", "Mary"], "sentiment": "joyful"},
+        {"era": "1960s", "title": "First Home Purchase", "description": "We bought our first house! A dream come true for our growing family.", "year": 1965, "location": "Suburban Home", "type": "document", "significance": "milestone", "tags": ["milestone", "home", "1960s"], "participants": ["John", "Mary"], "sentiment": "proud"},
+        {"era": "1960s", "title": "Moon Landing Party", "description": "We all gathered around the TV to watch the moon landing. Historic moment!", "year": 1969, "location": "Home", "type": "photo", "significance": "high", "tags": ["historic", "celebration", "1960s"], "participants": ["John", "Mary", "Sarah"], "sentiment": "amazed"},
         
-        {"era": "1970s", "title": "First Day of School", "description": "Sarah's first day of kindergarten. She was so brave!", "year": 1972, "location": "Lincoln Elementary", "tags": ["school", "milestone", "1970s"], "sentiment": "proud"},
-        {"era": "1970s", "title": "Bicentennial Celebration", "description": "America's 200th birthday! We had a huge family barbecue.", "year": 1976, "location": "Backyard", "tags": ["celebration", "holiday", "1970s"], "sentiment": "patriotic"},
-        {"era": "1970s", "title": "Cross-Country Road Trip", "description": "Epic family road trip across America. Saw the Grand Canyon!", "year": 1978, "location": "Various States", "tags": ["vacation", "adventure", "1970s"], "sentiment": "adventurous"},
+        {"era": "1970s", "title": "First Day of School", "description": "Sarah's first day of kindergarten. She was so brave!", "year": 1972, "location": "Lincoln Elementary", "type": "photo", "significance": "milestone", "tags": ["school", "milestone", "1970s"], "participants": ["Sarah"], "sentiment": "proud"},
+        {"era": "1970s", "title": "Bicentennial Celebration", "description": "America's 200th birthday! We had a huge family barbecue.", "year": 1976, "location": "Backyard", "type": "photo", "significance": "high", "tags": ["celebration", "holiday", "1970s"], "participants": ["John", "Mary", "Sarah"], "sentiment": "patriotic"},
+        {"era": "1970s", "title": "Cross-Country Road Trip", "description": "Epic family road trip across America. Saw the Grand Canyon!", "year": 1978, "location": "Various States", "type": "photo", "significance": "high", "tags": ["vacation", "adventure", "1970s"], "participants": ["John", "Mary", "Sarah"], "sentiment": "adventurous"},
         
-        {"era": "1980s", "title": "High School Graduation", "description": "Sarah graduated with honors! So proud of her achievements.", "year": 1982, "location": "Lincoln High School", "tags": ["graduation", "milestone", "1980s"], "sentiment": "proud"},
+        {"era": "1980s", "title": "High School Graduation", "description": "Sarah graduated with honors! So proud of her achievements.", "year": 1982, "location": "Lincoln High School", "type": "photo", "significance": "milestone", "tags": ["graduation", "milestone", "1980s"], "participants": ["Sarah", "John", "Mary"], "sentiment": "proud"},
         {"era": "1980s", "title": "First Computer", "description": "We got our first home computer. The kids are learning to program!", "year": 1985, "location": "Home", "tags": ["technology", "milestone", "1980s"], "sentiment": "excited"},
         {"era": "1980s", "title": "25th Anniversary", "description": "Celebrating 25 years of marriage. What a journey it's been!", "year": 1987, "location": "Anniversary Party", "tags": ["anniversary", "celebration", "1980s"], "sentiment": "grateful"},
         
@@ -195,6 +195,9 @@ def seed_comprehensive(base_url: str):
                 "description": memory['description'],
                 "date": date_str,
                 "location": memory['location'],
+                "type": memory['type'],
+                "significance": memory['significance'],
+                "participants": memory['participants'],
                 "tags": memory['tags']
             }
             
