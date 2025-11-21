@@ -102,20 +102,8 @@ const config: Config = {
         },
         
         // Futuristic luxury palette
-        obsidian: {
-          900: '#0A0A0A',        // Pure obsidian
-          800: '#0F0F0F',        // Dark obsidian
-          700: '#1A1A1A',        // Charcoal
-          600: '#2A2A2A',        // Smoke
-        },
-        
-        gold: {
-          600: '#B8941F',        // Dark gold
-          500: '#D4AF37',        // Primary gold
-          400: '#F4E5C2',        // Light gold
-          300: '#FFF8E7',        // Pearl
-        },
-        
+        obsidian: '#0F0F0F',     // Base obsidian (can use with /opacity)
+        gold: '#D4AF37',         // Base gold (can use with /opacity)
         charcoal: '#1A1A1A',
         smoke: '#2A2A2A',
         pearl: '#FFF8E7',
