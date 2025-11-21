@@ -258,71 +258,82 @@ export default function FuturisticHeirloomInterface() {
         />
       ))}
 
-      {/* Sophisticated Navigation */}
-      <nav className="fixed top-0 left-0 right-0 px-4 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/90 to-transparent backdrop-blur-xl">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="w-6 sm:w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
-          <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]">HEIRLOOM</h1>
-        </div>
-        
-        <ul className="hidden lg:flex gap-4 xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
-          {[
-            { id: 'memories', label: 'Memories' },
-            { id: 'highlights', label: 'Highlights' },
-            { id: 'curator', label: 'Search' },
-            { id: 'timeline', label: 'Timeline' },
-            { id: 'family', label: 'Family' },
-            { id: 'digest', label: 'Digest' },
-            { id: 'share', label: 'Share' },
-            { id: 'tokens', label: 'Legacy' },
-            { id: 'storage', label: 'Storage' }
-          ].map(item => (
-            <li
-              key={item.id}
-              className={`cursor-pointer transition-all duration-300 relative ${
-                currentView === item.id ? 'text-gold-400' : 'hover:text-gold-400'
-              }`}
-              onClick={() => setCurrentView(item.id as ViewMode)}
-            >
-              {item.label}
-              {currentView === item.id && (
-                <motion.div
-                  className="absolute -bottom-1 left-0 w-full h-px bg-gold-400"
-                  layoutId="nav-indicator"
-                />
-              )}
-            </li>
-          ))}
-        </ul>
+      {/* Sophisticated Navigation with Glassmorphism */}
+      <nav className="fixed top-0 left-0 right-0 px-4 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-8 z-50">
+        <div className="bg-gradient-to-br from-charcoal/80 via-charcoal/70 to-obsidian/80 backdrop-blur-2xl border border-gold/20 rounded-2xl px-6 py-4 shadow-2xl shadow-obsidian/50">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="w-6 sm:w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
+              <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]">HEIRLOOM</h1>
+            </div>
+            
+            <ul className="hidden lg:flex gap-4 xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
+              {[
+                { id: 'memories', label: 'Memories' },
+                { id: 'highlights', label: 'Highlights' },
+                { id: 'curator', label: 'Search' },
+                { id: 'timeline', label: 'Timeline' },
+                { id: 'family', label: 'Family' },
+                { id: 'digest', label: 'Digest' },
+                { id: 'share', label: 'Share' },
+                { id: 'tokens', label: 'Legacy' },
+                { id: 'storage', label: 'Storage' }
+              ].map(item => (
+                <li
+                  key={item.id}
+                  className={`cursor-pointer transition-all duration-300 relative px-2 py-1 rounded-lg ${
+                    currentView === item.id ? 'text-gold-400 bg-gold/10' : 'hover:text-gold-400 hover:bg-gold/5'
+                  }`}
+                  onClick={() => setCurrentView(item.id as ViewMode)}
+                >
+                  {item.label}
+                  {currentView === item.id && (
+                    <motion.div
+                      className="absolute -bottom-1 left-0 w-full h-px bg-gold-400"
+                      layoutId="nav-indicator"
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          {isAuthenticated ? (
-            <>
-              <div className="hidden sm:block text-xs text-gold-200/70">
-                {user?.name} • {user?.family_name}
-              </div>
-              <button
-                onClick={() => setShowProfile(true)}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
-              >
-                <User className="w-4 h-4" />
-              </button>
-              <button
-                onClick={logout}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
-                title="Logout"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 transition-colors text-xs uppercase tracking-wider"
-            >
-              Sign In
-            </button>
-          )}
+            <div className="flex items-center gap-2 sm:gap-4">
+              {isAuthenticated ? (
+                <>
+                  <a
+                    href="/billing"
+                    className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gold/20 to-gold/10 border border-gold/30 text-gold-400 hover:from-gold/30 hover:to-gold/20 transition-all text-xs uppercase tracking-wider"
+                  >
+                    <CreditCard className="w-3 h-3" />
+                    Billing
+                  </a>
+                  <div className="hidden sm:block text-xs text-gold-200/70">
+                    {user?.name} • {user?.family_name}
+                  </div>
+                  <button
+                    onClick={() => setShowProfile(true)}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+                  >
+                    <User className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+                    title="Logout"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-xs uppercase tracking-wider"
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </nav>
 
