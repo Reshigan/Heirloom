@@ -35,10 +35,15 @@ services:
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       STRIPE_PRICE_ID_FREE: ${STRIPE_PRICE_ID_FREE:-}
       STRIPE_PRICE_ID_PREMIUM: ${STRIPE_PRICE_ID_PREMIUM:-}
+      USE_LOCAL_OLLAMA: "true"
+      OLLAMA_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: llama3.2:1b
     volumes:
       - media_data:/app/media
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy
