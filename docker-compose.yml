@@ -55,7 +55,7 @@ services:
       dockerfile: Dockerfile
     container_name: heirloom_frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://3.8.160.221:8000
+      NEXT_PUBLIC_API_URL: https://loom.vantax.co.za/api
     ports:
       - "3000:3000"
     depends_on:
