@@ -1,2 +1,8 @@
 backend/.env
 **/__pycache__/
+.env.staging
+.env.production
+*.pem
+node_modules/
+.next/
+*.pyc

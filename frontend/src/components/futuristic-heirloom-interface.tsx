@@ -56,9 +56,20 @@ import HighlightsTimeCapsules from './highlights-time-capsules'
 import ImportWizard from './import-wizard'
 import WeeklyDigest from './weekly-digest'
 import AICurator from './ai-curator'
-import { mockFamilyMembers, mockMemories, mockTimelineEvents, FamilyMember, Memory, TimelineEvent } from '../data/mock-family-data'
+import { apiClient } from '@/lib/api'
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'tokens' | 'pricing' | 'storage' | 'share' | 'highlights' | 'digest' | 'curator'
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
+
+interface Memory {
+  id: string
+  title: string
+  description: string
+  date: string
+  media_url?: string
+  thumbnail_url?: string
+  location?: string
+  participants?: string[]
+}
 
 interface MemoryOrb {
   id: string
@@ -85,8 +96,41 @@ export default function FuturisticHeirloomInterface() {
   const [showStoryRecorder, setShowStoryRecorder] = useState(false)
   const [showImportWizard, setShowImportWizard] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isWarping, setIsWarping] = useState(false)
+  const [outgoingOrbs, setOutgoingOrbs] = useState<MemoryOrb[]>([])
+  const [showWarpFlash, setShowWarpFlash] = useState(false)
+  const [memories, setMemories] = useState<Memory[]>([])
   
   const showcaseRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const fetchMemories = async () => {
+      if (!isAuthenticated) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const data = await apiClient.getMemories()
+        setMemories(data)
+        
+        // Create memory orbs from real data
+        const orbs: MemoryOrb[] = data.slice(0, 6).map((memory, index) => ({
+          id: memory.id,
+          memory,
+          position: getOrbPosition(index),
+          size: 120
+        }))
+        setMemoryOrbs(orbs)
+      } catch (error) {
+        console.error('Failed to fetch memories:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchMemories()
+  }, [isAuthenticated])
 
   useEffect(() => {
     // Generate golden dust particles
@@ -98,27 +142,22 @@ export default function FuturisticHeirloomInterface() {
     }))
     setParticles(newParticles)
 
-    // Create memory orbs from our data
-    const orbs: MemoryOrb[] = mockMemories.slice(0, 6).map((memory, index) => ({
-      id: memory.id,
-      memory,
-      position: getOrbPosition(index),
-      size: memory.significance === 'milestone' ? 140 : memory.significance === 'high' ? 120 : 100
-    }))
-    setMemoryOrbs(orbs)
-
     // Remove loading screen
     const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
+      if (!isAuthenticated) {
+        setIsLoading(false)
+      }
+    }, 2000)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [isAuthenticated])
 
-  // Handle mouse movement for parallax effect
+  // Handle mouse movement for parallax effect (only on desktop)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
+      if (window.innerWidth >= 1024) {
+        setMousePosition({ x: e.clientX, y: e.clientY })
+      }
     }
 
     document.addEventListener('mousemove', handleMouseMove)
@@ -148,10 +187,16 @@ export default function FuturisticHeirloomInterface() {
     setShowWisdomQuote(false)
   }
 
-  const handleEraClick = (era: string) => {
+  const handleEraClick = async (era: string) => {
+    if (isWarping || !isAuthenticated) return
+    
     setCurrentEra(era)
+    setIsWarping(true)
+    
+    setOutgoingOrbs(memoryOrbs)
+    
     // Filter memories by era
-    const filteredMemories = mockMemories.filter(memory => {
+    const filteredMemories = memories.filter(memory => {
       const year = new Date(memory.date).getFullYear()
       switch (era) {
         case '1920s': return year >= 1920 && year < 1950
@@ -167,38 +212,44 @@ export default function FuturisticHeirloomInterface() {
       id: memory.id,
       memory,
       position: getOrbPosition(index),
-      size: memory.significance === 'milestone' ? 140 : memory.significance === 'high' ? 120 : 100
+      size: 120
     }))
+    
+    await new Promise(resolve => setTimeout(resolve, 450))
+    
+    setShowWarpFlash(true)
+    await new Promise(resolve => setTimeout(resolve, 150))
+    setShowWarpFlash(false)
+    
     setMemoryOrbs(newOrbs)
-  }
-
-  const handleRecordStory = () => {
-    setShowStoryRecorder(true)
-  }
-
-  const handleAIEnhance = () => {
-    // In a real app, this would trigger AI enhancement
-    console.log('AI Enhancement triggered')
+    setOutgoingOrbs([])
+    
+    await new Promise(resolve => setTimeout(resolve, 600))
+    setIsWarping(false)
   }
 
   const handleAddMemory = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true)
+      return
+    }
     setShowImportWizard(true)
   }
 
-  // Calculate parallax transform
+  // Calculate parallax transform (only on desktop)
   const getParallaxTransform = () => {
-    const x = (mousePosition.x - window.innerWidth / 2) / window.innerWidth * 5
-    const y = (mousePosition.y - window.innerHeight / 2) / window.innerHeight * 5
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return 'none'
+    const x = (mousePosition.x - (typeof window !== 'undefined' ? window.innerWidth : 1920) / 2) / (typeof window !== 'undefined' ? window.innerWidth : 1920) * 5
+    const y = (mousePosition.y - (typeof window !== 'undefined' ? window.innerHeight : 1080) / 2) / (typeof window !== 'undefined' ? window.innerHeight : 1080) * 5
     return `perspective(1000px) rotateY(${x}deg) rotateX(${-y}deg)`
   }
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center z-[10000]">
         <div className="text-center">
           <div className="w-20 h-20 border border-gold-500/20 border-t-gold-400 rounded-full mx-auto mb-8 animate-spin"></div>
-          <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse mb-4">HEIRLOOM</div>
-          <div className="font-light text-sm text-gold-300/80 tracking-[0.2em] animate-pulse">Connecting Generations</div>
+          <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse">HEIRLOOM</div>
         </div>
       </div>
     )
@@ -238,71 +289,82 @@ export default function FuturisticHeirloomInterface() {
         />
       ))}
 
-      {/* Sophisticated Navigation */}
-      <nav className="fixed top-0 left-0 right-0 px-4 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-10 z-50 flex justify-between items-center bg-gradient-to-b from-obsidian-900/90 to-transparent backdrop-blur-xl">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="w-6 sm:w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
-          <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]">HEIRLOOM</h1>
-        </div>
-        
-        <ul className="hidden lg:flex gap-4 xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
-          {[
-            { id: 'memories', label: 'Memories' },
-            { id: 'highlights', label: 'Highlights' },
-            { id: 'curator', label: 'Search' },
-            { id: 'timeline', label: 'Timeline' },
-            { id: 'family', label: 'Family' },
-            { id: 'digest', label: 'Digest' },
-            { id: 'share', label: 'Share' },
-            { id: 'tokens', label: 'Legacy' },
-            { id: 'storage', label: 'Storage' }
-          ].map(item => (
-            <li
-              key={item.id}
-              className={`cursor-pointer transition-all duration-300 relative ${
-                currentView === item.id ? 'text-gold-400' : 'hover:text-gold-400'
-              }`}
-              onClick={() => setCurrentView(item.id as ViewMode)}
-            >
-              {item.label}
-              {currentView === item.id && (
-                <motion.div
-                  className="absolute -bottom-1 left-0 w-full h-px bg-gold-400"
-                  layoutId="nav-indicator"
-                />
-              )}
-            </li>
-          ))}
-        </ul>
+      {/* Sophisticated Navigation with Glassmorphism */}
+      <nav className="fixed top-0 left-0 right-0 px-4 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-8 z-50">
+        <div className="bg-gradient-to-br from-charcoal/80 via-charcoal/70 to-obsidian/80 backdrop-blur-2xl border border-gold/20 rounded-2xl px-6 py-4 shadow-2xl shadow-obsidian/50">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="w-6 sm:w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
+              <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]">HEIRLOOM</h1>
+            </div>
+            
+            <ul className="hidden lg:flex gap-4 xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
+              {[
+                { id: 'memories', label: 'Memories' },
+                { id: 'highlights', label: 'Highlights' },
+                { id: 'curator', label: 'Search' },
+                { id: 'timeline', label: 'Timeline' },
+                { id: 'family', label: 'Family' },
+                { id: 'digest', label: 'Digest' },
+                { id: 'share', label: 'Share' },
+                { id: 'tokens', label: 'Legacy' },
+                { id: 'storage', label: 'Storage' }
+              ].map(item => (
+                <li
+                  key={item.id}
+                  className={`cursor-pointer transition-all duration-300 relative px-2 py-1 rounded-lg ${
+                    currentView === item.id ? 'text-gold-400 bg-gold/10' : 'hover:text-gold-400 hover:bg-gold/5'
+                  }`}
+                  onClick={() => setCurrentView(item.id as ViewMode)}
+                >
+                  {item.label}
+                  {currentView === item.id && (
+                    <motion.div
+                      className="absolute -bottom-1 left-0 w-full h-px bg-gold-400"
+                      layoutId="nav-indicator"
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          {isAuthenticated ? (
-            <>
-              <div className="hidden sm:block text-xs text-gold-200/70">
-                {user?.name} • {user?.family_name}
-              </div>
-              <button
-                onClick={() => setShowProfile(true)}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
-              >
-                <User className="w-4 h-4" />
-              </button>
-              <button
-                onClick={logout}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 transition-colors"
-                title="Logout"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 transition-colors text-xs uppercase tracking-wider"
-            >
-              Sign In
-            </button>
-          )}
+            <div className="flex items-center gap-2 sm:gap-4">
+              {isAuthenticated ? (
+                <>
+                  <a
+                    href="/billing"
+                    className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gold/20 to-gold/10 border border-gold/30 text-gold-400 hover:from-gold/30 hover:to-gold/20 transition-all text-xs uppercase tracking-wider"
+                  >
+                    <CreditCard className="w-3 h-3" />
+                    Billing
+                  </a>
+                  <div className="hidden sm:block text-xs text-gold-200/70">
+                    {user?.name} • {user?.family_name}
+                  </div>
+                  <button
+                    onClick={() => setShowProfile(true)}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+                  >
+                    <User className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+                    title="Logout"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-xs uppercase tracking-wider"
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -343,7 +405,10 @@ export default function FuturisticHeirloomInterface() {
                 <div 
                   ref={showcaseRef}
                   className="hidden lg:block relative w-[300px] h-[300px] xl:w-[500px] xl:h-[500px]"
-                  style={{ transform: getParallaxTransform() }}
+                  style={{ 
+                    transform: getParallaxTransform(),
+                    pointerEvents: isWarping ? 'none' : 'auto'
+                  }}
                 >
                   {/* Rotating Frame */}
                   <div className="absolute inset-0 border border-gold-500/30 rounded-full animate-spin-slow">
@@ -351,27 +416,124 @@ export default function FuturisticHeirloomInterface() {
                     <div className="absolute inset-0 border border-gold-500/20 rounded-full scale-80"></div>
                   </div>
 
-                  {/* Memory Orbs */}
+                  {/* Warp Flash Overlay */}
+                  <AnimatePresence>
+                    {showWarpFlash && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.2 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute inset-0 rounded-full bg-gradient-radial from-gold-400/40 via-gold-400/20 to-transparent pointer-events-none z-20"
+                        style={{
+                          boxShadow: '0 0 80px rgba(212, 175, 55, 0.6), inset 0 0 80px rgba(212, 175, 55, 0.3)'
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  {/* Outgoing Memory Orbs (warping out) */}
+                  <AnimatePresence>
+                    {outgoingOrbs.map((orb, index) => {
+                      // Calculate outward direction from center
+                      const centerX = 50
+                      const centerY = 50
+                      const dx = orb.position.x - centerX
+                      const dy = orb.position.y - centerY
+                      const distance = Math.sqrt(dx * dx + dy * dy)
+                      const outwardX = orb.position.x + (dx / distance) * 150
+                      const outwardY = orb.position.y + (dy / distance) * 150
+                      
+                      return (
+                        <motion.div
+                          key={`${orb.id}-out`}
+                          className="absolute"
+                          style={{
+                            left: `${orb.position.x}%`,
+                            top: `${orb.position.y}%`,
+                            width: `${orb.size}px`,
+                            height: `${orb.size}px`,
+                            transform: 'translate(-50%, -50%)'
+                          }}
+                          initial={{ 
+                            left: `${orb.position.x}%`,
+                            top: `${orb.position.y}%`,
+                            scale: 1,
+                            opacity: 1,
+                            filter: 'blur(0px)'
+                          }}
+                          exit={{ 
+                            left: `${outwardX}%`,
+                            top: `${outwardY}%`,
+                            scale: 0.7,
+                            opacity: 0,
+                            filter: 'blur(6px)'
+                          }}
+                          transition={{ 
+                            duration: 0.45,
+                            delay: index * 0.03,
+                            ease: [0.16, 1, 0.3, 1]
+                          }}
+                        >
+                          <div className="w-full h-full rounded-full overflow-hidden border border-gold-500/30">
+                            <img
+                              src={orb.memory.thumbnail}
+                              alt={orb.memory.title}
+                              className="w-full h-full object-cover opacity-90"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                          </div>
+                          {/* Light trail */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full"
+                            style={{
+                              background: `linear-gradient(${Math.atan2(dy, dx) * 180 / Math.PI}deg, transparent, rgba(212, 175, 55, 0.3), transparent)`,
+                              filter: 'blur(8px)'
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.6 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        </motion.div>
+                      )
+                    })}
+                  </AnimatePresence>
+
+                  {/* Incoming Memory Orbs (warping in from center) */}
                   {memoryOrbs.map((orb, index) => (
                     <motion.div
-                      key={orb.id}
+                      key={`${orb.id}-in`}
                       className="absolute cursor-pointer"
                       style={{
-                        left: `${orb.position.x}%`,
-                        top: `${orb.position.y}%`,
                         width: `${orb.size}px`,
                         height: `${orb.size}px`,
-                        transform: 'translate(-50%, -50%)'
                       }}
-                      initial={{ opacity: 0, scale: 0 }}
+                      initial={{ 
+                        left: '50%',
+                        top: '50%',
+                        x: '-50%',
+                        y: '-50%',
+                        scale: 0.3,
+                        opacity: 0.4,
+                        filter: 'blur(8px)'
+                      }}
                       animate={{ 
-                        opacity: 1, 
-                        scale: 1,
-                        y: Math.sin(Date.now() * 0.001 + index) * 3
+                        left: `${orb.position.x}%`,
+                        top: `${orb.position.y}%`,
+                        x: '-50%',
+                        y: '-50%',
+                        scale: [0.3, 1.04, 1],
+                        opacity: 1,
+                        filter: 'blur(0px)'
                       }}
-                      transition={{ delay: index * 0.2 }}
+                      transition={{ 
+                        duration: 0.55,
+                        delay: index * 0.03,
+                        ease: [0.16, 1, 0.3, 1]
+                      }}
                       whileHover={{ scale: 1.1, zIndex: 10 }}
-                      onMouseEnter={() => handleOrbHover(orb)}
+                      onMouseEnter={() => !isWarping && handleOrbHover(orb)}
                       onMouseLeave={handleOrbLeave}
                     >
                       <div className="w-full h-full rounded-full overflow-hidden border border-gold-500/30 hover:border-gold-400 transition-all duration-500 hover:shadow-2xl hover:shadow-gold-400/30">
@@ -382,6 +544,38 @@ export default function FuturisticHeirloomInterface() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                       </div>
+                      {/* Bloom particles */}
+                      {isWarping && (
+                        <>
+                          {[...Array(3)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-1 h-1 bg-gold-400 rounded-full"
+                              style={{
+                                left: '50%',
+                                top: '50%',
+                              }}
+                              initial={{ 
+                                x: 0,
+                                y: 0,
+                                opacity: 0.8,
+                                scale: 1
+                              }}
+                              animate={{ 
+                                x: Math.cos(i * 120 * Math.PI / 180) * 40,
+                                y: Math.sin(i * 120 * Math.PI / 180) * 40,
+                                opacity: 0,
+                                scale: 0.3
+                              }}
+                              transition={{ 
+                                duration: 0.4,
+                                delay: index * 0.03 + 0.1,
+                                ease: 'easeOut'
+                              }}
+                            />
+                          ))}
+                        </>
+                      )}
                     </motion.div>
                   ))}
 
