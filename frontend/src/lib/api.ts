@@ -187,8 +187,8 @@ class ApiClient {
     return response
   }
 
-  async getMe(): Promise<User> {
-    return this.request<User>('/api/auth/me')
+  async getMe(): Promise<UserProfile> {
+    return this.request<UserProfile>('/api/me')
   }
 
   async getMemories(): Promise<Memory[]> {
