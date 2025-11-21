@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { AuthModal } from './auth-modal'
+import { MemoryCreateModal } from './memory-create-modal'
 import { apiClient } from '@/lib/api'
 import { LogOut, User, CreditCard } from 'lucide-react'
 
@@ -28,6 +29,7 @@ export default function FuturisticHeirloomInterface() {
   const [memories, setMemories] = useState<Memory[]>([])
   const [currentEra, setCurrentEra] = useState('Present')
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
@@ -320,11 +322,18 @@ export default function FuturisticHeirloomInterface() {
       )}
 
       {/* Floating Action Bar - Quick Action Only */}
-      <div className="action-bar">
-        <div className="luxury-fab primary" title="Add Memory">
-          <span>+</span>
+      {isAuthenticated && (
+        <div className="action-bar">
+          <div 
+            className="luxury-fab primary" 
+            title="Add Memory"
+            onClick={() => setShowCreateModal(true)}
+            style={{ cursor: 'pointer' }}
+          >
+            <span>+</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Golden Dust Particles */}
       <div id="particles">
@@ -343,6 +352,20 @@ export default function FuturisticHeirloomInterface() {
 
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      
+      {/* Memory Create Modal */}
+      <MemoryCreateModal 
+        isOpen={showCreateModal} 
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={async () => {
+          try {
+            const data = await apiClient.getMemories()
+            setMemories(data)
+          } catch (error) {
+            console.error('Failed to refresh memories:', error)
+          }
+        }}
+      />
     </>
   )
 }
