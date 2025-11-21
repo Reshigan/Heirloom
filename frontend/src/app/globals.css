@@ -2,6 +2,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Tailwind v4 custom colors - space-separated RGB values */
   --color-obsidian: 15 15 15;
   --color-charcoal: 26 26 26;
   --color-gold: 212 175 55;
