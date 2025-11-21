@@ -27,6 +27,8 @@ from app.compression import (
 from app.db_connection import get_db, init_db
 from app.repository import Repository, LegacyRepository
 from app import database as legacy_db
+from app.sentiment import analyze_sentiment
+from app.entitlements import get_entitlements, check_feature_access, EntitlementError
 
 app = FastAPI(title="Heirloom API", version="1.0.0")
 
@@ -208,6 +210,7 @@ async def create_memory(memory_data: MemoryCreate, current_user: dict = Depends(
     user = repo.get_user_by_id(current_user['user_id'])
     family_id = user.family_id if use_postgres else user.get('family_id')
     user_id = user.id if use_postgres else user['id']
+    user_package = user.package if use_postgres else user.get('package', 'free')
     
     if not user or not family_id:
         raise HTTPException(status_code=400, detail="User must belong to a family")
@@ -215,12 +218,21 @@ async def create_memory(memory_data: MemoryCreate, current_user: dict = Depends(
     memory_dict = memory_data.model_dump()
     
     memory_dict['description_encrypted'] = encrypt_data(memory_dict['description'])
+    description_text = memory_dict['description']
     del memory_dict['description']
     memory_dict['location_encrypted'] = encrypt_data(memory_dict['location'])
     del memory_dict['location']
     
     memory_dict['thumbnail'] = None
     memory_dict['ai_enhanced'] = False
+    
+    if check_feature_access(user_package, 'ai_sentiment_enabled'):
+        sentiment_result = analyze_sentiment(f"{memory_data.title}. {description_text}")
+        memory_dict['sentiment_score'] = sentiment_result.get('sentiment_score')
+        memory_dict['sentiment_label'] = sentiment_result.get('sentiment_label')
+    else:
+        memory_dict['sentiment_score'] = None
+        memory_dict['sentiment_label'] = None
     
     memory = repo.create_memory(memory_dict, family_id, user_id)
     
@@ -264,15 +276,22 @@ async def update_memory(memory_id: str, memory_data: MemoryCreate, current_user:
     user = repo.get_user_by_id(current_user['user_id'])
     memory_family_id = memory.family_id if use_postgres else memory['family_id']
     user_family_id = user.family_id if use_postgres else user.get('family_id')
+    user_package = user.package if use_postgres else user.get('package', 'free')
     
     if not user or memory_family_id != user_family_id:
         raise HTTPException(status_code=403, detail="Access denied")
     
     update_dict = memory_data.model_dump()
     update_dict['description_encrypted'] = encrypt_data(update_dict['description'])
+    description_text = update_dict['description']
     del update_dict['description']
     update_dict['location_encrypted'] = encrypt_data(update_dict['location'])
     del update_dict['location']
+    
+    if check_feature_access(user_package, 'ai_sentiment_enabled'):
+        sentiment_result = analyze_sentiment(f"{memory_data.title}. {description_text}")
+        update_dict['sentiment_score'] = sentiment_result.get('sentiment_score')
+        update_dict['sentiment_label'] = sentiment_result.get('sentiment_label')
     
     updated_memory = repo.update_memory(memory_id, update_dict)
     
