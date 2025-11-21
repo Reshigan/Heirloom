@@ -18,6 +18,7 @@ class User(Base):
     name = Column(String, nullable=False)
     family_id = Column(String, ForeignKey("families.id"), nullable=True)
     family_name = Column(String, nullable=True)
+    package = Column(String, default="free", nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     family = relationship("Family", back_populates="members")
@@ -55,6 +56,8 @@ class Memory(Base):
     thumbnail = Column(String, nullable=True)
     ai_enhanced = Column(Boolean, default=False)
     is_vault = Column(Boolean, default=False)
+    sentiment_score = Column(Integer, nullable=True)
+    sentiment_label = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     family = relationship("Family", back_populates="memories")
