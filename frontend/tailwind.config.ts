@@ -101,12 +101,12 @@ const config: Config = {
           text: '#4A4A4A',       // Balanced gray
         },
         
-        // Futuristic luxury palette
-        obsidian: '#0F0F0F',     // Base obsidian (can use with /opacity)
-        gold: '#D4AF37',         // Base gold (can use with /opacity)
-        charcoal: '#1A1A1A',
-        smoke: '#2A2A2A',
-        pearl: '#FFF8E7',
+        // Futuristic luxury palette (using RGB for opacity support)
+        obsidian: 'rgb(15 15 15 / <alpha-value>)',     // Base obsidian (supports /opacity)
+        gold: 'rgb(212 175 55 / <alpha-value>)',       // Base gold (supports /opacity)
+        charcoal: 'rgb(26 26 26 / <alpha-value>)',
+        smoke: 'rgb(42 42 42 / <alpha-value>)',
+        pearl: 'rgb(255 248 231 / <alpha-value>)',
       },
       
       // Typography from specification
