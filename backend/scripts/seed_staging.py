@@ -46,7 +46,7 @@ def seed_staging(base_url: str):
                 data = response.json()
                 tokens[user['email']] = data.get('access_token') or data.get('token')
                 print(f"   ✓ Registered successfully (ID: {data['user']['id']})")
-            elif response.status_code == 400 and "already exists" in response.text.lower():
+            elif response.status_code == 400 and ("already exists" in response.text.lower() or "already registered" in response.text.lower()):
                 print(f"   ℹ User already exists, logging in...")
                 login_response = requests.post(
                     f"{base_url}/api/auth/login",
