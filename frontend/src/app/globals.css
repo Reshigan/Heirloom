@@ -1,6 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-obsidian: 15 15 15;
+  --color-charcoal: 26 26 26;
+  --color-gold: 212 175 55;
+  --color-pearl: 255 248 231;
+  --color-smoke: 42 42 42;
+}
+
 :root {
   --gold-primary: #D4AF37;
   --gold-light: #F4E5C2;
