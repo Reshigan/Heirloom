@@ -101,12 +101,7 @@ const config: Config = {
           text: '#4A4A4A',       // Balanced gray
         },
         
-        // Futuristic luxury palette (using RGB for opacity support)
-        obsidian: 'rgb(15 15 15 / <alpha-value>)',     // Base obsidian (supports /opacity)
-        gold: 'rgb(212 175 55 / <alpha-value>)',       // Base gold (supports /opacity)
-        charcoal: 'rgb(26 26 26 / <alpha-value>)',
-        smoke: 'rgb(42 42 42 / <alpha-value>)',
-        pearl: 'rgb(255 248 231 / <alpha-value>)',
+        // Futuristic luxury palette - defined in globals.css @theme block for Tailwind v4
       },
       
       // Typography from specification
