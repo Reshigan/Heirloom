@@ -17,7 +17,7 @@ class Repository:
     def get_user_by_id(self, user_id: str) -> Optional[User]:
         return self.db.query(User).filter(User.id == user_id).first()
     
-    def create_user(self, email: str, hashed_password: str, name: str, family_name: Optional[str] = None) -> User:
+    def create_user(self, email: str, hashed_password: str, name: str, family_name: Optional[str] = None, package: str = "free") -> User:
         family = None
         if family_name:
             family = Family(
@@ -36,6 +36,7 @@ class Repository:
             name=name,
             family_id=family.id if family else None,
             family_name=family_name,
+            package=package,
             created_at=datetime.utcnow()
         )
         
@@ -287,8 +288,8 @@ class LegacyRepository:
     def get_user_by_id(self, user_id: str) -> Optional[dict]:
         return legacy_db.get_user_by_id(user_id)
     
-    def create_user(self, email: str, hashed_password: str, name: str, family_name: Optional[str] = None) -> dict:
-        return legacy_db.create_user(email, hashed_password, name, family_name)
+    def create_user(self, email: str, hashed_password: str, name: str, family_name: Optional[str] = None, package: str = "free") -> dict:
+        return legacy_db.create_user(email, hashed_password, name, family_name, package)
     
     def get_memories_by_family(self, family_id: str) -> List[dict]:
         return legacy_db.get_memories_by_family(family_id)

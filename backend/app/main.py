@@ -74,12 +74,14 @@ async def register(user_data: UserRegister, repo = Depends(get_repository)):
         raise HTTPException(status_code=400, detail="Email already registered")
     
     hashed_password = hash_password(user_data.password)
+    package = user_data.package.value if user_data.package else "free"
     
     user = repo.create_user(
         email=user_data.email,
         hashed_password=hashed_password,
         name=user_data.name,
-        family_name=user_data.family_name
+        family_name=user_data.family_name,
+        package=package
     )
     
     if use_postgres:
@@ -89,6 +91,7 @@ async def register(user_data: UserRegister, repo = Depends(get_repository)):
             name=user.name,
             family_id=user.family_id,
             family_name=user.family_name,
+            package=user.package,
             created_at=user.created_at
         )
     else:
@@ -98,6 +101,7 @@ async def register(user_data: UserRegister, repo = Depends(get_repository)):
             name=user['name'],
             family_id=user.get('family_id'),
             family_name=user.get('family_name'),
+            package=user.get('package', 'free'),
             created_at=user['created_at']
         )
 
@@ -124,7 +128,8 @@ async def login(credentials: UserLogin, repo = Depends(get_repository)):
                 "email": user.email,
                 "name": user.name,
                 "family_id": user.family_id,
-                "family_name": user.family_name
+                "family_name": user.family_name,
+                "package": user.package
             }
         }
     else:
@@ -136,7 +141,8 @@ async def login(credentials: UserLogin, repo = Depends(get_repository)):
                 "email": user['email'],
                 "name": user['name'],
                 "family_id": user.get('family_id'),
-                "family_name": user.get('family_name')
+                "family_name": user.get('family_name'),
+                "package": user.get('package', 'free')
             }
         }
 
@@ -153,6 +159,7 @@ async def get_me(current_user: dict = Depends(get_current_user), repo = Depends(
             name=user.name,
             family_id=user.family_id,
             family_name=user.family_name,
+            package=user.package,
             created_at=user.created_at
         )
     else:
@@ -162,6 +169,7 @@ async def get_me(current_user: dict = Depends(get_current_user), repo = Depends(
             name=user['name'],
             family_id=user.get('family_id'),
             family_name=user.get('family_name'),
+            package=user.get('package', 'free'),
             created_at=user['created_at']
         )
 
