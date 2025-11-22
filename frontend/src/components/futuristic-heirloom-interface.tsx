@@ -1030,16 +1030,16 @@ export default function FuturisticHeirloomInterface() {
         )}
       </AnimatePresence>
 
-      {/* Vault Stats Dashboard Modal */}
-      <AnimatePresence>
-        {showVaultStats && (
-          <VaultStatsDashboard onClose={() => setShowVaultStats(false)} />
 
       {/* Notification Center */}
       <NotificationCenter
         isOpen={showNotifications}
         onClose={() => setShowNotifications(false)}
       />
+      {/* Vault Stats Dashboard Modal */}
+      <AnimatePresence>
+        {showVaultStats && (
+          <VaultStatsDashboard onClose={() => setShowVaultStats(false)} />
         )}
       </AnimatePresence>
 
