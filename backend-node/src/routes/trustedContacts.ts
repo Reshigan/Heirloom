@@ -12,8 +12,8 @@ router.post('/', async (req: AuthRequest, res, next) => {
   try {
     const { email, phone, name, shamirShareEncrypted } = req.body;
 
-    if (!email || !shamirShareEncrypted) {
-      throw new AppError(400, 'Email and Shamir share are required');
+    if (!email) {
+      throw new AppError(400, 'Email is required');
     }
 
     const user = await prisma.user.findUnique({

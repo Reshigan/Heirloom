@@ -8,8 +8,10 @@ import recipientRoutes from './routes/recipients';
 import trustedContactRoutes from './routes/trustedContacts';
 import checkInRoutes from './routes/checkIn';
 import subscriptionRoutes from './routes/subscriptions';
+import unlockRoutes from './routes/unlock';
 import { errorHandler } from './middleware/errorHandler';
 import { auditLogger } from './middleware/auditLogger';
+import { JobScheduler } from './services/jobScheduler';
 
 dotenv.config();
 
@@ -39,24 +41,45 @@ app.use('/api/recipients', recipientRoutes);
 app.use('/api/trusted-contacts', trustedContactRoutes);
 app.use('/api/check-in', checkInRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/unlock', unlockRoutes);
 
 app.use(errorHandler);
 
+let jobScheduler: JobScheduler;
+
+async function startServer() {
+  try {
+    jobScheduler = new JobScheduler();
+    await jobScheduler.start();
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Constellation Vault API running on port ${PORT}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    console.log('⚠️  Continuing without job scheduler...');
+    app.listen(PORT, () => {
+      console.log(`🚀 Constellation Vault API running on port ${PORT}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  }
+}
+
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, closing server...');
+  if (jobScheduler) await jobScheduler.stop();
   await prisma.$disconnect();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('SIGINT received, closing server...');
+  if (jobScheduler) await jobScheduler.stop();
   await prisma.$disconnect();
   process.exit(0);
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Constellation Vault API running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+startServer();
 
 export { prisma };
