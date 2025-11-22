@@ -2,20 +2,28 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
+  globalSetup: require.resolve('./global-setup.ts'),
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'test-results.json' }],
     ['list']
   ],
   use: {
-    baseURL: 'https://loom.vantax.co.za',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3100',
+    storageState: 'storageState.json',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+  },
+  webServer: {
+    command: 'NEXT_PUBLIC_API_BASE_URL=https://loom.vantax.co.za/api npm run build && PORT=3100 node .next/standalone/server.js',
+    url: 'http://localhost:3100',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
   projects: [
     {

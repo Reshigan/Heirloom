@@ -42,11 +42,13 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useVault } from '@/contexts/VaultContext'
+import { useNotifications } from '@/contexts/NotificationContext'
 import { AuthModal } from './auth-modal'
 import VaultUploadModal from './vault-upload-modal'
 import RecipientManagement from './recipient-management'
 import CheckInManagement from './check-in-management'
 import TrustedContacts from './trusted-contacts'
+import NotificationCenter from './notification-center'
 import VaultStatsDashboard from './vault-stats-dashboard'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
@@ -86,12 +88,14 @@ interface MemoryOrb {
 
 export default function FuturisticHeirloomInterface() {
   const { user, isAuthenticated, isLoading: authLoading, logout, vmkSalt } = useAuth()
+  const { unreadCount } = useNotifications()
   const { vaultEncryption, isInitialized: vaultInitialized, initializeVault } = useVault()
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
   const [showProfile, setShowProfile] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
   const [showDetailPanel, setShowDetailPanel] = useState(false)
   const [showWisdomQuote, setShowWisdomQuote] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -249,6 +253,14 @@ export default function FuturisticHeirloomInterface() {
     setShowUploadModal(true)
   }
 
+  const handleRecordStory = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true)
+      return
+    }
+    setShowStoryRecorder(true)
+  }
+
   const handleUploadSuccess = async () => {
     const data = await apiClient.getMemories()
     setMemories(data)
@@ -272,10 +284,10 @@ export default function FuturisticHeirloomInterface() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center z-[10000]">
+      <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center z-[10000]" data-testid="loading-screen">
         <div className="text-center">
-          <div className="w-20 h-20 border border-gold-500/20 border-t-gold-400 rounded-full mx-auto mb-8 animate-spin"></div>
-          <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse">HEIRLOOM</div>
+          <div className="w-20 h-20 border border-gold-500/20 border-t-gold-400 rounded-full mx-auto mb-8 animate-spin" role="progressbar" aria-label="Loading"></div>
+          <div className="font-serif text-xl text-gold-400 tracking-[0.3em] animate-pulse" data-testid="brand">HEIRLOOM</div>
         </div>
       </div>
     )
@@ -321,7 +333,7 @@ export default function FuturisticHeirloomInterface() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-4">
               <div className="w-6 sm:w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
-              <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]">HEIRLOOM</h1>
+              <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]" data-testid="brand" aria-label="Heirloom">HEIRLOOM</h1>
             </div>
             
             <ul className="hidden lg:flex gap-4 xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
@@ -331,17 +343,17 @@ export default function FuturisticHeirloomInterface() {
                 { id: 'curator', label: 'Search' },
                 { id: 'timeline', label: 'Timeline' },
                 { id: 'family', label: 'Family' },
-                { id: 'recipients', label: 'Recipients', onClick: () => setShowRecipientManagement(true) },
-                { id: 'checkin', label: 'Check-in', onClick: () => setShowCheckInManagement(true) },
-                { id: 'contacts', label: 'Contacts', onClick: () => setShowTrustedContacts(true) },
-                { id: 'stats', label: 'Stats', onClick: () => setShowVaultStats(true) },
+                { id: 'recipients', label: 'Recipients', onClick: () => setShowRecipientManagement(true), testId: 'nav-recipients' },
+                { id: 'checkin', label: 'Check-in', onClick: () => setShowCheckInManagement(true), testId: 'nav-checkin' },
+                { id: 'contacts', label: 'Contacts', onClick: () => setShowTrustedContacts(true), testId: 'nav-contacts' },
+                { id: 'stats', label: 'Stats', onClick: () => setShowVaultStats(true), testId: 'nav-stats' },
                 { id: 'digest', label: 'Digest' },
                 { id: 'share', label: 'Share' },
                 { id: 'tokens', label: 'Legacy' }
               ].map(item => (
                 <li
                   key={item.id}
-                  className={`cursor-pointer transition-all duration-300 relative px-2 py-1 rounded-lg ${
+                  className={`cursor-pointer transition-all duration-300 relative px-2 py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 ${
                     currentView === item.id ? 'text-gold-400 bg-gold/10' : 'hover:text-gold-400 hover:bg-gold/5'
                   }`}
                   onClick={() => {
@@ -349,6 +361,19 @@ export default function FuturisticHeirloomInterface() {
                       item.onClick()
                     } else {
                       setCurrentView(item.id as ViewMode)
+                    }
+                  }}
+                  data-testid={item.testId || `nav-${item.id}`}
+                  tabIndex={0}
+                  role="button"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      if (item.onClick) {
+                        item.onClick()
+                      } else {
+                        setCurrentView(item.id as ViewMode)
+                      }
                     }
                   }}
                 >
@@ -375,17 +400,34 @@ export default function FuturisticHeirloomInterface() {
                   </a>
                   <div className="hidden sm:block text-xs text-gold-200/70">
                     {user?.name} • {user?.family_name}
+                  <button
+                    onClick={() => setShowNotifications(true)}
+                    className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                    aria-label="Notifications"
+                    data-testid="notifications-button"
+                  >
+                    <Bell className="w-4 h-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-gold-500 text-obsidian-900 text-xs font-bold rounded-full flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
                   </div>
                   <button
                     onClick={() => setShowProfile(true)}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                    aria-label="Profile"
+                    data-testid="profile-button"
                   >
                     <User className="w-4 h-4" />
                   </button>
                   <button
                     onClick={logout}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
                     title="Logout"
+                    aria-label="Logout"
+                    data-testid="logout-button"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -393,7 +435,8 @@ export default function FuturisticHeirloomInterface() {
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-xs uppercase tracking-wider"
+                  className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-xs uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                  data-testid="sign-in-button"
                 >
                   Sign In
                 </button>
@@ -631,7 +674,7 @@ export default function FuturisticHeirloomInterface() {
                 {/* Mobile/Tablet: Linear Timeline */}
                 <div className="lg:hidden w-full max-w-2xl mx-auto">
                   <div className="flex flex-col gap-4 overflow-y-auto max-h-[60vh] scroll-smooth snap-y snap-mandatory px-4">
-                    {mockMemories.slice(0, 6).map((memory, index) => (
+                    {memories.slice(0, 6).map((memory, index) => (
                       <motion.div
                         key={memory.id}
                         initial={{ opacity: 0, y: 20 }}
@@ -987,6 +1030,12 @@ export default function FuturisticHeirloomInterface() {
         )}
       </AnimatePresence>
 
+
+      {/* Notification Center */}
+      <NotificationCenter
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+      />
       {/* Vault Stats Dashboard Modal */}
       <AnimatePresence>
         {showVaultStats && (

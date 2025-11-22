@@ -9,6 +9,7 @@ import trustedContactRoutes from './routes/trustedContacts';
 import checkInRoutes from './routes/checkIn';
 import subscriptionRoutes from './routes/subscriptions';
 import unlockRoutes from './routes/unlock';
+import notificationRoutes from './routes/notifications';
 import { errorHandler } from './middleware/errorHandler';
 import { auditLogger } from './middleware/auditLogger';
 import { JobScheduler } from './services/jobScheduler';
@@ -46,6 +47,7 @@ app.use('/api/trusted-contacts', trustedContactRoutes);
 app.use('/api/check-in', checkInRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/unlock', unlockRoutes);
+app.use('/api', notificationRoutes);
 
 app.use(errorHandler);
 

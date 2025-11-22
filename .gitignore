@@ -6,3 +6,8 @@ backend/.env
 node_modules/
 .next/
 *.pyc
+# Test artifacts
+frontend/playwright-report/
+frontend/test-results/
+frontend/test-results.json
+frontend/storageState.json
