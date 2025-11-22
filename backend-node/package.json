@@ -17,11 +17,13 @@
   "description": "Constellation Vault Platform - Node.js Backend",
   "dependencies": {
     "@prisma/client": "5.22.0",
+    "@types/node-cron": "^3.0.11",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "node-cron": "^4.2.1",
     "pg-boss": "^12.3.0",
     "prisma": "5.22.0",
     "resend": "^6.5.2",
