@@ -47,6 +47,7 @@ import VaultUploadModal from './vault-upload-modal'
 import RecipientManagement from './recipient-management'
 import CheckInManagement from './check-in-management'
 import TrustedContacts from './trusted-contacts'
+import VaultStatsDashboard from './vault-stats-dashboard'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
@@ -106,6 +107,7 @@ export default function FuturisticHeirloomInterface() {
   const [showRecipientManagement, setShowRecipientManagement] = useState(false)
   const [showCheckInManagement, setShowCheckInManagement] = useState(false)
   const [showTrustedContacts, setShowTrustedContacts] = useState(false)
+  const [showVaultStats, setShowVaultStats] = useState(false)
   const [isWarping, setIsWarping] = useState(false)
   const [outgoingOrbs, setOutgoingOrbs] = useState<MemoryOrb[]>([])
   const [showWarpFlash, setShowWarpFlash] = useState(false)
@@ -332,10 +334,10 @@ export default function FuturisticHeirloomInterface() {
                 { id: 'recipients', label: 'Recipients', onClick: () => setShowRecipientManagement(true) },
                 { id: 'checkin', label: 'Check-in', onClick: () => setShowCheckInManagement(true) },
                 { id: 'contacts', label: 'Contacts', onClick: () => setShowTrustedContacts(true) },
+                { id: 'stats', label: 'Stats', onClick: () => setShowVaultStats(true) },
                 { id: 'digest', label: 'Digest' },
                 { id: 'share', label: 'Share' },
-                { id: 'tokens', label: 'Legacy' },
-                { id: 'storage', label: 'Storage' }
+                { id: 'tokens', label: 'Legacy' }
               ].map(item => (
                 <li
                   key={item.id}
@@ -982,6 +984,13 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showTrustedContacts && (
           <TrustedContacts onClose={() => setShowTrustedContacts(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Vault Stats Dashboard Modal */}
+      <AnimatePresence>
+        {showVaultStats && (
+          <VaultStatsDashboard onClose={() => setShowVaultStats(false)} />
         )}
       </AnimatePresence>
 
