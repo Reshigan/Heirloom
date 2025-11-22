@@ -11,6 +11,9 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Connection pooling for better performance under load
+  // Supports up to 20 concurrent connections per instance
+  connection_limit = 20
 }
 
 model User {
