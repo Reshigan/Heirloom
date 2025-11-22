@@ -107,6 +107,7 @@ export default function FuturisticHeirloomInterface() {
     const fetchMemories = async () => {
       if (!isAuthenticated) {
         setIsLoading(false)
+        setShowAuthModal(true) // Auto-open auth modal when not authenticated
         return
       }
 

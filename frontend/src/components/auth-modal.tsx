@@ -125,6 +125,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   Email
                 </label>
                 <input
+                  data-testid="auth-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -139,6 +140,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   Password
                 </label>
                 <input
+                  data-testid="auth-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -155,6 +157,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               )}
 
               <button
+                data-testid="auth-submit"
                 type="submit"
                 disabled={isLoading}
                 className="w-full py-3 sm:py-3 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 font-semibold hover:from-gold-500 hover:to-gold-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px] text-base"
