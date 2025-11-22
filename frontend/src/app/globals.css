@@ -3,11 +3,44 @@
 
 @theme {
   /* Tailwind v4 custom colors - space-separated RGB values */
-  --color-obsidian: 15 15 15;
+  --color-obsidian: 10 10 10;
   --color-charcoal: 26 26 26;
   --color-gold: 212 175 55;
   --color-pearl: 255 248 231;
   --color-smoke: 42 42 42;
+  --color-gold-light: 244 229 194;
+  --color-gold-dark: 184 148 31;
+  
+  /* Shadows for glass morphism */
+  --shadow-glass-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-glass-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-glass-lg: 0 16px 64px rgba(0, 0, 0, 0.5);
+  --shadow-glow-gold: 0 0 20px rgba(212, 175, 55, 0.3);
+  --shadow-glow-gold-lg: 0 0 40px rgba(212, 175, 55, 0.4);
+  
+  /* Blur levels for glass morphism */
+  --blur-glass-sm: 10px;
+  --blur-glass-md: 20px;
+  --blur-glass-lg: 30px;
+  
+  /* Animation durations */
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+  --duration-slower: 1000ms;
+  
+  /* Easing functions */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* Z-index layers */
+  --z-background: -10;
+  --z-content: 1;
+  --z-nav: 1000;
+  --z-modal: 2000;
+  --z-cursor: 3000;
+  --z-loader: 10000;
 }
 
 :root {
