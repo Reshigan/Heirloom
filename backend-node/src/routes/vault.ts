@@ -237,6 +237,106 @@ router.get('/items', async (req: AuthRequest, res, next) => {
   }
 });
 
+router.get('/items/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const vault = await prisma.vault.findUnique({
+      where: { userId: req.user!.userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    const item = await prisma.vaultItem.findUnique({
+      where: { id }
+    });
+
+    if (!item) {
+      throw new AppError(404, 'Vault item not found');
+    }
+
+    if (item.vaultId !== vault.id) {
+      throw new AppError(403, 'Access denied');
+    }
+
+    res.json({
+      item: {
+        id: item.id,
+        type: item.type,
+        title: item.title,
+        encryptedData: item.encryptedData,
+        encryptedDek: item.encryptedDek,
+        thumbnailUrl: item.thumbnailUrl,
+        emotionCategory: item.emotionCategory,
+        importanceScore: item.importanceScore,
+        recipientIds: item.recipientIds,
+        scheduledDelivery: item.scheduledDelivery,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/items/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { title, emotionCategory, importanceScore, recipientIds, scheduledDelivery } = req.body;
+
+    const vault = await prisma.vault.findUnique({
+      where: { userId: req.user!.userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    const existingItem = await prisma.vaultItem.findUnique({
+      where: { id }
+    });
+
+    if (!existingItem) {
+      throw new AppError(404, 'Vault item not found');
+    }
+
+    if (existingItem.vaultId !== vault.id) {
+      throw new AppError(403, 'Access denied');
+    }
+
+    const updatedItem = await prisma.vaultItem.update({
+      where: { id },
+      data: {
+        title: title !== undefined ? title : existingItem.title,
+        emotionCategory: emotionCategory !== undefined ? emotionCategory : existingItem.emotionCategory,
+        importanceScore: importanceScore !== undefined ? importanceScore : existingItem.importanceScore,
+        recipientIds: recipientIds !== undefined ? recipientIds : existingItem.recipientIds,
+        scheduledDelivery: scheduledDelivery !== undefined ? (scheduledDelivery ? new Date(scheduledDelivery) : null) : existingItem.scheduledDelivery
+      }
+    });
+
+    res.json({
+      item: {
+        id: updatedItem.id,
+        type: updatedItem.type,
+        title: updatedItem.title,
+        thumbnailUrl: updatedItem.thumbnailUrl,
+        emotionCategory: updatedItem.emotionCategory,
+        importanceScore: updatedItem.importanceScore,
+        recipientIds: updatedItem.recipientIds,
+        scheduledDelivery: updatedItem.scheduledDelivery,
+        createdAt: updatedItem.createdAt,
+        updatedAt: updatedItem.updatedAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/stats', async (req: AuthRequest, res, next) => {
   try {
     const vault = await prisma.vault.findUnique({
@@ -296,7 +396,7 @@ router.get('/stats', async (req: AuthRequest, res, next) => {
       recipients: {
         total: vault.recipients.length
       },
-      tier: vault.tier
+      tier: vault.tier.toUpperCase()
     });
   } catch (error) {
     next(error);
