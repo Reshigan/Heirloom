@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { PrismaClient } from './generated/prisma';
+import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth';
 import vaultRoutes from './routes/vault';
 import recipientRoutes from './routes/recipients';
@@ -32,6 +32,10 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(auditLogger);
 
 app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 

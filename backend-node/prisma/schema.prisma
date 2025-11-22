@@ -6,12 +6,14 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Connection pooling for better performance under load
+  // Supports up to 20 concurrent connections per instance
+  connection_limit = 20
 }
 
 model User {
@@ -78,6 +80,7 @@ model VaultItem {
   vault                 Vault     @relation(fields: [vaultId], references: [id], onDelete: Cascade)
 
   @@index([vaultId])
+  @@index([vaultId, createdAt])
   @@index([scheduledDelivery])
   @@map("vault_items")
 }
@@ -98,6 +101,7 @@ model Recipient {
   vault                 Vault     @relation(fields: [vaultId], references: [id], onDelete: Cascade)
 
   @@index([vaultId])
+  @@index([vaultId, createdAt])
   @@map("recipients")
 }
 
@@ -117,6 +121,7 @@ model TrustedContact {
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([userId, createdAt])
   @@map("trusted_contacts")
 }
 
@@ -133,6 +138,7 @@ model CheckIn {
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([userId, createdAt])
   @@map("check_ins")
 }
 

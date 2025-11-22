@@ -41,7 +41,13 @@ import {
   LogOut
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useVault } from '@/contexts/VaultContext'
 import { AuthModal } from './auth-modal'
+import VaultUploadModal from './vault-upload-modal'
+import RecipientManagement from './recipient-management'
+import CheckInManagement from './check-in-management'
+import TrustedContacts from './trusted-contacts'
+import VaultStatsDashboard from './vault-stats-dashboard'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
@@ -79,7 +85,8 @@ interface MemoryOrb {
 }
 
 export default function FuturisticHeirloomInterface() {
-  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading, logout, vmkSalt } = useAuth()
+  const { vaultEncryption, isInitialized: vaultInitialized, initializeVault } = useVault()
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
@@ -96,6 +103,11 @@ export default function FuturisticHeirloomInterface() {
   const [showStoryRecorder, setShowStoryRecorder] = useState(false)
   const [showImportWizard, setShowImportWizard] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [showRecipientManagement, setShowRecipientManagement] = useState(false)
+  const [showCheckInManagement, setShowCheckInManagement] = useState(false)
+  const [showTrustedContacts, setShowTrustedContacts] = useState(false)
+  const [showVaultStats, setShowVaultStats] = useState(false)
   const [isWarping, setIsWarping] = useState(false)
   const [outgoingOrbs, setOutgoingOrbs] = useState<MemoryOrb[]>([])
   const [showWarpFlash, setShowWarpFlash] = useState(false)
@@ -107,6 +119,7 @@ export default function FuturisticHeirloomInterface() {
     const fetchMemories = async () => {
       if (!isAuthenticated) {
         setIsLoading(false)
+        setShowAuthModal(true) // Auto-open auth modal when not authenticated
         return
       }
 
@@ -233,7 +246,20 @@ export default function FuturisticHeirloomInterface() {
       setShowAuthModal(true)
       return
     }
-    setShowImportWizard(true)
+    setShowUploadModal(true)
+  }
+
+  const handleUploadSuccess = async () => {
+    const data = await apiClient.getMemories()
+    setMemories(data)
+    
+    const orbs: MemoryOrb[] = data.slice(0, 6).map((memory, index) => ({
+      id: memory.id,
+      memory,
+      position: getOrbPosition(index),
+      size: 120
+    }))
+    setMemoryOrbs(orbs)
   }
 
   // Calculate parallax transform (only on desktop)
@@ -305,17 +331,26 @@ export default function FuturisticHeirloomInterface() {
                 { id: 'curator', label: 'Search' },
                 { id: 'timeline', label: 'Timeline' },
                 { id: 'family', label: 'Family' },
+                { id: 'recipients', label: 'Recipients', onClick: () => setShowRecipientManagement(true) },
+                { id: 'checkin', label: 'Check-in', onClick: () => setShowCheckInManagement(true) },
+                { id: 'contacts', label: 'Contacts', onClick: () => setShowTrustedContacts(true) },
+                { id: 'stats', label: 'Stats', onClick: () => setShowVaultStats(true) },
                 { id: 'digest', label: 'Digest' },
                 { id: 'share', label: 'Share' },
-                { id: 'tokens', label: 'Legacy' },
-                { id: 'storage', label: 'Storage' }
+                { id: 'tokens', label: 'Legacy' }
               ].map(item => (
                 <li
                   key={item.id}
                   className={`cursor-pointer transition-all duration-300 relative px-2 py-1 rounded-lg ${
                     currentView === item.id ? 'text-gold-400 bg-gold/10' : 'hover:text-gold-400 hover:bg-gold/5'
                   }`}
-                  onClick={() => setCurrentView(item.id as ViewMode)}
+                  onClick={() => {
+                    if (item.onClick) {
+                      item.onClick()
+                    } else {
+                      setCurrentView(item.id as ViewMode)
+                    }
+                  }}
                 >
                   {item.label}
                   {currentView === item.id && (
@@ -920,6 +955,44 @@ export default function FuturisticHeirloomInterface() {
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
       />
+
+      {/* Vault Upload Modal */}
+      {vaultEncryption && (
+        <VaultUploadModal
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onSuccess={handleUploadSuccess}
+          vaultEncryption={vaultEncryption}
+        />
+      )}
+
+      {/* Recipient Management Modal */}
+      <AnimatePresence>
+        {showRecipientManagement && (
+          <RecipientManagement onClose={() => setShowRecipientManagement(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Check-in Management Modal */}
+      <AnimatePresence>
+        {showCheckInManagement && (
+          <CheckInManagement onClose={() => setShowCheckInManagement(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Trusted Contacts Modal */}
+      <AnimatePresence>
+        {showTrustedContacts && (
+          <TrustedContacts onClose={() => setShowTrustedContacts(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Vault Stats Dashboard Modal */}
+      <AnimatePresence>
+        {showVaultStats && (
+          <VaultStatsDashboard onClose={() => setShowVaultStats(false)} />
+        )}
+      </AnimatePresence>
 
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');

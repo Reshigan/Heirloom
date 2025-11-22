@@ -4,6 +4,7 @@ import { CryptoUtils } from '../utils/crypto';
 import { JWTUtils } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { ValidationUtils } from '../utils/validation';
 
 const router = Router();
 
@@ -18,6 +19,10 @@ router.post('/register', async (req, res, next) => {
     if (!email || !password) {
       throw new AppError(400, 'Email and password are required');
     }
+
+    ValidationUtils.validateEmail(email);
+
+    ValidationUtils.validatePassword(password);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -59,11 +64,11 @@ router.post('/register', async (req, res, next) => {
       user: {
         id: result.user.id,
         email: result.user.email,
-        status: result.user.status
+        status: result.user.status.toUpperCase() // Normalize to uppercase
       },
       vault: {
         id: result.vault.id,
-        tier: result.vault.tier,
+        tier: result.vault.tier.toUpperCase(), // Normalize to uppercase
         storageUsed: result.vault.storageUsedBytes.toString(),
         storageLimit: result.vault.storageLimitBytes.toString(),
         uploadsThisWeek: result.vault.uploadCountThisWeek,
@@ -88,6 +93,8 @@ router.post('/login', async (req, res, next) => {
     if (!email || !password) {
       throw new AppError(400, 'Email and password are required');
     }
+
+    ValidationUtils.validateEmail(email);
 
     const user = await prisma.user.findUnique({
       where: { email },
@@ -118,11 +125,11 @@ router.post('/login', async (req, res, next) => {
       user: {
         id: user.id,
         email: user.email,
-        status: user.status
+        status: user.status.toUpperCase() // Normalize to uppercase
       },
       vault: user.vault ? {
         id: user.vault.id,
-        tier: user.vault.tier,
+        tier: user.vault.tier.toUpperCase(), // Normalize to uppercase
         storageUsed: user.vault.storageUsedBytes.toString(),
         storageLimit: user.vault.storageLimitBytes.toString(),
         uploadsThisWeek: user.vault.uploadCountThisWeek,
@@ -154,12 +161,12 @@ router.get('/me', authenticate, async (req: AuthRequest, res, next) => {
       user: {
         id: user.id,
         email: user.email,
-        status: user.status,
+        status: user.status.toUpperCase(), // Normalize to uppercase
         nextCheckIn: user.nextCheckIn
       },
       vault: user.vault ? {
         id: user.vault.id,
-        tier: user.vault.tier,
+        tier: user.vault.tier.toUpperCase(), // Normalize to uppercase
         storageUsed: user.vault.storageUsedBytes.toString(),
         storageLimit: user.vault.storageLimitBytes.toString(),
         uploadsThisWeek: user.vault.uploadCountThisWeek,

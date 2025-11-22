@@ -1,94 +1,101 @@
 import { prisma } from '../index';
 import { NotificationService } from './notifications';
 import { UnlockService } from './unlock';
-
-const PgBoss = require('pg-boss');
+import * as cron from 'node-cron';
 
 export class JobScheduler {
-  private boss: any;
+  private tasks: cron.ScheduledTask[] = [];
   private notificationService: NotificationService;
   private unlockService: UnlockService;
 
   constructor() {
-    this.boss = new PgBoss({
-      connectionString: process.env.DATABASE_URL!,
-      schema: 'pgboss'
-    });
-
     this.notificationService = new NotificationService();
     this.unlockService = new UnlockService();
   }
 
   async start() {
-    await this.boss.start();
-    console.log('📅 Job scheduler started');
+    console.log('📅 Starting job scheduler with node-cron...');
 
-    await this.registerJobs();
-    await this.scheduleRecurringJobs();
+    // Schedule missed check-in processor (every 6 hours)
+    const missedCheckInsTask = cron.schedule('0 */6 * * *', async () => {
+      console.log('⚠️  Running missed check-ins processor...');
+      try {
+        await this.processMissedCheckIns();
+      } catch (error) {
+        console.error('❌ Error processing missed check-ins:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.tasks.push(missedCheckInsTask);
+
+    // Schedule weekly upload reset (Mondays at midnight UTC)
+    const weeklyResetTask = cron.schedule('0 0 * * 1', async () => {
+      console.log('🔄 Running weekly upload reset...');
+      try {
+        await this.resetWeeklyUploads();
+      } catch (error) {
+        console.error('❌ Error resetting weekly uploads:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.tasks.push(weeklyResetTask);
+
+    // Schedule unlock request processor (hourly)
+    const unlockRequestsTask = cron.schedule('0 * * * *', async () => {
+      console.log('🔓 Running unlock requests processor...');
+      try {
+        await this.processUnlockRequests();
+      } catch (error) {
+        console.error('❌ Error processing unlock requests:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.tasks.push(unlockRequestsTask);
+
+    console.log('✅ All scheduled jobs registered with node-cron');
+    console.log('   - Missed check-ins: Every 6 hours');
+    console.log('   - Weekly upload reset: Mondays at midnight UTC');
+    console.log('   - Unlock requests: Hourly');
   }
 
   async stop() {
-    await this.boss.stop();
-    console.log('📅 Job scheduler stopped');
-  }
-
-  private async registerJobs() {
-    await this.boss.work('send-check-in-reminder', async (job: any) => {
-      await this.sendCheckInReminder(job.data);
-    });
-
-    await this.boss.work('process-missed-check-ins', async () => {
-      await this.processMissedCheckIns();
-    });
-
-    await this.boss.work('reset-weekly-uploads', async () => {
-      await this.resetWeeklyUploads();
-    });
-
-    await this.boss.work('process-unlock-requests', async () => {
-      await this.processUnlockRequests();
-    });
-
-    console.log('✅ All job handlers registered');
-  }
-
-  private async scheduleRecurringJobs() {
-    await this.boss.schedule('process-missed-check-ins', '0 */6 * * *', null, {
-      tz: 'UTC'
-    });
-
-    await this.boss.schedule('reset-weekly-uploads', '0 0 * * 1', null, {
-      tz: 'UTC'
-    });
-
-    await this.boss.schedule('process-unlock-requests', '0 */1 * * *', null, {
-      tz: 'UTC'
-    });
-
-    console.log('✅ Recurring jobs scheduled');
-    console.log('  - Check-in processor: Every 6 hours');
-    console.log('  - Weekly upload reset: Every Monday at midnight');
-    console.log('  - Unlock request processor: Every hour');
+    console.log('📅 Stopping job scheduler...');
+    this.tasks.forEach(task => task.stop());
+    this.tasks = [];
+    console.log('✅ Job scheduler stopped');
   }
 
   async scheduleCheckInReminder(userId: string, nextCheckIn: Date) {
+    // Calculate reminder date (7 days before check-in)
     const reminderDate = new Date(nextCheckIn.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const now = new Date();
 
-    await this.boss.send(
-      'send-check-in-reminder',
-      { userId },
-      {
-        startAfter: reminderDate,
-        singletonKey: `check-in-reminder-${userId}`
+    if (reminderDate <= now) {
+      console.log(`⚠️  Reminder date for user ${userId} is in the past, skipping`);
+      return;
+    }
+
+    // Calculate delay in milliseconds
+    const delay = reminderDate.getTime() - now.getTime();
+
+    // Schedule one-time reminder using setTimeout
+    setTimeout(async () => {
+      try {
+        await this.sendCheckInReminder(userId);
+      } catch (error) {
+        console.error(`❌ Error sending check-in reminder to user ${userId}:`, error);
       }
-    );
+    }, delay);
 
     console.log(`📅 Scheduled check-in reminder for user ${userId} at ${reminderDate.toISOString()}`);
   }
 
-  private async sendCheckInReminder(data: { userId: string }) {
+  private async sendCheckInReminder(userId: string) {
     const user = await prisma.user.findUnique({
-      where: { id: data.userId }
+      where: { id: userId }
     });
 
     if (!user || user.status !== 'alive') {

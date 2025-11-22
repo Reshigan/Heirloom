@@ -2,10 +2,109 @@ import { Router } from 'express';
 import { prisma } from '../index';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
+import { ValidationUtils } from '../utils/validation';
 
 const router = Router();
 
 router.use(authenticate);
+
+router.post('/items', async (req: AuthRequest, res, next) => {
+  try {
+    const {
+      type,
+      title,
+      encryptedData,
+      encryptedDek,
+      thumbnailUrl,
+      fileSizeBytes,
+      recipientIds,
+      scheduledDelivery,
+      emotionCategory,
+      importanceScore
+    } = req.body;
+
+    if (!type || !encryptedData || !encryptedDek) {
+      throw new AppError(400, 'Type, encrypted data, and encrypted DEK are required');
+    }
+
+    ValidationUtils.validateVaultItemType(type);
+
+    if (title) {
+      ValidationUtils.validateTitle(title);
+    }
+
+    const vault = await prisma.vault.findUnique({
+      where: { userId: req.user!.userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    const newStorageUsed = vault.storageUsedBytes + BigInt(fileSizeBytes || 0);
+    if (newStorageUsed > vault.storageLimitBytes) {
+      throw new AppError(413, 'Storage limit exceeded');
+    }
+
+    const item = await prisma.$transaction(async (tx: any) => {
+      const updated = await tx.vault.updateMany({
+        where: {
+          id: vault.id,
+          uploadCountThisWeek: { lt: vault.uploadLimitWeekly }
+        },
+        data: {
+          uploadCountThisWeek: { increment: 1 },
+          storageUsedBytes: newStorageUsed
+        }
+      });
+
+      if (updated.count === 0) {
+        throw new AppError(429, 'Weekly upload limit reached. Resets on Monday.');
+      }
+
+      const newItem = await tx.vaultItem.create({
+        data: {
+          vaultId: vault.id,
+          type,
+          title,
+          encryptedData,
+          encryptedDek,
+          thumbnailUrl,
+          fileSizeBytes: fileSizeBytes ? BigInt(fileSizeBytes) : null,
+          recipientIds: recipientIds || [],
+          scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
+          emotionCategory,
+          importanceScore: importanceScore || 5
+        }
+      });
+
+      return newItem;
+    });
+
+    const updatedVault = await prisma.vault.findUnique({
+      where: { id: vault.id }
+    });
+
+    res.status(201).json({
+      item: {
+        id: item.id,
+        type: item.type,
+        title: item.title,
+        thumbnailUrl: item.thumbnailUrl,
+        emotionCategory: item.emotionCategory,
+        importanceScore: item.importanceScore,
+        createdAt: item.createdAt
+      },
+      vault: {
+        storageUsed: updatedVault!.storageUsedBytes.toString(),
+        storageLimit: updatedVault!.storageLimitBytes.toString(),
+        uploadsRemaining: updatedVault!.uploadLimitWeekly - updatedVault!.uploadCountThisWeek
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.post('/upload', async (req: AuthRequest, res, next) => {
   try {
@@ -26,6 +125,12 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
       throw new AppError(400, 'Type, encrypted data, and encrypted DEK are required');
     }
 
+    ValidationUtils.validateVaultItemType(type);
+
+    if (title) {
+      ValidationUtils.validateTitle(title);
+    }
+
     const vault = await prisma.vault.findUnique({
       where: { userId: req.user!.userId }
     });
@@ -34,16 +139,27 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
       throw new AppError(404, 'Vault not found');
     }
 
-    if (vault.uploadCountThisWeek >= vault.uploadLimitWeekly) {
-      throw new AppError(429, 'Weekly upload limit reached. Resets on Monday.');
-    }
-
     const newStorageUsed = vault.storageUsedBytes + BigInt(fileSizeBytes || 0);
     if (newStorageUsed > vault.storageLimitBytes) {
       throw new AppError(413, 'Storage limit exceeded');
     }
 
     const item = await prisma.$transaction(async (tx: any) => {
+      const updated = await tx.vault.updateMany({
+        where: {
+          id: vault.id,
+          uploadCountThisWeek: { lt: vault.uploadLimitWeekly }
+        },
+        data: {
+          uploadCountThisWeek: { increment: 1 },
+          storageUsedBytes: newStorageUsed
+        }
+      });
+
+      if (updated.count === 0) {
+        throw new AppError(429, 'Weekly upload limit reached. Resets on Monday.');
+      }
+
       const newItem = await tx.vaultItem.create({
         data: {
           vaultId: vault.id,
@@ -57,14 +173,6 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
           emotionCategory,
           importanceScore: importanceScore || 5
-        }
-      });
-
-      await tx.vault.update({
-        where: { id: vault.id },
-        data: {
-          storageUsedBytes: newStorageUsed,
-          uploadCountThisWeek: vault.uploadCountThisWeek + 1
         }
       });
 
@@ -148,6 +256,110 @@ router.get('/items', async (req: AuthRequest, res, next) => {
   }
 });
 
+router.get('/items/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const vault = await prisma.vault.findUnique({
+      where: { userId: req.user!.userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    const item = await prisma.vaultItem.findUnique({
+      where: { id }
+    });
+
+    if (!item) {
+      throw new AppError(404, 'Vault item not found');
+    }
+
+    if (item.vaultId !== vault.id) {
+      throw new AppError(403, 'Access denied');
+    }
+
+    res.json({
+      item: {
+        id: item.id,
+        type: item.type,
+        title: item.title,
+        encryptedData: item.encryptedData,
+        encryptedDek: item.encryptedDek,
+        thumbnailUrl: item.thumbnailUrl,
+        emotionCategory: item.emotionCategory,
+        importanceScore: item.importanceScore,
+        recipientIds: item.recipientIds,
+        scheduledDelivery: item.scheduledDelivery,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/items/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { title, emotionCategory, importanceScore, recipientIds, scheduledDelivery } = req.body;
+
+    if (title !== undefined && title !== null) {
+      ValidationUtils.validateTitle(title);
+    }
+
+    const vault = await prisma.vault.findUnique({
+      where: { userId: req.user!.userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    const existingItem = await prisma.vaultItem.findUnique({
+      where: { id }
+    });
+
+    if (!existingItem) {
+      throw new AppError(404, 'Vault item not found');
+    }
+
+    if (existingItem.vaultId !== vault.id) {
+      throw new AppError(403, 'Access denied');
+    }
+
+    const updatedItem = await prisma.vaultItem.update({
+      where: { id },
+      data: {
+        title: title !== undefined ? title : existingItem.title,
+        emotionCategory: emotionCategory !== undefined ? emotionCategory : existingItem.emotionCategory,
+        importanceScore: importanceScore !== undefined ? importanceScore : existingItem.importanceScore,
+        recipientIds: recipientIds !== undefined ? recipientIds : existingItem.recipientIds,
+        scheduledDelivery: scheduledDelivery !== undefined ? (scheduledDelivery ? new Date(scheduledDelivery) : null) : existingItem.scheduledDelivery
+      }
+    });
+
+    res.json({
+      item: {
+        id: updatedItem.id,
+        type: updatedItem.type,
+        title: updatedItem.title,
+        thumbnailUrl: updatedItem.thumbnailUrl,
+        emotionCategory: updatedItem.emotionCategory,
+        importanceScore: updatedItem.importanceScore,
+        recipientIds: updatedItem.recipientIds,
+        scheduledDelivery: updatedItem.scheduledDelivery,
+        createdAt: updatedItem.createdAt,
+        updatedAt: updatedItem.updatedAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/stats', async (req: AuthRequest, res, next) => {
   try {
     const vault = await prisma.vault.findUnique({
@@ -207,7 +419,7 @@ router.get('/stats', async (req: AuthRequest, res, next) => {
       recipients: {
         total: vault.recipients.length
       },
-      tier: vault.tier
+      tier: vault.tier.toUpperCase()
     });
   } catch (error) {
     next(error);

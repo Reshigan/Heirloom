@@ -1,12 +1,13 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { apiClient, User } from '@/lib/api'
+import { apiClient, User } from '@/lib/api-client'
 
 interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
+  vmkSalt: string | null
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name: string, familyName: string) => Promise<void>
   logout: () => void
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [vmkSalt, setVmkSalt] = useState<string | null>(null)
 
   useEffect(() => {
     const initAuth = async () => {
@@ -41,6 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await apiClient.login(email, password)
       setUser(response.user)
+      if (typeof window !== 'undefined') {
+        const salt = localStorage.getItem('heirloom:vault:salt')
+        setVmkSalt(salt)
+      }
     } catch (error) {
       console.error('Login failed:', error)
       throw error
@@ -49,7 +55,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (email: string, password: string, name: string, familyName: string) => {
     try {
-      const user = await apiClient.register(email, password, name, familyName)
+      const response = await apiClient.register(email, password, name, familyName)
+      if (response.vmkSalt && typeof window !== 'undefined') {
+        localStorage.setItem('heirloom:vault:salt', response.vmkSalt)
+        setVmkSalt(response.vmkSalt)
+      }
       await login(email, password)
     } catch (error) {
       console.error('Registration failed:', error)
@@ -60,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     apiClient.clearToken()
     setUser(null)
+    setVmkSalt(null)
   }
 
   return (
@@ -68,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isLoading,
         isAuthenticated: !!user,
+        vmkSalt,
         login,
         register,
         logout,
