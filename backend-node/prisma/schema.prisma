@@ -5,10 +5,193 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String    @id @default(uuid())
+  email                 String    @unique
+  passwordHash          String    @map("password_hash")
+  salt                  String
+  status                String    @default("alive") // alive, missed_one, missed_two, escalation, pending_unlock, unlocked
+  lastCheckIn           DateTime? @map("last_check_in")
+  nextCheckIn           DateTime? @map("next_check_in")
+  checkInIntervalDays   Int       @default(90) @map("check_in_interval_days")
+  gracePeriodEnd        DateTime? @map("grace_period_end")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  vault                 Vault?
+  trustedContacts       TrustedContact[]
+  checkIns              CheckIn[]
+  auditLogs             AuditLog[]
+  subscriptions         Subscription[]
+
+  @@index([status])
+  @@index([nextCheckIn])
+  @@map("users")
+}
+
+model Vault {
+  id                    String   @id @default(uuid())
+  userId                String   @unique @map("user_id")
+  encryptedVmk          String   @map("encrypted_vmk")
+  storageUsedBytes      BigInt   @default(0) @map("storage_used_bytes")
+  storageLimitBytes     BigInt   @default(10737418240) @map("storage_limit_bytes") // 10GB
+  uploadCountThisWeek   Int      @default(0) @map("upload_count_this_week")
+  uploadLimitWeekly     Int      @default(3) @map("upload_limit_weekly")
+  tier                  String   @default("starter") // starter, family, unlimited, lifetime
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items                 VaultItem[]
+  recipients            Recipient[]
+  unlockRequests        UnlockRequest[]
+  uploadBonuses         UploadBonus[]
+
+  @@map("vaults")
+}
+
+model VaultItem {
+  id                    String    @id @default(uuid())
+  vaultId               String    @map("vault_id")
+  type                  String    // photo, video, letter, voice, document, wisdom
+  title                 String?
+  encryptedData         String    @map("encrypted_data")
+  encryptedDek          String    @map("encrypted_dek")
+  thumbnailUrl          String?   @map("thumbnail_url")
+  fileSizeBytes         BigInt?   @map("file_size_bytes")
+  recipientIds          String[]  @map("recipient_ids")
+  scheduledDelivery     DateTime? @map("scheduled_delivery")
+  emotionCategory       String?   @map("emotion_category")
+  importanceScore       Int       @default(5) @map("importance_score")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  vault                 Vault     @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  @@index([vaultId])
+  @@index([scheduledDelivery])
+  @@map("vault_items")
+}
+
+model Recipient {
+  id                    String    @id @default(uuid())
+  vaultId               String    @map("vault_id")
+  email                 String
+  name                  String?
+  relationship          String?
+  accessLevel           String    @default("specific") // full, partial, specific
+  publicKey             String?   @map("public_key")
+  notificationSent      Boolean   @default(false) @map("notification_sent")
+  accessToken           String?   @map("access_token")
+  accessExpiresAt       DateTime? @map("access_expires_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  vault                 Vault     @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  @@index([vaultId])
+  @@map("recipients")
+}
+
+model TrustedContact {
+  id                    String    @id @default(uuid())
+  userId                String    @map("user_id")
+  email                 String
+  phone                 String?
+  name                  String?
+  shamirShareEncrypted  String?   @map("shamir_share_encrypted")
+  verificationStatus    String    @default("pending") @map("verification_status") // pending, verified
+  verificationToken     String?   @map("verification_token")
+  confirmedDeath        Boolean   @default(false) @map("confirmed_death")
+  confirmedAt           DateTime? @map("confirmed_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("trusted_contacts")
+}
+
+model CheckIn {
+  id                    String    @id @default(uuid())
+  userId                String    @map("user_id")
+  sentAt                DateTime  @map("sent_at")
+  sentVia               String?   @map("sent_via") // email, sms
+  respondedAt           DateTime? @map("responded_at")
+  responseMethod        String?   @map("response_method") // link_click, email_reply, sign_in
+  missed                Boolean   @default(false)
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("check_ins")
+}
+
+model UnlockRequest {
+  id                    String    @id @default(uuid())
+  vaultId               String    @map("vault_id")
+  initiatedBy           String    @map("initiated_by")
+  status                String    @default("pending") // pending, approved, cancelled
+  confirmationsCount    Int       @default(0) @map("confirmations_count")
+  gracePeriodEnd        DateTime? @map("grace_period_end")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  completedAt           DateTime? @map("completed_at")
+
+  vault                 Vault     @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  @@map("unlock_requests")
+}
+
+model AuditLog {
+  id                    String    @id @default(uuid())
+  userId                String?   @map("user_id")
+  action                String
+  details               Json?
+  ipAddress             String?   @map("ip_address")
+  userAgent             String?   @map("user_agent")
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  user                  User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+model Subscription {
+  id                    String    @id @default(uuid())
+  userId                String    @map("user_id")
+  stripeCustomerId      String?   @map("stripe_customer_id")
+  stripeSubscriptionId  String?   @map("stripe_subscription_id")
+  tier                  String
+  status                String    @default("active") // active, cancelled, past_due
+  currentPeriodEnd      DateTime? @map("current_period_end")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model UploadBonus {
+  id                    String    @id @default(uuid())
+  vaultId               String    @map("vault_id")
+  bonusType             String?   @map("bonus_type") // birthday, referral, annual_payment
+  bonusAmount           Int?      @map("bonus_amount")
+  expiresAt             DateTime? @map("expires_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  vault                 Vault     @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  @@map("upload_bonuses")
 }
