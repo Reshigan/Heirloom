@@ -249,6 +249,14 @@ export default function FuturisticHeirloomInterface() {
     setShowUploadModal(true)
   }
 
+  const handleRecordStory = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true)
+      return
+    }
+    setShowStoryRecorder(true)
+  }
+
   const handleUploadSuccess = async () => {
     const data = await apiClient.getMemories()
     setMemories(data)

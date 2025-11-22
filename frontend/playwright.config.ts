@@ -20,7 +20,7 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   webServer: {
-    command: 'NEXT_PUBLIC_API_BASE_URL=https://loom.vantax.co.za/api npm run build && PORT=3100 npm run start',
+    command: 'NEXT_PUBLIC_API_BASE_URL=https://loom.vantax.co.za/api npm run build && PORT=3100 node .next/standalone/server.js',
     url: 'http://localhost:3100',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
