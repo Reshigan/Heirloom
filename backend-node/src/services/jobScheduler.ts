@@ -1,8 +1,7 @@
 import { prisma } from '../index';
 import { NotificationService } from './notifications';
 import { UnlockService } from './unlock';
-
-const PgBoss = require('pg-boss');
+import PgBoss from 'pg-boss';
 
 export class JobScheduler {
   private boss: any;
