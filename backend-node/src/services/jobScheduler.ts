@@ -1,7 +1,8 @@
-import PgBoss from 'pg-boss';
 import { prisma } from '../index';
 import { NotificationService } from './notifications';
 import { UnlockService } from './unlock';
+
+const PgBoss = require('pg-boss');
 
 export class JobScheduler {
   private boss: any;
@@ -9,7 +10,7 @@ export class JobScheduler {
   private unlockService: UnlockService;
 
   constructor() {
-    this.boss = new (PgBoss as any)({
+    this.boss = new PgBoss({
       connectionString: process.env.DATABASE_URL!,
       schema: 'pgboss'
     });
