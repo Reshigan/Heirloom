@@ -41,16 +41,27 @@ router.post('/items', async (req: AuthRequest, res, next) => {
       throw new AppError(404, 'Vault not found');
     }
 
-    if (vault.uploadCountThisWeek >= vault.uploadLimitWeekly) {
-      throw new AppError(429, 'Weekly upload limit reached. Resets on Monday.');
-    }
-
     const newStorageUsed = vault.storageUsedBytes + BigInt(fileSizeBytes || 0);
     if (newStorageUsed > vault.storageLimitBytes) {
       throw new AppError(413, 'Storage limit exceeded');
     }
 
     const item = await prisma.$transaction(async (tx: any) => {
+      const updated = await tx.vault.updateMany({
+        where: {
+          id: vault.id,
+          uploadCountThisWeek: { lt: vault.uploadLimitWeekly }
+        },
+        data: {
+          uploadCountThisWeek: { increment: 1 },
+          storageUsedBytes: newStorageUsed
+        }
+      });
+
+      if (updated.count === 0) {
+        throw new AppError(429, 'Weekly upload limit reached. Resets on Monday.');
+      }
+
       const newItem = await tx.vaultItem.create({
         data: {
           vaultId: vault.id,
@@ -64,14 +75,6 @@ router.post('/items', async (req: AuthRequest, res, next) => {
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
           emotionCategory,
           importanceScore: importanceScore || 5
-        }
-      });
-
-      await tx.vault.update({
-        where: { id: vault.id },
-        data: {
-          storageUsedBytes: newStorageUsed,
-          uploadCountThisWeek: vault.uploadCountThisWeek + 1
         }
       });
 
@@ -136,16 +139,27 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
       throw new AppError(404, 'Vault not found');
     }
 
-    if (vault.uploadCountThisWeek >= vault.uploadLimitWeekly) {
-      throw new AppError(429, 'Weekly upload limit reached. Resets on Monday.');
-    }
-
     const newStorageUsed = vault.storageUsedBytes + BigInt(fileSizeBytes || 0);
     if (newStorageUsed > vault.storageLimitBytes) {
       throw new AppError(413, 'Storage limit exceeded');
     }
 
     const item = await prisma.$transaction(async (tx: any) => {
+      const updated = await tx.vault.updateMany({
+        where: {
+          id: vault.id,
+          uploadCountThisWeek: { lt: vault.uploadLimitWeekly }
+        },
+        data: {
+          uploadCountThisWeek: { increment: 1 },
+          storageUsedBytes: newStorageUsed
+        }
+      });
+
+      if (updated.count === 0) {
+        throw new AppError(429, 'Weekly upload limit reached. Resets on Monday.');
+      }
+
       const newItem = await tx.vaultItem.create({
         data: {
           vaultId: vault.id,
@@ -159,14 +173,6 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
           emotionCategory,
           importanceScore: importanceScore || 5
-        }
-      });
-
-      await tx.vault.update({
-        where: { id: vault.id },
-        data: {
-          storageUsedBytes: newStorageUsed,
-          uploadCountThisWeek: vault.uploadCountThisWeek + 1
         }
       });
 
