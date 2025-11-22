@@ -13,6 +13,10 @@ import { auditLogger } from './middleware/auditLogger';
 
 dotenv.config();
 
+(BigInt.prototype as any).toJSON = function() {
+  return this.toString();
+};
+
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;

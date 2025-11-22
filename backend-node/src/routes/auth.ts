@@ -64,8 +64,8 @@ router.post('/register', async (req, res, next) => {
       vault: {
         id: result.vault.id,
         tier: result.vault.tier,
-        storageUsed: result.vault.storageUsedBytes,
-        storageLimit: result.vault.storageLimitBytes,
+        storageUsed: result.vault.storageUsedBytes.toString(),
+        storageLimit: result.vault.storageLimitBytes.toString(),
         uploadsThisWeek: result.vault.uploadCountThisWeek,
         uploadLimit: result.vault.uploadLimitWeekly
       },
@@ -123,8 +123,8 @@ router.post('/login', async (req, res, next) => {
       vault: user.vault ? {
         id: user.vault.id,
         tier: user.vault.tier,
-        storageUsed: user.vault.storageUsedBytes,
-        storageLimit: user.vault.storageLimitBytes,
+        storageUsed: user.vault.storageUsedBytes.toString(),
+        storageLimit: user.vault.storageLimitBytes.toString(),
         uploadsThisWeek: user.vault.uploadCountThisWeek,
         uploadLimit: user.vault.uploadLimitWeekly
       } : null,
@@ -160,8 +160,8 @@ router.get('/me', authenticate, async (req: AuthRequest, res, next) => {
       vault: user.vault ? {
         id: user.vault.id,
         tier: user.vault.tier,
-        storageUsed: user.vault.storageUsedBytes,
-        storageLimit: user.vault.storageLimitBytes,
+        storageUsed: user.vault.storageUsedBytes.toString(),
+        storageLimit: user.vault.storageLimitBytes.toString(),
         uploadsThisWeek: user.vault.uploadCountThisWeek,
         uploadLimit: user.vault.uploadLimitWeekly
       } : null
