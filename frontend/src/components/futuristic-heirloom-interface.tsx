@@ -44,6 +44,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useVault } from '@/contexts/VaultContext'
 import { AuthModal } from './auth-modal'
 import VaultUploadModal from './vault-upload-modal'
+import RecipientManagement from './recipient-management'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
@@ -100,6 +101,7 @@ export default function FuturisticHeirloomInterface() {
   const [showImportWizard, setShowImportWizard] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const [showRecipientManagement, setShowRecipientManagement] = useState(false)
   const [isWarping, setIsWarping] = useState(false)
   const [outgoingOrbs, setOutgoingOrbs] = useState<MemoryOrb[]>([])
   const [showWarpFlash, setShowWarpFlash] = useState(false)
@@ -323,6 +325,7 @@ export default function FuturisticHeirloomInterface() {
                 { id: 'curator', label: 'Search' },
                 { id: 'timeline', label: 'Timeline' },
                 { id: 'family', label: 'Family' },
+                { id: 'recipients', label: 'Recipients', onClick: () => setShowRecipientManagement(true) },
                 { id: 'digest', label: 'Digest' },
                 { id: 'share', label: 'Share' },
                 { id: 'tokens', label: 'Legacy' },
@@ -333,7 +336,13 @@ export default function FuturisticHeirloomInterface() {
                   className={`cursor-pointer transition-all duration-300 relative px-2 py-1 rounded-lg ${
                     currentView === item.id ? 'text-gold-400 bg-gold/10' : 'hover:text-gold-400 hover:bg-gold/5'
                   }`}
-                  onClick={() => setCurrentView(item.id as ViewMode)}
+                  onClick={() => {
+                    if (item.onClick) {
+                      item.onClick()
+                    } else {
+                      setCurrentView(item.id as ViewMode)
+                    }
+                  }}
                 >
                   {item.label}
                   {currentView === item.id && (
@@ -948,6 +957,13 @@ export default function FuturisticHeirloomInterface() {
           vaultEncryption={vaultEncryption}
         />
       )}
+
+      {/* Recipient Management Modal */}
+      <AnimatePresence>
+        {showRecipientManagement && (
+          <RecipientManagement onClose={() => setShowRecipientManagement(false)} />
+        )}
+      </AnimatePresence>
 
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
