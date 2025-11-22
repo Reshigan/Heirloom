@@ -42,11 +42,13 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useVault } from '@/contexts/VaultContext'
+import { useNotifications } from '@/contexts/NotificationContext'
 import { AuthModal } from './auth-modal'
 import VaultUploadModal from './vault-upload-modal'
 import RecipientManagement from './recipient-management'
 import CheckInManagement from './check-in-management'
 import TrustedContacts from './trusted-contacts'
+import NotificationCenter from './notification-center'
 import VaultStatsDashboard from './vault-stats-dashboard'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
@@ -86,12 +88,14 @@ interface MemoryOrb {
 
 export default function FuturisticHeirloomInterface() {
   const { user, isAuthenticated, isLoading: authLoading, logout, vmkSalt } = useAuth()
+  const { unreadCount } = useNotifications()
   const { vaultEncryption, isInitialized: vaultInitialized, initializeVault } = useVault()
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
   const [showProfile, setShowProfile] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
   const [showDetailPanel, setShowDetailPanel] = useState(false)
   const [showWisdomQuote, setShowWisdomQuote] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -396,6 +400,19 @@ export default function FuturisticHeirloomInterface() {
                   </a>
                   <div className="hidden sm:block text-xs text-gold-200/70">
                     {user?.name} • {user?.family_name}
+                  <button
+                    onClick={() => setShowNotifications(true)}
+                    className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                    aria-label="Notifications"
+                    data-testid="notifications-button"
+                  >
+                    <Bell className="w-4 h-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-gold-500 text-obsidian-900 text-xs font-bold rounded-full flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
                   </div>
                   <button
                     onClick={() => setShowProfile(true)}
@@ -1016,6 +1033,12 @@ export default function FuturisticHeirloomInterface() {
       {/* Vault Stats Dashboard Modal */}
       <AnimatePresence>
         {showVaultStats && (
+
+      {/* Notification Center */}
+      <NotificationCenter
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+      />
           <VaultStatsDashboard onClose={() => setShowVaultStats(false)} />
         )}
       </AnimatePresence>
