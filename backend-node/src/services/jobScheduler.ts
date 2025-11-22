@@ -4,12 +4,12 @@ import { NotificationService } from './notifications';
 import { UnlockService } from './unlock';
 
 export class JobScheduler {
-  private boss: PgBoss;
+  private boss: any;
   private notificationService: NotificationService;
   private unlockService: UnlockService;
 
   constructor() {
-    this.boss = new PgBoss({
+    this.boss = new (PgBoss as any)({
       connectionString: process.env.DATABASE_URL!,
       schema: 'pgboss'
     });
@@ -32,7 +32,7 @@ export class JobScheduler {
   }
 
   private async registerJobs() {
-    await this.boss.work('send-check-in-reminder', async (job) => {
+    await this.boss.work('send-check-in-reminder', async (job: any) => {
       await this.sendCheckInReminder(job.data);
     });
 
