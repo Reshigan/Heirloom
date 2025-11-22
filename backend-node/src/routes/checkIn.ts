@@ -7,6 +7,53 @@ const router = Router();
 
 router.use(authenticate);
 
+router.post('/', async (req: AuthRequest, res, next) => {
+  try {
+    const { method = 'manual' } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.userId }
+    });
+
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
+    const nextCheckIn = new Date();
+    nextCheckIn.setDate(nextCheckIn.getDate() + user.checkInIntervalDays);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        status: 'alive',
+        lastCheckIn: new Date(),
+        nextCheckIn,
+        gracePeriodEnd: null
+      }
+    });
+
+    await prisma.checkIn.create({
+      data: {
+        userId: user.id,
+        sentAt: new Date(),
+        sentVia: method,
+        respondedAt: new Date(),
+        responseMethod: method,
+        missed: false
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Check-in recorded successfully',
+      nextCheckIn,
+      status: 'alive'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/status', async (req: AuthRequest, res, next) => {
   try {
     const user = await prisma.user.findUnique({
