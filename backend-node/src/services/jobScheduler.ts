@@ -1,7 +1,7 @@
 import { prisma } from '../index';
 import { NotificationService } from './notifications';
 import { UnlockService } from './unlock';
-import cron from 'node-cron';
+import * as cron from 'node-cron';
 
 export class JobScheduler {
   private tasks: cron.ScheduledTask[] = [];
