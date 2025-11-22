@@ -4,6 +4,7 @@ import { CryptoUtils } from '../utils/crypto';
 import { JWTUtils } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { ValidationUtils } from '../utils/validation';
 
 const router = Router();
 
@@ -18,6 +19,10 @@ router.post('/register', async (req, res, next) => {
     if (!email || !password) {
       throw new AppError(400, 'Email and password are required');
     }
+
+    ValidationUtils.validateEmail(email);
+
+    ValidationUtils.validatePassword(password);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -88,6 +93,8 @@ router.post('/login', async (req, res, next) => {
     if (!email || !password) {
       throw new AppError(400, 'Email and password are required');
     }
+
+    ValidationUtils.validateEmail(email);
 
     const user = await prisma.user.findUnique({
       where: { email },

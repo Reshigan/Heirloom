@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../index';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
+import { ValidationUtils } from '../utils/validation';
 
 const router = Router();
 
@@ -9,7 +10,11 @@ router.use(authenticate);
 
 router.post('/', async (req: AuthRequest, res, next) => {
   try {
-    const { method = 'manual' } = req.body;
+    const { method = 'app_notification' } = req.body;
+
+    if (method) {
+      ValidationUtils.validateCheckInMethod(method);
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: req.user!.userId }
@@ -47,7 +52,8 @@ router.post('/', async (req: AuthRequest, res, next) => {
       success: true,
       message: 'Check-in recorded successfully',
       nextCheckIn,
-      status: 'alive'
+      status: 'ALIVE',
+      lastCheckIn: new Date()
     });
   } catch (error) {
     next(error);
@@ -73,7 +79,8 @@ router.get('/status', async (req: AuthRequest, res, next) => {
     const missedCount = user.checkIns.filter((c: any) => c.missed).length;
 
     res.json({
-      status: user.status,
+      status: user.status.toUpperCase(),
+      lastCheckIn: user.lastCheckIn,
       nextCheckIn: user.nextCheckIn,
       intervalDays: user.checkInIntervalDays,
       missedCount,

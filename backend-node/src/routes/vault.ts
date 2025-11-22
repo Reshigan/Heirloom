@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../index';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
+import { ValidationUtils } from '../utils/validation';
 
 const router = Router();
 
@@ -24,6 +25,12 @@ router.post('/items', async (req: AuthRequest, res, next) => {
 
     if (!type || !encryptedData || !encryptedDek) {
       throw new AppError(400, 'Type, encrypted data, and encrypted DEK are required');
+    }
+
+    ValidationUtils.validateVaultItemType(type);
+
+    if (title) {
+      ValidationUtils.validateTitle(title);
     }
 
     const vault = await prisma.vault.findUnique({
@@ -113,6 +120,12 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
 
     if (!type || !encryptedData || !encryptedDek) {
       throw new AppError(400, 'Type, encrypted data, and encrypted DEK are required');
+    }
+
+    ValidationUtils.validateVaultItemType(type);
+
+    if (title) {
+      ValidationUtils.validateTitle(title);
     }
 
     const vault = await prisma.vault.findUnique({
@@ -286,6 +299,10 @@ router.put('/items/:id', async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
     const { title, emotionCategory, importanceScore, recipientIds, scheduledDelivery } = req.body;
+
+    if (title !== undefined && title !== null) {
+      ValidationUtils.validateTitle(title);
+    }
 
     const vault = await prisma.vault.findUnique({
       where: { userId: req.user!.userId }
