@@ -6,6 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  globalSetup: require.resolve('./global-setup.ts'),
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'test-results.json' }],
@@ -13,6 +14,7 @@ export default defineConfig({
   ],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
+    storageState: 'storageState.json',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

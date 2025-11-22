@@ -6,24 +6,6 @@ test.describe('Navigation and UI Interactions', () => {
     await page.waitForLoadState('networkidle');
     
     await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
-    
-    const loginButton = page.locator('[data-testid="sign-in-button"]');
-    
-    if (await loginButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await loginButton.click();
-      
-      const timestamp = Date.now();
-      const testEmail = `test-nav-${timestamp}@playwright.test`;
-      const testPassword = 'TestPassword123!';
-      
-      await page.locator('input[type="email"], input[placeholder*="email" i]').first().fill(testEmail);
-      await page.locator('input[type="password"], input[placeholder*="password" i]').first().fill(testPassword);
-      await page.locator('button[type="submit"]').first().click();
-      
-      await page.waitForTimeout(2000);
-      
-      await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
-    }
   });
 
   test('should load app page successfully', async ({ page }) => {

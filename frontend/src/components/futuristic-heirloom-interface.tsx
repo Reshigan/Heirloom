@@ -649,7 +649,7 @@ export default function FuturisticHeirloomInterface() {
                 {/* Mobile/Tablet: Linear Timeline */}
                 <div className="lg:hidden w-full max-w-2xl mx-auto">
                   <div className="flex flex-col gap-4 overflow-y-auto max-h-[60vh] scroll-smooth snap-y snap-mandatory px-4">
-                    {mockMemories.slice(0, 6).map((memory, index) => (
+                    {memories.slice(0, 6).map((memory, index) => (
                       <motion.div
                         key={memory.id}
                         initial={{ opacity: 0, y: 20 }}
