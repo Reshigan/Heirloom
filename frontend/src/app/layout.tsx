@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Bodoni_Moda, Montserrat } from 'next/font/google';
 import "./globals.css";
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider } from '@/contexts/AuthContext'
+import { VaultProvider } from '@/contexts/VaultContext';
 
 const bodoniModa = Bodoni_Moda({ 
   subsets: ['latin'],
@@ -44,9 +45,11 @@ export default function RootLayout({
       </head>
       <body className={`${bodoniModa.variable} ${montserrat.variable} antialiased`}>
         <AuthProvider>
-          <main className="max-w-screen-2xl mx-auto">
-            {children}
-          </main>
+          <VaultProvider>
+            <main className="max-w-screen-2xl mx-auto">
+              {children}
+            </main>
+          </VaultProvider>
         </AuthProvider>
       </body>
     </html>

@@ -41,7 +41,9 @@ import {
   LogOut
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useVault } from '@/contexts/VaultContext'
 import { AuthModal } from './auth-modal'
+import VaultUploadModal from './vault-upload-modal'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
@@ -79,7 +81,8 @@ interface MemoryOrb {
 }
 
 export default function FuturisticHeirloomInterface() {
-  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading, logout, vmkSalt } = useAuth()
+  const { vaultEncryption, isInitialized: vaultInitialized, initializeVault } = useVault()
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null)
@@ -96,6 +99,7 @@ export default function FuturisticHeirloomInterface() {
   const [showStoryRecorder, setShowStoryRecorder] = useState(false)
   const [showImportWizard, setShowImportWizard] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showUploadModal, setShowUploadModal] = useState(false)
   const [isWarping, setIsWarping] = useState(false)
   const [outgoingOrbs, setOutgoingOrbs] = useState<MemoryOrb[]>([])
   const [showWarpFlash, setShowWarpFlash] = useState(false)
@@ -234,7 +238,20 @@ export default function FuturisticHeirloomInterface() {
       setShowAuthModal(true)
       return
     }
-    setShowImportWizard(true)
+    setShowUploadModal(true)
+  }
+
+  const handleUploadSuccess = async () => {
+    const data = await apiClient.getMemories()
+    setMemories(data)
+    
+    const orbs: MemoryOrb[] = data.slice(0, 6).map((memory, index) => ({
+      id: memory.id,
+      memory,
+      position: getOrbPosition(index),
+      size: 120
+    }))
+    setMemoryOrbs(orbs)
   }
 
   // Calculate parallax transform (only on desktop)
@@ -921,6 +938,16 @@ export default function FuturisticHeirloomInterface() {
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
       />
+
+      {/* Vault Upload Modal */}
+      {vaultEncryption && (
+        <VaultUploadModal
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onSuccess={handleUploadSuccess}
+          vaultEncryption={vaultEncryption}
+        />
+      )}
 
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
