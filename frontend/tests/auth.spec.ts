@@ -7,6 +7,7 @@ test.describe('Authentication Flow', () => {
 
   test('should load homepage successfully', async ({ page }) => {
     await expect(page).toHaveTitle(/Heirloom/);
+    await page.locator('[data-testid^="nav-"]').first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
     await expect(page.locator('[data-testid="brand"]')).toBeVisible({ timeout: 30000 });
   });
 

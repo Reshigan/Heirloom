@@ -11,6 +11,7 @@ test.describe('Navigation and UI Interactions', () => {
   test('should load app page successfully', async ({ page }) => {
     await expect(page).toHaveURL(/\//);
     await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
+    await page.locator('[data-testid^="nav-"]').first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
     await expect(page.locator('[data-testid="brand"]')).toBeVisible({ timeout: 10000 });
   });
 

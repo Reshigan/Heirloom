@@ -3,51 +3,73 @@ import { chromium, FullConfig } from '@playwright/test';
 async function globalSetup(config: FullConfig) {
   const { baseURL } = config.projects[0].use;
   
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
+  console.log('🔧 Global setup: Creating authenticated user...');
+  
+  const backendURL = 'https://loom.vantax.co.za/api';
+  const testEmail = 'playwright-test@example.com';
+  const testPassword = 'TestPassword123!';
   
   try {
-    await page.goto(baseURL || 'http://localhost:3000');
+    let token: string;
+    
+    const registerResponse = await fetch(`${backendURL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testEmail, password: testPassword }),
+    });
+    
+    if (registerResponse.ok) {
+      const data = await registerResponse.json();
+      token = data.token;
+      console.log('✅ User registered successfully');
+    } else {
+      const loginResponse = await fetch(`${backendURL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: testEmail, password: testPassword }),
+      });
+      
+      if (!loginResponse.ok) {
+        throw new Error('Failed to login: ' + await loginResponse.text());
+      }
+      
+      const data = await loginResponse.json();
+      token = data.token;
+      console.log('✅ User logged in successfully');
+    }
+    
+    const browser = await chromium.launch();
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    
+    await page.goto(baseURL || 'http://localhost:3100');
+    await page.waitForLoadState('networkidle');
+    
+    await page.evaluate((token) => {
+      localStorage.setItem('vault_token', token);
+    }, token);
+    
+    await page.reload();
     await page.waitForLoadState('networkidle');
     
     await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
     
-    const signInButton = page.locator('[data-testid="sign-in-button"]');
-    const isSignInVisible = await signInButton.isVisible({ timeout: 5000 }).catch(() => false);
+    const isAuthenticated = await page.locator('[data-testid^="nav-"]').first().isVisible({ timeout: 10000 }).catch(() => false);
     
-    if (isSignInVisible) {
-      await signInButton.click();
-      await page.waitForTimeout(1000);
-      
-      const testEmail = 'playwright-test@example.com';
-      const testPassword = 'TestPassword123!';
-      
-      await page.locator('input[type="email"], input[placeholder*="email" i]').first().fill(testEmail);
-      await page.locator('input[type="password"], input[placeholder*="password" i]').first().fill(testPassword);
-      await page.locator('button[type="submit"]').first().click();
-      
-      await page.waitForTimeout(3000);
-      
-      await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
-      
-      const isLoggedIn = await page.locator('[data-testid="profile-button"], [data-testid="logout-button"]').isVisible({ timeout: 5000 }).catch(() => false);
-      
-      if (isLoggedIn) {
-        console.log('✅ Authentication successful - saving storage state');
-      } else {
-        console.log('⚠️  Authentication may have failed - saving state anyway');
-      }
+    if (isAuthenticated) {
+      console.log('✅ Authentication verified - user is logged in');
     } else {
-      console.log('✅ Already authenticated - saving storage state');
+      console.log('⚠️  Warning: Could not verify authentication');
     }
     
-    await page.context().storageState({ path: 'storageState.json' });
+    await context.storageState({ path: 'storageState.json' });
+    console.log('✅ Storage state saved to storageState.json');
+    
+    await browser.close();
     
   } catch (error) {
     console.error('❌ Global setup failed:', error);
     throw error;
-  } finally {
-    await browser.close();
   }
 }
 
