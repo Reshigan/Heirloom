@@ -45,6 +45,7 @@ import { useVault } from '@/contexts/VaultContext'
 import { AuthModal } from './auth-modal'
 import VaultUploadModal from './vault-upload-modal'
 import RecipientManagement from './recipient-management'
+import CheckInManagement from './check-in-management'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
@@ -102,6 +103,7 @@ export default function FuturisticHeirloomInterface() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showRecipientManagement, setShowRecipientManagement] = useState(false)
+  const [showCheckInManagement, setShowCheckInManagement] = useState(false)
   const [isWarping, setIsWarping] = useState(false)
   const [outgoingOrbs, setOutgoingOrbs] = useState<MemoryOrb[]>([])
   const [showWarpFlash, setShowWarpFlash] = useState(false)
@@ -326,6 +328,7 @@ export default function FuturisticHeirloomInterface() {
                 { id: 'timeline', label: 'Timeline' },
                 { id: 'family', label: 'Family' },
                 { id: 'recipients', label: 'Recipients', onClick: () => setShowRecipientManagement(true) },
+                { id: 'checkin', label: 'Check-in', onClick: () => setShowCheckInManagement(true) },
                 { id: 'digest', label: 'Digest' },
                 { id: 'share', label: 'Share' },
                 { id: 'tokens', label: 'Legacy' },
@@ -962,6 +965,13 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showRecipientManagement && (
           <RecipientManagement onClose={() => setShowRecipientManagement(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Check-in Management Modal */}
+      <AnimatePresence>
+        {showCheckInManagement && (
+          <CheckInManagement onClose={() => setShowCheckInManagement(false)} />
         )}
       </AnimatePresence>
 
