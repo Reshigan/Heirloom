@@ -1,19 +1,16 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JobScheduler = void 0;
 const index_1 = require("../index");
 const notifications_1 = require("./notifications");
 const unlock_1 = require("./unlock");
-const pg_boss_1 = __importDefault(require("pg-boss"));
+const PgBoss = require('pg-boss');
 class JobScheduler {
     boss;
     notificationService;
     unlockService;
     constructor() {
-        this.boss = new pg_boss_1.default({
+        this.boss = new (PgBoss.default || PgBoss)({
             connectionString: process.env.DATABASE_URL,
             schema: 'pgboss'
         });
