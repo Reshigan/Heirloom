@@ -28,7 +28,7 @@ router.post('/register', async (req, res, next) => {
 
     const vmkSalt = CryptoUtils.generateSalt();
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const user = await tx.user.create({
         data: {
           email,
