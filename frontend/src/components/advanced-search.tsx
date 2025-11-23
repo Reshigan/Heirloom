@@ -105,6 +105,7 @@ export function AdvancedSearch({ isOpen, onClose, onResultClick }: AdvancedSearc
                 <button
                   onClick={onClose}
                   className="p-2 hover:bg-amber-500/10 rounded-lg transition-colors"
+                  data-testid="search-close-button"
                 >
                   <X className="w-6 h-6 text-amber-400" />
                 </button>
@@ -130,6 +131,7 @@ export function AdvancedSearch({ isOpen, onClose, onResultClick }: AdvancedSearc
                       ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
                       : 'bg-black/50 border-amber-500/30 text-amber-400/70 hover:border-amber-500/50'
                   }`}
+                  data-testid="search-filter-button"
                 >
                   <Filter className="w-5 h-5" />
                 </button>

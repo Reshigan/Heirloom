@@ -43,7 +43,7 @@ test.describe('AI-Powered Search', () => {
     await page.getByTestId('search-button').click();
     await page.waitForTimeout(1000);
     
-    const filterButton = page.locator('button').filter({ has: page.locator('svg') }).filter({ hasText: '' }).nth(1);
+    const filterButton = page.getByTestId('search-filter-button');
     
     await filterButton.click();
     await page.waitForTimeout(500);
@@ -92,7 +92,7 @@ test.describe('AI-Powered Search', () => {
     await page.getByTestId('search-button').click();
     await page.waitForTimeout(1000);
     
-    const filterButton = page.locator('button').filter({ has: page.locator('svg') }).filter({ hasText: '' }).nth(1);
+    const filterButton = page.getByTestId('search-filter-button');
     await filterButton.click();
     await page.waitForTimeout(500);
     
@@ -110,7 +110,7 @@ test.describe('AI-Powered Search', () => {
     await page.getByTestId('search-button').click();
     await page.waitForTimeout(1000);
     
-    const closeButton = page.locator('button').filter({ has: page.locator('svg') }).first();
+    const closeButton = page.getByTestId('search-close-button');
     
     await closeButton.click();
     await page.waitForTimeout(500);
