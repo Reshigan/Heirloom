@@ -61,7 +61,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end p-4 pointer-events-none">
       <div className="pointer-events-auto w-full max-w-md mt-16 mr-4">
-        <div className="bg-obsidian-900/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="bg-obsidian-900/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl shadow-2xl overflow-hidden" data-testid="notification-center">
           <div className="flex items-center justify-between p-4 border-b border-gold-500/20">
             <div className="flex items-center gap-3">
               <Bell className="w-5 h-5 text-gold-400" />
