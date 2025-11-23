@@ -346,7 +346,7 @@ export default function FuturisticHeirloomInterface() {
               <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]" data-testid="brand" aria-label="Heirloom">HEIRLOOM</h1>
             </div>
             
-            <ul className="hidden xl:flex gap-4 xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
+            <ul className="hidden 2xl:flex gap-4 2xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
               {[
                 { id: 'memories', label: 'Memories' },
                 { id: 'highlights', label: 'Highlights' },
