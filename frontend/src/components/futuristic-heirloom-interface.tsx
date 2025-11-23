@@ -402,6 +402,15 @@ export default function FuturisticHeirloomInterface() {
                   </a>
                   <div className="hidden sm:block text-xs text-gold-200/70">
                     {user?.name} • {user?.family_name}
+                  </div>
+                  <button
+                    onClick={() => setShowSearch(true)}
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                    aria-label="Search"
+                    data-testid="search-button"
+                  >
+                    <Search className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={() => setShowNotifications(true)}
                     className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
@@ -415,7 +424,6 @@ export default function FuturisticHeirloomInterface() {
                       </span>
                     )}
                   </button>
-                  </div>
                   <button
                     onClick={() => setShowProfile(true)}
                     className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"

@@ -39,9 +39,11 @@ export function AdvancedSearch({ isOpen, onClose, onResultClick }: AdvancedSearc
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [total, setTotal] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async () => {
     setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem('vault_token');
       const params = new URLSearchParams();
@@ -60,11 +62,14 @@ export function AdvancedSearch({ isOpen, onClose, onResultClick }: AdvancedSearc
 
       if (response.ok) {
         const data = await response.json();
-        setResults(data.items);
-        setTotal(data.total);
+        setResults(data.items || []);
+        setTotal(data.total || 0);
+      } else {
+        setError('Search failed. Please try again.');
       }
     } catch (error) {
       console.error('Search failed:', error);
+      setError('Search failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -92,6 +97,7 @@ export function AdvancedSearch({ isOpen, onClose, onResultClick }: AdvancedSearc
             exit={{ scale: 0.9, opacity: 0 }}
             className="w-full max-w-4xl bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl border border-amber-500/30 shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
+            data-testid="search-modal"
           >
             <div className="p-6 border-b border-amber-500/20">
               <div className="flex items-center justify-between mb-4">
@@ -114,6 +120,7 @@ export function AdvancedSearch({ isOpen, onClose, onResultClick }: AdvancedSearc
                     onKeyPress={handleKeyPress}
                     placeholder="Search memories, keywords..."
                     className="w-full pl-10 pr-4 py-3 bg-black/50 border border-amber-500/30 rounded-lg text-amber-100 placeholder-amber-400/30 focus:outline-none focus:border-amber-500/50"
+                    data-testid="search-input"
                   />
                 </div>
                 <button
@@ -241,6 +248,7 @@ export function AdvancedSearch({ isOpen, onClose, onResultClick }: AdvancedSearc
                       onResultClick(result.id);
                       onClose();
                     }}
+                    data-testid={`search-result-${result.id}`}
                   >
                     <div className="flex items-start gap-4">
                       {result.thumbnailUrl && (
