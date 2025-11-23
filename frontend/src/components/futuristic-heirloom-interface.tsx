@@ -124,8 +124,10 @@ export default function FuturisticHeirloomInterface() {
   useEffect(() => {
     const fetchMemories = async () => {
       if (!isAuthenticated) {
-        setIsLoading(false)
-        setShowAuthModal(true) // Auto-open auth modal when not authenticated
+        if (!authLoading) {
+          setIsLoading(false)
+          setShowAuthModal(true) // Auto-open auth modal when not authenticated (after auth check completes)
+        }
         return
       }
 
@@ -149,7 +151,7 @@ export default function FuturisticHeirloomInterface() {
     }
 
     fetchMemories()
-  }, [isAuthenticated])
+  }, [isAuthenticated, authLoading])
 
   useEffect(() => {
     // Generate golden dust particles
