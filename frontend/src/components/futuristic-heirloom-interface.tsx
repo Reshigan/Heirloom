@@ -263,6 +263,14 @@ export default function FuturisticHeirloomInterface() {
     setShowStoryRecorder(true)
   }
 
+  const handleAIEnhance = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true)
+      return
+    }
+    console.log('AI Enhance clicked')
+  }
+
   const handleUploadSuccess = async () => {
     const data = await apiClient.getMemories()
     setMemories(data)
