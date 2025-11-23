@@ -72,6 +72,10 @@ model VaultItem {
   scheduledDelivery     DateTime? @map("scheduled_delivery")
   emotionCategory       String?   @map("emotion_category")
   importanceScore       Int       @default(5) @map("importance_score")
+  sentimentScore        Float?    @map("sentiment_score")
+  keywords              String[]  @default([])
+  aiSummary             String?   @map("ai_summary")
+  entities              Json?
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
 

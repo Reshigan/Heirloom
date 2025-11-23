@@ -39,7 +39,7 @@ export class AIService {
     return {
       people: doc.people().out('array'),
       places: doc.places().out('array'),
-      dates: doc.dates().out('array')
+      dates: doc.match('#Date').out('array')
     };
   }
 

@@ -49,6 +49,7 @@ import RecipientManagement from './recipient-management'
 import CheckInManagement from './check-in-management'
 import TrustedContacts from './trusted-contacts'
 import NotificationCenter from './notification-center'
+import { AdvancedSearch } from './advanced-search'
 import VaultStatsDashboard from './vault-stats-dashboard'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
@@ -96,6 +97,7 @@ export default function FuturisticHeirloomInterface() {
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
   const [showProfile, setShowProfile] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [showSearch, setShowSearch] = useState(false)
   const [showDetailPanel, setShowDetailPanel] = useState(false)
   const [showWisdomQuote, setShowWisdomQuote] = useState(false)
   const [isLoading, setIsLoading] = useState(true)

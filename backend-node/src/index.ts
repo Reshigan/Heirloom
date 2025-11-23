@@ -10,6 +10,7 @@ import checkInRoutes from './routes/checkIn';
 import subscriptionRoutes from './routes/subscriptions';
 import unlockRoutes from './routes/unlock';
 import notificationRoutes from './routes/notifications';
+import searchRoutes from './routes/search';
 import { errorHandler } from './middleware/errorHandler';
 import { auditLogger } from './middleware/auditLogger';
 import { JobScheduler } from './services/jobScheduler';
@@ -48,6 +49,7 @@ app.use('/api/check-in', checkInRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/unlock', unlockRoutes);
 app.use('/api', notificationRoutes);
+app.use('/api', searchRoutes);
 
 app.use(errorHandler);
 
