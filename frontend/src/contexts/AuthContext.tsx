@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
+  token: string | null
   vmkSalt: string | null
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name: string, familyName: string) => Promise<void>
@@ -79,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isLoading,
         isAuthenticated: !!user,
+        token: apiClient.getToken(),
         vmkSalt,
         login,
         register,
