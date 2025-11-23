@@ -72,10 +72,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     if (!isAuthenticated || !token || eventSourceRef.current) return;
 
     try {
-      const url = `${API_BASE_URL}/notifications/stream`;
-      const eventSource = new EventSource(url, {
-        withCredentials: true,
-      });
+      const url = `${API_BASE_URL}/notifications/stream?token=${encodeURIComponent(token)}`;
+      const eventSource = new EventSource(url);
 
       eventSource.onopen = () => {
         console.log('SSE connection established');

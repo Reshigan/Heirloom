@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { authenticate } from '../middleware/auth';
 import { notificationService, broadcaster } from '../services/NotificationService';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
@@ -62,8 +63,24 @@ router.post('/notifications/mark-all-seen', authenticate, async (req: Request, r
   }
 });
 
-router.get('/notifications/stream', authenticate, async (req: Request, res: Response) => {
-  const userId = (req as any).user.userId;
+router.get('/notifications/stream', async (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  
+  if (!token) {
+    res.status(401).json({ error: 'Token required' });
+    return;
+  }
+
+  const jwt = require('jsonwebtoken');
+  let userId: string;
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    userId = decoded.userId;
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
+    return;
+  }
 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',

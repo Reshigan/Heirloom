@@ -19,7 +19,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  webServer: {
+  webServer: process.env.PLAYWRIGHT_BASE_URL?.startsWith('http') && !process.env.PLAYWRIGHT_BASE_URL?.includes('localhost') ? undefined : {
     command: 'NEXT_PUBLIC_API_BASE_URL=https://loom.vantax.co.za/api npm run build && PORT=3100 node .next/standalone/server.js',
     url: 'http://localhost:3100',
     reuseExistingServer: !process.env.CI,

@@ -1,6 +1,7 @@
 import { prisma } from '../index';
 import { NotificationService } from './notifications';
 import { UnlockService } from './unlock';
+import { notificationService } from './NotificationService';
 import * as cron from 'node-cron';
 
 export class JobScheduler {
@@ -104,6 +105,16 @@ export class JobScheduler {
 
     await this.notificationService.sendCheckInReminder(user.email, user.nextCheckIn!);
 
+    await notificationService.create({
+      userId: user.id,
+      type: 'check_in_reminder',
+      title: 'Time to Check In',
+      body: `Please check in to confirm you're okay. Your next check-in is due ${user.nextCheckIn ? new Date(user.nextCheckIn).toLocaleDateString() : 'soon'}.`,
+      actionUrl: '/app',
+      priority: 1,
+      dedupeKey: `check_in_reminder_${user.id}_${new Date().toISOString().split('T')[0]}`,
+    });
+
     await prisma.checkIn.create({
       data: {
         userId: user.id,
@@ -145,16 +156,40 @@ export class JobScheduler {
     if (user.status === 'alive' && daysSinceCheckIn > 90) {
       newStatus = 'missed_one';
       await this.notificationService.sendMissedCheckInAlert(user.email, 1);
+      await notificationService.create({
+        userId: user.id,
+        type: 'check_in_reminder',
+        title: 'Missed Check-In Alert',
+        body: 'You missed your scheduled check-in. Please check in as soon as possible to avoid triggering the dead man\'s switch.',
+        actionUrl: '/app',
+        priority: 2,
+      });
       console.log(`⚠️ User ${user.email} missed first check-in`);
     } else if (user.status === 'missed_one' && daysSinceCheckIn > 120) {
       newStatus = 'missed_two';
       await this.notificationService.sendMissedCheckInAlert(user.email, 2);
+      await notificationService.create({
+        userId: user.id,
+        type: 'check_in_reminder',
+        title: 'Second Missed Check-In - Urgent',
+        body: 'This is your second missed check-in. Your vault will be unlocked if you don\'t check in soon.',
+        actionUrl: '/app',
+        priority: 3,
+      });
       console.log(`⚠️ User ${user.email} missed second check-in`);
     } else if (user.status === 'missed_two' && daysSinceCheckIn > 150) {
       newStatus = 'escalation';
       gracePeriodEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
       await this.notificationService.sendEscalationAlert(user.email);
       await this.notificationService.notifyTrustedContacts(user.id);
+      await notificationService.create({
+        userId: user.id,
+        type: 'unlock_pending',
+        title: 'Dead Man\'s Switch Activated',
+        body: 'Your trusted contacts have been notified. Your vault will be unlocked after the grace period.',
+        actionUrl: '/app',
+        priority: 3,
+      });
       console.log(`🚨 User ${user.email} escalated to trusted contacts`);
     }
 
@@ -210,6 +245,24 @@ export class JobScheduler {
             completedAt: now
           }
         });
+
+        const vault = await prisma.vault.findUnique({
+          where: { id: request.vaultId },
+          include: { recipients: true }
+        });
+
+        if (vault) {
+          for (const recipient of vault.recipients) {
+            await notificationService.create({
+              userId: recipient.email,
+              type: 'unlock_pending',
+              title: 'Vault Unlocked',
+              body: 'A vault has been unlocked and is now accessible to you. The owner has not checked in as scheduled.',
+              actionUrl: '/app',
+              priority: 2,
+            });
+          }
+        }
 
         console.log(`✅ Vault ${request.vaultId} unlocked after grace period`);
       } else {

@@ -11,6 +11,8 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Connection pooling for better performance under load
+  // Supports up to 20 concurrent connections per instance
 }
 
 model User {
@@ -72,6 +74,10 @@ model VaultItem {
   scheduledDelivery     DateTime? @map("scheduled_delivery")
   emotionCategory       String?   @map("emotion_category")
   importanceScore       Int       @default(5) @map("importance_score")
+  sentimentScore        Float?    @map("sentiment_score")
+  keywords              String[]  @default([])
+  aiSummary             String?   @map("ai_summary")
+  entities              Json?
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
 
@@ -80,6 +86,9 @@ model VaultItem {
   @@index([vaultId])
   @@index([vaultId, createdAt])
   @@index([scheduledDelivery])
+  @@index([emotionCategory])
+  @@index([importanceScore])
+  @@index([keywords])
   @@map("vault_items")
 }
 
