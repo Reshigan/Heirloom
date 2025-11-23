@@ -52,7 +52,7 @@ async function globalSetup(config: FullConfig) {
     await page.waitForLoadState('networkidle');
     
     await page.evaluate((token) => {
-      localStorage.setItem('vault_token', token);
+      localStorage.setItem('heirloom:auth:token', token);
     }, token);
     
     await page.reload();
