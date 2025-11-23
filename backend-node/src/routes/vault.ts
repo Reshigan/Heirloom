@@ -48,6 +48,19 @@ router.post('/items', async (req: AuthRequest, res, next) => {
       throw new AppError(413, 'Storage limit exceeded');
     }
 
+    let aiAnalysis = null;
+    if (title) {
+      try {
+        aiAnalysis = await aiService.analyzeMemory(title, {
+          hasMedia: type === 'image' || type === 'video',
+          hasVoice: type === 'audio',
+          hasVideo: type === 'video'
+        });
+      } catch (error) {
+        console.error('AI analysis failed:', error);
+      }
+    }
+
     const item = await prisma.$transaction(async (tx: any) => {
       const updated = await tx.vault.updateMany({
         where: {
@@ -75,13 +88,19 @@ router.post('/items', async (req: AuthRequest, res, next) => {
           fileSizeBytes: fileSizeBytes ? BigInt(fileSizeBytes) : null,
           recipientIds: recipientIds || [],
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
-          emotionCategory,
-          importanceScore: importanceScore || 5
+          emotionCategory: aiAnalysis?.sentiment.emotion || emotionCategory,
+          importanceScore: aiAnalysis?.importance || importanceScore || 5,
+          sentimentScore: aiAnalysis?.sentiment.score,
+          keywords: aiAnalysis?.keywords || [],
+          aiSummary: aiAnalysis?.summary,
+          entities: aiAnalysis?.entities
         }
       });
 
       return newItem;
     });
+
+    await cacheService.invalidatePattern(`vault:items:${req.user!.userId}:*`);
 
     const updatedVault = await prisma.vault.findUnique({
       where: { id: vault.id }
@@ -146,6 +165,19 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
       throw new AppError(413, 'Storage limit exceeded');
     }
 
+    let aiAnalysis = null;
+    if (title) {
+      try {
+        aiAnalysis = await aiService.analyzeMemory(title, {
+          hasMedia: type === 'image' || type === 'video',
+          hasVoice: type === 'audio',
+          hasVideo: type === 'video'
+        });
+      } catch (error) {
+        console.error('AI analysis failed:', error);
+      }
+    }
+
     const item = await prisma.$transaction(async (tx: any) => {
       const updated = await tx.vault.updateMany({
         where: {
@@ -173,13 +205,19 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
           fileSizeBytes: fileSizeBytes ? BigInt(fileSizeBytes) : null,
           recipientIds: recipientIds || [],
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
-          emotionCategory,
-          importanceScore: importanceScore || 5
+          emotionCategory: aiAnalysis?.sentiment.emotion || emotionCategory,
+          importanceScore: aiAnalysis?.importance || importanceScore || 5,
+          sentimentScore: aiAnalysis?.sentiment.score,
+          keywords: aiAnalysis?.keywords || [],
+          aiSummary: aiAnalysis?.summary,
+          entities: aiAnalysis?.entities
         }
       });
 
       return newItem;
     });
+
+    await cacheService.invalidatePattern(`vault:items:${req.user!.userId}:*`);
 
     const updatedVault = await prisma.vault.findUnique({
       where: { id: vault.id }
