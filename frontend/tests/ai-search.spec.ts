@@ -6,6 +6,8 @@ test.describe('AI-Powered Search', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/app');
     await page.waitForLoadState('networkidle');
+    await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
+    await page.getByTestId('search-button').waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test('should display search button in header', async ({ page }) => {
