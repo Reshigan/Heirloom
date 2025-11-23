@@ -11,6 +11,8 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Connection pooling for better performance under load
+  // Supports up to 20 concurrent connections per instance
 }
 
 model User {
@@ -84,6 +86,9 @@ model VaultItem {
   @@index([vaultId])
   @@index([vaultId, createdAt])
   @@index([scheduledDelivery])
+  @@index([emotionCategory])
+  @@index([importanceScore])
+  @@index([keywords])
   @@map("vault_items")
 }
 

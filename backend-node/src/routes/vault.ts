@@ -4,6 +4,7 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { ValidationUtils } from '../utils/validation';
 import { aiService } from '../services/AIService';
+import { cacheService } from '../services/CacheService';
 
 const router = Router();
 
@@ -209,6 +210,13 @@ router.get('/items', async (req: AuthRequest, res, next) => {
   try {
     const { type, limit = '50', offset = '0' } = req.query;
 
+    const cacheKey = `vault:items:${req.user!.userId}:${type || 'all'}:${limit}:${offset}`;
+    const cached = await cacheService.get<any>(cacheKey);
+    
+    if (cached) {
+      return res.json(cached);
+    }
+
     const vault = await prisma.vault.findUnique({
       where: { userId: req.user!.userId }
     });
@@ -232,7 +240,7 @@ router.get('/items', async (req: AuthRequest, res, next) => {
       prisma.vaultItem.count({ where })
     ]);
 
-    res.json({
+    const response = {
       items: items.map((item: any) => ({
         id: item.id,
         type: item.type,
@@ -251,7 +259,10 @@ router.get('/items', async (req: AuthRequest, res, next) => {
         uploadsThisWeek: vault.uploadCountThisWeek,
         uploadLimit: vault.uploadLimitWeekly
       }
-    });
+    };
+
+    await cacheService.set(cacheKey, response, 60);
+    res.json(response);
   } catch (error) {
     next(error);
   }
