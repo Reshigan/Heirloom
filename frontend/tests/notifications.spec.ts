@@ -4,8 +4,8 @@ test.use({ storageState: 'storageState.json' });
 
 test.describe('Notifications', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://loom.vantax.co.za/app');
-    await page.waitForTimeout(2000);
+    await page.goto('/app');
+    await page.waitForLoadState('networkidle');
   });
 
   test('should display notification bell icon', async ({ page }) => {
