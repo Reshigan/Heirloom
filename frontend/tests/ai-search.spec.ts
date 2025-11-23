@@ -1,14 +1,10 @@
 import { test, expect } from '@playwright/test';
 
+test.use({ storageState: 'storageState.json' });
+
 test.describe('AI-Powered Search', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('https://loom.vantax.co.za/app');
-    
-    await page.getByTestId('auth-button').click();
-    await page.fill('input[type="email"]', 'john@smithfamily.com');
-    await page.fill('input[type="password"]', 'demo123');
-    await page.getByRole('button', { name: /login/i }).click();
-    
     await page.waitForTimeout(2000);
   });
 
