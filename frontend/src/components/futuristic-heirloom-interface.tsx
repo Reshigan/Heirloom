@@ -1036,6 +1036,13 @@ export default function FuturisticHeirloomInterface() {
         isOpen={showNotifications}
         onClose={() => setShowNotifications(false)}
       />
+      <AdvancedSearch
+        isOpen={showSearch}
+        onClose={() => setShowSearch(false)}
+        onResultClick={(itemId) => {
+          console.log('Selected memory:', itemId);
+        }}
+      />
       {/* Vault Stats Dashboard Modal */}
       <AnimatePresence>
         {showVaultStats && (
