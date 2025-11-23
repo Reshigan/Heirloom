@@ -108,7 +108,7 @@ class APIClient {
     token: string;
     vmkSalt: string;
   }> {
-    const result = await this.request<any>('/api/auth/register', {
+    const result = await this.request<any>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -121,7 +121,7 @@ class APIClient {
     vault: Vault;
     token: string;
   }> {
-    const result = await this.request<any>('/api/auth/login', {
+    const result = await this.request<any>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -130,7 +130,7 @@ class APIClient {
   }
 
   async getCurrentUser(): Promise<{ user: User; vault: Vault }> {
-    return this.request('/api/auth/me');
+    return this.request('/auth/me');
   }
 
   async getMe(): Promise<User> {
@@ -153,7 +153,7 @@ class APIClient {
     item: VaultItem;
     vault: { storageUsed: string; storageLimit: string; uploadsRemaining: number };
   }> {
-    return this.request('/api/vault/upload', {
+    return this.request('/vault/upload', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -173,7 +173,7 @@ class APIClient {
     if (params?.limit) query.set('limit', params.limit.toString());
     if (params?.offset) query.set('offset', params.offset.toString());
 
-    return this.request(`/api/vault/items?${query}`);
+    return this.request(`/vault/items?${query}`);
   }
 
   async getVaultStats(): Promise<{
@@ -183,7 +183,7 @@ class APIClient {
     recipients: { total: number };
     tier: string;
   }> {
-    return this.request('/api/vault/stats');
+    return this.request('/vault/stats');
   }
 
   async addRecipient(data: {
@@ -192,14 +192,14 @@ class APIClient {
     relationship?: string;
     accessLevel?: string;
   }): Promise<{ recipient: Recipient }> {
-    return this.request('/api/recipients', {
+    return this.request('/recipients', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getRecipients(): Promise<{ recipients: Recipient[] }> {
-    return this.request('/api/recipients');
+    return this.request('/recipients');
   }
 
   async addTrustedContact(data: {
@@ -208,14 +208,14 @@ class APIClient {
     name?: string;
     shamirShareEncrypted: string;
   }): Promise<{ contact: TrustedContact; verificationSent: boolean }> {
-    return this.request('/api/trusted-contacts', {
+    return this.request('/trusted-contacts', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getTrustedContacts(): Promise<{ contacts: TrustedContact[] }> {
-    return this.request('/api/trusted-contacts');
+    return this.request('/trusted-contacts');
   }
 
   async getCheckInStatus(): Promise<{
@@ -229,14 +229,14 @@ class APIClient {
       missed: boolean;
     }>;
   }> {
-    return this.request('/api/check-in/status');
+    return this.request('/check-in/status');
   }
 
   async getCurrentSubscription(): Promise<{
     tier: string;
     subscription: { status: string; currentPeriodEnd: string } | null;
   }> {
-    return this.request('/api/subscriptions/current');
+    return this.request('/subscriptions/current');
   }
 }
 
