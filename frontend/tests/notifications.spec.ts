@@ -7,6 +7,13 @@ test.describe('Notifications', () => {
     await page.goto('/app');
     await page.waitForLoadState('networkidle');
     await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
+    
+    const modalOverlay = page.locator('.fixed.inset-0.z-50');
+    if (await modalOverlay.isVisible().catch(() => false)) {
+      await page.keyboard.press('Escape');
+      await modalOverlay.waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {});
+    }
+    
     await page.getByTestId('notifications-button').waitFor({ state: 'visible', timeout: 10000 });
   });
 
