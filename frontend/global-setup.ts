@@ -5,9 +5,13 @@ async function globalSetup(config: FullConfig) {
   
   console.log('🔧 Global setup: Creating authenticated user...');
   
-  const backendURL = 'https://loom.vantax.co.za/api';
+  const targetURL = baseURL || 'http://localhost:3100';
+  const backendURL = `${targetURL}/api`.replace(/\/app\/api$/, '/api');
+  console.log(`🔗 Backend URL: ${backendURL}`);
+  
   const testEmail = 'playwright-test@example.com';
   const testPassword = 'TestPassword123!';
+  const testName = 'Playwright Test User';
   
   try {
     let token: string;
@@ -15,7 +19,7 @@ async function globalSetup(config: FullConfig) {
     const registerResponse = await fetch(`${backendURL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: testEmail, password: testPassword }),
+      body: JSON.stringify({ email: testEmail, password: testPassword, name: testName }),
     });
     
     if (registerResponse.ok) {
@@ -42,7 +46,6 @@ async function globalSetup(config: FullConfig) {
     const context = await browser.newContext();
     const page = await context.newPage();
     
-    const targetURL = baseURL || 'http://localhost:3100';
     console.log(`🔗 Navigating to: ${targetURL}`);
     
     await page.goto(targetURL);
