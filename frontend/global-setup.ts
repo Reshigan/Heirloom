@@ -42,7 +42,10 @@ async function globalSetup(config: FullConfig) {
     const context = await browser.newContext();
     const page = await context.newPage();
     
-    await page.goto(baseURL || 'http://localhost:3100');
+    const targetURL = baseURL || 'http://localhost:3100';
+    console.log(`🔗 Navigating to: ${targetURL}`);
+    
+    await page.goto(targetURL);
     await page.waitForLoadState('networkidle');
     
     await page.evaluate((token) => {
@@ -54,12 +57,22 @@ async function globalSetup(config: FullConfig) {
     
     await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
     
-    const isAuthenticated = await page.locator('[data-testid^="nav-"]').first().isVisible({ timeout: 10000 }).catch(() => false);
+    const searchButton = await page.getByTestId('search-button').isVisible({ timeout: 10000 }).catch(() => false);
+    const notificationButton = await page.getByTestId('notifications-button').isVisible({ timeout: 10000 }).catch(() => false);
     
-    if (isAuthenticated) {
-      console.log('✅ Authentication verified - user is logged in');
+    if (searchButton || notificationButton) {
+      console.log('✅ Authentication verified - header buttons visible');
     } else {
-      console.log('⚠️  Warning: Could not verify authentication');
+      console.log('⚠️  Warning: Could not verify authentication - header buttons not found');
+      const apiResponse = await fetch(`${backendURL}/vault/items`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).catch(() => null);
+      
+      if (apiResponse && apiResponse.ok) {
+        console.log('✅ Authentication verified via API call');
+      } else {
+        console.log('❌ Authentication verification failed');
+      }
     }
     
     await context.storageState({ path: 'storageState.json' });
