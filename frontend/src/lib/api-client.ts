@@ -3,7 +3,7 @@
  * Handles communication with Node.js backend
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api';
 
 export interface User {
   id: string;
@@ -56,14 +56,14 @@ class APIClient {
   setToken(token: string) {
     this.token = token;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('vault_token', token);
+      localStorage.setItem('heirloom:auth:token', token);
     }
   }
 
   getToken(): string | null {
     if (this.token) return this.token;
     if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('vault_token');
+      this.token = localStorage.getItem('heirloom:auth:token');
     }
     return this.token;
   }
@@ -71,7 +71,7 @@ class APIClient {
   clearToken() {
     this.token = null;
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('vault_token');
+      localStorage.removeItem('heirloom:auth:token');
     }
   }
 
@@ -131,6 +131,11 @@ class APIClient {
 
   async getCurrentUser(): Promise<{ user: User; vault: Vault }> {
     return this.request('/api/auth/me');
+  }
+
+  async getMe(): Promise<User> {
+    const result = await this.getCurrentUser();
+    return result.user;
   }
 
   async uploadItem(data: {
