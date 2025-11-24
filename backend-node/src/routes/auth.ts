@@ -43,7 +43,9 @@ router.post('/register', async (req, res, next) => {
         }
       });
 
-      const uploadLimit = process.env.NODE_ENV === 'production' ? 3 : 100;
+      const uploadLimit = process.env.UPLOAD_LIMIT_WEEKLY 
+        ? parseInt(process.env.UPLOAD_LIMIT_WEEKLY, 10) 
+        : 100;
 
       const vault = await tx.vault.create({
         data: {
