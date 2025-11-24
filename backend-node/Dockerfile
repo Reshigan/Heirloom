@@ -24,5 +24,5 @@ RUN npm run build
 # Expose port
 EXPOSE 3001
 
-# Start the application
-CMD ["npm", "start"]
+# Start the application with database schema sync
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm start"]
