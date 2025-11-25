@@ -56,10 +56,22 @@ router.get('/search', async (req: AuthRequest, res, next) => {
     }
 
     if (q) {
+      let searchIntent;
+      try {
+        searchIntent = await nlpService.parseSearchIntent(q as string);
+      } catch (error) {
+        console.error('Failed to parse search intent:', error);
+        searchIntent = { keywords: [q.toLowerCase()] };
+      }
+
       where.OR = [
         { title: { contains: q as string, mode: 'insensitive' } },
-        { keywords: { has: q as string } }
+        { keywords: { hasSome: searchIntent.keywords } }
       ];
+
+      if (searchIntent.sentiment) {
+        where.sentimentLabel = searchIntent.sentiment;
+      }
     }
 
     const [items, total] = await Promise.all([
@@ -76,6 +88,7 @@ router.get('/search', async (req: AuthRequest, res, next) => {
           emotionCategory: true,
           importanceScore: true,
           sentimentScore: true,
+          sentimentLabel: true,
           keywords: true,
           aiSummary: true,
           createdAt: true
