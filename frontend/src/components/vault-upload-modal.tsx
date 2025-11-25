@@ -197,6 +197,7 @@ export default function VaultUploadModal({
         fileSizeBytes: file.size,
         emotionCategory: emotion,
         importanceScore: importance,
+        visibility: visibility as 'PRIVATE' | 'POSTHUMOUS',
       })
 
       setProgress({
