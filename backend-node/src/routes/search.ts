@@ -56,7 +56,7 @@ router.get('/search', async (req: AuthRequest, res, next) => {
     }
 
     if (q) {
-      const queryString = typeof q === 'string' ? q : Array.isArray(q) ? q[0] : String(q);
+      const queryString: string = typeof q === 'string' ? q : (Array.isArray(q) ? String(q[0]) : String(q));
       let searchIntent;
       try {
         searchIntent = await nlpService.parseSearchIntent(queryString);
