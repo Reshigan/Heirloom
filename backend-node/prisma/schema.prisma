@@ -34,6 +34,8 @@ model User {
   auditLogs             AuditLog[]
   subscriptions         Subscription[]
   notifications         Notification[]
+  people                Person[]
+  legacyPolicy          LegacyPolicy?
 
   @@index([status])
   @@index([nextCheckIn])
@@ -61,27 +63,35 @@ model Vault {
   @@map("vaults")
 }
 
-model VaultItem {
-  id                    String    @id @default(uuid())
-  vaultId               String    @map("vault_id")
-  type                  String    // photo, video, letter, voice, document, wisdom
-  title                 String?
-  encryptedData         String    @map("encrypted_data")
-  encryptedDek          String    @map("encrypted_dek")
-  thumbnailUrl          String?   @map("thumbnail_url")
-  fileSizeBytes         BigInt?   @map("file_size_bytes")
-  recipientIds          String[]  @map("recipient_ids")
-  scheduledDelivery     DateTime? @map("scheduled_delivery")
-  emotionCategory       String?   @map("emotion_category")
-  importanceScore       Int       @default(5) @map("importance_score")
-  sentimentScore        Float?    @map("sentiment_score")
-  keywords              String[]  @default([])
-  aiSummary             String?   @map("ai_summary")
-  entities              Json?
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
+enum Visibility {
+  PRIVATE
+  POSTHUMOUS
+}
 
-  vault                 Vault     @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+model VaultItem {
+  id                    String      @id @default(uuid())
+  vaultId               String      @map("vault_id")
+  type                  String      // photo, video, letter, voice, document, wisdom
+  title                 String?
+  encryptedData         String      @map("encrypted_data")
+  encryptedDek          String      @map("encrypted_dek")
+  thumbnailUrl          String?     @map("thumbnail_url")
+  fileSizeBytes         BigInt?     @map("file_size_bytes")
+  recipientIds          String[]    @map("recipient_ids")
+  scheduledDelivery     DateTime?   @map("scheduled_delivery")
+  emotionCategory       String?     @map("emotion_category")
+  importanceScore       Int         @default(5) @map("importance_score")
+  sentimentScore        Float?      @map("sentiment_score")
+  sentimentLabel        String?     @map("sentiment_label") // happy, sad, angry, neutral, joyful, nostalgic
+  keywords              String[]    @default([])
+  aiSummary             String?     @map("ai_summary")
+  entities              Json?
+  visibility            Visibility  @default(PRIVATE)
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
+
+  vault                 Vault       @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  people                MemoryPerson[]
 
   @@index([vaultId])
   @@index([vaultId, createdAt])
@@ -89,6 +99,8 @@ model VaultItem {
   @@index([emotionCategory])
   @@index([importanceScore])
   @@index([keywords])
+  @@index([visibility])
+  @@index([sentimentLabel])
   @@map("vault_items")
 }
 
@@ -232,4 +244,65 @@ model Notification {
   @@index([userId, expiresAt])
   @@unique([userId, dedupeKey])
   @@map("notifications")
+}
+
+enum Relation {
+  self
+  father
+  mother
+  son
+  daughter
+  spouse
+  sibling
+  grandparent
+  grandchild
+  aunt_uncle
+  cousin
+  friend
+  other
+}
+
+model Person {
+  id           String   @id @default(uuid())
+  ownerId      String   @map("owner_id")
+  name         String
+  relation     Relation
+  birthDate    DateTime? @map("birth_date")
+  deathDate    DateTime? @map("death_date")
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  memories     MemoryPerson[]
+
+  @@index([ownerId])
+  @@index([ownerId, relation])
+  @@map("people")
+}
+
+model MemoryPerson {
+  memoryId String @map("memory_id")
+  personId String @map("person_id")
+  primary  Boolean @default(false)
+
+  memory   VaultItem @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  person   Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@id([memoryId, personId])
+  @@index([personId])
+  @@map("memory_people")
+}
+
+model LegacyPolicy {
+  id                 String   @id @default(uuid())
+  ownerId            String   @unique @map("owner_id")
+  rules              Json     // {defaultUnlockGroup, includePeopleIds, excludePeopleIds, memoryFilters}
+  gracePeriodDays    Int      @default(14) @map("grace_period_days")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  owner              User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("legacy_policies")
 }

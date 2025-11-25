@@ -111,7 +111,8 @@ export class AIService {
       sentiment: {
         score: sentimentResult.score,
         comparative: sentimentResult.comparative,
-        emotion
+        emotion,
+        label: emotion
       },
       keywords,
       entities,

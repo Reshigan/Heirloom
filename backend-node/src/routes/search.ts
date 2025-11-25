@@ -3,6 +3,7 @@ import { prisma } from '../index';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { aiService } from '../services/AIService';
+import { nlpService } from '../services/NLPService';
 
 const router = Router();
 
@@ -55,10 +56,23 @@ router.get('/search', async (req: AuthRequest, res, next) => {
     }
 
     if (q) {
+      const queryString: string = typeof q === 'string' ? q : (Array.isArray(q) ? String(q[0]) : String(q));
+      let searchIntent;
+      try {
+        searchIntent = await nlpService.parseSearchIntent(queryString);
+      } catch (error) {
+        console.error('Failed to parse search intent:', error);
+        searchIntent = { keywords: [queryString.toLowerCase()] };
+      }
+
       where.OR = [
-        { title: { contains: q as string, mode: 'insensitive' } },
-        { keywords: { has: q as string } }
+        { title: { contains: queryString, mode: 'insensitive' } },
+        { keywords: { hasSome: searchIntent.keywords } }
       ];
+
+      if (searchIntent.sentiment) {
+        where.sentimentLabel = searchIntent.sentiment;
+      }
     }
 
     const [items, total] = await Promise.all([
@@ -75,6 +89,7 @@ router.get('/search', async (req: AuthRequest, res, next) => {
           emotionCategory: true,
           importanceScore: true,
           sentimentScore: true,
+          sentimentLabel: true,
           keywords: true,
           aiSummary: true,
           createdAt: true

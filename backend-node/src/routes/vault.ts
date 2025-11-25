@@ -4,6 +4,7 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { ValidationUtils } from '../utils/validation';
 import { aiService } from '../services/AIService';
+import { nlpService } from '../services/NLPService';
 import { cacheService } from '../services/CacheService';
 
 const router = Router();
@@ -49,6 +50,7 @@ router.post('/items', async (req: AuthRequest, res, next) => {
     }
 
     let aiAnalysis = null;
+    let nlpAnalysis = null;
     if (title) {
       try {
         aiAnalysis = await aiService.analyzeMemory(title, {
@@ -56,8 +58,9 @@ router.post('/items', async (req: AuthRequest, res, next) => {
           hasVoice: type === 'audio',
           hasVideo: type === 'video'
         });
+        nlpAnalysis = await nlpService.analyzeMemory(title);
       } catch (error) {
-        console.error('AI analysis failed:', error);
+        console.error('AI/NLP analysis failed:', error);
       }
     }
 
@@ -86,14 +89,16 @@ router.post('/items', async (req: AuthRequest, res, next) => {
           encryptedDek,
           thumbnailUrl,
           fileSizeBytes: fileSizeBytes ? BigInt(fileSizeBytes) : null,
-          recipientIds: recipientIds || [],
+          recipientIds: [],
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
           emotionCategory: aiAnalysis?.sentiment.emotion || emotionCategory,
           importanceScore: aiAnalysis?.importance || importanceScore || 5,
-          sentimentScore: aiAnalysis?.sentiment.score,
-          keywords: aiAnalysis?.keywords || [],
-          aiSummary: aiAnalysis?.summary,
-          entities: aiAnalysis?.entities
+          sentimentScore: nlpAnalysis?.sentiment.score || aiAnalysis?.sentiment.score,
+          sentimentLabel: nlpAnalysis?.sentiment.label || aiAnalysis?.sentiment.label,
+          keywords: nlpAnalysis?.keywords || aiAnalysis?.keywords || [],
+          aiSummary: nlpAnalysis?.summary || aiAnalysis?.summary,
+          entities: nlpAnalysis?.entities || aiAnalysis?.entities,
+          visibility: 'PRIVATE'
         }
       });
 
@@ -166,6 +171,7 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
     }
 
     let aiAnalysis = null;
+    let nlpAnalysis = null;
     if (title) {
       try {
         aiAnalysis = await aiService.analyzeMemory(title, {
@@ -173,8 +179,9 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
           hasVoice: type === 'audio',
           hasVideo: type === 'video'
         });
+        nlpAnalysis = await nlpService.analyzeMemory(title);
       } catch (error) {
-        console.error('AI analysis failed:', error);
+        console.error('AI/NLP analysis failed:', error);
       }
     }
 
@@ -203,14 +210,16 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
           encryptedDek,
           thumbnailUrl,
           fileSizeBytes: fileSizeBytes ? BigInt(fileSizeBytes) : null,
-          recipientIds: recipientIds || [],
+          recipientIds: [],
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
           emotionCategory: aiAnalysis?.sentiment.emotion || emotionCategory,
           importanceScore: aiAnalysis?.importance || importanceScore || 5,
-          sentimentScore: aiAnalysis?.sentiment.score,
-          keywords: aiAnalysis?.keywords || [],
-          aiSummary: aiAnalysis?.summary,
-          entities: aiAnalysis?.entities
+          sentimentScore: nlpAnalysis?.sentiment.score || aiAnalysis?.sentiment.score,
+          sentimentLabel: nlpAnalysis?.sentiment.label || aiAnalysis?.sentiment.label,
+          keywords: nlpAnalysis?.keywords || aiAnalysis?.keywords || [],
+          aiSummary: nlpAnalysis?.summary || aiAnalysis?.summary,
+          entities: nlpAnalysis?.entities || aiAnalysis?.entities,
+          visibility: 'PRIVATE'
         }
       });
 

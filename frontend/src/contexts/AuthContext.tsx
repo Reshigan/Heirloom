@@ -47,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== 'undefined') {
         const salt = localStorage.getItem('heirloom:vault:salt')
         setVmkSalt(salt)
+        sessionStorage.setItem('heirloom:vault:password', password)
       }
     } catch (error) {
       console.error('Login failed:', error)
@@ -60,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.vmkSalt && typeof window !== 'undefined') {
         localStorage.setItem('heirloom:vault:salt', response.vmkSalt)
         setVmkSalt(response.vmkSalt)
+        sessionStorage.setItem('heirloom:vault:password', password)
       }
       await login(email, password)
     } catch (error) {
@@ -72,6 +74,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     apiClient.clearToken()
     setUser(null)
     setVmkSalt(null)
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('heirloom:vault:password')
+    }
   }
 
   return (
