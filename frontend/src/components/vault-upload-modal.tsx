@@ -43,6 +43,11 @@ const EMOTION_CATEGORIES = [
   { id: 'wisdom', label: 'Wisdom', icon: FileText, color: 'from-blue-400 to-cyan-400' },
 ]
 
+const VISIBILITY_OPTIONS = [
+  { id: 'PRIVATE', label: 'Private', description: 'Only you can see this memory' },
+  { id: 'POSTHUMOUS', label: 'Posthumous', description: 'Shared with family after death' },
+]
+
 export default function VaultUploadModal({ 
   isOpen, 
   onClose, 
@@ -53,6 +58,7 @@ export default function VaultUploadModal({
   const [title, setTitle] = useState('')
   const [emotion, setEmotion] = useState('joy')
   const [importance, setImportance] = useState(5)
+  const [visibility, setVisibility] = useState('PRIVATE')
   const [isDragging, setIsDragging] = useState(false)
   const [progress, setProgress] = useState<UploadProgress>({
     stage: 'idle',
@@ -262,6 +268,7 @@ export default function VaultUploadModal({
     setTitle('')
     setEmotion('joy')
     setImportance(5)
+    setVisibility('PRIVATE')
     setProgress({ stage: 'idle', progress: 0, message: '' })
     setUploadLimitWarning(null)
     setStorageLimitWarning(null)
@@ -434,6 +441,40 @@ export default function VaultUploadModal({
                       </button>
                     )
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* Visibility Options */}
+            {file && (
+              <div className="mt-6">
+                <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-3">
+                  Visibility
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {VISIBILITY_OPTIONS.map((option) => (
+                    <button
+                      key={option.id}
+                      onClick={() => setVisibility(option.id)}
+                      disabled={isUploading}
+                      className={`p-4 rounded-lg border transition-all text-left ${
+                        visibility === option.id
+                          ? 'border-gold-400 bg-gold-400/10'
+                          : 'border-gold-500/20 bg-obsidian-800/40 hover:border-gold-500/40'
+                      }`}
+                    >
+                      <p className={`font-medium mb-1 ${
+                        visibility === option.id ? 'text-gold-400' : 'text-gold-200/70'
+                      }`}>
+                        {option.label}
+                      </p>
+                      <p className={`text-xs ${
+                        visibility === option.id ? 'text-gold-200/70' : 'text-gold-200/50'
+                      }`}>
+                        {option.description}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
