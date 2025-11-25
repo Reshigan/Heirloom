@@ -26,7 +26,11 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'http://3.8.160.221',
+    'http://loom.vantax.co.za'
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
