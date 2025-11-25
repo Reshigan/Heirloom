@@ -46,6 +46,7 @@ model Vault {
   id                    String   @id @default(uuid())
   userId                String   @unique @map("user_id")
   encryptedVmk          String   @map("encrypted_vmk")
+  vmkSalt               String   @map("vmk_salt")
   storageUsedBytes      BigInt   @default(0) @map("storage_used_bytes")
   storageLimitBytes     BigInt   @default(10737418240) @map("storage_limit_bytes") // 10GB
   uploadCountThisWeek   Int      @default(0) @map("upload_count_this_week")
