@@ -56,7 +56,7 @@ router.get('/search', async (req: AuthRequest, res, next) => {
     }
 
     if (q) {
-      const queryString = Array.isArray(q) ? q[0] : q;
+      const queryString = typeof q === 'string' ? q : Array.isArray(q) ? q[0] : String(q);
       let searchIntent;
       try {
         searchIntent = await nlpService.parseSearchIntent(queryString);
@@ -66,7 +66,7 @@ router.get('/search', async (req: AuthRequest, res, next) => {
       }
 
       where.OR = [
-        { title: { contains: q as string, mode: 'insensitive' } },
+        { title: { contains: queryString, mode: 'insensitive' } },
         { keywords: { hasSome: searchIntent.keywords } }
       ];
 
