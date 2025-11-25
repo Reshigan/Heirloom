@@ -122,6 +122,23 @@ export default function FuturisticHeirloomInterface() {
   const showcaseRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const initVault = async () => {
+      if (isAuthenticated && vmkSalt && !vaultInitialized) {
+        try {
+          const storedPassword = typeof window !== 'undefined' ? sessionStorage.getItem('heirloom:vault:password') : null
+          if (storedPassword) {
+            await initializeVault(storedPassword, vmkSalt)
+          }
+        } catch (error) {
+          console.error('Failed to initialize vault encryption:', error)
+        }
+      }
+    }
+
+    initVault()
+  }, [isAuthenticated, vmkSalt, vaultInitialized, initializeVault])
+
+  useEffect(() => {
     const fetchMemories = async () => {
       if (!isAuthenticated) {
         if (!authLoading) {
@@ -249,11 +266,27 @@ export default function FuturisticHeirloomInterface() {
     setIsWarping(false)
   }
 
-  const handleAddMemory = () => {
+  const handleAddMemory = async () => {
     if (!isAuthenticated) {
       setShowAuthModal(true)
       return
     }
+    
+    if (!vaultEncryption && vmkSalt) {
+      try {
+        const storedPassword = typeof window !== 'undefined' ? sessionStorage.getItem('heirloom:vault:password') : null
+        if (storedPassword) {
+          await initializeVault(storedPassword, vmkSalt)
+        } else {
+          console.error('Cannot initialize vault: password not found in session storage')
+          return
+        }
+      } catch (error) {
+        console.error('Failed to initialize vault encryption:', error)
+        return
+      }
+    }
+    
     setShowUploadModal(true)
   }
 
