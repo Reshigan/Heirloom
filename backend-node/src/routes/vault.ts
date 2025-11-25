@@ -86,14 +86,16 @@ router.post('/items', async (req: AuthRequest, res, next) => {
           encryptedDek,
           thumbnailUrl,
           fileSizeBytes: fileSizeBytes ? BigInt(fileSizeBytes) : null,
-          recipientIds: recipientIds || [],
+          recipientIds: [],
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
           emotionCategory: aiAnalysis?.sentiment.emotion || emotionCategory,
           importanceScore: aiAnalysis?.importance || importanceScore || 5,
           sentimentScore: aiAnalysis?.sentiment.score,
+          sentimentLabel: aiAnalysis?.sentiment.label,
           keywords: aiAnalysis?.keywords || [],
           aiSummary: aiAnalysis?.summary,
-          entities: aiAnalysis?.entities
+          entities: aiAnalysis?.entities,
+          visibility: 'PRIVATE'
         }
       });
 
@@ -203,14 +205,16 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
           encryptedDek,
           thumbnailUrl,
           fileSizeBytes: fileSizeBytes ? BigInt(fileSizeBytes) : null,
-          recipientIds: recipientIds || [],
+          recipientIds: [],
           scheduledDelivery: scheduledDelivery ? new Date(scheduledDelivery) : null,
           emotionCategory: aiAnalysis?.sentiment.emotion || emotionCategory,
           importanceScore: aiAnalysis?.importance || importanceScore || 5,
           sentimentScore: aiAnalysis?.sentiment.score,
+          sentimentLabel: aiAnalysis?.sentiment.label,
           keywords: aiAnalysis?.keywords || [],
           aiSummary: aiAnalysis?.summary,
-          entities: aiAnalysis?.entities
+          entities: aiAnalysis?.entities,
+          visibility: 'PRIVATE'
         }
       });
 

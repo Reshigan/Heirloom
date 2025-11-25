@@ -13,7 +13,11 @@ export class UnlockService {
     const vault = await prisma.vault.findUnique({
       where: { id: vaultId },
       include: {
-        user: true,
+        user: {
+          include: {
+            legacyPolicy: true
+          }
+        },
         recipients: true
       }
     });
@@ -25,8 +29,21 @@ export class UnlockService {
     await prisma.$transaction(async (tx: any) => {
       await tx.user.update({
         where: { id: vault.userId },
-        data: { status: 'unlocked' }
+        data: { status: 'deceased' }
       });
+
+      const legacyPolicy = vault.user.legacyPolicy;
+      if (legacyPolicy) {
+        await tx.vaultItem.updateMany({
+          where: {
+            vaultId: vault.id,
+            visibility: 'POSTHUMOUS'
+          },
+          data: {
+            visibility: 'POSTHUMOUS'
+          }
+        });
+      }
 
       for (const recipient of vault.recipients) {
         const accessToken = crypto.randomBytes(32).toString('hex');
@@ -49,7 +66,13 @@ export class UnlockService {
           details: {
             vaultId: vault.id,
             recipientCount: vault.recipients.length,
-            unlockedAt: new Date().toISOString()
+            unlockedAt: new Date().toISOString(),
+            posthumousMemoriesCount: await tx.vaultItem.count({
+              where: {
+                vaultId: vault.id,
+                visibility: 'POSTHUMOUS'
+              }
+            })
           }
         }
       });
@@ -57,7 +80,7 @@ export class UnlockService {
 
     await this.notificationService.notifyRecipients(vaultId);
 
-    console.log(`🔓 Vault ${vaultId} unlocked and recipients notified`);
+    console.log(`🔓 Vault ${vaultId} unlocked (owner deceased) and recipients notified`);
   }
 
   async initiateUnlockRequest(vaultId: string, initiatedBy: string) {
