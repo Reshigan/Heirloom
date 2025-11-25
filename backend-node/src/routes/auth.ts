@@ -43,11 +43,16 @@ router.post('/register', async (req, res, next) => {
         }
       });
 
+      const uploadLimit = process.env.UPLOAD_LIMIT_WEEKLY 
+        ? parseInt(process.env.UPLOAD_LIMIT_WEEKLY, 10) 
+        : 100;
+
       const vault = await tx.vault.create({
         data: {
           userId: user.id,
           encryptedVmk: '', // Will be set by client after encryption
-          tier: 'STARTER'
+          tier: 'STARTER',
+          uploadLimitWeekly: uploadLimit
         }
       });
 

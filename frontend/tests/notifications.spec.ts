@@ -14,23 +14,23 @@ test.describe('Notifications', () => {
       await modalOverlay.waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {});
     }
     
-    await page.getByTestId('notifications-button').waitFor({ state: 'visible', timeout: 10000 });
+    await page.getByTestId('notification-bell').waitFor({ state: 'visible', timeout: 10000 });
   });
 
   test('should display notification bell icon', async ({ page }) => {
-    const notificationButton = page.getByTestId('notifications-button');
+    const notificationButton = page.getByTestId('notification-bell');
     await expect(notificationButton).toBeVisible();
   });
 
   test('should open notification center when bell icon clicked', async ({ page }) => {
-    await page.getByTestId('notifications-button').click();
+    await page.getByTestId('notification-bell').click();
     
     const notificationCenter = page.locator('[data-testid="notification-center"]').or(page.locator('text=Notifications'));
     await expect(notificationCenter.first()).toBeVisible({ timeout: 5000 });
   });
 
   test('should display unread count badge if notifications exist', async ({ page }) => {
-    const badge = page.locator('[data-testid="notifications-button"] span').filter({ hasText: /\d+/ });
+    const badge = page.locator('[data-testid="notification-bell"] span').filter({ hasText: /\d+/ });
     
     const badgeCount = await badge.count();
     if (badgeCount > 0) {
@@ -55,7 +55,7 @@ test.describe('Notifications', () => {
   });
 
   test('should mark notification as read when clicked', async ({ page }) => {
-    await page.getByTestId('notifications-button').click();
+    await page.getByTestId('notification-bell').click();
     
     await page.waitForTimeout(1000);
     
