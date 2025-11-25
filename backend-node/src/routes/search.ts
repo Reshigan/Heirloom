@@ -3,6 +3,7 @@ import { prisma } from '../index';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { aiService } from '../services/AIService';
+import { nlpService } from '../services/NLPService';
 
 const router = Router();
 
