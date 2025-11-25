@@ -56,12 +56,13 @@ router.get('/search', async (req: AuthRequest, res, next) => {
     }
 
     if (q) {
+      const queryString = Array.isArray(q) ? q[0] : q;
       let searchIntent;
       try {
-        searchIntent = await nlpService.parseSearchIntent(q as string);
+        searchIntent = await nlpService.parseSearchIntent(queryString);
       } catch (error) {
         console.error('Failed to parse search intent:', error);
-        searchIntent = { keywords: [q.toLowerCase()] };
+        searchIntent = { keywords: [queryString.toLowerCase()] };
       }
 
       where.OR = [
