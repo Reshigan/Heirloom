@@ -18,7 +18,7 @@ import {
   CheckCircle,
   Volume2
 } from 'lucide-react'
-import { apiClient } from '@/lib/api'
+import { apiClient } from '@/lib/api-client'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface StoryRecorderProps {

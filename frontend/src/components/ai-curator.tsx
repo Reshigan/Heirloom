@@ -21,7 +21,16 @@ import {
   List,
   SlidersHorizontal
 } from 'lucide-react'
-import { apiClient, Memory } from '../lib/api'
+import { apiClient } from '../lib/api-client'
+
+interface Memory {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  media_url?: string;
+  thumbnail_url?: string;
+}
 
 interface SearchFilter {
   people: string[]

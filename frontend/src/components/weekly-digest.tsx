@@ -25,7 +25,22 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react'
-import { apiClient, DigestItem as ApiDigestItem, NotificationSettings } from '../lib/api'
+import { apiClient } from '../lib/api-client'
+
+interface ApiDigestItem {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  icon: string;
+  color: string;
+}
+
+interface NotificationSettings {
+  digestEnabled: boolean;
+  frequency: string;
+}
 
 const WeeklyDigest: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'digest' | 'reminders' | 'settings'>('digest')

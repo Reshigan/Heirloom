@@ -25,7 +25,7 @@ import {
   Zap,
   TrendingUp
 } from 'lucide-react'
-import { apiClient } from '../lib/api'
+import { apiClient } from '../lib/api-client'
 
 interface ImportSource {
   id: string
