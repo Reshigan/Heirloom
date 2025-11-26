@@ -11,6 +11,12 @@ import subscriptionRoutes from './routes/subscriptions';
 import unlockRoutes from './routes/unlock';
 import notificationRoutes from './routes/notifications';
 import searchRoutes from './routes/search';
+import commentsRoutes from './routes/comments';
+import highlightsRoutes from './routes/highlights';
+import timeCapsuleRoutes from './routes/timeCapsules';
+import importsRoutes from './routes/imports';
+import digestRoutes from './routes/digest';
+import curatorRoutes from './routes/curator';
 import { errorHandler } from './middleware/errorHandler';
 import { auditLogger } from './middleware/auditLogger';
 import { JobScheduler } from './services/jobScheduler';
@@ -29,7 +35,8 @@ app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3000',
     'http://3.8.160.221',
-    'http://loom.vantax.co.za'
+    'http://loom.vantax.co.za',
+    'https://loom.vantax.co.za'
   ],
   credentials: true
 }));
@@ -54,6 +61,12 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/unlock', unlockRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api', searchRoutes);
+app.use('/api', commentsRoutes);
+app.use('/api/highlights', highlightsRoutes);
+app.use('/api/time-capsules', timeCapsuleRoutes);
+app.use('/api/imports', importsRoutes);
+app.use('/api/digest', digestRoutes);
+app.use('/api/curator', curatorRoutes);
 
 app.use(errorHandler);
 
