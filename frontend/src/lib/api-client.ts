@@ -238,6 +238,80 @@ class APIClient {
   }> {
     return this.request('/subscriptions/current');
   }
+
+  async getMemories(): Promise<any[]> {
+    const result = await this.getVaultItems();
+    return result.items.map(item => ({
+      id: item.id,
+      title: item.title || `Untitled ${item.type}`,
+      description: '',
+      date: item.createdAt,
+      media_url: item.thumbnailUrl,
+      thumbnail_url: item.thumbnailUrl,
+      type: item.type,
+      emotion: item.emotionCategory,
+      importance: item.importanceScore
+    }));
+  }
+
+  async getTimeCapsules(): Promise<any[]> {
+    const result = await this.request<{ timeCapsules: any[] }>('/time-capsules');
+    return result.timeCapsules;
+  }
+
+  async getHighlights(): Promise<any[]> {
+    const result = await this.request<{ highlights: any[] }>('/highlights');
+    return result.highlights;
+  }
+
+  async getWeeklyDigest(): Promise<any> {
+    return this.request('/digest/weekly');
+  }
+
+  async startImport(source: string, settings: any): Promise<{ import_id: string; status: string }> {
+    return this.request('/imports/start', {
+      method: 'POST',
+      body: JSON.stringify({ source, settings })
+    });
+  }
+
+  async getImportStatus(importId: string): Promise<any> {
+    return this.request(`/imports/${importId}/status`);
+  }
+
+  async getComments(itemId: string): Promise<any[]> {
+    const result = await this.request<{ comments: any[] }>(`/vault/items/${itemId}/comments`);
+    return result.comments;
+  }
+
+  async addComment(itemId: string, content: string): Promise<any> {
+    const result = await this.request<{ comment: any }>(`/vault/items/${itemId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content })
+    });
+    return result.comment;
+  }
+
+  async getCuratorSuggestions(): Promise<any[]> {
+    const result = await this.request<{ suggestions: any[] }>('/curator/suggestions');
+    return result.suggestions;
+  }
+
+  async createStory(data: any): Promise<any> {
+    return this.uploadItem({
+      type: 'voice',
+      title: data.title,
+      encryptedData: data.encryptedData,
+      encryptedDek: data.encryptedDek,
+      thumbnailUrl: data.thumbnailUrl,
+      fileSizeBytes: data.fileSizeBytes
+    });
+  }
+
+  async getStories(): Promise<any[]> {
+    const result = await this.getVaultItems({ type: 'voice' });
+    return result.items;
+  }
 }
 
 export const apiClient = new APIClient();
