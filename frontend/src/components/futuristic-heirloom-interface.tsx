@@ -65,6 +65,7 @@ import HighlightsTimeCapsules from './highlights-time-capsules'
 import ImportWizard from './import-wizard'
 import WeeklyDigest from './weekly-digest'
 import AICurator from './ai-curator'
+import PlatformTour from './platform-tour'
 import { apiClient } from '@/lib/api-client'
 
 type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
@@ -118,6 +119,7 @@ export default function FuturisticHeirloomInterface() {
   const [outgoingOrbs, setOutgoingOrbs] = useState<MemoryOrb[]>([])
   const [showWarpFlash, setShowWarpFlash] = useState(false)
   const [memories, setMemories] = useState<Memory[]>([])
+  const [showTour, setShowTour] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -160,6 +162,11 @@ export default function FuturisticHeirloomInterface() {
           size: 120
         }))
         setMemoryOrbs(orbs)
+        
+        const hasSeenTour = typeof window !== 'undefined' ? localStorage.getItem('heirloom:tour:completed') : null
+        if (!hasSeenTour) {
+          setTimeout(() => setShowTour(true), 1500)
+        }
       } catch (error) {
         console.error('Failed to fetch memories:', error)
       } finally {
@@ -317,6 +324,24 @@ export default function FuturisticHeirloomInterface() {
       size: 120
     }))
     setMemoryOrbs(orbs)
+  }
+
+  const handleTourComplete = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('heirloom:tour:completed', 'true')
+    }
+    setShowTour(false)
+  }
+
+  const handleTourSkip = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('heirloom:tour:completed', 'true')
+    }
+    setShowTour(false)
+  }
+
+  const handleRestartTour = () => {
+    setShowTour(true)
   }
 
   // Calculate parallax transform (only on desktop)
@@ -1102,6 +1127,11 @@ export default function FuturisticHeirloomInterface() {
           <VaultStatsDashboard onClose={() => setShowVaultStats(false)} />
         )}
       </AnimatePresence>
+
+      {/* Platform Tour */}
+      {showTour && (
+        <PlatformTour onComplete={handleTourComplete} onSkip={handleTourSkip} />
+      )}
 
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
