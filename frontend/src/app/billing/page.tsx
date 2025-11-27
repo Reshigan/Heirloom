@@ -18,7 +18,7 @@ import { GlassPanel } from '../../components/ui/GlassPanel'
 import { GlassCard } from '../../components/ui/GlassCard'
 import { GoldButton } from '../../components/ui/GoldButton'
 import { ShimmerDivider } from '../../components/ui/ShimmerDivider'
-import { apiClient } from '../../lib/api'
+import { apiClient } from '../../lib/api-client'
 import { useAuth } from '../../contexts/AuthContext'
 
 interface SubscriptionInfo {

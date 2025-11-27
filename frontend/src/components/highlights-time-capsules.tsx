@@ -26,7 +26,26 @@ import {
   Image as ImageIcon,
   TrendingUp
 } from 'lucide-react'
-import { apiClient, Memory, TimeCapsule as ApiTimeCapsule } from '../lib/api'
+import { apiClient } from '../lib/api-client'
+
+interface Memory {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  media_url?: string;
+  thumbnail_url?: string;
+}
+
+interface ApiTimeCapsule {
+  id: string;
+  title: string;
+  message: string;
+  memoryIds: string[];
+  unlockDate: string;
+  isLocked: boolean;
+  recipients: string[];
+}
 
 interface Highlight {
   id: string

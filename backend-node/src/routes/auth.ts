@@ -51,6 +51,7 @@ router.post('/register', async (req, res, next) => {
         data: {
           userId: user.id,
           encryptedVmk: '', // Will be set by client after encryption
+          vmkSalt,
           tier: 'STARTER',
           uploadLimitWeekly: uploadLimit
         }
@@ -140,7 +141,8 @@ router.post('/login', async (req, res, next) => {
         uploadsThisWeek: user.vault.uploadCountThisWeek,
         uploadLimit: user.vault.uploadLimitWeekly
       } : null,
-      token
+      token,
+      vmkSalt: user.vault?.vmkSalt // Return vmkSalt for vault encryption initialization
     });
   } catch (error) {
     next(error);

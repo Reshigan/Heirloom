@@ -65,7 +65,7 @@ import HighlightsTimeCapsules from './highlights-time-capsules'
 import ImportWizard from './import-wizard'
 import WeeklyDigest from './weekly-digest'
 import AICurator from './ai-curator'
-import { apiClient } from '@/lib/api'
+import { apiClient } from '@/lib/api-client'
 
 type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
 
