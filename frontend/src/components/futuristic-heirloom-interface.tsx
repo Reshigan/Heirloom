@@ -1100,31 +1100,6 @@ export default function FuturisticHeirloomInterface() {
       {showTour && (
         <PlatformTour onComplete={handleTourComplete} onSkip={handleTourSkip} />
       )}
-
-      <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
-        
-        .font-serif {
-          font-family: 'Bodoni Moda', serif;
-        }
-        
-        .animate-spin-slow {
-          animation: spin 60s linear infinite;
-        }
-        
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        
-        .scale-120 {
-          transform: scale(1.2);
-        }
-        
-        .scale-80 {
-          transform: scale(0.8);
-        }
-      `}</style>
     </div>
   )
 }
