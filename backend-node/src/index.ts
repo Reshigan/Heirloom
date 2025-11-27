@@ -103,6 +103,7 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`🚀 Constellation Vault API running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔒 Security: Helmet enabled, Rate limiting active`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
