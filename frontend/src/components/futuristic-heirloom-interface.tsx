@@ -364,25 +364,16 @@ export default function FuturisticHeirloomInterface() {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian-900 relative overflow-hidden font-light tracking-wide">
-      {/* Refined Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-obsidian-900 via-obsidian-800 to-obsidian-900 z-[-3]" />
-      <div 
-        className="fixed inset-0 opacity-50 z-[-2]"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '100px 100px'
-        }}
-      />
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Luxury Background Layers */}
+      <div className="luxury-bg" />
+      <div className="elegant-grid" />
 
       {/* Golden Dust Particles */}
       {particles.map(particle => (
         <motion.div
           key={particle.id}
-          className="fixed w-0.5 h-0.5 bg-gold-400 rounded-full pointer-events-none z-[-1]"
+          className="golden-dust"
           style={{ left: particle.left }}
           animate={{
             y: ['-100vh', '100vh'],
@@ -397,16 +388,13 @@ export default function FuturisticHeirloomInterface() {
         />
       ))}
 
-      {/* Sophisticated Navigation with Glassmorphism */}
-      <nav className="fixed top-0 left-0 right-0 px-4 sm:px-6 lg:px-10 py-4 sm:py-6 lg:py-8 z-50">
-        <div className="bg-gradient-to-br from-charcoal/80 via-charcoal/70 to-obsidian/80 backdrop-blur-2xl border border-gold/20 rounded-2xl px-6 py-4 shadow-2xl shadow-obsidian/50">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="w-6 sm:w-10 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"></div>
-              <h1 className="font-serif text-lg sm:text-xl lg:text-2xl text-gold-400 tracking-[0.2em] sm:tracking-[0.3em]" data-testid="brand" aria-label="Heirloom">HEIRLOOM</h1>
-            </div>
-            
-            <ul className="hidden 2xl:flex gap-4 2xl:gap-6 text-xs uppercase tracking-[0.2em] text-gold-200/70">
+      {/* Luxury Navigation */}
+      <nav className="luxury-nav">
+        <div className="logo" data-testid="brand" aria-label="Heirloom">
+          HEIRLOOM
+        </div>
+        
+        <ul className="nav-menu">
               {[
                 { id: 'memories', label: 'Memories' },
                 { id: 'highlights', label: 'Highlights' },
@@ -423,9 +411,7 @@ export default function FuturisticHeirloomInterface() {
               ].map(item => (
                 <li
                   key={item.id}
-                  className={`cursor-pointer transition-all duration-300 relative px-2 py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 ${
-                    currentView === item.id ? 'text-gold-400 bg-gold/10' : 'hover:text-gold-400 hover:bg-gold/5'
-                  }`}
+                  className="nav-item"
                   onClick={() => {
                     if (item.onClick) {
                       item.onClick()
@@ -448,17 +434,11 @@ export default function FuturisticHeirloomInterface() {
                   }}
                 >
                   {item.label}
-                  {currentView === item.id && (
-                    <motion.div
-                      className="absolute -bottom-1 left-0 w-full h-px bg-gold-400"
-                      layoutId="nav-indicator"
-                    />
-                  )}
                 </li>
               ))}
             </ul>
-
-            <div className="flex items-center gap-2 sm:gap-4">
+        
+        <div className="flex items-center gap-2 sm:gap-4">
               {isAuthenticated ? (
                 <>
                   <a
@@ -519,13 +499,11 @@ export default function FuturisticHeirloomInterface() {
                   Sign In
                 </button>
               )}
-            </div>
-          </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="pt-20 sm:pt-24 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="heritage-container">
         <AnimatePresence mode="wait">
           {currentView === 'memories' && (
             <motion.div
@@ -533,44 +511,40 @@ export default function FuturisticHeirloomInterface() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="min-h-screen flex items-center justify-center relative"
             >
-              {/* Wisdom Quote - Hidden on mobile */}
+              {/* Wisdom Quote */}
               <AnimatePresence>
                 {showWisdomQuote && selectedMemory && (
                   <motion.div
-                    className="hidden lg:block fixed left-16 top-1/2 transform -translate-y-1/2 w-72 z-40"
+                    className="wisdom-quote active"
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -50 }}
                   >
-                    <div className="text-6xl font-serif text-gold-400/30 leading-none">"</div>
-                    <div className="font-serif text-xl text-pearl leading-relaxed italic my-5">
+                    <div className="quote-mark">"</div>
+                    <div className="quote-text">
                       {selectedMemory.description}
                     </div>
-                    <div className="text-xs uppercase tracking-[0.15em] text-gold-200/70">
-                      — {mockFamilyMembers.find(m => selectedMemory.participants.includes(m.id))?.name || 'Family Member'}
+                    <div className="quote-author">
+                      — {mockFamilyMembers.find(m => selectedMemory.participants?.includes(m.id))?.name || 'Family Member'}
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Memory Gallery - Circular on desktop, linear on mobile */}
-              <div className="relative w-full max-w-6xl h-[60vh] sm:h-[70vh] flex items-center justify-center">
-                {/* Desktop: Circular Timeline */}
+              {/* Memory Gallery */}
+              <div className="memory-gallery">
+                {/* Memory Showcase */}
                 <div 
                   ref={showcaseRef}
-                  className="hidden lg:block relative w-[300px] h-[300px] xl:w-[500px] xl:h-[500px]"
+                  className="memory-showcase"
                   style={{ 
                     transform: getParallaxTransform(),
                     pointerEvents: isWarping ? 'none' : 'auto'
                   }}
                 >
                   {/* Rotating Frame */}
-                  <div className="absolute inset-0 border border-gold-500/30 rounded-full animate-spin-slow">
-                    <div className="absolute inset-0 border border-gold-500/20 rounded-full scale-120"></div>
-                    <div className="absolute inset-0 border border-gold-500/20 rounded-full scale-80"></div>
-                  </div>
+                  <div className="showcase-frame"></div>
 
                   {/* Warp Flash Overlay */}
                   <AnimatePresence>
@@ -660,7 +634,7 @@ export default function FuturisticHeirloomInterface() {
                   {memoryOrbs.map((orb, index) => (
                     <motion.div
                       key={`${orb.id}-in`}
-                      className="absolute cursor-pointer"
+                      className="memory-orb"
                       style={{
                         width: `${orb.size}px`,
                         height: `${orb.size}px`,
@@ -692,13 +666,15 @@ export default function FuturisticHeirloomInterface() {
                       onMouseEnter={() => !isWarping && handleOrbHover(orb)}
                       onMouseLeave={handleOrbLeave}
                     >
-                      <div className="w-full h-full rounded-full overflow-hidden border border-gold-500/30 hover:border-gold-400 transition-all duration-500 hover:shadow-2xl hover:shadow-gold-400/30">
-                        <img
-                          src={orb.memory.thumbnail}
-                          alt={orb.memory.title}
-                          className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                      <div className="orb-container">
+                        <div className="orb-content">
+                          <img
+                            src={orb.memory.thumbnail}
+                            alt={orb.memory.title}
+                            className="orb-image"
+                          />
+                          <div className="orb-overlay" />
+                        </div>
                       </div>
                       {/* Bloom particles */}
                       {isWarping && (
@@ -736,14 +712,12 @@ export default function FuturisticHeirloomInterface() {
                   ))}
 
                   {/* Central Focus */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 z-10">
-                    <div className="w-full h-full rounded-full border-2 border-gold-400 overflow-hidden bg-gradient-to-br from-gold-400/5 to-transparent backdrop-blur-sm shadow-2xl shadow-gold-400/20">
-                      <div className="w-full h-full flex flex-col items-center justify-center text-center p-8">
-                        <div className="w-14 h-14 border border-gold-400 rounded-full flex items-center justify-center font-serif text-xl text-gold-400 mb-4">
-                          H
-                        </div>
-                        <div className="font-serif text-xl text-gold-400 mb-2 tracking-wide">The Hamilton Legacy</div>
-                        <div className="text-xs uppercase tracking-[0.2em] text-gold-200/70">Five Generations • One Story</div>
+                  <div className="central-memory">
+                    <div className="central-frame">
+                      <div className="central-content">
+                        <div className="family-crest">H</div>
+                        <div className="family-name">Your Heritage</div>
+                        <div className="family-tagline">Eternal Legacy</div>
                       </div>
                     </div>
                   </div>
@@ -936,25 +910,18 @@ export default function FuturisticHeirloomInterface() {
       </div>
 
       {/* Elegant Timeline */}
-      <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-4/5 max-w-4xl p-8 bg-charcoal/80 backdrop-blur-xl border border-gold-500/20 rounded-2xl z-30">
-        <div className="relative h-0.5 bg-gold-500/10 my-5">
-          <div className="absolute h-full w-3/5 bg-gradient-to-r from-transparent via-gold-400 to-transparent animate-pulse"></div>
+      <div className="timeline-elegant">
+        <div className="timeline-track">
+          <div className="timeline-progress"></div>
           
           {['1920s', '1950s', '1980s', '2000s', 'Present'].map((era, index) => (
             <button
               key={era}
-              className={`absolute top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 transition-all duration-300 hover:w-4 hover:h-4 ${
-                currentEra === era 
-                  ? 'bg-gold-400 border-gold-400 shadow-lg shadow-gold-400/50' 
-                  : 'bg-charcoal border-gold-400 hover:shadow-lg hover:shadow-gold-400/30'
-              }`}
+              className="era-marker"
               style={{ left: `${10 + index * 20}%` }}
               onClick={() => handleEraClick(era)}
-            >
-              <span className="absolute top-5 left-1/2 transform -translate-x-1/2 text-xs tracking-wide text-gold-200/60 whitespace-nowrap">
-                {era}
-              </span>
-            </button>
+              data-year={era}
+            />
           ))}
         </div>
       </div>
@@ -963,40 +930,40 @@ export default function FuturisticHeirloomInterface() {
       <AnimatePresence>
         {showDetailPanel && selectedMemory && (
           <motion.div
-            className="fixed right-10 top-1/2 transform -translate-y-1/2 w-[480px] max-h-[80vh] overflow-y-auto bg-charcoal/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-8 z-40"
+            className={`detail-panel ${showDetailPanel ? 'active' : ''}`}
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}
           >
-            <div className="border-b border-gold-500/20 pb-5 mb-6">
-              <h3 className="font-serif text-2xl text-gold-400 mb-2">{selectedMemory.title}</h3>
-              <p className="text-xs uppercase tracking-[0.15em] text-gold-200/70">A cherished family memory</p>
+            <div className="detail-header">
+              <h3 className="detail-title">{selectedMemory.title}</h3>
+              <p className="detail-subtitle">A cherished family memory</p>
             </div>
             
-            <div className="space-y-6">
-              <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">Captured</div>
-                <div className="text-pearl">{new Date(selectedMemory.date).toLocaleDateString()}</div>
+            <div className="detail-content">
+              <div className="detail-item">
+                <div className="detail-label">Captured</div>
+                <div className="detail-value">{new Date(selectedMemory.date).toLocaleDateString()}</div>
               </div>
               
-              <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">Location</div>
-                <div className="text-pearl">{selectedMemory.location}</div>
+              <div className="detail-item">
+                <div className="detail-label">Location</div>
+                <div className="detail-value">{selectedMemory.location}</div>
               </div>
               
-              <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">Present</div>
-                <div className="text-pearl">
-                  {selectedMemory.participants.map(id => 
+              <div className="detail-item">
+                <div className="detail-label">Present</div>
+                <div className="detail-value">
+                  {selectedMemory.participants?.map(id => 
                     mockFamilyMembers.find(m => m.id === id)?.name
                   ).filter(Boolean).join(', ')}
                 </div>
               </div>
               
               {selectedMemory.aiEnhanced && (
-                <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-gold-200/60 mb-2">AI Enhancement</div>
-                  <div className="text-pearl">Restored • Colorized • Clarified</div>
+                <div className="detail-item">
+                  <div className="detail-label">AI Enhancement</div>
+                  <div className="detail-value">Restored • Colorized • Clarified</div>
                 </div>
               )}
 
@@ -1009,9 +976,9 @@ export default function FuturisticHeirloomInterface() {
       </AnimatePresence>
 
       {/* Floating Action Bar */}
-      <div className="fixed bottom-10 right-10 flex flex-col gap-4 z-50">
+      <div className="action-bar">
         <motion.button
-          className="w-14 h-14 rounded-full bg-charcoal/90 backdrop-blur-xl border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-lg hover:shadow-gold-400/30 transition-all duration-300"
+          className="luxury-fab"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleRecordStory}
@@ -1020,7 +987,7 @@ export default function FuturisticHeirloomInterface() {
         </motion.button>
         
         <motion.button
-          className="w-14 h-14 rounded-full bg-charcoal/90 backdrop-blur-xl border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:shadow-lg hover:shadow-gold-400/30 transition-all duration-300"
+          className="luxury-fab"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleAIEnhance}
@@ -1029,10 +996,11 @@ export default function FuturisticHeirloomInterface() {
         </motion.button>
         
         <motion.button
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-obsidian-900 hover:from-gold-500 hover:to-gold-300 transition-all duration-300 shadow-lg shadow-gold-400/30"
+          className="luxury-fab primary"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleAddMemory}
+          data-testid="add-memory-button"
         >
           <Plus className="w-6 h-6" />
         </motion.button>
@@ -1132,31 +1100,6 @@ export default function FuturisticHeirloomInterface() {
       {showTour && (
         <PlatformTour onComplete={handleTourComplete} onSkip={handleTourSkip} />
       )}
-
-      <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,300;6..96,400;6..96,600&family=Montserrat:wght@200;300;400;500&display=swap');
-        
-        .font-serif {
-          font-family: 'Bodoni Moda', serif;
-        }
-        
-        .animate-spin-slow {
-          animation: spin 60s linear infinite;
-        }
-        
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        
-        .scale-120 {
-          transform: scale(1.2);
-        }
-        
-        .scale-80 {
-          transform: scale(0.8);
-        }
-      `}</style>
     </div>
   )
 }
