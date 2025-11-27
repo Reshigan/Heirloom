@@ -1,0 +1,152 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-lint-and-build:
+    name: Backend Lint & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend-node/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: backend-node
+        run: npm ci
+      
+      - name: Generate Prisma Client
+        working-directory: backend-node
+        run: npx prisma generate
+      
+      - name: Build
+        working-directory: backend-node
+        run: npm run build
+      
+      - name: Check for TypeScript errors
+        working-directory: backend-node
+        run: npx tsc --noEmit
+
+  frontend-lint-and-build:
+    name: Frontend Lint & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: https://loom.vantax.co.za/api
+      
+      - name: Check for TypeScript errors
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: heirloom_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend-node/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: backend-node
+        run: npm ci
+      
+      - name: Generate Prisma Client
+        working-directory: backend-node
+        run: npx prisma generate
+      
+      - name: Run database migrations
+        working-directory: backend-node
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/heirloom_test
+      
+      - name: Run tests
+        working-directory: backend-node
+        run: npm test
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/heirloom_test
+          JWT_SECRET: test-secret-key
+          NODE_ENV: test
+
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      
+      - name: Run Playwright tests
+        working-directory: frontend
+        run: npm run test:e2e
+        env:
+          PLAYWRIGHT_BASE_URL: https://loom.vantax.co.za
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
