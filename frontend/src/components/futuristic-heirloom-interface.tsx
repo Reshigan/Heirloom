@@ -987,24 +987,6 @@ export default function FuturisticHeirloomInterface() {
       {/* Floating Action Bar */}
       <div className="action-bar">
         <motion.button
-          className="luxury-fab"
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleRecordStory}
-        >
-          {isRecording ? <Pause className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-        </motion.button>
-        
-        <motion.button
-          className="luxury-fab"
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleAIEnhance}
-        >
-          <Sparkles className="w-5 h-5" />
-        </motion.button>
-        
-        <motion.button
           className="luxury-fab primary"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}

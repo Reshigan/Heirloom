@@ -60,14 +60,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
+          className="fixed inset-0 z-[10001] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
           onClick={onClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full h-[100dvh] sm:h-auto sm:max-w-md rounded-none sm:rounded-2xl bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border-0 sm:border border-gold-500/30 p-6 sm:p-8 shadow-2xl backdrop-blur-xl overflow-y-auto"
+            className="relative w-full h-[100dvh] sm:h-auto sm:max-w-md rounded-none sm:rounded-2xl bg-gradient-to-br from-obsidian/95 to-charcoal/95 border-0 sm:border border-gold/30 p-6 sm:p-8 shadow-2xl backdrop-blur-xl overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
