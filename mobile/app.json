@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Heirloom",
+    "slug": "heirloom",
+    "version": "1.0.0",
+    "description": "A journey of leaving a legacy, sharing for future generations, and creating a safe personal space for your family's memories",
+    "orientation": "portrait",
+    "primaryColor": "#D4AF37",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.heirloom.app",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Heirloom needs access to your photos to upload and preserve your family memories",
+        "NSCameraUsageDescription": "Heirloom needs access to your camera to capture new memories",
+        "NSMicrophoneUsageDescription": "Heirloom needs access to your microphone to record audio stories"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
