@@ -342,6 +342,28 @@ class APIClient {
       body: JSON.stringify(settings)
     });
   }
+
+  async trackEvent(event: string, properties?: any): Promise<void> {
+    const analyticsEnabled = process.env.NEXT_PUBLIC_ANALYTICS === 'on';
+    if (!analyticsEnabled) return;
+
+    try {
+      await this.request('/analytics/events', {
+        method: 'POST',
+        body: JSON.stringify({ event, properties })
+      });
+    } catch (error) {
+      console.error('Failed to track event:', error);
+    }
+  }
+
+  async getMetrics(startDate?: string, endDate?: string, cohortTag?: string): Promise<any> {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    if (cohortTag) params.append('cohortTag', cohortTag);
+    return this.request(`/analytics/metrics?${params}`);
+  }
 }
 
 export const apiClient = new APIClient();
