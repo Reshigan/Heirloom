@@ -18,6 +18,9 @@ import importsRoutes from './routes/imports';
 import digestRoutes from './routes/digest';
 import curatorRoutes from './routes/curator';
 import analyticsRoutes from './routes/analytics';
+import storyReelsRoutes from './routes/story-reels';
+import afterImGoneLettersRoutes from './routes/after-im-gone-letters';
+import memorialPagesRoutes from './routes/memorial-pages';
 import { errorHandler } from './middleware/errorHandler';
 import { auditLogger } from './middleware/auditLogger';
 import { JobScheduler } from './services/jobScheduler';
@@ -89,6 +92,9 @@ app.use('/api/imports', importsRoutes);
 app.use('/api/digest', digestRoutes);
 app.use('/api/curator', curatorRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/story-reels', storyReelsRoutes);
+app.use('/api/after-im-gone-letters', afterImGoneLettersRoutes);
+app.use('/api/memorial-pages', memorialPagesRoutes);
 
 app.use(sentryErrorHandler());
 

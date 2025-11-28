@@ -1,8 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import * as bcrypt from 'bcryptjs';
 import * as fs from 'fs';
 
 const prisma = new PrismaClient();
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 8);
+}
 
 const SENTIMENT_LABELS = ['joyful', 'nostalgic', 'loving', 'hopeful', 'reflective'];
 const MEMORY_TITLES = [
@@ -22,7 +27,8 @@ async function seedTestUsers() {
   console.log('🌱 Seeding 300 test users for simulation...');
 
   const testUsers: any[] = [];
-  const password = await bcrypt.hash('Test123456!', 10);
+  const password = await hashPassword('Test123456!');
+  const salt = crypto.randomBytes(16).toString('hex');
 
   for (let i = 1; i <= 300; i++) {
     const email = `testuser${i}@simulation.test`;
@@ -32,31 +38,24 @@ async function seedTestUsers() {
       const user = await prisma.user.create({
         data: {
           email,
-          password,
+          passwordHash: password,
+          salt,
           createdAt,
           status: 'alive',
-          checkInFrequency: 90, // 90 days normally, but will be compressed in test
-          nextCheckIn: new Date(Date.now() + Math.random() * 60 * 60 * 1000), // Next 60 minutes
-          notificationSettings: {
-            weekly_digest: true,
-            daily_reminders: true,
-            new_comments: true,
-            new_memories: true,
-            birthdays: true,
-            anniversaries: true,
-            story_prompts: true,
-            family_activity: true,
-            email_notifications: true,
-            push_notifications: true
-          }
+          checkInIntervalDays: 90,
+          nextCheckIn: new Date(Date.now() + Math.random() * 60 * 60 * 1000)
         }
       });
 
+      const vmkSalt = crypto.randomBytes(16).toString('hex');
+      const encryptedVmk = crypto.randomBytes(32).toString('hex');
+      
       const vault = await prisma.vault.create({
         data: {
           userId: user.id,
-          name: `${user.email}'s Vault`,
-          uploadLimit: 50,
+          encryptedVmk,
+          vmkSalt,
+          uploadLimitWeekly: 50,
           uploadCountThisWeek: 0
         }
       });
@@ -66,17 +65,21 @@ async function seedTestUsers() {
         const sentimentLabel = SENTIMENT_LABELS[Math.floor(Math.random() * SENTIMENT_LABELS.length)];
         const title = MEMORY_TITLES[Math.floor(Math.random() * MEMORY_TITLES.length)];
         
+        const encryptedData = crypto.randomBytes(32).toString('hex');
+        const encryptedDek = crypto.randomBytes(32).toString('hex');
+        
         await prisma.vaultItem.create({
           data: {
             vaultId: vault.id,
             title: `${title} ${j + 1}`,
-            description: `A cherished memory from the past`,
             type: 'photo',
-            mediaUrl: `https://picsum.photos/seed/${user.id}-${j}/800/600`,
+            encryptedData,
+            encryptedDek,
             thumbnailUrl: `https://picsum.photos/seed/${user.id}-${j}/200/150`,
             sentimentLabel,
             emotionCategory: sentimentLabel,
             importanceScore: Math.floor(Math.random() * 10) + 1,
+            recipientIds: [],
             createdAt: new Date(createdAt.getTime() + j * 24 * 60 * 60 * 1000)
           }
         });

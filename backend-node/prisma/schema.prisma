@@ -398,3 +398,114 @@ model AnalyticsEvent {
   @@index([createdAt])
   @@map("analytics_events")
 }
+
+model StoryReel {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  title        String
+  description  String?
+  memoryIds    String[] @map("memory_ids")
+  duration     Int      @default(30) // seconds
+  musicTrack   String?  @map("music_track") // URL or identifier
+  style        String   @default("elegant") // elegant, modern, vintage, minimal
+  videoUrl     String?  @map("video_url") // Generated video URL
+  thumbnailUrl String?  @map("thumbnail_url")
+  status       String   @default("draft") // draft, generating, ready, failed
+  viewCount    Int      @default(0) @map("view_count")
+  isPublic     Boolean  @default(false) @map("is_public")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@index([status])
+  @@map("story_reels")
+}
+
+model AfterImGoneLetter {
+  id                String    @id @default(uuid())
+  userId            String    @map("user_id")
+  recipientId       String?   @map("recipient_id") // References Recipient model
+  recipientEmail    String    @map("recipient_email")
+  recipientName     String?   @map("recipient_name")
+  subject           String
+  encryptedContent  String    @map("encrypted_content") // Encrypted letter content
+  encryptedDek      String    @map("encrypted_dek") // Data encryption key
+  deliveryStatus    String    @default("pending") // pending, scheduled, delivered, failed
+  deliveredAt       DateTime? @map("delivered_at")
+  readAt            DateTime? @map("read_at")
+  attachedMemoryIds String[]  @default([]) @map("attached_memory_ids")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@index([recipientEmail])
+  @@index([deliveryStatus])
+  @@map("after_im_gone_letters")
+}
+
+model MemorialPage {
+  id                 String    @id @default(uuid())
+  userId             String    @map("user_id") // The person being memorialized
+  slug               String    @unique // URL-friendly identifier
+  displayName        String    @map("display_name")
+  birthDate          DateTime? @map("birth_date")
+  deathDate          DateTime? @map("death_date")
+  biography          String?
+  profileImageUrl    String?   @map("profile_image_url")
+  coverImageUrl      String?   @map("cover_image_url")
+  featuredMemoryIds  String[]  @default([]) @map("featured_memory_ids")
+  isPublic           Boolean   @default(false) @map("is_public")
+  allowContributions Boolean   @default(true) @map("allow_contributions")
+  requireApproval    Boolean   @default(true) @map("require_approval")
+  viewCount          Int       @default(0) @map("view_count")
+  contributionCount  Int       @default(0) @map("contribution_count")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  contributions MemorialContribution[]
+  tributes      MemorialTribute[]
+
+  @@index([userId])
+  @@index([slug])
+  @@index([isPublic])
+  @@map("memorial_pages")
+}
+
+model MemorialContribution {
+  id               String    @id @default(uuid())
+  memorialPageId   String    @map("memorial_page_id")
+  contributorEmail String    @map("contributor_email")
+  contributorName  String?   @map("contributor_name")
+  encryptedData    String    @map("encrypted_data") // Encrypted memory content
+  encryptedDek     String    @map("encrypted_dek")
+  thumbnailUrl     String?   @map("thumbnail_url")
+  type             String    @default("photo") // photo, video, text, voice
+  status           String    @default("pending") // pending, approved, rejected
+  approvedAt       DateTime? @map("approved_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  memorialPage MemorialPage @relation(fields: [memorialPageId], references: [id], onDelete: Cascade)
+
+  @@index([memorialPageId])
+  @@index([memorialPageId, status])
+  @@index([contributorEmail])
+  @@map("memorial_contributions")
+}
+
+model MemorialTribute {
+  id             String   @id @default(uuid())
+  memorialPageId String   @map("memorial_page_id")
+  authorName     String   @map("author_name")
+  authorEmail    String?  @map("author_email")
+  message        String
+  isPublic       Boolean  @default(true) @map("is_public")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  memorialPage MemorialPage @relation(fields: [memorialPageId], references: [id], onDelete: Cascade)
+
+  @@index([memorialPageId])
+  @@index([memorialPageId, createdAt])
+  @@map("memorial_tributes")
+}

@@ -66,6 +66,9 @@ import ImportWizard from './import-wizard'
 import WeeklyDigest from './weekly-digest'
 import AICurator from './ai-curator'
 import PlatformTour from './platform-tour'
+import StoryReels from './story-reels'
+import AfterImGoneLetters from './after-im-gone-letters'
+import MemorialPages from './memorial-pages'
 import { apiClient } from '@/lib/api-client'
 
 type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
@@ -121,6 +124,9 @@ export default function FuturisticHeirloomInterface() {
   const [showWarpFlash, setShowWarpFlash] = useState(false)
   const [memories, setMemories] = useState<Memory[]>([])
   const [showTour, setShowTour] = useState(false)
+  const [showStoryReels, setShowStoryReels] = useState(false)
+  const [showAfterImGoneLetters, setShowAfterImGoneLetters] = useState(false)
+  const [showMemorialPages, setShowMemorialPages] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -407,7 +413,9 @@ export default function FuturisticHeirloomInterface() {
                 { id: 'contacts', label: 'Contacts', onClick: () => setShowTrustedContacts(true), testId: 'nav-contacts' },
                 { id: 'stats', label: 'Stats', onClick: () => setShowVaultStats(true), testId: 'nav-stats' },
                 { id: 'digest', label: 'Digest' },
-                { id: 'share', label: 'Share' },
+                { id: 'reels', label: 'Story Reels', onClick: () => setShowStoryReels(true), testId: 'nav-reels' },
+                { id: 'letters', label: 'Letters', onClick: () => setShowAfterImGoneLetters(true), testId: 'nav-letters' },
+                { id: 'memorial', label: 'Memorial', onClick: () => setShowMemorialPages(true), testId: 'nav-memorial' },
                 { id: 'tokens', label: 'Legacy' }
               ].map(item => (
                 <li
@@ -1100,6 +1108,19 @@ export default function FuturisticHeirloomInterface() {
       {/* Platform Tour */}
       {showTour && (
         <PlatformTour onComplete={handleTourComplete} onSkip={handleTourSkip} />
+      )}
+
+      {/* Viral Growth Features */}
+      {showStoryReels && (
+        <StoryReels onClose={() => setShowStoryReels(false)} />
+      )}
+
+      {showAfterImGoneLetters && (
+        <AfterImGoneLetters onClose={() => setShowAfterImGoneLetters(false)} />
+      )}
+
+      {showMemorialPages && (
+        <MemorialPages onClose={() => setShowMemorialPages(false)} />
       )}
     </div>
   )
