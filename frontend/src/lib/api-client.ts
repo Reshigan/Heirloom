@@ -250,7 +250,12 @@ class APIClient {
       thumbnail_url: item.thumbnailUrl,
       type: item.type,
       emotion: item.emotionCategory,
-      importance: item.importanceScore
+      emotionCategory: item.emotionCategory,
+      importance: item.importanceScore,
+      sentimentLabel: (item as any).sentimentLabel,
+      sentimentScore: (item as any).sentimentScore,
+      keywords: (item as any).keywords,
+      createdAt: item.createdAt
     }));
   }
 
