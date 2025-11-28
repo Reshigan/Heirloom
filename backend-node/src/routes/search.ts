@@ -15,6 +15,7 @@ router.get('/search', async (req: AuthRequest, res, next) => {
       q,
       type,
       emotionCategory,
+      sentimentLabel,
       minImportance,
       maxImportance,
       startDate,
@@ -41,6 +42,10 @@ router.get('/search', async (req: AuthRequest, res, next) => {
 
     if (emotionCategory) {
       where.emotionCategory = emotionCategory;
+    }
+
+    if (sentimentLabel) {
+      where.sentimentLabel = sentimentLabel;
     }
 
     if (minImportance || maxImportance) {
