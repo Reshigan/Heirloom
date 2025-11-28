@@ -66,6 +66,7 @@ import ImportWizard from './import-wizard'
 import WeeklyDigest from './weekly-digest'
 import AICurator from './ai-curator'
 import PlatformTour from './platform-tour'
+import SentimentWelcome from './sentiment-welcome'
 import { apiClient } from '@/lib/api-client'
 
 type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
@@ -722,6 +723,13 @@ export default function FuturisticHeirloomInterface() {
                     </div>
                   </div>
                 </div>
+
+                {/* Sentiment-Driven Welcome Message */}
+                {isAuthenticated && memories.length > 0 && (
+                  <div className="w-full max-w-4xl mx-auto mt-8 px-4">
+                    <SentimentWelcome />
+                  </div>
+                )}
 
                 {/* Mobile/Tablet: Linear Timeline */}
                 <div className="lg:hidden w-full max-w-2xl mx-auto">
