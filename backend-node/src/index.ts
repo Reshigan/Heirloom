@@ -17,6 +17,7 @@ import timeCapsuleRoutes from './routes/timeCapsules';
 import importsRoutes from './routes/imports';
 import digestRoutes from './routes/digest';
 import curatorRoutes from './routes/curator';
+import analyticsRoutes from './routes/analytics';
 import { errorHandler } from './middleware/errorHandler';
 import { auditLogger } from './middleware/auditLogger';
 import { JobScheduler } from './services/jobScheduler';
@@ -87,6 +88,7 @@ app.use('/api/time-capsules', timeCapsuleRoutes);
 app.use('/api/imports', importsRoutes);
 app.use('/api/digest', digestRoutes);
 app.use('/api/curator', curatorRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.use(sentryErrorHandler());
 

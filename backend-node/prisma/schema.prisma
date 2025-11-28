@@ -385,3 +385,16 @@ model ImportJob {
   @@index([userId, status])
   @@map("import_jobs")
 }
+
+model AnalyticsEvent {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  event      String
+  properties Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@index([event, createdAt])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
