@@ -77,6 +77,7 @@ interface Memory {
   date: string
   media_url?: string
   thumbnail_url?: string
+  thumbnailUrl?: string
   location?: string
   participants?: string[]
 }
@@ -526,7 +527,7 @@ export default function FuturisticHeirloomInterface() {
                       {selectedMemory.description}
                     </div>
                     <div className="quote-author">
-                      — {mockFamilyMembers.find(m => selectedMemory.participants?.includes(m.id))?.name || 'Family Member'}
+                      — Family Member
                     </div>
                   </motion.div>
                 )}
@@ -607,7 +608,7 @@ export default function FuturisticHeirloomInterface() {
                         >
                           <div className="w-full h-full rounded-full overflow-hidden border border-gold-500/30">
                             <img
-                              src={orb.memory.thumbnail}
+                              src={orb.memory.thumbnailUrl || orb.memory.thumbnail_url}
                               alt={orb.memory.title}
                               className="w-full h-full object-cover opacity-90"
                             />
@@ -738,7 +739,7 @@ export default function FuturisticHeirloomInterface() {
                           <div className="flex gap-4">
                             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gold-500/30">
                               <img
-                                src={memory.thumbnail}
+                                src={memory.thumbnailUrl || memory.thumbnail_url}
                                 alt={memory.title}
                                 className="w-full h-full object-cover"
                               />
@@ -951,14 +952,14 @@ export default function FuturisticHeirloomInterface() {
                 <div className="detail-value">{selectedMemory.location}</div>
               </div>
               
-              <div className="detail-item">
-                <div className="detail-label">Present</div>
-                <div className="detail-value">
-                  {selectedMemory.participants?.map(id => 
-                    mockFamilyMembers.find(m => m.id === id)?.name
-                  ).filter(Boolean).join(', ')}
+              {selectedMemory.participants && selectedMemory.participants.length > 0 && (
+                <div className="detail-item">
+                  <div className="detail-label">Present</div>
+                  <div className="detail-value">
+                    {selectedMemory.participants.length} {selectedMemory.participants.length === 1 ? 'person' : 'people'}
+                  </div>
                 </div>
-              </div>
+              )}
               
               {selectedMemory.aiEnhanced && (
                 <div className="detail-item">

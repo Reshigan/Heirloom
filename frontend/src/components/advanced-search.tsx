@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, X, Calendar, Tag, Heart, Star } from 'lucide-react';
+import { apiClient } from '@/lib/api-client';
 
 interface SearchFilters {
   q: string;
@@ -45,28 +46,9 @@ export function AdvancedSearch({ isOpen, onClose, onResultClick }: AdvancedSearc
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('vault_token');
-      const params = new URLSearchParams();
-      
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== '') {
-          params.append(key, value.toString());
-        }
-      });
-
-      const response = await fetch(`https://loom.vantax.co.za/api/search?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setResults(data.items || []);
-        setTotal(data.total || 0);
-      } else {
-        setError('Search failed. Please try again.');
-      }
+      const results = await apiClient.search(filters);
+      setResults(results.items || []);
+      setTotal(results.total || 0);
     } catch (error) {
       console.error('Search failed:', error);
       setError('Search failed. Please try again.');

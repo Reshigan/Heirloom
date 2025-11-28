@@ -131,4 +131,50 @@ router.get('/notifications/stream', async (req: Request, res: Response) => {
   });
 });
 
+router.get('/notifications/settings', authenticate, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    
+    const user = await require('../index').prisma.user.findUnique({
+      where: { id: userId },
+      select: { notificationSettings: true }
+    });
+
+    const defaultSettings = {
+      weekly_digest: true,
+      daily_reminders: false,
+      new_comments: true,
+      new_memories: true,
+      birthdays: true,
+      anniversaries: true,
+      story_prompts: true,
+      family_activity: true,
+      email_notifications: true,
+      push_notifications: false
+    };
+
+    res.json(user?.notificationSettings || defaultSettings);
+  } catch (error) {
+    console.error('Error fetching notification settings:', error);
+    res.status(500).json({ error: 'Failed to fetch notification settings' });
+  }
+});
+
+router.put('/notifications/settings', authenticate, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    const settings = req.body;
+
+    await require('../index').prisma.user.update({
+      where: { id: userId },
+      data: { notificationSettings: settings }
+    });
+
+    res.json({ success: true, settings });
+  } catch (error) {
+    console.error('Error updating notification settings:', error);
+    res.status(500).json({ error: 'Failed to update notification settings' });
+  }
+});
+
 export default router;

@@ -312,6 +312,36 @@ class APIClient {
     const result = await this.getVaultItems({ type: 'voice' });
     return result.items;
   }
+
+  async search(filters: {
+    q: string;
+    type?: string;
+    emotionCategory?: string;
+    sentimentLabel?: string;
+    minImportance?: number;
+    maxImportance?: number;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<{ items: any[]; total: number }> {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    return this.request(`/search?${params}`);
+  }
+
+  async getNotificationSettings(): Promise<any> {
+    return this.request('/notifications/settings');
+  }
+
+  async updateNotificationSettings(settings: any): Promise<any> {
+    return this.request('/notifications/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings)
+    });
+  }
 }
 
 export const apiClient = new APIClient();
