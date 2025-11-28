@@ -13,33 +13,33 @@ interface TourStep {
 
 const tourSteps: TourStep[] = [
   {
-    target: '[data-testid="add-memory-btn"]',
+    target: '[data-testid="brand"]',
+    title: 'Welcome to Heirloom',
+    description: 'Your family\'s memories deserve to last forever. Heirloom preserves your most precious moments with military-grade encryption, ensuring they\'re passed down safely to future generations.',
+    position: 'bottom'
+  },
+  {
+    target: '[data-testid="add-memory-button"]',
     title: 'Upload Memories',
-    description: 'Add photos, videos, and documents to your private vault. Everything is encrypted client-side before upload.',
-    position: 'bottom'
+    description: 'Add photos, videos, and documents to your private vault. Everything is encrypted client-side before upload, ensuring complete privacy.',
+    position: 'left'
   },
   {
-    target: '[data-testid="nav-recipients"]',
-    title: 'Manage Recipients',
-    description: 'Choose who receives your memories when the time comes. Set up trusted family members and friends.',
-    position: 'bottom'
+    target: '.memory-gallery',
+    title: 'AI-Powered Sentiment Analysis',
+    description: 'Heirloom automatically analyzes the emotional tone of your memories - joy, nostalgia, love, and more. This helps you understand the emotional journey of your family story.',
+    position: 'top'
   },
   {
-    target: '[data-testid="nav-checkin"]',
-    title: 'Check-in System',
-    description: 'Regular check-ins keep your vault secure. Miss check-ins trigger the unlock process for your recipients.',
-    position: 'bottom'
+    target: '.timeline-elegant',
+    title: 'Timeline View',
+    description: 'Navigate through different eras of your family history. Watch your legacy unfold across generations.',
+    position: 'top'
   },
   {
-    target: '[data-testid="nav-contacts"]',
-    title: 'Trusted Contacts',
-    description: 'Add emergency contacts who can verify your status if you miss check-ins.',
-    position: 'bottom'
-  },
-  {
-    target: '[data-testid="nav-stats"]',
-    title: 'Vault Statistics',
-    description: 'Monitor your vault usage, check-in history, and recipient status at a glance.',
+    target: '[data-testid="brand"]',
+    title: 'Why Heirloom Matters',
+    description: 'In a world where digital memories can be lost forever, Heirloom ensures your family\'s story survives. Your memories are encrypted, private, and designed to be passed down through generations - creating a lasting legacy.',
     position: 'bottom'
   }
 ]
