@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Image, 
@@ -25,9 +25,13 @@ import {
   Share2,
   Star,
   Eye,
-  MessageCircle
+  MessageCircle,
+  Loader2
 } from 'lucide-react'
-import { mockMemories, mockFamilyMembers, Memory } from '../data/mock-family-data'
+import { mockFamilyMembers, Memory } from '../data/mock-family-data'
+import { apiClient } from '../lib/api-client'
+import { useVault } from '../contexts/VaultContext'
+import toast from 'react-hot-toast'
 
 interface MemoryGalleryProps {
   selectedMemberId?: string
@@ -43,10 +47,46 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
   const [sortBy, setSortBy] = useState<'date' | 'significance' | 'title'>('date')
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [memories, setMemories] = useState<Memory[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { vaultEncryption } = useVault()
+
+  useEffect(() => {
+    fetchMemories()
+  }, [])
+
+  const fetchMemories = async () => {
+    try {
+      setIsLoading(true)
+      const items = await apiClient.getMemories()
+      const formattedMemories: Memory[] = items.map((item: any) => ({
+        id: item.id,
+        title: item.title || 'Untitled',
+        description: item.description || '',
+        date: item.date || item.createdAt,
+        location: item.location || 'Unknown',
+        type: item.type || 'photo',
+        thumbnail: item.thumbnail_url || item.thumbnailUrl || '/placeholder.jpg',
+        participants: item.participants || [],
+        tags: item.tags || [],
+        significance: item.importance >= 8 ? 'milestone' : item.importance >= 6 ? 'high' : item.importance >= 4 ? 'medium' : 'low',
+        aiEnhanced: item.aiEnhanced || false,
+        emotions: item.emotions || []
+      }))
+      setMemories(formattedMemories)
+    } catch (error) {
+      console.error('Failed to fetch memories:', error)
+      toast.error('Failed to load memories')
+      setMemories([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Filter and sort memories
-  const filteredMemories = mockMemories
+  const filteredMemories = memories
     .filter(memory => {
       const matchesSearch = memory.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            memory.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -97,12 +137,50 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
     }
   }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
-    if (files && files.length > 0) {
-      // Handle file upload logic here
-      console.log('Files selected:', files)
+    if (!files || files.length === 0) return
+
+    if (!vaultEncryption) {
+      toast.error('Vault encryption not initialized')
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      for (const file of Array.from(files)) {
+        const reader = new FileReader()
+        const fileData = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+
+        const { encryptedData, encryptedDek } = await vaultEncryption.encryptData(fileData)
+
+        const fileType = file.type.startsWith('image/') ? 'photo' : 
+                        file.type.startsWith('video/') ? 'video' :
+                        file.type.startsWith('audio/') ? 'audio' : 'document'
+
+        await apiClient.uploadItem({
+          type: fileType,
+          title: file.name,
+          encryptedData,
+          encryptedDek,
+          thumbnailUrl: fileType === 'photo' ? fileData : undefined,
+          fileSizeBytes: file.size,
+          importanceScore: 5
+        })
+      }
+
+      toast.success(`Successfully uploaded ${files.length} file(s)`)
       setShowUploadModal(false)
+      await fetchMemories()
+    } catch (error) {
+      console.error('Failed to upload files:', error)
+      toast.error('Failed to upload files')
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -129,10 +207,20 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
           
           <button
             onClick={() => setShowUploadModal(true)}
-            className="px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center gap-2"
+            disabled={isUploading}
+            className="px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Upload className="w-4 h-4" />
-            Upload Memory
+            {isUploading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4" />
+                Upload Memory
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -188,7 +276,14 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
 
       {/* Memory Grid/List */}
       <div className="flex-1 overflow-y-auto p-4">
-        {viewMode === 'grid' ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 text-gold-400 animate-spin mx-auto mb-4" />
+              <p className="text-gold-300 font-serif">Loading memories...</p>
+            </div>
+          </div>
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredMemories.map((memory, index) => (
               <motion.div
