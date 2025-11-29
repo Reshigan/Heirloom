@@ -13,6 +13,14 @@ async function hashPassword(password: string): Promise<string> {
 const SENTIMENT_LABELS = ['joyful', 'nostalgic', 'loving', 'hopeful', 'reflective', 'grateful', 'peaceful', 'excited'];
 const EMOTION_CATEGORIES = ['happiness', 'love', 'pride', 'gratitude', 'nostalgia', 'peace', 'excitement', 'wonder'];
 
+const KEYWORDS_BY_CATEGORY = {
+  family: ['family', 'together', 'love', 'home', 'bonding', 'memories', 'laughter', 'joy'],
+  milestones: ['achievement', 'proud', 'success', 'milestone', 'celebration', 'growth', 'journey', 'special'],
+  travel: ['adventure', 'explore', 'discover', 'journey', 'beautiful', 'experience', 'memories', 'wanderlust'],
+  hobbies: ['passion', 'creative', 'fun', 'relaxing', 'fulfilling', 'enjoyment', 'skill', 'hobby'],
+  celebrations: ['celebration', 'joy', 'festive', 'special', 'happy', 'memorable', 'tradition', 'gathering']
+};
+
 // Comprehensive memory titles for 10 years
 const MEMORY_CATEGORIES = {
   family: [
@@ -118,6 +126,22 @@ async function seed10YearJourney() {
     const sentimentLabel = getRandomElement(SENTIMENT_LABELS);
     const emotionCategory = getRandomElement(EMOTION_CATEGORIES);
     
+    // Generate sentiment score (0.0-1.0, higher for positive sentiments)
+    const positiveSentiments = ['joyful', 'hopeful', 'grateful', 'excited', 'loving'];
+    const baseSentimentScore = positiveSentiments.includes(sentimentLabel) 
+      ? 0.6 + Math.random() * 0.35  // 0.6-0.95 for positive
+      : 0.3 + Math.random() * 0.5;  // 0.3-0.8 for others
+    const sentimentScore = Math.round(baseSentimentScore * 100) / 100;
+    
+    // Generate keywords (2-4 relevant words from category)
+    const categoryKeywords = KEYWORDS_BY_CATEGORY[category as keyof typeof KEYWORDS_BY_CATEGORY];
+    const numKeywords = 2 + Math.floor(Math.random() * 3); // 2-4 keywords
+    const keywords: string[] = [];
+    const shuffledKeywords = [...categoryKeywords].sort(() => Math.random() - 0.5);
+    for (let i = 0; i < numKeywords && i < shuffledKeywords.length; i++) {
+      keywords.push(shuffledKeywords[i]);
+    }
+    
     // Pick random stock image category
     const imageCategory = getRandomElement(Object.keys(STOCK_IMAGE_CATEGORIES));
     const imageSeed = `${user.id}-${memoryCount}-${imageCategory}`;
@@ -140,7 +164,9 @@ async function seed10YearJourney() {
         encryptedDek,
         thumbnailUrl,
         sentimentLabel,
+        sentimentScore,
         emotionCategory,
+        keywords,
         importanceScore,
         recipientIds: [],
         createdAt: memoryDate
