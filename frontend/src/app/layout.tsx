@@ -4,7 +4,8 @@ import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext'
 import { VaultProvider } from '@/contexts/VaultContext'
 import { NotificationProvider } from '@/contexts/NotificationContext'
-import { ErrorBoundary } from '@/components/error-boundary';
+import { ErrorBoundary } from '@/components/error-boundary'
+import { Toaster } from 'react-hot-toast';
 
 const bodoniModa = Bodoni_Moda({ 
   subsets: ['latin'],
@@ -44,6 +45,30 @@ export default function RootLayout({
           <AuthProvider>
             <VaultProvider>
               <NotificationProvider>
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: '#1a1a1a',
+                      color: '#D4AF37',
+                      border: '1px solid rgba(212, 175, 55, 0.3)',
+                      fontFamily: 'var(--font-montserrat)',
+                    },
+                    success: {
+                      iconTheme: {
+                        primary: '#D4AF37',
+                        secondary: '#0A0A0A',
+                      },
+                    },
+                    error: {
+                      iconTheme: {
+                        primary: '#ef4444',
+                        secondary: '#0A0A0A',
+                      },
+                    },
+                  }}
+                />
                 <main className="max-w-screen-2xl mx-auto">
                   {children}
                 </main>

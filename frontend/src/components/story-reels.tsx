@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Play, Plus, Film, Sparkles, Download, Eye, Loader2 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
+import toast from 'react-hot-toast'
 
 interface StoryReel {
   id: string
@@ -72,7 +73,7 @@ export default function StoryReels({ onClose }: StoryReelsProps) {
 
   const handleCreateReel = async () => {
     if (!title || selectedMemoryIds.length === 0) {
-      alert('Please provide a title and select at least one memory')
+      toast.error('Please provide a title and select at least one memory')
       return
     }
 
@@ -88,9 +89,10 @@ export default function StoryReels({ onClose }: StoryReelsProps) {
       setReels([newReel, ...reels])
       setIsCreating(false)
       resetForm()
+      toast.success('Story reel created successfully')
     } catch (error) {
       console.error('Failed to create story reel:', error)
-      alert('Failed to create story reel')
+      toast.error('Failed to create story reel')
     }
   }
 
@@ -101,6 +103,8 @@ export default function StoryReels({ onClose }: StoryReelsProps) {
       setReels(reels.map(r => 
         r.id === reelId ? { ...r, status: 'generating' } : r
       ))
+      
+      toast.success('Video generation started')
 
       const pollInterval = setInterval(async () => {
         try {
@@ -109,6 +113,11 @@ export default function StoryReels({ onClose }: StoryReelsProps) {
           if (updatedReel.status === 'ready' || updatedReel.status === 'failed') {
             clearInterval(pollInterval)
             setReels(reels.map(r => r.id === reelId ? updatedReel : r))
+            if (updatedReel.status === 'ready') {
+              toast.success('Video generated successfully')
+            } else {
+              toast.error('Video generation failed')
+            }
           }
         } catch (error) {
           clearInterval(pollInterval)
@@ -116,7 +125,7 @@ export default function StoryReels({ onClose }: StoryReelsProps) {
       }, 3000)
     } catch (error) {
       console.error('Failed to generate video:', error)
-      alert('Failed to generate video')
+      toast.error('Failed to generate video')
     }
   }
 

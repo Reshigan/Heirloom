@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Heart, Plus, Eye, MessageCircle, Upload, Loader2, Globe, Lock, CheckCircle2, AlertCircle } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
+import toast from 'react-hot-toast'
 
 interface MemorialPage {
   id: string
@@ -100,7 +101,7 @@ export default function MemorialPages({ onClose }: MemorialPagesProps) {
 
   const handleSaveMemorialPage = async () => {
     if (!slug || !displayName) {
-      alert('Slug and display name are required')
+      toast.error('Slug and display name are required')
       return
     }
 
@@ -118,12 +119,13 @@ export default function MemorialPages({ onClose }: MemorialPagesProps) {
 
       setMemorialPage(data)
       setIsEditing(false)
+      toast.success('Memorial page saved successfully')
     } catch (error: any) {
       console.error('Failed to save memorial page:', error)
       if (error.response?.status === 409) {
-        alert('This slug is already taken. Please choose a different one.')
+        toast.error('This slug is already taken. Please choose a different one.')
       } else {
-        alert('Failed to save memorial page')
+        toast.error('Failed to save memorial page')
       }
     }
   }
@@ -135,10 +137,13 @@ export default function MemorialPages({ onClose }: MemorialPagesProps) {
       
       if (status === 'approved') {
         await fetchMemorialPage()
+        toast.success('Contribution approved')
+      } else {
+        toast.success('Contribution rejected')
       }
     } catch (error) {
       console.error('Failed to review contribution:', error)
-      alert('Failed to review contribution')
+      toast.error('Failed to review contribution')
     }
   }
 
@@ -400,7 +405,7 @@ export default function MemorialPages({ onClose }: MemorialPagesProps) {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(getPublicUrl())
-                          alert('URL copied to clipboard!')
+                          toast.success('URL copied to clipboard!')
                         }}
                         className="px-4 py-2 bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30 text-gold-400 rounded-lg text-sm font-medium hover:from-gold-500/30 hover:to-gold-600/30 transition-all"
                       >

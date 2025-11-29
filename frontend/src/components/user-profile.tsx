@@ -82,14 +82,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId = 'c1', onClose }) => 
   const handleSave = () => {
     // Save profile data
     setIsEditing(false)
-    console.log('Saving profile data:', profileData)
+    // TODO: Implement API call to save profile data
   }
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      // Handle image upload
-      console.log('Uploading image:', file)
       setShowImageUpload(false)
     }
   }
