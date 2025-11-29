@@ -324,18 +324,39 @@ function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
 
     try {
       setIsSubmitting(true)
-      await apiClient.addTrustedContact({
+      const result = await apiClient.addTrustedContact({
         email,
         name: name || undefined,
         phone: phone || undefined,
         shamirShareEncrypted: 'placeholder_encrypted_share',
       })
+      
+      const contactId = result.contact.id
+      const shamirShare = await generateShamirShare(email, 1)
+      
+      await apiClient.post(`/trusted-contacts/${contactId}/share`, {
+        shareCiphertext: shamirShare,
+        algorithm: 'shamir-2-of-3',
+        shareIndex: 1
+      })
+      
       onSuccess()
     } catch (error: any) {
       setError(error.message || 'Failed to add trusted contact')
     } finally {
       setIsSubmitting(false)
     }
+  }
+  
+  const generateShamirShare = async (email: string, shareIndex: number): Promise<string> => {
+    const mockVmkSecret = 'mock_vault_master_key_for_demo'
+    const shareData = {
+      email,
+      shareIndex,
+      secret: mockVmkSecret,
+      timestamp: new Date().toISOString()
+    }
+    return btoa(JSON.stringify(shareData))
   }
 
   return (
