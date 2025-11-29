@@ -158,13 +158,13 @@ export default function Testimonials() {
             {/* Navigation Arrows */}
             <button
               onClick={prevTestimonial}
-              className="absolute left-4 top-1/2 -trangold-y-1/2 p-2 text-gold/60 hover:text-gold transition-colors duration-300"
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-gold/60 hover:text-gold transition-colors duration-300"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
             <button
               onClick={nextTestimonial}
-              className="absolute right-4 top-1/2 -trangold-y-1/2 p-2 text-gold/60 hover:text-gold transition-colors duration-300"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gold/60 hover:text-gold transition-colors duration-300"
             >
               <ChevronRight className="w-6 h-6" />
             </button>

@@ -154,7 +154,7 @@ export function RevolutionaryHero({
             
             {/* Decorative underline */}
             <motion.div
-              className="absolute -bottom-4 left-1/2 transform -trangold-x-1/2 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent"
+              className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent"
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
               transition={{ delay: 1.5, duration: 1 }}
@@ -250,7 +250,7 @@ export function RevolutionaryHero({
 
         {/* Scroll Indicator */}
         <motion.div
-          className="absolute bottom-8 left-1/2 transform -trangold-x-1/2"
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 4 }}
