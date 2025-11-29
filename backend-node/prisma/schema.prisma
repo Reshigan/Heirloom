@@ -126,23 +126,40 @@ model Recipient {
 }
 
 model TrustedContact {
-  id                   String    @id @default(uuid())
-  userId               String    @map("user_id")
+  id                   String      @id @default(uuid())
+  userId               String      @map("user_id")
   email                String
   phone                String?
   name                 String?
-  shamirShareEncrypted String?   @map("shamir_share_encrypted")
-  verificationStatus   String    @default("pending") @map("verification_status") // pending, verified
-  verificationToken    String?   @map("verification_token")
-  confirmedDeath       Boolean   @default(false) @map("confirmed_death")
-  confirmedAt          DateTime? @map("confirmed_at")
-  createdAt            DateTime  @default(now()) @map("created_at")
+  shamirShareEncrypted String?     @map("shamir_share_encrypted")
+  verificationStatus   String      @default("pending") @map("verification_status") // pending, verified
+  verificationToken    String?     @map("verification_token")
+  confirmedDeath       Boolean     @default(false) @map("confirmed_death")
+  confirmedAt          DateTime?   @map("confirmed_at")
+  createdAt            DateTime    @default(now()) @map("created_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  keyShares  KeyShare[]
 
   @@index([userId])
   @@index([userId, createdAt])
   @@map("trusted_contacts")
+}
+
+model KeyShare {
+  id                String         @id @default(uuid())
+  vaultId           String         @map("vault_id")
+  trustedContactId  String         @map("trusted_contact_id")
+  shareCiphertext   String         @map("share_ciphertext") @db.Text
+  algorithm         String         @default("shamir-2-of-3")
+  shareIndex        Int            @map("share_index")
+  createdAt         DateTime       @default(now()) @map("created_at")
+
+  trustedContact TrustedContact @relation(fields: [trustedContactId], references: [id], onDelete: Cascade)
+
+  @@unique([vaultId, trustedContactId])
+  @@index([trustedContactId])
+  @@map("key_shares")
 }
 
 model CheckIn {

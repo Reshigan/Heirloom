@@ -78,4 +78,102 @@ router.get('/', async (req: AuthRequest, res, next) => {
   }
 });
 
+router.post('/trusted-contacts/:id/share', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const userId = req.user!.userId;
+    const contactId = req.params.id;
+    const { shareCiphertext, algorithm, shareIndex } = req.body;
+
+    if (!shareCiphertext || !algorithm || shareIndex === undefined) {
+      throw new AppError(400, 'Missing required fields: shareCiphertext, algorithm, shareIndex');
+    }
+
+    const contact = await prisma.trustedContact.findFirst({
+      where: {
+        id: contactId,
+        userId
+      }
+    });
+
+    if (!contact) {
+      throw new AppError(404, 'Trusted contact not found');
+    }
+
+    const vault = await prisma.vault.findUnique({
+      where: { userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    const keyShare = await prisma.keyShare.upsert({
+      where: {
+        vaultId_trustedContactId: {
+          vaultId: vault.id,
+          trustedContactId: contactId
+        }
+      },
+      update: {
+        shareCiphertext,
+        algorithm,
+        shareIndex
+      },
+      create: {
+        vaultId: vault.id,
+        trustedContactId: contactId,
+        shareCiphertext,
+        algorithm,
+        shareIndex
+      }
+    });
+
+    res.json({
+      success: true,
+      keyShare: {
+        id: keyShare.id,
+        algorithm: keyShare.algorithm,
+        shareIndex: keyShare.shareIndex,
+        createdAt: keyShare.createdAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/trusted-contacts/my-shares', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    const userId = req.user!.userId;
+
+    const contacts = await prisma.trustedContact.findMany({
+      where: { email: req.user!.email },
+      include: {
+        keyShares: true,
+        user: {
+          select: {
+            email: true
+          }
+        }
+      }
+    });
+
+    const shares = contacts.map(contact => ({
+      vaultOwnerId: contact.userId,
+      vaultOwnerEmail: contact.user.email,
+      contactId: contact.id,
+      shareCiphertext: contact.keyShares[0]?.shareCiphertext,
+      algorithm: contact.keyShares[0]?.algorithm,
+      shareIndex: contact.keyShares[0]?.shareIndex,
+      createdAt: contact.keyShares[0]?.createdAt
+    }));
+
+    res.json({
+      shares: shares.filter(s => s.shareCiphertext)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
