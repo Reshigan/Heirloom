@@ -232,6 +232,33 @@ class APIClient {
     return this.request('/check-in/status');
   }
 
+  async performCheckIn(): Promise<{
+    success: boolean;
+    message: string;
+    nextCheckIn: string;
+    status: string;
+    lastCheckIn: string;
+  }> {
+    return this.request('/check-in', {
+      method: 'POST',
+      body: JSON.stringify({ method: 'manual' })
+    });
+  }
+
+  async getUnlockRequests(): Promise<{ requests: any[] }> {
+    return this.request('/unlock/requests');
+  }
+
+  async cancelUnlockRequest(requestId: string, reason?: string): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    return this.request(`/unlock/cancel/${requestId}`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: reason || 'User cancelled during grace period' })
+    });
+  }
+
   async getCurrentSubscription(): Promise<{
     tier: string;
     subscription: { status: string; currentPeriodEnd: string } | null;

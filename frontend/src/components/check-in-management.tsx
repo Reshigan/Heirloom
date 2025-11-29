@@ -30,14 +30,25 @@ interface CheckInStatus {
   }>
 }
 
+interface UnlockRequest {
+  id: string
+  status: string
+  createdAt: string
+  gracePeriodEnd: string
+  confirmationCount: number
+}
+
 export default function CheckInManagement({ onClose }: CheckInManagementProps) {
   const [checkInStatus, setCheckInStatus] = useState<CheckInStatus | null>(null)
+  const [unlockRequests, setUnlockRequests] = useState<UnlockRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isCheckingIn, setIsCheckingIn] = useState(false)
+  const [isCancelling, setIsCancelling] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchCheckInStatus()
+    fetchUnlockRequests()
   }, [])
 
   const fetchCheckInStatus = async () => {
@@ -54,15 +65,40 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
     }
   }
 
+  const fetchUnlockRequests = async () => {
+    try {
+      const data = await apiClient.getUnlockRequests()
+      setUnlockRequests(data.requests.filter((r: any) => r.status === 'pending' || r.status === 'grace_period'))
+    } catch (error: any) {
+      console.error('Failed to fetch unlock requests:', error)
+    }
+  }
+
   const handleManualCheckIn = async () => {
     try {
       setIsCheckingIn(true)
       setError(null)
+      await apiClient.performCheckIn()
       await fetchCheckInStatus()
+      await fetchUnlockRequests()
     } catch (error: any) {
       setError(error.message || 'Failed to perform check-in')
     } finally {
       setIsCheckingIn(false)
+    }
+  }
+
+  const handleCancelUnlock = async (requestId: string) => {
+    try {
+      setIsCancelling(requestId)
+      setError(null)
+      await apiClient.cancelUnlockRequest(requestId, 'User cancelled during grace period')
+      await fetchCheckInStatus()
+      await fetchUnlockRequests()
+    } catch (error: any) {
+      setError(error.message || 'Failed to cancel unlock request')
+    } finally {
+      setIsCancelling(null)
     }
   }
 
@@ -227,6 +263,81 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
                   </div>
                 </div>
               </div>
+
+              {/* Active Unlock Requests (Grace Period) */}
+              {unlockRequests.length > 0 && (
+                <div className="p-6 bg-red-900/20 border border-red-500/30 rounded-xl">
+                  <div className="flex items-center gap-3 mb-4">
+                    <AlertCircle className="w-6 h-6 text-red-400" />
+                    <div>
+                      <h3 className="font-medium text-red-400">Grace Period Active</h3>
+                      <p className="text-sm text-red-300/70 mt-1">
+                        Your vault unlock process has been initiated. Cancel it if you're still alive.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {unlockRequests.map((request) => (
+                      <div
+                        key={request.id}
+                        className="p-4 bg-obsidian-900/60 border border-red-500/20 rounded-lg"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-sm font-medium text-red-400">
+                                Unlock Request #{request.id.slice(0, 8)}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-xs bg-red-400/10 border border-red-400/30 text-red-400">
+                                {request.status.replace('_', ' ').toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="space-y-1 text-xs text-gold-200/70">
+                              <p>
+                                <strong className="text-gold-400">Created:</strong>{' '}
+                                {new Date(request.createdAt).toLocaleString()}
+                              </p>
+                              {request.gracePeriodEnd && (
+                                <p>
+                                  <strong className="text-gold-400">Grace Period Ends:</strong>{' '}
+                                  {new Date(request.gracePeriodEnd).toLocaleString()}
+                                </p>
+                              )}
+                              <p>
+                                <strong className="text-gold-400">Confirmations:</strong>{' '}
+                                {request.confirmationCount} / 2
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleCancelUnlock(request.id)}
+                            disabled={isCancelling === request.id}
+                            className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-medium hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider shadow-lg shadow-red-400/20 flex items-center gap-2 whitespace-nowrap"
+                          >
+                            {isCancelling === request.id ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Cancelling...
+                              </>
+                            ) : (
+                              <>
+                                <X className="w-4 h-4" />
+                                Cancel Unlock
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+                    <p className="text-xs text-yellow-300/90">
+                      <strong>Important:</strong> If you're seeing this, your trusted contacts may have been notified. 
+                      Cancel this request immediately if you're still alive to prevent your vault from being unlocked.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* How It Works */}
               <div className="p-6 bg-obsidian-800/60 border border-gold-500/20 rounded-xl">
