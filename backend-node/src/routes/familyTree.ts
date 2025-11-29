@@ -11,7 +11,7 @@ router.get('/people', authenticate, async (req: AuthRequest, res, next) => {
     const userId = req.user!.userId;
     
     const people = await prisma.person.findMany({
-      where: { userId },
+      where: { ownerId: userId },
       orderBy: { createdAt: 'desc' }
     });
     
@@ -24,7 +24,7 @@ router.get('/people', authenticate, async (req: AuthRequest, res, next) => {
 router.post('/people', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const userId = req.user!.userId;
-    const { name, birthDate, deathDate, relationship, bio, photoUrl } = req.body;
+    const { name, birthDate, deathDate, relation, notes } = req.body;
     
     if (!name) {
       throw new AppError(400, 'Name is required');
@@ -32,13 +32,12 @@ router.post('/people', authenticate, async (req: AuthRequest, res, next) => {
     
     const person = await prisma.person.create({
       data: {
-        userId,
+        ownerId: userId,
         name,
         birthDate: birthDate ? new Date(birthDate) : null,
         deathDate: deathDate ? new Date(deathDate) : null,
-        relationship: relationship || null,
-        bio: bio || null,
-        photoUrl: photoUrl || null
+        relation: relation || 'OTHER',
+        notes: notes || null
       }
     });
     
@@ -52,10 +51,10 @@ router.put('/people/:id', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const userId = req.user!.userId;
     const personId = req.params.id;
-    const { name, birthDate, deathDate, relationship, bio, photoUrl } = req.body;
+    const { name, birthDate, deathDate, relation, notes } = req.body;
     
     const existingPerson = await prisma.person.findFirst({
-      where: { id: personId, userId }
+      where: { id: personId, ownerId: userId }
     });
     
     if (!existingPerson) {
@@ -68,9 +67,8 @@ router.put('/people/:id', authenticate, async (req: AuthRequest, res, next) => {
         name: name || existingPerson.name,
         birthDate: birthDate ? new Date(birthDate) : existingPerson.birthDate,
         deathDate: deathDate ? new Date(deathDate) : existingPerson.deathDate,
-        relationship: relationship !== undefined ? relationship : existingPerson.relationship,
-        bio: bio !== undefined ? bio : existingPerson.bio,
-        photoUrl: photoUrl !== undefined ? photoUrl : existingPerson.photoUrl
+        relation: relation !== undefined ? relation : existingPerson.relation,
+        notes: notes !== undefined ? notes : existingPerson.notes
       }
     });
     
@@ -86,7 +84,7 @@ router.delete('/people/:id', authenticate, async (req: AuthRequest, res, next) =
     const personId = req.params.id;
     
     const person = await prisma.person.findFirst({
-      where: { id: personId, userId }
+      where: { id: personId, ownerId: userId }
     });
     
     if (!person) {
@@ -114,7 +112,7 @@ router.post('/people/:id/relationships', authenticate, async (req: AuthRequest, 
     }
     
     const person = await prisma.person.findFirst({
-      where: { id: personId, userId }
+      where: { id: personId, ownerId: userId }
     });
     
     if (!person) {
@@ -122,7 +120,7 @@ router.post('/people/:id/relationships', authenticate, async (req: AuthRequest, 
     }
     
     const relatedPerson = await prisma.person.findFirst({
-      where: { id: relatedPersonId, userId }
+      where: { id: relatedPersonId, ownerId: userId }
     });
     
     if (!relatedPerson) {
