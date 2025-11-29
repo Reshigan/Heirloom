@@ -54,6 +54,7 @@ import VaultStatsDashboard from './vault-stats-dashboard'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
+import DynamicTimelineView from './dynamic-timeline-view'
 import UserProfile from './user-profile'
 import LegacyTokenManager from './legacy-token-manager'
 import PricingManager from './pricing-manager'
@@ -778,9 +779,20 @@ export default function FuturisticHeirloomInterface() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="h-screen"
             >
-              <TimelineView 
-                selectedMemberId={selectedMember?.id}
-                onEventSelect={setSelectedEvent}
+              <DynamicTimelineView 
+                memories={memories.map(m => ({
+                  id: m.id,
+                  title: m.title,
+                  description: m.description,
+                  date: m.date,
+                  thumbnailUrl: m.thumbnailUrl || m.thumbnail_url,
+                  location: m.location,
+                  participants: m.participants,
+                  sentimentLabel: (m as any).sentimentLabel,
+                  emotionCategory: (m as any).emotionCategory,
+                  importanceScore: (m as any).importanceScore
+                }))}
+                onMemorySelect={(memory) => setSelectedMemory(memories.find(m => m.id === memory.id) || null)}
               />
             </motion.div>
           )}
