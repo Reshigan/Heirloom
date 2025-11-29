@@ -64,14 +64,21 @@ router.post('/notifications/mark-all-seen', authenticate, async (req: Request, r
 });
 
 router.get('/notifications/stream', async (req: Request, res: Response) => {
-  const token = req.query.token as string;
+  let token: string | undefined;
+
+  if (req.cookies?.heirloom_token) {
+    token = req.cookies.heirloom_token;
+  }
+  
+  if (!token && req.query.token) {
+    token = req.query.token as string;
+  }
   
   if (!token) {
-    res.status(401).json({ error: 'Token required' });
+    res.status(401).json({ error: 'Authentication required' });
     return;
   }
 
-  const jwt = require('jsonwebtoken');
   let userId: string;
   
   try {

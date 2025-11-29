@@ -70,7 +70,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await apiClient.logout()
+    } catch (error) {
+      console.error('Logout API call failed:', error)
+    }
     apiClient.clearToken()
     setUser(null)
     setVmkSalt(null)

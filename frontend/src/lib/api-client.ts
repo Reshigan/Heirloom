@@ -138,6 +138,12 @@ class APIClient {
     return result.user;
   }
 
+  async logout(): Promise<{ success: boolean; message: string }> {
+    return this.request('/auth/logout', {
+      method: 'POST',
+    });
+  }
+
   async uploadItem(data: {
     type: string;
     title?: string;
