@@ -7,17 +7,26 @@ export interface AuthRequest extends Request {
 
 /**
  * Authentication middleware
- * Verifies JWT token and attaches user info to request
+ * Verifies JWT token from Authorization header OR cookie
+ * Supports both Bearer token and HttpOnly cookie for flexibility
  */
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    let token: string | undefined;
+
     const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token && req.cookies?.heirloom_token) {
+      token = req.cookies.heirloom_token;
+    }
+
+    if (!token) {
       return res.status(401).json({ error: 'No token provided' });
     }
 
-    const token = authHeader.substring(7);
     const payload = JWTUtils.verify(token);
     
     req.user = payload;

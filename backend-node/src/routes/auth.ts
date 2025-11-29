@@ -66,6 +66,14 @@ router.post('/register', async (req, res, next) => {
       vaultId: result.vault.id
     });
 
+    res.cookie('heirloom_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    });
+
     res.status(201).json({
       user: {
         id: result.user.id,
@@ -127,6 +135,14 @@ router.post('/login', async (req, res, next) => {
       vaultId: user.vault?.id
     });
 
+    res.cookie('heirloom_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    });
+
     res.json({
       user: {
         id: user.id,
@@ -179,6 +195,28 @@ router.get('/me', authenticate, async (req: AuthRequest, res, next) => {
         uploadsThisWeek: user.vault.uploadCountThisWeek,
         uploadLimit: user.vault.uploadLimitWeekly
       } : null
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/auth/logout
+ * Logout user and clear cookie
+ */
+router.post('/logout', authenticate, async (req: AuthRequest, res, next) => {
+  try {
+    res.clearCookie('heirloom_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/'
+    });
+
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
     });
   } catch (error) {
     next(error);
