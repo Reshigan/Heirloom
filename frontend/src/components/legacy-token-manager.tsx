@@ -251,7 +251,7 @@ const LegacyTokenManager: React.FC = () => {
                   <div className="flex flex-wrap gap-3">
                     <button
                       onClick={() => setShowRegenerateModal(token.id)}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600/20 to-amber-500/20 hover:from-amber-600/30 hover:to-amber-500/30 text-amber-300 rounded-lg transition-all duration-300 border border-amber-500/30"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gold-600/20 to-gold-500/20 hover:from-gold-600/30 hover:to-gold-500/30 text-gold-300 rounded-lg transition-all duration-300 border border-gold-500/30"
                     >
                       <RefreshCw className="w-4 h-4" />
                       Regenerate
@@ -409,8 +409,8 @@ const LegacyTokenManager: React.FC = () => {
                 className="bg-gradient-to-br from-obsidian-800 to-charcoal rounded-2xl p-6 max-w-md w-full border border-gold-600/20"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-gradient-to-r from-amber-600/20 to-amber-500/20 rounded-lg">
-                    <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  <div className="p-2 bg-gradient-to-r from-gold-600/20 to-gold-500/20 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-gold-400" />
                   </div>
                   <h3 className="text-xl font-semibold text-gold-300">
                     Regenerate Token
@@ -431,7 +431,7 @@ const LegacyTokenManager: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleRegenerateToken(showRegenerateModal)}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-500 text-obsidian-900 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
                   >
                     Regenerate
                   </button>

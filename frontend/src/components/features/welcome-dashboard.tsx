@@ -74,7 +74,7 @@ export function WelcomeDashboard({ onOpenModal }: WelcomeDashboardProps) {
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Revolutionary Background Systems */}
-      <Suspense fallback={<div className="fixed inset-0 bg-gradient-to-br from-gray-900 to-black" />}>
+      <Suspense fallback={<div className="fixed inset-0 bg-gradient-to-br from-obsidian-900 to-black" />}>
         <ThreeBackground />
       </Suspense>
       <ParticleSystem />

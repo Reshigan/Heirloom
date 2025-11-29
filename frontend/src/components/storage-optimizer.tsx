@@ -143,7 +143,7 @@ const StorageOptimizer: React.FC = () => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'milestone': return 'text-gold-300 bg-gold-500/20 border-gold-500/40';
-      case 'everyday': return 'text-amber-300 bg-amber-500/20 border-amber-500/40';
+      case 'everyday': return 'text-gold-300 bg-gold-500/20 border-gold-500/40';
       case 'archive': return 'text-yellow-300 bg-yellow-500/20 border-yellow-500/40';
       default: return 'text-gold-300 bg-gold-500/20 border-gold-500/40';
     }
@@ -152,7 +152,7 @@ const StorageOptimizer: React.FC = () => {
   const getQualityColor = (quality: string) => {
     switch (quality) {
       case 'original': return 'text-gold-300';
-      case 'high': return 'text-amber-300';
+      case 'high': return 'text-gold-300';
       case 'optimized': return 'text-yellow-300';
       case 'compressed': return 'text-gold-400';
       default: return 'text-gold-400';
@@ -224,14 +224,14 @@ const StorageOptimizer: React.FC = () => {
                   className="bg-gradient-to-br from-obsidian-800/80 to-obsidian-900/80 backdrop-blur-sm rounded-2xl p-6 border border-gold-500/30 shadow-lg shadow-gold-500/10"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-gradient-to-r from-amber-600/30 to-amber-500/30 rounded-lg border border-amber-500/30">
-                      <HardDrive className="w-5 h-5 text-amber-400" />
+                    <div className="p-3 bg-gradient-to-r from-gold-600/30 to-gold-500/30 rounded-lg border border-gold-500/30">
+                      <HardDrive className="w-5 h-5 text-gold-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gold-300">
                       Total Size
                     </h3>
                   </div>
-                  <div className="text-3xl font-bold text-amber-300 mb-2">
+                  <div className="text-3xl font-bold text-gold-300 mb-2">
                     {totalOriginalSize.toFixed(2)}GB
                   </div>
                   <p className="text-gold-400/70 text-sm">
@@ -307,15 +307,15 @@ const StorageOptimizer: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-6 bg-gradient-to-br from-amber-600/20 to-amber-500/20 rounded-xl border border-amber-600/40 shadow-lg shadow-amber-500/10">
+                  <div className="p-6 bg-gradient-to-br from-gold-600/20 to-gold-500/20 rounded-xl border border-gold-600/40 shadow-lg shadow-gold-500/10">
                     <div className="flex items-center gap-3 mb-4">
-                      <Clock className="w-6 h-6 text-amber-400" />
-                      <h4 className="font-semibold text-amber-200 text-lg">Everyday Moments</h4>
+                      <Clock className="w-6 h-6 text-gold-400" />
+                      <h4 className="font-semibold text-gold-200 text-lg">Everyday Moments</h4>
                     </div>
-                    <p className="text-amber-300/90 text-sm mb-4 leading-relaxed">
+                    <p className="text-gold-300/90 text-sm mb-4 leading-relaxed">
                       Intelligent optimization for everyday family moments
                     </p>
-                    <div className="text-xs text-amber-400/80 space-y-1">
+                    <div className="text-xs text-gold-400/80 space-y-1">
                       • Smart quality balancing
                       • 70% space efficiency
                       • Rapid access optimization
@@ -353,7 +353,7 @@ const StorageOptimizer: React.FC = () => {
                     <Archive className="w-5 h-5" />
                     Optimize All
                   </button>
-                  <button className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-obsidian-900 rounded-lg hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300 font-semibold border border-amber-400/50">
+                  <button className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:shadow-lg hover:shadow-gold-500/30 transition-all duration-300 font-semibold border border-gold-400/50">
                     <Download className="w-5 h-5" />
                     Backup Originals
                   </button>

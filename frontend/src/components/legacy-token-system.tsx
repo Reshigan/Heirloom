@@ -200,12 +200,12 @@ export default function LegacyTokenSystem({ isOpen, onClose, currentProfileId }:
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="bg-gold-50 border border-gold-200 rounded-lg p-4">
                   <div className="flex items-start space-x-3">
-                    <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                    <AlertTriangle className="w-5 h-5 text-gold-600 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-amber-800">Important Legacy Information</h3>
-                      <p className="text-amber-700 text-sm mt-1">
+                      <h3 className="font-semibold text-gold-800">Important Legacy Information</h3>
+                      <p className="text-gold-700 text-sm mt-1">
                         Legacy tokens provide secure access to your profile after passing away. 
                         Only trusted family members should receive these tokens to add your profile to the family tree.
                       </p>

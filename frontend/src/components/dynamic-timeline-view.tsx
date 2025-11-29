@@ -172,7 +172,7 @@ const DynamicTimelineView: React.FC<DynamicTimelineViewProps> = ({ memories, onM
 
   const getSentimentColor = (sentiment?: string) => {
     switch (sentiment) {
-      case 'joyful': return 'from-yellow-500 to-amber-400'
+      case 'joyful': return 'from-yellow-500 to-gold-400'
       case 'nostalgic': return 'from-purple-500 to-indigo-400'
       case 'loving': return 'from-pink-500 to-rose-400'
       case 'hopeful': return 'from-blue-500 to-cyan-400'
@@ -180,7 +180,7 @@ const DynamicTimelineView: React.FC<DynamicTimelineViewProps> = ({ memories, onM
       case 'grateful': return 'from-green-500 to-emerald-400'
       case 'peaceful': return 'from-teal-500 to-cyan-400'
       case 'excited': return 'from-orange-500 to-yellow-400'
-      default: return 'from-gold-500 to-amber-400'
+      default: return 'from-gold-500 to-gold-400'
     }
   }
 
