@@ -334,17 +334,17 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
           </div>
 
           {/* Controls */}
-          <div className="bg-gray-50 border-b border-gray-200 p-4">
+          <div className="bg-gray-50 border-b border-gold-200 p-4">
             <div className="flex flex-wrap items-center gap-4">
               {/* Search */}
               <div className="relative flex-1 min-w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gold-400" />
                 <input
                   type="text"
                   placeholder="Search family members..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
                 />
               </div>
 
@@ -352,7 +352,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
               <select
                 value={filterGeneration}
                 onChange={(e) => setFilterGeneration(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                className="px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
               >
                 <option value="all">All Generations</option>
                 <option value={1}>Generation 1</option>
@@ -367,31 +367,31 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                   type="checkbox"
                   checked={showDeceased}
                   onChange={(e) => setShowDeceased(e.target.checked)}
-                  className="rounded border-gray-300 text-modern-blue focus:ring-modern-blue"
+                  className="rounded border-gold-300 text-modern-blue focus:ring-modern-blue"
                 />
-                <span className="text-sm text-gray-700">Show Deceased</span>
+                <span className="text-sm text-gold-700">Show Deceased</span>
               </label>
 
               {/* Zoom Controls */}
-              <div className="flex items-center space-x-1 bg-white border border-gray-300 rounded-lg">
+              <div className="flex items-center space-x-1 bg-white border border-gold-300 rounded-lg">
                 <button
                   onClick={() => handleZoom('out')}
-                  className="p-2 hover:bg-gray-50 transition-colors"
+                  className="p-2 hover:bg-obsidian-50 transition-colors"
                 >
                   <ZoomOut className="w-4 h-4" />
                 </button>
-                <div className="px-2 py-1 text-sm text-gray-600 border-x border-gray-300">
+                <div className="px-2 py-1 text-sm text-gold-600 border-x border-gold-300">
                   {Math.round(zoomLevel * 100)}%
                 </div>
                 <button
                   onClick={() => handleZoom('in')}
-                  className="p-2 hover:bg-gray-50 transition-colors"
+                  className="p-2 hover:bg-obsidian-50 transition-colors"
                 >
                   <ZoomIn className="w-4 h-4" />
                 </button>
                 <button
                   onClick={resetView}
-                  className="p-2 hover:bg-gray-50 transition-colors border-l border-gray-300"
+                  className="p-2 hover:bg-obsidian-50 transition-colors border-l border-gold-300"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -411,7 +411,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
           </div>
 
           {/* Family Tree Canvas */}
-          <div ref={containerRef} className="flex-1 overflow-hidden relative bg-gradient-to-br from-gray-50 to-white">
+          <div ref={containerRef} className="flex-1 overflow-hidden relative bg-gradient-to-br from-obsidian-50 to-white">
             <motion.div
               ref={treeRef}
               className="absolute inset-0 cursor-move"
@@ -510,10 +510,10 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
 
                   {/* Name Label */}
                   <div className="absolute top-24 left-1/2 transform -translate-x-1/2 text-center">
-                    <div className="bg-white rounded-lg shadow-md px-2 py-1 text-xs font-medium text-gray-900 whitespace-nowrap">
+                    <div className="bg-white rounded-lg shadow-md px-2 py-1 text-xs font-medium text-gold-900 whitespace-nowrap">
                       {member.name}
                     </div>
-                    <div className="text-xs text-gray-600 mt-1">
+                    <div className="text-xs text-gold-600 mt-1">
                       {member.relationship}
                     </div>
                   </div>
@@ -524,11 +524,11 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                     initial={{ y: 10, opacity: 0 }}
                     whileHover={{ y: 0, opacity: 1 }}
                   >
-                    <h4 className="font-semibold text-gray-900 mb-2">{member.name}</h4>
+                    <h4 className="font-semibold text-gold-900 mb-2">{member.name}</h4>
                     
                     <div className="space-y-2 text-sm">
                       {member.birthDate && (
-                        <div className="flex items-center space-x-2 text-gray-600">
+                        <div className="flex items-center space-x-2 text-gold-600">
                           <Calendar className="w-3 h-3" />
                           <span>
                             Born: {new Date(member.birthDate).toLocaleDateString()}
@@ -538,26 +538,26 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                       )}
                       
                       {member.birthPlace && (
-                        <div className="flex items-center space-x-2 text-gray-600">
+                        <div className="flex items-center space-x-2 text-gold-600">
                           <MapPin className="w-3 h-3" />
                           <span>{member.birthPlace}</span>
                         </div>
                       )}
                       
                       {member.occupation && (
-                        <div className="flex items-center space-x-2 text-gray-600">
+                        <div className="flex items-center space-x-2 text-gold-600">
                           <User className="w-3 h-3" />
                           <span>{member.occupation}</span>
                         </div>
                       )}
 
                       {member.bio && (
-                        <p className="text-gray-600 text-xs mt-2">{member.bio}</p>
+                        <p className="text-gold-600 text-xs mt-2">{member.bio}</p>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200">
-                      <div className="flex items-center space-x-1 text-xs text-gray-500">
+                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-gold-200">
+                      <div className="flex items-center space-x-1 text-xs text-gold-500">
                         <Camera className="w-3 h-3" />
                         <span>{member.memories} memories</span>
                       </div>
@@ -627,11 +627,11 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <div>
-                          <h4 className="font-semibold text-gray-900 mb-2">Personal Information</h4>
+                          <h4 className="font-semibold text-gold-900 mb-2">Personal Information</h4>
                           <div className="space-y-2 text-sm">
                             {selectedMember.birthDate && (
                               <div className="flex items-center space-x-2">
-                                <Calendar className="w-4 h-4 text-gray-400" />
+                                <Calendar className="w-4 h-4 text-gold-400" />
                                 <span>
                                   Born: {new Date(selectedMember.birthDate).toLocaleDateString()}
                                   {selectedMember.deathDate && ` - ${new Date(selectedMember.deathDate).toLocaleDateString()}`}
@@ -641,14 +641,14 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                             
                             {selectedMember.birthPlace && (
                               <div className="flex items-center space-x-2">
-                                <MapPin className="w-4 h-4 text-gray-400" />
+                                <MapPin className="w-4 h-4 text-gold-400" />
                                 <span>{selectedMember.birthPlace}</span>
                               </div>
                             )}
                             
                             {selectedMember.occupation && (
                               <div className="flex items-center space-x-2">
-                                <User className="w-4 h-4 text-gray-400" />
+                                <User className="w-4 h-4 text-gold-400" />
                                 <span>{selectedMember.occupation}</span>
                               </div>
                             )}
@@ -657,17 +657,17 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
 
                         {selectedMember.bio && (
                           <div>
-                            <h4 className="font-semibold text-gray-900 mb-2">Biography</h4>
-                            <p className="text-gray-600 text-sm">{selectedMember.bio}</p>
+                            <h4 className="font-semibold text-gold-900 mb-2">Biography</h4>
+                            <p className="text-gold-600 text-sm">{selectedMember.bio}</p>
                           </div>
                         )}
 
                         {selectedMember.achievements && selectedMember.achievements.length > 0 && (
                           <div>
-                            <h4 className="font-semibold text-gray-900 mb-2">Achievements</h4>
+                            <h4 className="font-semibold text-gold-900 mb-2">Achievements</h4>
                             <div className="space-y-1">
                               {selectedMember.achievements.map((achievement, index) => (
-                                <div key={index} className="flex items-center space-x-2 text-sm text-gray-600">
+                                <div key={index} className="flex items-center space-x-2 text-sm text-gold-600">
                                   <Star className="w-3 h-3 text-yellow-500" />
                                   <span>{achievement}</span>
                                 </div>
@@ -679,9 +679,9 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
 
                       <div className="space-y-4">
                         <div>
-                          <h4 className="font-semibold text-gray-900 mb-2">Family Connections</h4>
+                          <h4 className="font-semibold text-gold-900 mb-2">Family Connections</h4>
                           <div className="space-y-2 text-sm">
-                            <div className="text-gray-600">Generation {selectedMember.generation}</div>
+                            <div className="text-gold-600">Generation {selectedMember.generation}</div>
                             
                             {selectedMember.parents && selectedMember.parents.length > 0 && (
                               <div>
@@ -713,7 +713,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                         </div>
 
                         <div>
-                          <h4 className="font-semibold text-gray-900 mb-2">Legacy Status</h4>
+                          <h4 className="font-semibold text-gold-900 mb-2">Legacy Status</h4>
                           <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <Camera className="w-4 h-4 text-modern-blue" />
@@ -735,7 +735,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                             )}
                             
                             {selectedMember.isDeceased && (
-                              <div className="flex items-center space-x-2 text-gray-600">
+                              <div className="flex items-center space-x-2 text-gold-600">
                                 <Heart className="w-4 h-4" />
                                 <span className="text-sm">Remembered with love</span>
                               </div>

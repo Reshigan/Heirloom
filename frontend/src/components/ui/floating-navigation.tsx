@@ -61,7 +61,7 @@ export function FloatingNavigation() {
     <>
       {/* Main Floating Navigation */}
       <motion.nav
-        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50"
+        className="fixed bottom-8 left-1/2 transform -trangold-x-1/2 z-50"
         style={{
           y: scrollY > 100 ? 10 : 0
         }}
@@ -145,13 +145,13 @@ export function FloatingNavigation() {
                     
                     {/* Tooltip */}
                     <motion.div
-                      className="absolute -top-12 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-black/80 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
+                      className="absolute -top-12 left-1/2 transform -trangold-x-1/2 px-2 py-1 bg-black/80 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
                       initial={{ y: 10, opacity: 0 }}
                       whileHover={{ y: 0, opacity: 1 }}
                       transition={{ duration: 0.2 }}
                     >
                       {item.label}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80" />
+                      <div className="absolute top-full left-1/2 transform -trangold-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80" />
                     </motion.div>
                   </motion.button>
                 ))}
@@ -186,7 +186,7 @@ export function FloatingNavigation() {
             transition={{ duration: 0.2 }}
           >
             Add New Memory
-            <div className="absolute top-1/2 left-full transform -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-transparent border-l-black/80" />
+            <div className="absolute top-1/2 left-full transform -trangold-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-transparent border-l-black/80" />
           </motion.div>
         </motion.button>
 
@@ -208,14 +208,14 @@ export function FloatingNavigation() {
             transition={{ duration: 0.2 }}
           >
             Quick Search
-            <div className="absolute top-1/2 left-full transform -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-transparent border-l-black/80" />
+            <div className="absolute top-1/2 left-full transform -trangold-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-transparent border-l-black/80" />
           </motion.div>
         </motion.button>
       </motion.div>
 
       {/* Floating Menu Indicator */}
       <motion.div
-        className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-30"
+        className="fixed bottom-4 left-1/2 transform -trangold-x-1/2 z-30"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.5 }}

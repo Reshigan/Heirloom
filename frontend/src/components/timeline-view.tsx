@@ -85,14 +85,14 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
 
   const getEventColor = (type: string) => {
     switch (type) {
-      case 'birth': return 'from-gold-500 to-amber-400'
+      case 'birth': return 'from-gold-500 to-gold-400'
       case 'marriage': return 'from-gold-600 to-gold-400'
-      case 'death': return 'from-gold-700 to-amber-600'
-      case 'achievement': return 'from-amber-500 to-yellow-400'
-      case 'career': return 'from-gold-600 to-amber-500'
-      case 'family': return 'from-amber-600 to-gold-500'
+      case 'death': return 'from-gold-700 to-gold-600'
+      case 'achievement': return 'from-gold-500 to-yellow-400'
+      case 'career': return 'from-gold-600 to-gold-500'
+      case 'family': return 'from-gold-600 to-gold-500'
       case 'milestone': return 'from-yellow-500 to-gold-400'
-      default: return 'from-gold-500 to-amber-400'
+      default: return 'from-gold-500 to-gold-400'
     }
   }
 

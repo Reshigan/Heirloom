@@ -167,7 +167,7 @@ const PricingManager: React.FC = () => {
       storageGB: 500,
       unlockTokens: 100,
       icon: Star,
-      gradient: 'from-gradient-to-r from-amber-600 via-gold-500 to-yellow-400',
+      gradient: 'from-gradient-to-r from-gold-600 via-gold-500 to-yellow-400',
       features: [
         '~250,000 photos (original quality)',
         '~5,000 hours audio',

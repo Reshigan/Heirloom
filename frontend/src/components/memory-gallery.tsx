@@ -92,8 +92,8 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
       case 'milestone': return 'text-gold-400 bg-gold-400/20'
       case 'high': return 'text-orange-400 bg-orange-400/20'
       case 'medium': return 'text-blue-400 bg-blue-400/20'
-      case 'low': return 'text-gray-400 bg-gray-400/20'
-      default: return 'text-gray-400 bg-gray-400/20'
+      case 'low': return 'text-gold-400 bg-gray-400/20'
+      default: return 'text-gold-400 bg-gray-400/20'
     }
   }
 
