@@ -133,6 +133,7 @@ function NotificationItem({ notification, onMarkAsRead, getIcon, formatTime }: N
           window.location.href = notification.actionUrl;
         }
       }}
+      data-testid={`notification-${notification.id}`}
     >
       <div className="flex gap-3">
         <div className="flex-shrink-0 mt-1">{getIcon(notification.type)}</div>
