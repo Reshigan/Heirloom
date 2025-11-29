@@ -162,7 +162,7 @@ router.get('/metrics', authenticate, async (req: Request, res: Response) => {
       retentionRate: retentionRate + '%',
       avgSessionLengthMinutes: avgSessionLengthMinutes.toFixed(2),
       notificationOpenRate: notificationOpenRate + '%',
-      eventCounts: eventCounts.map(e => ({
+      eventCounts: eventCounts.map((e: any) => ({
         event: e.event,
         count: e._count
       })),
