@@ -3,7 +3,8 @@ import { Bodoni_Moda, Montserrat } from 'next/font/google';
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext'
 import { VaultProvider } from '@/contexts/VaultContext'
-import { NotificationProvider } from '@/contexts/NotificationContext';
+import { NotificationProvider } from '@/contexts/NotificationContext'
+import { ErrorBoundary } from '@/components/error-boundary';
 
 const bodoniModa = Bodoni_Moda({ 
   subsets: ['latin'],
@@ -39,15 +40,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${bodoniModa.variable} ${montserrat.variable} antialiased`}>
-        <AuthProvider>
-          <VaultProvider>
-            <NotificationProvider>
-              <main className="max-w-screen-2xl mx-auto">
-                {children}
-              </main>
-            </NotificationProvider>
-          </VaultProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <VaultProvider>
+              <NotificationProvider>
+                <main className="max-w-screen-2xl mx-auto">
+                  {children}
+                </main>
+              </NotificationProvider>
+            </VaultProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

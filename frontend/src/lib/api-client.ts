@@ -102,7 +102,7 @@ class APIClient {
     return response.json();
   }
 
-  async register(email: string, password: string): Promise<{
+  async register(email: string, password: string, name?: string, familyName?: string): Promise<{
     user: User;
     vault: Vault;
     token: string;
@@ -110,7 +110,7 @@ class APIClient {
   }> {
     const result = await this.request<any>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, name, familyName }),
     });
     this.setToken(result.token);
     return result;
@@ -363,6 +363,56 @@ class APIClient {
     if (endDate) params.append('endDate', endDate);
     if (cohortTag) params.append('cohortTag', cohortTag);
     return this.request(`/analytics/metrics?${params}`);
+  }
+
+  async get<T = any>(endpoint: string): Promise<T> {
+    return this.request(endpoint);
+  }
+
+  async post<T = any>(endpoint: string, data: any): Promise<T> {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async put<T = any>(endpoint: string, data: any): Promise<T> {
+    return this.request(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteComment(itemId: string, commentId: string): Promise<void> {
+    await this.request(`/vault/items/${itemId}/comments/${commentId}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async uploadImportFiles(importId: string, files: File[]): Promise<any> {
+    const formData = new FormData();
+    files.forEach((file, index) => {
+      formData.append(`file${index}`, file);
+    });
+
+    const token = this.getToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/imports/${importId}/upload`, {
+      method: 'POST',
+      headers,
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(error.error || `HTTP ${response.status}`);
+    }
+
+    return response.json();
   }
 }
 

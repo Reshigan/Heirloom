@@ -299,6 +299,25 @@ export class VaultEncryption {
   }
 
   /**
+   * Encrypt data (alias for encryptItem for compatibility)
+   */
+  async encryptData(data: string): Promise<{
+    encryptedData: string;
+    encryptedDek: string;
+    iv: string;
+    dekIv: string;
+  }> {
+    return this.encryptItem(data);
+  }
+
+  /**
+   * Decrypt data (alias for decryptItem for compatibility)
+   */
+  async decryptData(encryptedData: string, encryptedDek: string): Promise<string> {
+    return this.decryptItem(encryptedData, encryptedDek);
+  }
+
+  /**
    * Clear vault encryption keys from memory
    */
   clear(): void {
