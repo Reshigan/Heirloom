@@ -77,15 +77,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <X className="w-6 h-6" />
             </button>
 
-            <div className="mb-6 mt-4 sm:mt-0">
-              <h2 className="text-2xl sm:text-3xl font-serif text-gold-100 mb-2">
-                {mode === 'login' ? 'Welcome Back' : 'Create Account'}
-              </h2>
-              <p className="text-sm sm:text-base text-gold-400/70">
-                {mode === 'login'
-                  ? 'Sign in to access your family memories'
-                  : 'Start preserving your family heritage'}
-              </p>
+            <div className="mt-2 sm:mt-0 mb-6">
+              <div className="text-center">
+                <div className="font-serif uppercase tracking-[0.25em] text-gold-400 text-3xl sm:text-4xl drop-shadow-[0_0_12px_rgba(212,175,55,0.15)]">
+                  HEIRLOOM
+                </div>
+                <p className="mt-2 font-sans text-sm sm:text-base text-gold-300/70">
+                  Where Every Memory Becomes a Legacy
+                </p>
+                <div className="mx-auto mt-3 h-px w-16 bg-gradient-to-r from-transparent via-gold-500 to-transparent" />
+              </div>
+
+              <div className="mt-5">
+                <h2 className="text-2xl sm:text-3xl font-serif text-gold-300 mb-2">
+                  {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+                </h2>
+                <p className="text-sm sm:text-base text-gold-400/70">
+                  {mode === 'login'
+                    ? 'Sign in to access your family memories'
+                    : 'Start preserving your family heritage'}
+                </p>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
