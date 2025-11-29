@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, Suspense, lazy } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Users, 
@@ -38,7 +38,8 @@ import {
   CreditCard,
   HardDrive,
   UserPlus,
-  LogOut
+  LogOut,
+  Loader2
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useVault } from '@/contexts/VaultContext'
@@ -63,15 +64,25 @@ import StorageOptimizer from './storage-optimizer'
 import ShareInviteSystem from './share-invite-system'
 import StoryRecorder from './story-recorder'
 import MemoryComments from './memory-comments'
-import HighlightsTimeCapsules from './highlights-time-capsules'
 import ImportWizard from './import-wizard'
 import WeeklyDigest from './weekly-digest'
 import AICurator from './ai-curator'
 import PlatformTour from './platform-tour'
-import StoryReels from './story-reels'
-import AfterImGoneLetters from './after-im-gone-letters'
-import MemorialPages from './memorial-pages'
 import { apiClient } from '@/lib/api-client'
+
+const StoryReels = lazy(() => import('./story-reels'))
+const AfterImGoneLetters = lazy(() => import('./after-im-gone-letters'))
+const MemorialPages = lazy(() => import('./memorial-pages'))
+const HighlightsTimeCapsules = lazy(() => import('./highlights-time-capsules'))
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="text-center">
+      <Loader2 className="w-12 h-12 text-gold-400 animate-spin mx-auto mb-4" />
+      <p className="text-gold-300 font-serif">Loading...</p>
+    </div>
+  </div>
+)
 
 type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
 
@@ -681,6 +692,15 @@ export default function FuturisticHeirloomInterface() {
                       whileHover={{ scale: 1.1, zIndex: 10 }}
                       onMouseEnter={() => !isWarping && handleOrbHover(orb)}
                       onMouseLeave={handleOrbLeave}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View memory: ${orb.memory.title}`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          handleOrbHover(orb)
+                        }
+                      }}
                     >
                       <div className="orb-container">
                         <div className="orb-content">
@@ -1125,15 +1145,21 @@ export default function FuturisticHeirloomInterface() {
 
       {/* Viral Growth Features */}
       {showStoryReels && (
-        <StoryReels onClose={() => setShowStoryReels(false)} />
+        <Suspense fallback={<LoadingSpinner />}>
+          <StoryReels onClose={() => setShowStoryReels(false)} />
+        </Suspense>
       )}
 
       {showAfterImGoneLetters && (
-        <AfterImGoneLetters onClose={() => setShowAfterImGoneLetters(false)} />
+        <Suspense fallback={<LoadingSpinner />}>
+          <AfterImGoneLetters onClose={() => setShowAfterImGoneLetters(false)} />
+        </Suspense>
       )}
 
       {showMemorialPages && (
-        <MemorialPages onClose={() => setShowMemorialPages(false)} />
+        <Suspense fallback={<LoadingSpinner />}>
+          <MemorialPages onClose={() => setShowMemorialPages(false)} />
+        </Suspense>
       )}
     </div>
   )
