@@ -26,17 +26,18 @@ export const metadata: Metadata = {
   description: "Preserve, discover, and share your family's most precious memories with AI-powered storytelling and emotional design.",
   keywords: ["family memories", "photo storage", "family tree", "legacy", "storytelling", "AI"],
   authors: [{ name: "Heirloom Team" }],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
   openGraph: {
     title: "Heirloom - Where Every Memory Becomes a Legacy",
     description: "Preserve, discover, and share your family's most precious memories with AI-powered storytelling and emotional design.",
     type: "website",
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({

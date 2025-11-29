@@ -150,10 +150,10 @@ export default function FuturisticHeirloomInterface() {
   const showcaseRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isAuthenticated && needsUnlock && !vaultInitialized) {
+    if (isAuthenticated && vmkSalt && !vaultInitialized) {
       setShowVaultUnlock(true)
     }
-  }, [isAuthenticated, needsUnlock, vaultInitialized])
+  }, [isAuthenticated, vmkSalt, vaultInitialized])
 
   const handleVaultUnlock = async (password: string) => {
     if (!vmkSalt) {
