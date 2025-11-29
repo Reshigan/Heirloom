@@ -47,6 +47,8 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
 
+app.set('trust proxy', true);
+
 app.use(sentryRequestHandler());
 app.use(sentryTracingHandler());
 
