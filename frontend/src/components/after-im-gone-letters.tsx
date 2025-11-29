@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Plus, Send, Loader2, Heart, AlertCircle, CheckCircle2, Users } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { useVault } from '@/contexts/VaultContext'
+import toast from 'react-hot-toast'
 
 interface Letter {
   id: string
@@ -74,12 +75,12 @@ export default function AfterImGoneLetters({ onClose }: AfterImGoneLettersProps)
 
   const handleCreateLetter = async () => {
     if (!recipientEmail || !subject || !content) {
-      alert('Please fill in all required fields')
+      toast.error('Please fill in all required fields')
       return
     }
 
     if (!vaultEncryption) {
-      alert('Vault encryption not initialized')
+      toast.error('Vault encryption not initialized')
       return
     }
 
@@ -98,9 +99,10 @@ export default function AfterImGoneLetters({ onClose }: AfterImGoneLettersProps)
       setLetters([newLetter, ...letters])
       setIsCreating(false)
       resetForm()
+      toast.success('Letter saved successfully')
     } catch (error) {
       console.error('Failed to create letter:', error)
-      alert('Failed to create letter')
+      toast.error('Failed to create letter')
     }
   }
 

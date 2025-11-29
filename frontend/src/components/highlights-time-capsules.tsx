@@ -27,6 +27,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { apiClient } from '../lib/api-client'
+import toast from 'react-hot-toast'
 
 interface Memory {
   id: string;
@@ -162,7 +163,7 @@ const HighlightsTimeCapsules: React.FC = () => {
         h.id === highlightId ? { ...h, shares: h.shares + 1 } : h
       )
       setHighlights(updatedHighlights)
-      alert('Highlight link copied to clipboard!')
+      toast.success('Highlight link copied to clipboard!')
     }
   }
 

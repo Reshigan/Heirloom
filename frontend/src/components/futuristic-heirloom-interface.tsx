@@ -324,7 +324,6 @@ export default function FuturisticHeirloomInterface() {
       setShowAuthModal(true)
       return
     }
-    console.log('AI Enhance clicked')
   }
 
   const handleUploadSuccess = async () => {
@@ -1041,7 +1040,6 @@ export default function FuturisticHeirloomInterface() {
           <StoryRecorder 
             onClose={() => setShowStoryRecorder(false)}
             onSave={(story) => {
-              console.log('Story saved:', story)
               setShowStoryRecorder(false)
             }}
           />
@@ -1054,7 +1052,6 @@ export default function FuturisticHeirloomInterface() {
           <ImportWizard 
             onClose={() => setShowImportWizard(false)}
             onComplete={(results) => {
-              console.log('Import complete:', results)
               setShowImportWizard(false)
             }}
           />
@@ -1108,7 +1105,7 @@ export default function FuturisticHeirloomInterface() {
         isOpen={showSearch}
         onClose={() => setShowSearch(false)}
         onResultClick={(itemId) => {
-          console.log('Selected memory:', itemId);
+          // Handle memory selection
         }}
       />
       {/* Vault Stats Dashboard Modal */}
