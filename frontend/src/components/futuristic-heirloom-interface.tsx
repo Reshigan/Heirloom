@@ -112,7 +112,7 @@ interface MemoryOrb {
 }
 
 export default function FuturisticHeirloomInterface() {
-  const { user, isAuthenticated, isLoading: authLoading, token, logout, vmkSalt } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading, token, hasCheckedAuth, logout, vmkSalt } = useAuth()
   const { unreadCount } = useNotifications()
   const { vaultEncryption, isInitialized: vaultInitialized, initializeVault } = useVault()
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
@@ -167,7 +167,7 @@ export default function FuturisticHeirloomInterface() {
   useEffect(() => {
     const fetchMemories = async () => {
       if (!isAuthenticated) {
-        if (!authLoading && !token) {
+        if (hasCheckedAuth && !token) {
           setIsLoading(false)
           setShowAuthModal(true)
         }
@@ -199,7 +199,7 @@ export default function FuturisticHeirloomInterface() {
     }
 
     fetchMemories()
-  }, [isAuthenticated, authLoading, token])
+  }, [isAuthenticated, authLoading, token, hasCheckedAuth])
 
   useEffect(() => {
     // Generate golden dust particles
