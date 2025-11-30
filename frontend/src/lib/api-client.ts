@@ -189,6 +189,25 @@ class APIClient {
     return this.request('/vault/stats');
   }
 
+  async initializeVault(encryptedVmk: string): Promise<{
+    success: boolean;
+    message: string;
+    vault: Vault;
+  }> {
+    return this.request('/vault/initialize', {
+      method: 'POST',
+      body: JSON.stringify({ encryptedVmk })
+    });
+  }
+
+  async getVaultStatus(): Promise<{
+    hasEncryptedVmk: boolean;
+    vmkSalt: string;
+    tier: string;
+  }> {
+    return this.request('/vault/status');
+  }
+
   async addRecipient(data: {
     email: string;
     name?: string;
