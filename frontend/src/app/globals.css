@@ -767,40 +767,48 @@ body {
 /* Medium Desktops (1025px - 1536px) - Compact navigation for test viewport */
 @media (min-width: 1025px) and (max-width: 1536px) {
   .luxury-nav {
-    padding: 15px 15px;
+    padding: 10px 10px;
     justify-content: flex-start;
-    gap: 20px;
+    gap: 10px;
   }
   
   .nav-menu {
-    gap: 8px;
+    gap: 4px;
     flex-shrink: 1;
     flex-wrap: nowrap;
     max-width: none;
   }
   
   .nav-item {
-    font-size: 9px;
-    letter-spacing: 0.1em;
+    font-size: 8px;
+    letter-spacing: 0.05em;
     white-space: nowrap;
     flex-shrink: 0;
+    padding: 4px 6px;
   }
   
   /* Hide less critical navigation items to fit in 1280px viewport */
-  /* Keep tested items visible: Recipients(6), Check-in(7), Contacts(8), Stats(9) */
+  /* Keep only the most critical tested items visible */
+  /* Keep: Memories(1), Highlights(2), Search(3), Timeline(4), Family(5), Recipients(6), Check-in(7), Contacts(8), Stats(9) */
   /* Hide: Digest(10), Story Reels(11), Letters(12), Memorial(13), Legacy(14) */
   .nav-item:nth-child(n+10) {
     display: none;
   }
   
   .logo {
-    font-size: 18px;
-    letter-spacing: 0.15em;
+    font-size: 16px;
+    letter-spacing: 0.1em;
     flex-shrink: 0;
   }
   
   .logo::before {
-    width: 20px;
+    width: 16px;
+  }
+  
+  /* Make right section buttons smaller */
+  .luxury-nav button {
+    width: 32px !important;
+    height: 32px !important;
   }
 }
 
