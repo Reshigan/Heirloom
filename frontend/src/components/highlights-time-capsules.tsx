@@ -1,4 +1,3 @@
-import { X } from 'lucide-react';
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -25,7 +24,8 @@ import {
   Eye,
   Users,
   Image as ImageIcon,
-  TrendingUp
+  TrendingUp,
+  X
 } from 'lucide-react'
 import { apiClient } from '../lib/api-client'
 import toast from 'react-hot-toast'
