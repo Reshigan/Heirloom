@@ -65,6 +65,7 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
         id: item.id,
         title: item.title || 'Untitled',
         description: item.description || '',
+        content: item.content || item.description || '',
         date: item.date || item.createdAt,
         location: item.location || 'Unknown',
         type: item.type || 'photo',

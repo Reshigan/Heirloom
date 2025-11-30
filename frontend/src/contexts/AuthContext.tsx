@@ -9,6 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   token: string | null
   vmkSalt: string | null
+  hasCheckedAuth: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name: string, familyName: string) => Promise<void>
   logout: () => void
@@ -21,37 +22,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getInitialSalt = () => typeof window !== 'undefined' ? localStorage.getItem('heirloom:vault:salt') : null
   
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(!!getInitialToken()) // Start as true if we have a token, to prevent auth modal from opening prematurely
+  const [isLoading, setIsLoading] = useState(true)
+  const [token, setToken] = useState<string | null>(getInitialToken())
   const [vmkSalt, setVmkSalt] = useState<string | null>(getInitialSalt())
-  const [hasToken] = useState<boolean>(!!getInitialToken())
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false)
 
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const token = getInitialToken()
-        if (token) {
-          const currentUser = await apiClient.getMe()
-          setUser(currentUser)
+        const storedToken = getInitialToken()
+        if (storedToken) {
+          apiClient.setToken(storedToken)
+          setToken(storedToken)
+          try {
+            const currentUser = await apiClient.getMe()
+            setUser(currentUser)
+          } catch (error) {
+            console.error('Failed to fetch user, but keeping token:', error)
+          }
+        } else {
+          setToken(null)
         }
       } catch (error) {
         console.error('Failed to initialize auth:', error)
-        apiClient.clearToken()
       } finally {
         setIsLoading(false)
+        setHasCheckedAuth(true)
       }
     }
 
-    if (hasToken) {
-      initAuth()
-    } else {
-      setIsLoading(false)
-    }
-  }, [hasToken])
+    initAuth()
+  }, [])
 
   const login = async (email: string, password: string) => {
     try {
       const response = await apiClient.login(email, password)
       setUser(response.user)
+      setToken(response.token)
       if (typeof window !== 'undefined') {
         const salt = localStorage.getItem('heirloom:vault:salt')
         setVmkSalt(salt)
@@ -84,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     apiClient.clearToken()
     setUser(null)
+    setToken(null)
     setVmkSalt(null)
   }
 
@@ -92,9 +100,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user || hasToken, // Show as authenticated if we have a token, even before user data loads
-        token: apiClient.getToken(),
+        isAuthenticated: !!user || !!token,
+        token,
         vmkSalt,
+        hasCheckedAuth,
         login,
         register,
         logout,

@@ -61,7 +61,7 @@ test.describe('Navigation and UI Interactions', () => {
     const statsButton = page.locator('[data-testid="nav-stats"]');
     if (await statsButton.isVisible({ timeout: 5000 }).catch(() => false)) {
       await statsButton.click();
-      await expect(page.locator('text=/stats|statistics/i')).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('text=/Vault Statistics/i').first()).toBeVisible({ timeout: 10000 });
     }
   });
 

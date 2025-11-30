@@ -3,7 +3,7 @@
  * These functions call the backend API to create users, memories, recipients, etc.
  */
 
-const API_BASE_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://loom.vantax.co.za';
+const API_BASE_URL = process.env.BACKEND_URL || 'http://loom.vantax.co.za/api';
 
 export interface User {
   userId: string;
@@ -25,7 +25,7 @@ export interface VaultItem {
  * Register a new user
  */
 export async function registerUser(email: string, password: string): Promise<User> {
-  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -48,7 +48,7 @@ export async function registerUser(email: string, password: string): Promise<Use
  * Login existing user
  */
 export async function loginUser(email: string, password: string): Promise<User> {
-  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -84,7 +84,7 @@ export async function createVaultItem(
   const encryptedData = Buffer.from(`encrypted-${options.title}`).toString('base64');
   const encryptedDek = Buffer.from('test-dek-key').toString('base64');
 
-  const response = await fetch(`${API_BASE_URL}/api/vault/items`, {
+  const response = await fetch(`${API_BASE_URL}/vault/items`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ export async function addRecipient(
     accessLevel?: string;
   }
 ): Promise<{ id: string }> {
-  const response = await fetch(`${API_BASE_URL}/api/recipients`, {
+  const response = await fetch(`${API_BASE_URL}/recipients`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ export async function addTrustedContact(
 ): Promise<{ id: string }> {
   const shamirShareEncrypted = Buffer.from('test-shamir-share').toString('base64');
 
-  const response = await fetch(`${API_BASE_URL}/api/trusted-contacts`, {
+  const response = await fetch(`${API_BASE_URL}/trusted-contacts`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ export async function configureCheckIn(
   token: string,
   method: string = 'app_notification'
 ): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/check-in`, {
+  const response = await fetch(`${API_BASE_URL}/check-in`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ export async function configureCheckIn(
  * Get notifications
  */
 export async function getNotifications(token: string): Promise<any[]> {
-  const response = await fetch(`${API_BASE_URL}/api/notifications`, {
+  const response = await fetch(`${API_BASE_URL}/notifications`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -228,7 +228,7 @@ export async function getNotifications(token: string): Promise<any[]> {
  * Get vault stats
  */
 export async function getVaultStats(token: string): Promise<any> {
-  const response = await fetch(`${API_BASE_URL}/api/vault/stats`, {
+  const response = await fetch(`${API_BASE_URL}/vault/stats`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }

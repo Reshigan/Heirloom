@@ -3,14 +3,11 @@
  * Handles communication with Node.js backend
  */
 
+import type { User as DomainUser, Memory, ApiTimeCapsule, NotificationSettings } from '@/types/domain';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api';
 
-export interface User {
-  id: string;
-  email: string;
-  status: string;
-  nextCheckIn?: string;
-}
+export interface User extends DomainUser {}
 
 export interface Vault {
   id: string;
@@ -86,7 +83,7 @@ class APIClient {
     };
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -325,6 +322,18 @@ class APIClient {
     return result.comment;
   }
 
+  async createComment(itemId: string, content: string): Promise<any> {
+    return this.addComment(itemId, content);
+  }
+
+  async addReaction(commentId: string, type: string): Promise<any> {
+    const result = await this.request<{ reaction: any }>(`/comments/${commentId}/reactions`, {
+      method: 'POST',
+      body: JSON.stringify({ type })
+    });
+    return result.reaction;
+  }
+
   async getCuratorSuggestions(): Promise<any[]> {
     const result = await this.request<{ suggestions: any[] }>('/curator/suggestions');
     return result.suggestions;
@@ -431,7 +440,7 @@ class APIClient {
     const token = this.getToken();
     const headers: HeadersInit = {};
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${API_BASE_URL}/imports/${importId}/upload`, {

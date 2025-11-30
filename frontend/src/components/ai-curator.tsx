@@ -22,15 +22,7 @@ import {
   SlidersHorizontal
 } from 'lucide-react'
 import { apiClient } from '../lib/api-client'
-
-interface Memory {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  media_url?: string;
-  thumbnail_url?: string;
-}
+import type { Memory } from '@/types/domain'
 
 interface SearchFilter {
   people: string[]
@@ -107,15 +99,13 @@ const AICurator: React.FC = () => {
     setIsSearching(true)
     
     try {
-      const response = await apiClient.search(query, {
-        people: filters.people,
-        locations: filters.locations,
-        types: filters.types,
-        tags: filters.tags,
-        date_start: filters.dateRange.start,
-        date_end: filters.dateRange.end
+      const response = await apiClient.search({
+        q: query,
+        type: filters.types.join(','),
+        startDate: filters.dateRange.start,
+        endDate: filters.dateRange.end
       })
-      setSearchResults(response.results)
+      setSearchResults(response.items)
     } catch (error) {
       console.error('Search failed:', error)
     } finally {
@@ -396,7 +386,7 @@ const AICurator: React.FC = () => {
                   >
                     <div className={`relative ${viewMode === 'grid' ? 'h-48' : 'w-48 h-32'} overflow-hidden flex-shrink-0`}>
                       <img
-                        src={memory.thumbnail}
+                        src={memory.thumbnailUrl || memory.thumbnail}
                         alt={memory.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />

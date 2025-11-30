@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { prisma } from '../index';
+import { prisma } from '../db';
 
 export class NotificationService {
   private resend: Resend;

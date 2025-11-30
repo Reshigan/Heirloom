@@ -194,12 +194,12 @@ export class EncryptionUtils {
   /**
    * Convert hex string to buffer
    */
-  private static hexToBuffer(hex: string): Uint8Array {
+  private static hexToBuffer(hex: string): Uint8Array<ArrayBuffer> {
     const bytes = new Uint8Array(hex.length / 2);
     for (let i = 0; i < hex.length; i += 2) {
       bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
     }
-    return bytes;
+    return bytes as Uint8Array<ArrayBuffer>;
   }
 
   /**

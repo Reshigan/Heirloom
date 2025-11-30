@@ -1,4 +1,4 @@
-import { prisma } from '../index';
+import { prisma } from '../db';
 import { NotificationService } from './notifications';
 import crypto from 'crypto';
 

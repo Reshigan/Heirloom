@@ -49,7 +49,8 @@ export const GoldButton: React.FC<GoldButtonProps> = ({
         className
       )}
       disabled={disabled || loading}
-      {...props}
+      type="button"
+      {...(props as any)}
     >
       {/* Shimmer effect */}
       {variant === 'primary' && !disabled && !loading && (

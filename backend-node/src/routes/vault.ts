@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { prisma } from '../index';
+import { prisma } from '../db';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { ValidationUtils } from '../utils/validation';
@@ -26,8 +26,8 @@ router.post('/items', async (req: AuthRequest, res, next) => {
       importanceScore
     } = req.body;
 
-    if (!type || !encryptedData || !encryptedDek) {
-      throw new AppError(400, 'Type, encrypted data, and encrypted DEK are required');
+    if (!type || !encryptedData) {
+      throw new AppError(400, 'Type and encrypted data are required');
     }
 
     ValidationUtils.validateVaultItemType(type);
@@ -44,8 +44,17 @@ router.post('/items', async (req: AuthRequest, res, next) => {
       throw new AppError(404, 'Vault not found');
     }
 
-    const newStorageUsed = vault.storageUsedBytes + BigInt(fileSizeBytes || 0);
-    if (newStorageUsed > vault.storageLimitBytes) {
+    const storageUsed = BigInt(vault.storageUsedBytes ?? 0);
+    const storageLimit = BigInt(vault.storageLimitBytes ?? 0);
+    const uploadCount = vault.uploadCountThisWeek ?? 0;
+    const uploadLimit = vault.uploadLimitWeekly ?? 100;
+
+    if (uploadCount >= uploadLimit) {
+      throw new AppError(429, 'Upload limit exceeded. Weekly limit reached.');
+    }
+
+    const newStorageUsed = storageUsed + BigInt(fileSizeBytes || 0);
+    if (newStorageUsed > storageLimit) {
       throw new AppError(413, 'Storage limit exceeded');
     }
 
@@ -65,20 +74,13 @@ router.post('/items', async (req: AuthRequest, res, next) => {
     }
 
     const item = await prisma.$transaction(async (tx: any) => {
-      const updated = await tx.vault.updateMany({
-        where: {
-          id: vault.id,
-          uploadCountThisWeek: { lt: vault.uploadLimitWeekly }
-        },
+      await tx.vault.update({
+        where: { id: vault.id },
         data: {
           uploadCountThisWeek: { increment: 1 },
           storageUsedBytes: newStorageUsed
         }
       });
-
-      if (updated.count === 0) {
-        throw new AppError(429, 'Weekly upload limit reached. Resets on Monday.');
-      }
 
       const newItem = await tx.vaultItem.create({
         data: {
@@ -111,6 +113,18 @@ router.post('/items', async (req: AuthRequest, res, next) => {
       where: { id: vault.id }
     });
 
+    if (req.baseUrl === '/vault') {
+      return res.status(201).json({
+        id: item.id,
+        type: item.type,
+        title: item.title,
+        thumbnailUrl: item.thumbnailUrl,
+        emotionCategory: item.emotionCategory,
+        importanceScore: item.importanceScore,
+        createdAt: item.createdAt
+      });
+    }
+
     res.status(201).json({
       item: {
         id: item.id,
@@ -122,9 +136,9 @@ router.post('/items', async (req: AuthRequest, res, next) => {
         createdAt: item.createdAt
       },
       vault: {
-        storageUsed: updatedVault!.storageUsedBytes.toString(),
-        storageLimit: updatedVault!.storageLimitBytes.toString(),
-        uploadsRemaining: updatedVault!.uploadLimitWeekly - updatedVault!.uploadCountThisWeek
+        storageUsed: String(updatedVault?.storageUsedBytes ?? 0n),
+        storageLimit: String(updatedVault?.storageLimitBytes ?? 0n),
+        uploadsRemaining: (updatedVault?.uploadLimitWeekly ?? 100) - (updatedVault?.uploadCountThisWeek ?? 0)
       }
     });
   } catch (error) {
@@ -255,9 +269,9 @@ router.post('/upload', async (req: AuthRequest, res, next) => {
 
 router.get('/items', async (req: AuthRequest, res, next) => {
   try {
-    const { type, limit = '50', offset = '0' } = req.query;
+    const { type, visibility, limit = '50', offset = '0' } = req.query;
 
-    const cacheKey = `vault:items:${req.user!.userId}:${type || 'all'}:${limit}:${offset}`;
+    const cacheKey = `vault:items:${req.user!.userId}:${type || 'all'}:${visibility || 'all'}:${limit}:${offset}`;
     const cached = await cacheService.get<any>(cacheKey);
     
     if (cached) {
@@ -276,6 +290,9 @@ router.get('/items', async (req: AuthRequest, res, next) => {
     if (type) {
       where.type = type;
     }
+    if (visibility) {
+      where.visibility = visibility;
+    }
 
     const [items, total] = await Promise.all([
       prisma.vaultItem.findMany({
@@ -287,27 +304,34 @@ router.get('/items', async (req: AuthRequest, res, next) => {
       prisma.vaultItem.count({ where })
     ]);
 
+    const itemsData = items.map((item: any) => ({
+      id: item.id,
+      type: item.type,
+      title: item.title,
+      thumbnailUrl: item.thumbnailUrl,
+      emotionCategory: item.emotionCategory,
+      importanceScore: item.importanceScore,
+      sentimentLabel: item.sentimentLabel,
+      sentimentScore: item.sentimentScore,
+      keywords: item.keywords,
+      recipientIds: item.recipientIds,
+      scheduledDelivery: item.scheduledDelivery,
+      createdAt: item.createdAt
+    }));
+
+    if (req.baseUrl === '/vault') {
+      await cacheService.set(cacheKey, itemsData, 60);
+      return res.json(itemsData);
+    }
+
     const response = {
-      items: items.map((item: any) => ({
-        id: item.id,
-        type: item.type,
-        title: item.title,
-        thumbnailUrl: item.thumbnailUrl,
-        emotionCategory: item.emotionCategory,
-        importanceScore: item.importanceScore,
-        sentimentLabel: item.sentimentLabel,
-        sentimentScore: item.sentimentScore,
-        keywords: item.keywords,
-        recipientIds: item.recipientIds,
-        scheduledDelivery: item.scheduledDelivery,
-        createdAt: item.createdAt
-      })),
+      items: itemsData,
       total,
       vault: {
-        storageUsed: vault.storageUsedBytes.toString(),
-        storageLimit: vault.storageLimitBytes.toString(),
-        uploadsThisWeek: vault.uploadCountThisWeek,
-        uploadLimit: vault.uploadLimitWeekly
+        storageUsed: String(vault.storageUsedBytes ?? 0n),
+        storageLimit: String(vault.storageLimitBytes ?? 0n),
+        uploadsThisWeek: vault.uploadCountThisWeek ?? 0,
+        uploadLimit: vault.uploadLimitWeekly ?? 100
       }
     };
 
@@ -426,6 +450,45 @@ router.put('/items/:id', async (req: AuthRequest, res, next) => {
   }
 });
 
+router.delete('/items/:id', async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const vault = await prisma.vault.findUnique({
+      where: { userId: req.user!.userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    const item = await prisma.vaultItem.findUnique({
+      where: { id },
+      include: { vault: true }
+    });
+
+    if (!item) {
+      throw new AppError(404, 'Vault item not found');
+    }
+
+    if (item.vault.userId !== req.user!.userId) {
+      throw new AppError(403, 'Access denied');
+    }
+
+    await prisma.vaultItem.delete({
+      where: { id }
+    });
+
+    await cacheService.invalidatePattern(`vault:items:${req.user!.userId}:*`);
+
+    res.json({
+      message: 'Item deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/stats', async (req: AuthRequest, res, next) => {
   try {
     const vault = await prisma.vault.findUnique({
@@ -490,6 +553,13 @@ router.get('/stats', async (req: AuthRequest, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+router.use((err: any, req: any, res: any, next: any) => {
+  if (err.statusCode) {
+    return res.status(err.statusCode).json({ error: err.message });
+  }
+  return res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
 export default router;

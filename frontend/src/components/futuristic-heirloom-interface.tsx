@@ -1,3 +1,4 @@
+import type { FamilyMember, TimelineEvent, ViewMode as DomainViewMode } from '@/types/domain';
 'use client'
 
 import React, { useEffect, useState, useRef, Suspense, lazy } from 'react'
@@ -85,24 +86,7 @@ const LoadingSpinner = () => (
   </div>
 )
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
-
-interface Memory {
-  id: string
-  title: string
-  description: string
-  date: string
-  media_url?: string
-  thumbnail_url?: string
-  thumbnailUrl?: string
-  location?: string
-  participants?: string[]
-  sentimentLabel?: string
-  sentimentScore?: number
-  emotionCategory?: string
-  keywords?: string[]
-  importanceScore?: number
-}
+import type { Memory, ViewMode } from '@/types/domain'
 
 interface MemoryOrb {
   id: string
@@ -112,7 +96,7 @@ interface MemoryOrb {
 }
 
 export default function FuturisticHeirloomInterface() {
-  const { user, isAuthenticated, isLoading: authLoading, logout, vmkSalt } = useAuth()
+  const { user, isAuthenticated, isLoading: authLoading, token, hasCheckedAuth, logout, vmkSalt } = useAuth()
   const { unreadCount } = useNotifications()
   const { vaultEncryption, isInitialized: vaultInitialized, initializeVault } = useVault()
   const [currentView, setCurrentView] = useState<ViewMode>('memories')
@@ -167,9 +151,9 @@ export default function FuturisticHeirloomInterface() {
   useEffect(() => {
     const fetchMemories = async () => {
       if (!isAuthenticated) {
-        if (!authLoading) {
+        if (hasCheckedAuth && !token) {
           setIsLoading(false)
-          setShowAuthModal(true) // Auto-open auth modal when not authenticated (after auth check completes)
+          setShowAuthModal(true)
         }
         return
       }
@@ -199,7 +183,7 @@ export default function FuturisticHeirloomInterface() {
     }
 
     fetchMemories()
-  }, [isAuthenticated, authLoading])
+  }, [isAuthenticated, authLoading, token, hasCheckedAuth])
 
   useEffect(() => {
     // Generate golden dust particles
@@ -474,7 +458,7 @@ export default function FuturisticHeirloomInterface() {
                     Billing
                   </a>
                   <div className="hidden sm:block text-xs text-gold-200/70">
-                    {user?.name} • {user?.family_name}
+                    {user?.name} • {user?.familyName}
                   </div>
                   <button
                     onClick={() => setShowSearch(true)}
@@ -632,7 +616,7 @@ export default function FuturisticHeirloomInterface() {
                         >
                           <div className="w-full h-full rounded-full overflow-hidden border border-gold-500/30">
                             <img
-                              src={orb.memory.thumbnailUrl || orb.memory.thumbnail_url}
+                              src={orb.memory.thumbnailUrl || orb.memory.thumbnailUrl}
                               alt={orb.memory.title}
                               className="w-full h-full object-cover opacity-90"
                             />
@@ -703,7 +687,7 @@ export default function FuturisticHeirloomInterface() {
                       <div className="orb-container">
                         <div className="orb-content">
                           <img
-                            src={orb.memory.thumbnail}
+                            src={orb.memory.thumbnailUrl || orb.memory.thumbnail || '/placeholder-memory.jpg'}
                             alt={orb.memory.title}
                             className="orb-image"
                           />
@@ -772,7 +756,7 @@ export default function FuturisticHeirloomInterface() {
                           <div className="flex gap-4">
                             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gold-500/30">
                               <img
-                                src={memory.thumbnailUrl || memory.thumbnail_url}
+                                src={memory.thumbnailUrl || memory.thumbnailUrl}
                                 alt={memory.title}
                                 className="w-full h-full object-cover"
                               />
@@ -821,7 +805,7 @@ export default function FuturisticHeirloomInterface() {
                     title: m.title,
                     description: m.description,
                     date: m.date,
-                    thumbnailUrl: m.thumbnailUrl || m.thumbnail_url,
+                    thumbnailUrl: m.thumbnailUrl || m.thumbnailUrl,
                     location: m.location,
                     participants: m.participants,
                     sentimentLabel: (m as any).sentimentLabel,
@@ -1018,7 +1002,7 @@ export default function FuturisticHeirloomInterface() {
                 </div>
               )}
               
-              {selectedMemory.aiEnhanced && (
+              {(selectedMemory.aiEnhanced || false) && (
                 <div className="detail-item">
                   <div className="detail-label">AI Enhancement</div>
                   <div className="detail-value">Restored • Colorized • Clarified</div>

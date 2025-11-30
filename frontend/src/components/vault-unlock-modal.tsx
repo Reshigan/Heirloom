@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Lock, AlertCircle, Loader2 } from 'lucide-react'
 
 interface VaultUnlockModalProps {
+  isOpen: boolean
+  onClose: () => void
   onUnlock: (password: string) => Promise<void>
-  onCancel: () => void
 }
 
-export function VaultUnlockModal({ onUnlock, onCancel }: VaultUnlockModalProps) {
+export function VaultUnlockModal({ isOpen, onClose, onUnlock }: VaultUnlockModalProps) {
+  if (!isOpen) return null
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isUnlocking, setIsUnlocking] = useState(false)
@@ -39,7 +41,7 @@ export function VaultUnlockModal({ onUnlock, onCancel }: VaultUnlockModalProps) 
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onCancel}
+        onClick={onClose}
       />
 
       <motion.div
@@ -95,7 +97,7 @@ export function VaultUnlockModal({ onUnlock, onCancel }: VaultUnlockModalProps) 
           <div className="flex items-center gap-3 mt-6">
             <button
               type="button"
-              onClick={onCancel}
+              onClick={onClose}
               disabled={isUnlocking}
               className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider"
             >

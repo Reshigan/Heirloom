@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 import * as Sentry from '@sentry/node';
 
 export function initSentry() {

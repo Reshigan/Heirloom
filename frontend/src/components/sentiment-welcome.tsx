@@ -7,7 +7,7 @@ import { Heart, Sparkles, TrendingUp, Calendar } from 'lucide-react'
 interface Memory {
   id: string
   title?: string
-  createdAt: string
+  createdAt?: string
   sentimentLabel?: string
   emotionCategory?: string
   sentimentScore?: number
@@ -41,15 +41,17 @@ function computeSentimentStats(memories: Memory[]): SentimentStats {
       emotionBreakdown[memory.emotionCategory] = (emotionBreakdown[memory.emotionCategory] || 0) + 1
     }
 
-    const memoryDate = new Date(memory.createdAt)
-    if (!mostRecentDate || memoryDate > mostRecentDate) {
-      mostRecentDate = memoryDate
-      recentSentiment = memory.sentimentLabel || null
+    if (memory.createdAt) {
+      const memoryDate = new Date(memory.createdAt)
+      if (!mostRecentDate || memoryDate > mostRecentDate) {
+        mostRecentDate = memoryDate
+        recentSentiment = memory.sentimentLabel || null
+      }
     }
   })
 
-  const daysSinceLastPost = mostRecentDate 
-    ? Math.floor((Date.now() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24))
+  const daysSinceLastPost = mostRecentDate !== null
+    ? Math.floor((Date.now() - (mostRecentDate as Date).getTime()) / (1000 * 60 * 60 * 24))
     : 999
 
   return {
