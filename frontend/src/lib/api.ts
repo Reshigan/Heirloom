@@ -155,7 +155,7 @@ class ApiClient {
     }
 
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -325,7 +325,7 @@ class ApiClient {
 
     const headers: HeadersInit = {}
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`
     }
 
     const response = await fetch(`${API_BASE_URL}/api/imports/${importId}/files`, {
@@ -382,7 +382,7 @@ class ApiClient {
 
     const headers: HeadersInit = {}
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`
     }
 
     const response = await fetch(`${API_BASE_URL}/api/uploads/${uploadId}`, {
