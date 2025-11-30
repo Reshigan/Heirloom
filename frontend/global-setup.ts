@@ -6,7 +6,7 @@ async function globalSetup(config: FullConfig) {
   console.log('🔧 Global setup: Creating authenticated user...');
   
   const targetURL = baseURL || 'http://localhost:3100';
-  const backendURL = `${targetURL}/api`.replace(/\/app\/api$/, '/api');
+  const backendURL = process.env.BACKEND_URL || `${targetURL}/api`.replace(/\/app\/api$/, '/api');
   console.log(`🔗 Backend URL: ${backendURL}`);
   
   const testEmail = 'playwright-test@example.com';
