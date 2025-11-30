@@ -86,24 +86,9 @@ const LoadingSpinner = () => (
   </div>
 )
 
-type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
+import type { Memory } from '@/types/domain'
 
-interface Memory {
-  id: string
-  title: string
-  description: string
-  date: string
-  media_url?: string
-  thumbnail_url?: string
-  thumbnailUrl?: string
-  location?: string
-  participants?: string[]
-  sentimentLabel?: string
-  sentimentScore?: number
-  emotionCategory?: string
-  keywords?: string[]
-  importanceScore?: number
-}
+type ViewMode = 'memories' | 'timeline' | 'heritage' | 'wisdom' | 'family' | 'highlights' | 'digest' | 'curator'
 
 interface MemoryOrb {
   id: string
