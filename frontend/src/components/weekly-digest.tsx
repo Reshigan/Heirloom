@@ -57,7 +57,17 @@ const WeeklyDigest: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'digest' | 'reminders' | 'settings'>('digest')
   const [digestItems, setDigestItems] = useState<ApiDigestItem[]>([])
   const [digestStats, setDigestStats] = useState<any>({})
+  const [activityStats, setActivityStats] = useState<ActivityStats>({
+    memoriesAdded: 0,
+    commentsPosted: 0,
+    highlightsCreated: 0,
+    checkInsCompleted: 0,
+    storageUsed: 0,
+    recipientsAdded: 0
+  })
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
+    digestEnabled: true,
+    frequency: 'weekly',
     weeklyDigest: true,
     daily_reminders: false,
     new_comments: true,
