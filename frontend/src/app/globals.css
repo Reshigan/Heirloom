@@ -764,6 +764,36 @@ body {
   }
 }
 
+/* Medium Desktops (1025px - 1536px) - Compact navigation for test viewport */
+@media (min-width: 1025px) and (max-width: 1536px) {
+  .luxury-nav {
+    padding: 20px 20px;
+  }
+  
+  .nav-menu {
+    gap: 15px;
+  }
+  
+  .nav-item {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+  
+  /* Hide less critical navigation items to fit in 1280px viewport */
+  .nav-item:nth-child(n+11) {
+    display: none;
+  }
+  
+  .logo {
+    font-size: 22px;
+    letter-spacing: 0.2em;
+  }
+  
+  .logo::before {
+    width: 25px;
+  }
+}
+
 /* Ensure viewport is properly configured */
 @media (max-width: 768px) {
   html {
