@@ -7,7 +7,7 @@ import { Heart, Sparkles, TrendingUp, Calendar } from 'lucide-react'
 interface Memory {
   id: string
   title?: string
-  createdAt: string
+  createdAt?: string
   sentimentLabel?: string
   emotionCategory?: string
   sentimentScore?: number
@@ -50,10 +50,9 @@ function computeSentimentStats(memories: Memory[]): SentimentStats {
     }
   })
 
-  let daysSinceLastPost = 999
-  if (mostRecentDate) {
-    daysSinceLastPost = Math.floor((Date.now() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24))
-  }
+  const daysSinceLastPost = mostRecentDate !== null
+    ? Math.floor((Date.now() - (mostRecentDate as Date).getTime()) / (1000 * 60 * 60 * 24))
+    : 999
 
   return {
     totalMemories: memories.length,
