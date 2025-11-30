@@ -772,6 +772,7 @@ body {
     gap: 6px !important;
     max-width: 100vw !important;
     overflow-x: hidden !important;
+    z-index: 900 !important; /* Lower z-index so modals can appear above */
   }
   
   .nav-menu {
@@ -835,6 +836,13 @@ body {
   /* Hide user name text to save space */
   .luxury-nav .text-xs.text-gold-200\/70 {
     display: none !important;
+  }
+  
+  /* Ensure modals appear above navigation */
+  [data-testid*="modal"],
+  [class*="modal"],
+  .fixed.inset-0 {
+    z-index: 1100 !important;
   }
 }
 
