@@ -1,4 +1,4 @@
-import { prisma } from '../index';
+import { prisma } from '../db';
 import { NotificationService } from './notifications';
 import { UnlockService } from './unlock';
 import { notificationService } from './NotificationService';

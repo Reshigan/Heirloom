@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { prisma } from '../index';
+import { prisma } from '../db';
 import { CryptoUtils } from '../utils/crypto';
 import { JWTUtils } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
