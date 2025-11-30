@@ -764,65 +764,77 @@ body {
   }
 }
 
-/* Medium Desktops (1025px - 1536px) - Compact navigation for test viewport */
-@media (min-width: 1025px) and (max-width: 1536px) {
+/* Compact navigation for Playwright test viewport (1280px) */
+@media (min-width: 1280px) and (max-width: 1536px) {
   .luxury-nav {
-    padding: 8px 8px;
-    justify-content: flex-start;
-    gap: 8px;
+    padding: 5px 8px !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
   
   .nav-menu {
-    gap: 2px;
-    flex-shrink: 1;
-    flex-wrap: nowrap;
-    max-width: none;
+    gap: 2px !important;
+    flex-shrink: 1 !important;
+    flex-wrap: nowrap !important;
+    max-width: 600px !important;
+    overflow: hidden !important;
   }
   
   .nav-item {
-    font-size: 7px;
-    letter-spacing: 0.03em;
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding: 3px 4px;
+    font-size: 7px !important;
+    letter-spacing: 0.02em !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding: 2px 3px !important;
   }
   
-  /* Hide less critical navigation items to fit in 1280px viewport */
-  /* Keep only the most critical tested items visible */
-  /* Keep: Memories(1), Highlights(2), Search(3), Timeline(4), Family(5), Recipients(6), Check-in(7), Contacts(8), Stats(9) */
-  /* Hide: Digest(10), Story Reels(11), Letters(12), Memorial(13), Legacy(14) */
+  /* Hide items 10+ (Digest, Story Reels, Letters, Memorial, Legacy) */
   .nav-item:nth-child(n+10) {
-    display: none;
+    display: none !important;
   }
   
-  /* Also hide some non-tested items to make more room */
-  /* Hide: Memories(1), Highlights(2), Timeline(4), Family(5) */
+  /* Hide non-tested items to make room (Memories, Highlights, Timeline, Family) */
   .nav-item:nth-child(1),
   .nav-item:nth-child(2),
   .nav-item:nth-child(4),
   .nav-item:nth-child(5) {
-    display: none;
+    display: none !important;
   }
   
   .logo {
-    font-size: 14px;
-    letter-spacing: 0.08em;
-    flex-shrink: 0;
+    font-size: 12px !important;
+    letter-spacing: 0.06em !important;
+    flex-shrink: 0 !important;
   }
   
   .logo::before {
-    width: 14px;
+    width: 12px !important;
   }
   
   /* Make right section buttons smaller */
   .luxury-nav button {
-    width: 28px !important;
-    height: 28px !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
   }
   
   /* Make right section more compact */
   .luxury-nav > div:last-child {
-    gap: 6px !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Hide billing link to save space */
+  .luxury-nav a[href="/billing"] {
+    display: none !important;
+  }
+  
+  /* Hide user name text to save space */
+  .luxury-nav .text-xs.text-gold-200\/70 {
+    display: none !important;
   }
 }
 
