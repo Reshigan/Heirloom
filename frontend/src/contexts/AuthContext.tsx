@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getInitialSalt = () => typeof window !== 'undefined' ? localStorage.getItem('heirloom:vault:salt') : null
   
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(false) // Start as false, set to true only during async operations
+  const [isLoading, setIsLoading] = useState(!!getInitialToken()) // Start as true if we have a token, to prevent auth modal from opening prematurely
   const [vmkSalt, setVmkSalt] = useState<string | null>(getInitialSalt())
   const [hasToken] = useState<boolean>(!!getInitialToken())
 
@@ -36,11 +36,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Failed to initialize auth:', error)
         apiClient.clearToken()
+      } finally {
+        setIsLoading(false)
       }
     }
 
     if (hasToken) {
       initAuth()
+    } else {
+      setIsLoading(false)
     }
   }, [hasToken])
 
