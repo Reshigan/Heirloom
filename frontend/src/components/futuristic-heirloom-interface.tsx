@@ -475,7 +475,7 @@ export default function FuturisticHeirloomInterface() {
                     Billing
                   </a>
                   <div className="hidden sm:block text-xs text-gold-200/70">
-                    {user?.name} • {user?.family_name}
+                    {user?.name} • {user?.familyName}
                   </div>
                   <button
                     onClick={() => setShowSearch(true)}
@@ -704,7 +704,7 @@ export default function FuturisticHeirloomInterface() {
                       <div className="orb-container">
                         <div className="orb-content">
                           <img
-                            src={orb.memory.thumbnail}
+                            src={orb.memory.thumbnailUrl || orb.memory.thumbnail || '/placeholder-memory.jpg'}
                             alt={orb.memory.title}
                             className="orb-image"
                           />
@@ -1019,7 +1019,7 @@ export default function FuturisticHeirloomInterface() {
                 </div>
               )}
               
-              {selectedMemory.aiEnhanced && (
+              {(selectedMemory.aiEnhanced || false) && (
                 <div className="detail-item">
                   <div className="detail-label">AI Enhancement</div>
                   <div className="detail-value">Restored • Colorized • Clarified</div>
