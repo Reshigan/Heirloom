@@ -26,6 +26,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { apiClient } from '../lib/api-client'
+import type { ActivityStats } from '@/types/domain'
 
 interface ApiDigestItem {
   id: string;
@@ -40,6 +41,16 @@ interface ApiDigestItem {
 interface NotificationSettings {
   digestEnabled: boolean;
   frequency: string;
+  weeklyDigest?: boolean;
+  daily_reminders?: boolean;
+  new_comments?: boolean;
+  new_memories?: boolean;
+  birthdays?: boolean;
+  anniversaries?: boolean;
+  story_prompts?: boolean;
+  family_activity?: boolean;
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
 }
 
 const WeeklyDigest: React.FC = () => {
