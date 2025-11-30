@@ -50,9 +50,10 @@ function computeSentimentStats(memories: Memory[]): SentimentStats {
     }
   })
 
-  const daysSinceLastPost = mostRecentDate && mostRecentDate instanceof Date
-    ? Math.floor((Date.now() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24))
-    : 999
+  let daysSinceLastPost = 999
+  if (mostRecentDate) {
+    daysSinceLastPost = Math.floor((Date.now() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24))
+  }
 
   return {
     totalMemories: memories.length,
