@@ -42,7 +42,15 @@ const BillingPage: React.FC = () => {
     try {
       setLoading(true)
       const data = await apiClient.getMe()
-      setSubscription(data.subscription || null)
+      if (data.subscription) {
+        setSubscription({
+          plan: data.subscription.tier || 'free',
+          status: data.subscription.status || 'active',
+          current_period_end: data.subscription.currentPeriodEnd
+        })
+      } else {
+        setSubscription(null)
+      }
     } catch (error) {
       console.error('Failed to load subscription:', error)
     } finally {
@@ -53,8 +61,9 @@ const BillingPage: React.FC = () => {
   const handleUpgrade = async (plan: string) => {
     try {
       setCheckoutLoading(plan)
-      const response = await apiClient.createCheckoutSession(plan)
-      window.location.href = response.session_url
+      console.log('Upgrade to plan:', plan)
+      alert('Stripe integration coming soon! Please contact support to upgrade.')
+      setCheckoutLoading(null)
     } catch (error) {
       console.error('Failed to create checkout session:', error)
       setCheckoutLoading(null)
@@ -64,8 +73,9 @@ const BillingPage: React.FC = () => {
   const handleManageBilling = async () => {
     try {
       setCheckoutLoading('portal')
-      const response = await apiClient.createPortalSession()
-      window.location.href = response.portal_url
+      console.log('Manage billing')
+      alert('Stripe integration coming soon! Please contact support to manage billing.')
+      setCheckoutLoading(null)
     } catch (error) {
       console.error('Failed to create portal session:', error)
       setCheckoutLoading(null)

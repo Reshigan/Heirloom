@@ -50,7 +50,7 @@ function computeSentimentStats(memories: Memory[]): SentimentStats {
     }
   })
 
-  const daysSinceLastPost = mostRecentDate 
+  const daysSinceLastPost = mostRecentDate && mostRecentDate instanceof Date
     ? Math.floor((Date.now() - mostRecentDate.getTime()) / (1000 * 60 * 60 * 24))
     : 999
 
