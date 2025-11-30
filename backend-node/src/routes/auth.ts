@@ -26,7 +26,7 @@ router.post('/register', async (req, res, next) => {
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      throw new AppError(400, 'User already exists');
+      throw new AppError(400, 'Email already registered');
     }
 
     const { hash, salt } = await CryptoUtils.hashPassword(password);
@@ -74,22 +74,26 @@ router.post('/register', async (req, res, next) => {
       path: '/'
     });
 
+    const defaultUploadLimit = process.env.UPLOAD_LIMIT_WEEKLY 
+      ? parseInt(process.env.UPLOAD_LIMIT_WEEKLY, 10) 
+      : 100;
+
     res.status(201).json({
       user: {
         id: result.user.id,
         email: result.user.email,
-        status: result.user.status.toUpperCase() // Normalize to uppercase
+        status: (result.user.status || 'ALIVE').toUpperCase()
       },
       vault: {
         id: result.vault.id,
-        tier: result.vault.tier.toUpperCase(), // Normalize to uppercase
-        storageUsed: result.vault.storageUsedBytes.toString(),
-        storageLimit: result.vault.storageLimitBytes.toString(),
-        uploadsThisWeek: result.vault.uploadCountThisWeek,
-        uploadLimit: result.vault.uploadLimitWeekly
+        tier: (result.vault.tier || 'STARTER').toUpperCase(),
+        storageUsed: String(result.vault.storageUsedBytes ?? 0n),
+        storageLimit: String(result.vault.storageLimitBytes ?? 0n),
+        uploadsThisWeek: result.vault.uploadCountThisWeek ?? 0,
+        uploadLimit: result.vault.uploadLimitWeekly ?? defaultUploadLimit
       },
       token,
-      vmkSalt // Client uses this to derive encryption key
+      vmkSalt
     });
   } catch (error) {
     next(error);
@@ -129,10 +133,17 @@ router.post('/login', async (req, res, next) => {
       data: { lastCheckIn: new Date() }
     });
 
+    let vault = user.vault;
+    if (!vault) {
+      vault = await prisma.vault.findUnique({
+        where: { userId: user.id }
+      });
+    }
+
     const token = JWTUtils.sign({
       userId: user.id,
       email: user.email,
-      vaultId: user.vault?.id
+      vaultId: vault?.id
     });
 
     res.cookie('heirloom_token', token, {
@@ -147,18 +158,18 @@ router.post('/login', async (req, res, next) => {
       user: {
         id: user.id,
         email: user.email,
-        status: user.status.toUpperCase() // Normalize to uppercase
+        status: (user.status || 'ALIVE').toUpperCase()
       },
-      vault: user.vault ? {
-        id: user.vault.id,
-        tier: user.vault.tier.toUpperCase(), // Normalize to uppercase
-        storageUsed: user.vault.storageUsedBytes.toString(),
-        storageLimit: user.vault.storageLimitBytes.toString(),
-        uploadsThisWeek: user.vault.uploadCountThisWeek,
-        uploadLimit: user.vault.uploadLimitWeekly
+      vault: vault ? {
+        id: vault.id,
+        tier: (vault.tier || 'STARTER').toUpperCase(),
+        storageUsed: String(vault.storageUsedBytes ?? 0n),
+        storageLimit: String(vault.storageLimitBytes ?? 0n),
+        uploadsThisWeek: vault.uploadCountThisWeek ?? 0,
+        uploadLimit: vault.uploadLimitWeekly ?? 100
       } : null,
       token,
-      vmkSalt: user.vault?.vmkSalt // Return vmkSalt for vault encryption initialization
+      vmkSalt: vault?.vmkSalt ?? null
     });
   } catch (error) {
     next(error);
@@ -265,6 +276,13 @@ router.post('/check-in-response', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+router.use((err: any, req: any, res: any, next: any) => {
+  if (err.statusCode) {
+    return res.status(err.statusCode).json({ error: err.message });
+  }
+  return res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
 export default router;

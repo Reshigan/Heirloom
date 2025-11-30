@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 jest.mock('@prisma/client', () => {
-  const mockPrismaClient = {
+  const mockPrismaClient: any = {
     user: {
       findUnique: jest.fn(),
       findMany: jest.fn(),
@@ -14,6 +14,7 @@ jest.mock('@prisma/client', () => {
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
     },
     vaultItem: {
       findMany: jest.fn(),
@@ -21,6 +22,7 @@ jest.mock('@prisma/client', () => {
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn().mockResolvedValue(0),
     },
     comment: {
       findMany: jest.fn(),
@@ -38,8 +40,15 @@ jest.mock('@prisma/client', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
+    checkIn: {
+      updateMany: jest.fn(),
+    },
     $disconnect: jest.fn(),
   };
+
+  mockPrismaClient.$transaction = jest.fn(async (callback: any) => {
+    return callback(mockPrismaClient);
+  });
 
   return {
     PrismaClient: jest.fn(() => mockPrismaClient),
