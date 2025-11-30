@@ -158,6 +158,10 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/heirloom_test
       
+      - name: Build backend
+        working-directory: backend-node
+        run: npm run build
+      
       - name: Start backend server
         working-directory: backend-node
         run: npm start &
