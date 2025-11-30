@@ -146,6 +146,7 @@ export default function FuturisticHeirloomInterface() {
   const [showStoryReels, setShowStoryReels] = useState(false)
   const [showAfterImGoneLetters, setShowAfterImGoneLetters] = useState(false)
   const [showMemorialPages, setShowMemorialPages] = useState(false)
+  const [showVaultUnlock, setShowVaultUnlock] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
@@ -1081,6 +1082,15 @@ export default function FuturisticHeirloomInterface() {
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
       />
+
+      {/* Vault Unlock Modal */}
+      {showVaultUnlock && (
+        <VaultUnlockModal
+          isOpen={showVaultUnlock}
+          onClose={() => setShowVaultUnlock(false)}
+          onUnlock={handleVaultUnlock}
+        />
+      )}
 
       {/* Vault Upload Modal */}
       {vaultEncryption && (
