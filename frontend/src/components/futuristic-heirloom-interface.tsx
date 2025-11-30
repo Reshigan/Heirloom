@@ -52,6 +52,7 @@ import TrustedContacts from './trusted-contacts'
 import { NotificationCenter } from './notification-center'
 import { AdvancedSearch } from './advanced-search'
 import VaultStatsDashboard from './vault-stats-dashboard'
+import { VaultUnlockModal } from './vault-unlock-modal'
 import FamilyTree from './family-tree'
 import MemoryGallery from './memory-gallery'
 import TimelineView from './timeline-view'
@@ -145,25 +146,23 @@ export default function FuturisticHeirloomInterface() {
   const [showStoryReels, setShowStoryReels] = useState(false)
   const [showAfterImGoneLetters, setShowAfterImGoneLetters] = useState(false)
   const [showMemorialPages, setShowMemorialPages] = useState(false)
+  const [showVaultUnlock, setShowVaultUnlock] = useState(false)
   
   const showcaseRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const initVault = async () => {
-      if (isAuthenticated && vmkSalt && !vaultInitialized) {
-        try {
-          const storedPassword = typeof window !== 'undefined' ? sessionStorage.getItem('heirloom:vault:password') : null
-          if (storedPassword) {
-            await initializeVault(storedPassword, vmkSalt)
-          }
-        } catch (error) {
-          console.error('Failed to initialize vault encryption:', error)
-        }
-      }
+    if (isAuthenticated && vmkSalt && !vaultInitialized) {
+      setShowVaultUnlock(true)
     }
+  }, [isAuthenticated, vmkSalt, vaultInitialized])
 
-    initVault()
-  }, [isAuthenticated, vmkSalt, vaultInitialized, initializeVault])
+  const handleVaultUnlock = async (password: string) => {
+    if (!vmkSalt) {
+      throw new Error('Vault salt not found')
+    }
+    await initializeVault(password, vmkSalt)
+    setShowVaultUnlock(false)
+  }
 
   useEffect(() => {
     const fetchMemories = async () => {
@@ -1083,6 +1082,15 @@ export default function FuturisticHeirloomInterface() {
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)} 
       />
+
+      {/* Vault Unlock Modal */}
+      {showVaultUnlock && (
+        <VaultUnlockModal
+          isOpen={showVaultUnlock}
+          onClose={() => setShowVaultUnlock(false)}
+          onUnlock={handleVaultUnlock}
+        />
+      )}
 
       {/* Vault Upload Modal */}
       {vaultEncryption && (

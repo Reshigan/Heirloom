@@ -17,14 +17,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const getInitialToken = () => typeof window !== 'undefined' ? localStorage.getItem('heirloom:auth:token') : null
+  const getInitialSalt = () => typeof window !== 'undefined' ? localStorage.getItem('heirloom:vault:salt') : null
+  
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [vmkSalt, setVmkSalt] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(!!getInitialToken()) // Start as true if we have a token, to prevent auth modal from opening prematurely
+  const [vmkSalt, setVmkSalt] = useState<string | null>(getInitialSalt())
+  const [hasToken] = useState<boolean>(!!getInitialToken())
 
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('heirloom:auth:token') : null
+        const token = getInitialToken()
         if (token) {
           const currentUser = await apiClient.getMe()
           setUser(currentUser)
@@ -37,8 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    initAuth()
-  }, [])
+    if (hasToken) {
+      initAuth()
+    } else {
+      setIsLoading(false)
+    }
+  }, [hasToken])
 
   const login = async (email: string, password: string) => {
     try {
@@ -84,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user || hasToken, // Show as authenticated if we have a token, even before user data loads
         token: apiClient.getToken(),
         vmkSalt,
         login,
