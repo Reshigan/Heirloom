@@ -21,37 +21,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const getInitialSalt = () => typeof window !== 'undefined' ? localStorage.getItem('heirloom:vault:salt') : null
   
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(!!getInitialToken()) // Start as true if we have a token, to prevent auth modal from opening prematurely
+  const [isLoading, setIsLoading] = useState(true) // Start as true to prevent auth modal from opening before we check for token
+  const [token, setToken] = useState<string | null>(getInitialToken()) // Initialize token from localStorage to avoid SSR/hydration issues
   const [vmkSalt, setVmkSalt] = useState<string | null>(getInitialSalt())
-  const [hasToken] = useState<boolean>(!!getInitialToken())
 
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const token = getInitialToken()
-        if (token) {
+        const storedToken = getInitialToken()
+        setToken(storedToken) // Set token in state immediately
+        if (storedToken) {
           const currentUser = await apiClient.getMe()
           setUser(currentUser)
         }
       } catch (error) {
         console.error('Failed to initialize auth:', error)
         apiClient.clearToken()
+        setToken(null)
       } finally {
         setIsLoading(false)
       }
     }
 
-    if (hasToken) {
-      initAuth()
-    } else {
-      setIsLoading(false)
-    }
-  }, [hasToken])
+    initAuth()
+  }, [])
 
   const login = async (email: string, password: string) => {
     try {
       const response = await apiClient.login(email, password)
       setUser(response.user)
+      setToken(response.token)
       if (typeof window !== 'undefined') {
         const salt = localStorage.getItem('heirloom:vault:salt')
         setVmkSalt(salt)
@@ -86,6 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     apiClient.clearToken()
     setUser(null)
+    setToken(null)
     setVmkSalt(null)
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('heirloom:vault:password')
@@ -97,8 +97,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user || hasToken, // Show as authenticated if we have a token, even before user data loads
-        token: apiClient.getToken(),
+        isAuthenticated: !!user || !!token, // Show as authenticated if we have a token, even before user data loads
+        token,
         vmkSalt,
         login,
         register,

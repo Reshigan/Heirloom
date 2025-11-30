@@ -55,9 +55,6 @@ async function globalSetup(config: FullConfig) {
       localStorage.setItem('heirloom:auth:token', token);
     }, token);
     
-    await page.reload();
-    await page.waitForLoadState('networkidle');
-    
     await page.locator('[data-testid="loading-screen"]').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
     
     const searchButton = await page.getByTestId('search-button').isVisible({ timeout: 10000 }).catch(() => false);
@@ -77,6 +74,11 @@ async function globalSetup(config: FullConfig) {
         console.log('❌ Authentication verification failed');
       }
     }
+    
+    const localStorageToken = await page.evaluate(() => {
+      return localStorage.getItem('heirloom:auth:token');
+    });
+    console.log(`🔍 localStorage token before saving: ${localStorageToken ? 'EXISTS' : 'MISSING'}`);
     
     await context.storageState({ path: 'storageState.json' });
     console.log('✅ Storage state saved to storageState.json');
