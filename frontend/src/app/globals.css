@@ -767,24 +767,24 @@ body {
 /* Medium Desktops (1025px - 1536px) - Compact navigation for test viewport */
 @media (min-width: 1025px) and (max-width: 1536px) {
   .luxury-nav {
-    padding: 10px 10px;
+    padding: 8px 8px;
     justify-content: flex-start;
-    gap: 10px;
+    gap: 8px;
   }
   
   .nav-menu {
-    gap: 4px;
+    gap: 2px;
     flex-shrink: 1;
     flex-wrap: nowrap;
     max-width: none;
   }
   
   .nav-item {
-    font-size: 8px;
-    letter-spacing: 0.05em;
+    font-size: 7px;
+    letter-spacing: 0.03em;
     white-space: nowrap;
     flex-shrink: 0;
-    padding: 4px 6px;
+    padding: 3px 4px;
   }
   
   /* Hide less critical navigation items to fit in 1280px viewport */
@@ -795,20 +795,34 @@ body {
     display: none;
   }
   
+  /* Also hide some non-tested items to make more room */
+  /* Hide: Memories(1), Highlights(2), Timeline(4), Family(5) */
+  .nav-item:nth-child(1),
+  .nav-item:nth-child(2),
+  .nav-item:nth-child(4),
+  .nav-item:nth-child(5) {
+    display: none;
+  }
+  
   .logo {
-    font-size: 16px;
-    letter-spacing: 0.1em;
+    font-size: 14px;
+    letter-spacing: 0.08em;
     flex-shrink: 0;
   }
   
   .logo::before {
-    width: 16px;
+    width: 14px;
   }
   
   /* Make right section buttons smaller */
   .luxury-nav button {
-    width: 32px !important;
-    height: 32px !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
+  
+  /* Make right section more compact */
+  .luxury-nav > div:last-child {
+    gap: 6px !important;
   }
 }
 
