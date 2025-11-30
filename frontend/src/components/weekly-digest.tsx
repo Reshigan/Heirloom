@@ -343,7 +343,7 @@ const WeeklyDigest: React.FC = () => {
                       <label className="relative inline-flex items-center cursor-pointer ml-4">
                         <input
                           type="checkbox"
-                          checked={notificationSettings[setting.key as keyof NotificationSettings]}
+                          checked={Boolean(notificationSettings[setting.key as keyof NotificationSettings])}
                           onChange={(e) => handleSettingsChange(setting.key as keyof NotificationSettings, e.target.checked)}
                           className="sr-only peer"
                           disabled={isSaving}
