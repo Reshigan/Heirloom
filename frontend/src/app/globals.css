@@ -767,30 +767,39 @@ body {
 /* Medium Desktops (1025px - 1536px) - Compact navigation for test viewport */
 @media (min-width: 1025px) and (max-width: 1536px) {
   .luxury-nav {
-    padding: 20px 20px;
+    padding: 15px 15px;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
   
   .nav-menu {
-    gap: 15px;
+    gap: 8px;
+    flex-shrink: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 50vw;
   }
   
   .nav-item {
-    font-size: 10px;
-    letter-spacing: 0.12em;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   
   /* Hide less critical navigation items to fit in 1280px viewport */
-  .nav-item:nth-child(n+11) {
+  .nav-item:nth-child(n+9) {
     display: none;
   }
   
   .logo {
-    font-size: 22px;
-    letter-spacing: 0.2em;
+    font-size: 18px;
+    letter-spacing: 0.15em;
+    flex-shrink: 0;
   }
   
   .logo::before {
-    width: 25px;
+    width: 20px;
   }
 }
 
