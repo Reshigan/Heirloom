@@ -76,7 +76,13 @@ export type ViewMode =
   | 'tokens'
   | 'pricing'
   | 'storage'
-  | 'share';
+  | 'share'
+  | 'memories'
+  | 'heritage'
+  | 'wisdom'
+  | 'highlights'
+  | 'digest'
+  | 'curator';
 
 export interface FamilyMember {
   id: string;
