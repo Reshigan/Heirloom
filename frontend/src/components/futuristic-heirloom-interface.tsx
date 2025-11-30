@@ -144,7 +144,49 @@ export default function FuturisticHeirloomInterface() {
     if (!vmkSalt) {
       throw new Error('Vault salt not found')
     }
+    
     await initializeVault(password, vmkSalt)
+    
+    try {
+      const status = await apiClient.getVaultStatus()
+      
+      if (!status.hasEncryptedVmk) {
+        // Generate and save encrypted VMK to backend
+        const { EncryptionUtils } = await import('@/lib/encryption')
+        
+        const passwordKey = await EncryptionUtils.deriveVMK(password, vmkSalt)
+        
+        // Generate a random VMK
+        const vmk = await crypto.subtle.generateKey(
+          { name: 'AES-GCM', length: 256 },
+          true,
+          ['encrypt', 'decrypt']
+        )
+        
+        const vmkBytes = await crypto.subtle.exportKey('raw', vmk)
+        
+        const iv = crypto.getRandomValues(new Uint8Array(12))
+        const encryptedVmkBuffer = await crypto.subtle.encrypt(
+          { name: 'AES-GCM', iv },
+          passwordKey,
+          vmkBytes
+        )
+        
+        const bufferToHex = (buffer: ArrayBuffer) => {
+          return Array.from(new Uint8Array(buffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('')
+        }
+        
+        const encryptedVmk = `${bufferToHex(encryptedVmkBuffer)}:${bufferToHex(iv)}`
+        
+        await apiClient.initializeVault(encryptedVmk)
+      }
+    } catch (error) {
+      console.error('Failed to initialize vault on backend:', error)
+      throw error
+    }
+    
     setShowVaultUnlock(false)
   }
 

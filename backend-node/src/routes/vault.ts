@@ -11,6 +11,74 @@ const router = Router();
 
 router.use(authenticate);
 
+/**
+ * POST /api/vault/initialize
+ * Initialize vault with encrypted VMK (one-time setup)
+ */
+router.post('/initialize', async (req: AuthRequest, res, next) => {
+  try {
+    const { encryptedVmk } = req.body;
+
+    if (!encryptedVmk) {
+      throw new AppError(400, 'Encrypted VMK is required');
+    }
+
+    const vault = await prisma.vault.findUnique({
+      where: { userId: req.user!.userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    if (vault.encryptedVmk && vault.encryptedVmk !== '') {
+      throw new AppError(409, 'Vault already initialized');
+    }
+
+    const updatedVault = await prisma.vault.update({
+      where: { id: vault.id },
+      data: { encryptedVmk }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Vault initialized successfully',
+      vault: {
+        id: updatedVault.id,
+        tier: updatedVault.tier.toUpperCase(),
+        storageUsed: String(updatedVault.storageUsedBytes ?? 0n),
+        storageLimit: String(updatedVault.storageLimitBytes ?? 0n)
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GET /api/vault/status
+ * Get vault initialization status
+ */
+router.get('/status', async (req: AuthRequest, res, next) => {
+  try {
+    const vault = await prisma.vault.findUnique({
+      where: { userId: req.user!.userId }
+    });
+
+    if (!vault) {
+      throw new AppError(404, 'Vault not found');
+    }
+
+    res.json({
+      hasEncryptedVmk: !!(vault.encryptedVmk && vault.encryptedVmk !== ''),
+      vmkSalt: vault.vmkSalt,
+      tier: vault.tier.toUpperCase()
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/items', async (req: AuthRequest, res, next) => {
   try {
     const {

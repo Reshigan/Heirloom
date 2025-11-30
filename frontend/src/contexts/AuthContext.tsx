@@ -59,9 +59,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await apiClient.login(email, password)
       setUser(response.user)
       setToken(response.token)
-      if (typeof window !== 'undefined') {
-        const salt = localStorage.getItem('heirloom:vault:salt')
-        setVmkSalt(salt)
+      if (response.vmkSalt && typeof window !== 'undefined') {
+        localStorage.setItem('heirloom:vault:salt', response.vmkSalt)
+        setVmkSalt(response.vmkSalt)
       }
     } catch (error) {
       console.error('Login failed:', error)
