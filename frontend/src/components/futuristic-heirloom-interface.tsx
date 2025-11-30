@@ -1,3 +1,4 @@
+import type { FamilyMember, TimelineEvent, ViewMode as DomainViewMode } from '@/types/domain';
 'use client'
 
 import React, { useEffect, useState, useRef, Suspense, lazy } from 'react'
