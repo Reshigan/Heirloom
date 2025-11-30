@@ -396,7 +396,7 @@ const AICurator: React.FC = () => {
                   >
                     <div className={`relative ${viewMode === 'grid' ? 'h-48' : 'w-48 h-32'} overflow-hidden flex-shrink-0`}>
                       <img
-                        src={memory.thumbnail}
+                        src={memory.thumbnailUrl || memory.thumbnail}
                         alt={memory.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />

@@ -47,7 +47,7 @@ const WeeklyDigest: React.FC = () => {
   const [digestItems, setDigestItems] = useState<ApiDigestItem[]>([])
   const [digestStats, setDigestStats] = useState<any>({})
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
-    weekly_digest: true,
+    weeklyDigest: true,
     daily_reminders: false,
     new_comments: true,
     new_memories: true,
@@ -55,8 +55,8 @@ const WeeklyDigest: React.FC = () => {
     anniversaries: true,
     story_prompts: true,
     family_activity: true,
-    email_notifications: true,
-    push_notifications: false
+    emailNotifications: true,
+    pushNotifications: false
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -302,7 +302,7 @@ const WeeklyDigest: React.FC = () => {
                 
                 <div className="space-y-4">
                   {[
-                    { key: 'weekly_digest', label: 'Weekly Digest', description: 'Receive a summary of family activity every week', icon: TrendingUp },
+                    { key: 'weeklyDigest', label: 'Weekly Digest', description: 'Receive a summary of family activity every week', icon: TrendingUp },
                     { key: 'daily_reminders', label: 'Daily Reminders', description: 'Get daily notifications about upcoming events', icon: Calendar },
                     { key: 'new_comments', label: 'New Comments', description: 'Notify when someone comments on your memories', icon: MessageCircle },
                     { key: 'new_memories', label: 'New Memories', description: 'Alert when family members add new memories', icon: ImageIcon },
@@ -352,8 +352,8 @@ const WeeklyDigest: React.FC = () => {
                     <label className="relative inline-flex items-center cursor-pointer ml-4">
                       <input
                         type="checkbox"
-                        checked={notificationSettings.email_notifications}
-                        onChange={(e) => handleSettingsChange('email_notifications', e.target.checked)}
+                        checked={notificationSettings.emailNotifications}
+                        onChange={(e) => handleSettingsChange('emailNotifications', e.target.checked)}
                         className="sr-only peer"
                         disabled={isSaving}
                       />
@@ -372,8 +372,8 @@ const WeeklyDigest: React.FC = () => {
                     <label className="relative inline-flex items-center cursor-pointer ml-4">
                       <input
                         type="checkbox"
-                        checked={notificationSettings.push_notifications}
-                        onChange={(e) => handleSettingsChange('push_notifications', e.target.checked)}
+                        checked={notificationSettings.pushNotifications}
+                        onChange={(e) => handleSettingsChange('pushNotifications', e.target.checked)}
                         className="sr-only peer"
                         disabled={isSaving}
                       />
