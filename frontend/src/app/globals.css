@@ -787,7 +787,9 @@ body {
   }
   
   /* Hide less critical navigation items to fit in 1280px viewport */
-  .nav-item:nth-child(n+8) {
+  /* Keep tested items visible: Recipients(6), Check-in(7), Contacts(8), Stats(9) */
+  /* Hide: Digest(10), Story Reels(11), Letters(12), Memorial(13), Legacy(14) */
+  .nav-item:nth-child(n+10) {
     display: none;
   }
   
