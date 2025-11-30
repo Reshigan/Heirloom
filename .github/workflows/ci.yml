@@ -179,32 +179,28 @@ jobs:
         working-directory: frontend
         run: npm run build
         env:
-          NEXT_PUBLIC_API_BASE_URL: http://localhost:3001/api
+          NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:3001/api
       
       - name: Start frontend server
         working-directory: frontend
         run: npm start &
         env:
-          NEXT_PUBLIC_API_BASE_URL: http://localhost:3001/api
+          NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:3001/api
           PORT: 3000
       
       - name: Wait for servers to be ready
         run: |
           echo "Waiting for backend to be ready..."
-          timeout 60 bash -c 'until curl -f http://localhost:3001/api/health 2>/dev/null; do sleep 2; done' || echo "Backend health check timeout"
+          timeout 60 bash -c 'until curl -f http://127.0.0.1:3001/api/health 2>/dev/null; do sleep 2; done' || echo "Backend health check timeout"
           echo "Waiting for frontend to be ready..."
-          timeout 60 bash -c 'until curl -f http://localhost:3000 2>/dev/null; do sleep 2; done' || echo "Frontend health check timeout"
+          timeout 60 bash -c 'until curl -f http://127.0.0.1:3000 2>/dev/null; do sleep 2; done' || echo "Frontend health check timeout"
           sleep 5
           
           echo "Testing backend API endpoints..."
           echo "Testing POST /api/auth/register:"
-          curl -i -X POST http://localhost:3001/api/auth/register \
+          curl -i -X POST http://127.0.0.1:3001/api/auth/register \
             -H 'Content-Type: application/json' \
             -d '{"email":"test-curl@example.com","password":"TestPassword123!","name":"Test User"}' || echo "Registration test failed"
-          
-          echo "Environment variables:"
-          echo "BACKEND_URL: $BACKEND_URL"
-          echo "PLAYWRIGHT_BASE_URL: $PLAYWRIGHT_BASE_URL"
       
       - name: Install Playwright browsers
         working-directory: frontend
@@ -214,8 +210,9 @@ jobs:
         working-directory: frontend
         run: npm run test:e2e
         env:
-          PLAYWRIGHT_BASE_URL: http://localhost:3000
-          BACKEND_URL: http://localhost:3001/api
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+          BACKEND_URL: http://127.0.0.1:3001/api
+          NO_PROXY: 127.0.0.1,localhost
       
       - name: Upload test results
         if: always()
