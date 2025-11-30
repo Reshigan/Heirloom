@@ -618,7 +618,7 @@ export default function FuturisticHeirloomInterface() {
                         >
                           <div className="w-full h-full rounded-full overflow-hidden border border-gold-500/30">
                             <img
-                              src={orb.memory.thumbnailUrl || orb.memory.thumbnail_url}
+                              src={orb.memory.thumbnailUrl || orb.memory.thumbnailUrl}
                               alt={orb.memory.title}
                               className="w-full h-full object-cover opacity-90"
                             />
@@ -758,7 +758,7 @@ export default function FuturisticHeirloomInterface() {
                           <div className="flex gap-4">
                             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gold-500/30">
                               <img
-                                src={memory.thumbnailUrl || memory.thumbnail_url}
+                                src={memory.thumbnailUrl || memory.thumbnailUrl}
                                 alt={memory.title}
                                 className="w-full h-full object-cover"
                               />
@@ -807,7 +807,7 @@ export default function FuturisticHeirloomInterface() {
                     title: m.title,
                     description: m.description,
                     date: m.date,
-                    thumbnailUrl: m.thumbnailUrl || m.thumbnail_url,
+                    thumbnailUrl: m.thumbnailUrl || m.thumbnailUrl,
                     location: m.location,
                     participants: m.participants,
                     sentimentLabel: (m as any).sentimentLabel,

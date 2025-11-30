@@ -29,25 +29,7 @@ import {
 } from 'lucide-react'
 import { apiClient } from '../lib/api-client'
 import toast from 'react-hot-toast'
-
-interface Memory {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  media_url?: string;
-  thumbnail_url?: string;
-}
-
-interface ApiTimeCapsule {
-  id: string;
-  title: string;
-  message: string;
-  memoryIds: string[];
-  unlockDate: string;
-  isLocked: boolean;
-  recipients: string[];
-}
+import type { Memory, ApiTimeCapsule } from '@/types/domain'
 
 interface Highlight {
   id: string
