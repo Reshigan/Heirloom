@@ -116,6 +116,11 @@ export interface CommentReaction {
 export interface ActivityStats {
   memoriesAdded?: number;
   commentsPosted?: number;
+  commentsReceived?: number;
+  reactionsReceived?: number;
+  profileViews?: number;
+  newConnections?: number;
+  storiesRecorded?: number;
   highlightsCreated?: number;
   checkInsCompleted?: number;
   storageUsed?: number;
