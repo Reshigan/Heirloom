@@ -99,15 +99,13 @@ const AICurator: React.FC = () => {
     setIsSearching(true)
     
     try {
-      const response = await apiClient.search(query, {
-        people: filters.people,
-        locations: filters.locations,
-        types: filters.types,
-        tags: filters.tags,
-        date_start: filters.dateRange.start,
-        date_end: filters.dateRange.end
+      const response = await apiClient.search({
+        q: query,
+        type: filters.types.join(','),
+        startDate: filters.dateRange.start,
+        endDate: filters.dateRange.end
       })
-      setSearchResults(response.results)
+      setSearchResults(response.items)
     } catch (error) {
       console.error('Search failed:', error)
     } finally {

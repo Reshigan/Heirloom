@@ -41,10 +41,12 @@ function computeSentimentStats(memories: Memory[]): SentimentStats {
       emotionBreakdown[memory.emotionCategory] = (emotionBreakdown[memory.emotionCategory] || 0) + 1
     }
 
-    const memoryDate = new Date(memory.createdAt)
-    if (!mostRecentDate || memoryDate > mostRecentDate) {
-      mostRecentDate = memoryDate
-      recentSentiment = memory.sentimentLabel || null
+    if (memory.createdAt) {
+      const memoryDate = new Date(memory.createdAt)
+      if (!mostRecentDate || memoryDate > mostRecentDate) {
+        mostRecentDate = memoryDate
+        recentSentiment = memory.sentimentLabel || null
+      }
     }
   })
 

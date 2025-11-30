@@ -103,7 +103,7 @@ const MemoryComments: React.FC<MemoryCommentsProps> = ({ memoryId, onRequestMemo
     setError(null)
 
     try {
-      const createdComment = await apiClient.createComment(memoryId, newComment, replyingTo || undefined)
+      const createdComment = await apiClient.createComment(memoryId, newComment)
       
       const commentWithAvatar = {
         ...createdComment,
@@ -174,7 +174,7 @@ const MemoryComments: React.FC<MemoryCommentsProps> = ({ memoryId, onRequestMemo
     if (!isAuthenticated) return
 
     try {
-      await apiClient.deleteComment(commentId)
+      await apiClient.deleteComment(memoryId, commentId)
       const updatedComments = comments.filter(c => c.id !== commentId)
       setComments(updatedComments)
     } catch (err: any) {
@@ -375,7 +375,7 @@ const MemoryComments: React.FC<MemoryCommentsProps> = ({ memoryId, onRequestMemo
           
           <div className="flex gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-obsidian-900 font-bold text-sm flex-shrink-0">
-              {user?.name.split(' ').map(n => n[0]).join('') || 'U'}
+              {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
             </div>
             
             <div className="flex-1 flex gap-2">

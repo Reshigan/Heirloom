@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
+import type { JSX } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, Heart, Calendar, MapPin, Award, ChevronDown, ChevronUp, Search, Filter, Maximize2, Minimize2 } from 'lucide-react'
 import { mockFamilyMembers, FamilyMember } from '../data/mock-family-data'
