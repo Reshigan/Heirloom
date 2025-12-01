@@ -31,7 +31,7 @@ const WarpFlash = ({ show }: { show: boolean }) => (
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1.3 }}
         exit={{ opacity: 0, scale: 1.5 }}
-        transition={{ duration: 0.12, ease: "easeOut" }}
+        transition={{ duration: 0.12, ease: "easeOut" as const }}
         className="absolute inset-0 pointer-events-none z-[60]"
         style={{
           background: 'radial-gradient(circle at center, rgba(212, 175, 55, 0.3) 0%, transparent 60%)'
@@ -67,11 +67,11 @@ export const GlassModal: React.FC<GlassModalProps> = ({
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { duration: 0.3, ease: "easeOut" }
+      transition: { duration: 0.3, ease: "easeOut" as const }
     },
     exit: { 
       opacity: 0,
-      transition: { duration: 0.2, ease: "easeIn" }
+      transition: { duration: 0.2, ease: "easeIn" as const }
     }
   }
 
@@ -89,7 +89,7 @@ export const GlassModal: React.FC<GlassModalProps> = ({
       filter: 'blur(0px)',
       transition: { 
         duration: 0.4, 
-        ease: [0.16, 1, 0.3, 1],
+        ease: [0.16, 1, 0.3, 1] as const,
         delay: 0.05
       }
     },
@@ -98,7 +98,7 @@ export const GlassModal: React.FC<GlassModalProps> = ({
       scale: 0.95,
       y: 10,
       filter: showWarpEffect ? 'blur(4px)' : 'blur(0px)',
-      transition: { duration: 0.25, ease: "easeIn" }
+      transition: { duration: 0.25, ease: "easeIn" as const }
     }
   }
 

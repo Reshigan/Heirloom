@@ -30,7 +30,7 @@ const AuthParticle = ({ delay, duration, index }: { delay: number; duration: num
         duration: duration,
         delay: delay,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }}
     />
   )
@@ -129,11 +129,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { duration: 0.4, ease: "easeOut" }
+      transition: { duration: 0.4, ease: "easeOut" as const }
     },
     exit: { 
       opacity: 0,
-      transition: { duration: 0.3, ease: "easeIn" }
+      transition: { duration: 0.3, ease: "easeIn" as const }
     }
   }
 
@@ -149,7 +149,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       y: 0,
       transition: { 
         duration: 0.6, 
-        ease: [0.16, 1, 0.3, 1],
+        ease: [0.16, 1, 0.3, 1] as const,
         delay: 0.1
       }
     },
@@ -157,7 +157,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       opacity: 0, 
       scale: 0.9,
       y: 20,
-      transition: { duration: 0.25, ease: "easeIn" }
+      transition: { duration: 0.25, ease: "easeIn" as const }
     }
   }
 
@@ -173,7 +173,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       filter: "blur(0px)",
       transition: { 
         duration: 0.8, 
-        ease: [0.16, 1, 0.3, 1],
+        ease: [0.16, 1, 0.3, 1] as const,
         delay: 0.2
       }
     }
@@ -187,7 +187,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       transition: { 
         duration: 1.2, 
         delay: 0.6,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     }
   }
@@ -199,7 +199,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       y: 0,
       transition: { 
         duration: 0.5, 
-        ease: "easeOut",
+        ease: "easeOut" as const,
         staggerChildren: 0.08,
         delayChildren: 0.1
       }
@@ -211,7 +211,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.35, ease: "easeOut" }
+      transition: { duration: 0.35, ease: "easeOut" as const }
     }
   }
 
@@ -317,7 +317,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     transition={{
                       duration: 3,
                       repeat: Infinity,
-                      ease: "easeInOut"
+                      ease: "easeInOut" as const
                     }}
                   />
                   
@@ -356,7 +356,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <motion.div
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" }}
+                  transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" as const }}
                   className="mx-auto mt-4 h-px w-32 bg-gradient-to-r from-transparent via-gold-500 to-transparent"
                 />
               </motion.div>
