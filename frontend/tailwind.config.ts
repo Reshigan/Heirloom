@@ -198,6 +198,61 @@ const config: Config = {
           '0%, 100%': { opacity: '0.5' },
           '50%': { opacity: '1' },
         },
+        // New warp and transition animations
+        'warp-in': {
+          '0%': { opacity: '0', transform: 'scale(0.9)', filter: 'blur(10px)' },
+          '100%': { opacity: '1', transform: 'scale(1)', filter: 'blur(0)' },
+        },
+        'warp-out': {
+          '0%': { opacity: '1', transform: 'scale(1)', filter: 'blur(0)' },
+          '100%': { opacity: '0', transform: 'scale(1.1)', filter: 'blur(10px)' },
+        },
+        'warp-flash': {
+          '0%': { opacity: '0', transform: 'scale(0.8)' },
+          '50%': { opacity: '1', transform: 'scale(1.2)' },
+          '100%': { opacity: '0', transform: 'scale(1.5)' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(212, 175, 55, 0.2)' },
+          '50%': { boxShadow: '0 0 40px rgba(212, 175, 55, 0.4)' },
+        },
+        'shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-down': {
+          '0%': { opacity: '0', transform: 'translateY(-20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'scale-in': {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        'blur-in': {
+          '0%': { opacity: '0', filter: 'blur(10px)' },
+          '100%': { opacity: '1', filter: 'blur(0)' },
+        },
+        'ring-pulse': {
+          '0%': { transform: 'scale(1)', opacity: '0.5' },
+          '50%': { transform: 'scale(1.05)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '0.5' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { 
+            textShadow: '0 0 20px rgba(212, 175, 55, 0.3), 0 0 40px rgba(212, 175, 55, 0.1)' 
+          },
+          '50%': { 
+            textShadow: '0 0 30px rgba(212, 175, 55, 0.5), 0 0 60px rgba(212, 175, 55, 0.2)' 
+          },
+        },
       },
       animation: {
         'rotate-slow': 'rotate-slow 60s linear infinite',
@@ -206,6 +261,19 @@ const config: Config = {
         'fadeOut': 'fadeOut 1s ease 2s forwards',
         'spin': 'spin 1.5s linear infinite',
         'pulse': 'pulse 1.5s ease infinite',
+        // New animations
+        'warp-in': 'warp-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'warp-out': 'warp-out 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'warp-flash': 'warp-flash 0.3s ease-out forwards',
+        'float': 'float 4s ease-in-out infinite',
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'shimmer': 'shimmer 2s linear infinite',
+        'fade-up': 'fade-up 0.5s ease-out forwards',
+        'fade-down': 'fade-down 0.5s ease-out forwards',
+        'scale-in': 'scale-in 0.4s ease-out forwards',
+        'blur-in': 'blur-in 0.5s ease-out forwards',
+        'ring-pulse': 'ring-pulse 2s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
       },
     },
   },
