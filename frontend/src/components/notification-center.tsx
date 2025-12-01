@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Check, CheckCheck, Clock, AlertCircle, Info } from 'lucide-react';
 import { useNotifications, Notification } from '@/contexts/NotificationContext';
+import { LuxuryIconButton } from '@/components/ui/luxury-components';
 
 interface NotificationCenterProps {
   isOpen: boolean;
@@ -59,54 +61,84 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end p-4 pointer-events-none">
-      <div className="pointer-events-auto w-full max-w-md mt-16 mr-4">
-        <div className="bg-obsidian-900/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl shadow-2xl overflow-hidden" data-testid="notification-center">
-          <div className="flex items-center justify-between p-4 border-b border-gold-500/20">
-            <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-gold-400" />
-              <h2 className="text-lg font-semibold text-gold-100">Notifications</h2>
-              {unreadCount > 0 && (
-                <span className="px-2 py-0.5 text-xs font-medium bg-gold-500/20 text-gold-400 rounded-full">
-                  {unreadCount}
-                </span>
+    <AnimatePresence>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-start justify-end p-4 pointer-events-none"
+      >
+        <motion.div 
+          initial={{ x: 400, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 400, opacity: 0 }}
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          className="pointer-events-auto w-full max-w-md mt-16 mr-4"
+        >
+          <div className="bg-charcoal/95 backdrop-blur-2xl border border-gold-500/20 rounded-2xl shadow-2xl overflow-hidden" data-testid="notification-center">
+            <div className="flex items-center justify-between p-4 border-b border-gold-500/10">
+              <div className="flex items-center gap-3">
+                <Bell className="w-5 h-5 text-gold-400" />
+                <h2 className="text-lg font-serif font-light text-pearl tracking-wide">Notifications</h2>
+                {unreadCount > 0 && (
+                  <motion.span 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="px-2 py-0.5 text-xs font-medium bg-gold-500/20 text-gold-400 rounded-full"
+                  >
+                    {unreadCount}
+                  </motion.span>
+                )}
+              </div>
+              <LuxuryIconButton
+                icon={X}
+                onClick={onClose}
+                size="sm"
+              />
+            </div>
+
+            <div className="max-h-[600px] overflow-y-auto">
+              {notifications.length === 0 ? (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col items-center justify-center py-12 px-4"
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Bell className="w-12 h-12 text-gold-400/30 mb-3" />
+                  </motion.div>
+                  <p className="text-pearl/60 text-center font-light">No notifications yet</p>
+                  <p className="text-pearl/40 text-sm text-center mt-1 font-light">
+                    We'll notify you about important updates
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="divide-y divide-gold-500/10">
+                  {notifications.map((notification, index) => (
+                    <motion.div
+                      key={notification.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      <NotificationItem
+                        notification={notification}
+                        onMarkAsRead={handleMarkAsRead}
+                        getIcon={getNotificationIcon}
+                        formatTime={formatTimestamp}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
               )}
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gold-500/10 rounded-lg transition-colors"
-              aria-label="Close notifications"
-            >
-              <X className="w-5 h-5 text-gold-400" />
-            </button>
           </div>
-
-          <div className="max-h-[600px] overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 px-4">
-                <Bell className="w-12 h-12 text-gold-400/30 mb-3" />
-                <p className="text-gold-100/60 text-center">No notifications yet</p>
-                <p className="text-gold-100/40 text-sm text-center mt-1">
-                  We'll notify you about important updates
-                </p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gold-500/10">
-                {notifications.map((notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                    onMarkAsRead={handleMarkAsRead}
-                    getIcon={getNotificationIcon}
-                    formatTime={formatTimestamp}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
@@ -121,8 +153,9 @@ function NotificationItem({ notification, onMarkAsRead, getIcon, formatTime }: N
   const isUnread = !notification.readAt;
 
   return (
-    <div
-      className={`p-4 hover:bg-gold-500/5 transition-colors cursor-pointer ${
+    <motion.div
+      whileHover={{ backgroundColor: 'rgba(212, 175, 55, 0.05)' }}
+      className={`p-4 transition-colors cursor-pointer ${
         isUnread ? 'bg-gold-500/5' : ''
       }`}
       onClick={() => {
@@ -139,24 +172,28 @@ function NotificationItem({ notification, onMarkAsRead, getIcon, formatTime }: N
         <div className="flex-shrink-0 mt-1">{getIcon(notification.type)}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-sm font-medium text-gold-100 line-clamp-2">
+            <h3 className="text-sm font-medium text-pearl line-clamp-2 font-light">
               {notification.title || 'Notification'}
             </h3>
             {isUnread && (
-              <div className="flex-shrink-0 w-2 h-2 bg-gold-400 rounded-full mt-1" />
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="flex-shrink-0 w-2 h-2 bg-gold-400 rounded-full mt-1" 
+              />
             )}
           </div>
           {notification.body && (
-            <p className="text-sm text-gold-100/70 mt-1 line-clamp-2">{notification.body}</p>
+            <p className="text-sm text-pearl/70 mt-1 line-clamp-2 font-light">{notification.body}</p>
           )}
           <div className="flex items-center gap-2 mt-2">
-            <span className="text-xs text-gold-100/50">{formatTime(notification.createdAt)}</span>
+            <span className="text-xs text-pearl/50 font-light">{formatTime(notification.createdAt)}</span>
             {!isUnread && (
               <CheckCheck className="w-3 h-3 text-gold-400/50" />
             )}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
