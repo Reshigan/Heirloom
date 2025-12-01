@@ -1,13 +1,17 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
-interface LuxuryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface LuxuryButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export function LuxuryButton({ 
@@ -16,7 +20,9 @@ export function LuxuryButton({
   loading, 
   children, 
   className = '',
-  ...props
+  onClick,
+  disabled,
+  type = 'button',
 }: LuxuryButtonProps) {
   
   const baseStyles = `
@@ -48,8 +54,9 @@ export function LuxuryButton({
 
   return (
     <motion.button
-      {...props}
-      disabled={loading || props.disabled}
+      type={type}
+      onClick={onClick}
+      disabled={loading || disabled}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
