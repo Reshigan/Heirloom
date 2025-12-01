@@ -13,15 +13,15 @@ interface GoldButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 const variantClasses = {
-  primary: 'bg-gradient-to-r from-gold/90 to-gold/80 text-obsidian hover:from-gold hover:to-gold/90 shadow-lg shadow-gold/20',
-  secondary: 'bg-charcoal/60 text-pearl border border-gold/30 hover:bg-charcoal/80 hover:border-gold/50',
-  ghost: 'text-pearl hover:bg-gold/10 border border-transparent hover:border-gold/20'
+  primary: 'bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-obsidian-900 shadow-lg shadow-gold-500/20 hover:shadow-xl hover:shadow-gold-500/30',
+  secondary: 'bg-transparent text-gold-400 border border-gold-500/30 hover:bg-gold-500/5 hover:border-gold-500/50',
+  ghost: 'text-gold-400/70 hover:text-gold-500 hover:bg-gold-500/5 border border-transparent'
 }
 
 const sizeClasses = {
-  sm: 'px-4 py-2 text-sm',
-  md: 'px-6 py-3 text-base',
-  lg: 'px-8 py-4 text-lg'
+  sm: 'px-6 py-2 text-[10px]',
+  md: 'px-8 py-3 text-[11px]',
+  lg: 'px-10 py-4 text-[12px]'
 }
 
 export const GoldButton: React.FC<GoldButtonProps> = ({ 
@@ -36,11 +36,11 @@ export const GoldButton: React.FC<GoldButtonProps> = ({
 }) => {
   return (
     <motion.button
-      whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
+      whileHover={{ y: disabled || loading ? 0 : -2 }}
       whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       className={cn(
-        'relative overflow-hidden rounded-xl font-semibold',
+        'relative overflow-hidden rounded-full font-medium tracking-[0.15em] uppercase',
         'transition-all duration-300',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         'flex items-center justify-center gap-2',

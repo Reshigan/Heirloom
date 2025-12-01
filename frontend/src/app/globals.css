@@ -3,15 +3,44 @@
 @import '../styles/accessibility.css';
 
 :root {
+  /* Gold Palette - The Heart of Heirloom */
   --gold-primary: #D4AF37;
   --gold-light: #F4E5C2;
   --gold-dark: #B8941F;
+  --gold-muted: rgba(212, 175, 55, 0.6);
+  
+  /* Neutral Palette */
   --pearl: #FFF8E7;
   --obsidian: #0A0A0A;
   --charcoal: #1A1A1A;
   --smoke: #2A2A2A;
+  --ash: #3A3A3A;
   --crystal: rgba(255, 248, 231, 0.08);
   --champagne: #F7E7CE;
+  
+  /* Glass Effects */
+  --glass-bg: rgba(26, 26, 26, 0.8);
+  --glass-bg-heavy: rgba(26, 26, 26, 0.95);
+  --glass-border: rgba(212, 175, 55, 0.2);
+  --glass-border-hover: rgba(212, 175, 55, 0.4);
+  --glass-blur: 20px;
+  
+  /* Typography */
+  --font-serif: 'Bodoni Moda', serif;
+  --font-sans: 'Montserrat', sans-serif;
+  --letter-spacing-wide: 0.2em;
+  --letter-spacing-medium: 0.1em;
+  --letter-spacing-normal: 0.05em;
+  
+  /* Shadows */
+  --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.3);
+  --shadow-luxury: 0 30px 100px rgba(212, 175, 55, 0.15);
+  --shadow-glow: 0 0 40px rgba(212, 175, 55, 0.3);
+  
+  /* Transitions */
+  --ease-luxury: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-normal: 0.3s;
+  --duration-slow: 0.6s;
 }
 
 * {
