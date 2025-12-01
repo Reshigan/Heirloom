@@ -246,8 +246,32 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             className="relative w-full h-[100dvh] sm:h-auto sm:max-w-md rounded-none sm:rounded-3xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Glassmorphism background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-charcoal/95 via-obsidian-900/98 to-charcoal/95 backdrop-blur-2xl" />
+            {/* Luxury background matching main pages */}
+            <div className="absolute inset-0 bg-obsidian-900" />
+            
+            {/* Luxury radial gradients */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: `
+                  radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                  linear-gradient(180deg, #0A0A0A 0%, #0F0F0F 50%, #0A0A0A 100%)
+                `
+              }}
+            />
+            
+            {/* Elegant grid pattern */}
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-50"
+              style={{
+                backgroundImage: `
+                  linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px)
+                `,
+                backgroundSize: '100px 100px'
+              }}
+            />
             
             {/* Animated border glow */}
             <motion.div
