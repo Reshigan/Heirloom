@@ -395,9 +395,10 @@ interface LuxuryBadgeProps {
   children: React.ReactNode;
   variant?: 'default' | 'success' | 'warning' | 'error';
   className?: string;
+  onRemove?: () => void;
 }
 
-export function LuxuryBadge({ children, variant = 'default', className = '' }: LuxuryBadgeProps) {
+export function LuxuryBadge({ children, variant = 'default', className = '', onRemove }: LuxuryBadgeProps) {
   const variants = {
     default: 'bg-gold-500/10 text-gold-400 border-gold-500/30',
     success: 'bg-green-500/10 text-green-400 border-green-500/30',
@@ -407,11 +408,20 @@ export function LuxuryBadge({ children, variant = 'default', className = '' }: L
 
   return (
     <span className={`
-      inline-flex items-center px-3 py-1 rounded-full
+      inline-flex items-center gap-2 px-3 py-1 rounded-full
       text-[10px] tracking-[0.15em] uppercase font-medium
       border ${variants[variant]} ${className}
     `}>
       {children}
+      {onRemove && (
+        <button
+          onClick={onRemove}
+          className="text-gold-400/60 hover:text-gold-400 transition-colors"
+          aria-label="Remove"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      )}
     </span>
   );
 }
