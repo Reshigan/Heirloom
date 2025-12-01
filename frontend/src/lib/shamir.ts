@@ -52,28 +52,68 @@ export class ShamirSecretSharing {
 
   /**
    * Encrypt a Shamir share for a specific trusted contact
+   * Uses AES-GCM with key derived from contact email
    * @param share - The share to encrypt
    * @param contactEmail - Email of the trusted contact (used as key derivation input)
-   * @returns Encrypted share
+   * @returns Encrypted share with IV (format: encrypted:iv)
    */
   static async encryptShareForContact(
     share: string,
     contactEmail: string
   ): Promise<string> {
-    const keyMaterial = await EncryptionUtils.sha256(contactEmail);
+    const encoder = new TextEncoder();
+    const emailBuffer = encoder.encode(contactEmail);
+    const salt = encoder.encode('shamir-share-encryption-v1'); // Fixed salt for deterministic key derivation
     
-    const encrypted = btoa(JSON.stringify({
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      emailBuffer,
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+    
+    const key = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+    
+    const dataToEncrypt = JSON.stringify({
       share,
       email: contactEmail,
       timestamp: new Date().toISOString()
-    }));
+    });
     
-    return encrypted;
+    const dataBuffer = encoder.encode(dataToEncrypt);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    
+    const encryptedBuffer = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      dataBuffer
+    );
+    
+    const encryptedHex = Array.from(new Uint8Array(encryptedBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    const ivHex = Array.from(iv)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    
+    return `${encryptedHex}:${ivHex}`;
   }
 
   /**
    * Decrypt a Shamir share for a trusted contact
-   * @param encryptedShare - The encrypted share
+   * @param encryptedShare - The encrypted share with IV (format: encrypted:iv)
    * @param contactEmail - Email of the trusted contact
    * @returns Decrypted share
    */
@@ -82,13 +122,50 @@ export class ShamirSecretSharing {
     contactEmail: string
   ): Promise<string> {
     try {
-      const decrypted = JSON.parse(atob(encryptedShare));
+      const [encryptedHex, ivHex] = encryptedShare.split(':');
       
-      if (decrypted.email !== contactEmail) {
+      const encryptedBuffer = new Uint8Array(encryptedHex.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)));
+      const iv = new Uint8Array(ivHex.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)));
+      
+      const encoder = new TextEncoder();
+      const emailBuffer = encoder.encode(contactEmail);
+      const salt = encoder.encode('shamir-share-encryption-v1');
+      
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        emailBuffer,
+        'PBKDF2',
+        false,
+        ['deriveKey']
+      );
+      
+      const key = await crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: salt,
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+      
+      const decryptedBuffer = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        encryptedBuffer
+      );
+      
+      const decoder = new TextDecoder();
+      const decryptedData = JSON.parse(decoder.decode(decryptedBuffer));
+      
+      if (decryptedData.email !== contactEmail) {
         throw new Error('Email mismatch - share not intended for this contact');
       }
       
-      return decrypted.share;
+      return decryptedData.share;
     } catch (error) {
       throw new Error('Failed to decrypt share: ' + (error as Error).message);
     }
