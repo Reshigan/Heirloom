@@ -3,13 +3,23 @@
  * Uses secrets.js-grempe library for cryptographic secret sharing
  */
 
-import secrets from 'secrets.js-grempe';
 import { EncryptionUtils } from './encryption';
 
 export interface ShamirShare {
   shareIndex: number;
   shareCiphertext: string;
   algorithm: string;
+}
+
+let secretsLib: any = null;
+async function getSecretsLib() {
+  if (typeof window === 'undefined') {
+    throw new Error('Shamir Secret Sharing can only be used on the client side');
+  }
+  if (!secretsLib) {
+    secretsLib = (await import('secrets.js-grempe')).default;
+  }
+  return secretsLib;
 }
 
 export class ShamirSecretSharing {
@@ -20,11 +30,12 @@ export class ShamirSecretSharing {
    * @param threshold - Minimum shares needed to reconstruct (M)
    * @returns Array of hex-encoded shares
    */
-  static splitSecret(
+  static async splitSecret(
     secret: string,
     totalShares: number = 3,
     threshold: number = 2
-  ): string[] {
+  ): Promise<string[]> {
+    const secrets = await getSecretsLib();
     const shares = secrets.share(secret, totalShares, threshold);
     return shares;
   }
@@ -34,7 +45,8 @@ export class ShamirSecretSharing {
    * @param shares - Array of hex-encoded shares
    * @returns Reconstructed secret (hex string)
    */
-  static combineShares(shares: string[]): string {
+  static async combineShares(shares: string[]): Promise<string> {
+    const secrets = await getSecretsLib();
     return secrets.combine(shares);
   }
 
@@ -96,7 +108,7 @@ export class ShamirSecretSharing {
       throw new Error('Exactly 3 trusted contacts required');
     }
 
-    const shares = this.splitSecret(vmkHex, 3, 2);
+    const shares = await this.splitSecret(vmkHex, 3, 2);
 
     const encryptedShares: ShamirShare[] = [];
     for (let i = 0; i < shares.length; i++) {
@@ -138,7 +150,7 @@ export class ShamirSecretSharing {
       decryptedShares.push(share);
     }
 
-    return this.combineShares(decryptedShares);
+    return await this.combineShares(decryptedShares);
   }
 
   /**
