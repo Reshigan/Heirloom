@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Calendar, Tag, User, MapPin, SlidersHorizontal, X } from 'lucide-react';
+import { LuxuryInput, LuxuryButton, LuxuryLabel, LuxuryBadge } from '@/components/ui/luxury-components';
 
 interface SearchFilterProps {
   onSearch?: (query: string) => void;
@@ -111,100 +113,117 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
       {/* Search Bar */}
       <div className="relative mb-4">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gold/60 w-5 h-5" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gold-400/60 w-5 h-5" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search memories, people, places..."
-            className="w-full bg-glass-bg backdrop-blur-lg border border-glass-border rounded-2xl pl-12 pr-16 py-4 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-all duration-300"
+            className="w-full bg-charcoal/60 backdrop-blur-xl border border-gold-500/15 rounded-2xl pl-12 pr-16 py-4 text-pearl placeholder-pearl/40 focus:border-gold-500/30 focus:outline-none transition-all duration-300 font-light"
           />
-          <button
+          <motion.button
             onClick={() => setShowFilters(!showFilters)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-all duration-300 ${
               showFilters || hasActiveFilters 
-                ? 'bg-secondary-gradient text-black' 
-                : 'text-gold/60 hover:text-gold hover:bg-gold/10'
+                ? 'bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-obsidian-900' 
+                : 'text-gold-400/60 hover:text-gold-400 hover:bg-gold-500/10'
             }`}
           >
             <SlidersHorizontal className="w-5 h-5" />
-          </button>
+          </motion.button>
         </div>
         
         {hasActiveFilters && (
-          <div className="absolute top-2 right-16 w-3 h-3 bg-gold rounded-full animate-pulse"></div>
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute top-2 right-16 w-3 h-3 bg-gold-400 rounded-full"
+          />
         )}
       </div>
 
       {/* Advanced Filters Panel */}
-      {showFilters && (
-        <div className="bg-glass-bg backdrop-blur-lg border border-glass-border rounded-2xl p-6 mb-4 animate-slideDown">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-display font-bold text-gold">Advanced Filters</h3>
-            <button
-              onClick={() => setShowFilters(false)}
-              className="text-gold/60 hover:text-gold transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="bg-charcoal/60 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-6 mb-4"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-serif font-light text-pearl tracking-wide">Advanced Filters</h3>
+              <motion.button
+                onClick={() => setShowFilters(false)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="text-gold-400/60 hover:text-gold-400 transition-colors p-2 rounded-lg hover:bg-gold-500/10"
+              >
+                <X className="w-5 h-5" />
+              </motion.button>
+            </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Date Range */}
             <div>
-              <label className="flex items-center text-gold font-medium mb-3">
+              <LuxuryLabel className="flex items-center mb-3">
                 <Calendar className="w-4 h-4 mr-2" />
                 Date Range
-              </label>
+              </LuxuryLabel>
               <div className="space-y-3">
                 <input
                   type="date"
                   value={filters.dateRange.start}
                   onChange={(e) => updateDateRange(e.target.value, filters.dateRange.end)}
-                  className="w-full bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold focus:border-gold focus:outline-none transition-colors"
+                  className="w-full bg-obsidian-900/60 border border-gold-500/20 rounded-lg px-3 py-2 text-pearl focus:border-gold-500/40 focus:outline-none transition-colors font-light"
                 />
                 <input
                   type="date"
                   value={filters.dateRange.end}
                   onChange={(e) => updateDateRange(filters.dateRange.start, e.target.value)}
-                  className="w-full bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold focus:border-gold focus:outline-none transition-colors"
+                  className="w-full bg-obsidian-900/60 border border-gold-500/20 rounded-lg px-3 py-2 text-pearl focus:border-gold-500/40 focus:outline-none transition-colors font-light"
                 />
               </div>
             </div>
 
             {/* Media Type */}
             <div>
-              <label className="flex items-center text-gold font-medium mb-3">
+              <LuxuryLabel className="flex items-center mb-3">
                 <Filter className="w-4 h-4 mr-2" />
                 Media Type
-              </label>
+              </LuxuryLabel>
               <div className="grid grid-cols-2 gap-2">
                 {mediaTypes.map((type) => (
-                  <button
+                  <motion.button
                     key={type.id}
                     onClick={() => toggleMediaType(type.id)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     className={`flex items-center space-x-2 p-3 rounded-lg border transition-all duration-300 ${
                       filters.mediaType.includes(type.id)
-                        ? 'bg-secondary-gradient text-black border-gold'
-                        : 'bg-black-light border-gold/30 text-gold hover:border-gold'
+                        ? 'bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-obsidian-900 border-gold-500/30'
+                        : 'bg-obsidian-900/60 border-gold-500/20 text-pearl hover:border-gold-500/40'
                     }`}
                   >
                     <span>{type.icon}</span>
-                    <span className="text-sm font-medium">{type.label}</span>
-                  </button>
+                    <span className="text-sm font-light">{type.label}</span>
+                  </motion.button>
                 ))}
               </div>
             </div>
 
             {/* Tags */}
             <div>
-              <label className="flex items-center text-gold font-medium mb-3">
+              <LuxuryLabel className="flex items-center mb-3">
                 <Tag className="w-4 h-4 mr-2" />
                 Tags
-              </label>
+              </LuxuryLabel>
               <div className="space-y-3">
                 <div className="flex space-x-2">
-                  <input
+                  <LuxuryInput
                     type="text"
                     value={tempTag}
                     onChange={(e) => setTempTag(e.target.value)}
@@ -215,35 +234,31 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
                       }
                     }}
                     placeholder="Add tag..."
-                    className="flex-1 bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
+                    className="flex-1"
                   />
-                  <button
+                  <LuxuryButton
+                    variant="primary"
+                    size="sm"
                     onClick={() => {
                       if (tempTag.trim()) {
                         addToFilter('tags', tempTag.trim());
                         setTempTag('');
                       }
                     }}
-                    className="bg-secondary-gradient text-black px-4 py-2 rounded-lg hover:scale-105 transition-transform"
                   >
                     Add
-                  </button>
+                  </LuxuryButton>
                 </div>
                 {filters.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {filters.tags.map((tag, index) => (
-                      <span
+                      <LuxuryBadge
                         key={index}
-                        className="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm flex items-center space-x-2"
+                        variant="default"
+                        onRemove={() => removeFromFilter('tags', tag)}
                       >
-                        <span>{tag}</span>
-                        <button
-                          onClick={() => removeFromFilter('tags', tag)}
-                          className="text-gold/60 hover:text-gold"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
+                        {tag}
+                      </LuxuryBadge>
                     ))}
                   </div>
                 )}
@@ -252,13 +267,13 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
 
             {/* People */}
             <div>
-              <label className="flex items-center text-gold font-medium mb-3">
+              <LuxuryLabel className="flex items-center mb-3">
                 <User className="w-4 h-4 mr-2" />
                 People
-              </label>
+              </LuxuryLabel>
               <div className="space-y-3">
                 <div className="flex space-x-2">
-                  <input
+                  <LuxuryInput
                     type="text"
                     value={tempPerson}
                     onChange={(e) => setTempPerson(e.target.value)}
@@ -269,35 +284,31 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
                       }
                     }}
                     placeholder="Add person..."
-                    className="flex-1 bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
+                    className="flex-1"
                   />
-                  <button
+                  <LuxuryButton
+                    variant="primary"
+                    size="sm"
                     onClick={() => {
                       if (tempPerson.trim()) {
                         addToFilter('people', tempPerson.trim());
                         setTempPerson('');
                       }
                     }}
-                    className="bg-secondary-gradient text-black px-4 py-2 rounded-lg hover:scale-105 transition-transform"
                   >
                     Add
-                  </button>
+                  </LuxuryButton>
                 </div>
                 {filters.people.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {filters.people.map((person, index) => (
-                      <span
+                      <LuxuryBadge
                         key={index}
-                        className="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm flex items-center space-x-2"
+                        variant="default"
+                        onRemove={() => removeFromFilter('people', person)}
                       >
-                        <span>{person}</span>
-                        <button
-                          onClick={() => removeFromFilter('people', person)}
-                          className="text-gold/60 hover:text-gold"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
+                        {person}
+                      </LuxuryBadge>
                     ))}
                   </div>
                 )}
@@ -306,85 +317,80 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-between items-center mt-6 pt-6 border-t border-gold/20">
-            <button
+          <div className="flex justify-between items-center mt-6 pt-6 border-t border-gold-500/10">
+            <LuxuryButton
+              variant="ghost"
               onClick={clearAllFilters}
-              className="text-gold/60 hover:text-gold transition-colors"
             >
               Clear All Filters
-            </button>
+            </LuxuryButton>
             <div className="flex space-x-3">
-              <button
+              <LuxuryButton
+                variant="secondary"
                 onClick={() => setShowFilters(false)}
-                className="px-4 py-2 border border-gold/30 text-gold rounded-lg hover:border-gold transition-colors"
               >
                 Cancel
-              </button>
-              <button
+              </LuxuryButton>
+              <LuxuryButton
+                variant="primary"
                 onClick={applyFilters}
-                className="px-6 py-2 bg-secondary-gradient text-black rounded-lg hover:scale-105 transition-transform font-semibold"
               >
                 Apply Filters
-              </button>
+              </LuxuryButton>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Active Filters Display */}
       {hasActiveFilters && !showFilters && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap gap-2 mb-4"
+        >
           {filters.dateRange.start && (
-            <span className="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm flex items-center space-x-2">
-              <Calendar className="w-3 h-3" />
-              <span>From: {filters.dateRange.start}</span>
-              <button
-                onClick={() => updateDateRange('', filters.dateRange.end)}
-                className="text-gold/60 hover:text-gold"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
+            <LuxuryBadge
+              variant="default"
+              onRemove={() => updateDateRange('', filters.dateRange.end)}
+            >
+              <Calendar className="w-3 h-3 mr-1" />
+              From: {filters.dateRange.start}
+            </LuxuryBadge>
           )}
           {filters.dateRange.end && (
-            <span className="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm flex items-center space-x-2">
-              <Calendar className="w-3 h-3" />
-              <span>To: {filters.dateRange.end}</span>
-              <button
-                onClick={() => updateDateRange(filters.dateRange.start, '')}
-                className="text-gold/60 hover:text-gold"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
+            <LuxuryBadge
+              variant="default"
+              onRemove={() => updateDateRange(filters.dateRange.start, '')}
+            >
+              <Calendar className="w-3 h-3 mr-1" />
+              To: {filters.dateRange.end}
+            </LuxuryBadge>
           )}
           {filters.mediaType.map((type) => (
-            <span key={type} className="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm flex items-center space-x-2">
-              <span>{mediaTypes.find(mt => mt.id === type)?.label}</span>
-              <button
-                onClick={() => removeFromFilter('mediaType', type)}
-                className="text-gold/60 hover:text-gold"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
+            <LuxuryBadge
+              key={type}
+              variant="default"
+              onRemove={() => removeFromFilter('mediaType', type)}
+            >
+              {mediaTypes.find(mt => mt.id === type)?.label}
+            </LuxuryBadge>
           ))}
           {[...filters.tags, ...filters.people, ...filters.locations].map((item, index) => (
-            <span key={index} className="bg-gold/20 text-gold px-3 py-1 rounded-full text-sm flex items-center space-x-2">
-              <span>{item}</span>
-              <button
-                onClick={() => {
-                  if (filters.tags.includes(item)) removeFromFilter('tags', item);
-                  if (filters.people.includes(item)) removeFromFilter('people', item);
-                  if (filters.locations.includes(item)) removeFromFilter('locations', item);
-                }}
-                className="text-gold/60 hover:text-gold"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
+            <LuxuryBadge
+              key={index}
+              variant="default"
+              onRemove={() => {
+                if (filters.tags.includes(item)) removeFromFilter('tags', item);
+                if (filters.people.includes(item)) removeFromFilter('people', item);
+                if (filters.locations.includes(item)) removeFromFilter('locations', item);
+              }}
+            >
+              {item}
+            </LuxuryBadge>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

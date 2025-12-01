@@ -137,7 +137,7 @@ const BillingPage: React.FC = () => {
             Choose Your Plan
           </h1>
           <p className="text-xl text-pearl/70 max-w-2xl mx-auto">
-            Preserve your family's legacy with the perfect plan for your needs
+            Preserve your family&apos;s legacy with the perfect plan for your needs
           </p>
         </motion.div>
 

@@ -1,7 +1,8 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { motion } from 'framer-motion';
 import SearchFilter from '@/components/search-filter';
+import { LuxuryButton } from '@/components/ui/luxury-components';
 
 interface HeroProps {
   onOpenModal?: (modalType: string) => void;
@@ -13,47 +14,80 @@ export default function Hero({ onOpenModal }: HeroProps) {
       <div className="container mx-auto px-6 py-16">
         <div className="max-w-4xl mx-auto">
           {/* Hero Content */}
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-6xl font-display font-bold text-gold mb-6 leading-tight">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="text-center mb-12"
+          >
+            {/* Decorative line */}
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: '100px' }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mb-8"
+            />
+            
+            <h2 className="text-4xl md:text-6xl font-serif font-light text-pearl mb-6 leading-tight tracking-wide">
               Preserve Your Family
-              <span className="block bg-gradient-to-r from-gold via-yellow-400 to-gold bg-clip-text text-transparent">
+              <span className="block text-gold-400/80 mt-2">
                 Legacy Forever
               </span>
             </h2>
-            <p className="text-gold/80 text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-pearl/60 text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed font-light">
               Discover your family stories, explore your heritage, and create lasting memories 
               for future generations with our revolutionary digital heirloom platform.
             </p>
             
             {/* Call to Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <button
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+            >
+              <LuxuryButton
+                variant="primary"
+                size="lg"
                 onClick={() => onOpenModal?.('upload')}
-                className="bg-secondary-gradient text-black px-8 py-4 rounded-lg font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-gold/25"
               >
                 Start Your Journey
-              </button>
-              <button
+              </LuxuryButton>
+              <LuxuryButton
+                variant="secondary"
+                size="lg"
                 onClick={() => onOpenModal?.('family-tree')}
-                className="border border-gold/30 text-gold px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gold/10 transition-all duration-300"
               >
                 Explore Family Tree
-              </button>
-            </div>
-          </div>
+              </LuxuryButton>
+            </motion.div>
+            
+            {/* Decorative line */}
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: '100px' }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto"
+            />
+          </motion.div>
 
           {/* Search Section */}
-          <div className="bg-glass-bg backdrop-blur-lg border border-glass-border rounded-2xl p-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="bg-charcoal/60 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-8"
+          >
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-display font-bold text-gold mb-3">
+              <h3 className="text-2xl font-serif font-light text-pearl mb-3 tracking-wide">
                 Discover Your Family Stories
               </h3>
-              <p className="text-gold/80 text-lg">
+              <p className="text-pearl/60 text-lg font-light">
                 Search through memories, explore your family tree, and relive precious moments
               </p>
             </div>
             <SearchFilter />
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
