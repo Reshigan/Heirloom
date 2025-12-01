@@ -178,7 +178,7 @@ export default function FuturisticHeirloomInterface() {
             .join('')
         }
         
-        const encryptedVmk = `${bufferToHex(encryptedVmkBuffer)}:${bufferToHex(iv)}`
+        const encryptedVmk = `${bufferToHex(encryptedVmkBuffer)}:${bufferToHex(iv.buffer)}`
         
         await apiClient.initializeVault(encryptedVmk)
       }
