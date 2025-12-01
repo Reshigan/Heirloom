@@ -183,7 +183,7 @@ export const GlassModal: React.FC<GlassModalProps> = ({
                   </h2>
                   <motion.button
                     onClick={onClose}
-                    className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-pearl/60 hover:text-pearl hover:border-gold-400 hover:bg-gold/10 transition-all"
+                    className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-pearl/60 hover:text-pearl hover:border-gold-400 hover:bg-gold-500/10 transition-all"
                     whileHover={{ scale: 1.05, rotate: 90 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -196,7 +196,7 @@ export const GlassModal: React.FC<GlassModalProps> = ({
               {!title && (
                 <motion.button
                   onClick={onClose}
-                  className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-pearl/60 hover:text-pearl hover:border-gold-400 hover:bg-gold/10 transition-all"
+                  className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-pearl/60 hover:text-pearl hover:border-gold-400 hover:bg-gold-500/10 transition-all"
                   whileHover={{ scale: 1.05, rotate: 90 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0 }}

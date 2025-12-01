@@ -183,7 +183,7 @@ export function WelcomeDashboard({ onOpenModal }: WelcomeDashboardProps) {
                   
                   <motion.button
                     onClick={() => onOpenModal?.('family-tree')}
-                    className="px-10 py-4 text-lg font-semibold text-gold rounded-2xl glass-morphism hover-glow border border-gold/30"
+                    className="px-10 py-4 text-lg font-semibold text-gold rounded-2xl glass-morphism hover-glow border border-gold-500/30"
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -192,7 +192,7 @@ export function WelcomeDashboard({ onOpenModal }: WelcomeDashboardProps) {
                   
                   <motion.button
                     onClick={() => onOpenModal?.('profile')}
-                    className="px-10 py-4 text-lg font-semibold text-gold rounded-2xl glass-morphism hover-glow border border-gold/30"
+                    className="px-10 py-4 text-lg font-semibold text-gold rounded-2xl glass-morphism hover-glow border border-gold-500/30"
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                   >

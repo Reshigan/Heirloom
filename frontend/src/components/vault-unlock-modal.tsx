@@ -100,7 +100,7 @@ export function VaultUnlockModal({ isOpen, onClose, onUnlock }: VaultUnlockModal
               type="button"
               onClick={onClose}
               disabled={isUnlocking}
-              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
+              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
             >
               Cancel
             </button>

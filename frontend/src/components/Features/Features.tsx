@@ -96,7 +96,7 @@ export default function Features({ onOpenModal }: FeaturesProps) {
           {features.map((feature, index) => (
             <div
               key={feature.id}
-              className="group relative bg-glass-bg backdrop-blur-lg border border-glass-border rounded-2xl p-6 hover:border-gold/30 transition-all duration-300 hover:scale-105 cursor-pointer"
+              className="group relative bg-glass-bg backdrop-blur-lg border border-glass-border rounded-2xl p-6 hover:border-gold-500/30 transition-all duration-300 hover:scale-105 cursor-pointer"
               onClick={() => onOpenModal?.(feature.id === 'gallery' ? 'memory-details' : feature.id)}
             >
               {/* Feature Icon */}
@@ -108,7 +108,7 @@ export default function Features({ onOpenModal }: FeaturesProps) {
               <h3 className="text-xl font-display font-bold text-gold mb-3 group-hover:text-yellow-400 transition-colors duration-300">
                 {feature.title}
               </h3>
-              <p className="text-gold/70 leading-relaxed group-hover:text-gold/90 transition-colors duration-300">
+              <p className="text-gold-400/70 leading-relaxed group-hover:text-gold/90 transition-colors duration-300">
                 {feature.description}
               </p>
 

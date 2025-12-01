@@ -25,7 +25,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
         'backdrop-blur-xl',
         'border border-gold/10',
         'shadow-lg shadow-obsidian/50',
-        hover && 'transition-all duration-300 hover:border-gold/30 hover:shadow-gold/20 hover:shadow-xl',
+        hover && 'transition-all duration-300 hover:border-gold-500/30 hover:shadow-gold/20 hover:shadow-xl',
         onClick && 'cursor-pointer',
         className
       )}

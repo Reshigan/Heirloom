@@ -315,7 +315,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               {/* Close button */}
               <motion.button
                 onClick={onClose}
-                className="absolute right-4 top-4 w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all z-20"
+                className="absolute right-4 top-4 w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all z-20"
                 whileHover={{ scale: 1.05, rotate: 90 }}
                 whileTap={{ scale: 0.95 }}
               >

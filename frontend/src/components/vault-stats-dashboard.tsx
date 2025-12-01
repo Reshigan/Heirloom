@@ -114,7 +114,7 @@ export default function VaultStatsDashboard({ onClose }: VaultStatsDashboardProp
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+              className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all"
             >
               <X className="w-5 h-5" />
             </button>
@@ -331,7 +331,7 @@ export default function VaultStatsDashboard({ onClose }: VaultStatsDashboardProp
             </p>
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-[0.15em]"
+              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all text-sm uppercase tracking-[0.15em]"
             >
               Close
             </button>

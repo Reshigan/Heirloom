@@ -315,7 +315,7 @@ export default function SocialFeatures({ onClose }: SocialFeaturesProps) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search family members..."
-                    className="w-full bg-black-light border border-gold/30 rounded-lg pl-10 pr-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
+                    className="w-full bg-black-light border border-gold-500/30 rounded-lg pl-10 pr-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -372,7 +372,7 @@ export default function SocialFeatures({ onClose }: SocialFeaturesProps) {
                   <div key={notification.id} className={`flex items-start space-x-4 p-4 rounded-lg border transition-colors ${
                     notification.read 
                       ? 'bg-black-light border-gold/20' 
-                      : 'bg-gold/10 border-gold/40'
+                      : 'bg-gold-500/10 border-gold/40'
                   }`}>
                     <div className="text-xl">{getNotificationIcon(notification.type)}</div>
                     <div className="flex-1">
@@ -414,11 +414,11 @@ export default function SocialFeatures({ onClose }: SocialFeaturesProps) {
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="Enter email address..."
-                  className="w-full bg-black-light border border-gold/30 rounded-lg px-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
+                  className="w-full bg-black-light border border-gold-500/30 rounded-lg px-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
                 />
               </div>
 
-              <div className="bg-gold/10 border border-gold/30 rounded-lg p-4">
+              <div className="bg-gold-500/10 border border-gold-500/30 rounded-lg p-4">
                 <h4 className="text-gold font-medium mb-2">Invitation Preview</h4>
                 <p className="text-gold/80 text-sm">
                   &quot;Hi! I&apos;d love for you to join our family&apos;s Heirloom collection where we share and preserve our precious memories together. Click the link below to get started!&quot;
@@ -428,7 +428,7 @@ export default function SocialFeatures({ onClose }: SocialFeaturesProps) {
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShowInviteModal(false)}
-                  className="flex-1 border border-gold/30 text-gold py-3 rounded-lg hover:border-gold transition-colors"
+                  className="flex-1 border border-gold-500/30 text-gold py-3 rounded-lg hover:border-gold transition-colors"
                 >
                   Cancel
                 </button>

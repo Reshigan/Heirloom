@@ -94,7 +94,7 @@ export default function RecipientManagement({ onClose }: RecipientManagementProp
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+              className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all"
             >
               <X className="w-5 h-5" />
             </button>
@@ -161,7 +161,7 @@ export default function RecipientManagement({ onClose }: RecipientManagementProp
             </p>
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-[0.15em]"
+              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all text-sm uppercase tracking-[0.15em]"
             >
               Close
             </button>
@@ -246,7 +246,7 @@ function RecipientCard({ recipient, onEdit }: RecipientCardProps) {
         </div>
         <button
           onClick={onEdit}
-          className="w-8 h-8 rounded-lg border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all flex-shrink-0 ml-2"
+          className="w-8 h-8 rounded-lg border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all flex-shrink-0 ml-2"
         >
           <Edit2 className="w-4 h-4" />
         </button>
@@ -386,7 +386,7 @@ function AddRecipientModal({ onClose, onSuccess }: AddRecipientModalProps) {
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
+              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
             >
               Cancel
             </button>
@@ -467,7 +467,7 @@ function EditRecipientModal({ recipient, onClose, onSuccess }: EditRecipientModa
 
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-[0.15em]"
+            className="w-full px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all text-sm uppercase tracking-[0.15em]"
           >
             Close
           </button>

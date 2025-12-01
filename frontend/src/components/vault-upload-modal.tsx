@@ -309,7 +309,7 @@ export default function VaultUploadModal({
               </div>
               <button
                 onClick={handleClose}
-                className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+                className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all"
                 disabled={isUploading}
               >
                 <X className="w-5 h-5" />
@@ -384,7 +384,7 @@ export default function VaultUploadModal({
                   {!isUploading && (
                     <button
                       onClick={() => setFile(null)}
-                      className="w-8 h-8 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all flex-shrink-0"
+                      className="w-8 h-8 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all flex-shrink-0"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -542,7 +542,7 @@ export default function VaultUploadModal({
               <button
                 onClick={handleClose}
                 disabled={isUploading}
-                className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
+                className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
               >
                 Cancel
               </button>

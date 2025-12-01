@@ -494,7 +494,7 @@ export default function FuturisticHeirloomInterface() {
                 <>
                   <a
                     href="/billing"
-                    className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gold/20 to-gold/10 border border-gold/30 text-gold-400 hover:from-gold/30 hover:to-gold/20 transition-all text-xs uppercase tracking-[0.15em]"
+                    className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gold/20 to-gold/10 border border-gold-500/30 text-gold-400 hover:from-gold/30 hover:to-gold/20 transition-all text-xs uppercase tracking-[0.15em]"
                   >
                     <CreditCard className="w-3 h-3" />
                     Billing
@@ -504,7 +504,7 @@ export default function FuturisticHeirloomInterface() {
                   </div>
                   <button
                     onClick={() => setShowSearch(true)}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
                     aria-label="Search"
                     data-testid="search-button"
                   >
@@ -512,7 +512,7 @@ export default function FuturisticHeirloomInterface() {
                   </button>
                   <button
                     onClick={() => setShowNotifications(true)}
-                    className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                    className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
                     aria-label="Notifications"
                     data-testid="notification-bell"
                   >
@@ -525,7 +525,7 @@ export default function FuturisticHeirloomInterface() {
                   </button>
                   <button
                     onClick={() => setShowProfile(true)}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
                     aria-label="Profile"
                     data-testid="profile-button"
                   >
@@ -533,7 +533,7 @@ export default function FuturisticHeirloomInterface() {
                   </button>
                   <button
                     onClick={logout}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
                     title="Logout"
                     aria-label="Logout"
                     data-testid="logout-button"
@@ -544,7 +544,7 @@ export default function FuturisticHeirloomInterface() {
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-xs uppercase tracking-[0.15em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                  className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all text-xs uppercase tracking-[0.15em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
                   data-testid="sign-in-button"
                 >
                   Sign In

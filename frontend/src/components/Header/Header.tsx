@@ -54,7 +54,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
                   item.primary
                     ? 'bg-secondary-gradient text-black hover:scale-105 font-semibold'
-                    : 'text-gold/80 hover:text-gold hover:bg-gold/10'
+                    : 'text-gold/80 hover:text-gold hover:bg-gold-500/10'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -106,7 +106,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
           {/* Mobile Menu Button */}
           <button
             onClick={() => setShowMobileMenu(!showMobileMenu)}
-            className="lg:hidden p-2 text-gold hover:bg-gold/10 rounded-xl transition-colors"
+            className="lg:hidden p-2 text-gold hover:bg-gold-500/10 rounded-xl transition-colors"
           >
             {showMobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -123,7 +123,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
                   className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-300 ${
                     item.primary
                       ? 'bg-secondary-gradient text-black font-semibold col-span-2'
-                      : 'text-gold/80 hover:text-gold hover:bg-gold/10'
+                      : 'text-gold/80 hover:text-gold hover:bg-gold-500/10'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />

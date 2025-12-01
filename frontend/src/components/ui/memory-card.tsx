@@ -105,7 +105,7 @@ export function MemoryCard({
               
               {/* Floating Date Badge */}
               <motion.div
-                className="absolute top-4 right-4 bg-glass-bg backdrop-blur-lg border border-gold/30 px-3 py-1 rounded-full text-sm font-medium text-gold"
+                className="absolute top-4 right-4 bg-glass-bg backdrop-blur-lg border border-gold-500/30 px-3 py-1 rounded-full text-sm font-medium text-gold"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
@@ -118,7 +118,7 @@ export function MemoryCard({
                 {people.slice(0, 3).map((person, index) => (
                   <motion.div
                     key={person}
-                    className="w-8 h-8 rounded-full bg-secondary-gradient flex items-center justify-center text-black text-xs font-bold border-2 border-gold/30"
+                    className="w-8 h-8 rounded-full bg-secondary-gradient flex items-center justify-center text-black text-xs font-bold border-2 border-gold-500/30"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 + index * 0.1 }}
@@ -129,7 +129,7 @@ export function MemoryCard({
                 ))}
                 {people.length > 3 && (
                   <motion.div
-                    className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-xs font-bold border-2 border-gold/30"
+                    className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-xs font-bold border-2 border-gold-500/30"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.7 }}
@@ -186,7 +186,7 @@ export function MemoryCard({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
               >
-                <div className="flex items-center space-x-4 text-sm text-gold/70">
+                <div className="flex items-center space-x-4 text-sm text-gold-400/70">
                   <span className="flex items-center space-x-1">
                     <span>👍</span>
                     <span>{reactions.likes}</span>

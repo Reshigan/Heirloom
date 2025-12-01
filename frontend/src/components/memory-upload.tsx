@@ -80,7 +80,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
-      <div className="bg-black border border-gold/30 rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-black border border-gold-500/30 rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-display font-bold text-gold">Upload Memory</h2>
@@ -98,8 +98,8 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
         <div
           className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 mb-6 ${
             dragActive 
-              ? 'border-gold bg-gold/10' 
-              : 'border-gold/30 hover:border-gold/50'
+              ? 'border-gold bg-gold-500/10' 
+              : 'border-gold-500/30 hover:border-gold/50'
           }`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -157,7 +157,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-black-light border border-gold/30 rounded-lg px-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
+              className="w-full bg-black-light border border-gold-500/30 rounded-lg px-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
               placeholder="Give your memory a title..."
             />
           </div>
@@ -168,7 +168,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="w-full bg-black-light border border-gold/30 rounded-lg px-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors resize-none"
+              className="w-full bg-black-light border border-gold-500/30 rounded-lg px-4 py-3 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors resize-none"
               placeholder="Tell the story behind this memory..."
             />
           </div>
@@ -179,7 +179,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-black-light border border-gold/30 rounded-lg px-4 py-3 text-gold focus:border-gold focus:outline-none transition-colors"
+              className="w-full bg-black-light border border-gold-500/30 rounded-lg px-4 py-3 text-gold focus:border-gold focus:outline-none transition-colors"
             />
           </div>
 
@@ -191,7 +191,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
                 value={currentTag}
                 onChange={(e) => setCurrentTag(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                className="flex-1 bg-black-light border border-gold/30 rounded-lg px-4 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
+                className="flex-1 bg-black-light border border-gold-500/30 rounded-lg px-4 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
                 placeholder="Add a tag..."
               />
               <button
@@ -227,7 +227,7 @@ export default function MemoryUpload({ onUpload, onClose }: MemoryUploadProps) {
           {onClose && (
             <button
               onClick={onClose}
-              className="px-6 py-3 border border-gold/30 text-gold rounded-lg hover:border-gold transition-colors"
+              className="px-6 py-3 border border-gold-500/30 text-gold rounded-lg hover:border-gold transition-colors"
             >
               Cancel
             </button>

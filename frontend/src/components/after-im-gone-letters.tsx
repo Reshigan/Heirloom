@@ -164,7 +164,7 @@ export default function AfterImGoneLetters({ onClose }: AfterImGoneLettersProps)
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -266,7 +266,7 @@ export default function AfterImGoneLetters({ onClose }: AfterImGoneLettersProps)
                     setIsCreating(false)
                     resetForm()
                   }}
-                  className="px-6 py-3 border border-gold-500/30 text-gold-400 rounded-lg font-medium hover:border-gold-400 hover:bg-gold/10 transition-all"
+                  className="px-6 py-3 border border-gold-500/30 text-gold-400 rounded-lg font-medium hover:border-gold-400 hover:bg-gold-500/10 transition-all"
                 >
                   Cancel
                 </button>

@@ -35,7 +35,7 @@ export default function Hero({ onOpenModal }: HeroProps) {
               </button>
               <button
                 onClick={() => onOpenModal?.('family-tree')}
-                className="border border-gold/30 text-gold px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gold/10 transition-all duration-300"
+                className="border border-gold-500/30 text-gold px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gold-500/10 transition-all duration-300"
               >
                 Explore Family Tree
               </button>

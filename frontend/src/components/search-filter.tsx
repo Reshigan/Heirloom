@@ -124,7 +124,7 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
             className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-all duration-300 ${
               showFilters || hasActiveFilters 
                 ? 'bg-secondary-gradient text-black' 
-                : 'text-gold/60 hover:text-gold hover:bg-gold/10'
+                : 'text-gold/60 hover:text-gold hover:bg-gold-500/10'
             }`}
           >
             <SlidersHorizontal className="w-5 h-5" />
@@ -161,13 +161,13 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
                   type="date"
                   value={filters.dateRange.start}
                   onChange={(e) => updateDateRange(e.target.value, filters.dateRange.end)}
-                  className="w-full bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold focus:border-gold focus:outline-none transition-colors"
+                  className="w-full bg-black-light border border-gold-500/30 rounded-lg px-3 py-2 text-gold focus:border-gold focus:outline-none transition-colors"
                 />
                 <input
                   type="date"
                   value={filters.dateRange.end}
                   onChange={(e) => updateDateRange(filters.dateRange.start, e.target.value)}
-                  className="w-full bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold focus:border-gold focus:outline-none transition-colors"
+                  className="w-full bg-black-light border border-gold-500/30 rounded-lg px-3 py-2 text-gold focus:border-gold focus:outline-none transition-colors"
                 />
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
                     className={`flex items-center space-x-2 p-3 rounded-lg border transition-all duration-300 ${
                       filters.mediaType.includes(type.id)
                         ? 'bg-secondary-gradient text-black border-gold'
-                        : 'bg-black-light border-gold/30 text-gold hover:border-gold'
+                        : 'bg-black-light border-gold-500/30 text-gold hover:border-gold'
                     }`}
                   >
                     <span>{type.icon}</span>
@@ -215,7 +215,7 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
                       }
                     }}
                     placeholder="Add tag..."
-                    className="flex-1 bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
+                    className="flex-1 bg-black-light border border-gold-500/30 rounded-lg px-3 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
                   />
                   <button
                     onClick={() => {
@@ -269,7 +269,7 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
                       }
                     }}
                     placeholder="Add person..."
-                    className="flex-1 bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
+                    className="flex-1 bg-black-light border border-gold-500/30 rounded-lg px-3 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors"
                   />
                   <button
                     onClick={() => {
@@ -316,7 +316,7 @@ export default function SearchFilter({ onSearch, onFilter }: SearchFilterProps) 
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowFilters(false)}
-                className="px-4 py-2 border border-gold/30 text-gold rounded-lg hover:border-gold transition-colors"
+                className="px-4 py-2 border border-gold-500/30 text-gold rounded-lg hover:border-gold transition-colors"
               >
                 Cancel
               </button>

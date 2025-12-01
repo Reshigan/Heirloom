@@ -74,7 +74,7 @@ export default function Footer() {
               </div>
               <h3 className="text-3xl font-display font-bold text-gold">Heirloom</h3>
             </div>
-            <p className="text-gold/70 text-lg leading-relaxed mb-6">
+            <p className="text-gold-400/70 text-lg leading-relaxed mb-6">
               Preserving family memories and connecting generations through innovative 
               digital heritage solutions. Your legacy, secured forever.
             </p>
@@ -122,7 +122,7 @@ export default function Footer() {
             <h4 className="text-2xl font-display font-bold text-gold mb-4">
               Stay Connected with Your Heritage
             </h4>
-            <p className="text-gold/70 mb-6">
+            <p className="text-gold-400/70 mb-6">
               Get tips, stories, and updates on preserving your family legacy.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
@@ -156,7 +156,7 @@ export default function Footer() {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="p-2 text-gold/60 hover:text-gold hover:bg-gold/10 rounded-xl transition-all duration-300"
+                  className="p-2 text-gold/60 hover:text-gold hover:bg-gold-500/10 rounded-xl transition-all duration-300"
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />

@@ -194,7 +194,7 @@ export default function PlatformTour({ onComplete, onSkip }: PlatformTourProps) 
             className="fixed z-[10000] max-w-sm"
             style={getTooltipPosition()}
           >
-            <div className="bg-gradient-to-br from-charcoal/95 via-charcoal/90 to-obsidian/95 backdrop-blur-xl border border-gold/30 rounded-xl shadow-2xl p-6">
+            <div className="bg-gradient-to-br from-charcoal/95 via-charcoal/90 to-obsidian/95 backdrop-blur-xl border border-gold-500/30 rounded-xl shadow-2xl p-6">
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -242,7 +242,7 @@ export default function PlatformTour({ onComplete, onSkip }: PlatformTourProps) 
                   {currentStep > 0 && (
                     <button
                       onClick={handlePrevious}
-                      className="px-4 py-2 rounded-lg border border-gold/30 text-gold-400 hover:bg-gold/10 transition-all text-sm flex items-center gap-2"
+                      className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:bg-gold-500/10 transition-all text-sm flex items-center gap-2"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       Back

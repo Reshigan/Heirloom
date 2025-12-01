@@ -167,13 +167,13 @@ export default function MemoryDetails({ memoryId, onClose }: MemoryDetailsProps)
                 <>
                   <button
                     onClick={handlePrevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-glass-bg backdrop-blur-lg border border-glass-border p-3 rounded-full text-gold hover:bg-gold/10 transition-colors"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-glass-bg backdrop-blur-lg border border-glass-border p-3 rounded-full text-gold hover:bg-gold-500/10 transition-colors"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-glass-bg backdrop-blur-lg border border-glass-border p-3 rounded-full text-gold hover:bg-gold/10 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-glass-bg backdrop-blur-lg border border-glass-border p-3 rounded-full text-gold hover:bg-gold-500/10 transition-colors"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
@@ -195,7 +195,7 @@ export default function MemoryDetails({ memoryId, onClose }: MemoryDetailsProps)
                       className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${
                         index === currentImageIndex 
                           ? 'border-gold scale-110' 
-                          : 'border-gold/30 hover:border-gold/60'
+                          : 'border-gold-500/30 hover:border-gold/60'
                       }`}
                     >
                       <img src={photo} alt="" className="w-full h-full object-cover" />
@@ -341,7 +341,7 @@ export default function MemoryDetails({ memoryId, onClose }: MemoryDetailsProps)
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Add a comment..."
-                      className="w-full bg-black-light border border-gold/30 rounded-lg px-3 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors resize-none"
+                      className="w-full bg-black-light border border-gold-500/30 rounded-lg px-3 py-2 text-gold placeholder-gold/50 focus:border-gold focus:outline-none transition-colors resize-none"
                       rows={2}
                     />
                     <div className="flex justify-end mt-2">

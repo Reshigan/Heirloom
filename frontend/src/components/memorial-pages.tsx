@@ -181,7 +181,7 @@ export default function MemorialPages({ onClose }: MemorialPagesProps) {
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all"
+            className="w-10 h-10 rounded-full border border-gold-500/30 flex items-center justify-center text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -332,7 +332,7 @@ export default function MemorialPages({ onClose }: MemorialPagesProps) {
                 {memorialPage && (
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="px-6 py-3 border border-gold-500/30 text-gold-400 rounded-lg font-medium hover:border-gold-400 hover:bg-gold/10 transition-all"
+                    className="px-6 py-3 border border-gold-500/30 text-gold-400 rounded-lg font-medium hover:border-gold-400 hover:bg-gold-500/10 transition-all"
                   >
                     Cancel
                   </button>
@@ -354,7 +354,7 @@ export default function MemorialPages({ onClose }: MemorialPagesProps) {
                   </div>
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 border border-gold-500/30 text-gold-400 rounded-lg text-sm font-medium hover:border-gold-400 hover:bg-gold/10 transition-all"
+                    className="px-4 py-2 border border-gold-500/30 text-gold-400 rounded-lg text-sm font-medium hover:border-gold-400 hover:bg-gold-500/10 transition-all"
                   >
                     Edit Page
                   </button>
