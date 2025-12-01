@@ -32,6 +32,7 @@ import { mockFamilyMembers, Memory } from '../data/mock-family-data'
 import { apiClient } from '../lib/api-client'
 import { useVault } from '../contexts/VaultContext'
 import toast from 'react-hot-toast'
+import { SkeletonGallery } from './ui/skeleton'
 
 interface MemoryGalleryProps {
   selectedMemberId?: string
@@ -202,6 +203,7 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
           <button
             onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
             className="p-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 hover:border-gold-400/40 transition-colors"
+            aria-label={`Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`}
           >
             {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
           </button>
@@ -210,6 +212,8 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
             onClick={() => setShowUploadModal(true)}
             disabled={isUploading}
             className="px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:from-gold-500 hover:to-gold-400 transition-all duration-300 font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Upload new memory"
+            aria-busy={isUploading}
           >
             {isUploading ? (
               <>
@@ -236,6 +240,7 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/60 focus:outline-none focus:border-gold-400/40"
+            aria-label="Search memories"
           />
         </div>
         
@@ -243,6 +248,7 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
           className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+          aria-label="Filter by type"
         >
           <option value="">All Types</option>
           <option value="photo">Photos</option>
@@ -256,6 +262,7 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
           value={filterSignificance}
           onChange={(e) => setFilterSignificance(e.target.value)}
           className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+          aria-label="Filter by significance"
         >
           <option value="">All Significance</option>
           <option value="milestone">Milestone</option>
@@ -268,6 +275,7 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as 'date' | 'significance' | 'title')}
           className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-gold-100 focus:outline-none focus:border-gold-400/40"
+          aria-label="Sort memories"
         >
           <option value="date">Sort by Date</option>
           <option value="significance">Sort by Significance</option>
@@ -276,14 +284,9 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
       </div>
 
       {/* Memory Grid/List */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4" role="region" aria-label="Memory gallery">
         {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <Loader2 className="w-12 h-12 text-gold-400 animate-spin mx-auto mb-4" />
-              <p className="text-gold-300 font-serif">Loading memories...</p>
-            </div>
-          </div>
+          <SkeletonGallery />
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredMemories.map((memory, index) => (
@@ -294,6 +297,15 @@ const MemoryGallery: React.FC<MemoryGalleryProps> = ({ selectedMemberId, onMemor
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
                 onClick={() => handleMemoryClick(memory)}
+                role="button"
+                tabIndex={0}
+                aria-label={`View memory: ${memory.title}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleMemoryClick(memory)
+                  }
+                }}
               >
                 <div className="relative bg-gradient-to-br from-obsidian-800/60 to-obsidian-900/80 border border-gold-500/20 rounded-xl overflow-hidden hover:border-gold-400/40 transition-all duration-300 group-hover:scale-105">
                   {/* Thumbnail */}
