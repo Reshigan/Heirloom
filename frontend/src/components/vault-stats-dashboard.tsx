@@ -136,7 +136,7 @@ export default function VaultStatsDashboard({ onClose }: VaultStatsDashboardProp
               </div>
               <button
                 onClick={fetchStats}
-                className="px-3 py-1 rounded-lg border border-red-500/30 text-red-400 hover:border-red-400 hover:bg-red/10 transition-all text-xs uppercase tracking-wider"
+                className="px-3 py-1 rounded-lg border border-red-500/30 text-red-400 hover:border-red-400 hover:bg-red/10 transition-all text-xs uppercase tracking-[0.15em]"
               >
                 Retry
               </button>
@@ -245,7 +245,7 @@ export default function VaultStatsDashboard({ onClose }: VaultStatsDashboardProp
                       <div key={type} className="p-4 bg-obsidian-900/60 border border-gold-500/10 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                           <Icon className="w-4 h-4 text-gold-400/70" />
-                          <p className="text-xs uppercase tracking-wider text-gold-200/50">
+                          <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50">
                             {type}
                           </p>
                         </div>
@@ -269,7 +269,7 @@ export default function VaultStatsDashboard({ onClose }: VaultStatsDashboardProp
                       <div key={emotion} className="p-4 bg-obsidian-900/60 border border-gold-500/10 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                           <Icon className="w-4 h-4 text-gold-400/70" />
-                          <p className="text-xs uppercase tracking-wider text-gold-200/50">
+                          <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50">
                             {emotion}
                           </p>
                         </div>
@@ -285,14 +285,14 @@ export default function VaultStatsDashboard({ onClose }: VaultStatsDashboardProp
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium text-gold-400 mb-1">Current Plan</h3>
-                    <p className="text-2xl font-bold text-gold-400 uppercase tracking-wider">
+                    <p className="text-2xl font-bold text-gold-400 uppercase tracking-[0.15em]">
                       {stats.tier}
                     </p>
                   </div>
                   {stats.tier.toLowerCase() === 'free' && (
                     <a
                       href="/billing"
-                      className="px-6 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all text-sm uppercase tracking-wider shadow-lg shadow-gold-400/20"
+                      className="px-6 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all text-sm uppercase tracking-[0.15em] shadow-lg shadow-gold-400/20"
                     >
                       Upgrade
                     </a>
@@ -331,7 +331,7 @@ export default function VaultStatsDashboard({ onClose }: VaultStatsDashboardProp
             </p>
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-wider"
+              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-[0.15em]"
             >
               Close
             </button>

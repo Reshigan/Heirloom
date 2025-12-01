@@ -184,7 +184,7 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
               </div>
               <button
                 onClick={fetchCheckInStatus}
-                className="px-3 py-1 rounded-lg border border-red-500/30 text-red-400 hover:border-red-400 hover:bg-red/10 transition-all text-xs uppercase tracking-wider"
+                className="px-3 py-1 rounded-lg border border-red-500/30 text-red-400 hover:border-red-400 hover:bg-red/10 transition-all text-xs uppercase tracking-[0.15em]"
               >
                 Retry
               </button>
@@ -206,7 +206,7 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
                   <button
                     onClick={handleManualCheckIn}
                     disabled={isCheckingIn}
-                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider shadow-lg shadow-gold-400/20 flex items-center gap-2"
+                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em] shadow-lg shadow-gold-400/20 flex items-center gap-2"
                   >
                     {isCheckingIn ? (
                       <>
@@ -226,7 +226,7 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
                   <div className="p-4 bg-obsidian-900/60 border border-gold-500/10 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Calendar className="w-4 h-4 text-gold-400/70" />
-                      <p className="text-xs uppercase tracking-wider text-gold-200/50">Next Check-in</p>
+                      <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50">Next Check-in</p>
                     </div>
                     <p className="text-gold-400 font-medium">
                       {new Date(checkInStatus.nextCheckIn).toLocaleDateString()}
@@ -239,7 +239,7 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
                   <div className="p-4 bg-obsidian-900/60 border border-gold-500/10 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Clock className="w-4 h-4 text-gold-400/70" />
-                      <p className="text-xs uppercase tracking-wider text-gold-200/50">Interval</p>
+                      <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50">Interval</p>
                     </div>
                     <p className="text-gold-400 font-medium">
                       Every {checkInStatus.intervalDays} days
@@ -252,7 +252,7 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
                   <div className="p-4 bg-obsidian-900/60 border border-gold-500/10 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertCircle className="w-4 h-4 text-gold-400/70" />
-                      <p className="text-xs uppercase tracking-wider text-gold-200/50">Missed Count</p>
+                      <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50">Missed Count</p>
                     </div>
                     <p className={`font-medium ${checkInStatus.missedCount > 0 ? 'text-red-400' : 'text-green-400'}`}>
                       {checkInStatus.missedCount}
@@ -312,7 +312,7 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
                           <button
                             onClick={() => handleCancelUnlock(request.id)}
                             disabled={isCancelling === request.id}
-                            className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-medium hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider shadow-lg shadow-red-400/20 flex items-center gap-2 whitespace-nowrap"
+                            className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-medium hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em] shadow-lg shadow-red-400/20 flex items-center gap-2 whitespace-nowrap"
                           >
                             {isCancelling === request.id ? (
                               <>
@@ -440,7 +440,7 @@ export default function CheckInManagement({ onClose }: CheckInManagementProps) {
             </p>
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-wider"
+              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-[0.15em]"
             >
               Close
             </button>

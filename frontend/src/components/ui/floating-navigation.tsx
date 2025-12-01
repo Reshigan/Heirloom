@@ -145,7 +145,7 @@ export function FloatingNavigation() {
                     
                     {/* Tooltip */}
                     <motion.div
-                      className="absolute -top-12 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-black/80 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
+                      className="absolute -top-12 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-black/80 text-white text-xs rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
                       initial={{ y: 10, opacity: 0 }}
                       whileHover={{ y: 0, opacity: 1 }}
                       transition={{ duration: 0.2 }}
@@ -180,7 +180,7 @@ export function FloatingNavigation() {
           
           {/* Tooltip */}
           <motion.div
-            className="absolute right-16 px-3 py-2 bg-black/80 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
+            className="absolute right-16 px-3 py-2 bg-black/80 text-white text-sm rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
             initial={{ x: 10, opacity: 0 }}
             whileHover={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.2 }}
@@ -202,7 +202,7 @@ export function FloatingNavigation() {
           
           {/* Tooltip */}
           <motion.div
-            className="absolute right-14 px-3 py-2 bg-black/80 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
+            className="absolute right-14 px-3 py-2 bg-black/80 text-white text-sm rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none"
             initial={{ x: 10, opacity: 0 }}
             whileHover={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.2 }}

@@ -69,7 +69,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-12 h-12 bg-secondary-gradient rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-secondary-gradient rounded-xl flex items-center justify-center">
                 <span className="text-black font-bold text-2xl">H</span>
               </div>
               <h3 className="text-3xl font-display font-bold text-gold">Heirloom</h3>
@@ -129,9 +129,9 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 bg-black/50 border border-gold/20 rounded-lg text-gold placeholder-gold/40 focus:outline-none focus:border-gold/50 transition-colors duration-300"
+                className="flex-1 px-4 py-3 bg-black/50 border border-gold/20 rounded-xl text-gold placeholder-gold/40 focus:outline-none focus:border-gold/50 transition-colors duration-300"
               />
-              <button className="bg-secondary-gradient text-black px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-all duration-300">
+              <button className="bg-secondary-gradient text-black px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300">
                 Subscribe
               </button>
             </div>
@@ -156,7 +156,7 @@ export default function Footer() {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="p-2 text-gold/60 hover:text-gold hover:bg-gold/10 rounded-lg transition-all duration-300"
+                  className="p-2 text-gold/60 hover:text-gold hover:bg-gold/10 rounded-xl transition-all duration-300"
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />

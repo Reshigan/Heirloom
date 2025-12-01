@@ -152,7 +152,7 @@ export default function TrustedContacts({ onClose }: TrustedContactsProps) {
             <button
               onClick={() => setShowAddModal(true)}
               disabled={contacts.length >= 3}
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider shadow-lg shadow-gold-400/20 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em] shadow-lg shadow-gold-400/20 flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Contact
@@ -183,7 +183,7 @@ export default function TrustedContacts({ onClose }: TrustedContactsProps) {
               {!searchQuery && contacts.length < 3 && (
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="px-6 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all text-sm uppercase tracking-wider shadow-lg shadow-gold-400/20"
+                  className="px-6 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all text-sm uppercase tracking-[0.15em] shadow-lg shadow-gold-400/20"
                 >
                   Add Your First Contact
                 </button>
@@ -209,7 +209,7 @@ export default function TrustedContacts({ onClose }: TrustedContactsProps) {
             </p>
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-wider"
+              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-[0.15em]"
             >
               Close
             </button>
@@ -392,7 +392,7 @@ function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+              <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                 Email *
               </label>
               <input
@@ -407,7 +407,7 @@ function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+              <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                 Name
               </label>
               <input
@@ -421,7 +421,7 @@ function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+              <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                 Phone (Optional)
               </label>
               <input
@@ -446,14 +446,14 @@ function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider"
+              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider shadow-lg shadow-gold-400/20 flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em] shadow-lg shadow-gold-400/20 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

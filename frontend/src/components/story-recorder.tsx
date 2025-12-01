@@ -220,7 +220,7 @@ const StoryRecorder: React.FC<StoryRecorderProps> = ({ onClose, onSave }) => {
             <div className="bg-obsidian-800/60 border border-gold-500/20 rounded-xl p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <div className="text-xs uppercase tracking-wider text-gold-400/70 mb-2">
+                  <div className="text-xs uppercase tracking-[0.15em] text-gold-400/70 mb-2">
                     {currentPrompt.category} Story
                   </div>
                   <h3 className="text-xl font-serif text-gold-100 mb-3">

@@ -411,7 +411,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       {mode === 'register' && (
                         <>
                           <motion.div variants={itemVariants}>
-                            <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+                            <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                               Your Name
                             </label>
                             <input
@@ -424,7 +424,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             />
                           </motion.div>
                           <motion.div variants={itemVariants}>
-                            <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+                            <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                               Family Name
                             </label>
                             <input
@@ -440,7 +440,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       )}
 
                       <motion.div variants={itemVariants}>
-                        <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+                        <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                           Email
                         </label>
                         <input
@@ -455,7 +455,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       </motion.div>
 
                       <motion.div variants={itemVariants}>
-                        <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+                        <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                           Password
                         </label>
                         <input

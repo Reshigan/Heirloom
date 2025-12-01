@@ -315,7 +315,7 @@ const PricingManager: React.FC = () => {
             <div className="flex bg-obsidian-800/50 p-1 rounded-lg">
               <button
                 onClick={() => setBillingPeriod('month')}
-                className={`px-4 py-2 rounded-md transition-all duration-300 ${
+                className={`px-4 py-2 rounded-xl transition-all duration-300 ${
                   billingPeriod === 'month'
                     ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900'
                     : 'text-gold-400 hover:text-gold-300'
@@ -325,7 +325,7 @@ const PricingManager: React.FC = () => {
               </button>
               <button
                 onClick={() => setBillingPeriod('year')}
-                className={`px-4 py-2 rounded-md transition-all duration-300 ${
+                className={`px-4 py-2 rounded-xl transition-all duration-300 ${
                   billingPeriod === 'year'
                     ? 'bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900'
                     : 'text-gold-400 hover:text-gold-300'

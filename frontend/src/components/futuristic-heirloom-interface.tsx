@@ -494,7 +494,7 @@ export default function FuturisticHeirloomInterface() {
                 <>
                   <a
                     href="/billing"
-                    className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gold/20 to-gold/10 border border-gold/30 text-gold-400 hover:from-gold/30 hover:to-gold/20 transition-all text-xs uppercase tracking-wider"
+                    className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gold/20 to-gold/10 border border-gold/30 text-gold-400 hover:from-gold/30 hover:to-gold/20 transition-all text-xs uppercase tracking-[0.15em]"
                   >
                     <CreditCard className="w-3 h-3" />
                     Billing
@@ -544,7 +544,7 @@ export default function FuturisticHeirloomInterface() {
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-xs uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
+                  className="px-3 py-2 sm:px-4 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-xs uppercase tracking-[0.15em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400"
                   data-testid="sign-in-button"
                 >
                   Sign In

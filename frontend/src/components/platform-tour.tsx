@@ -235,7 +235,7 @@ export default function PlatformTour({ onComplete, onSkip }: PlatformTourProps) 
 
               {/* Navigation */}
               <div className="flex items-center justify-between">
-                <div className="text-xs text-gold-200/50 tracking-wider">
+                <div className="text-xs text-gold-200/50 tracking-[0.15em]">
                   {currentStep + 1} of {tourSteps.length}
                 </div>
                 <div className="flex items-center gap-2">

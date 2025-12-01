@@ -29,13 +29,13 @@ export default function Hero({ onOpenModal }: HeroProps) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <button
                 onClick={() => onOpenModal?.('upload')}
-                className="bg-secondary-gradient text-black px-8 py-4 rounded-lg font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-gold/25"
+                className="bg-secondary-gradient text-black px-8 py-4 rounded-xl font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-gold/25"
               >
                 Start Your Journey
               </button>
               <button
                 onClick={() => onOpenModal?.('family-tree')}
-                className="border border-gold/30 text-gold px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gold/10 transition-all duration-300"
+                className="border border-gold/30 text-gold px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gold/10 transition-all duration-300"
               >
                 Explore Family Tree
               </button>

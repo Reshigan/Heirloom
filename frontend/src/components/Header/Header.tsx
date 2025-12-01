@@ -39,7 +39,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-secondary-gradient rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-secondary-gradient rounded-xl flex items-center justify-center">
               <span className="text-black font-bold text-xl">H</span>
             </div>
             <h1 className="text-2xl font-display font-bold text-gold">Heirloom</h1>
@@ -51,7 +51,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
               <button
                 key={item.id}
                 onClick={() => openModal(item.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
                   item.primary
                     ? 'bg-secondary-gradient text-black hover:scale-105 font-semibold'
                     : 'text-gold/80 hover:text-gold hover:bg-gold/10'
@@ -63,7 +63,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
             ))}
             
             {/* Interface Mode Switcher */}
-            <div className="flex items-center space-x-1 ml-4 bg-glass-bg backdrop-blur-lg border border-gold/20 rounded-lg p-1">
+            <div className="flex items-center space-x-1 ml-4 bg-glass-bg backdrop-blur-lg border border-gold/20 rounded-xl p-1">
               <button
                 onClick={() => onViewModeChange('classic')}
                 className={`p-2 rounded transition-all duration-300 ${
@@ -106,7 +106,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
           {/* Mobile Menu Button */}
           <button
             onClick={() => setShowMobileMenu(!showMobileMenu)}
-            className="lg:hidden p-2 text-gold hover:bg-gold/10 rounded-lg transition-colors"
+            className="lg:hidden p-2 text-gold hover:bg-gold/10 rounded-xl transition-colors"
           >
             {showMobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -120,7 +120,7 @@ export default function Header({ onOpenModal, viewMode, onViewModeChange }: Head
                 <button
                   key={item.id}
                   onClick={() => openModal(item.id)}
-                  className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-300 ${
+                  className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-300 ${
                     item.primary
                       ? 'bg-secondary-gradient text-black font-semibold col-span-2'
                       : 'text-gold/80 hover:text-gold hover:bg-gold/10'

@@ -116,7 +116,7 @@ export default function RecipientManagement({ onClose }: RecipientManagementProp
             </div>
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all text-sm uppercase tracking-wider shadow-lg shadow-gold-400/20 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all text-sm uppercase tracking-[0.15em] shadow-lg shadow-gold-400/20 flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Recipient
@@ -161,7 +161,7 @@ export default function RecipientManagement({ onClose }: RecipientManagementProp
             </p>
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-wider"
+              className="px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-[0.15em]"
             >
               Close
             </button>
@@ -323,7 +323,7 @@ function AddRecipientModal({ onClose, onSuccess }: AddRecipientModalProps) {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+              <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                 Email *
               </label>
               <input
@@ -338,7 +338,7 @@ function AddRecipientModal({ onClose, onSuccess }: AddRecipientModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+              <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                 Name
               </label>
               <input
@@ -352,7 +352,7 @@ function AddRecipientModal({ onClose, onSuccess }: AddRecipientModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+              <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                 Relationship
               </label>
               <input
@@ -366,7 +366,7 @@ function AddRecipientModal({ onClose, onSuccess }: AddRecipientModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+              <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                 Access Level
               </label>
               <select
@@ -386,14 +386,14 @@ function AddRecipientModal({ onClose, onSuccess }: AddRecipientModalProps) {
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider"
+              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider shadow-lg shadow-gold-400/20 flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em] shadow-lg shadow-gold-400/20 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -444,30 +444,30 @@ function EditRecipientModal({ recipient, onClose, onSuccess }: EditRecipientModa
           </p>
           <div className="space-y-3 mb-6">
             <div>
-              <p className="text-xs uppercase tracking-wider text-gold-200/50 mb-1">Email</p>
+              <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50 mb-1">Email</p>
               <p className="text-gold-400">{recipient.email}</p>
             </div>
             {recipient.name && (
               <div>
-                <p className="text-xs uppercase tracking-wider text-gold-200/50 mb-1">Name</p>
+                <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50 mb-1">Name</p>
                 <p className="text-gold-400">{recipient.name}</p>
               </div>
             )}
             {recipient.relationship && (
               <div>
-                <p className="text-xs uppercase tracking-wider text-gold-200/50 mb-1">Relationship</p>
+                <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50 mb-1">Relationship</p>
                 <p className="text-gold-400">{recipient.relationship}</p>
               </div>
             )}
             <div>
-              <p className="text-xs uppercase tracking-wider text-gold-200/50 mb-1">Access Level</p>
+              <p className="text-xs uppercase tracking-[0.15em] text-gold-200/50 mb-1">Access Level</p>
               <p className="text-gold-400">{recipient.accessLevel}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-wider"
+            className="w-full px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all text-sm uppercase tracking-[0.15em]"
           >
             Close
           </button>

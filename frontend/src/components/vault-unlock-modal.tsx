@@ -73,7 +73,7 @@ export function VaultUnlockModal({ isOpen, onClose, onUnlock }: VaultUnlockModal
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-gold-200/70 mb-2">
+              <label className="block text-xs uppercase tracking-[0.15em] text-gold-200/70 mb-2">
                 Password
               </label>
               <input
@@ -100,14 +100,14 @@ export function VaultUnlockModal({ isOpen, onClose, onUnlock }: VaultUnlockModal
               type="button"
               onClick={onClose}
               disabled={isUnlocking}
-              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider"
+              className="flex-1 px-4 py-2 rounded-lg border border-gold-500/30 text-gold-400 hover:border-gold-400 hover:bg-gold/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isUnlocking || !password}
-              className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wider shadow-lg shadow-gold-400/20 flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium hover:from-gold-500 hover:to-gold-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-[0.15em] shadow-lg shadow-gold-400/20 flex items-center justify-center gap-2"
             >
               {isUnlocking ? (
                 <>
