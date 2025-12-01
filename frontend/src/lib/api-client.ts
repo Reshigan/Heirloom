@@ -117,6 +117,7 @@ class APIClient {
     user: User;
     vault: Vault;
     token: string;
+    vmkSalt?: string;
   }> {
     const result = await this.request<any>('/auth/login', {
       method: 'POST',
