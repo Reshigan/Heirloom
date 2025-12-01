@@ -149,7 +149,7 @@ export default function Testimonials() {
               >
                 <div className="mb-8">
                   <p className="text-pearl/80 text-lg md:text-xl leading-relaxed italic font-light">
-                    "{testimonials[currentIndex].content}"
+                    &ldquo;{testimonials[currentIndex].content}&rdquo;
                   </p>
                 </div>
 

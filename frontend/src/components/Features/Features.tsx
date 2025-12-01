@@ -85,7 +85,7 @@ export default function Features({ onOpenModal }: FeaturesProps) {
             </span>
           </h2>
           <p className="text-pearl/60 text-xl max-w-3xl mx-auto leading-relaxed font-light">
-            Everything you need to preserve, organize, and share your family's most precious memories
+            Everything you need to preserve, organize, and share your family&apos;s most precious memories
             with future generations.
           </p>
         </motion.div>
