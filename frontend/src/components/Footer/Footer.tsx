@@ -1,6 +1,8 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Heart } from 'lucide-react';
+import { LuxuryInput, LuxuryButton } from '@/components/ui/luxury-components';
 
 interface FooterLink {
   label: string;
@@ -116,51 +118,64 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* Newsletter Signup */}
-        <div className="bg-glass-bg backdrop-blur-lg border border-glass-border rounded-2xl p-8 mb-12">
+        {/* Newsletter Signup - Redesigned */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="bg-charcoal/60 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-8 mb-12"
+        >
           <div className="max-w-2xl mx-auto text-center">
-            <h4 className="text-2xl font-display font-bold text-gold mb-4">
+            <h4 className="text-2xl font-serif font-light text-pearl mb-4 tracking-wide">
               Stay Connected with Your Heritage
             </h4>
-            <p className="text-gold/70 mb-6">
+            <p className="text-pearl/60 mb-6 font-light">
               Get tips, stories, and updates on preserving your family legacy.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
+              <LuxuryInput
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 bg-black/50 border border-gold/20 rounded-lg text-gold placeholder-gold/40 focus:outline-none focus:border-gold/50 transition-colors duration-300"
+                className="flex-1"
               />
-              <button className="bg-secondary-gradient text-black px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-all duration-300">
+              <LuxuryButton variant="primary">
                 Subscribe
-              </button>
+              </LuxuryButton>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Bottom Footer */}
         <div className="border-t border-gold/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            {/* Copyright */}
-            <div className="text-gold/60 text-center md:text-left">
+            {/* Copyright with animated heart */}
+            <div className="text-pearl/50 text-center md:text-left font-light">
               <p className="flex items-center justify-center md:justify-start space-x-2">
                 <span>© {currentYear} Heirloom. Made with</span>
-                <Heart className="w-4 h-4 text-red-500 fill-current" />
+                <motion.span
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <Heart className="w-4 h-4 text-red-500 fill-current" />
+                </motion.span>
                 <span>for families worldwide.</span>
               </p>
             </div>
 
-            {/* Social Links */}
+            {/* Social Links with hover effects */}
             <div className="flex items-center space-x-4">
               {socialLinks.map((social) => (
-                <a
+                <motion.a
                   key={social.label}
                   href={social.href}
-                  className="p-2 text-gold/60 hover:text-gold hover:bg-gold/10 rounded-lg transition-all duration-300"
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-2 text-gold-400/60 hover:text-gold-400 hover:bg-gold-500/10 rounded-lg transition-all duration-300 border border-gold-500/20 hover:border-gold-500/40"
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />
-                </a>
+                </motion.a>
               ))}
             </div>
           </div>
