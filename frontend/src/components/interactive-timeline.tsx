@@ -288,14 +288,14 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
       onClick={onClose}
     >
       <motion.div
-        className="absolute inset-4 bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="absolute inset-4 bg-gradient-to-br from-charcoal via-obsidian to-charcoal rounded-2xl shadow-2xl border border-gold-500/30 overflow-hidden"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-modern-blue via-modern-purple to-modern-coral p-6 text-white">
+        <div className="bg-gradient-to-r from-gold-600/20 via-gold-500/20 to-gold-600/20 border-b border-gold-500/30 p-6 text-pearl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <motion.div
@@ -306,22 +306,22 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
                 <Clock className="w-6 h-6" />
               </motion.div>
               <div>
-                <h2 className="text-2xl font-bold">Life Timeline</h2>
-                <p className="text-white/80">{filteredEvents.length} life events</p>
+                <h2 className="text-2xl font-serif font-bold text-gold-400">Life Timeline</h2>
+                <p className="text-pearl/70">{filteredEvents.length} life events</p>
               </div>
             </div>
             
             <button
               onClick={onClose}
-              className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              className="w-8 h-8 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center hover:bg-gold-500/30 transition-colors text-gold-400"
             >
-              ×
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="bg-gray-50 border-b border-gold-200 p-4">
+        <div className="bg-obsidian-800/40 border-b border-gold-500/20 p-4">
           <div className="flex flex-wrap items-center gap-4">
             {/* Search */}
             <div className="relative flex-1 min-w-64">
@@ -331,20 +331,20 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
                 placeholder="Search timeline events..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 bg-obsidian-900/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/40 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
               />
             </div>
 
             {/* View Mode */}
-            <div className="flex bg-white border border-gold-300 rounded-lg overflow-hidden">
+            <div className="flex bg-obsidian-900/60 border border-gold-500/20 rounded-lg overflow-hidden">
               {['year', 'decade', 'lifetime'].map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode as any)}
                   className={`px-3 py-2 text-sm font-medium capitalize transition-colors ${
                     viewMode === mode
-                      ? 'bg-modern-blue text-white'
-                      : 'text-gold-600 hover:bg-obsidian-50'
+                      ? 'bg-gold-500/20 text-gold-400'
+                      : 'text-pearl/60 hover:bg-obsidian-800/40'
                   }`}
                 >
                   {mode}
@@ -356,7 +356,7 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as any)}
-              className="px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+              className="px-3 py-2 bg-obsidian-900/60 border border-gold-500/20 rounded-lg text-gold-100 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
             >
               <option value="all">All Events</option>
               <option value="milestone">Milestones</option>
@@ -372,20 +372,20 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
             <div className="flex items-center justify-center space-x-4 mt-4">
               <motion.button
                 onClick={() => navigateYear('prev')}
-                className="p-2 bg-white border border-gold-300 rounded-lg hover:bg-obsidian-50 transition-colors"
+                className="p-2 bg-obsidian-900/60 border border-gold-500/30 text-gold-400 rounded-lg hover:border-gold-400 transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <ChevronLeft className="w-4 h-4" />
               </motion.button>
               
-              <div className="text-lg font-semibold text-gold-900">
+              <div className="text-lg font-serif font-semibold text-gold-400">
                 {viewMode === 'year' ? currentYear : `${Math.floor(currentYear / 10) * 10}s`}
               </div>
               
               <motion.button
                 onClick={() => navigateYear('next')}
-                className="p-2 bg-white border border-gold-300 rounded-lg hover:bg-obsidian-50 transition-colors"
+                className="p-2 bg-obsidian-900/60 border border-gold-500/30 text-gold-400 rounded-lg hover:border-gold-400 transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -406,7 +406,7 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
             dragMomentum={false}
           >
             {/* Timeline Line */}
-            <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-modern-blue via-modern-purple to-modern-coral rounded-full transform -translate-y-1/2" />
+            <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 rounded-full transform -translate-y-1/2" />
             
             {/* Timeline Events */}
             <div className="flex items-center space-x-8 min-w-max py-8">
@@ -431,7 +431,7 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
                   >
                     {/* Event Node */}
                     <motion.div
-                      className="relative z-10 w-16 h-16 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white"
+                      className="relative z-10 w-16 h-16 rounded-full border-4 border-gold-500/30 shadow-lg flex items-center justify-center text-white"
                       style={{ backgroundColor: event.color }}
                       whileHover={{ scale: 1.2, y: -5 }}
                       whileTap={{ scale: 0.9 }}
@@ -461,10 +461,10 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
                       initial={{ y: 10 }}
                       whileHover={{ y: 0 }}
                     >
-                      <h3 className="font-semibold text-sm text-gold-900 mb-1 line-clamp-2">
+                      <h3 className="font-semibold text-sm text-gold-400 mb-1 line-clamp-2">
                         {event.title}
                       </h3>
-                      <p className="text-xs text-gold-600 mb-1">
+                      <p className="text-xs text-pearl/70 mb-1">
                         {eventDate.toLocaleDateString()}
                       </p>
                       {event.location && (
@@ -532,7 +532,7 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
               onClick={() => setSelectedEvent(null)}
             >
               <motion.div
-                className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+                className="bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border border-gold-500/30 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
@@ -557,7 +557,7 @@ export default function InteractiveTimeline({ isOpen, onClose, events: initialEv
                     </div>
                     <button
                       onClick={() => setSelectedEvent(null)}
-                      className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                      className="w-8 h-8 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center hover:bg-gold-500/30 transition-colors text-gold-400"
                     >
                       ×
                     </button>
