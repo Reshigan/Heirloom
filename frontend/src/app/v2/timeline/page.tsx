@@ -86,8 +86,8 @@ export default function TimelinePage() {
       {/* Header */}
       <div className="sticky top-16 z-40 bg-gradient-to-b from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl border-b border-gold-500/10 pb-4">
         <div className="px-4 pt-4">
-          <h2 className="font-serif text-2xl text-gold-400 mb-2">Life Story</h2>
-          <p className="text-sm text-gold-200/70">Your journey through time</p>
+          <h2 className="font-serif text-3xl text-gold-400 tracking-tight mb-2">Life Story</h2>
+          <p className="text-sm text-gold-200/60">Your journey through time</p>
         </div>
       </div>
 
@@ -109,12 +109,11 @@ export default function TimelinePage() {
                 {/* Year marker */}
                 <div className="flex items-center gap-4 mb-6">
                   <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-br from-gold-400 to-gold-500 rounded-full flex items-center justify-center shadow-lg shadow-gold-400/20">
-                      <Calendar className="w-6 h-6 text-obsidian-900" />
+                    <div className="w-12 h-12 bg-gold-400/10 border border-gold-500/30 rounded-full flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-gold-400" />
                     </div>
-                    <div className="absolute -inset-2 bg-gold-400/20 rounded-full blur-xl -z-10" />
                   </div>
-                  <h3 className="font-serif text-3xl text-gold-400">{year}</h3>
+                  <h3 className="font-serif text-3xl text-gold-400 tracking-tight">{year}</h3>
                 </div>
 
                 {/* Events for this year */}

@@ -44,17 +44,17 @@ export default function V2Layout({
       >
         <div className="px-4 py-3 flex items-center justify-between">
           <div>
-            <h1 className="font-serif text-xl text-gold-400 tracking-wide">Heirloom</h1>
-            <p className="text-xs text-gold-200/50">Your Legacy Vault</p>
+            <h1 className="font-serif text-xl text-gold-400 tracking-tight">Heirloom</h1>
+            <p className="text-xs text-gold-200/60">Your Legacy Vault</p>
           </div>
           
           {/* Lock Status */}
           <button
             onClick={handleLockClick}
-            className="flex items-center gap-2 px-3 py-2 bg-gold-400/10 border border-gold-500/30 rounded-full hover:bg-gold-400/20 transition-all"
+            className="flex items-center gap-2 px-3 py-2 bg-gold-400/10 border border-gold-500/30 rounded-full hover:bg-gold-400/15 hover:border-gold-500/40 transition-all duration-200"
           >
             <Lock className={`w-4 h-4 ${isUnlocked ? 'text-green-400' : 'text-gold-400'}`} />
-            <span className="text-xs text-gold-200/70">
+            <span className="text-xs text-gold-200/60">
               {isUnlocked ? 'Unlocked' : 'Locked'}
             </span>
           </button>

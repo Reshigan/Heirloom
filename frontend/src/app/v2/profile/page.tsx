@@ -80,11 +80,11 @@ export default function ProfilePage() {
           animate={{ scale: 1, opacity: 1 }}
           className="relative inline-block"
         >
-          <div className="w-32 h-32 bg-gradient-to-br from-gold-400 to-gold-500 rounded-full border-4 border-obsidian-900 flex items-center justify-center shadow-2xl">
-            <User className="w-16 h-16 text-obsidian-900" />
+          <div className="w-32 h-32 bg-gold-400/10 border-2 border-gold-500/30 rounded-full flex items-center justify-center">
+            <User className="w-16 h-16 text-gold-400" />
           </div>
-          <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 border-4 border-obsidian-900 rounded-full flex items-center justify-center">
-            <Lock className="w-5 h-5 text-white" />
+          <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500/10 border-2 border-green-500/40 rounded-full flex items-center justify-center">
+            <Lock className="w-5 h-5 text-green-400" />
           </div>
         </motion.div>
 
@@ -193,7 +193,7 @@ export default function ProfilePage() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
           onClick={handleSettings}
-          className="w-full bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium py-3 rounded-xl flex items-center justify-center gap-2 hover:from-gold-500 hover:to-gold-600 transition-all shadow-lg shadow-gold-400/20 mb-8"
+          className="w-full bg-gold-400/10 border border-gold-500/30 text-gold-400 font-medium py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gold-400/15 hover:border-gold-500/40 transition-all duration-200 mb-8"
         >
           <Settings className="w-5 h-5" />
           <span>Account Settings</span>
