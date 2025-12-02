@@ -26,7 +26,8 @@ import {
   UserPlus,
   TreePine,
   Star,
-  Shield
+  Shield,
+  X
 } from 'lucide-react'
 import LegacyTokenSystem from './legacy-token-system'
 

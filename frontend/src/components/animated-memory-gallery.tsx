@@ -24,7 +24,8 @@ import {
   Grid3X3,
   List,
   Star,
-  Clock
+  Clock,
+  X
 } from 'lucide-react'
 
 interface Memory {
