@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion'
+import React, { useState, useRef, useEffect } from 'react'
+import { motion, useMotionValue, PanInfo } from 'framer-motion'
 import { Heart, MessageCircle, Share2, Play, Pause, Volume2, VolumeX } from 'lucide-react'
 import { PrivacyGate } from '@/components/privacy/PrivacyGate'
 import { LockedImage } from '@/components/privacy/LockedPlaceholder'
 import { usePrivacy } from '@/contexts/PrivacyContext'
 import { gestures } from '@/lib/design-tokens'
+import { apiClient } from '@/lib/api-client'
 
 interface Reel {
   id: string
@@ -102,7 +103,7 @@ export default function ReelsPage() {
     const offset = info.offset.y
 
     if (velocity < -gestures.swipeVelocity || offset < -gestures.swipeDistance) {
-      if (currentIndex < mockReels.length - 1) {
+      if (currentIndex < reels.length - 1) {
         setCurrentIndex(currentIndex + 1)
       }
     }
@@ -113,6 +114,35 @@ export default function ReelsPage() {
     }
 
     y.set(0)
+  }
+
+  if (loading) {
+    return (
+      <PrivacyGate>
+        <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-gold-400/30 border-t-gold-400 rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gold-200/70">Loading reels...</p>
+          </div>
+        </div>
+      </PrivacyGate>
+    )
+  }
+
+  if (reels.length === 0) {
+    return (
+      <PrivacyGate>
+        <div className="fixed inset-0 bg-obsidian-900 flex items-center justify-center">
+          <div className="text-center px-6">
+            <div className="w-16 h-16 bg-gold-400/10 border-2 border-gold-500/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Play className="w-8 h-8 text-gold-400" />
+            </div>
+            <h3 className="font-serif text-2xl text-gold-400 mb-2">No Reels Yet</h3>
+            <p className="text-gold-200/70">Upload photos or videos to see them here</p>
+          </div>
+        </div>
+      </PrivacyGate>
+    )
   }
 
   return (
