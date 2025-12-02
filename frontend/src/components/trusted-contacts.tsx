@@ -16,6 +16,8 @@ import {
   Search
 } from 'lucide-react'
 import { apiClient, TrustedContact } from '@/lib/api-client'
+import { ShamirSecretSharing } from '@/lib/shamir'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface TrustedContactsProps {
   onClose: () => void
@@ -307,6 +309,7 @@ interface AddContactModalProps {
 }
 
 function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
+  const { vmkSalt } = useAuth()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -324,20 +327,46 @@ function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
 
     try {
       setIsSubmitting(true)
+      
+      const mockVmkHex = vmkSalt || ShamirSecretSharing.generateRandomHex(64)
+      
+      const existingContacts = await apiClient.getTrustedContacts()
+      const shareIndex = existingContacts.contacts.length + 1
+      
+      if (shareIndex > 3) {
+        setError('Maximum of 3 trusted contacts allowed')
+        return
+      }
+      
+      const allContactEmails = [
+        ...existingContacts.contacts.map(c => c.email),
+        email
+      ]
+      
+      while (allContactEmails.length < 3) {
+        allContactEmails.push(`placeholder${allContactEmails.length}@example.com`)
+      }
+      
+      const shares = await ShamirSecretSharing.generateSharesForContacts(
+        mockVmkHex,
+        allContactEmails.slice(0, 3)
+      )
+      
+      const contactShareIndex = allContactEmails.indexOf(email)
+      const contactShare = shares[contactShareIndex]
+      
       const result = await apiClient.addTrustedContact({
         email,
         name: name || undefined,
         phone: phone || undefined,
-        shamirShareEncrypted: 'placeholder_encrypted_share',
+        shamirShareEncrypted: contactShare.shareCiphertext,
       })
       
       const contactId = result.contact.id
-      const shamirShare = await generateShamirShare(email, 1)
-      
       await apiClient.post(`/trusted-contacts/${contactId}/share`, {
-        shareCiphertext: shamirShare,
-        algorithm: 'shamir-2-of-3',
-        shareIndex: 1
+        shareCiphertext: contactShare.shareCiphertext,
+        algorithm: contactShare.algorithm,
+        shareIndex: contactShare.shareIndex
       })
       
       onSuccess()
@@ -346,17 +375,6 @@ function AddContactModal({ onClose, onSuccess }: AddContactModalProps) {
     } finally {
       setIsSubmitting(false)
     }
-  }
-  
-  const generateShamirShare = async (email: string, shareIndex: number): Promise<string> => {
-    const mockVmkSecret = 'mock_vault_master_key_for_demo'
-    const shareData = {
-      email,
-      shareIndex,
-      secret: mockVmkSecret,
-      timestamp: new Date().toISOString()
-    }
-    return btoa(JSON.stringify(shareData))
   }
 
   return (
