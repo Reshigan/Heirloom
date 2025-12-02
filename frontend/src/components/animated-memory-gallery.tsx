@@ -24,7 +24,8 @@ import {
   Grid3X3,
   List,
   Star,
-  Clock
+  Clock,
+  X
 } from 'lucide-react'
 
 interface Memory {
@@ -191,7 +192,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
       onClick={onClose}
     >
       <motion.div
-        className="absolute inset-4 bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="absolute inset-4 bg-gradient-to-br from-charcoal via-obsidian to-charcoal rounded-2xl shadow-2xl border border-gold-500/30 overflow-hidden"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
@@ -199,28 +200,28 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
       >
         {/* Animated Header */}
         <motion.div
-          className="bg-gradient-to-r from-modern-blue via-modern-purple to-modern-coral p-6 text-white"
+          className="bg-gradient-to-r from-gold-600/20 via-gold-500/20 to-gold-600/20 border-b border-gold-500/30 p-6 text-pearl"
           style={{ opacity: headerOpacity }}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <motion.div
-                className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center"
+                className="w-12 h-12 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center"
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
-                <Camera className="w-6 h-6" />
+                <Camera className="w-6 h-6 text-gold-400" />
               </motion.div>
               <div>
-                <h2 className="text-2xl font-bold">Memory Gallery</h2>
-                <p className="text-white/80">{filteredMemories.length} memories found</p>
+                <h2 className="text-2xl font-serif font-bold text-gold-400">Memory Gallery</h2>
+                <p className="text-pearl/70">{filteredMemories.length} memories found</p>
               </div>
             </div>
             
             <div className="flex items-center space-x-2">
               <motion.button
                 onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                className="p-2 bg-gold-500/20 border border-gold-500/30 rounded-lg hover:bg-gold-500/30 transition-colors text-gold-400"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -229,16 +230,16 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
               
               <button
                 onClick={onClose}
-                className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                className="w-8 h-8 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center hover:bg-gold-500/30 transition-colors text-gold-400"
               >
-                ×
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
         </motion.div>
 
         {/* Controls Bar */}
-        <div className="bg-gray-50 border-b border-gold-200 p-4">
+        <div className="bg-obsidian-800/40 border-b border-gold-500/20 p-4">
           <div className="flex flex-wrap items-center gap-4">
             {/* Search */}
             <div className="relative flex-1 min-w-64">
@@ -248,7 +249,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                 placeholder="Search memories..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 bg-obsidian-900/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/40 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
               />
             </div>
 
@@ -256,7 +257,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as any)}
-              className="px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+              className="px-3 py-2 bg-obsidian-900/60 border border-gold-500/20 rounded-lg text-gold-100 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
             >
               <option value="all">All Types</option>
               <option value="photo">Photos</option>
@@ -269,7 +270,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+              className="px-3 py-2 bg-obsidian-900/60 border border-gold-500/20 rounded-lg text-gold-100 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
             >
               <option value="date">Sort by Date</option>
               <option value="likes">Sort by Likes</option>
@@ -292,7 +293,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                 {filteredMemories.map((memory, index) => (
                   <motion.div
                     key={memory.id}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer group"
+                    className="bg-gradient-to-br from-obsidian-800/90 to-charcoal/90 border border-gold-500/20 rounded-xl shadow-lg overflow-hidden hover:shadow-xl hover:border-gold-500/40 transition-all cursor-pointer group"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
@@ -300,8 +301,8 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                     onClick={() => setSelectedMemory(memory)}
                   >
                     {/* Thumbnail */}
-                    <div className="relative aspect-video bg-gray-200 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-modern-blue/20 to-modern-purple/20" />
+                    <div className="relative aspect-video bg-obsidian-900/60 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-gold-600/10 to-gold-500/10" />
                       
                       {/* Type Icon */}
                       <div className="absolute top-2 left-2 bg-black/50 rounded-full p-1.5 text-white">
@@ -321,8 +322,8 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                           className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           whileHover={{ scale: 1.1 }}
                         >
-                          <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
-                            <Play className="w-6 h-6 text-modern-blue ml-0.5" />
+                          <div className="w-12 h-12 bg-gold-500/90 rounded-full flex items-center justify-center">
+                            <Play className="w-6 h-6 text-obsidian-900 ml-0.5" />
                           </div>
                         </motion.div>
                       )}
@@ -330,15 +331,15 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
 
                     {/* Content */}
                     <div className="p-4">
-                      <h3 className="font-semibold text-gold-900 mb-1 line-clamp-1">
+                      <h3 className="font-semibold text-gold-400 mb-1 line-clamp-1">
                         {memory.title}
                       </h3>
-                      <p className="text-sm text-gold-600 mb-2 line-clamp-2">
+                      <p className="text-sm text-pearl/70 mb-2 line-clamp-2">
                         {memory.description}
                       </p>
                       
                       {/* Meta Info */}
-                      <div className="flex items-center justify-between text-xs text-gold-500 mb-3">
+                      <div className="flex items-center justify-between text-xs text-pearl/60 mb-3">
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-3 h-3" />
                           <span>{new Date(memory.date).toLocaleDateString()}</span>
@@ -354,13 +355,13 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                         {memory.tags.slice(0, 2).map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-1 bg-modern-blue/10 text-modern-blue text-xs rounded-full"
+                            className="px-2 py-1 bg-gold-500/20 text-gold-400 text-xs rounded-full"
                           >
                             {tag}
                           </span>
                         ))}
                         {memory.tags.length > 2 && (
-                          <span className="px-2 py-1 bg-gray-100 text-gold-600 text-xs rounded-full">
+                          <span className="px-2 py-1 bg-obsidian-900/60 text-pearl/70 text-xs rounded-full">
                             +{memory.tags.length - 2}
                           </span>
                         )}
@@ -375,7 +376,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                               toggleLike(memory.id)
                             }}
                             className={`flex items-center space-x-1 ${
-                              memory.isLiked ? 'text-red-500' : 'text-gold-400'
+                              memory.isLiked ? 'text-gold-400' : 'text-pearl/60'
                             }`}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
@@ -385,7 +386,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                           </motion.button>
                         </div>
                         
-                        <div className="text-xs text-gold-500">
+                        <div className="text-xs text-pearl/60">
                           by {memory.author}
                         </div>
                       </div>
@@ -404,7 +405,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                 {filteredMemories.map((memory, index) => (
                   <motion.div
                     key={memory.id}
-                    className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer"
+                    className="bg-gradient-to-br from-obsidian-800/90 to-charcoal/90 border border-gold-500/20 rounded-xl shadow-lg p-6 hover:shadow-xl hover:border-gold-500/40 transition-all cursor-pointer"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
@@ -412,8 +413,8 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                   >
                     <div className="flex items-start space-x-4">
                       {/* Thumbnail */}
-                      <div className="w-24 h-16 bg-gray-200 rounded-lg flex-shrink-0 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-modern-blue/20 to-modern-purple/20" />
+                      <div className="w-24 h-16 bg-obsidian-900/60 rounded-lg flex-shrink-0 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-gold-600/10 to-gold-500/10" />
                         <div className="absolute inset-0 flex items-center justify-center">
                           {getTypeIcon(memory.type)}
                         </div>
@@ -423,10 +424,10 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h3 className="font-semibold text-gold-900 mb-1">
+                            <h3 className="font-semibold text-gold-400 mb-1">
                               {memory.title}
                             </h3>
-                            <p className="text-sm text-gold-600 mb-2">
+                            <p className="text-sm text-pearl/70 mb-2">
                               {memory.description}
                             </p>
                           </div>
@@ -437,7 +438,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                               toggleLike(memory.id)
                             }}
                             className={`flex items-center space-x-1 ${
-                              memory.isLiked ? 'text-red-500' : 'text-gold-400'
+                              memory.isLiked ? 'text-gold-400' : 'text-pearl/60'
                             }`}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
@@ -449,7 +450,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
 
                         {/* Meta and Tags */}
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 text-xs text-gold-500">
+                          <div className="flex items-center space-x-4 text-xs text-pearl/60">
                             <div className="flex items-center space-x-1">
                               <Calendar className="w-3 h-3" />
                               <span>{new Date(memory.date).toLocaleDateString()}</span>
@@ -465,7 +466,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                             {memory.tags.slice(0, 3).map((tag) => (
                               <span
                                 key={tag}
-                                className="px-2 py-1 bg-modern-blue/10 text-modern-blue text-xs rounded-full"
+                                className="px-2 py-1 bg-gold-500/20 text-gold-400 text-xs rounded-full"
                               >
                                 {tag}
                               </span>
@@ -492,27 +493,29 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
               onClick={() => setSelectedMemory(null)}
             >
               <motion.div
-                className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+                className="bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border border-gold-500/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="bg-gradient-to-r from-modern-blue to-modern-purple p-6 text-white">
+                <div className="bg-gradient-to-r from-gold-600/20 via-gold-500/20 to-gold-600/20 border-b border-gold-500/30 p-6 text-pearl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      {getTypeIcon(selectedMemory.type)}
+                      <div className="text-gold-400">
+                        {getTypeIcon(selectedMemory.type)}
+                      </div>
                       <div>
-                        <h3 className="text-xl font-bold">{selectedMemory.title}</h3>
-                        <p className="text-white/80">{selectedMemory.author} • {new Date(selectedMemory.date).toLocaleDateString()}</p>
+                        <h3 className="text-xl font-serif font-bold text-gold-400">{selectedMemory.title}</h3>
+                        <p className="text-pearl/70">{selectedMemory.author} • {new Date(selectedMemory.date).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <button
                       onClick={() => setSelectedMemory(null)}
-                      className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                      className="w-8 h-8 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center hover:bg-gold-500/30 transition-colors text-gold-400"
                     >
-                      ×
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -522,10 +525,10 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* Media Preview */}
                     <div className="space-y-4">
-                      <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                        <div className="text-center">
+                      <div className="aspect-video bg-obsidian-900/60 border border-gold-500/20 rounded-lg flex items-center justify-center">
+                        <div className="text-center text-gold-400">
                           {getTypeIcon(selectedMemory.type)}
-                          <p className="text-sm text-gold-600 mt-2">
+                          <p className="text-sm text-pearl/70 mt-2">
                             {selectedMemory.type.charAt(0).toUpperCase() + selectedMemory.type.slice(1)} Preview
                           </p>
                         </div>
@@ -534,7 +537,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                       {/* Actions */}
                       <div className="flex items-center justify-center space-x-4">
                         <motion.button
-                          className="flex items-center space-x-2 px-4 py-2 bg-modern-blue text-white rounded-lg hover:bg-modern-blue/90 transition-colors"
+                          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:shadow-lg hover:shadow-gold-400/20 transition-all"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -543,7 +546,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                         </motion.button>
                         
                         <motion.button
-                          className="flex items-center space-x-2 px-4 py-2 bg-modern-emerald text-white rounded-lg hover:bg-modern-emerald/90 transition-colors"
+                          className="flex items-center space-x-2 px-4 py-2 bg-gold-500/20 border border-gold-500/30 text-gold-400 rounded-lg hover:bg-gold-500/30 transition-colors"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -556,27 +559,27 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                     {/* Details */}
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-semibold text-gold-900 mb-2">Description</h4>
-                        <p className="text-gold-600">{selectedMemory.description}</p>
+                        <h4 className="font-semibold text-gold-400 mb-2">Description</h4>
+                        <p className="text-pearl/70">{selectedMemory.description}</p>
                       </div>
 
                       {selectedMemory.location && (
                         <div>
-                          <h4 className="font-semibold text-gold-900 mb-2">Location</h4>
-                          <div className="flex items-center space-x-2 text-gold-600">
-                            <MapPin className="w-4 h-4" />
+                          <h4 className="font-semibold text-gold-400 mb-2">Location</h4>
+                          <div className="flex items-center space-x-2 text-pearl/70">
+                            <MapPin className="w-4 h-4 text-gold-400" />
                             <span>{selectedMemory.location}</span>
                           </div>
                         </div>
                       )}
 
                       <div>
-                        <h4 className="font-semibold text-gold-900 mb-2">Family Members</h4>
+                        <h4 className="font-semibold text-gold-400 mb-2">Family Members</h4>
                         <div className="flex flex-wrap gap-2">
                           {selectedMemory.familyMembers.map((member) => (
                             <span
                               key={member}
-                              className="px-3 py-1 bg-modern-purple/10 text-modern-purple rounded-full text-sm"
+                              className="px-3 py-1 bg-gold-500/20 text-gold-400 rounded-full text-sm"
                             >
                               {member}
                             </span>
@@ -585,12 +588,12 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                       </div>
 
                       <div>
-                        <h4 className="font-semibold text-gold-900 mb-2">Tags</h4>
+                        <h4 className="font-semibold text-gold-400 mb-2">Tags</h4>
                         <div className="flex flex-wrap gap-2">
                           {selectedMemory.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="px-3 py-1 bg-modern-blue/10 text-modern-blue rounded-full text-sm"
+                              className="px-3 py-1 bg-gold-500/20 text-gold-400 rounded-full text-sm"
                             >
                               #{tag}
                             </span>
@@ -598,11 +601,11 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-4 border-t border-gold-200">
+                      <div className="flex items-center justify-between pt-4 border-t border-gold-500/20">
                         <motion.button
                           onClick={() => toggleLike(selectedMemory.id)}
                           className={`flex items-center space-x-2 ${
-                            selectedMemory.isLiked ? 'text-red-500' : 'text-gold-400'
+                            selectedMemory.isLiked ? 'text-gold-400' : 'text-pearl/60'
                           }`}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
@@ -611,7 +614,7 @@ export default function AnimatedMemoryGallery({ isOpen, onClose, memories: initi
                           <span>{selectedMemory.likes} likes</span>
                         </motion.button>
                         
-                        <div className="text-sm text-gold-500">
+                        <div className="text-sm text-pearl/60">
                           Added {new Date(selectedMemory.date).toLocaleDateString()}
                         </div>
                       </div>

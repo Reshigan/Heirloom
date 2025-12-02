@@ -26,7 +26,8 @@ import {
   UserPlus,
   TreePine,
   Star,
-  Shield
+  Shield,
+  X
 } from 'lucide-react'
 import LegacyTokenSystem from './legacy-token-system'
 
@@ -289,33 +290,33 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
         onClick={onClose}
       >
         <motion.div
-          className="absolute inset-4 bg-white rounded-2xl shadow-2xl overflow-hidden"
+          className="absolute inset-4 bg-gradient-to-br from-charcoal via-obsidian to-charcoal rounded-2xl shadow-2xl border border-gold-500/30 overflow-hidden"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-modern-blue via-modern-purple to-modern-emerald p-6 text-white">
+          <div className="bg-gradient-to-r from-gold-600/20 via-gold-500/20 to-gold-600/20 border-b border-gold-500/30 p-6 text-pearl">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <motion.div
-                  className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center"
+                  className="w-12 h-12 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center"
                   animate={{ rotate: [0, 360] }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 >
-                  <TreePine className="w-6 h-6" />
+                  <TreePine className="w-6 h-6 text-gold-400" />
                 </motion.div>
                 <div>
-                  <h2 className="text-2xl font-bold">Family Tree</h2>
-                  <p className="text-white/80">{filteredMembers.length} family members</p>
+                  <h2 className="text-2xl font-serif font-bold text-gold-400">Family Tree</h2>
+                  <p className="text-pearl/70">{filteredMembers.length} family members</p>
                 </div>
               </div>
               
               <div className="flex items-center space-x-2">
                 <motion.button
                   onClick={() => setShowLegacySystem(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gold-500/20 border border-gold-500/30 rounded-lg hover:bg-gold-500/30 transition-colors text-gold-400"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -325,16 +326,16 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                 
                 <button
                   onClick={onClose}
-                  className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                  className="w-8 h-8 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center hover:bg-gold-500/30 transition-colors text-gold-400"
                 >
-                  ×
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
 
           {/* Controls */}
-          <div className="bg-gray-50 border-b border-gold-200 p-4">
+          <div className="bg-obsidian-800/40 border-b border-gold-500/20 p-4">
             <div className="flex flex-wrap items-center gap-4">
               {/* Search */}
               <div className="relative flex-1 min-w-64">
@@ -344,7 +345,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                   placeholder="Search family members..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 bg-obsidian-900/60 border border-gold-500/20 rounded-lg text-gold-100 placeholder-gold-400/40 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
                 />
               </div>
 
@@ -352,7 +353,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
               <select
                 value={filterGeneration}
                 onChange={(e) => setFilterGeneration(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
-                className="px-3 py-2 border border-gold-300 rounded-lg focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                className="px-3 py-2 bg-obsidian-900/60 border border-gold-500/20 rounded-lg text-gold-100 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
               >
                 <option value="all">All Generations</option>
                 <option value={1}>Generation 1</option>
@@ -367,31 +368,31 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                   type="checkbox"
                   checked={showDeceased}
                   onChange={(e) => setShowDeceased(e.target.checked)}
-                  className="rounded border-gold-300 text-modern-blue focus:ring-modern-blue"
+                  className="rounded border-gold-500/30 text-gold-400 focus:ring-gold-400/20"
                 />
-                <span className="text-sm text-gold-700">Show Deceased</span>
+                <span className="text-sm text-pearl/70">Show Deceased</span>
               </label>
 
               {/* Zoom Controls */}
-              <div className="flex items-center space-x-1 bg-white border border-gold-300 rounded-lg">
+              <div className="flex items-center space-x-1 bg-obsidian-900/60 border border-gold-500/20 rounded-lg">
                 <button
                   onClick={() => handleZoom('out')}
-                  className="p-2 hover:bg-obsidian-50 transition-colors"
+                  className="p-2 text-gold-400 hover:bg-obsidian-800/40 transition-colors"
                 >
                   <ZoomOut className="w-4 h-4" />
                 </button>
-                <div className="px-2 py-1 text-sm text-gold-600 border-x border-gold-300">
+                <div className="px-2 py-1 text-sm text-gold-400 border-x border-gold-500/20">
                   {Math.round(zoomLevel * 100)}%
                 </div>
                 <button
                   onClick={() => handleZoom('in')}
-                  className="p-2 hover:bg-obsidian-50 transition-colors"
+                  className="p-2 text-gold-400 hover:bg-obsidian-800/40 transition-colors"
                 >
                   <ZoomIn className="w-4 h-4" />
                 </button>
                 <button
                   onClick={resetView}
-                  className="p-2 hover:bg-obsidian-50 transition-colors border-l border-gold-300"
+                  className="p-2 text-gold-400 hover:bg-obsidian-800/40 transition-colors border-l border-gold-500/20"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -400,7 +401,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
               {/* Add Member */}
               <motion.button
                 onClick={addFamilyMember}
-                className="flex items-center space-x-2 px-4 py-2 bg-modern-blue text-white rounded-lg hover:bg-modern-blue/90 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 rounded-lg hover:shadow-lg hover:shadow-gold-400/20 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -411,7 +412,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
           </div>
 
           {/* Family Tree Canvas */}
-          <div ref={containerRef} className="flex-1 overflow-hidden relative bg-gradient-to-br from-obsidian-50 to-white">
+          <div ref={containerRef} className="flex-1 overflow-hidden relative bg-gradient-to-br from-obsidian-900 to-charcoal">
             <motion.div
               ref={treeRef}
               className="absolute inset-0 cursor-move"
@@ -470,7 +471,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                   whileTap={{ scale: 0.95 }}
                 >
                   {/* Member Card */}
-                  <div className={`w-20 h-20 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white relative overflow-hidden ${
+                  <div className={`w-20 h-20 rounded-full border-4 border-gold-500/30 shadow-lg flex items-center justify-center text-white relative overflow-hidden ${
                     member.isDeceased ? 'opacity-75' : ''
                   }`}
                   style={{ backgroundColor: getGenerationColor(member.generation) }}
@@ -485,12 +486,12 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                     {/* Legacy Token Indicator */}
                     {member.hasLegacyToken && (
                       <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center ${
-                        member.legacyTokenUsed ? 'bg-green-500' : 'bg-yellow-500'
+                        member.legacyTokenUsed ? 'bg-gold-400' : 'bg-gold-500'
                       }`}>
                         {member.legacyTokenUsed ? (
-                          <Shield className="w-3 h-3 text-white" />
+                          <Shield className="w-3 h-3 text-obsidian-900" />
                         ) : (
-                          <Key className="w-3 h-3 text-white" />
+                          <Key className="w-3 h-3 text-obsidian-900" />
                         )}
                       </div>
                     )}
@@ -498,38 +499,38 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                     {/* Deceased Indicator */}
                     {member.isDeceased && (
                       <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                        <div className="w-1 h-8 bg-white/80 transform rotate-45"></div>
+                        <div className="w-1 h-8 bg-pearl/80 transform rotate-45"></div>
                       </div>
                     )}
 
                     {/* Memory Count */}
-                    <div className="absolute -bottom-1 -left-1 w-6 h-6 bg-modern-coral rounded-full flex items-center justify-center text-xs font-bold text-white">
+                    <div className="absolute -bottom-1 -left-1 w-6 h-6 bg-gold-500 rounded-full flex items-center justify-center text-xs font-bold text-obsidian-900">
                       {member.memories}
                     </div>
                   </div>
 
                   {/* Name Label */}
                   <div className="absolute top-24 left-1/2 transform -translate-x-1/2 text-center">
-                    <div className="bg-white rounded-lg shadow-md px-2 py-1 text-xs font-medium text-gold-900 whitespace-nowrap">
+                    <div className="bg-obsidian-800/90 border border-gold-500/30 rounded-lg shadow-md px-2 py-1 text-xs font-medium text-gold-300 whitespace-nowrap">
                       {member.name}
                     </div>
-                    <div className="text-xs text-gold-600 mt-1">
+                    <div className="text-xs text-gold-400 mt-1">
                       {member.relationship}
                     </div>
                   </div>
 
                   {/* Hover Details */}
                   <motion.div
-                    className="absolute top-28 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-xl p-4 min-w-64 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity z-20"
+                    className="absolute top-28 left-1/2 transform -translate-x-1/2 bg-gradient-to-br from-obsidian-800/95 to-charcoal/95 border border-gold-500/30 rounded-lg shadow-xl p-4 min-w-64 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity z-20"
                     initial={{ y: 10, opacity: 0 }}
                     whileHover={{ y: 0, opacity: 1 }}
                   >
-                    <h4 className="font-semibold text-gold-900 mb-2">{member.name}</h4>
+                    <h4 className="font-semibold text-gold-400 mb-2">{member.name}</h4>
                     
                     <div className="space-y-2 text-sm">
                       {member.birthDate && (
-                        <div className="flex items-center space-x-2 text-gold-600">
-                          <Calendar className="w-3 h-3" />
+                        <div className="flex items-center space-x-2 text-pearl/70">
+                          <Calendar className="w-3 h-3 text-gold-400" />
                           <span>
                             Born: {new Date(member.birthDate).toLocaleDateString()}
                             {member.deathDate && ` - ${new Date(member.deathDate).toLocaleDateString()}`}
@@ -538,33 +539,33 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                       )}
                       
                       {member.birthPlace && (
-                        <div className="flex items-center space-x-2 text-gold-600">
-                          <MapPin className="w-3 h-3" />
+                        <div className="flex items-center space-x-2 text-pearl/70">
+                          <MapPin className="w-3 h-3 text-gold-400" />
                           <span>{member.birthPlace}</span>
                         </div>
                       )}
                       
                       {member.occupation && (
-                        <div className="flex items-center space-x-2 text-gold-600">
-                          <User className="w-3 h-3" />
+                        <div className="flex items-center space-x-2 text-pearl/70">
+                          <User className="w-3 h-3 text-gold-400" />
                           <span>{member.occupation}</span>
                         </div>
                       )}
 
                       {member.bio && (
-                        <p className="text-gold-600 text-xs mt-2">{member.bio}</p>
+                        <p className="text-pearl/70 text-xs mt-2">{member.bio}</p>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-gold-200">
-                      <div className="flex items-center space-x-1 text-xs text-gold-500">
+                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-gold-500/20">
+                      <div className="flex items-center space-x-1 text-xs text-gold-400">
                         <Camera className="w-3 h-3" />
                         <span>{member.memories} memories</span>
                       </div>
                       
                       {member.hasLegacyToken && (
                         <div className={`flex items-center space-x-1 text-xs ${
-                          member.legacyTokenUsed ? 'text-green-600' : 'text-yellow-600'
+                          member.legacyTokenUsed ? 'text-gold-400' : 'text-gold-500'
                         }`}>
                           <Key className="w-3 h-3" />
                           <span>{member.legacyTokenUsed ? 'Token Used' : 'Has Token'}</span>
@@ -588,7 +589,7 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                 onClick={() => setSelectedMember(null)}
               >
                 <motion.div
-                  className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+                  className="bg-gradient-to-br from-obsidian-900/95 to-charcoal/95 border border-gold-500/30 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
@@ -596,12 +597,12 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                 >
                   {/* Modal Header */}
                   <div 
-                    className="p-6 text-white"
-                    style={{ backgroundColor: getGenerationColor(selectedMember.generation) }}
+                    className="p-6 text-pearl border-b border-gold-500/30"
+                    style={{ background: `linear-gradient(135deg, ${getGenerationColor(selectedMember.generation)}40, ${getGenerationColor(selectedMember.generation)}20)` }}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                        <div className="w-16 h-16 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center">
                           {selectedMember.photo ? (
                             <img src={selectedMember.photo} alt={selectedMember.name} className="w-full h-full object-cover rounded-full" />
                           ) : (
@@ -609,15 +610,15 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                           )}
                         </div>
                         <div>
-                          <h3 className="text-2xl font-bold">{selectedMember.name}</h3>
-                          <p className="text-white/80">{selectedMember.relationship}</p>
+                          <h3 className="text-2xl font-serif font-bold text-gold-400">{selectedMember.name}</h3>
+                          <p className="text-pearl/70">{selectedMember.relationship}</p>
                         </div>
                       </div>
                       <button
                         onClick={() => setSelectedMember(null)}
-                        className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                        className="w-8 h-8 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center hover:bg-gold-500/30 transition-colors text-gold-400"
                       >
-                        ×
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -627,10 +628,10 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <div>
-                          <h4 className="font-semibold text-gold-900 mb-2">Personal Information</h4>
+                          <h4 className="font-semibold text-gold-400 mb-2">Personal Information</h4>
                           <div className="space-y-2 text-sm">
                             {selectedMember.birthDate && (
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-2 text-pearl/70">
                                 <Calendar className="w-4 h-4 text-gold-400" />
                                 <span>
                                   Born: {new Date(selectedMember.birthDate).toLocaleDateString()}
@@ -640,14 +641,14 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                             )}
                             
                             {selectedMember.birthPlace && (
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-2 text-pearl/70">
                                 <MapPin className="w-4 h-4 text-gold-400" />
                                 <span>{selectedMember.birthPlace}</span>
                               </div>
                             )}
                             
                             {selectedMember.occupation && (
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-2 text-pearl/70">
                                 <User className="w-4 h-4 text-gold-400" />
                                 <span>{selectedMember.occupation}</span>
                               </div>
@@ -657,18 +658,18 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
 
                         {selectedMember.bio && (
                           <div>
-                            <h4 className="font-semibold text-gold-900 mb-2">Biography</h4>
-                            <p className="text-gold-600 text-sm">{selectedMember.bio}</p>
+                            <h4 className="font-semibold text-gold-400 mb-2">Biography</h4>
+                            <p className="text-pearl/70 text-sm">{selectedMember.bio}</p>
                           </div>
                         )}
 
                         {selectedMember.achievements && selectedMember.achievements.length > 0 && (
                           <div>
-                            <h4 className="font-semibold text-gold-900 mb-2">Achievements</h4>
+                            <h4 className="font-semibold text-gold-400 mb-2">Achievements</h4>
                             <div className="space-y-1">
                               {selectedMember.achievements.map((achievement, index) => (
-                                <div key={index} className="flex items-center space-x-2 text-sm text-gold-600">
-                                  <Star className="w-3 h-3 text-yellow-500" />
+                                <div key={index} className="flex items-center space-x-2 text-sm text-pearl/70">
+                                  <Star className="w-3 h-3 text-gold-400" />
                                   <span>{achievement}</span>
                                 </div>
                               ))}
@@ -679,9 +680,9 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
 
                       <div className="space-y-4">
                         <div>
-                          <h4 className="font-semibold text-gold-900 mb-2">Family Connections</h4>
+                          <h4 className="font-semibold text-gold-400 mb-2">Family Connections</h4>
                           <div className="space-y-2 text-sm">
-                            <div className="text-gold-600">Generation {selectedMember.generation}</div>
+                            <div className="text-pearl/70">Generation {selectedMember.generation}</div>
                             
                             {selectedMember.parents && selectedMember.parents.length > 0 && (
                               <div>
@@ -713,16 +714,16 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                         </div>
 
                         <div>
-                          <h4 className="font-semibold text-gold-900 mb-2">Legacy Status</h4>
+                          <h4 className="font-semibold text-gold-400 mb-2">Legacy Status</h4>
                           <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <Camera className="w-4 h-4 text-modern-blue" />
+                            <div className="flex items-center space-x-2 text-pearl/70">
+                              <Camera className="w-4 h-4 text-gold-400" />
                               <span className="text-sm">{selectedMember.memories} memories preserved</span>
                             </div>
                             
                             {selectedMember.hasLegacyToken && (
                               <div className={`flex items-center space-x-2 ${
-                                selectedMember.legacyTokenUsed ? 'text-green-600' : 'text-yellow-600'
+                                selectedMember.legacyTokenUsed ? 'text-gold-400' : 'text-gold-500'
                               }`}>
                                 <Key className="w-4 h-4" />
                                 <span className="text-sm">
@@ -735,8 +736,8 @@ export default function AnimatedFamilyTree({ isOpen, onClose, members: initialMe
                             )}
                             
                             {selectedMember.isDeceased && (
-                              <div className="flex items-center space-x-2 text-gold-600">
-                                <Heart className="w-4 h-4" />
+                              <div className="flex items-center space-x-2 text-pearl/70">
+                                <Heart className="w-4 h-4 text-gold-400" />
                                 <span className="text-sm">Remembered with love</span>
                               </div>
                             )}
