@@ -1,11 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, Heart, Clock, Image as ImageIcon, Video, FileText, Settings, Lock } from 'lucide-react'
+import { User, Heart, Image as ImageIcon, Video, FileText, Settings, Lock } from 'lucide-react'
 import { PrivacyGate } from '@/components/privacy/PrivacyGate'
 import { useAuth } from '@/contexts/AuthContext'
 import { usePrivacy } from '@/contexts/PrivacyContext'
+import { apiClient } from '@/lib/api-client'
+import { useRouter } from 'next/navigation'
 
 /**
  * Profile Page - Modern profile with stats and legacy intent
@@ -14,15 +16,54 @@ import { usePrivacy } from '@/contexts/PrivacyContext'
 export default function ProfilePage() {
   const { user } = useAuth()
   const { isUnlocked, getRemainingTime } = usePrivacy()
-
-  const stats = [
-    { label: 'Memories', value: '127', icon: ImageIcon },
-    { label: 'Videos', value: '23', icon: Video },
-    { label: 'Letters', value: '8', icon: FileText },
-    { label: 'Favorites', value: '45', icon: Heart },
-  ]
+  const router = useRouter()
+  const [stats, setStats] = useState([
+    { label: 'Memories', value: '0', icon: ImageIcon },
+    { label: 'Videos', value: '0', icon: Video },
+    { label: 'Letters', value: '0', icon: FileText },
+    { label: 'Favorites', value: '0', icon: Heart },
+  ])
+  const [loading, setLoading] = useState(true)
 
   const remainingMinutes = Math.floor(getRemainingTime() / 1000 / 60)
+
+  useEffect(() => {
+    if (!isUnlocked) {
+      setLoading(false)
+      return
+    }
+
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        const vaultStats = await apiClient.getVaultStats()
+        
+        const totalItems = vaultStats.items.total
+        const videoCount = vaultStats.items.byType.video || 0
+        const textCount = vaultStats.items.byType.text || 0
+        
+        const memories = await apiClient.getMemories()
+        const favoriteCount = memories.filter(m => m.importance > 7).length
+        
+        setStats([
+          { label: 'Memories', value: totalItems.toString(), icon: ImageIcon },
+          { label: 'Videos', value: videoCount.toString(), icon: Video },
+          { label: 'Letters', value: textCount.toString(), icon: FileText },
+          { label: 'Favorites', value: favoriteCount.toString(), icon: Heart },
+        ])
+      } catch (error) {
+        console.error('Failed to fetch stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [isUnlocked])
+
+  const handleSettings = () => {
+    router.push('/app')
+  }
 
   return (
     <div className="min-h-screen bg-obsidian-900">
@@ -77,22 +118,29 @@ export default function ProfilePage() {
             transition={{ delay: 0.2 }}
             className="grid grid-cols-2 gap-4 mb-8"
           >
-            {stats.map((stat, index) => {
-              const Icon = stat.icon
-              return (
-                <motion.div
-                  key={stat.label}
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-4 text-center"
-                >
-                  <Icon className="w-6 h-6 text-gold-400 mx-auto mb-2" />
-                  <div className="text-2xl font-serif text-gold-400 mb-1">{stat.value}</div>
-                  <div className="text-xs text-gold-200/70">{stat.label}</div>
-                </motion.div>
-              )
-            })}
+            {loading ? (
+              <div className="col-span-2 text-center py-8">
+                <div className="w-8 h-8 border-4 border-gold-400/30 border-t-gold-400 rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-sm text-gold-200/70">Loading stats...</p>
+              </div>
+            ) : (
+              stats.map((stat, index) => {
+                const Icon = stat.icon
+                return (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
+                    className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-4 text-center"
+                  >
+                    <Icon className="w-6 h-6 text-gold-400 mx-auto mb-2" />
+                    <div className="text-2xl font-serif text-gold-400 mb-1">{stat.value}</div>
+                    <div className="text-xs text-gold-200/70">{stat.label}</div>
+                  </motion.div>
+                )
+              })
+            )}
           </motion.div>
         </PrivacyGate>
 
@@ -144,6 +192,7 @@ export default function ProfilePage() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
+          onClick={handleSettings}
           className="w-full bg-gradient-to-r from-gold-400 to-gold-500 text-obsidian-900 font-medium py-3 rounded-xl flex items-center justify-center gap-2 hover:from-gold-500 hover:to-gold-600 transition-all shadow-lg shadow-gold-400/20 mb-8"
         >
           <Settings className="w-5 h-5" />

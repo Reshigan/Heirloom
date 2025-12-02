@@ -52,11 +52,50 @@ const mockReels: Reel[] = [
  * World-first UX: TikTok-style interaction for private legacy content
  */
 export default function ReelsPage() {
+  const { isUnlocked } = usePrivacy()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
+  const [reels, setReels] = useState<Reel[]>([])
+  const [loading, setLoading] = useState(true)
   const y = useMotionValue(0)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isUnlocked) {
+      setReels([])
+      setLoading(false)
+      return
+    }
+
+    const fetchReels = async () => {
+      try {
+        setLoading(true)
+        const items = await apiClient.getMemories()
+        
+        const transformedReels: Reel[] = items
+          .filter(item => item.type === 'photo' || item.type === 'video')
+          .map(item => ({
+            id: item.id,
+            title: item.title || 'Untitled Memory',
+            description: item.description || '',
+            category: (item.emotion || 'joy') as 'joy' | 'lesson' | 'truth' | 'advice',
+            timestamp: item.date || new Date().toISOString(),
+            mediaType: item.type as 'photo' | 'video',
+            duration: item.type === 'video' ? 60 : undefined,
+          }))
+        
+        setReels(transformedReels)
+      } catch (error) {
+        console.error('Failed to fetch reels:', error)
+        setReels([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchReels()
+  }, [isUnlocked])
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const velocity = info.velocity.y
@@ -85,7 +124,7 @@ export default function ReelsPage() {
       >
         {/* Reels container */}
         <div className="relative h-full">
-          {mockReels.map((reel, index) => {
+          {reels.map((reel, index) => {
             const isActive = index === currentIndex
             const offset = (index - currentIndex) * 100
 
@@ -125,7 +164,7 @@ export default function ReelsPage() {
 
         {/* Progress indicator */}
         <div className="absolute top-20 right-4 flex flex-col gap-1">
-          {mockReels.map((_, index) => (
+          {reels.map((_, index) => (
             <div
               key={index}
               className={`w-1 h-8 rounded-full transition-all ${

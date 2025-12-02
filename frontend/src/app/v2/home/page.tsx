@@ -1,11 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, MessageCircle, Share2, Plus, Filter, Sparkles } from 'lucide-react'
+import { Heart, MessageCircle, Share2, Plus, Sparkles } from 'lucide-react'
 import { PrivacyGate } from '@/components/privacy/PrivacyGate'
 import { LockedImage } from '@/components/privacy/LockedPlaceholder'
 import { usePrivacy } from '@/contexts/PrivacyContext'
+import { apiClient } from '@/lib/api-client'
+import { useRouter } from 'next/navigation'
 
 type EmotionalCategory = 'all' | 'joy' | 'lesson' | 'truth' | 'advice'
 
@@ -20,44 +22,51 @@ interface Memory {
   isFavorite: boolean
 }
 
-// Mock data for demonstration
-const mockMemories: Memory[] = [
-  {
-    id: '1',
-    type: 'photo',
-    title: 'Family Reunion 2024',
-    description: 'An unforgettable day with everyone together',
-    category: 'joy',
-    timestamp: '2024-11-15T10:30:00Z',
-    isFavorite: true,
-  },
-  {
-    id: '2',
-    type: 'text',
-    title: 'Life Lesson: Patience',
-    description: 'What I learned about patience through difficult times',
-    category: 'lesson',
-    timestamp: '2024-11-10T14:20:00Z',
-    isFavorite: false,
-  },
-  {
-    id: '3',
-    type: 'video',
-    title: 'Grandma\'s Recipe',
-    description: 'Recording the secret family recipe for future generations',
-    category: 'advice',
-    timestamp: '2024-11-05T16:45:00Z',
-    isFavorite: true,
-  },
-]
-
 /**
  * Home Feed - Private chronological feed of memories
  * World-first UX: Social media polish for personal legacy content
  */
 export default function HomePage() {
   const { isUnlocked } = usePrivacy()
+  const router = useRouter()
   const [selectedCategory, setSelectedCategory] = useState<EmotionalCategory>('all')
+  const [memories, setMemories] = useState<Memory[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!isUnlocked) {
+      setMemories([])
+      setLoading(false)
+      return
+    }
+
+    const fetchMemories = async () => {
+      try {
+        setLoading(true)
+        const items = await apiClient.getMemories()
+        
+        const transformedMemories: Memory[] = items.map(item => ({
+          id: item.id,
+          type: item.type || 'photo',
+          title: item.title || 'Untitled Memory',
+          description: item.description || '',
+          category: (item.emotion || 'joy') as EmotionalCategory,
+          timestamp: item.date || new Date().toISOString(),
+          thumbnailUrl: item.thumbnail_url,
+          isFavorite: item.importance > 7,
+        }))
+        
+        setMemories(transformedMemories)
+      } catch (error) {
+        console.error('Failed to fetch memories:', error)
+        setMemories([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMemories()
+  }, [isUnlocked])
 
   const categories: { value: EmotionalCategory; label: string; emoji: string }[] = [
     { value: 'all', label: 'All', emoji: '✨' },
@@ -68,8 +77,12 @@ export default function HomePage() {
   ]
 
   const filteredMemories = selectedCategory === 'all' 
-    ? mockMemories 
-    : mockMemories.filter(m => m.category === selectedCategory)
+    ? memories 
+    : memories.filter(m => m.category === selectedCategory)
+
+  const handleCreateMemory = () => {
+    router.push('/app')
+  }
 
   return (
     <div className="min-h-screen bg-obsidian-900">
@@ -78,7 +91,10 @@ export default function HomePage() {
         <div className="px-4 pt-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-serif text-2xl text-gold-400">Your Story</h2>
-            <button className="p-2 bg-gradient-to-r from-gold-400 to-gold-500 rounded-full text-obsidian-900 hover:from-gold-500 hover:to-gold-600 transition-all shadow-lg shadow-gold-400/20">
+            <button 
+              onClick={handleCreateMemory}
+              className="p-2 bg-gradient-to-r from-gold-400 to-gold-500 rounded-full text-obsidian-900 hover:from-gold-500 hover:to-gold-600 transition-all shadow-lg shadow-gold-400/20"
+            >
               <Plus className="w-5 h-5" />
             </button>
           </div>
@@ -106,14 +122,23 @@ export default function HomePage() {
       {/* Memory Feed */}
       <PrivacyGate>
         <div className="px-4 py-6 space-y-6">
-          {filteredMemories.map((memory, index) => (
-            <MemoryCard key={memory.id} memory={memory} index={index} />
-          ))}
-
-          {filteredMemories.length === 0 && (
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="w-12 h-12 border-4 border-gold-400/30 border-t-gold-400 rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-gold-200/70">Loading your memories...</p>
+            </div>
+          ) : filteredMemories.length > 0 ? (
+            filteredMemories.map((memory, index) => (
+              <MemoryCard key={memory.id} memory={memory} index={index} />
+            ))
+          ) : (
             <div className="text-center py-12">
               <Sparkles className="w-12 h-12 text-gold-400/50 mx-auto mb-4" />
-              <p className="text-gold-200/70">No memories in this category yet</p>
+              <p className="text-gold-200/70">
+                {selectedCategory === 'all' 
+                  ? 'No memories yet' 
+                  : 'No memories in this category yet'}
+              </p>
               <p className="text-sm text-gold-200/50 mt-2">Start creating your legacy</p>
             </div>
           )}
