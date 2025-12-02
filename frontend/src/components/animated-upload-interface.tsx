@@ -228,14 +228,14 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
       onClick={onClose}
     >
       <motion.div
-        className="absolute inset-4 bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="absolute inset-4 bg-gradient-to-br from-charcoal via-obsidian to-charcoal rounded-2xl shadow-2xl border border-gold-500/30 overflow-hidden"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-modern-blue via-modern-purple to-modern-coral p-6 text-white">
+        <div className="bg-gradient-to-r from-gold-600/20 via-gold-500/20 to-gold-600/20 border-b border-gold-500/30 p-6 text-pearl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <motion.div
@@ -252,8 +252,8 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                 <Upload className="w-6 h-6" />
               </motion.div>
               <div>
-                <h2 className="text-2xl font-bold">Upload Memories</h2>
-                <p className="text-white/80">
+                <h2 className="text-2xl font-serif font-bold text-gold-400">Upload Memories</h2>
+                <p className="text-pearl/70">
                   {uploadFiles.length > 0 
                     ? `${uploadFiles.filter(f => f.status === 'completed').length}/${uploadFiles.length} files uploaded`
                     : 'Drag & drop or click to upload'
@@ -266,7 +266,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
               {uploadFiles.length > 0 && (
                 <motion.button
                   onClick={handleComplete}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gold-500/20 border border-gold-500/30 rounded-lg hover:bg-gold-500/30 transition-colors text-gold-400"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   disabled={uploadFiles.some(f => f.status !== 'completed')}
@@ -278,24 +278,24 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
               
               <button
                 onClick={onClose}
-                className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                className="w-8 h-8 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center hover:bg-gold-500/30 transition-colors text-gold-400"
               >
-                ×
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
         </div>
 
         {/* Upload Mode Toggle */}
-        <div className="bg-gray-50 border-b border-gray-200 p-4">
+        <div className="bg-obsidian-800/40 border-b border-gold-500/20 p-4">
           <div className="flex items-center justify-between">
-            <div className="flex bg-white border border-gray-300 rounded-lg overflow-hidden">
+            <div className="flex bg-obsidian-900/60 border border-gold-500/20 rounded-lg overflow-hidden">
               <button
                 onClick={() => setUploadMode('single')}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
                   uploadMode === 'single'
-                    ? 'bg-modern-blue text-white'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'bg-gold-500/20 text-gold-400 border-r border-gold-500/30'
+                    : 'text-pearl/60 hover:bg-obsidian-800/40'
                 }`}
               >
                 Single Upload
@@ -304,15 +304,15 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                 onClick={() => setUploadMode('batch')}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
                   uploadMode === 'batch'
-                    ? 'bg-modern-blue text-white'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'bg-gold-500/20 text-gold-400'
+                    : 'text-pearl/60 hover:bg-obsidian-800/40'
                 }`}
               >
                 Batch Upload
               </button>
             </div>
 
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-pearl/60">
               Supported: Images, Videos, Audio, Documents
             </div>
           </div>
@@ -326,8 +326,8 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
               ref={dropZoneRef}
               className={`h-full flex items-center justify-center p-8 transition-colors ${
                 isDragOver 
-                  ? 'bg-modern-blue/10 border-modern-blue' 
-                  : 'bg-gray-50 border-gray-300'
+                  ? 'bg-gold-500/10 border-gold-400' 
+                  : 'bg-obsidian-800/40 border-gold-500/20'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -337,8 +337,8 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
             >
               <div className="text-center max-w-md">
                 <motion.div
-                  className={`w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center ${
-                    isDragOver ? 'bg-modern-blue text-white' : 'bg-gray-200 text-gray-400'
+                  className={`w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center border-2 ${
+                    isDragOver ? 'bg-gold-500/20 border-gold-400 text-gold-400' : 'bg-obsidian-900/60 border-gold-500/30 text-gold-400/60'
                   }`}
                   animate={isDragOver ? { 
                     scale: [1, 1.2, 1],
@@ -349,18 +349,18 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                   <Cloud className="w-12 h-12" />
                 </motion.div>
                 
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-serif font-semibold text-gold-400 mb-2">
                   {isDragOver ? 'Drop files here!' : 'Upload Your Memories'}
                 </h3>
                 
-                <p className="text-gray-600 mb-6">
+                <p className="text-pearl/60 mb-6">
                   Drag and drop files here, or click to browse
                 </p>
 
                 <div className="space-y-4">
                   <motion.button
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full bg-gradient-to-r from-modern-blue to-modern-purple text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transition-all"
+                    className="w-full bg-gradient-to-r from-gold-600 to-gold-500 text-obsidian-900 py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:shadow-gold-400/20 transition-all"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -372,14 +372,14 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
 
                   <div className="grid grid-cols-2 gap-4">
                     {[
-                      { icon: <Camera className="w-5 h-5" />, label: 'Photos', color: 'bg-modern-coral' },
-                      { icon: <Video className="w-5 h-5" />, label: 'Videos', color: 'bg-modern-blue' },
-                      { icon: <Music className="w-5 h-5" />, label: 'Audio', color: 'bg-modern-emerald' },
-                      { icon: <FileText className="w-5 h-5" />, label: 'Documents', color: 'bg-modern-amber' }
+                      { icon: <Camera className="w-5 h-5" />, label: 'Photos', color: 'bg-gold-500/20 border border-gold-500/30 text-gold-400' },
+                      { icon: <Video className="w-5 h-5" />, label: 'Videos', color: 'bg-gold-500/20 border border-gold-500/30 text-gold-400' },
+                      { icon: <Music className="w-5 h-5" />, label: 'Audio', color: 'bg-gold-500/20 border border-gold-500/30 text-gold-400' },
+                      { icon: <FileText className="w-5 h-5" />, label: 'Documents', color: 'bg-gold-500/20 border border-gold-500/30 text-gold-400' }
                     ].map((type, index) => (
                       <motion.div
                         key={type.label}
-                        className={`${type.color} text-white p-3 rounded-lg text-center`}
+                        className={`${type.color} p-3 rounded-lg text-center`}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
@@ -402,18 +402,18 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                 {uploadFiles.map((file, index) => (
                   <motion.div
                     key={file.id}
-                    className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+                    className="bg-obsidian-900/60 border border-gold-500/20 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-gold-500/40 transition-all"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
                     <div className="flex items-start space-x-4">
                       {/* File Preview */}
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      <div className="w-16 h-16 bg-obsidian-800/60 border border-gold-500/20 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {file.preview ? (
                           <img src={file.preview} alt={file.name} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="text-gray-400">
+                          <div className="text-gold-400/60">
                             {getFileIcon(file.type)}
                           </div>
                         )}
@@ -422,7 +422,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                       {/* File Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-gray-900 truncate">{file.name}</h4>
+                          <h4 className="font-medium text-gold-400 truncate">{file.name}</h4>
                           <div className="flex items-center space-x-2">
                             {file.status === 'completed' && (
                               <motion.div
@@ -437,37 +437,37 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                             
                             {file.status === 'processing' && (
                               <motion.div
-                                className="w-6 h-6 bg-modern-blue rounded-full flex items-center justify-center"
+                                className="w-6 h-6 bg-gold-500/20 border border-gold-500/30 rounded-full flex items-center justify-center"
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                               >
-                                <Zap className="w-3 h-3 text-white" />
+                                <Zap className="w-3 h-3 text-gold-400" />
                               </motion.div>
                             )}
 
                             <button
                               onClick={() => removeFile(file.id)}
-                              className="w-6 h-6 text-gray-400 hover:text-red-500 transition-colors"
+                              className="w-6 h-6 text-gold-400/60 hover:text-red-400 transition-colors"
                             >
                               <X className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
 
-                        <div className="text-sm text-gray-600 mb-2">
+                        <div className="text-sm text-pearl/60 mb-2">
                           {formatFileSize(file.size)} • {file.metadata.category}
                         </div>
 
                         {/* Progress Bar */}
                         {file.status === 'uploading' && (
                           <div className="mb-3">
-                            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <div className="flex items-center justify-between text-xs text-pearl/50 mb-1">
                               <span>Uploading...</span>
                               <span>{Math.round(file.progress)}%</span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div className="w-full bg-obsidian-800/60 rounded-full h-2">
                               <motion.div
-                                className="bg-gradient-to-r from-modern-blue to-modern-purple h-2 rounded-full"
+                                className="bg-gradient-to-r from-gold-600 to-gold-500 h-2 rounded-full"
                                 initial={{ width: 0 }}
                                 animate={{ width: `${file.progress}%` }}
                                 transition={{ duration: 0.3 }}
@@ -479,7 +479,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                         {/* Processing Indicator */}
                         {file.status === 'processing' && (
                           <div className="mb-3">
-                            <div className="flex items-center space-x-2 text-sm text-modern-blue">
+                            <div className="flex items-center space-x-2 text-sm text-gold-400">
                               <motion.div
                                 animate={{ scale: [1, 1.2, 1] }}
                                 transition={{ duration: 1, repeat: Infinity }}
@@ -494,7 +494,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                         {/* Metadata Form */}
                         {file.status === 'completed' && (
                           <motion.div
-                            className="space-y-3 pt-3 border-t border-gray-200"
+                            className="space-y-3 pt-3 border-t border-gold-500/20"
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             transition={{ delay: 0.5 }}
@@ -505,14 +505,14 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                                 placeholder="Title"
                                 value={file.metadata.title}
                                 onChange={(e) => updateFileMetadata(file.id, { title: e.target.value })}
-                                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                                className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-sm text-gold-100 placeholder-gold-400/40 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
                               />
                               
                               <input
                                 type="date"
                                 value={file.metadata.date}
                                 onChange={(e) => updateFileMetadata(file.id, { date: e.target.value })}
-                                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                                className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-sm text-gold-100 placeholder-gold-400/40 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
                               />
                             </div>
 
@@ -520,7 +520,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                               placeholder="Description"
                               value={file.metadata.description}
                               onChange={(e) => updateFileMetadata(file.id, { description: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                              className="w-full px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-sm text-gold-100 placeholder-gold-400/40 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
                               rows={2}
                             />
 
@@ -530,7 +530,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                                 placeholder="Location"
                                 value={file.metadata.location}
                                 onChange={(e) => updateFileMetadata(file.id, { location: e.target.value })}
-                                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                                className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-sm text-gold-100 placeholder-gold-400/40 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
                               />
                               
                               <input
@@ -540,7 +540,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                                 onChange={(e) => updateFileMetadata(file.id, { 
                                   tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
                                 })}
-                                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-modern-blue focus:border-transparent"
+                                className="px-3 py-2 bg-obsidian-800/60 border border-gold-500/20 rounded-lg text-sm text-gold-100 placeholder-gold-400/40 focus:ring-2 focus:ring-gold-400/20 focus:border-gold-400/60"
                               />
                             </div>
 
@@ -550,14 +550,14 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                                   type="checkbox"
                                   checked={file.metadata.isPrivate}
                                   onChange={(e) => updateFileMetadata(file.id, { isPrivate: e.target.checked })}
-                                  className="rounded border-gray-300 text-modern-blue focus:ring-modern-blue"
+                                  className="rounded border-gold-500/30 text-gold-500 focus:ring-gold-400/20 bg-obsidian-800/60"
                                 />
-                                <span className="text-sm text-gray-700">Private memory</span>
+                                <span className="text-sm text-pearl/70">Private memory</span>
                               </label>
 
                               <div className="flex items-center space-x-2">
                                 <motion.button
-                                  className="p-2 text-gray-400 hover:text-modern-blue transition-colors"
+                                  className="p-2 text-gold-400/60 hover:text-gold-400 transition-colors"
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                 >
@@ -565,7 +565,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
                                 </motion.button>
                                 
                                 <motion.button
-                                  className="p-2 text-gray-400 hover:text-modern-emerald transition-colors"
+                                  className="p-2 text-gold-400/60 hover:text-gold-400 transition-colors"
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                 >
@@ -584,7 +584,7 @@ export default function AnimatedUploadInterface({ isOpen, onClose, onUploadCompl
               {/* Add More Files Button */}
               <motion.button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full mt-6 border-2 border-dashed border-gray-300 rounded-xl p-6 text-gray-600 hover:border-modern-blue hover:text-modern-blue transition-colors"
+                className="w-full mt-6 border-2 border-dashed border-gold-500/30 rounded-xl p-6 text-gold-400/60 hover:border-gold-400 hover:text-gold-400 transition-colors"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
