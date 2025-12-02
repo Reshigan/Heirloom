@@ -25,7 +25,8 @@ import {
   // Ring, // Not available in lucide-react
   Cake,
   Plane,
-  Gift
+  Gift,
+  X
 } from 'lucide-react'
 
 interface TimelineEvent {

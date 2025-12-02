@@ -18,7 +18,8 @@ import {
   QrCode,
   Download,
   Eye,
-  EyeOff
+  EyeOff,
+  X
 } from 'lucide-react'
 
 interface LegacyToken {
