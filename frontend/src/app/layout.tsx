@@ -3,6 +3,7 @@ import { Bodoni_Moda, Montserrat } from 'next/font/google';
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext'
 import { VaultProvider } from '@/contexts/VaultContext'
+import { PrivacyProvider } from '@/contexts/PrivacyContext'
 import { NotificationProvider } from '@/contexts/NotificationContext'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { Toaster } from 'react-hot-toast';
@@ -51,8 +52,9 @@ export default function RootLayout({
         <ErrorBoundary>
           <AuthProvider>
             <VaultProvider>
-              <NotificationProvider>
-                <Toaster
+              <PrivacyProvider>
+                <NotificationProvider>
+                  <Toaster
                   position="top-right"
                   toastOptions={{
                     duration: 4000,
@@ -76,10 +78,11 @@ export default function RootLayout({
                     },
                   }}
                 />
-                <main className="max-w-screen-2xl mx-auto">
-                  {children}
-                </main>
-              </NotificationProvider>
+                  <main className="max-w-screen-2xl mx-auto">
+                    {children}
+                  </main>
+                </NotificationProvider>
+              </PrivacyProvider>
             </VaultProvider>
           </AuthProvider>
         </ErrorBoundary>
