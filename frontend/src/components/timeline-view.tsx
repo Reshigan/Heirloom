@@ -236,7 +236,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedMemberId, onEventSe
                           {getEventIcon(event.type)}
                           
                           {/* Significance Indicator */}
-                          <div className={`absolute -top-1 -right-1 ${getSignificanceSize(event.significance)} bg-white rounded-full border-2 border-obsidian-900`}></div>
+                          <div className={`absolute -top-1 -right-1 ${getSignificanceSize(event.significance)} bg-gold-400 rounded-full border-2 border-obsidian-900`}></div>
                         </div>
                         
                         {/* Event Content */}
