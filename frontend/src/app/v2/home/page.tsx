@@ -68,12 +68,12 @@ export default function HomePage() {
     fetchMemories()
   }, [isUnlocked])
 
-  const categories: { value: EmotionalCategory; label: string; emoji: string }[] = [
-    { value: 'all', label: 'All', emoji: '✨' },
-    { value: 'joy', label: 'Joy', emoji: '😊' },
-    { value: 'lesson', label: 'Lessons', emoji: '📚' },
-    { value: 'truth', label: 'Truths', emoji: '💭' },
-    { value: 'advice', label: 'Advice', emoji: '💡' },
+  const categories: { value: EmotionalCategory; label: string }[] = [
+    { value: 'all', label: 'All' },
+    { value: 'joy', label: 'Joy' },
+    { value: 'lesson', label: 'Lessons' },
+    { value: 'truth', label: 'Truths' },
+    { value: 'advice', label: 'Advice' },
   ]
 
   const filteredMemories = selectedCategory === 'all' 
@@ -89,11 +89,11 @@ export default function HomePage() {
       {/* Header with filters */}
       <div className="sticky top-16 z-40 bg-gradient-to-b from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl border-b border-gold-500/10 pb-4">
         <div className="px-4 pt-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-2xl text-gold-400">Your Story</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-serif text-3xl text-gold-400 tracking-tight">Your Story</h2>
             <button 
               onClick={handleCreateMemory}
-              className="p-2 bg-gradient-to-r from-gold-400 to-gold-500 rounded-full text-obsidian-900 hover:from-gold-500 hover:to-gold-600 transition-all shadow-lg shadow-gold-400/20"
+              className="p-2.5 bg-gold-400/10 border border-gold-500/30 rounded-full text-gold-400 hover:bg-gold-400/15 hover:border-gold-500/40 transition-all duration-200"
             >
               <Plus className="w-5 h-5" />
             </button>
@@ -105,14 +105,13 @@ export default function HomePage() {
               <button
                 key={cat.value}
                 onClick={() => setSelectedCategory(cat.value)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
+                className={`px-4 py-2 rounded-full whitespace-nowrap transition-all duration-200 ${
                   selectedCategory === cat.value
-                    ? 'bg-gold-400/20 border-2 border-gold-500/50 text-gold-400'
-                    : 'bg-obsidian-800/40 border border-gold-500/20 text-gold-200/70 hover:border-gold-500/40'
+                    ? 'bg-gold-400/15 border border-gold-500/40 text-gold-400'
+                    : 'bg-obsidian-800/30 border border-gold-500/15 text-gold-200/60 hover:border-gold-500/30 hover:text-gold-200/80'
                 }`}
               >
-                <span>{cat.emoji}</span>
-                <span className="text-sm font-medium">{cat.label}</span>
+                <span className="text-sm font-medium tracking-wide">{cat.label}</span>
               </button>
             ))}
           </div>
