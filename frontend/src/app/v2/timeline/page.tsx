@@ -84,16 +84,16 @@ export default function TimelinePage() {
   return (
     <div className="min-h-screen bg-obsidian-900">
       {/* Header */}
-      <div className="sticky top-16 z-40 bg-gradient-to-b from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl border-b border-gold-500/10 pb-4">
-        <div className="px-4 pt-4">
-          <h2 className="font-serif text-3xl text-gold-400 tracking-tight mb-2">Life Story</h2>
+      <div className="sticky top-16 z-40 bg-gradient-to-b from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl pb-4">
+        <div className="max-w-[700px] mx-auto px-4 pt-6">
+          <h2 className="font-serif text-4xl text-gold-400 tracking-tight leading-tight mb-2">Life Story</h2>
           <p className="text-sm text-gold-200/60">Your journey through time</p>
         </div>
       </div>
 
       {/* Timeline */}
       <PrivacyGate>
-        <div className="relative px-4 py-8">
+        <div className="relative max-w-[700px] mx-auto px-4 py-8">
           {/* Vertical line */}
           <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-gold-400/50 via-gold-400/30 to-transparent" />
 
@@ -153,7 +153,7 @@ function TimelineEventCard({ event, index }: { event: TimelineEvent; index: numb
       <motion.div
         layout
         onClick={() => setIsExpanded(!isExpanded)}
-        className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl overflow-hidden shadow-xl cursor-pointer hover:border-gold-500/40 transition-all"
+        className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl rounded-2xl overflow-hidden shadow-[0_8px_24px_-12px_rgba(212,175,55,0.15)] hover:shadow-[0_12px_32px_-12px_rgba(212,175,55,0.25)] cursor-pointer transition-all"
       >
         <div className="p-4">
           {/* Header */}

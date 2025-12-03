@@ -73,7 +73,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Content */}
-      <div className="relative px-4 -mt-16">
+      <div className="relative max-w-[700px] mx-auto px-4 -mt-16">
         {/* Avatar */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -138,7 +138,7 @@ export default function ProfilePage() {
                       damping: 30
                     }}
                     whileHover={{ y: -2 }}
-                    className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-5 text-center hover:border-gold-500/30 transition-all duration-200"
+                    className="bg-obsidian-800/40 backdrop-blur-xl rounded-2xl p-5 text-center shadow-[0_8px_24px_-12px_rgba(212,175,55,0.15)] hover:shadow-[0_12px_32px_-12px_rgba(212,175,55,0.25)] transition-all duration-200"
                   >
                     <Icon className="w-6 h-6 text-gold-400 mx-auto mb-3" strokeWidth={1.5} />
                     <div className="text-3xl font-serif text-gold-400 mb-1 tracking-tight">{stat.value}</div>
