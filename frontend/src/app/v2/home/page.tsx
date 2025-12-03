@@ -154,14 +154,20 @@ function MemoryCard({ memory, index }: { memory: Memory; index: number }) {
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl overflow-hidden shadow-xl"
+      transition={{ 
+        delay: index * 0.08,
+        type: 'spring',
+        stiffness: 300,
+        damping: 30
+      }}
+      whileHover={{ y: -4 }}
+      className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl overflow-hidden hover:border-gold-500/30 transition-all duration-200"
     >
       {/* Header */}
-      <div className="px-4 py-3 flex items-center justify-between border-b border-gold-500/10">
+      <div className="px-5 py-4 flex items-center justify-between border-b border-gold-500/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-gold-400 to-gold-500 rounded-full flex items-center justify-center text-obsidian-900 font-serif font-bold">
-            You
+          <div className="w-10 h-10 bg-gold-400/10 border border-gold-500/30 rounded-full flex items-center justify-center text-gold-400 font-serif font-semibold text-sm">
+            Y
           </div>
           <div>
             <p className="text-sm font-medium text-gold-100">Your Memory</p>
@@ -174,15 +180,15 @@ function MemoryCard({ memory, index }: { memory: Memory; index: number }) {
             </p>
           </div>
         </div>
-        <span className="text-xs px-2 py-1 bg-gold-400/10 border border-gold-500/30 rounded-full text-gold-400 capitalize">
+        <span className="text-xs px-3 py-1 bg-gold-400/10 border border-gold-500/25 rounded-full text-gold-400 capitalize font-medium">
           {memory.category}
         </span>
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h3 className="font-serif text-xl text-gold-400 mb-2">{memory.title}</h3>
-        <p className="text-gold-200/80 leading-relaxed mb-4">{memory.description}</p>
+      <div className="p-5">
+        <h3 className="font-serif text-xl text-gold-400 mb-2 leading-tight">{memory.title}</h3>
+        <p className="text-gold-200/70 leading-relaxed text-[15px] mb-4">{memory.description}</p>
 
         {/* Media placeholder */}
         {memory.type === 'photo' || memory.type === 'video' ? (
@@ -193,25 +199,35 @@ function MemoryCard({ memory, index }: { memory: Memory; index: number }) {
       </div>
 
       {/* Actions */}
-      <div className="px-4 py-3 border-t border-gold-500/10 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
+      <div className="px-5 py-4 border-t border-gold-500/10 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <motion.button
             onClick={() => setIsLiked(!isLiked)}
-            className="flex items-center gap-2 text-gold-200/70 hover:text-gold-400 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 text-gold-200/60 hover:text-gold-400 transition-colors duration-150"
           >
             <Heart
-              className={`w-5 h-5 ${isLiked ? 'fill-gold-400 text-gold-400' : ''}`}
+              className={`w-5 h-5 transition-all duration-150 ${isLiked ? 'fill-gold-400 text-gold-400' : ''}`}
             />
-            <span className="text-sm">Favorite</span>
-          </button>
-          <button className="flex items-center gap-2 text-gold-200/70 hover:text-gold-400 transition-colors">
+            <span className="text-sm font-medium">Favorite</span>
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 text-gold-200/60 hover:text-gold-400 transition-colors duration-150"
+          >
             <MessageCircle className="w-5 h-5" />
-            <span className="text-sm">Reflect</span>
-          </button>
+            <span className="text-sm font-medium">Reflect</span>
+          </motion.button>
         </div>
-        <button className="text-gold-200/70 hover:text-gold-400 transition-colors">
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="text-gold-200/60 hover:text-gold-400 transition-colors duration-150"
+        >
           <Share2 className="w-5 h-5" />
-        </button>
+        </motion.button>
       </div>
     </motion.article>
   )
