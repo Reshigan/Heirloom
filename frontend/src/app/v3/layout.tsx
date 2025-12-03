@@ -49,7 +49,7 @@ const navItems: NavItem[] = [
 export default function V3Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { isUnlocked, unlock, lock, getRemainingTime } = usePrivacy()
+  const { isUnlocked, lockVault, getRemainingTime } = usePrivacy()
   const { user } = useAuth()
   const [showMobileMenu, setShowMobileMenu] = React.useState(false)
 
@@ -57,7 +57,7 @@ export default function V3Layout({ children }: { children: React.ReactNode }) {
 
   const handleLockToggle = () => {
     if (isUnlocked) {
-      lock()
+      lockVault()
     } else {
       router.push('/v3/unlock')
     }
@@ -100,7 +100,7 @@ export default function V3Layout({ children }: { children: React.ReactNode }) {
                     : 'text-ink/70 hover:bg-navy-50/50 hover:text-navy-500'
                 }`}
               >
-                <Icon className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} />
+                <Icon className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm">{item.label}</span>
                 {isLocked && <Lock className="w-3 h-3 ml-auto" />}
               </button>
@@ -120,7 +120,7 @@ export default function V3Layout({ children }: { children: React.ReactNode }) {
           >
             {isUnlocked ? (
               <>
-                <Unlock className="w-5 h-5" strokeWidth={1.5} />
+                <Unlock className="w-5 h-5" />
                 <div className="flex-1 text-left">
                   <p className="text-sm font-medium">Unlocked</p>
                   <p className="text-xs opacity-70">{remainingMinutes}m remaining</p>
@@ -128,7 +128,7 @@ export default function V3Layout({ children }: { children: React.ReactNode }) {
               </>
             ) : (
               <>
-                <Lock className="w-5 h-5" strokeWidth={1.5} />
+                <Lock className="w-5 h-5" />
                 <span className="text-sm font-medium">Unlock Vault</span>
               </>
             )}
@@ -191,7 +191,7 @@ export default function V3Layout({ children }: { children: React.ReactNode }) {
                         : 'text-ink/70 hover:bg-navy-50/50'
                     }`}
                   >
-                    <Icon className="w-5 h-5" strokeWidth={1.5} />
+                    <Icon className="w-5 h-5" />
                     <span className="text-sm">{item.label}</span>
                     {isLocked && <Lock className="w-3 h-3 ml-auto" />}
                   </button>

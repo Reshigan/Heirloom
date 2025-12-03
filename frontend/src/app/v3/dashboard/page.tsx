@@ -64,11 +64,15 @@ export default function DashboardPage() {
         
         const vaultStats = await apiClient.getVaultStats()
         
+        const itemsTotal = typeof vaultStats.items?.total === 'number' ? vaultStats.items.total : 0
+        const storageUsed = typeof vaultStats.storage?.used === 'number' ? vaultStats.storage.used : 0
+        const storageLimit = typeof vaultStats.storage?.limit === 'number' ? vaultStats.storage.limit : 10737418240
+        
         setStats(prev => ({
           ...prev,
-          itemsCount: vaultStats.items?.total || 0,
-          storageUsed: vaultStats.storage?.used || 0,
-          storageLimit: vaultStats.storage?.limit || 10737418240,
+          itemsCount: itemsTotal,
+          storageUsed: storageUsed,
+          storageLimit: storageLimit,
         }))
       } catch (error) {
         console.error('Failed to fetch dashboard stats:', error)

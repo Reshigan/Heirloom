@@ -112,9 +112,9 @@ export default function ComposePage() {
                         }`}
                       >
                         {isCompleted ? (
-                          <Check className="w-5 h-5" strokeWidth={2} />
+                          <Check className="w-5 h-5" />
                         ) : (
-                          <Icon className="w-5 h-5" strokeWidth={1.5} />
+                          <Icon className="w-5 h-5" />
                         )}
                       </div>
                       <span

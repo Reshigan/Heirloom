@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 import { Lock, Shield, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { usePrivacy } from '@/contexts/PrivacyContext'
+import { useVault } from '@/contexts/VaultContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 /**
  * V3 Unlock Page - Dignified vault unlock
@@ -17,7 +19,9 @@ import { usePrivacy } from '@/contexts/PrivacyContext'
 
 export default function UnlockPage() {
   const router = useRouter()
-  const { unlock, isUnlocked } = usePrivacy()
+  const { isUnlocked } = usePrivacy()
+  const { initializeVault } = useVault()
+  const { user } = useAuth()
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -35,7 +39,12 @@ export default function UnlockPage() {
     setLoading(true)
 
     try {
-      await unlock(password)
+      if (!user?.email) {
+        setError('User not authenticated. Please log in again.')
+        return
+      }
+      
+      await initializeVault(password, user.email)
       router.push('/v3/dashboard')
     } catch (err) {
       setError('Incorrect password. Please try again.')
