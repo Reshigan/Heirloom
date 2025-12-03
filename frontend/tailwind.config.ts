@@ -119,12 +119,41 @@ const config: Config = {
         charcoal: '#1A1A1A',
         smoke: '#2A2A2A',
         pearl: '#FFF8E7',
+        
+        paper: '#F7F5F2',
+        ink: '#0B0D13',
+        divider: '#E8E5E1',
+        navy: {
+          50: '#F0F2F5',
+          100: '#D9DEE6',
+          200: '#B3BDD3',
+          300: '#8C9CBF',
+          400: '#667BAC',
+          500: '#1E2A44',
+          600: '#182238',
+          700: '#12192C',
+          800: '#0C1120',
+          900: '#060914',
+        },
+        sage: {
+          50: '#F4F6F5',
+          100: '#E3E8E5',
+          200: '#C7D1CB',
+          300: '#ABBAB1',
+          400: '#8FA397',
+          500: '#6E8B7E',
+          600: '#586F65',
+          700: '#42534C',
+          800: '#2C3733',
+          900: '#161B19',
+        },
       },
       
       // Typography from specification
       fontFamily: {
         'serif': ['Bodoni Moda', 'serif'],          // Elegant, timeless headlines (futuristic luxury)
         'sans': ['Montserrat', 'sans-serif'],       // Clean, modern UI (futuristic luxury)
+        'body': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'], // V3 body text
         'story': ['Crimson Pro', 'serif'],          // Readable, warm stories
         'handwritten': ['Kalam', 'cursive'],        // Personal notes
         'timestamp': ['IBM Plex Mono', 'monospace'], // Precision of time
@@ -155,6 +184,12 @@ const config: Config = {
         '18': '4.5rem',
         '88': '22rem',
         '128': '32rem',
+      },
+      
+      maxWidth: {
+        'reading': '960px',
+        'narrow': '640px',
+        'wide': '1280px',
       },
       
       // Border radius for organic, warm feeling
