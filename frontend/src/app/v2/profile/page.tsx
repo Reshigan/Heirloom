@@ -131,12 +131,18 @@ export default function ProfilePage() {
                     key={stat.label}
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                    className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-4 text-center"
+                    transition={{ 
+                      delay: 0.3 + index * 0.08,
+                      type: 'spring',
+                      stiffness: 300,
+                      damping: 30
+                    }}
+                    whileHover={{ y: -2 }}
+                    className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-5 text-center hover:border-gold-500/30 transition-all duration-200"
                   >
-                    <Icon className="w-6 h-6 text-gold-400 mx-auto mb-2" />
-                    <div className="text-2xl font-serif text-gold-400 mb-1">{stat.value}</div>
-                    <div className="text-xs text-gold-200/70">{stat.label}</div>
+                    <Icon className="w-6 h-6 text-gold-400 mx-auto mb-3" strokeWidth={1.5} />
+                    <div className="text-3xl font-serif text-gold-400 mb-1 tracking-tight">{stat.value}</div>
+                    <div className="text-xs text-gold-200/60 font-medium">{stat.label}</div>
                   </motion.div>
                 )
               })
@@ -152,37 +158,61 @@ export default function ProfilePage() {
             transition={{ delay: 0.6 }}
             className="mb-8"
           >
-            <h2 className="font-serif text-xl text-gold-400 mb-4">Legacy Intent</h2>
+            <h2 className="font-serif text-2xl text-gold-400 mb-4 tracking-tight">Legacy Intent</h2>
             <div className="space-y-3">
-              <div className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-4">
+              <motion.div 
+                whileHover={{ x: 2 }}
+                className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-4 hover:border-gold-500/30 transition-all duration-200"
+              >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gold-200/70">Letters to Future Generations</span>
-                  <span className="text-lg font-serif text-gold-400">8</span>
+                  <span className="text-sm text-gold-200/60 font-medium">Letters to Future Generations</span>
+                  <span className="text-xl font-serif text-gold-400 tracking-tight">8</span>
                 </div>
-                <div className="w-full bg-obsidian-800/50 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-gold-400 to-gold-500 h-2 rounded-full" style={{ width: '40%' }} />
+                <div className="w-full bg-obsidian-800/60 rounded-full h-1.5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: '40%' }}
+                    transition={{ duration: 1, delay: 0.7 }}
+                    className="bg-gold-400/80 h-1.5 rounded-full" 
+                  />
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-4">
+              <motion.div 
+                whileHover={{ x: 2 }}
+                className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-4 hover:border-gold-500/30 transition-all duration-200"
+              >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gold-200/70">Life Lessons Documented</span>
-                  <span className="text-lg font-serif text-gold-400">15</span>
+                  <span className="text-sm text-gold-200/60 font-medium">Life Lessons Documented</span>
+                  <span className="text-xl font-serif text-gold-400 tracking-tight">15</span>
                 </div>
-                <div className="w-full bg-obsidian-800/50 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-gold-400 to-gold-500 h-2 rounded-full" style={{ width: '60%' }} />
+                <div className="w-full bg-obsidian-800/60 rounded-full h-1.5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: '60%' }}
+                    transition={{ duration: 1, delay: 0.8 }}
+                    className="bg-gold-400/80 h-1.5 rounded-full" 
+                  />
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-gradient-to-br from-charcoal/50 to-obsidian-800/50 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-4">
+              <motion.div 
+                whileHover={{ x: 2 }}
+                className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-4 hover:border-gold-500/30 transition-all duration-200"
+              >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gold-200/70">Family Stories Preserved</span>
-                  <span className="text-lg font-serif text-gold-400">32</span>
+                  <span className="text-sm text-gold-200/60 font-medium">Family Stories Preserved</span>
+                  <span className="text-xl font-serif text-gold-400 tracking-tight">32</span>
                 </div>
-                <div className="w-full bg-obsidian-800/50 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-gold-400 to-gold-500 h-2 rounded-full" style={{ width: '80%' }} />
+                <div className="w-full bg-obsidian-800/60 rounded-full h-1.5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: '80%' }}
+                    transition={{ duration: 1, delay: 0.9 }}
+                    className="bg-gold-400/80 h-1.5 rounded-full" 
+                  />
                 </div>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </PrivacyGate>
