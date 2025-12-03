@@ -85,15 +85,15 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-obsidian-900">
+    <div className="min-h-screen bg-obsidian-900 pb-24">
       {/* Header with filters */}
-      <div className="sticky top-16 z-40 bg-gradient-to-b from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl border-b border-gold-500/10 pb-4">
-        <div className="px-4 pt-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-serif text-3xl text-gold-400 tracking-tight">Your Story</h2>
+      <div className="sticky top-16 z-40 bg-gradient-to-b from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl pb-4">
+        <div className="max-w-[700px] mx-auto px-4 pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-serif text-4xl text-gold-400 tracking-tight leading-tight">Your Story</h2>
             <button 
               onClick={handleCreateMemory}
-              className="p-2.5 bg-gold-400/10 border border-gold-500/30 rounded-full text-gold-400 hover:bg-gold-400/15 hover:border-gold-500/40 transition-all duration-200"
+              className="p-2.5 bg-gold-400/10 rounded-full text-gold-400 hover:bg-gold-400/15 transition-all duration-200 shadow-inner"
             >
               <Plus className="w-5 h-5" />
             </button>
@@ -105,13 +105,13 @@ export default function HomePage() {
               <button
                 key={cat.value}
                 onClick={() => setSelectedCategory(cat.value)}
-                className={`px-4 py-2 rounded-full whitespace-nowrap transition-all duration-200 ${
+                className={`px-3 py-1.5 rounded-full backdrop-blur-md border whitespace-nowrap transition-all duration-200 text-sm font-medium ${
                   selectedCategory === cat.value
-                    ? 'bg-gold-400/15 border border-gold-500/40 text-gold-400'
-                    : 'bg-obsidian-800/30 border border-gold-500/15 text-gold-200/60 hover:border-gold-500/30 hover:text-gold-200/80'
+                    ? 'bg-gold-400/10 border-gold-500/30 text-gold-400 shadow-inner'
+                    : 'bg-obsidian-900/60 border-gold-500/15 text-gold-200/80 hover:text-gold-400 hover:border-gold-500/30'
                 }`}
               >
-                <span className="text-sm font-medium tracking-wide">{cat.label}</span>
+                {cat.label}
               </button>
             ))}
           </div>
@@ -120,11 +120,11 @@ export default function HomePage() {
 
       {/* Memory Feed */}
       <PrivacyGate>
-        <div className="px-4 py-6 space-y-6">
+        <div className="max-w-[700px] mx-auto px-4 py-6 space-y-6">
           {loading ? (
             <div className="text-center py-12">
               <div className="w-12 h-12 border-4 border-gold-400/30 border-t-gold-400 rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-gold-200/70">Loading your memories...</p>
+              <p className="text-gold-200/70 text-sm">Loading your memories...</p>
             </div>
           ) : filteredMemories.length > 0 ? (
             filteredMemories.map((memory, index) => (
@@ -133,12 +133,12 @@ export default function HomePage() {
           ) : (
             <div className="text-center py-12">
               <Sparkles className="w-12 h-12 text-gold-400/50 mx-auto mb-4" />
-              <p className="text-gold-200/70">
+              <p className="text-gold-200/70 text-sm">
                 {selectedCategory === 'all' 
                   ? 'No memories yet' 
                   : 'No memories in this category yet'}
               </p>
-              <p className="text-sm text-gold-200/50 mt-2">Start creating your legacy</p>
+              <p className="text-xs text-gold-200/50 mt-2">Start creating your legacy</p>
             </div>
           )}
         </div>
@@ -161,12 +161,12 @@ function MemoryCard({ memory, index }: { memory: Memory; index: number }) {
         damping: 30
       }}
       whileHover={{ y: -4 }}
-      className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl overflow-hidden hover:border-gold-500/30 transition-all duration-200"
+      className="bg-obsidian-800/40 backdrop-blur-xl rounded-2xl overflow-hidden shadow-[0_8px_24px_-12px_rgba(212,175,55,0.15)] hover:shadow-[0_12px_32px_-12px_rgba(212,175,55,0.25)] transition-all duration-200"
     >
       {/* Header */}
-      <div className="px-5 py-4 flex items-center justify-between border-b border-gold-500/10">
+      <div className="px-5 py-4 flex items-center justify-between border-b border-gold-500/5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gold-400/10 border border-gold-500/30 rounded-full flex items-center justify-center text-gold-400 font-serif font-semibold text-sm">
+          <div className="w-10 h-10 bg-gold-400/10 rounded-full flex items-center justify-center text-gold-400 font-serif font-semibold text-sm shadow-inner">
             Y
           </div>
           <div>
@@ -180,7 +180,7 @@ function MemoryCard({ memory, index }: { memory: Memory; index: number }) {
             </p>
           </div>
         </div>
-        <span className="text-xs px-3 py-1 bg-gold-400/10 border border-gold-500/25 rounded-full text-gold-400 capitalize font-medium">
+        <span className="text-xs px-3 py-1 bg-gold-400/10 backdrop-blur-md rounded-full text-gold-400 capitalize font-medium shadow-inner">
           {memory.category}
         </span>
       </div>
@@ -199,7 +199,7 @@ function MemoryCard({ memory, index }: { memory: Memory; index: number }) {
       </div>
 
       {/* Actions */}
-      <div className="px-5 py-4 border-t border-gold-500/10 flex items-center justify-between">
+      <div className="px-5 py-4 border-t border-gold-500/5 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <motion.button
             onClick={() => setIsLiked(!isLiked)}

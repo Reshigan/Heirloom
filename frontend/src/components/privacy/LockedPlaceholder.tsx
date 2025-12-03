@@ -34,6 +34,9 @@ export function LockedPlaceholder({
       }}
       className={`flex flex-col items-center justify-center p-12 ${className}`}
     >
+      {/* Radial background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.08),transparent_60%)]" />
+      
       {/* Constellation ring with animated lock */}
       <div className="relative mb-8">
         {/* Outer ring with rotation */}
@@ -44,7 +47,7 @@ export function LockedPlaceholder({
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute inset-0 w-24 h-24 -left-2 -top-2"
+          className="absolute inset-0 w-36 h-36 -left-4 -top-4"
         >
           <svg viewBox="0 0 100 100" className="w-full h-full">
             <circle
@@ -53,14 +56,14 @@ export function LockedPlaceholder({
               r="48"
               fill="none"
               stroke="url(#goldGradient)"
-              strokeWidth="0.5"
-              strokeDasharray="4 4"
-              opacity="0.3"
+              strokeWidth="1"
+              strokeDasharray="2 6"
+              opacity="0.4"
             />
             <defs>
               <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#D4AF37" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#D4AF37" stopOpacity="0.1" />
+                <stop offset="0%" stopColor="#D4AF37" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#D4AF37" stopOpacity="0.15" />
               </linearGradient>
             </defs>
           </svg>
@@ -69,22 +72,22 @@ export function LockedPlaceholder({
         {/* Pulsing glow */}
         <motion.div
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.4, 0.2],
+            scale: [1, 1.3, 1],
+            opacity: [0.15, 0.3, 0.15],
           }}
           transition={{
             duration: 2.5,
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute inset-0 bg-gold-400/20 rounded-full blur-xl"
+          className="absolute inset-0 bg-gold-400/20 rounded-full blur-2xl"
         />
 
         {/* Lock icon container */}
-        <div className="relative w-20 h-20 bg-obsidian-800/60 border border-gold-500/25 rounded-full flex items-center justify-center backdrop-blur-sm">
+        <div className="relative w-32 h-32 bg-obsidian-800/60 rounded-full flex items-center justify-center backdrop-blur-sm shadow-[0_8px_24px_-12px_rgba(212,175,55,0.25)]">
           <motion.div
             animate={{ 
-              y: [0, -2, 0],
+              y: [0, -3, 0],
             }}
             transition={{
               duration: 2,
@@ -92,23 +95,23 @@ export function LockedPlaceholder({
               ease: "easeInOut"
             }}
           >
-            <Lock className="w-9 h-9 text-gold-400" strokeWidth={1.5} />
+            <Lock className="w-14 h-14 text-gold-400" strokeWidth={1.5} />
           </motion.div>
         </div>
       </div>
 
       {/* Title */}
-      <h3 className="font-serif text-2xl text-gold-400 mb-2 tracking-tight">
+      <h3 className="font-serif text-3xl sm:text-4xl text-gold-400 mb-3 tracking-tight leading-tight relative">
         {title}
       </h3>
 
       {/* Description */}
-      <p className="text-gold-200/60 text-center max-w-md mb-6 text-sm leading-relaxed">
+      <p className="text-gold-200/60 text-center max-w-md mb-8 text-sm leading-relaxed relative">
         {description}
       </p>
 
       {/* Security badge */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-gold-400/5 border border-gold-500/20 rounded-full">
+      <div className="flex items-center gap-2 px-4 py-2 bg-gold-400/5 rounded-full shadow-inner relative">
         <Shield className="w-4 h-4 text-gold-400" strokeWidth={1.5} />
         <span className="text-xs text-gold-200/60 uppercase tracking-wider font-medium">
           End-to-End Encrypted

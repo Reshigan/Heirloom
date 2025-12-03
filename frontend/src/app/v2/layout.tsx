@@ -40,9 +40,9 @@ export default function V2Layout({
       <motion.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-50 bg-gradient-to-b from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl border-b border-gold-500/10"
+        className="sticky top-0 z-50 bg-gradient-to-b from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl"
       >
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="max-w-[700px] mx-auto px-4 py-3 flex items-center justify-between">
           <div>
             <h1 className="font-serif text-xl text-gold-400 tracking-tight">Heirloom</h1>
             <p className="text-xs text-gold-200/60">Your Legacy Vault</p>
@@ -51,7 +51,7 @@ export default function V2Layout({
           {/* Lock Status */}
           <button
             onClick={handleLockClick}
-            className="flex items-center gap-2 px-3 py-2 bg-gold-400/10 border border-gold-500/30 rounded-full hover:bg-gold-400/15 hover:border-gold-500/40 transition-all duration-200"
+            className="flex items-center gap-2 px-3 py-2 bg-gold-400/10 rounded-full hover:bg-gold-400/15 transition-all duration-200 shadow-inner"
           >
             <Lock className={`w-4 h-4 ${isUnlocked ? 'text-green-400' : 'text-gold-400'}`} />
             <span className="text-xs text-gold-200/60">
@@ -66,13 +66,13 @@ export default function V2Layout({
         {children}
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation - Floating */}
       <motion.nav
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-obsidian-900 via-obsidian-900/95 to-transparent backdrop-blur-xl border-t border-gold-500/10"
+        className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 w-[min(640px,calc(100%-24px))] rounded-2xl bg-obsidian-900/70 backdrop-blur-xl border border-gold-500/15 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.5)]"
       >
-        <div className="flex items-center justify-around px-4 py-3">
+        <div className="flex items-center justify-around px-6 py-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href
             const Icon = item.icon
@@ -81,24 +81,25 @@ export default function V2Layout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="relative flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all"
+                className="relative flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all min-w-[48px] min-h-[48px] justify-center"
               >
                 {/* Active indicator */}
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute inset-0 bg-gold-400/10 border border-gold-500/30 rounded-xl"
+                    className="absolute inset-0 bg-gold-400/10 rounded-xl"
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
                 )}
                 
                 <Icon
-                  className={`w-5 h-5 relative z-10 transition-colors ${
+                  className={`w-6 h-6 relative z-10 transition-colors ${
                     isActive ? 'text-gold-400' : 'text-gold-200/50'
                   }`}
+                  strokeWidth={1.5}
                 />
                 <span
-                  className={`text-xs relative z-10 transition-colors ${
+                  className={`text-[10px] relative z-10 transition-colors font-medium ${
                     isActive ? 'text-gold-400' : 'text-gold-200/50'
                   }`}
                 >
