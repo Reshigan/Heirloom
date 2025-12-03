@@ -21,7 +21,7 @@ export default function UnlockPage() {
   const router = useRouter()
   const { isUnlocked } = usePrivacy()
   const { initializeVault } = useVault()
-  const { user } = useAuth()
+  const { user, vmkSalt } = useAuth()
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -33,18 +33,32 @@ export default function UnlockPage() {
     }
   }, [isUnlocked, router])
 
+  React.useEffect(() => {
+    if (!user) {
+      router.push('/app')
+    }
+  }, [user, router])
+
   const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      if (!user?.email) {
-        setError('User not authenticated. Please log in again.')
+      if (!user) {
+        setError('Please sign in to unlock your vault.')
+        setLoading(false)
+        setTimeout(() => router.push('/app'), 2000)
+        return
+      }
+
+      if (!vmkSalt) {
+        setError('Vault salt not found. Please sign out and sign in again to retrieve your vault credentials.')
+        setLoading(false)
         return
       }
       
-      await initializeVault(password, user.email)
+      await initializeVault(password, vmkSalt)
       router.push('/v3/dashboard')
     } catch (err) {
       setError('Incorrect password. Please try again.')
@@ -69,14 +83,28 @@ export default function UnlockPage() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="font-serif text-3xl text-navy-500 mb-2">Vault is Locked</h1>
+          <h1 className="font-serif text-3xl text-navy-500 mb-2">Unlock Your Vault</h1>
           <p className="text-ink/60">
-            Enter your password to access your private vault
+            {user ? 'Enter your password to access your private vault' : 'Please sign in to continue'}
           </p>
         </div>
 
+        {/* Sign In CTA if not authenticated */}
+        {!user && (
+          <div className="bg-navy-50 border border-navy-200 rounded-lg p-6 mb-6 text-center">
+            <p className="text-ink/70 mb-4">You need to sign in before unlocking your vault.</p>
+            <button
+              onClick={() => router.push('/app')}
+              className="px-6 py-3 bg-navy-500 text-white rounded-lg font-medium hover:bg-navy-600 transition-colors"
+            >
+              Sign in to unlock
+            </button>
+          </div>
+        )}
+
         {/* Unlock Form */}
-        <form onSubmit={handleUnlock} className="bg-white rounded-lg border border-divider p-6 mb-6">
+        {user && (
+          <form onSubmit={handleUnlock} className="bg-white rounded-lg border border-divider p-6 mb-6">
           <div className="mb-6">
             <label htmlFor="password" className="block text-sm font-medium text-ink mb-2">
               Password
@@ -121,6 +149,7 @@ export default function UnlockPage() {
             {loading ? 'Unlocking...' : 'Unlock Vault'}
           </button>
         </form>
+        )}
 
         {/* Security Information */}
         <div className="bg-sage-50 border border-sage-200 rounded-lg p-6">

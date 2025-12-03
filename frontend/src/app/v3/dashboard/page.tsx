@@ -124,6 +124,40 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Authentication Banner */}
+      {!user && (
+        <div className="bg-navy-50 border-b border-navy-200">
+          <div className="max-w-wide mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <p className="text-ink/70">Please sign in to access your vault</p>
+              <button
+                onClick={() => router.push('/app')}
+                className="px-4 py-2 bg-navy-500 text-white rounded-lg font-medium hover:bg-navy-600 transition-colors text-sm"
+              >
+                Sign in to unlock
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unlock Banner */}
+      {user && !isUnlocked && (
+        <div className="bg-yellow-50 border-b border-yellow-200">
+          <div className="max-w-wide mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <p className="text-ink/70">Your vault is locked. Unlock to view private content.</p>
+              <button
+                onClick={() => router.push('/v3/unlock')}
+                className="px-4 py-2 bg-navy-500 text-white rounded-lg font-medium hover:bg-navy-600 transition-colors text-sm"
+              >
+                Unlock Vault
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div className="max-w-wide mx-auto px-6 py-8">
         {loading ? (

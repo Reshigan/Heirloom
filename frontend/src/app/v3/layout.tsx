@@ -59,7 +59,11 @@ export default function V3Layout({ children }: { children: React.ReactNode }) {
     if (isUnlocked) {
       lockVault()
     } else {
-      router.push('/v3/unlock')
+      if (!user) {
+        router.push('/app')
+      } else {
+        router.push('/v3/unlock')
+      }
     }
   }
 
@@ -129,7 +133,9 @@ export default function V3Layout({ children }: { children: React.ReactNode }) {
             ) : (
               <>
                 <Lock className="w-5 h-5" />
-                <span className="text-sm font-medium">Unlock Vault</span>
+                <span className="text-sm font-medium">
+                  {user ? 'Unlock Vault' : 'Sign in to unlock'}
+                </span>
               </>
             )}
           </button>
