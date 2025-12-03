@@ -162,7 +162,7 @@ export default function ProfilePage() {
             <div className="space-y-3">
               <motion.div 
                 whileHover={{ x: 2 }}
-                className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-4 hover:border-gold-500/30 transition-all duration-200"
+                className="bg-obsidian-800/40 backdrop-blur-xl rounded-2xl p-4 shadow-[0_8px_24px_-12px_rgba(212,175,55,0.15)] hover:shadow-[0_12px_32px_-12px_rgba(212,175,55,0.25)] transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gold-200/60 font-medium">Letters to Future Generations</span>
@@ -180,7 +180,7 @@ export default function ProfilePage() {
 
               <motion.div 
                 whileHover={{ x: 2 }}
-                className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-4 hover:border-gold-500/30 transition-all duration-200"
+                className="bg-obsidian-800/40 backdrop-blur-xl rounded-2xl p-4 shadow-[0_8px_24px_-12px_rgba(212,175,55,0.15)] hover:shadow-[0_12px_32px_-12px_rgba(212,175,55,0.25)] transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gold-200/60 font-medium">Life Lessons Documented</span>
@@ -198,7 +198,7 @@ export default function ProfilePage() {
 
               <motion.div 
                 whileHover={{ x: 2 }}
-                className="bg-obsidian-800/40 backdrop-blur-xl border border-gold-500/15 rounded-2xl p-4 hover:border-gold-500/30 transition-all duration-200"
+                className="bg-obsidian-800/40 backdrop-blur-xl rounded-2xl p-4 shadow-[0_8px_24px_-12px_rgba(212,175,55,0.15)] hover:shadow-[0_12px_32px_-12px_rgba(212,175,55,0.25)] transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gold-200/60 font-medium">Family Stories Preserved</span>
