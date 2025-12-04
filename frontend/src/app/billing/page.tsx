@@ -120,21 +120,9 @@ const BillingPage: React.FC = () => {
   const currentPlan = subscription?.plan || 'free'
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Constellation Background */}
-      <div className="luxury-bg" />
-      <div className="elegant-grid" />
-      
-      {/* Navigation */}
-      <nav className="luxury-nav">
-        <div className="logo">HEIRLOOM</div>
-        <ul className="nav-menu">
-          <li className="nav-item" onClick={() => window.location.href = '/app'}>Memories</li>
-          <li className="nav-item" onClick={() => window.location.href = '/billing'}>Billing</li>
-        </ul>
-      </nav>
-      
-      <div className="container mx-auto px-4 py-32 max-w-7xl">
+    <div className="container mx-auto px-4 py-32 max-w-7xl">
+      {/* Background handled by AppShell */}
+      <div>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

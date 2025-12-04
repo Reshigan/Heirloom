@@ -256,10 +256,7 @@ export default function ConstellationInterface() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Refined Background */}
-      <div className="luxury-bg" />
-      <div className="elegant-grid" />
+    <div className="container mx-auto px-4 py-12">{/* Content wrapper - background handled by AppShell */}
 
       {/* Golden Dust Particles */}
       <div id="particles">
@@ -275,18 +272,6 @@ export default function ConstellationInterface() {
           />
         ))}
       </div>
-
-      {/* Sophisticated Navigation */}
-      <nav className="luxury-nav">
-        <div className="logo">HEIRLOOM</div>
-        <ul className="nav-menu">
-          <li className="nav-item" onClick={() => setCurrentView('memories')}>Memories</li>
-          <li className="nav-item" onClick={() => setCurrentView('timeline')}>Timeline</li>
-          <li className="nav-item" onClick={() => setCurrentView('heritage')}>Heritage</li>
-          <li className="nav-item" onClick={() => setCurrentView('wisdom')}>Wisdom</li>
-          <li className="nav-item" onClick={() => setCurrentView('family')}>Family</li>
-        </ul>
-      </nav>
 
       {/* Main Heritage Container */}
       <div className="heritage-container">
