@@ -1,11 +1,11 @@
 'use client';
 
-import FuturisticHeirloomInterface from '@/components/futuristic-heirloom-interface';
+import ConstellationInterface from '@/components/constellation-interface';
 
 export default function Home() {
   return (
     <div className="relative">
-      <FuturisticHeirloomInterface />
+      <ConstellationInterface />
     </div>
   );
 }
