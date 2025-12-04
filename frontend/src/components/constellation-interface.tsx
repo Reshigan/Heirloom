@@ -413,11 +413,12 @@ export default function ConstellationInterface() {
         />
       )}
       
-      {showUploadModal && (
+      {showUploadModal && vaultEncryption && (
         <VaultUploadModal
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
-          onUploadSuccess={handleUploadSuccess}
+          onSuccess={handleUploadSuccess}
+          vaultEncryption={vaultEncryption}
         />
       )}
     </div>
