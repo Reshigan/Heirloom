@@ -2,8 +2,6 @@ import { Router } from 'express';
 import { prisma } from '../db';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
-import archiver from 'archiver';
-import { Readable } from 'stream';
 
 const router = Router();
 
@@ -23,9 +21,9 @@ router.get('/export', async (req: AuthRequest, res, next) => {
           include: {
             items: true,
             recipients: true,
-            trustedContacts: true,
           },
         },
+        trustedContacts: true,
         checkIns: true,
         notifications: true,
       },
@@ -39,10 +37,10 @@ router.get('/export', async (req: AuthRequest, res, next) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
         createdAt: user.createdAt,
         status: user.status,
-        notificationSettings: user.notificationSettings,
+        lastCheckIn: user.lastCheckIn,
+        nextCheckIn: user.nextCheckIn,
       },
       vault: user.vault ? {
         id: user.vault.id,
@@ -50,38 +48,41 @@ router.get('/export', async (req: AuthRequest, res, next) => {
         createdAt: user.vault.createdAt,
         uploadCountThisWeek: user.vault.uploadCountThisWeek,
         uploadLimitWeekly: user.vault.uploadLimitWeekly,
-        items: user.vault.items.map(item => ({
+        storageUsedBytes: user.vault.storageUsedBytes.toString(),
+        storageLimitBytes: user.vault.storageLimitBytes.toString(),
+        items: user.vault.items.map((item: any) => ({
           id: item.id,
           title: item.title,
-          description: item.description,
           type: item.type,
           createdAt: item.createdAt,
-          fileSizeBytes: item.fileSizeBytes,
-          mimeType: item.mimeType,
-          tags: item.tags,
+          fileSizeBytes: item.fileSizeBytes?.toString(),
+          emotionCategory: item.emotionCategory,
+          sentimentLabel: item.sentimentLabel,
         })),
-        recipients: user.vault.recipients.map(r => ({
+        recipients: user.vault.recipients.map((r: any) => ({
           id: r.id,
           email: r.email,
           name: r.name,
           relationship: r.relationship,
           createdAt: r.createdAt,
         })),
-        trustedContacts: user.vault.trustedContacts.map(tc => ({
-          id: tc.id,
-          email: tc.email,
-          name: tc.name,
-          createdAt: tc.createdAt,
-        })),
       } : null,
-      checkIns: user.checkIns.map(ci => ({
+      trustedContacts: user.trustedContacts.map((tc: any) => ({
+        id: tc.id,
+        email: tc.email,
+        name: tc.name,
+        phone: tc.phone,
+        verificationStatus: tc.verificationStatus,
+        createdAt: tc.createdAt,
+      })),
+      checkIns: user.checkIns.map((ci: any) => ({
         id: ci.id,
         sentAt: ci.sentAt,
         respondedAt: ci.respondedAt,
         missed: ci.missed,
       })),
-      notifications: user.notifications.map(n => ({
-        id: n.id,
+      notifications: user.notifications.map((n: any) => ({
+        id: n.id.toString(),
         type: n.type,
         title: n.title,
         body: n.body,

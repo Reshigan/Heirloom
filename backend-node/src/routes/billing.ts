@@ -8,9 +8,7 @@ import { TIER_POLICIES } from '../config/tierPolicies';
 
 const router = Router();
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-11-20.acacia',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 const STRIPE_PRICE_TO_TIER: Record<string, string> = {
   [process.env.STRIPE_PRICE_STARTER || '']: 'starter',
@@ -47,14 +45,17 @@ router.post('/create-checkout-session', async (req: AuthRequest, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { vault: true },
+      include: { 
+        vault: true,
+        subscriptions: true,
+      },
     });
 
     if (!user) {
       throw new AppError(404, 'User not found');
     }
 
-    let customerId = user.stripeCustomerId;
+    let customerId = user.subscriptions[0]?.stripeCustomerId;
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
@@ -63,10 +64,26 @@ router.post('/create-checkout-session', async (req: AuthRequest, res, next) => {
         },
       });
       customerId = customer.id;
-      await prisma.user.update({
-        where: { id: userId },
-        data: { stripeCustomerId: customerId },
+      
+      const existingSub = await prisma.subscription.findFirst({
+        where: { userId: userId },
       });
+      
+      if (existingSub) {
+        await prisma.subscription.update({
+          where: { id: existingSub.id },
+          data: { stripeCustomerId: customerId },
+        });
+      } else {
+        await prisma.subscription.create({
+          data: {
+            userId: userId,
+            stripeCustomerId: customerId,
+            tier: tier,
+            status: 'active',
+          },
+        });
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -105,14 +122,15 @@ router.post('/create-portal-session', async (req: AuthRequest, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: { subscriptions: true },
     });
 
-    if (!user || !user.stripeCustomerId) {
+    if (!user || !user.subscriptions[0]?.stripeCustomerId) {
       throw new AppError(400, 'No active subscription found');
     }
 
     const session = await stripe.billingPortal.sessions.create({
-      customer: user.stripeCustomerId,
+      customer: user.subscriptions[0].stripeCustomerId,
       return_url: `${process.env.FRONTEND_URL}/billing`,
     });
 
@@ -135,6 +153,7 @@ router.get('/subscription', async (req: AuthRequest, res, next) => {
       where: { id: userId },
       include: {
         vault: true,
+        subscriptions: true,
       },
     });
 
@@ -143,16 +162,17 @@ router.get('/subscription', async (req: AuthRequest, res, next) => {
     }
 
     let subscriptionData = null;
+    const userSubscription = user.subscriptions[0];
 
-    if (user.stripeCustomerId && user.stripeSubscriptionId) {
+    if (userSubscription?.stripeCustomerId && userSubscription?.stripeSubscriptionId) {
       try {
-        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        const subscription = await stripe.subscriptions.retrieve(userSubscription.stripeSubscriptionId);
         subscriptionData = {
           id: subscription.id,
           status: subscription.status,
-          currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+          currentPeriodEnd: new Date((subscription as any).current_period_end * 1000).toISOString(),
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
-          tier: user.vault?.tier || 'free',
+          tier: user.vault?.tier || 'starter',
         };
       } catch (error) {
         console.error('Error fetching Stripe subscription:', error);
@@ -160,9 +180,9 @@ router.get('/subscription', async (req: AuthRequest, res, next) => {
     }
 
     res.json({
-      tier: user.vault?.tier || 'free',
+      tier: user.vault?.tier || 'starter',
       subscription: subscriptionData,
-      limits: TIER_POLICIES[user.vault?.tier || 'free'],
+      limits: TIER_POLICIES[user.vault?.tier || 'starter'],
     });
   } catch (error) {
     next(error);
@@ -256,19 +276,35 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     where: { userId },
     data: {
       tier,
-      storageLimit: tierPolicy.storageLimitGB * 1024 * 1024 * 1024, // Convert GB to bytes
-      uploadLimitWeekly: tierPolicy.uploadLimitWeekly,
-      uploadLimitMonthly: tierPolicy.uploadLimitMonthly,
+      storageLimitBytes: BigInt(tierPolicy.storageLimitGB * 1024 * 1024 * 1024), // Convert GB to bytes
+      uploadLimitWeekly: tierPolicy.weeklyUploadLimit,
     },
   });
 
   if (session.subscription) {
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        stripeSubscriptionId: session.subscription as string,
-      },
+    const existingSub = await prisma.subscription.findFirst({
+      where: { userId },
     });
+    
+    if (existingSub) {
+      await prisma.subscription.update({
+        where: { id: existingSub.id },
+        data: {
+          stripeSubscriptionId: session.subscription as string,
+          tier,
+          status: 'active',
+        },
+      });
+    } else {
+      await prisma.subscription.create({
+        data: {
+          userId,
+          stripeSubscriptionId: session.subscription as string,
+          tier,
+          status: 'active',
+        },
+      });
+    }
   }
 
   console.log(`Checkout completed for user ${userId}, tier: ${tier}`);
@@ -280,17 +316,18 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
 
-  const user = await prisma.user.findFirst({
+  const userSubscription = await prisma.subscription.findFirst({
     where: { stripeCustomerId: customerId },
+    include: { user: true },
   });
 
-  if (!user) {
-    console.error('User not found for customer:', customerId);
+  if (!userSubscription) {
+    console.error('Subscription not found for customer:', customerId);
     return;
   }
 
   const priceId = subscription.items.data[0]?.price.id;
-  const tier = STRIPE_PRICE_TO_TIER[priceId] || 'free';
+  const tier = STRIPE_PRICE_TO_TIER[priceId] || 'starter';
 
   const tierPolicy = TIER_POLICIES[tier];
   if (!tierPolicy) {
@@ -299,23 +336,25 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   }
 
   await prisma.vault.update({
-    where: { userId: user.id },
+    where: { userId: userSubscription.userId },
     data: {
       tier,
-      storageLimit: tierPolicy.storageLimitGB * 1024 * 1024 * 1024,
-      uploadLimitWeekly: tierPolicy.uploadLimitWeekly,
-      uploadLimitMonthly: tierPolicy.uploadLimitMonthly,
+      storageLimitBytes: BigInt(tierPolicy.storageLimitGB * 1024 * 1024 * 1024),
+      uploadLimitWeekly: tierPolicy.weeklyUploadLimit,
     },
   });
 
-  await prisma.user.update({
-    where: { id: user.id },
+  await prisma.subscription.update({
+    where: { id: userSubscription.id },
     data: {
       stripeSubscriptionId: subscription.id,
+      tier,
+      status: subscription.status,
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
     },
   });
 
-  console.log(`Subscription updated for user ${user.id}, tier: ${tier}, status: ${subscription.status}`);
+  console.log(`Subscription updated for user ${userSubscription.userId}, tier: ${tier}, status: ${subscription.status}`);
 }
 
 /**
@@ -324,35 +363,37 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
 
-  const user = await prisma.user.findFirst({
+  const userSubscription = await prisma.subscription.findFirst({
     where: { stripeCustomerId: customerId },
+    include: { user: true },
   });
 
-  if (!user) {
-    console.error('User not found for customer:', customerId);
+  if (!userSubscription) {
+    console.error('Subscription not found for customer:', customerId);
     return;
   }
 
-  const freeTierPolicy = TIER_POLICIES['free'];
+  const starterTierPolicy = TIER_POLICIES['starter'];
 
   await prisma.vault.update({
-    where: { userId: user.id },
+    where: { userId: userSubscription.userId },
     data: {
-      tier: 'free',
-      storageLimit: freeTierPolicy.storageLimitGB * 1024 * 1024 * 1024,
-      uploadLimitWeekly: freeTierPolicy.uploadLimitWeekly,
-      uploadLimitMonthly: freeTierPolicy.uploadLimitMonthly,
+      tier: 'starter',
+      storageLimitBytes: BigInt(starterTierPolicy.storageLimitGB * 1024 * 1024 * 1024),
+      uploadLimitWeekly: starterTierPolicy.weeklyUploadLimit,
     },
   });
 
-  await prisma.user.update({
-    where: { id: user.id },
+  await prisma.subscription.update({
+    where: { id: userSubscription.id },
     data: {
       stripeSubscriptionId: null,
+      tier: 'starter',
+      status: 'cancelled',
     },
   });
 
-  console.log(`Subscription deleted for user ${user.id}, downgraded to free tier`);
+  console.log(`Subscription deleted for user ${userSubscription.userId}, downgraded to starter tier`);
 }
 
 export default router;
