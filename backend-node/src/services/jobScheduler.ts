@@ -2,6 +2,7 @@ import { prisma } from '../db';
 import { NotificationService } from './notifications';
 import { UnlockService } from './unlock';
 import { notificationService } from './NotificationService';
+import { reminderService } from './reminderService';
 import * as cron from 'node-cron';
 
 export class JobScheduler {
@@ -56,10 +57,38 @@ export class JobScheduler {
     });
     this.tasks.push(unlockRequestsTask);
 
+    // Schedule posting reminders (daily at 9 AM UTC)
+    const postingRemindersTask = cron.schedule('0 9 * * *', async () => {
+      console.log('📝 Running posting reminders processor...');
+      try {
+        await reminderService.processPostingReminders();
+      } catch (error) {
+        console.error('❌ Error processing posting reminders:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.tasks.push(postingRemindersTask);
+
+    // Schedule usage limit notifications (daily at 10 AM UTC)
+    const usageLimitTask = cron.schedule('0 10 * * *', async () => {
+      console.log('📊 Running usage limit notifications processor...');
+      try {
+        await reminderService.processUsageLimitNotifications();
+      } catch (error) {
+        console.error('❌ Error processing usage limit notifications:', error);
+      }
+    }, {
+      timezone: 'UTC'
+    });
+    this.tasks.push(usageLimitTask);
+
     console.log('✅ All scheduled jobs registered with node-cron');
     console.log('   - Missed check-ins: Every 6 hours');
     console.log('   - Weekly upload reset: Mondays at midnight UTC');
     console.log('   - Unlock requests: Hourly');
+    console.log('   - Posting reminders: Daily at 9 AM UTC');
+    console.log('   - Usage limit notifications: Daily at 10 AM UTC');
   }
 
   async stop() {
