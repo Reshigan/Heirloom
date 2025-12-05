@@ -22,6 +22,8 @@ import analyticsRoutes from './routes/analytics';
 import storyReelsRoutes from './routes/story-reels';
 import afterImGoneLettersRoutes from './routes/after-im-gone-letters';
 import memorialPagesRoutes from './routes/memorial-pages';
+import gdprRoutes from './routes/gdpr';
+import billingRoutes from './routes/billing';
 import { errorHandler } from './middleware/errorHandler';
 import { auditLogger } from './middleware/auditLogger';
 import {
@@ -99,6 +101,8 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/story-reels', storyReelsRoutes);
 app.use('/api/after-im-gone-letters', afterImGoneLettersRoutes);
 app.use('/api/memorial-pages', memorialPagesRoutes);
+app.use('/api/gdpr', gdprRoutes);
+app.use('/api/billing', billingRoutes);
 
 app.use(sentryErrorHandler());
 

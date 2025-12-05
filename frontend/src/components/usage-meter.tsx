@@ -255,8 +255,8 @@ export function UsageMeter({ compact = false, showUpgrade = true }: UsageMeterPr
           </h4>
           <p className="text-sm text-pearl/70 mb-4">
             {usage.monthlyLimitReached
-              ? 'You've reached your monthly limit. Upgrade to keep preserving your precious memories!'
-              : 'You're approaching your monthly limit. Upgrade now to ensure you never miss capturing a moment.'}
+              ? "You've reached your monthly limit. Upgrade to keep preserving your precious memories!"
+              : "You're approaching your monthly limit. Upgrade now to ensure you never miss capturing a moment."}
           </p>
           <Link
             href="/billing?upgrade=true"

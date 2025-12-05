@@ -58,11 +58,26 @@ const BillingPage: React.FC = () => {
   const handleUpgrade = async (plan: string) => {
     try {
       setCheckoutLoading(plan)
-      console.log('Upgrade to plan:', plan)
-      alert('Stripe integration coming soon! Please contact support to upgrade.')
-      setCheckoutLoading(null)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/billing/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('heirloom_token')}`,
+        },
+        body: JSON.stringify({ tier: plan }),
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session')
+      }
+      
+      const data = await response.json()
+      if (data.url) {
+        window.location.href = data.url
+      }
     } catch (error) {
       console.error('Failed to create checkout session:', error)
+      alert('Failed to start checkout. Please try again or contact support.')
       setCheckoutLoading(null)
     }
   }
@@ -70,51 +85,103 @@ const BillingPage: React.FC = () => {
   const handleManageBilling = async () => {
     try {
       setCheckoutLoading('portal')
-      console.log('Manage billing')
-      alert('Stripe integration coming soon! Please contact support to manage billing.')
-      setCheckoutLoading(null)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/billing/create-portal-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('heirloom_token')}`,
+        },
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to create portal session')
+      }
+      
+      const data = await response.json()
+      if (data.url) {
+        window.location.href = data.url
+      }
     } catch (error) {
       console.error('Failed to create portal session:', error)
+      alert('Failed to open billing portal. Please try again or contact support.')
       setCheckoutLoading(null)
     }
   }
 
   const plans = [
     {
-      id: 'free',
-      name: 'Free',
-      price: '$0',
-      period: 'forever',
+      id: 'starter',
+      name: 'Starter',
+      price: '$9',
+      period: 'per month',
       description: 'Perfect for getting started with your family memories',
       features: [
-        'Up to 100 memories',
+        '10GB storage',
+        '3 uploads per week',
+        '10 uploads per month',
         'Basic photo & video storage',
-        'Simple timeline view',
-        'Mobile app access',
         'Email support'
       ],
       icon: Cloud,
       color: 'from-pearl/20 to-pearl/10'
     },
     {
-      id: 'premium',
-      name: 'Premium Family',
+      id: 'family',
+      name: 'Family',
       price: '$19',
       period: 'per month',
       description: 'Everything you need for a complete family archive',
       features: [
-        'Unlimited memories',
+        '50GB storage',
+        '10 uploads per week',
+        '50 uploads per month',
         'Advanced AI curation',
         'Time capsules & highlights',
-        'Bulk import wizard',
         'Weekly digest emails',
         'Priority support',
-        'Encrypted storage',
-        'Family collaboration'
+        'Encrypted storage'
       ],
-      icon: Crown,
+      icon: Users,
       color: 'from-gold/30 to-gold/20',
       popular: true
+    },
+    {
+      id: 'unlimited',
+      name: 'Unlimited',
+      price: '$49',
+      period: 'per month',
+      description: 'For power users who need unlimited everything',
+      features: [
+        '500GB storage',
+        '50 uploads per week',
+        '200 uploads per month',
+        'All Family features',
+        'Bulk import wizard',
+        'Family collaboration',
+        'Premium support',
+        'Advanced analytics'
+      ],
+      icon: Crown,
+      color: 'from-gold/40 to-gold/30'
+    },
+    {
+      id: 'lifetime',
+      name: 'Lifetime',
+      price: '$999',
+      period: 'one-time',
+      description: 'Pay once, preserve forever',
+      features: [
+        '1TB storage',
+        '100 uploads per week',
+        '500 uploads per month',
+        'All Unlimited features',
+        'Lifetime access',
+        'Priority support forever',
+        'Early access to new features',
+        'Legacy guarantee'
+      ],
+      icon: Sparkles,
+      color: 'from-gold/50 to-gold/40'
     }
   ]
 

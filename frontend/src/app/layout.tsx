@@ -6,6 +6,7 @@ import { VaultProvider } from '@/contexts/VaultContext'
 import { PrivacyProvider } from '@/contexts/PrivacyContext'
 import { NotificationProvider } from '@/contexts/NotificationContext'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { CookieBanner } from '@/components/cookie-banner'
 import { Toaster } from 'react-hot-toast';
 
 const bodoniModa = Bodoni_Moda({ 
@@ -81,6 +82,7 @@ export default function RootLayout({
                   <main className="max-w-screen-2xl mx-auto">
                     {children}
                   </main>
+                  <CookieBanner />
                 </NotificationProvider>
               </PrivacyProvider>
             </VaultProvider>

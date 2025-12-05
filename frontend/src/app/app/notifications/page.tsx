@@ -26,7 +26,7 @@ export default function NotificationsPage() {
   const handleMarkAllAsSeen = async () => {
     try {
       setLoading(true)
-      await apiClient.post('/notifications/mark-all-seen')
+      await apiClient.post('/notifications/mark-all-seen', {})
       await refreshNotifications()
     } catch (error) {
       console.error('Failed to mark all as seen:', error)
