@@ -19,14 +19,10 @@ export function AppShell({ children }: AppShellProps) {
     { href: '/app', label: 'Memories', testId: 'nav-memories' },
     { href: '/app/recipients', label: 'Recipients', testId: 'nav-recipients' },
     { href: '/app/check-in', label: 'Check-in', testId: 'nav-checkin' },
-    { href: '/app/family', label: 'Family', testId: 'nav-family' },
     { href: '/app/highlights', label: 'Highlights', testId: 'nav-highlights' },
     { href: '/app/time-capsules', label: 'Time Capsules', testId: 'nav-time-capsules' },
     { href: '/app/search', label: 'Search', testId: 'nav-search' },
     { href: '/app/notifications', label: 'Notifications', testId: 'nav-notifications' },
-    { href: '/app/letters', label: 'Letters', testId: 'nav-letters' },
-    { href: '/app/reels', label: 'Reels', testId: 'nav-reels' },
-    { href: '/app/memorial', label: 'Memorial', testId: 'nav-memorial' },
     { href: '/billing', label: 'Billing', testId: 'nav-billing' },
   ]
 
