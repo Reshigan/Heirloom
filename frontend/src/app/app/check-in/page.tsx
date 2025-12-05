@@ -10,6 +10,8 @@ export default function CheckInPage() {
   const [status, setStatus] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [checking, setChecking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     loadStatus()
@@ -18,10 +20,12 @@ export default function CheckInPage() {
   const loadStatus = async () => {
     try {
       setLoading(true)
+      setError(null)
       const data = await apiClient.getCheckInStatus()
       setStatus(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load check-in status:', error)
+      setError(error.message || 'Failed to load check-in status')
     } finally {
       setLoading(false)
     }
@@ -30,10 +34,14 @@ export default function CheckInPage() {
   const handleCheckIn = async () => {
     try {
       setChecking(true)
-      await apiClient.performCheckIn()
+      setError(null)
+      setSuccess(null)
+      const result = await apiClient.performCheckIn()
+      setSuccess(result.message || 'Check-in successful!')
       await loadStatus()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to perform check-in:', error)
+      setError(error.message || 'Failed to perform check-in')
     } finally {
       setChecking(false)
     }
@@ -59,8 +67,28 @@ export default function CheckInPage() {
         <GoldCard>
           <div className="text-center py-12 text-pearl/50">Loading status...</div>
         </GoldCard>
+      ) : error ? (
+        <GoldCard>
+          <div className="text-center py-12">
+            <AlertCircle className="mx-auto mb-4 text-red-400" size={48} />
+            <p className="text-xl text-pearl/70 mb-2">Failed to load status</p>
+            <p className="text-sm text-pearl/50 mb-4">{error}</p>
+            <GoldButton onClick={loadStatus} variant="primary">
+              Try Again
+            </GoldButton>
+          </div>
+        </GoldCard>
       ) : (
         <>
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded text-pearl"
+            >
+              {success}
+            </motion.div>
+          )}
           {/* Status Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

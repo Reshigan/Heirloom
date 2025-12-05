@@ -225,6 +225,12 @@ class APIClient {
     return this.request('/recipients');
   }
 
+  async deleteRecipient(id: string): Promise<{ success: boolean; message: string }> {
+    return this.request(`/recipients/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   async addTrustedContact(data: {
     email: string;
     phone?: string;

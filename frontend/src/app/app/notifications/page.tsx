@@ -46,9 +46,9 @@ export default function NotificationsPage() {
             >
               <GoldCard hover>
                 <div className="flex items-start gap-4">
-                  <div className={`w-2 h-2 rounded-full mt-2 ${(notification as any).read ? 'bg-pearl/30' : 'bg-gold-primary'}`} />
+                  <div className={`w-2 h-2 rounded-full mt-2 ${notification.readAt ? 'bg-pearl/30' : 'bg-gold-primary'}`} />
                   <div className="flex-1">
-                    <p className="text-pearl">{(notification as any).message || notification.type}</p>
+                    <p className="text-pearl">{notification.title || notification.body || notification.type}</p>
                     <p className="text-sm text-pearl/50 mt-1">
                       {new Date(notification.createdAt).toLocaleString()}
                     </p>

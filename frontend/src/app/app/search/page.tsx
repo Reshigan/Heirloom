@@ -53,7 +53,7 @@ export default function SearchPage() {
         <GoldCard>
           <div className="flex gap-4">
             <div className="flex-1">
-              <div onKeyPress={(e: React.KeyboardEvent) => e.key === 'Enter' && handleSearch()}>
+              <div onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && handleSearch()}>
                 <GoldInput
                   value={query}
                   onChange={setQuery}

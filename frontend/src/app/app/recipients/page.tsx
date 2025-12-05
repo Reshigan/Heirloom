@@ -10,6 +10,8 @@ export default function RecipientsPage() {
   const [recipients, setRecipients] = useState<Recipient[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [newRecipient, setNewRecipient] = useState({
     email: '',
     name: '',
@@ -34,13 +36,37 @@ export default function RecipientsPage() {
   }
 
   const handleAddRecipient = async () => {
+    if (!newRecipient.email.trim()) {
+      setError('Email is required')
+      return
+    }
+
     try {
+      setSubmitting(true)
+      setError(null)
       await apiClient.addRecipient(newRecipient)
       setNewRecipient({ email: '', name: '', relationship: '', accessLevel: 'POSTHUMOUS' })
       setShowAddForm(false)
       await loadRecipients()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add recipient:', error)
+      setError(error.message || 'Failed to add recipient')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleDeleteRecipient = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this recipient?')) {
+      return
+    }
+
+    try {
+      await apiClient.deleteRecipient(id)
+      await loadRecipients()
+    } catch (error: any) {
+      console.error('Failed to delete recipient:', error)
+      alert(error.message || 'Failed to delete recipient')
     }
   }
 
@@ -90,6 +116,11 @@ export default function RecipientsPage() {
               <GoldCardTitle>Add New Recipient</GoldCardTitle>
             </GoldCardHeader>
             <GoldCardContent>
+              {error && (
+                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded text-pearl text-sm">
+                  {error}
+                </div>
+              )}
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm text-pearl/70 mb-2">Email *</label>
@@ -120,13 +151,17 @@ export default function RecipientsPage() {
                   <GoldButton
                     onClick={handleAddRecipient}
                     variant="primary"
-                    disabled={!newRecipient.email}
+                    disabled={!newRecipient.email || submitting}
                   >
-                    Add Recipient
+                    {submitting ? 'Adding...' : 'Add Recipient'}
                   </GoldButton>
                   <GoldButton
-                    onClick={() => setShowAddForm(false)}
+                    onClick={() => {
+                      setShowAddForm(false)
+                      setError(null)
+                    }}
                     variant="secondary"
+                    disabled={submitting}
                   >
                     Cancel
                   </GoldButton>
@@ -182,6 +217,13 @@ export default function RecipientsPage() {
                     <span className="text-sm text-pearl/50">
                       {recipient.accessLevel}
                     </span>
+                    <button
+                      onClick={() => handleDeleteRecipient(recipient.id)}
+                      className="text-pearl/50 hover:text-red-400 transition-colors"
+                      title="Delete recipient"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </div>
               </GoldCard>
