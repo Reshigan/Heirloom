@@ -14,6 +14,7 @@ import {
   ExternalLink
 } from 'lucide-react'
 import { GoldCard, GoldCardHeader, GoldCardTitle, GoldCardSubtitle, GoldCardContent, GoldButton } from '../../components/gold-card'
+import { UsageMeter } from '../../components/usage-meter'
 import { apiClient } from '../../lib/api-client'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -138,45 +139,60 @@ const BillingPage: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Current Subscription Status */}
-        {subscription && subscription.plan !== 'free' && (
+        {/* Current Subscription Status & Usage */}
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          {subscription && subscription.plan !== 'free' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <GoldCard className="h-full">
+                <div className="flex flex-col gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 rounded-2xl bg-gold-primary/20">
+                      <Crown className="text-gold-primary" size={32} />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-serif font-light text-gold-primary mb-1">
+                        {subscription.plan === 'premium' ? 'Premium Family' : subscription.plan}
+                      </h3>
+                      <p className="text-pearl/60">
+                        {subscription.status === 'active' ? 'Active subscription' : `Status: ${subscription.status}`}
+                      </p>
+                      {subscription.current_period_end && (
+                        <p className="text-sm text-pearl/50 mt-1">
+                          Renews on {new Date(subscription.current_period_end).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <GoldButton
+                    variant="secondary"
+                    onClick={handleManageBilling}
+                    disabled={checkoutLoading === 'portal'}
+                    className="w-full"
+                  >
+                    Manage Billing
+                  </GoldButton>
+                </div>
+              </GoldCard>
+            </motion.div>
+          )}
+          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-12"
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <GoldCard>
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-gold-primary/20">
-                    <Crown className="text-gold-primary" size={32} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-serif font-light text-gold-primary mb-1">
-                      {subscription.plan === 'premium' ? 'Premium Family' : subscription.plan}
-                    </h3>
-                    <p className="text-pearl/60">
-                      {subscription.status === 'active' ? 'Active subscription' : `Status: ${subscription.status}`}
-                    </p>
-                    {subscription.current_period_end && (
-                      <p className="text-sm text-pearl/50 mt-1">
-                        Renews on {new Date(subscription.current_period_end).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <GoldButton
-                  variant="secondary"
-                  onClick={handleManageBilling}
-                  disabled={checkoutLoading === 'portal'}
-                >
-                  Manage Billing
-                </GoldButton>
-              </div>
+            <GoldCard className="h-full">
+              <h3 className="text-2xl font-serif font-light text-gold-primary mb-6">
+                Your Usage
+              </h3>
+              <UsageMeter compact showUpgrade={false} />
             </GoldCard>
           </motion.div>
-        )}
+        </div>
 
         {/* Plans Grid */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
