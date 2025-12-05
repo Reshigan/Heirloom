@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import express from 'express';
 import Stripe from 'stripe';
 import { prisma } from '../db';
 import { authenticate, AuthRequest } from '../middleware/auth';
