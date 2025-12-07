@@ -482,6 +482,27 @@ class APIClient {
 
     return response.json();
   }
+
+  async getAfterImGoneLetters(): Promise<any[]> {
+    try {
+      const result = await this.request<{ letters: any[] }>('/after-im-gone/letters');
+      return result.letters;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async createAfterImGoneLetter(data: {
+    title: string;
+    content: string;
+    recipientId: string;
+    triggerType: string;
+  }): Promise<any> {
+    return this.request('/after-im-gone/letters', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
 }
 
 export const apiClient = new APIClient();
