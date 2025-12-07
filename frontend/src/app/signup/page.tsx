@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signup } = useAuth();
+  const { register } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -49,7 +49,7 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      await signup(email, password, `${firstName} ${lastName}`);
+      await register(email, password, `${firstName} ${lastName}`, '');
       router.push('/app');
     } catch (err: any) {
       setError(err.message || 'Failed to create account. Please try again.');
