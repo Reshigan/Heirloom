@@ -64,17 +64,9 @@ router.put('/profile', async (req: AuthRequest, res, next) => {
  */
 router.get('/security', async (req: AuthRequest, res, next) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user!.userId }
-    });
-
-    if (!user) {
-      throw new AppError(404, 'User not found');
-    }
-
-    res.json({
-      twoFactorEnabled: false,
-      lastPasswordChange: null
+    res.status(501).json({
+      error: 'Security settings not yet implemented',
+      message: 'Two-factor authentication and security features are coming soon'
     });
   } catch (error) {
     next(error);
@@ -87,11 +79,9 @@ router.get('/security', async (req: AuthRequest, res, next) => {
  */
 router.put('/security', async (req: AuthRequest, res, next) => {
   try {
-    const { twoFactorEnabled } = req.body;
-
-    res.json({
-      twoFactorEnabled: twoFactorEnabled || false,
-      lastPasswordChange: null
+    res.status(501).json({
+      error: 'Security settings not yet implemented',
+      message: 'Two-factor authentication and security features are coming soon'
     });
   } catch (error) {
     next(error);
@@ -104,21 +94,10 @@ router.put('/security', async (req: AuthRequest, res, next) => {
  */
 router.post('/password', async (req: AuthRequest, res, next) => {
   try {
-    const { currentPassword, newPassword } = req.body;
-
-    if (!currentPassword || !newPassword) {
-      throw new AppError(400, 'Current password and new password are required');
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: req.user!.userId }
+    res.status(501).json({
+      error: 'Password change not yet implemented',
+      message: 'Secure password change functionality is coming soon. Please contact support if you need to change your password.'
     });
-
-    if (!user) {
-      throw new AppError(404, 'User not found');
-    }
-
-    res.json({ message: 'Password updated successfully' });
   } catch (error) {
     next(error);
   }
@@ -130,10 +109,9 @@ router.post('/password', async (req: AuthRequest, res, next) => {
  */
 router.get('/privacy', async (req: AuthRequest, res, next) => {
   try {
-    res.json({
-      dataRetentionDays: 365,
-      allowDataSharing: false,
-      allowAnalytics: true
+    res.status(501).json({
+      error: 'Privacy settings not yet implemented',
+      message: 'Privacy controls are coming soon'
     });
   } catch (error) {
     next(error);
@@ -146,12 +124,9 @@ router.get('/privacy', async (req: AuthRequest, res, next) => {
  */
 router.put('/privacy', async (req: AuthRequest, res, next) => {
   try {
-    const { dataRetentionDays, allowDataSharing, allowAnalytics } = req.body;
-
-    res.json({
-      dataRetentionDays: dataRetentionDays || 365,
-      allowDataSharing: allowDataSharing || false,
-      allowAnalytics: allowAnalytics !== undefined ? allowAnalytics : true
+    res.status(501).json({
+      error: 'Privacy settings not yet implemented',
+      message: 'Privacy controls are coming soon'
     });
   } catch (error) {
     next(error);

@@ -485,8 +485,7 @@ class APIClient {
 
   async getAfterImGoneLetters(): Promise<any[]> {
     try {
-      const result = await this.request<{ letters: any[] }>('/after-im-gone/letters');
-      return result.letters;
+      return await this.request<any[]>('/after-im-gone/letters');
     } catch (error) {
       return [];
     }

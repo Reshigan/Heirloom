@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { useVault } from '@/contexts/VaultContext';
 import VaultUploadModal from '@/components/vault-upload-modal';
@@ -30,9 +30,27 @@ export default function MemoriesPage() {
     fetchMemories();
   }, []);
 
+  const filterMemories = useCallback(() => {
+    let filtered = memories;
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (m) =>
+          m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (m.description || '').toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (filterType !== 'all') {
+      filtered = filtered.filter((m) => m.type.toLowerCase() === filterType.toLowerCase());
+    }
+
+    setFilteredMemories(filtered);
+  }, [memories, searchQuery, filterType]);
+
   useEffect(() => {
     filterMemories();
-  }, [memories, searchQuery, filterType]);
+  }, [filterMemories]);
 
   const fetchMemories = async () => {
     try {
@@ -43,24 +61,6 @@ export default function MemoriesPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const filterMemories = () => {
-    let filtered = memories;
-
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (m) =>
-          m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          m.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (filterType !== 'all') {
-      filtered = filtered.filter((m) => m.type.toLowerCase() === filterType.toLowerCase());
-    }
-
-    setFilteredMemories(filtered);
   };
 
   const handleUploadSuccess = async () => {

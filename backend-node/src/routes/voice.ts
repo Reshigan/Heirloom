@@ -51,12 +51,16 @@ router.post('/', async (req: AuthRequest, res, next) => {
       throw new AppError(413, 'Storage limit exceeded');
     }
 
+    const base64Data = encryptedData.split(',')[1] || encryptedData;
+    const padding = (base64Data.match(/=+$/) || [''])[0].length;
+    const actualBytes = Math.ceil(base64Data.length * 3 / 4) - padding;
+
     const recording = await prisma.$transaction(async (tx: any) => {
       await tx.vault.update({
         where: { id: vault.id },
         data: {
           uploadCountThisWeek: { increment: 1 },
-          storageUsedBytes: newStorageUsed
+          storageUsedBytes: vault.storageUsedBytes + BigInt(actualBytes)
         }
       });
 
@@ -67,11 +71,12 @@ router.post('/', async (req: AuthRequest, res, next) => {
           title: title || 'Untitled Recording',
           encryptedData,
           encryptedDek,
-          fileSizeBytes: fileSizeBytes ? BigInt(fileSizeBytes) : null,
+          fileSizeBytes: BigInt(actualBytes),
           recipientIds: [],
           emotionCategory: 'neutral',
           importanceScore: 5,
-          visibility: 'PRIVATE'
+          visibility: 'PRIVATE',
+          entities: duration ? { duration } : {}
         }
       });
 
@@ -115,7 +120,7 @@ router.get('/', async (req: AuthRequest, res, next) => {
     const recordingsData = recordings.map((recording: any) => ({
       id: recording.id,
       title: recording.title,
-      duration: 0,
+      duration: (recording.entities as any)?.duration || 0,
       date: recording.createdAt,
       transcription: null
     }));
@@ -159,7 +164,7 @@ router.get('/:id', async (req: AuthRequest, res, next) => {
       title: recording.title,
       encryptedData: recording.encryptedData,
       encryptedDek: recording.encryptedDek,
-      duration: 0,
+      duration: (recording.entities as any)?.duration || 0,
       date: recording.createdAt,
       transcription: null
     });
@@ -211,7 +216,7 @@ router.put('/:id', async (req: AuthRequest, res, next) => {
     res.json({
       id: updatedRecording.id,
       title: updatedRecording.title,
-      duration: 0,
+      duration: (updatedRecording.entities as any)?.duration || 0,
       date: updatedRecording.createdAt,
       transcription: transcription || null
     });
@@ -248,8 +253,23 @@ router.delete('/:id', async (req: AuthRequest, res, next) => {
       throw new AppError(404, 'Recording not found');
     }
 
-    await prisma.vaultItem.delete({
-      where: { id }
+    const fileSizeBytes = recording.fileSizeBytes || BigInt(0);
+
+    await prisma.$transaction(async (tx: any) => {
+      await tx.vaultItem.delete({
+        where: { id }
+      });
+
+      if (fileSizeBytes > BigInt(0)) {
+        await tx.vault.update({
+          where: { id: vault.id },
+          data: {
+            storageUsedBytes: {
+              decrement: fileSizeBytes
+            }
+          }
+        });
+      }
     });
 
     res.json({
