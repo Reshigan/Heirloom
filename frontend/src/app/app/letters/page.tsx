@@ -49,6 +49,62 @@ export default function LettersPage() {
     return letters.filter((l) => l.status === status).length;
   };
 
+  const handleSaveDraft = async () => {
+    try {
+      if (!newLetter.title || !newLetter.content) {
+        alert('Please enter a title and content for your letter');
+        return;
+      }
+
+      await apiClient.createAfterImGoneLetter({
+        title: newLetter.title,
+        content: newLetter.content,
+        recipientId: newLetter.recipientId,
+        triggerType: newLetter.triggerType,
+      });
+
+      setShowEditor(false);
+      setNewLetter({
+        title: '',
+        content: '',
+        recipientId: '',
+        triggerType: 'manual',
+      });
+      fetchLetters();
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+      alert('Failed to save draft. Please try again.');
+    }
+  };
+
+  const handleSealLetter = async () => {
+    try {
+      if (!newLetter.title || !newLetter.content) {
+        alert('Please enter a title and content for your letter');
+        return;
+      }
+
+      await apiClient.createAfterImGoneLetter({
+        title: newLetter.title,
+        content: newLetter.content,
+        recipientId: newLetter.recipientId,
+        triggerType: newLetter.triggerType,
+      });
+
+      setShowEditor(false);
+      setNewLetter({
+        title: '',
+        content: '',
+        recipientId: '',
+        triggerType: 'manual',
+      });
+      fetchLetters();
+    } catch (error) {
+      console.error('Failed to seal letter:', error);
+      alert('Failed to seal letter. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -324,10 +380,10 @@ export default function LettersPage() {
 
             {/* Footer */}
             <div className="flex justify-between items-center p-4 sm:p-6 border-t border-black-500 bg-black-850">
-              <button onClick={() => setShowEditor(false)} className="btn btn-secondary">
+              <button onClick={handleSaveDraft} className="btn btn-secondary">
                 Save as Draft
               </button>
-              <button className="btn btn-primary">Seal & Schedule</button>
+              <button onClick={handleSealLetter} className="btn btn-primary">Seal & Schedule</button>
             </div>
           </div>
         </div>

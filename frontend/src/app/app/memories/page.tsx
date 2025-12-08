@@ -23,6 +23,8 @@ export default function MemoriesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
     fetchMemories();
@@ -64,6 +66,27 @@ export default function MemoriesPage() {
   const handleUploadSuccess = async () => {
     await fetchMemories();
     setShowUploadModal(false);
+  };
+
+  const handleMemoryClick = (memory: Memory) => {
+    setSelectedMemory(memory);
+    setShowDetailModal(true);
+  };
+
+  const handleDeleteMemory = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this memory?')) {
+      return;
+    }
+
+    try {
+      await apiClient.deleteVaultItem(id);
+      setShowDetailModal(false);
+      setSelectedMemory(null);
+      fetchMemories();
+    } catch (error) {
+      console.error('Failed to delete memory:', error);
+      alert('Failed to delete memory. Please try again.');
+    }
   };
 
   if (loading) {
@@ -174,6 +197,7 @@ export default function MemoriesPage() {
             {filteredMemories.map((memory) => (
               <div
                 key={memory.id}
+                onClick={() => handleMemoryClick(memory)}
                 className="bg-black-700 border border-black-500 rounded-lg overflow-hidden transition-all hover:border-gold-500 hover:-translate-y-0.5 hover:shadow-gold-sm cursor-pointer"
               >
                 {memory.thumbnailUrl ? (
@@ -238,6 +262,69 @@ export default function MemoriesPage() {
           onSuccess={handleUploadSuccess}
           vaultEncryption={vaultEncryption}
         />
+      )}
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedMemory && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-black-800 border border-gold-600 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="font-display text-2xl text-cream-100">{selectedMemory.title}</h3>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="text-black-100 hover:text-cream-300"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {selectedMemory.thumbnailUrl && (
+              <img
+                src={selectedMemory.thumbnailUrl}
+                alt={selectedMemory.title}
+                className="w-full h-auto rounded-lg mb-4"
+              />
+            )}
+
+            <div className="mb-4">
+              <p className="text-cream-300 mb-2">{selectedMemory.description}</p>
+              <p className="text-sm text-black-100">
+                {new Date(selectedMemory.date).toLocaleDateString()}
+              </p>
+            </div>
+
+            {selectedMemory.tags && selectedMemory.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {selectedMemory.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-gold-500/15 text-gold-500 text-sm rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleDeleteMemory(selectedMemory.id)}
+                className="flex-1 px-4 py-2 bg-red-500/20 border border-red-500 text-red-400 rounded-md hover:bg-red-500/30"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-600 text-black-900 font-medium rounded-md hover:shadow-gold-sm"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

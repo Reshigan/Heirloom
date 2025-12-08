@@ -503,6 +503,52 @@ class APIClient {
       body: JSON.stringify(data)
     });
   }
+
+  async getVoiceRecordings(): Promise<any[]> {
+    try {
+      return await this.request('/voice');
+    } catch (error) {
+      console.error('Failed to fetch voice recordings:', error);
+      return [];
+    }
+  }
+
+  async createVoiceRecording(data: {
+    title: string;
+    encryptedData: string;
+    encryptedDek: string;
+    duration: number;
+    fileSizeBytes: number;
+    transcription?: string;
+  }): Promise<any> {
+    return this.request('/voice', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteVoiceRecording(id: string): Promise<any> {
+    return this.request(`/voice/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async updateVaultItem(id: string, data: any): Promise<any> {
+    return this.request(`/vault/items/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async deleteVaultItem(id: string): Promise<any> {
+    return this.request(`/vault/items/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async getVaultItem(id: string): Promise<any> {
+    return this.request(`/vault/items/${id}`);
+  }
 }
 
 export const apiClient = new APIClient();

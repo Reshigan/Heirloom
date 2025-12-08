@@ -43,7 +43,8 @@ export default function VoicePage() {
 
   const fetchRecordings = async () => {
     try {
-      setRecordings([]);
+      const data = await apiClient.getVoiceRecordings();
+      setRecordings(data);
     } catch (error) {
       console.error('Failed to fetch recordings:', error);
     } finally {
