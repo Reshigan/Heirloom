@@ -13,7 +13,18 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    res.json(letters);
+    const transformedLetters = letters.map((letter: any) => ({
+      id: letter.id,
+      title: letter.subject,
+      content: letter.encryptedContent,
+      recipientName: letter.recipientName,
+      triggerType: 'manual', // Default for now
+      status: letter.deliveryStatus === 'delivered' ? 'delivered' : 
+              letter.deliveryStatus === 'pending' ? 'sealed' : 'draft',
+      createdAt: letter.createdAt
+    }));
+
+    res.json(transformedLetters);
   } catch (error: any) {
     console.error('Error fetching letters:', error);
     res.status(500).json({ error: 'Failed to fetch letters' });
@@ -50,15 +61,21 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       recipientId,
       recipientEmail,
       recipientName,
+      title,
       subject,
+      content,
       encryptedContent,
       encryptedDek,
+      triggerType,
       attachedMemoryIds
     } = req.body;
 
-    if (!recipientEmail || !subject || !encryptedContent || !encryptedDek) {
+    const letterSubject = title || subject;
+    const letterContent = content || encryptedContent;
+
+    if (!letterSubject || !letterContent) {
       return res.status(400).json({
-        error: 'Recipient email, subject, encrypted content, and encryption key are required'
+        error: 'Title and content are required'
       });
     }
 
@@ -79,17 +96,25 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       data: {
         userId,
         recipientId,
-        recipientEmail,
+        recipientEmail: recipientEmail || 'unknown@example.com',
         recipientName,
-        subject,
-        encryptedContent,
-        encryptedDek,
+        subject: letterSubject,
+        encryptedContent: letterContent,
+        encryptedDek: encryptedDek || 'placeholder-dek',
         attachedMemoryIds: attachedMemoryIds || [],
         deliveryStatus: 'pending'
       }
     });
 
-    res.status(201).json(letter);
+    res.status(201).json({
+      id: letter.id,
+      title: letter.subject,
+      content: letter.encryptedContent,
+      recipientName: letter.recipientName,
+      triggerType: triggerType || 'manual',
+      status: 'sealed',
+      createdAt: letter.createdAt
+    });
   } catch (error: any) {
     console.error('Error creating letter:', error);
     res.status(500).json({ error: 'Failed to create letter' });
