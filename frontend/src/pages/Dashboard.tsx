@@ -1,18 +1,34 @@
-import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Pen, Mic, Image } from 'lucide-react';
-import { memoriesApi, familyApi } from '../services/api';
+import { Pen, Mic, Image, Users, Settings, ChevronRight, Clock, Shield, Bell } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
+import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const deskRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0.5);
-  const mouseY = useMotionValue(0.5);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [showNotification, setShowNotification] = useState(false);
   
-  // Fetch stats
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  const rotateX = useTransform(mouseY, [0, 800], [8, -8]);
+  const rotateY = useTransform(mouseX, [0, 1400], [-8, 8]);
+  
+  // Queries
+  const { data: subscription } = useQuery({
+    queryKey: ['subscription'],
+    queryFn: () => billingApi.getSubscription().then(r => r.data),
+  });
+  
+  const { data: limits } = useQuery({
+    queryKey: ['limits'],
+    queryFn: () => billingApi.getLimits().then(r => r.data),
+  });
+  
   const { data: stats } = useQuery({
     queryKey: ['memories-stats'],
     queryFn: () => memoriesApi.getStats().then(r => r.data),
@@ -23,432 +39,416 @@ export function Dashboard() {
     queryFn: () => familyApi.getAll().then(r => r.data),
   });
   
-  // Mouse parallax
+  const { data: deadmanStatus } = useQuery({
+    queryKey: ['deadman-status'],
+    queryFn: () => deadmanApi.getStatus().then(r => r.data),
+  });
+  
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!deskRef.current) return;
-      const rect = deskRef.current.getBoundingClientRect();
-      mouseX.set((e.clientX - rect.left) / rect.width);
-      mouseY.set((e.clientY - rect.top) / rect.height);
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
     };
-    
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
+  }, []);
   
-  const rotateX = useTransform(mouseY, [0, 1], [5, -5]);
-  const rotateY = useTransform(mouseX, [0, 1], [-10, 10]);
+  // Show trial notification
+  useEffect(() => {
+    if (subscription?.isTrialing && subscription.trialDaysLeft <= 7) {
+      setShowNotification(true);
+    }
+  }, [subscription]);
   
-  // Time-based greeting
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const greeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+  
+  const quickActions = [
+    { id: 'memory', icon: Image, label: 'Add Memory', color: 'gold', path: '/memories' },
+    { id: 'letter', icon: Pen, label: 'Write Letter', color: 'gold', path: '/compose' },
+    { id: 'record', icon: Mic, label: 'Record Voice', color: 'blood', path: '/record' },
+    { id: 'family', icon: Users, label: 'Add Family', color: 'teal', path: '/family' },
+  ];
   
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div ref={containerRef} className="min-h-screen relative overflow-hidden">
+      {/* Sanctuary Background */}
+      <div className="sanctuary-bg">
+        <div className="sanctuary-orb sanctuary-orb-1" />
+        <div className="sanctuary-orb sanctuary-orb-2" />
+        <div className="sanctuary-orb sanctuary-orb-3" />
+        <div className="sanctuary-stars" />
+        <div className="sanctuary-mist" />
+      </div>
+      
       {/* Floating dust particles */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none">
         {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-px h-px bg-gold/30 rounded-full"
+            className="absolute w-1 h-1 rounded-full bg-gold/30"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
             }}
             animate={{
-              y: [0, -30, 0],
-              opacity: [0.2, 0.6, 0.2],
+              y: [0, -100, 0],
+              opacity: [0, 0.8, 0],
             }}
             transition={{
-              duration: 15 + Math.random() * 10,
+              duration: 10 + Math.random() * 10,
               repeat: Infinity,
-              delay: Math.random() * 15,
+              delay: Math.random() * 10,
             }}
           />
         ))}
       </div>
       
-      {/* Stats whisper - left side */}
-      <div className="fixed left-12 top-1/2 -translate-y-1/2 space-y-6 hidden lg:block">
-        <div className="text-right">
-          <div className="text-3xl text-gold">{stats?.totalMemories || 0}</div>
-          <div className="text-xs text-paper/30 tracking-widest">MEMORIES</div>
-        </div>
-        <div className="text-right">
-          <div className="text-3xl text-gold">{stats?.byType?.VOICE || 0}</div>
-          <div className="text-xs text-paper/30 tracking-widest">RECORDINGS</div>
-        </div>
-        <div className="text-right">
-          <div className="text-3xl text-gold">{stats?.byType?.LETTER || 0}</div>
-          <div className="text-xs text-paper/30 tracking-widest">LETTERS</div>
-        </div>
-      </div>
-      
-      {/* Greeting - right side */}
-      <div className="fixed right-12 top-1/2 -translate-y-1/2 text-right hidden lg:block">
-        <div className="text-sm text-paper/30 tracking-widest mb-2">{greeting}</div>
-        <div className="text-2xl text-paper">{user?.firstName}</div>
-      </div>
-      
-      {/* 3D Desk */}
-      <div
-        ref={deskRef}
-        className="min-h-screen flex items-center justify-center px-6"
-        style={{ perspective: 1500 }}
-      >
-        <motion.div
-          className="relative"
-          style={{
-            width: 'min(900px, 90vw)',
-            height: 'min(600px, 60vh)',
-            rotateX,
-            rotateY,
-            transformStyle: 'preserve-3d',
-          }}
-        >
-          {/* Desk surface - realistic wood texture */}
-          <div
-            className="absolute inset-0 rounded-lg overflow-hidden"
-            style={{
-              transform: 'rotateX(55deg)',
-              transformOrigin: 'center center',
-              boxShadow: '0 50px 100px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05)',
-            }}
+      {/* Header */}
+      <header className="relative z-20 px-6 md:px-12 py-6">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-4"
           >
-            {/* Wood base with grain texture */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: `
-                  linear-gradient(90deg, 
-                    rgba(62, 45, 30, 0.3) 0%, 
-                    rgba(82, 60, 40, 0.2) 20%, 
-                    rgba(62, 45, 30, 0.3) 40%,
-                    rgba(72, 52, 35, 0.2) 60%,
-                    rgba(62, 45, 30, 0.3) 80%,
-                    rgba(82, 60, 40, 0.2) 100%
-                  ),
-                  linear-gradient(180deg, #3e2d1e 0%, #2a1f14 50%, #1a1610 100%)
-                `,
-              }}
-            />
-            {/* Wood grain lines */}
-            <div
-              className="absolute inset-0 opacity-30"
-              style={{
-                backgroundImage: `
-                  repeating-linear-gradient(
-                    95deg,
-                    transparent,
-                    transparent 30px,
-                    rgba(139, 90, 43, 0.15) 30px,
-                    rgba(139, 90, 43, 0.15) 31px,
-                    transparent 31px,
-                    transparent 60px
-                  ),
-                  repeating-linear-gradient(
-                    92deg,
-                    transparent,
-                    transparent 80px,
-                    rgba(101, 67, 33, 0.1) 80px,
-                    rgba(101, 67, 33, 0.1) 82px,
-                    transparent 82px,
-                    transparent 150px
-                  )
-                `,
-              }}
-            />
-            {/* Desk edge highlight */}
-            <div
-              className="absolute top-0 left-0 right-0 h-3"
-              style={{
-                background: 'linear-gradient(180deg, rgba(139, 90, 43, 0.4) 0%, transparent 100%)',
-                borderRadius: '8px 8px 0 0',
-              }}
-            />
-            {/* Subtle varnish reflection */}
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                background: 'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.15) 0%, transparent 50%)',
-              }}
-            />
-          </div>
-          
-          {/* Objects on desk */}
-          <div
-            className="absolute inset-0"
-            style={{ transform: 'rotateX(55deg)', transformOrigin: 'center center' }}
-          >
-            {/* Photo stack - realistic polaroid-style photos */}
-            <Link
-              to="/memories"
-              className="absolute group cursor-hover"
-              style={{ top: '15%', left: '10%' }}
-            >
+            <div className="relative">
               <motion.div
-                className="relative"
-                whileHover={{ scale: 1.05, y: -10 }}
-                transition={{ type: 'spring', stiffness: 300 }}
+                className="text-3xl font-light tracking-wider text-gold"
+                style={{ fontFamily: 'var(--font-display)' }}
               >
-                {[
-                  { rotate: -8, image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=200&q=60' },
-                  { rotate: -2, image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=200&q=60' },
-                  { rotate: 5, image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=200&q=60' },
-                ].map((photo, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-24 h-28 bg-[#f5f5f0] shadow-lg"
-                    style={{
-                      transform: `rotate(${photo.rotate}deg)`,
-                      zIndex: i,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)',
-                    }}
-                  >
-                    {/* Photo border (polaroid style) */}
-                    <div className="absolute inset-0 p-1.5 pb-4">
-                      <div 
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ 
-                          backgroundImage: `url(${photo.image})`,
-                          filter: 'saturate(0.9) contrast(1.05)',
-                        }}
-                      />
-                    </div>
-                    {/* Slight aging effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-100/10 to-transparent pointer-events-none" />
-                  </div>
-                ))}
-                <div className="absolute -bottom-8 left-0 right-0 text-center text-xs text-paper/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Memories
-                </div>
+                ∞
               </motion.div>
-            </Link>
-            
-            {/* Letter - realistic aged paper with handwriting */}
-            <Link
-              to="/compose"
-              className="absolute group cursor-hover"
-              style={{ top: '20%', right: '15%' }}
-            >
               <motion.div
-                className="relative w-32 h-40 shadow-lg"
-                style={{
-                  background: 'linear-gradient(135deg, #f5f0e6 0%, #ebe5d8 50%, #e8e2d6 100%)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.25), 2px 2px 4px rgba(0,0,0,0.1)',
-                }}
-                whileHover={{ scale: 1.05, y: -10, rotate: 2 }}
-              >
-                {/* Paper texture overlay */}
-                <div 
-                  className="absolute inset-0 opacity-30"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                  }}
-                />
-                {/* Lined paper effect */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: 'repeating-linear-gradient(transparent, transparent 18px, #c9b99a 18px, #c9b99a 19px)',
-                    backgroundPosition: '0 24px',
-                  }}
-                />
-                {/* Red margin line */}
-                <div className="absolute top-0 bottom-0 left-6 w-px bg-[#e8a0a0]/40" />
-                {/* Handwritten text */}
-                <div className="relative p-3 pt-7 pl-8">
-                  <div className="font-handwritten text-[#2a2520] text-xs leading-[19px] opacity-70">
-                    My dearest Emma<br/>
-                    and Michael,<br/>
-                    <span className="opacity-50">If you're reading</span><br/>
-                    <span className="opacity-40">this, it means...</span>
-                  </div>
-                </div>
-                {/* Slight fold/crease effect */}
-                <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/5 to-transparent" />
-                <div className="absolute -bottom-8 left-0 right-0 text-center text-xs text-paper/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Write Letter
-                </div>
-              </motion.div>
-            </Link>
-            
-            {/* Voice recorder - vintage cassette recorder style */}
-            <Link
-              to="/record"
-              className="absolute group cursor-hover"
-              style={{ bottom: '25%', left: '25%' }}
-            >
-              <motion.div
-                className="relative w-32 h-24 rounded-lg shadow-lg overflow-hidden"
-                style={{
-                  background: 'linear-gradient(180deg, #3a3632 0%, #2a2826 40%, #1a1816 100%)',
-                  boxShadow: '0 6px 16px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1)',
-                }}
-                whileHover={{ scale: 1.05, y: -10 }}
-              >
-                {/* Metal plate texture */}
-                <div className="absolute inset-1 rounded border border-white/5" />
-                {/* Cassette window */}
-                <div 
-                  className="absolute top-2 left-3 right-3 h-10 rounded-sm"
-                  style={{
-                    background: 'linear-gradient(180deg, #1a1816 0%, #0a0806 100%)',
-                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
-                  }}
-                >
-                  {/* Tape reels */}
-                  <div className="flex justify-between items-center h-full px-2">
-                    <motion.div
-                      className="w-7 h-7 rounded-full"
-                      style={{
-                        background: 'conic-gradient(from 0deg, #2a2520, #4a4540, #2a2520, #4a4540, #2a2520)',
-                        boxShadow: 'inset 0 0 4px rgba(0,0,0,0.5)',
-                      }}
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                    >
-                      <div className="absolute inset-2 rounded-full bg-[#1a1816] border border-gold/20" />
-                    </motion.div>
-                    {/* Tape between reels */}
-                    <div className="flex-1 h-1 mx-1 bg-gradient-to-r from-amber-900/60 via-amber-800/40 to-amber-900/60" />
-                    <motion.div
-                      className="w-7 h-7 rounded-full"
-                      style={{
-                        background: 'conic-gradient(from 45deg, #2a2520, #4a4540, #2a2520, #4a4540, #2a2520)',
-                        boxShadow: 'inset 0 0 4px rgba(0,0,0,0.5)',
-                      }}
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                    >
-                      <div className="absolute inset-2 rounded-full bg-[#1a1816] border border-gold/20" />
-                    </motion.div>
-                  </div>
-                </div>
-                {/* Control buttons */}
-                <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#2a2826] border border-white/10" />
-                  <div className="w-3 h-3 rounded-full bg-blood animate-pulse shadow-[0_0_8px_rgba(180,30,30,0.5)]" />
-                  <div className="w-3 h-3 rounded-full bg-[#2a2826] border border-white/10" />
-                </div>
-                {/* Brand label */}
-                <div className="absolute top-1 right-2 text-[6px] text-gold/30 font-mono tracking-wider">HEIRLOOM</div>
-                <div className="absolute -bottom-8 left-0 right-0 text-center text-xs text-paper/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Record Voice
-                </div>
-              </motion.div>
-            </Link>
-            
-            {/* Family frame - ornate wooden picture frame */}
-            <Link
-              to="/family"
-              className="absolute group cursor-hover"
-              style={{ bottom: '20%', right: '20%' }}
-            >
-              <motion.div
-                className="relative w-28 h-28"
-                whileHover={{ scale: 1.05, y: -10 }}
-              >
-                {/* Outer frame with wood grain */}
-                <div 
-                  className="absolute inset-0 rounded"
-                  style={{
-                    background: 'linear-gradient(135deg, #5a4530 0%, #3a2a1a 50%, #2a1a10 100%)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1)',
-                  }}
-                />
-                {/* Inner gold trim */}
-                <div 
-                  className="absolute inset-1.5 rounded-sm"
-                  style={{
-                    background: 'linear-gradient(135deg, #c9a959 0%, #8b7355 50%, #c9a959 100%)',
-                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
-                  }}
-                />
-                {/* Photo area with family silhouettes */}
-                <div 
-                  className="absolute inset-3 rounded-sm overflow-hidden"
-                  style={{
-                    background: 'linear-gradient(180deg, #2a2520 0%, #1a1510 100%)',
-                  }}
-                >
-                  {/* Sepia-toned family photo placeholder */}
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-80"
-                    style={{
-                      backgroundImage: 'url(https://images.unsplash.com/photo-1511895426328-dc8714191300?w=200&q=60)',
-                      filter: 'sepia(0.4) contrast(1.1)',
-                    }}
-                  />
-                  {/* Family member initials overlay */}
-                  <div className="absolute inset-0 flex flex-wrap gap-0.5 p-1 justify-center items-center bg-black/30">
-                    {(family?.slice(0, 4) || []).map((member: any, i: number) => (
-                      <div
-                        key={i}
-                        className="w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-gold/40 flex items-center justify-center text-[10px] text-gold font-medium"
-                      >
-                        {member.name[0]}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Frame corner accents */}
-                <div className="absolute top-0.5 left-0.5 w-2 h-2 border-t border-l border-gold/30" />
-                <div className="absolute top-0.5 right-0.5 w-2 h-2 border-t border-r border-gold/30" />
-                <div className="absolute bottom-0.5 left-0.5 w-2 h-2 border-b border-l border-gold/30" />
-                <div className="absolute bottom-0.5 right-0.5 w-2 h-2 border-b border-r border-gold/30" />
-                <div className="absolute -bottom-8 left-0 right-0 text-center text-xs text-paper/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Family
-                </div>
-              </motion.div>
-            </Link>
-            
-            {/* Inkwell */}
-            <div
-              className="absolute w-10 h-12 rounded-b-full"
-              style={{
-                bottom: '30%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: 'linear-gradient(to bottom, #1a1a1a, #0a0a0a)',
-                boxShadow: 'inset 0 -10px 20px rgba(201, 169, 89, 0.3)',
-              }}
-            >
-              <motion.div
-                className="absolute inset-1 rounded-b-full"
-                style={{ background: 'radial-gradient(ellipse at top, var(--gold), transparent)' }}
-                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                className="absolute inset-0 blur-xl bg-gold/30"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 3, repeat: Infinity }}
               />
             </div>
+            <span className="text-xl tracking-[0.2em] text-paper/80">HEIRLOOM</span>
+          </motion.div>
+          
+          <div className="flex items-center gap-4">
+            {/* Dead man's switch status */}
+            {deadmanStatus?.enabled && (
+              <motion.button
+                onClick={() => navigate('/settings?tab=deadman')}
+                className="flex items-center gap-2 px-4 py-2 glass-subtle rounded-full"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Shield size={16} className={deadmanStatus.status === 'ACTIVE' ? 'text-green-400' : 'text-yellow-400'} />
+                <span className="text-sm text-paper/60">
+                  {deadmanStatus.status === 'ACTIVE' ? 'Protected' : 'Check-in needed'}
+                </span>
+              </motion.button>
+            )}
+            
+            {/* Notifications */}
+            <motion.button
+              onClick={() => setShowNotification(!showNotification)}
+              className="relative w-10 h-10 glass-subtle rounded-full flex items-center justify-center"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Bell size={18} className="text-paper/60" />
+              {subscription?.isTrialing && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-blood rounded-full animate-pulse" />
+              )}
+            </motion.button>
+            
+            {/* Settings */}
+            <motion.button
+              onClick={() => navigate('/settings')}
+              className="w-10 h-10 glass-subtle rounded-full flex items-center justify-center"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Settings size={18} className="text-paper/60" />
+            </motion.button>
+            
+            {/* Avatar */}
+            <motion.button
+              onClick={() => navigate('/settings')}
+              className="avatar avatar-md"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {user?.firstName?.[0]}{user?.lastName?.[0]}
+            </motion.button>
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </header>
       
-      {/* Quick actions bar */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-4 glass-panel rounded-lg p-2">
-        <Link
-          to="/compose"
-          className="flex items-center gap-2 px-5 py-2.5 glass-button rounded text-paper/60 hover:text-gold transition-smooth"
+      {/* Trial Warning Toast */}
+      <AnimatePresence>
+        {showNotification && subscription?.isTrialing && (
+          <motion.div
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            className="toast toast-warning"
+          >
+            <div className="flex items-center gap-3">
+              <Clock size={20} className="text-yellow-400" />
+              <div>
+                <div className="font-medium">Trial expires in {subscription.trialDaysLeft} days</div>
+                <div className="text-sm text-paper/60">Upgrade to keep your memories safe</div>
+              </div>
+              <button
+                onClick={() => navigate('/settings?tab=subscription')}
+                className="btn btn-primary btn-sm ml-4"
+              >
+                Upgrade
+              </button>
+              <button onClick={() => setShowNotification(false)} className="text-paper/40 hover:text-paper ml-2">×</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Main Content */}
+      <main className="relative z-10 px-6 md:px-12 py-8 max-w-7xl mx-auto">
+        {/* Greeting */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-12"
         >
-          <Pen size={18} strokeWidth={1.5} />
-          <span>Write Letter</span>
-        </Link>
-        <Link
-          to="/record"
-          className="flex items-center gap-2 px-5 py-2.5 glass-button rounded text-paper/60 hover:text-gold transition-smooth"
+          <h1 className="text-4xl md:text-5xl font-light mb-2">
+            {greeting()}, <em>{user?.firstName}</em>
+          </h1>
+          <p className="text-paper/50 text-lg">Your sanctuary awaits. What would you like to preserve today?</p>
+        </motion.div>
+        
+        {/* 3D Desk with Objects */}
+        <motion.div
+          className="mb-12"
+          style={{
+            perspective: 1200,
+          }}
         >
-          <Mic size={18} strokeWidth={1.5} />
-          <span>Record Voice</span>
-        </Link>
-        <Link
-          to="/memories"
-          className="flex items-center gap-2 px-5 py-2.5 glass-button rounded text-paper/60 hover:text-gold transition-smooth"
-        >
-          <Image size={18} strokeWidth={1.5} />
-          <span>Add Memory</span>
-        </Link>
-      </div>
+          <motion.div
+            className="desk-surface wood-grain p-8 md:p-12"
+            style={{
+              rotateX,
+              rotateY,
+              transformStyle: 'preserve-3d',
+            }}
+          >
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative">
+              {/* Photo Stack */}
+              <motion.button
+                onClick={() => navigate('/memories')}
+                className="relative group"
+                whileHover={{ scale: 1.05, z: 20 }}
+                whileTap={{ scale: 0.98 }}
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                <div className="photo-frame aspect-[4/3] relative overflow-hidden">
+                  <div className="absolute inset-2 bg-gradient-to-br from-gold/20 to-blood/10 rounded" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Image size={32} className="text-gold/60 group-hover:text-gold transition-colors" />
+                  </div>
+                  <div className="photo-frame-glass" />
+                </div>
+                <div className="absolute -bottom-2 -right-2 photo-frame w-full aspect-[4/3] -z-10 opacity-60" style={{ transform: 'rotate(5deg)' }} />
+                <div className="absolute -bottom-4 -right-4 photo-frame w-full aspect-[4/3] -z-20 opacity-30" style={{ transform: 'rotate(10deg)' }} />
+                <div className="mt-3 text-center">
+                  <div className="text-paper font-medium">{stats?.totalMemories || 0} Memories</div>
+                  <div className="text-paper/40 text-sm">Click to view</div>
+                </div>
+              </motion.button>
+              
+              {/* Letter & Pen */}
+              <motion.button
+                onClick={() => navigate('/compose')}
+                className="relative group candle-glow"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="paper-texture rounded-sm p-6 relative" style={{ transform: 'rotate(-2deg)' }}>
+                  <div className="space-y-2">
+                    <div className="h-1 bg-ink/20 rounded w-3/4" />
+                    <div className="h-1 bg-ink/20 rounded w-full" />
+                    <div className="h-1 bg-ink/20 rounded w-5/6" />
+                    <div className="h-1 bg-ink/20 rounded w-2/3" />
+                  </div>
+                  <Pen size={24} className="absolute -top-3 -right-3 text-gold transform rotate-45" />
+                </div>
+                <div className="mt-3 text-center">
+                  <div className="text-paper font-medium">{stats?.totalLetters || 0} Letters</div>
+                  <div className="text-paper/40 text-sm">Write new</div>
+                </div>
+              </motion.button>
+              
+              {/* Voice Recorder */}
+              <motion.button
+                onClick={() => navigate('/record')}
+                className="relative group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="recorder-device">
+                  <div className="flex items-center justify-center gap-4 mb-3">
+                    <div className="recorder-reel" />
+                    <div className="recorder-reel" style={{ animationDirection: 'reverse' }} />
+                  </div>
+                  <div className="flex justify-center gap-1">
+                    {[...Array(8)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="w-1 bg-blood rounded-full"
+                        animate={{ height: [8, 20, 8] }}
+                        transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-3 text-center">
+                  <div className="text-paper font-medium">{stats?.totalVoiceMinutes || 0} min</div>
+                  <div className="text-paper/40 text-sm">Record voice</div>
+                </div>
+              </motion.button>
+              
+              {/* Family Frame */}
+              <motion.button
+                onClick={() => navigate('/family')}
+                className="relative group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="photo-frame aspect-square">
+                  <div className="absolute inset-3 rounded bg-void-light flex items-center justify-center">
+                    <div className="flex -space-x-3">
+                      {(family || []).slice(0, 4).map((member: any, i: number) => (
+                        <div
+                          key={member.id}
+                          className="avatar avatar-sm border-2 border-void"
+                          style={{ zIndex: 4 - i }}
+                        >
+                          {member.name[0]}
+                        </div>
+                      ))}
+                      {(!family || family.length === 0) && (
+                        <Users size={32} className="text-paper/30" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="photo-frame-glass" />
+                </div>
+                <div className="mt-3 text-center">
+                  <div className="text-paper font-medium">{family?.length || 0} Family</div>
+                  <div className="text-paper/40 text-sm">Manage</div>
+                </div>
+              </motion.button>
+            </div>
+            
+            {/* Decorative items */}
+            <div className="absolute bottom-4 right-4 ink-bottle w-12 h-16" />
+            <div className="absolute top-4 right-8 wax-seal" />
+          </motion.div>
+        </motion.div>
+        
+        {/* Quick Actions & Stats */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="md:col-span-2"
+          >
+            <h3 className="text-lg text-paper/60 mb-4">Quick Actions</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {quickActions.map((action, i) => (
+                <motion.button
+                  key={action.id}
+                  onClick={() => navigate(action.path)}
+                  className="card group text-center py-8 relative overflow-hidden"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * i }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <motion.div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{
+                      background: action.color === 'gold' 
+                        ? 'radial-gradient(circle at center, rgba(201,169,89,0.15) 0%, transparent 70%)'
+                        : action.color === 'blood'
+                        ? 'radial-gradient(circle at center, rgba(139,41,66,0.15) 0%, transparent 70%)'
+                        : 'radial-gradient(circle at center, rgba(26,58,58,0.15) 0%, transparent 70%)'
+                    }}
+                  />
+                  <div className="relative">
+                    <div className={`w-14 h-14 mx-auto mb-3 rounded-xl glass flex items-center justify-center group-hover:bg-${action.color}/20 transition-colors`}>
+                      <action.icon size={24} className={`text-paper/60 group-hover:text-${action.color === 'gold' ? 'gold' : action.color === 'blood' ? 'blood' : 'teal-400'} transition-colors`} />
+                    </div>
+                    <div className="text-paper font-medium">{action.label}</div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+          
+          {/* Stats Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="card"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg text-paper/60">Your Legacy</h3>
+              <span className={`badge ${subscription?.tier === 'FREE' ? 'badge-warning' : 'badge-gold'}`}>
+                {subscription?.tier || 'FREE'}
+              </span>
+            </div>
+            
+            <div className="space-y-4">
+              {limits && [
+                { label: 'Memories', data: limits.memories, icon: Image },
+                { label: 'Voice', data: limits.voice, icon: Mic, suffix: ' min' },
+                { label: 'Letters', data: limits.letters, icon: Pen },
+              ].map(({ label, data, icon: Icon, suffix }) => (
+                <div key={label}>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <div className="flex items-center gap-2 text-paper/60">
+                      <Icon size={14} />
+                      {label}
+                    </div>
+                    <span className="text-paper">
+                      {data.current}{suffix || ''} / {data.max === -1 ? '∞' : data.max + (suffix || '')}
+                    </span>
+                  </div>
+                  <div className="progress-bar">
+                    <div
+                      className="progress-bar-fill"
+                      style={{ width: `${data.max === -1 ? 0 : Math.min(100, (data.current / data.max) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="divider" />
+            
+            <button
+              onClick={() => navigate('/settings?tab=subscription')}
+              className="w-full btn btn-secondary flex items-center justify-center gap-2"
+            >
+              {subscription?.tier === 'FREE' ? 'Upgrade Plan' : 'Manage Subscription'}
+              <ChevronRight size={16} />
+            </button>
+          </motion.div>
+        </div>
+      </main>
     </div>
   );
 }

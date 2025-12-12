@@ -87,7 +87,7 @@ export const memoriesApi = {
 
 // Letters API
 export const lettersApi = {
-  getAll: (params?: { deliveryTrigger?: string; page?: number; limit?: number }) =>
+  getAll: (params?: { status?: string; page?: number; limit?: number }) =>
     api.get('/letters', { params }),
   getOne: (id: string) => api.get(`/letters/${id}`),
   create: (data: any) => api.post('/letters', data),

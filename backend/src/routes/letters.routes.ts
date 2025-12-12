@@ -130,7 +130,7 @@ router.post('/:id/seal', validate(idParamSchema), asyncHandler(async (req: Reque
             { salutation: letter.salutation || '', body: letter.body, signature: letter.signature || '' }
           );
           sent = true;
-        } catch (error) {
+        } catch {
           sent = false;
         }
 

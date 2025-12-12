@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
-import { Navigation } from './components/Navigation';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -25,74 +23,100 @@ const queryClient = new QueryClient({
   },
 });
 
-// Protected route wrapper
-function ProtectedRoute() {
-  const { isAuthenticated, isLoading, fetchUser } = useAuthStore();
-  
-  useEffect(() => {
-    if (!isAuthenticated) {
-      fetchUser();
-    }
-  }, []);
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-void">
-        <div className="spinner" />
-      </div>
-    );
-  }
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return (
-    <>
-      <Navigation />
-      <main className="pt-24">
-        <Outlet />
-      </main>
-    </>
-  );
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuthStore();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
-// Public route wrapper (redirects if authenticated)
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
-  
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  
-  return <>{children}</>;
+  return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
 }
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <CustomCursor variant="default" />
-        
+        <CustomCursor />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
-          
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <Signup />
+              </PublicRoute>
+            }
+          />
+
           {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/memories" element={<Memories />} />
-            <Route path="/compose" element={<Compose />} />
-            <Route path="/compose/:id" element={<Compose />} />
-            <Route path="/record" element={<Record />} />
-            <Route path="/family" element={<Family />} />
-            <Route path="/family/:id" element={<Family />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-          
-          {/* Fallback */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/memories"
+            element={
+              <ProtectedRoute>
+                <Memories />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/compose"
+            element={
+              <ProtectedRoute>
+                <Compose />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/record"
+            element={
+              <ProtectedRoute>
+                <Record />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/family"
+            element={
+              <ProtectedRoute>
+                <Family />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/family/:id"
+            element={
+              <ProtectedRoute>
+                <Family />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
