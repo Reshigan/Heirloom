@@ -143,7 +143,7 @@ router.patch('/:id', validate(idParamSchema), asyncHandler(async (req: Request, 
   }
 
   const recording = await prisma.$transaction(async (tx) => {
-    const existingWaveformData = (existing.waveformData as Record<string, unknown>) || {};
+    const existingWaveformData = (existing.waveformData || {}) as object;
     const updatedWaveformData = Object.keys(emotionUpdate).length > 0 ? { ...existingWaveformData, ...emotionUpdate } : existingWaveformData;
     await tx.voiceRecording.update({ 
       where: { id: req.params.id }, 
