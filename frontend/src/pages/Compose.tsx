@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Send, Calendar, Clock, Check, AlertCircle, X } from 'lucide-react';
+import { ArrowLeft, Send, Calendar, Clock, Check, AlertCircle, X, Sparkles, Loader2 } from 'lucide-react';
 import { lettersApi, familyApi } from '../services/api';
+import { EmotionBadge } from '../components/ui/EmotionBadge';
 
 type DeliveryTrigger = 'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS';
 
@@ -24,6 +25,16 @@ export function Compose() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [emotion, setEmotion] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  const [suggestionForm, setSuggestionForm] = useState({
+    recipientName: '',
+    relationship: 'child',
+    occasion: '',
+    tone: 'warm and loving',
+  });
 
   const { data: family } = useQuery({
     queryKey: ['family'],
@@ -130,6 +141,69 @@ export function Compose() {
     }));
   };
 
+  const analyzeEmotion = async () => {
+    if (!form.body.trim()) return;
+    setIsAnalyzing(true);
+    try {
+      const response = await fetch('/api/letters/analyze-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify({ text: `${form.salutation} ${form.body} ${form.signature}` }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setEmotion(data.emotion?.label || null);
+      }
+    } catch (error) {
+      console.error('Failed to analyze emotion:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      if (form.body.length > 50) {
+        analyzeEmotion();
+      }
+    }, 1000);
+    return () => clearTimeout(debounce);
+  }, [form.body]);
+
+  const handleSuggestion = async () => {
+    if (!suggestionForm.recipientName || !suggestionForm.relationship) {
+      showToast('error', 'Please fill in recipient name and relationship');
+      return;
+    }
+    setIsSuggesting(true);
+    try {
+      const response = await fetch('/api/letters/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify(suggestionForm),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setForm(prev => ({
+          ...prev,
+          salutation: data.salutation || prev.salutation,
+          body: data.body || prev.body,
+          signature: data.signature || prev.signature,
+        }));
+        setEmotion(data.emotion || null);
+        setShowSuggestionModal(false);
+        showToast('success', 'Letter suggestion applied');
+      } else {
+        showToast('error', 'Failed to get suggestion');
+      }
+    } catch (error) {
+      console.error('Failed to get suggestion:', error);
+      showToast('error', 'Failed to get suggestion');
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
+
   const wordCount = form.body.trim().split(/\s+/).filter(Boolean).length;
 
   return (
@@ -209,6 +283,34 @@ export function Compose() {
             </button>
           </div>
           {errors.recipients && <span className="text-blood text-sm">{errors.recipients}</span>}
+        </motion.div>
+
+        {/* Letter tools bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="flex items-center justify-between mb-4"
+        >
+          <button
+            onClick={() => setShowSuggestionModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gold/10 border border-gold/30 rounded-lg text-gold hover:bg-gold/20 transition-all"
+          >
+            <Sparkles size={16} />
+            Help me write
+          </button>
+          
+          <div className="flex items-center gap-2">
+            {isAnalyzing && (
+              <span className="flex items-center gap-2 text-paper/40 text-sm">
+                <Loader2 size={14} className="animate-spin" />
+                Analyzing...
+              </span>
+            )}
+            {emotion && !isAnalyzing && (
+              <EmotionBadge emotion={emotion} size="md" />
+            )}
+          </div>
         </motion.div>
 
         {/* Letter paper */}
@@ -344,6 +446,123 @@ export function Compose() {
           )}
         </motion.div>
       </div>
+
+      {/* Letter Suggestion Modal */}
+      <AnimatePresence>
+        {showSuggestionModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowSuggestionModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-void border border-white/10 rounded-2xl p-6 max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-display text-gold">Letter Writing Assistant</h3>
+                <button
+                  onClick={() => setShowSuggestionModal(false)}
+                  className="text-paper/40 hover:text-paper"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-paper/60 text-sm mb-2">Recipient Name</label>
+                  <input
+                    type="text"
+                    value={suggestionForm.recipientName}
+                    onChange={(e) => setSuggestionForm({ ...suggestionForm, recipientName: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-paper focus:border-gold/50 outline-none"
+                    placeholder="e.g., Sarah"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-paper/60 text-sm mb-2">Relationship</label>
+                  <select
+                    value={suggestionForm.relationship}
+                    onChange={(e) => setSuggestionForm({ ...suggestionForm, relationship: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-paper focus:border-gold/50 outline-none"
+                  >
+                    <option value="child">Child</option>
+                    <option value="spouse">Spouse</option>
+                    <option value="parent">Parent</option>
+                    <option value="sibling">Sibling</option>
+                    <option value="grandchild">Grandchild</option>
+                    <option value="friend">Friend</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-paper/60 text-sm mb-2">Occasion (optional)</label>
+                  <select
+                    value={suggestionForm.occasion}
+                    onChange={(e) => setSuggestionForm({ ...suggestionForm, occasion: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-paper focus:border-gold/50 outline-none"
+                  >
+                    <option value="">General / No specific occasion</option>
+                    <option value="birthday">Birthday</option>
+                    <option value="wedding">Wedding</option>
+                    <option value="graduation">Graduation</option>
+                    <option value="holiday">Holiday</option>
+                    <option value="memorial">Memorial / Remembrance</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-paper/60 text-sm mb-2">Tone</label>
+                  <select
+                    value={suggestionForm.tone}
+                    onChange={(e) => setSuggestionForm({ ...suggestionForm, tone: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-paper focus:border-gold/50 outline-none"
+                  >
+                    <option value="warm and loving">Warm and Loving</option>
+                    <option value="reflective and nostalgic">Reflective and Nostalgic</option>
+                    <option value="encouraging and proud">Encouraging and Proud</option>
+                    <option value="grateful and appreciative">Grateful and Appreciative</option>
+                    <option value="hopeful and optimistic">Hopeful and Optimistic</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowSuggestionModal(false)}
+                  className="flex-1 px-4 py-3 border border-white/10 rounded-lg text-paper/60 hover:text-paper hover:border-white/20 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSuggestion}
+                  disabled={isSuggesting || !suggestionForm.recipientName}
+                  className="flex-1 px-4 py-3 bg-gold text-void rounded-lg font-medium hover:bg-gold/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isSuggesting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={16} />
+                      Generate Letter
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

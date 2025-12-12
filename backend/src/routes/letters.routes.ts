@@ -5,6 +5,8 @@ import { validate, createLetterSchema, updateLetterSchema, idParamSchema } from 
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { billingService } from '../services/billing.service';
 import { emailService } from '../services/email.service';
+import { tinyLLMService } from '../services/tinyllm.service';
+import { emotionService } from '../services/emotion.service';
 
 const router = Router();
 router.use(authenticate);
@@ -160,6 +162,59 @@ router.delete('/:id', validate(idParamSchema), asyncHandler(async (req: Request,
   if (!existing) throw ApiError.notFound('Letter not found');
   await prisma.letter.delete({ where: { id: req.params.id } });
   res.status(204).send();
+}));
+
+/**
+ * POST /api/letters/analyze-text
+ * Analyze the emotion of arbitrary text
+ */
+router.post('/analyze-text', asyncHandler(async (req: Request, res: Response) => {
+  const { text } = req.body;
+  
+  if (!text) {
+    throw ApiError.badRequest('text is required');
+  }
+
+  const emotion = await emotionService.analyzeText(text);
+  
+  res.json({ emotion });
+}));
+
+/**
+ * POST /api/letters/suggest
+ * Get AI-assisted letter suggestion
+ */
+router.post('/suggest', asyncHandler(async (req: Request, res: Response) => {
+  const { recipientName, relationship, occasion, tone, keywords } = req.body;
+  
+  if (!recipientName || !relationship) {
+    throw ApiError.badRequest('recipientName and relationship are required');
+  }
+
+  const suggestion = await tinyLLMService.suggestLetter({
+    recipientName,
+    relationship,
+    occasion,
+    tone,
+    keywords,
+  });
+
+  res.json(suggestion);
+}));
+
+/**
+ * POST /api/letters/:id/analyze-emotion
+ * Analyze the emotion of a letter
+ */
+router.post('/:id/analyze-emotion', validate(idParamSchema), asyncHandler(async (req: Request, res: Response) => {
+  const letter = await prisma.letter.findFirst({
+    where: { id: req.params.id, userId: req.user!.id },
+  });
+  if (!letter) throw ApiError.notFound('Letter not found');
+
+  const emotion = await emotionService.classifyLetter(letter.body, letter.salutation || undefined, letter.signature || undefined);
+  
+  res.json({ emotion });
 }));
 
 export default router;
