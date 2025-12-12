@@ -1,69 +1,96 @@
 version: '3.8'
 
 services:
-  db:
+  # PostgreSQL Database
+  postgres:
     image: postgres:15-alpine
-    container_name: heirloom_db
+    container_name: heirloom-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-heirloom}
-      POSTGRES_USER: ${POSTGRES_USER:-heirloom}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-heirloom_secure_password_2024}
+      POSTGRES_USER: heirloom
+      POSTGRES_PASSWORD: heirloom_dev
+      POSTGRES_DB: heirloom
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U heirloom"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
 
-  backend_node:
-    build:
-      context: ./backend-node
-      dockerfile: Dockerfile
-    container_name: heirloom_backend_node
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: heirloom-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MinIO (S3-compatible storage for local dev)
+  minio:
+    image: minio/minio:latest
+    container_name: heirloom-minio
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-heirloom}:${POSTGRES_PASSWORD:-heirloom_secure_password_2024}@db:5432/${POSTGRES_DB:-heirloom}
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: heirloom-backend
+    environment:
+      NODE_ENV: development
       PORT: 3001
-      NODE_ENV: production
-      JWT_SECRET: ${JWT_SECRET:-heirloom_jwt_secret_key_change_in_production_2024}
-      JWT_EXPIRES_IN: 7d
+      DATABASE_URL: postgresql://heirloom:heirloom_dev@postgres:5432/heirloom
+      REDIS_URL: redis://redis:6379
     ports:
       - "3001:3001"
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
-    restart: unless-stopped
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src
+    command: npm run dev
 
+  # Frontend
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_BASE_URL: https://loom.vantax.co.za/api
-    container_name: heirloom_frontend
+    container_name: heirloom-frontend
+    environment:
+      VITE_API_URL: http://localhost:3001/api
     ports:
       - "3000:3000"
     depends_on:
-      - backend_node
-    restart: unless-stopped
-
-  nginx:
-    image: nginx:alpine
-    container_name: heirloom_nginx
-    ports:
-      - "80:80"
-      - "443:443"
+      - backend
     volumes:
-      - ./nginx-ssl.conf:/etc/nginx/nginx.conf:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
-    depends_on:
-      - frontend
-      - backend_node
-    restart: unless-stopped
+      - ./frontend/src:/app/src
+    command: npm run dev
 
 volumes:
   postgres_data:
+  redis_data:
+  minio_data:
