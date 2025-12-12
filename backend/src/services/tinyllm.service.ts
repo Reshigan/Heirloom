@@ -61,7 +61,7 @@ class TinyLLMService {
         return emotionService.analyzeText(text);
       }
 
-      const data = await response.json();
+      const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
       const content = data.choices?.[0]?.message?.content || '';
       const parsed = JSON.parse(content);
       
@@ -120,7 +120,7 @@ Respond with ONLY a JSON object:
         return this.generateFallbackLetter(input);
       }
 
-      const data = await response.json();
+      const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
       const content = data.choices?.[0]?.message?.content || '';
       const parsed = JSON.parse(content);
       
