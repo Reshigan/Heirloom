@@ -169,10 +169,11 @@ export const deadManSwitchService = {
       include: { user: true },
     });
 
-    for (const dms of upcomingSwitches) {
-      const daysUntil = Math.ceil(
-        (dms.nextCheckInDue.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      );
+      for (const dms of upcomingSwitches) {
+        if (!dms.nextCheckInDue) continue;
+        const daysUntil = Math.ceil(
+          (dms.nextCheckInDue.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        );
       
       // Send reminder at 7, 3, 1 days
       if ([7, 3, 1].includes(daysUntil)) {

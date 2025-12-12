@@ -38,7 +38,7 @@ export const authService = {
    * Hash a password
    */
   async hashPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, env.BCRYPT_ROUNDS);
+    return bcrypt.hash(password, 12);
   },
 
   /**

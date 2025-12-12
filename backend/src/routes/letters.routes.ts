@@ -121,12 +121,18 @@ router.post('/:id/seal', validate(idParamSchema), asyncHandler(async (req: Reque
     const user = req.user!;
     for (const recipient of letter.recipients) {
       if (recipient.familyMember.email) {
-        const sent = await emailService.sendLetterDelivery(
-          recipient.familyMember.email,
-          recipient.familyMember.name,
-          `${user.firstName} ${user.lastName}`,
-          { salutation: letter.salutation || '', body: letter.body, signature: letter.signature || '' }
-        );
+        let sent = false;
+        try {
+          await emailService.sendLetterDelivery(
+            recipient.familyMember.email,
+            recipient.familyMember.name,
+            `${user.firstName} ${user.lastName}`,
+            { salutation: letter.salutation || '', body: letter.body, signature: letter.signature || '' }
+          );
+          sent = true;
+        } catch (error) {
+          sent = false;
+        }
 
         await prisma.letterDelivery.create({
           data: {
