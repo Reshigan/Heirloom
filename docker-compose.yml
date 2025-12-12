@@ -107,7 +107,7 @@ services:
       - backend
     volumes:
       - ./frontend/src:/app/src
-    command: npm run dev
+    command: ["npm", "run", "dev", "--", "--host"]
 
   # Nginx reverse proxy (for production with SSL)
   nginx:
