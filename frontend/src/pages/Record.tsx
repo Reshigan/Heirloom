@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Mic, Square, Play, Save } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
+import { PartnerIcon, HomeIcon, HolidayIcon, LightbulbIcon } from '../components/icons/StoryPromptIcons';
 
 export function Record() {
   const navigate = useNavigate();
@@ -244,21 +245,21 @@ export function Record() {
               <h3 className="text-lg text-paper/60 mb-4">Story Prompts</h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { emoji: '💑', text: 'How did you meet your partner?' },
-                  { emoji: '🏠', text: 'Describe your childhood home' },
-                  { emoji: '🎄', text: 'Favorite holiday memory' },
-                  { emoji: '💡', text: 'Best advice you ever received' },
+                  { icon: PartnerIcon, text: 'How did you meet your partner?' },
+                  { icon: HomeIcon, text: 'Describe your childhood home' },
+                  { icon: HolidayIcon, text: 'Favorite holiday memory' },
+                  { icon: LightbulbIcon, text: 'Best advice you ever received' },
                 ].map((prompt, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedPrompt(prompt.text)}
-                    className={`p-4 text-left border transition-all ${
+                    className={`p-4 text-left rounded-lg transition-all ${
                       selectedPrompt === prompt.text
-                        ? 'border-gold bg-gold/5'
-                        : 'border-white/[0.04] hover:border-gold/20'
+                        ? 'glass-panel border-gold/30'
+                        : 'glass-card hover:border-gold/20'
                     }`}
                   >
-                    <span className="text-2xl block mb-2">{prompt.emoji}</span>
+                    <prompt.icon size={28} className="text-gold mb-2" />
                     <span className="text-sm text-paper/60">{prompt.text}</span>
                   </button>
                 ))}
