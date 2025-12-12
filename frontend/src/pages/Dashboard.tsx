@@ -44,6 +44,11 @@ export function Dashboard() {
     queryFn: () => deadmanApi.getStatus().then(r => r.data),
   });
   
+  const { data: recentPhotos } = useQuery({
+    queryKey: ['recent-photos'],
+    queryFn: () => memoriesApi.getAll({ type: 'PHOTO', limit: 3 }).then(r => r.data),
+  });
+  
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
@@ -250,14 +255,46 @@ export function Dashboard() {
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 <div className="photo-frame aspect-[4/3] relative overflow-hidden">
-                  <div className="absolute inset-2 bg-gradient-to-br from-gold/20 to-blood/10 rounded" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Image size={32} className="text-gold/60 group-hover:text-gold transition-colors" />
-                  </div>
+                  {recentPhotos?.memories?.[0] ? (
+                    <img 
+                      src={recentPhotos.memories[0].metadata?.thumbnailUrl || recentPhotos.memories[0].fileUrl} 
+                      alt={recentPhotos.memories[0].title}
+                      className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded"
+                    />
+                  ) : (
+                    <>
+                      <div className="absolute inset-2 bg-gradient-to-br from-gold/20 to-blood/10 rounded" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Image size={32} className="text-gold/60 group-hover:text-gold transition-colors" />
+                      </div>
+                    </>
+                  )}
                   <div className="photo-frame-glass" />
                 </div>
-                <div className="absolute -bottom-2 -right-2 photo-frame w-full aspect-[4/3] -z-10 opacity-60" style={{ transform: 'rotate(5deg)' }} />
-                <div className="absolute -bottom-4 -right-4 photo-frame w-full aspect-[4/3] -z-20 opacity-30" style={{ transform: 'rotate(10deg)' }} />
+                {recentPhotos?.memories?.[1] && (
+                  <div className="absolute -bottom-2 -right-2 photo-frame w-full aspect-[4/3] -z-10 opacity-80 overflow-hidden" style={{ transform: 'rotate(5deg)' }}>
+                    <img 
+                      src={recentPhotos.memories[1].metadata?.thumbnailUrl || recentPhotos.memories[1].fileUrl} 
+                      alt={recentPhotos.memories[1].title}
+                      className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded"
+                    />
+                  </div>
+                )}
+                {!recentPhotos?.memories?.[1] && (
+                  <div className="absolute -bottom-2 -right-2 photo-frame w-full aspect-[4/3] -z-10 opacity-60" style={{ transform: 'rotate(5deg)' }} />
+                )}
+                {recentPhotos?.memories?.[2] && (
+                  <div className="absolute -bottom-4 -right-4 photo-frame w-full aspect-[4/3] -z-20 opacity-60 overflow-hidden" style={{ transform: 'rotate(10deg)' }}>
+                    <img 
+                      src={recentPhotos.memories[2].metadata?.thumbnailUrl || recentPhotos.memories[2].fileUrl} 
+                      alt={recentPhotos.memories[2].title}
+                      className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded"
+                    />
+                  </div>
+                )}
+                {!recentPhotos?.memories?.[2] && (
+                  <div className="absolute -bottom-4 -right-4 photo-frame w-full aspect-[4/3] -z-20 opacity-30" style={{ transform: 'rotate(10deg)' }} />
+                )}
                 <div className="mt-3 text-center">
                   <div className="text-paper font-medium">{stats?.totalMemories || 0} Memories</div>
                   <div className="text-paper/40 text-sm">Click to view</div>

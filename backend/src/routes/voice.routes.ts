@@ -5,6 +5,7 @@ import { validate, createVoiceRecordingSchema, idParamSchema } from '../middlewa
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { billingService } from '../services/billing.service';
 import { storageService } from '../services/storage.service';
+import { tinyLLMService } from '../services/tinyllm.service';
 
 const router = Router();
 router.use(authenticate);
@@ -89,19 +90,29 @@ router.post('/upload-url', asyncHandler(async (req: Request, res: Response) => {
  * POST /api/voice
  */
 router.post('/', validate(createVoiceRecordingSchema), asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, duration, prompt, recipientIds, fileKey, fileUrl, fileSize, waveformData } = req.body;
+  const { title, description, duration, prompt, recipientIds, fileKey, fileUrl, fileSize, waveformData, transcript, metadata } = req.body;
 
-  // Check voice minutes limit
   const limit = await billingService.checkLimit(req.user!.id, 'maxVoiceMinutes');
   const newMinutes = Math.ceil(duration / 60);
   if (limit.max !== -1 && limit.current + newMinutes > limit.max) {
     throw ApiError.forbidden(`Adding this recording would exceed your ${limit.max} minute limit. Upgrade your plan.`);
   }
 
+  let enrichedMetadata = metadata || {};
+  const textToAnalyze = `${title || ''} ${description || ''} ${transcript || ''}`.trim();
+  if (textToAnalyze) {
+    try {
+      const emotionResult = await tinyLLMService.classifyEmotion(textToAnalyze);
+      enrichedMetadata = { ...enrichedMetadata, emotion: emotionResult.label, emotionConfidence: emotionResult.confidence };
+    } catch (error) {
+      console.warn('Emotion classification failed for voice recording:', error);
+    }
+  }
+
   const recording = await prisma.voiceRecording.create({
     data: {
       userId: req.user!.id, title, description, duration, prompt,
-      fileKey, fileUrl, fileSize, waveformData,
+      fileKey, fileUrl, fileSize, waveformData, metadata: enrichedMetadata,
       recipients: recipientIds?.length ? { create: recipientIds.map((id: string) => ({ familyMemberId: id })) } : undefined,
     },
     include: { recipients: { include: { familyMember: true } } },
@@ -114,12 +125,25 @@ router.post('/', validate(createVoiceRecordingSchema), asyncHandler(async (req: 
  * PATCH /api/voice/:id
  */
 router.patch('/:id', validate(idParamSchema), asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, recipientIds } = req.body;
+  const { title, description, recipientIds, transcript } = req.body;
   const existing = await prisma.voiceRecording.findFirst({ where: { id: req.params.id, userId: req.user!.id } });
   if (!existing) throw ApiError.notFound('Recording not found');
 
+  let emotionUpdate: { emotion?: string; emotionConfidence?: number } = {};
+  const textToAnalyze = `${title || existing.title || ''} ${description || existing.description || ''} ${transcript || ''}`.trim();
+  if (textToAnalyze && (title || description || transcript)) {
+    try {
+      const emotionResult = await tinyLLMService.classifyEmotion(textToAnalyze);
+      emotionUpdate = { emotion: emotionResult.label, emotionConfidence: emotionResult.confidence };
+    } catch (error) {
+      console.warn('Emotion classification failed for voice recording update:', error);
+    }
+  }
+
   const recording = await prisma.$transaction(async (tx) => {
-    await tx.voiceRecording.update({ where: { id: req.params.id }, data: { title, description } });
+    const existingMetadata = (existing.metadata as Record<string, unknown>) || {};
+    const updatedMetadata = Object.keys(emotionUpdate).length > 0 ? { ...existingMetadata, ...emotionUpdate } : existingMetadata;
+    await tx.voiceRecording.update({ where: { id: req.params.id }, data: { title, description, metadata: updatedMetadata } });
     if (recipientIds !== undefined) {
       await tx.voiceRecipient.deleteMany({ where: { voiceRecordingId: req.params.id } });
       if (recipientIds.length > 0) {

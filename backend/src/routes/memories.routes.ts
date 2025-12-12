@@ -5,6 +5,7 @@ import { validate, createMemorySchema, updateMemorySchema, idParamSchema, getUpl
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { billingService } from '../services/billing.service';
 import { storageService } from '../services/storage.service';
+import { tinyLLMService } from '../services/tinyllm.service';
 
 const router = Router();
 router.use(authenticate);
@@ -94,9 +95,20 @@ router.post('/', validate(createMemorySchema), asyncHandler(async (req: Request,
   const limit = await billingService.checkLimit(req.user!.id, 'maxMemories');
   if (!limit.allowed) throw ApiError.forbidden(`Memory limit of ${limit.max} reached. Upgrade your plan.`);
 
+  let enrichedMetadata = metadata || {};
+  const textToAnalyze = `${title || ''} ${description || ''}`.trim();
+  if (textToAnalyze) {
+    try {
+      const emotionResult = await tinyLLMService.classifyEmotion(textToAnalyze);
+      enrichedMetadata = { ...enrichedMetadata, emotion: emotionResult.label, emotionConfidence: emotionResult.confidence };
+    } catch (error) {
+      console.warn('Emotion classification failed for memory:', error);
+    }
+  }
+
   const memory = await prisma.memory.create({
     data: {
-      userId: req.user!.id, type, title, description, fileKey, fileUrl, fileSize, mimeType, metadata,
+      userId: req.user!.id, type, title, description, fileKey, fileUrl, fileSize, mimeType, metadata: enrichedMetadata,
       recipients: recipientIds?.length ? { create: recipientIds.map((id: string) => ({ familyMemberId: id })) } : undefined,
     },
     include: { recipients: { include: { familyMember: true } } },
@@ -113,8 +125,21 @@ router.patch('/:id', validate(updateMemorySchema), asyncHandler(async (req: Requ
   const existing = await prisma.memory.findFirst({ where: { id: req.params.id, userId: req.user!.id } });
   if (!existing) throw ApiError.notFound('Memory not found');
 
+  let emotionUpdate: { emotion?: string; emotionConfidence?: number } = {};
+  const textToAnalyze = `${title || existing.title || ''} ${description || existing.description || ''}`.trim();
+  if (textToAnalyze && (title || description)) {
+    try {
+      const emotionResult = await tinyLLMService.classifyEmotion(textToAnalyze);
+      emotionUpdate = { emotion: emotionResult.label, emotionConfidence: emotionResult.confidence };
+    } catch (error) {
+      console.warn('Emotion classification failed for memory update:', error);
+    }
+  }
+
   const memory = await prisma.$transaction(async (tx) => {
-    await tx.memory.update({ where: { id: req.params.id }, data: { title, description } });
+    const existingMetadata = (existing.metadata as Record<string, unknown>) || {};
+    const updatedMetadata = Object.keys(emotionUpdate).length > 0 ? { ...existingMetadata, ...emotionUpdate } : existingMetadata;
+    await tx.memory.update({ where: { id: req.params.id }, data: { title, description, metadata: updatedMetadata } });
     if (recipientIds !== undefined) {
       await tx.memoryRecipient.deleteMany({ where: { memoryId: req.params.id } });
       if (recipientIds.length > 0) {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, LogOut } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -128,14 +129,47 @@ export function Settings() {
   ];
 
   return (
-    <div className="min-h-screen px-6 md:px-12 py-12">
-      <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
-        <ArrowLeft size={20} />
-        Back to Vault
-      </button>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Sanctuary Background */}
+      <div className="sanctuary-bg">
+        <div className="sanctuary-orb sanctuary-orb-1" />
+        <div className="sanctuary-orb sanctuary-orb-2" />
+        <div className="sanctuary-orb sanctuary-orb-3" />
+        <div className="sanctuary-stars" />
+        <div className="sanctuary-mist" />
+      </div>
+      
+      {/* Floating dust particles */}
+      <div className="fixed inset-0 pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 rounded-full bg-gold/30"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              opacity: [0, 0.8, 0],
+            }}
+            transition={{
+              duration: 10 + Math.random() * 10,
+              repeat: Infinity,
+              delay: Math.random() * 10,
+            }}
+          />
+        ))}
+      </div>
+      
+      <div className="relative z-10 px-6 md:px-12 py-12">
+        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
+          <ArrowLeft size={20} />
+          Back to Vault
+        </button>
 
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-light mb-12">Settings</h1>
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-light mb-12">Settings</h1>
 
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
