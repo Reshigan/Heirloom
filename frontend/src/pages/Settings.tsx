@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, LogOut } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -152,6 +152,19 @@ export function Settings() {
                 {label}
               </button>
             ))}
+            
+            <div className="pt-4 mt-4 border-t border-white/10">
+              <button
+                onClick={() => {
+                  logout();
+                  navigate('/');
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left text-blood hover:bg-blood/10 transition-all"
+              >
+                <LogOut size={18} />
+                Logout
+              </button>
+            </div>
           </div>
 
           {/* Content */}
