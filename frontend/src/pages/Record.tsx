@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Mic, Square, Play, Pause, Save } from 'lucide-react';
+import { ArrowLeft, Mic, Square, Play, Save } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
 
 export function Record() {
@@ -11,7 +11,6 @@ export function Record() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const analyserRef = useRef<AnalyserNode | null>(null);
   const animationRef = useRef<number>();
   
   const [isRecording, setIsRecording] = useState(false);
@@ -27,11 +26,6 @@ export function Record() {
     queryFn: () => familyApi.getAll().then(r => r.data),
   });
   
-  const { data: prompts } = useQuery({
-    queryKey: ['voice-prompts'],
-    queryFn: () => voiceApi.getPrompts().then(r => r.data),
-  });
-  
   const { data: recordings } = useQuery({
     queryKey: ['voice-recordings'],
     queryFn: () => voiceApi.getAll({ limit: 5 }).then(r => r.data.recordings),
@@ -39,11 +33,11 @@ export function Record() {
   
   // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isRecording && !isPaused) {
       interval = setInterval(() => setRecordingTime(t => t + 1), 1000);
     }
-    return () => clearInterval(interval);
+    return () => { if (interval) clearInterval(interval); };
   }, [isRecording, isPaused]);
   
   // Waveform animation

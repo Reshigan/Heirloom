@@ -10,7 +10,6 @@ export function Family() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingMember, setEditingMember] = useState<any>(null);
   
   const { data: family } = useQuery({
     queryKey: ['family'],

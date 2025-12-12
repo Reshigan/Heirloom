@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, Image, Mic, Pen, Play, Upload } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, Plus, Image, Mic, Pen } from 'lucide-react';
 import { memoriesApi, familyApi } from '../services/api';
 import { format } from 'date-fns';
 
@@ -10,7 +10,6 @@ type FilterType = 'ALL' | 'PHOTO' | 'VOICE' | 'LETTER';
 
 export function Memories() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [filter, setFilter] = useState<FilterType>('ALL');
   const [recipientFilter, setRecipientFilter] = useState<string | null>(null);
   
