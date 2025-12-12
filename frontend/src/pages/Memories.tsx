@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List } from 'lucide-react';
+import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Mic } from 'lucide-react';
 import { memoriesApi, familyApi } from '../services/api';
 
 type Memory = {
@@ -277,7 +277,12 @@ export function Memories() {
                     <>
                       {/* Thumbnail */}
                       <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-blood/10">
-                        {(memory.metadata?.thumbnailUrl || memory.fileUrl) ? (
+                        {memory.type === 'VOICE' ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                            <Mic size={40} className="text-gold/60" />
+                            <span className="text-paper/50 text-xs px-2 text-center line-clamp-2">{memory.title}</span>
+                          </div>
+                        ) : (memory.metadata?.thumbnailUrl || memory.fileUrl) ? (
                           <img
                             src={memory.metadata?.thumbnailUrl || memory.fileUrl}
                             alt={memory.title}
@@ -306,7 +311,7 @@ export function Memories() {
                       {/* Type badge */}
                       <div className="absolute top-3 right-3">
                         <span className={`badge ${memory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
-                          {memory.type === 'VIDEO' ? <Video size={12} /> : <Image size={12} />}
+                          {memory.type === 'VIDEO' ? <Video size={12} /> : memory.type === 'VOICE' ? <Mic size={12} /> : <Image size={12} />}
                         </span>
                       </div>
 
@@ -316,7 +321,9 @@ export function Memories() {
                   ) : (
                     <>
                       <div className="w-20 h-20 rounded-lg glass flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {(memory.metadata?.thumbnailUrl || memory.fileUrl) ? (
+                        {memory.type === 'VOICE' ? (
+                          <Mic size={24} className="text-gold/60" />
+                        ) : (memory.metadata?.thumbnailUrl || memory.fileUrl) ? (
                           <img src={memory.metadata?.thumbnailUrl || memory.fileUrl} alt="" className="w-full h-full object-cover" />
                         ) : memory.type === 'VIDEO' ? (
                           <Video size={24} className="text-paper/30" />
