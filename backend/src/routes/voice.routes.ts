@@ -90,7 +90,7 @@ router.post('/upload-url', asyncHandler(async (req: Request, res: Response) => {
  * POST /api/voice
  */
 router.post('/', validate(createVoiceRecordingSchema), asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, duration, prompt, recipientIds, fileKey, fileUrl, fileSize, waveformData, transcript, metadata } = req.body;
+  const { title, description, duration, prompt, recipientIds, fileKey, fileUrl, fileSize, waveformData, transcript } = req.body;
 
   const limit = await billingService.checkLimit(req.user!.id, 'maxVoiceMinutes');
   const newMinutes = Math.ceil(duration / 60);
@@ -98,21 +98,23 @@ router.post('/', validate(createVoiceRecordingSchema), asyncHandler(async (req: 
     throw ApiError.forbidden(`Adding this recording would exceed your ${limit.max} minute limit. Upgrade your plan.`);
   }
 
-  let enrichedMetadata = metadata || {};
+  let emotionData: { emotion?: string; emotionConfidence?: number } = {};
   const textToAnalyze = `${title || ''} ${description || ''} ${transcript || ''}`.trim();
   if (textToAnalyze) {
     try {
       const emotionResult = await tinyLLMService.classifyEmotion(textToAnalyze);
-      enrichedMetadata = { ...enrichedMetadata, emotion: emotionResult.label, emotionConfidence: emotionResult.confidence };
+      emotionData = { emotion: emotionResult.label, emotionConfidence: emotionResult.confidence };
     } catch (error) {
       console.warn('Emotion classification failed for voice recording:', error);
     }
   }
 
+  const enrichedWaveformData = waveformData ? { ...waveformData, ...emotionData } : emotionData;
+
   const recording = await prisma.voiceRecording.create({
     data: {
-      userId: req.user!.id, title, description, duration, prompt,
-      fileKey, fileUrl, fileSize, waveformData, metadata: enrichedMetadata,
+      userId: req.user!.id, title, description, duration, prompt, transcript,
+      fileKey, fileUrl, fileSize, waveformData: Object.keys(enrichedWaveformData).length > 0 ? enrichedWaveformData : undefined,
       recipients: recipientIds?.length ? { create: recipientIds.map((id: string) => ({ familyMemberId: id })) } : undefined,
     },
     include: { recipients: { include: { familyMember: true } } },
@@ -130,7 +132,7 @@ router.patch('/:id', validate(idParamSchema), asyncHandler(async (req: Request, 
   if (!existing) throw ApiError.notFound('Recording not found');
 
   let emotionUpdate: { emotion?: string; emotionConfidence?: number } = {};
-  const textToAnalyze = `${title || existing.title || ''} ${description || existing.description || ''} ${transcript || ''}`.trim();
+  const textToAnalyze = `${title || existing.title || ''} ${description || existing.description || ''} ${transcript || existing.transcript || ''}`.trim();
   if (textToAnalyze && (title || description || transcript)) {
     try {
       const emotionResult = await tinyLLMService.classifyEmotion(textToAnalyze);
@@ -141,9 +143,17 @@ router.patch('/:id', validate(idParamSchema), asyncHandler(async (req: Request, 
   }
 
   const recording = await prisma.$transaction(async (tx) => {
-    const existingMetadata = (existing.metadata as Record<string, unknown>) || {};
-    const updatedMetadata = Object.keys(emotionUpdate).length > 0 ? { ...existingMetadata, ...emotionUpdate } : existingMetadata;
-    await tx.voiceRecording.update({ where: { id: req.params.id }, data: { title, description, metadata: updatedMetadata } });
+    const existingWaveformData = (existing.waveformData as Record<string, unknown>) || {};
+    const updatedWaveformData = Object.keys(emotionUpdate).length > 0 ? { ...existingWaveformData, ...emotionUpdate } : existingWaveformData;
+    await tx.voiceRecording.update({ 
+      where: { id: req.params.id }, 
+      data: { 
+        title, 
+        description, 
+        transcript,
+        waveformData: Object.keys(updatedWaveformData).length > 0 ? updatedWaveformData : undefined 
+      } 
+    });
     if (recipientIds !== undefined) {
       await tx.voiceRecipient.deleteMany({ where: { voiceRecordingId: req.params.id } });
       if (recipientIds.length > 0) {
@@ -153,7 +163,7 @@ router.patch('/:id', validate(idParamSchema), asyncHandler(async (req: Request, 
     return tx.voiceRecording.findUnique({ where: { id: req.params.id }, include: { recipients: { include: { familyMember: true } } } });
   });
 
-  res.json({ ...recording, recipients: recording?.recipients.map(r => r.familyMember) });
+  res.json({ ...recording, recipients: recording?.recipients.map((r: { familyMember: unknown }) => r.familyMember) });
 }));
 
 /**

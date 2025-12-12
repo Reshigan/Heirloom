@@ -137,9 +137,16 @@ router.patch('/:id', validate(updateMemorySchema), asyncHandler(async (req: Requ
   }
 
   const memory = await prisma.$transaction(async (tx) => {
-    const existingMetadata = (existing.metadata as Record<string, unknown>) || {};
+    const existingMetadata = (existing.metadata || {}) as object;
     const updatedMetadata = Object.keys(emotionUpdate).length > 0 ? { ...existingMetadata, ...emotionUpdate } : existingMetadata;
-    await tx.memory.update({ where: { id: req.params.id }, data: { title, description, metadata: updatedMetadata } });
+    await tx.memory.update({ 
+      where: { id: req.params.id }, 
+      data: { 
+        title, 
+        description, 
+        metadata: Object.keys(updatedMetadata).length > 0 ? updatedMetadata : undefined 
+      } 
+    });
     if (recipientIds !== undefined) {
       await tx.memoryRecipient.deleteMany({ where: { memoryId: req.params.id } });
       if (recipientIds.length > 0) {
@@ -149,7 +156,7 @@ router.patch('/:id', validate(updateMemorySchema), asyncHandler(async (req: Requ
     return tx.memory.findUnique({ where: { id: req.params.id }, include: { recipients: { include: { familyMember: true } } } });
   });
 
-  res.json({ ...memory, recipients: memory?.recipients.map(r => r.familyMember) });
+  res.json({ ...memory, recipients: memory?.recipients.map((r: { familyMember: unknown }) => r.familyMember) });
 }));
 
 /**
