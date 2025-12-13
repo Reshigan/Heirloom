@@ -24,12 +24,26 @@ const queryClient = new QueryClient({
 });
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, hasHydrated } = useAuthStore();
+
+  if (!hasHydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-void">
+        <div className="animate-spin w-8 h-8 border-2 border-gold border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, hasHydrated } = useAuthStore();
+
+  if (!hasHydrated) {
+    return null;
+  }
+
   return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
 }
 

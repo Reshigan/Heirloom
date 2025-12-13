@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 
 export function Login() {
-  const navigate = useNavigate();
   const { login } = useAuthStore();
   
   const [email, setEmail] = useState('');
@@ -21,7 +20,6 @@ export function Login() {
 
     try {
       await login(email, password);
-      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password');
     } finally {
