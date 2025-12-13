@@ -1,4 +1,4 @@
-import { Heart, Sparkles, Gift, Star, Cloud, Droplet, Eye, Trophy, Leaf, Sun } from 'lucide-react';
+import { Heart, Sparkles, Gift, Cloud, Droplet, Eye, Trophy, Leaf, Sun } from 'lucide-react';
 
 type EmotionLabel = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
 

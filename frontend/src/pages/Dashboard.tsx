@@ -95,10 +95,10 @@ export function Dashboard() {
   const trialDaysLeft = subscription?.trialDaysLeft || 0;
 
   useEffect(() => {
-    if (!hasCompletedTour) {
+    if (!hasCompletedTour && user?.email !== 'demo@heirloom.app') {
       openTour();
     }
-  }, [hasCompletedTour, openTour]);
+  }, [hasCompletedTour, openTour, user?.email]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">

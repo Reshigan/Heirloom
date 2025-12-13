@@ -65,6 +65,41 @@ async function main() {
 
   console.log(`✅ Created ${familyMembers.length} family members`);
 
+  // Create additional family members for a richer constellation
+  const additionalFamilyMembers = await Promise.all([
+    prisma.familyMember.create({
+      data: {
+        userId: user.id,
+        name: 'David Johnson',
+        relationship: 'Husband',
+        email: 'david@example.com',
+        birthDate: new Date('1968-03-15'),
+        notes: 'My rock and partner for 30 years',
+      },
+    }),
+    prisma.familyMember.create({
+      data: {
+        userId: user.id,
+        name: 'Lily Johnson',
+        relationship: 'Granddaughter',
+        birthDate: new Date('2020-06-12'),
+        notes: 'Emma\'s daughter, the light of our lives',
+      },
+    }),
+    prisma.familyMember.create({
+      data: {
+        userId: user.id,
+        name: 'Thomas Wilson',
+        relationship: 'Brother',
+        email: 'thomas@example.com',
+        phone: '+1-555-0123',
+        notes: 'My older brother, always there for me',
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${additionalFamilyMembers.length} additional family members`);
+
   // Create story prompts
   const prompts = await prisma.storyPrompt.createMany({
     data: [
@@ -207,6 +242,74 @@ async function main() {
   });
 
   console.log('✅ Created sample memories with pictures and voice notes');
+
+  // Create VoiceRecording entries (separate from Memory with type VOICE)
+  await prisma.voiceRecording.createMany({
+    data: [
+      {
+        userId: user.id,
+        title: 'The story of how we met',
+        description: 'A recording for the grandchildren about how their grandparents fell in love at a small coffee shop in 1995.',
+        fileUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        fileKey: 'voice/demo/how-we-met.mp3',
+        duration: 185,
+        fileSize: 4500000,
+        transcript: 'It was a rainy Tuesday afternoon in October 1995. I had just started my new job downtown and decided to duck into this little coffee shop to escape the rain. There she was, sitting by the window with a book in her hands - Pride and Prejudice, I later learned. Our eyes met, and I knew right then that my life was about to change forever. I gathered all my courage and asked if I could share her table. She smiled and said yes. We talked for three hours that day, and I knew I had found my soulmate.',
+        prompt: 'How did you meet your partner?',
+        waveformData: { waveform: [0.2, 0.4, 0.6, 0.8, 0.5, 0.3, 0.7, 0.9, 0.4, 0.2], emotion: 'loving', emotionConfidence: 0.92 },
+      },
+      {
+        userId: user.id,
+        title: 'Advice for my grandchildren',
+        description: 'Life lessons I want to pass down to the next generation.',
+        fileUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+        fileKey: 'voice/demo/advice-grandchildren.mp3',
+        duration: 142,
+        fileSize: 3800000,
+        transcript: 'My dear grandchildren, there are a few things I want you to always remember. First, be kind to everyone you meet - you never know what battles they are fighting. Second, never stop learning. The world is full of wonders waiting to be discovered. Third, cherish your family. They will be there for you when no one else will. Fourth, follow your dreams, but remember that the journey is just as important as the destination. And finally, always be true to yourself. The world needs your unique light.',
+        prompt: 'Best advice you ever received',
+        waveformData: { waveform: [0.3, 0.5, 0.7, 0.6, 0.4, 0.8, 0.5, 0.3, 0.6, 0.4], emotion: 'hopeful', emotionConfidence: 0.88 },
+      },
+      {
+        userId: user.id,
+        title: 'My favorite childhood memory',
+        description: 'Remembering summers at my grandmother\'s house.',
+        fileUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+        fileKey: 'voice/demo/childhood-memory.mp3',
+        duration: 210,
+        fileSize: 5200000,
+        transcript: 'Every summer, my parents would send me to stay with my grandmother in the countryside. Those were the happiest days of my childhood. Grandma had this big old farmhouse with a wrap-around porch where we would sit and watch the fireflies at night. She taught me how to bake her famous apple pie, how to tend the garden, and how to find joy in the simple things. I can still smell the lavender that grew by her kitchen window. Those summers shaped who I am today, and I hope I have passed on some of that magic to all of you.',
+        prompt: 'Describe your childhood home',
+        waveformData: { waveform: [0.4, 0.6, 0.5, 0.7, 0.8, 0.6, 0.4, 0.5, 0.7, 0.3], emotion: 'nostalgic', emotionConfidence: 0.95 },
+      },
+      {
+        userId: user.id,
+        title: 'A message for Emma on her wedding day',
+        description: 'Words of love and wisdom for my daughter\'s special day.',
+        fileUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+        fileKey: 'voice/demo/emma-wedding.mp3',
+        duration: 168,
+        fileSize: 4100000,
+        transcript: 'My beautiful Emma, today you begin a new chapter in your life. I remember the day you were born, how you looked up at me with those big curious eyes. Now you are a woman, about to start your own family. Marriage is a beautiful journey, but it takes work. Always communicate, even when it is hard. Never go to bed angry. Keep dating each other, even after fifty years. Support each other\'s dreams. And most importantly, never forget to laugh together. I am so proud of the woman you have become. I love you more than words can say.',
+        prompt: 'What was your wedding day like?',
+        waveformData: { waveform: [0.5, 0.7, 0.6, 0.8, 0.5, 0.4, 0.6, 0.7, 0.5, 0.3], emotion: 'loving', emotionConfidence: 0.94 },
+      },
+      {
+        userId: user.id,
+        title: 'The day Michael was born',
+        description: 'Remembering the joy of welcoming our son into the world.',
+        fileUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+        fileKey: 'voice/demo/michael-birth.mp3',
+        duration: 156,
+        fileSize: 3900000,
+        transcript: 'It was three in the morning when we rushed to the hospital. Your father was so nervous he forgot the overnight bag twice. After twelve hours of labor, you finally arrived - all seven pounds, eight ounces of you. When they placed you in my arms, I cried tears of pure joy. You had your father\'s eyes and my stubborn chin. From that moment, I knew my life had a new purpose. Watching you grow into the man you are today has been the greatest privilege of my life.',
+        prompt: 'Proudest professional moment',
+        waveformData: { waveform: [0.6, 0.5, 0.7, 0.8, 0.6, 0.5, 0.7, 0.6, 0.4, 0.3], emotion: 'joyful', emotionConfidence: 0.91 },
+      },
+    ],
+  });
+
+  console.log('✅ Created VoiceRecording entries with real transcripts');
 
   // Create sample letter
   await prisma.letter.create({

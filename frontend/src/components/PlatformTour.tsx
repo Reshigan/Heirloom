@@ -375,26 +375,26 @@ export function PlatformTour({ isOpen, onClose, onComplete }: PlatformTourProps)
   );
 }
 
+const TOUR_STORAGE_KEY = 'heirloom_tour_completed';
+
 export function usePlatformTour() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasCompletedTour, setHasCompletedTour] = useState(false);
-
-  useEffect(() => {
-    const completed = localStorage.getItem('heirloom_tour_completed');
-    setHasCompletedTour(completed === 'true');
-  }, []);
+  const [hasCompletedTour, setHasCompletedTour] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(TOUR_STORAGE_KEY) === 'true';
+  });
 
   const openTour = useCallback(() => setIsOpen(true), []);
   const closeTour = useCallback(() => setIsOpen(false), []);
 
   const completeTour = useCallback(() => {
-    localStorage.setItem('heirloom_tour_completed', 'true');
+    localStorage.setItem(TOUR_STORAGE_KEY, 'true');
     setHasCompletedTour(true);
     setIsOpen(false);
   }, []);
 
   const resetTour = useCallback(() => {
-    localStorage.removeItem('heirloom_tour_completed');
+    localStorage.removeItem(TOUR_STORAGE_KEY);
     setHasCompletedTour(false);
   }, []);
 

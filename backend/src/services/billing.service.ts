@@ -361,12 +361,27 @@ export const billingService = {
         throw new Error('No subscription found');
       }
 
-      if (!subscription.stripeSubscriptionId) {
-        throw new Error('No active Stripe subscription. Please subscribe first.');
-      }
-
       if (subscription.tier === newTier) {
         return { success: false, message: 'You are already on this plan', tier: subscription.tier };
+      }
+
+      if (!subscription.stripeSubscriptionId) {
+        const user = subscription.user;
+        if (user.email === 'demo@heirloom.app') {
+          await prisma.subscription.update({
+            where: { userId },
+            data: { tier: newTier as SubscriptionTier },
+          });
+          const isUpgrade = this.getTierRank(newTier) > this.getTierRank(subscription.tier);
+          const action = isUpgrade ? 'upgraded' : 'downgraded';
+          logger.info(`Demo user ${userId} ${action} from ${subscription.tier} to ${newTier} (no Stripe)`);
+          return {
+            success: true,
+            message: `Successfully ${action} to ${newTier} plan. (Demo mode - no billing)`,
+            tier: newTier,
+          };
+        }
+        throw new Error('No active Stripe subscription. Please subscribe first.');
       }
 
       const user = subscription.user;
