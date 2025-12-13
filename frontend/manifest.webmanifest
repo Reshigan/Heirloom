@@ -1,0 +1,20 @@
+{
+  "name": "Heirloom - Your Memories, Forever",
+  "short_name": "Heirloom",
+  "description": "Preserve your memories for generations. Capture photos, record your voice, write letters to loved ones.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#c9a959",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "productivity"],
+  "lang": "en"
+}
