@@ -82,17 +82,17 @@ services:
       SMTP_PASS: ${SMTP_PASS:-placeholder}
       EMAIL_FROM: ${EMAIL_FROM:-noreply@heirloom.app}
       ENCRYPTION_MASTER_KEY: ${ENCRYPTION_MASTER_KEY}
-      OLLAMA_URL: http://ollama:11434
-      TINYLLM_BASE_URL: http://ollama:11434/v1
+      OLLAMA_URL: http://host.docker.internal:11434
+      TINYLLM_BASE_URL: http://host.docker.internal:11434/v1
       TINYLLM_MODEL: tinyllama
     ports:
       - "3001:3001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      ollama:
         condition: service_healthy
     volumes:
       - ./backend/src:/app/src
@@ -114,25 +114,7 @@ services:
       - ./frontend/src:/app/src
     command: ["npm", "run", "dev", "--", "--host"]
 
-  # Ollama for AI/LLM features
-  ollama:
-    image: ollama/ollama:latest
-    container_name: heirloom-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_KEEP_ALIVE=5m
-      - OLLAMA_NUM_PARALLEL=1
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Nginx reverse proxy (for production with SSL)
+  # Nginx reverse proxy(for production with SSL)
   nginx:
     image: nginx:alpine
     container_name: heirloom-nginx
@@ -163,4 +145,3 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
-  ollama_data:
