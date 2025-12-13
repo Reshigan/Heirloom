@@ -76,6 +76,25 @@ router.post('/checkout', authenticate, asyncHandler(async (req: Request, res: Re
 }));
 
 /**
+ * POST /api/billing/change-plan
+ * Change subscription plan (upgrade or downgrade)
+ */
+router.post('/change-plan', authenticate, asyncHandler(async (req: Request, res: Response) => {
+  const { tier, billingCycle = 'monthly' } = req.body;
+
+  if (!['ESSENTIAL', 'FAMILY', 'LEGACY'].includes(tier)) {
+    throw ApiError.badRequest('Invalid tier');
+  }
+
+  if (!['monthly', 'yearly'].includes(billingCycle)) {
+    throw ApiError.badRequest('Invalid billing cycle');
+  }
+
+  const result = await billingService.changePlan(req.user!.id, tier, billingCycle);
+  res.json(result);
+}));
+
+/**
  * POST /api/billing/portal
  * Create Stripe customer portal session
  */

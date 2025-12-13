@@ -80,14 +80,26 @@ export function Settings() {
     },
   });
 
-  const checkoutMutation = useMutation({
-    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
-    onSuccess: (res) => {
-      window.location.href = res.data.url;
-    },
-  });
+    const checkoutMutation = useMutation({
+      mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
+      onSuccess: (res) => {
+        window.location.href = res.data.url;
+      },
+    });
 
-  const configureDeadmanMutation = useMutation({
+    const changePlanMutation = useMutation({
+      mutationFn: (tier: string) => billingApi.changePlan({ tier }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        queryClient.invalidateQueries({ queryKey: ['limits'] });
+        alert('Plan changed successfully! Changes applied immediately with proration.');
+      },
+      onError: (error: any) => {
+        alert(error.response?.data?.message || 'Failed to change plan. Please try again.');
+      },
+    });
+
+    const configureDeadmanMutation = useMutation({
     mutationFn: () => deadmanApi.configure(deadmanConfig),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
@@ -298,32 +310,53 @@ export function Settings() {
                   )}
                 </div>
 
-                {/* Pricing */}
-                {pricing && (
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {[
-                      { tier: 'ESSENTIAL', name: 'Essential', price: pricing.pricing.essential.monthly },
-                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family.monthly, popular: true },
-                      { tier: 'LEGACY', name: 'Legacy', price: pricing.pricing.legacy.yearly, yearly: true },
-                    ].map(({ tier, name, price, popular, yearly }) => (
-                      <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
-                        {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
-                        <h3 className="text-lg">{name}</h3>
-                        <div className="flex items-baseline gap-1 my-4">
-                          <span className="text-3xl text-gold">{price.formatted}</span>
-                          <span className="text-paper/40">/{yearly ? 'year' : 'month'}</span>
-                        </div>
-                        <button
-                          onClick={() => checkoutMutation.mutate(tier)}
-                          disabled={subscription?.tier === tier || checkoutMutation.isPending}
-                          className={`btn w-full ${subscription?.tier === tier ? 'btn-secondary' : 'btn-primary'}`}
-                        >
-                          {subscription?.tier === tier ? 'Current Plan' : 'Upgrade'}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                                {/* Pricing */}
+                                {pricing && (
+                                  <div className="grid md:grid-cols-3 gap-4">
+                                    {[
+                                      { tier: 'ESSENTIAL', name: 'Essential', price: pricing.pricing.essential.monthly },
+                                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family.monthly, popular: true },
+                                      { tier: 'LEGACY', name: 'Legacy', price: pricing.pricing.legacy.yearly, yearly: true },
+                                    ].map(({ tier, name, price, popular, yearly }) => {
+                                      const isCurrentPlan = subscription?.tier === tier;
+                                      const hasActiveSubscription = subscription?.tier && subscription.tier !== 'FREE';
+                                      const isPending = checkoutMutation.isPending || changePlanMutation.isPending;
+                      
+                                      const handlePlanAction = () => {
+                                        if (hasActiveSubscription) {
+                                          changePlanMutation.mutate(tier);
+                                        } else {
+                                          checkoutMutation.mutate(tier);
+                                        }
+                                      };
+                      
+                                      const getButtonText = () => {
+                                        if (isCurrentPlan) return 'Current Plan';
+                                        if (isPending) return 'Processing...';
+                                        if (hasActiveSubscription) return 'Change Plan';
+                                        return 'Upgrade';
+                                      };
+                      
+                                      return (
+                                        <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
+                                          {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
+                                          <h3 className="text-lg">{name}</h3>
+                                          <div className="flex items-baseline gap-1 my-4">
+                                            <span className="text-3xl text-gold">{price.formatted}</span>
+                                            <span className="text-paper/40">/{yearly ? 'year' : 'month'}</span>
+                                          </div>
+                                          <button
+                                            onClick={handlePlanAction}
+                                            disabled={isCurrentPlan || isPending}
+                                            className={`btn w-full ${isCurrentPlan ? 'btn-secondary' : 'btn-primary'}`}
+                                          >
+                                            {getButtonText()}
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
               </div>
             )}
 

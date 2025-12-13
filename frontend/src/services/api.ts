@@ -116,6 +116,8 @@ export const billingApi = {
   getPricing: (currency?: string) => api.get('/billing/pricing', { params: { currency } }),
   checkout: (data: { tier: string; billingCycle?: string; currency?: string }) =>
     api.post('/billing/checkout', data),
+  changePlan: (data: { tier: string; billingCycle?: string }) =>
+    api.post('/billing/change-plan', data),
   portal: () => api.post('/billing/portal'),
   updateCurrency: (currency: string) => api.patch('/billing/currency', { currency }),
 };

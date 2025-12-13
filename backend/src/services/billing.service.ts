@@ -323,29 +323,127 @@ export const billingService = {
     return session.url!;
   },
 
-  /**
-   * Create customer portal session
-   */
-  async createPortalSession(userId: string): Promise<string> {
-    const subscription = await prisma.subscription.findUnique({
-      where: { userId },
-    });
+    /**
+     * Create customer portal session
+     */
+    async createPortalSession(userId: string): Promise<string> {
+      const subscription = await prisma.subscription.findUnique({
+        where: { userId },
+      });
 
-    if (!subscription?.stripeCustomerId) {
-      throw new Error('No billing account found');
-    }
+      if (!subscription?.stripeCustomerId) {
+        throw new Error('No billing account found');
+      }
 
-    const session = await stripe.billingPortal.sessions.create({
-      customer: subscription.stripeCustomerId,
-      return_url: `${env.FRONTEND_URL}/settings`,
-    });
+      const session = await stripe.billingPortal.sessions.create({
+        customer: subscription.stripeCustomerId,
+        return_url: `${env.FRONTEND_URL}/settings`,
+      });
 
-    return session.url;
-  },
+      return session.url;
+    },
 
-  /**
-   * Handle Stripe webhook events
-   */
+    /**
+     * Change subscription plan (upgrade or downgrade)
+     * Applies immediately with proration
+     */
+    async changePlan(
+      userId: string,
+      newTier: 'ESSENTIAL' | 'FAMILY' | 'LEGACY',
+      billingCycle: 'monthly' | 'yearly' = 'monthly'
+    ): Promise<{ success: boolean; message: string; tier: string }> {
+      const subscription = await prisma.subscription.findUnique({
+        where: { userId },
+        include: { user: true },
+      });
+
+      if (!subscription) {
+        throw new Error('No subscription found');
+      }
+
+      if (!subscription.stripeSubscriptionId) {
+        throw new Error('No active Stripe subscription. Please subscribe first.');
+      }
+
+      if (subscription.tier === newTier) {
+        return { success: false, message: 'You are already on this plan', tier: subscription.tier };
+      }
+
+      const user = subscription.user;
+      const currency = user.preferredCurrency || 'USD';
+      const pricing = this.getPricingInCurrency(currency);
+
+      let priceData;
+      switch (newTier) {
+        case 'ESSENTIAL':
+          priceData = billingCycle === 'monthly' ? pricing.essential.monthly : pricing.essential.yearly;
+          break;
+        case 'FAMILY':
+          priceData = billingCycle === 'monthly' ? pricing.family.monthly : pricing.family.yearly;
+          break;
+        case 'LEGACY':
+          priceData = pricing.legacy.yearly;
+          break;
+      }
+
+      const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+      const currentItem = stripeSubscription.items.data[0];
+
+      if (!currentItem) {
+        throw new Error('No subscription item found');
+      }
+
+      await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
+        items: [{
+          id: currentItem.id,
+          price_data: {
+            currency: currency.toLowerCase(),
+            product_data: {
+              name: `Heirloom ${newTier.charAt(0) + newTier.slice(1).toLowerCase()} Plan`,
+            },
+            unit_amount: Math.round(priceData.amount * 100),
+            recurring: {
+              interval: billingCycle === 'yearly' || newTier === 'LEGACY' ? 'year' : 'month',
+            },
+          },
+        }],
+        proration_behavior: 'always_invoice',
+        metadata: { userId, tier: newTier },
+      });
+
+      await prisma.subscription.update({
+        where: { userId },
+        data: { tier: newTier as SubscriptionTier },
+      });
+
+      const isUpgrade = this.getTierRank(newTier) > this.getTierRank(subscription.tier);
+      const action = isUpgrade ? 'upgraded' : 'downgraded';
+
+      logger.info(`User ${userId} ${action} from ${subscription.tier} to ${newTier}`);
+
+      return {
+        success: true,
+        message: `Successfully ${action} to ${newTier} plan. Changes applied immediately with proration.`,
+        tier: newTier,
+      };
+    },
+
+    /**
+     * Get tier rank for comparison
+     */
+    getTierRank(tier: string): number {
+      const ranks: Record<string, number> = {
+        FREE: 0,
+        ESSENTIAL: 1,
+        FAMILY: 2,
+        LEGACY: 3,
+      };
+      return ranks[tier] || 0;
+    },
+
+    /**
+     * Handle Stripe webhook events
+     */
   async handleWebhook(event: Stripe.Event): Promise<void> {
     switch (event.type) {
       case 'checkout.session.completed':
