@@ -16,10 +16,12 @@ export function Landing() {
   const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" });
   
   const features = [
-    { icon: Image, title: 'Photo Memories', desc: 'Upload and organize photos with context and stories for each moment. End-to-end encrypted.' },
+    { icon: Image, title: 'Memory Vault', desc: 'Upload and organize photos with context and stories for each moment. End-to-end encrypted.' },
     { icon: Mic, title: 'Voice Stories', desc: 'Record your voice with guided prompts. Your stories, your voice, preserved forever.' },
-    { icon: Pen, title: 'Heartfelt Letters', desc: 'Write letters delivered immediately, on a specific date, or after you\'re gone.' },
-    { icon: Clock, title: 'Dead Man\'s Switch', desc: 'Automatic content release to loved ones with multi-contact verification.' },
+    { icon: Pen, title: 'Time-Capsule Letters', desc: 'Write letters delivered immediately, on a specific date, or after you\'re gone.' },
+    { icon: Sparkles, title: 'AI Writing Assistant', desc: 'Local AI helps you find the right words for letters, captions, and voice story ideas. 100% private.' },
+    { icon: Clock, title: 'Year Wrapped', desc: 'Spotify-style annual review of your legacy journey. See your emotions, memories, and milestones.' },
+    { icon: Users, title: 'Family Constellation', desc: 'Connect your loved ones and designate legacy recipients in your family tree.' },
     { icon: Shield, title: 'Legacy Contacts', desc: 'Trusted contacts verify your passing before posthumous content delivery.' },
     { icon: Lock, title: 'E2E Encryption', desc: 'Zero-knowledge architecture. Only you and your beneficiaries can decrypt.' },
   ];

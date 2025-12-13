@@ -19,15 +19,17 @@ class TinyLLMService {
   private baseUrl: string | null;
   private apiKey: string | null;
   private model: string;
+  private isOllama: boolean;
 
   constructor() {
-    this.baseUrl = process.env.TINYLLM_BASE_URL || null;
+    this.baseUrl = process.env.TINYLLM_BASE_URL || process.env.OLLAMA_URL || null;
     this.apiKey = process.env.TINYLLM_API_KEY || null;
-    this.model = process.env.TINYLLM_MODEL || 'gpt-4o-mini';
+    this.model = process.env.TINYLLM_MODEL || 'tinyllama';
+    this.isOllama = this.baseUrl?.includes('ollama') || this.baseUrl?.includes('11434') || false;
   }
 
   private isConfigured(): boolean {
-    return !!(this.baseUrl && this.apiKey);
+    return !!this.baseUrl && (this.isOllama || !!this.apiKey);
   }
 
   async classifyEmotion(text: string): Promise<EmotionResult> {
@@ -36,24 +38,36 @@ class TinyLLMService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const endpoint = this.isOllama ? `${this.baseUrl}/api/chat` : `${this.baseUrl}/chat/completions`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (!this.isOllama && this.apiKey) {
+        headers['Authorization'] = `Bearer ${this.apiKey}`;
+      }
+
+      const systemPrompt = 'You are an emotion classifier. Analyze the text and respond with ONLY a JSON object containing: {"label": "emotion", "confidence": 0.0-1.0}. Valid emotions are: joyful, nostalgic, grateful, loving, bittersweet, sad, reflective, proud, peaceful, hopeful.';
+      
+      const body = this.isOllama ? {
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: text },
+        ],
+        stream: false,
+        options: { temperature: 0.3, num_predict: 100 },
+      } : {
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: text },
+        ],
+        temperature: 0.3,
+        max_tokens: 100,
+      };
+
+      const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an emotion classifier. Analyze the text and respond with ONLY a JSON object containing: {"label": "emotion", "confidence": 0.0-1.0}. Valid emotions are: joyful, nostalgic, grateful, loving, bittersweet, sad, reflective, proud, peaceful, hopeful.',
-            },
-            { role: 'user', content: text },
-          ],
-          temperature: 0.3,
-          max_tokens: 100,
-        }),
+        headers,
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -61,14 +75,21 @@ class TinyLLMService {
         return emotionService.analyzeText(text);
       }
 
-      const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
-      const content = data.choices?.[0]?.message?.content || '';
-      const parsed = JSON.parse(content);
+      const data = await response.json();
+      const content = this.isOllama 
+        ? (data as { message?: { content?: string } }).message?.content || ''
+        : (data as { choices?: Array<{ message?: { content?: string } }> }).choices?.[0]?.message?.content || '';
       
-      return {
-        label: parsed.label,
-        confidence: parsed.confidence || 0.8,
-      };
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          label: parsed.label,
+          confidence: parsed.confidence || 0.8,
+        };
+      }
+      
+      return emotionService.analyzeText(text);
     } catch (error) {
       console.warn('TinyLLM classification failed, falling back to keyword analysis:', error);
       return emotionService.analyzeText(text);
@@ -95,24 +116,36 @@ Respond with ONLY a JSON object:
   "signature": "With love..."
 }`;
 
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const endpoint = this.isOllama ? `${this.baseUrl}/api/chat` : `${this.baseUrl}/chat/completions`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (!this.isOllama && this.apiKey) {
+        headers['Authorization'] = `Bearer ${this.apiKey}`;
+      }
+
+      const systemPrompt = 'You are a compassionate letter writer helping people express their feelings to loved ones. Write sincere, emotional letters that capture the essence of family bonds and lasting memories.';
+      
+      const body = this.isOllama ? {
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        stream: false,
+        options: { temperature: 0.7, num_predict: 500 },
+      } : {
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      };
+
+      const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a compassionate letter writer helping people express their feelings to loved ones. Write sincere, emotional letters that capture the essence of family bonds and lasting memories.',
-            },
-            { role: 'user', content: prompt },
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-        }),
+        headers,
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -120,18 +153,25 @@ Respond with ONLY a JSON object:
         return this.generateFallbackLetter(input);
       }
 
-      const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
-      const content = data.choices?.[0]?.message?.content || '';
-      const parsed = JSON.parse(content);
+      const data = await response.json();
+      const content = this.isOllama 
+        ? (data as { message?: { content?: string } }).message?.content || ''
+        : (data as { choices?: Array<{ message?: { content?: string } }> }).choices?.[0]?.message?.content || '';
       
-      const emotionResult = await this.classifyEmotion(parsed.body);
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        const emotionResult = await this.classifyEmotion(parsed.body || '');
+        
+        return {
+          salutation: parsed.salutation || `Dear ${recipientName}`,
+          body: parsed.body || this.generateFallbackLetter(input).body,
+          signature: parsed.signature || 'With love',
+          emotion: emotionResult.label,
+        };
+      }
       
-      return {
-        salutation: parsed.salutation,
-        body: parsed.body,
-        signature: parsed.signature,
-        emotion: emotionResult.label,
-      };
+      return this.generateFallbackLetter(input);
     } catch (error) {
       console.warn('TinyLLM letter suggestion failed, using fallback:', error);
       return this.generateFallbackLetter(input);

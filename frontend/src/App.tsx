@@ -13,6 +13,7 @@ import { Compose } from './pages/Compose';
 import { Record } from './pages/Record';
 import { Family } from './pages/Family';
 import { Settings } from './pages/Settings';
+import Wrapped from './pages/Wrapped';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -126,6 +127,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wrapped"
+            element={
+              <ProtectedRoute>
+                <Wrapped />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wrapped/:year"
+            element={
+              <ProtectedRoute>
+                <Wrapped />
               </ProtectedRoute>
             }
           />

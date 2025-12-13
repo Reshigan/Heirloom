@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, LogOut } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -80,26 +79,14 @@ export function Settings() {
     },
   });
 
-    const checkoutMutation = useMutation({
-      mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
-      onSuccess: (res) => {
-        window.location.href = res.data.url;
-      },
-    });
+  const checkoutMutation = useMutation({
+    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
+    onSuccess: (res) => {
+      window.location.href = res.data.url;
+    },
+  });
 
-    const changePlanMutation = useMutation({
-      mutationFn: (tier: string) => billingApi.changePlan({ tier }),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['subscription'] });
-        queryClient.invalidateQueries({ queryKey: ['limits'] });
-        alert('Plan changed successfully! Changes applied immediately with proration.');
-      },
-      onError: (error: any) => {
-        alert(error.response?.data?.message || 'Failed to change plan. Please try again.');
-      },
-    });
-
-    const configureDeadmanMutation = useMutation({
+  const configureDeadmanMutation = useMutation({
     mutationFn: () => deadmanApi.configure(deadmanConfig),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
@@ -141,47 +128,14 @@ export function Settings() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-      
-      {/* Floating dust particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-gold/30"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 0.8, 0],
-            }}
-            transition={{
-              duration: 10 + Math.random() * 10,
-              repeat: Infinity,
-              delay: Math.random() * 10,
-            }}
-          />
-        ))}
-      </div>
-      
-      <div className="relative z-10 px-6 md:px-12 py-12">
-        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
-          <ArrowLeft size={20} />
-          Back to Vault
-        </button>
+    <div className="min-h-screen px-6 md:px-12 py-12">
+      <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
+        <ArrowLeft size={20} />
+        Back to Vault
+      </button>
 
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-light mb-12">Settings</h1>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-light mb-12">Settings</h1>
 
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
@@ -198,19 +152,6 @@ export function Settings() {
                 {label}
               </button>
             ))}
-            
-            <div className="pt-4 mt-4 border-t border-white/10">
-              <button
-                onClick={() => {
-                  logout();
-                  navigate('/');
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left text-blood hover:bg-blood/10 transition-all"
-              >
-                <LogOut size={18} />
-                Logout
-              </button>
-            </div>
           </div>
 
           {/* Content */}
@@ -310,53 +251,32 @@ export function Settings() {
                   )}
                 </div>
 
-                                {/* Pricing */}
-                                {pricing && (
-                                  <div className="grid md:grid-cols-3 gap-4">
-                                    {[
-                                      { tier: 'ESSENTIAL', name: 'Essential', price: pricing.pricing.essential.monthly },
-                                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family.monthly, popular: true },
-                                      { tier: 'LEGACY', name: 'Legacy', price: pricing.pricing.legacy.yearly, yearly: true },
-                                    ].map(({ tier, name, price, popular, yearly }) => {
-                                      const isCurrentPlan = subscription?.tier === tier;
-                                      const hasActiveSubscription = subscription?.tier && subscription.tier !== 'FREE';
-                                      const isPending = checkoutMutation.isPending || changePlanMutation.isPending;
-                      
-                                      const handlePlanAction = () => {
-                                        if (hasActiveSubscription) {
-                                          changePlanMutation.mutate(tier);
-                                        } else {
-                                          checkoutMutation.mutate(tier);
-                                        }
-                                      };
-                      
-                                      const getButtonText = () => {
-                                        if (isCurrentPlan) return 'Current Plan';
-                                        if (isPending) return 'Processing...';
-                                        if (hasActiveSubscription) return 'Change Plan';
-                                        return 'Upgrade';
-                                      };
-                      
-                                      return (
-                                        <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
-                                          {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
-                                          <h3 className="text-lg">{name}</h3>
-                                          <div className="flex items-baseline gap-1 my-4">
-                                            <span className="text-3xl text-gold">{price.formatted}</span>
-                                            <span className="text-paper/40">/{yearly ? 'year' : 'month'}</span>
-                                          </div>
-                                          <button
-                                            onClick={handlePlanAction}
-                                            disabled={isCurrentPlan || isPending}
-                                            className={`btn w-full ${isCurrentPlan ? 'btn-secondary' : 'btn-primary'}`}
-                                          >
-                                            {getButtonText()}
-                                          </button>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
+                {/* Pricing */}
+                {pricing && (
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {[
+                      { tier: 'ESSENTIAL', name: 'Essential', price: pricing.pricing.essential.monthly },
+                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family.monthly, popular: true },
+                      { tier: 'LEGACY', name: 'Legacy', price: pricing.pricing.legacy.yearly, yearly: true },
+                    ].map(({ tier, name, price, popular, yearly }) => (
+                      <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
+                        {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
+                        <h3 className="text-lg">{name}</h3>
+                        <div className="flex items-baseline gap-1 my-4">
+                          <span className="text-3xl text-gold">{price.formatted}</span>
+                          <span className="text-paper/40">/{yearly ? 'year' : 'month'}</span>
+                        </div>
+                        <button
+                          onClick={() => checkoutMutation.mutate(tier)}
+                          disabled={subscription?.tier === tier || checkoutMutation.isPending}
+                          className={`btn w-full ${subscription?.tier === tier ? 'btn-secondary' : 'btn-primary'}`}
+                        >
+                          {subscription?.tier === tier ? 'Current Plan' : 'Upgrade'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -582,7 +502,6 @@ export function Settings() {
               </div>
             )}
           </div>
-        </div>
         </div>
       </div>
     </div>

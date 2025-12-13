@@ -2,24 +2,17 @@ import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Mic } from 'lucide-react';
+import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List } from 'lucide-react';
 import { memoriesApi, familyApi } from '../services/api';
 
 type Memory = {
   id: string;
   title: string;
   description?: string;
-  type: 'PHOTO' | 'VIDEO' | 'VOICE';
-  fileUrl?: string;
-  metadata?: {
-    thumbnailUrl?: string;
-    width?: number;
-    height?: number;
-    duration?: number;
-    transcript?: string;
-    waveform?: number[];
-  };
-  recipients: { id: string; name: string }[];
+  type: 'PHOTO' | 'VIDEO';
+  mediaUrl?: string;
+  thumbnailUrl?: string;
+  recipients: { familyMember: { id: string; name: string } }[];
   createdAt: string;
 };
 
@@ -277,14 +270,9 @@ export function Memories() {
                     <>
                       {/* Thumbnail */}
                       <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-blood/10">
-                        {memory.type === 'VOICE' ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                            <Mic size={40} className="text-gold/60" />
-                            <span className="text-paper/50 text-xs px-2 text-center line-clamp-2">{memory.title}</span>
-                          </div>
-                        ) : (memory.metadata?.thumbnailUrl || memory.fileUrl) ? (
+                        {memory.thumbnailUrl ? (
                           <img
-                            src={memory.metadata?.thumbnailUrl || memory.fileUrl}
+                            src={memory.thumbnailUrl}
                             alt={memory.title}
                             className="w-full h-full object-cover"
                           />
@@ -311,7 +299,7 @@ export function Memories() {
                       {/* Type badge */}
                       <div className="absolute top-3 right-3">
                         <span className={`badge ${memory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
-                          {memory.type === 'VIDEO' ? <Video size={12} /> : memory.type === 'VOICE' ? <Mic size={12} /> : <Image size={12} />}
+                          {memory.type === 'VIDEO' ? <Video size={12} /> : <Image size={12} />}
                         </span>
                       </div>
 
@@ -321,10 +309,8 @@ export function Memories() {
                   ) : (
                     <>
                       <div className="w-20 h-20 rounded-lg glass flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {memory.type === 'VOICE' ? (
-                          <Mic size={24} className="text-gold/60" />
-                        ) : (memory.metadata?.thumbnailUrl || memory.fileUrl) ? (
-                          <img src={memory.metadata?.thumbnailUrl || memory.fileUrl} alt="" className="w-full h-full object-cover" />
+                        {memory.thumbnailUrl ? (
+                          <img src={memory.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                         ) : memory.type === 'VIDEO' ? (
                           <Video size={24} className="text-paper/30" />
                         ) : (
@@ -391,20 +377,11 @@ export function Memories() {
               </button>
 
               <div className="aspect-video rounded-xl overflow-hidden mb-6 bg-void-light">
-                {selectedMemory.fileUrl ? (
+                {selectedMemory.mediaUrl ? (
                   selectedMemory.type === 'VIDEO' ? (
-                    <video src={selectedMemory.fileUrl} controls className="w-full h-full object-contain" />
-                  ) : selectedMemory.type === 'VOICE' ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-6">
-                      <audio src={selectedMemory.fileUrl} controls className="w-full max-w-md" />
-                      {selectedMemory.metadata?.transcript && (
-                        <div className="text-paper/60 text-sm max-w-md text-center italic">
-                          "{selectedMemory.metadata.transcript}"
-                        </div>
-                      )}
-                    </div>
+                    <video src={selectedMemory.mediaUrl} controls className="w-full h-full object-contain" />
                   ) : (
-                    <img src={selectedMemory.fileUrl} alt={selectedMemory.title} className="w-full h-full object-contain" />
+                    <img src={selectedMemory.mediaUrl} alt={selectedMemory.title} className="w-full h-full object-contain" />
                   )
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -429,8 +406,8 @@ export function Memories() {
                 <div className="mb-6">
                   <div className="text-sm text-paper/50 mb-2">Shared with:</div>
                   <div className="flex flex-wrap gap-2">
-                    {selectedMemory.recipients.map((r) => (
-                      <span key={r.id} className="badge">{r.name}</span>
+                    {selectedMemory.recipients.map((r: any) => (
+                      <span key={r.familyMember.id} className="badge">{r.familyMember.name}</span>
                     ))}
                   </div>
                 </div>

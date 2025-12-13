@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Square, Play, Pause, Save, Loader2, Check, X, Lightbulb, Trash2 } from 'lucide-react';
+import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
 
 export function Record() {
