@@ -8,6 +8,7 @@ export default {
           DEFAULT: '#050505',
           light: '#080808',
           lighter: '#0a0a0a',
+          deep: '#020202',
         },
         paper: {
           DEFAULT: '#f8f5ef',
@@ -24,10 +25,16 @@ export default {
           light: '#a83250',
         },
         ink: '#1a1510',
+        sanctuary: {
+          blue: '#1a2a3a',
+          teal: '#1a3a3a',
+        },
       },
       fontFamily: {
         serif: ['Cormorant Garamond', 'Georgia', 'serif'],
         handwritten: ['Caveat', 'cursive'],
+        display: ['Cormorant Garamond', 'Georgia', 'serif'],
+        body: ['Inter', 'system-ui', 'sans-serif'],
       },
       transitionTimingFunction: {
         smooth: 'cubic-bezier(0.23, 1, 0.32, 1)',

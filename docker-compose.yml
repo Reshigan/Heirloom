@@ -83,7 +83,7 @@ services:
       EMAIL_FROM: ${EMAIL_FROM:-noreply@heirloom.app}
       ENCRYPTION_MASTER_KEY: ${ENCRYPTION_MASTER_KEY}
       OLLAMA_URL: http://host.docker.internal:11434
-      TINYLLM_BASE_URL: http://host.docker.internal:11434/v1
+      TINYLLM_BASE_URL: http://host.docker.internal:11434
       TINYLLM_MODEL: tinyllama
     ports:
       - "3001:3001"
