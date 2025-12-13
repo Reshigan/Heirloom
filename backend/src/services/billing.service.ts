@@ -386,30 +386,41 @@ export const billingService = {
           break;
       }
 
-      const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
-      const currentItem = stripeSubscription.items.data[0];
+            const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+            const currentItem = stripeSubscription.items.data[0];
 
-      if (!currentItem) {
-        throw new Error('No subscription item found');
-      }
+            if (!currentItem) {
+              throw new Error('No subscription item found');
+            }
 
-      await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-        items: [{
-          id: currentItem.id,
-          price_data: {
-            currency: currency.toLowerCase(),
-            product_data: {
-              name: `Heirloom ${newTier.charAt(0) + newTier.slice(1).toLowerCase()} Plan`,
-            },
-            unit_amount: Math.round(priceData.amount * 100),
-            recurring: {
-              interval: billingCycle === 'yearly' || newTier === 'LEGACY' ? 'year' : 'month',
-            },
-          },
-        }],
-        proration_behavior: 'always_invoice',
-        metadata: { userId, tier: newTier },
-      });
+            const productName = `Heirloom ${newTier.charAt(0) + newTier.slice(1).toLowerCase()} Plan`;
+            const products = await stripe.products.list({ limit: 100 });
+            let product = products.data.find(p => p.name === productName);
+      
+            if (!product) {
+              product = await stripe.products.create({
+                name: productName,
+                metadata: { tier: newTier },
+              });
+            }
+
+            const price = await stripe.prices.create({
+              product: product.id,
+              currency: currency.toLowerCase(),
+              unit_amount: Math.round(priceData.amount * 100),
+              recurring: {
+                interval: billingCycle === 'yearly' || newTier === 'LEGACY' ? 'year' : 'month',
+              },
+            });
+
+            await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
+              items: [{
+                id: currentItem.id,
+                price: price.id,
+              }],
+              proration_behavior: 'always_invoice',
+              metadata: { userId, tier: newTier },
+            });
 
       await prisma.subscription.update({
         where: { userId },
