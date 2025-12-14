@@ -21,7 +21,7 @@ async function clearDatabase() {
   // Delete in order to respect foreign key constraints
   await prisma.letterRecipient.deleteMany({});
   await prisma.letter.deleteMany({});
-  await prisma.voiceStory.deleteMany({});
+  await prisma.voiceRecording.deleteMany({});
   await prisma.memory.deleteMany({});
   await prisma.familyMember.deleteMany({});
   await prisma.subscription.deleteMany({});
@@ -150,7 +150,8 @@ async function main() {
         type: 'PHOTO',
         title: 'Summer at the lake house',
         description: 'The summer of 2023, when everyone came together for a week of swimming, fishing, and making memories. The kids caught their first fish!',
-        mediaUrl: SAMPLE_IMAGES[0],
+        fileUrl: SAMPLE_IMAGES[0],
+        encrypted: false,
       },
     }),
     prisma.memory.create({
@@ -159,7 +160,8 @@ async function main() {
         type: 'PHOTO',
         title: 'Emma\'s graduation day',
         description: 'So proud of how far she\'s come. Graduated summa cum laude from Stanford University with a degree in Computer Science.',
-        mediaUrl: SAMPLE_IMAGES[1],
+        fileUrl: SAMPLE_IMAGES[1],
+        encrypted: false,
       },
     }),
     prisma.memory.create({
@@ -168,7 +170,8 @@ async function main() {
         type: 'PHOTO',
         title: 'Christmas morning 2022',
         description: 'The whole family gathered around the tree. Lily was so excited to open her presents - her first Christmas she could really understand!',
-        mediaUrl: SAMPLE_IMAGES[2],
+        fileUrl: SAMPLE_IMAGES[2],
+        encrypted: false,
       },
     }),
     prisma.memory.create({
@@ -177,7 +180,8 @@ async function main() {
         type: 'PHOTO',
         title: 'Our 25th wedding anniversary',
         description: 'David surprised me with a trip to Paris. We renewed our vows at a small chapel overlooking the Seine.',
-        mediaUrl: SAMPLE_IMAGES[3],
+        fileUrl: SAMPLE_IMAGES[3],
+        encrypted: false,
       },
     }),
     prisma.memory.create({
@@ -186,7 +190,8 @@ async function main() {
         type: 'PHOTO',
         title: 'Michael\'s first day at his new job',
         description: 'He was so nervous but so excited. Now he\'s a senior engineer at Google. Time flies!',
-        mediaUrl: SAMPLE_IMAGES[4],
+        fileUrl: SAMPLE_IMAGES[4],
+        encrypted: false,
       },
     }),
     prisma.memory.create({
@@ -195,7 +200,8 @@ async function main() {
         type: 'PHOTO',
         title: 'Mom and Dad\'s 50th anniversary',
         description: 'We threw them a surprise party. Dad cried when he saw everyone. It was beautiful.',
-        mediaUrl: SAMPLE_IMAGES[5],
+        fileUrl: SAMPLE_IMAGES[5],
+        encrypted: false,
       },
     }),
     prisma.memory.create({
@@ -204,7 +210,8 @@ async function main() {
         type: 'PHOTO',
         title: 'Family reunion at the old farmhouse',
         description: 'First time in 10 years we got all the cousins together. The farmhouse looked exactly the same.',
-        mediaUrl: SAMPLE_IMAGES[6],
+        fileUrl: SAMPLE_IMAGES[6],
+        encrypted: false,
       },
     }),
     prisma.memory.create({
@@ -213,63 +220,84 @@ async function main() {
         type: 'PHOTO',
         title: 'Lily\'s first birthday',
         description: 'She smashed that cake like a champion! Her little face covered in frosting was the cutest thing.',
-        mediaUrl: SAMPLE_IMAGES[7],
+        fileUrl: SAMPLE_IMAGES[7],
+        encrypted: false,
       },
     }),
   ]);
 
   console.log(`✅ Created ${memories.length} memories with images`);
 
-  // Create voice stories with transcripts
-  const voiceStories = await Promise.all([
-    prisma.voiceStory.create({
+  // Create voice recordings with transcripts
+  const voiceRecordings = await Promise.all([
+    prisma.voiceRecording.create({
       data: {
         userId: user.id,
         title: 'How I met your grandfather',
+        description: 'A story for the grandchildren about how it all began.',
         transcript: 'It was the summer of 1965. I was working at the local diner when this handsome young man walked in. He ordered a coffee and a slice of apple pie, and he came back every single day for three months before he finally asked me out. Your grandfather was shy, but persistent. Our first date was a picnic by the river, and he brought wildflowers he picked himself. I knew then that he was the one.',
         duration: 180,
-        promptId: null,
+        fileUrl: 'https://example.com/audio/story1.mp3',
+        fileKey: 'audio/story1.mp3',
+        fileSize: 2160000,
+        encrypted: false,
       },
     }),
-    prisma.voiceStory.create({
+    prisma.voiceRecording.create({
       data: {
         userId: user.id,
         title: 'The day Emma was born',
+        description: 'Remembering the most beautiful day of my life.',
         transcript: 'June 15th, 1995. It was the hottest day of the year, and I was in labor for 18 hours. But when they placed her in my arms, everything else disappeared. She had the tiniest fingers and the loudest cry. Your father cried too - he was so overwhelmed with joy. We named her Emma after my grandmother, who had passed just a year before.',
         duration: 150,
-        promptId: null,
+        fileUrl: 'https://example.com/audio/story2.mp3',
+        fileKey: 'audio/story2.mp3',
+        fileSize: 1800000,
+        encrypted: false,
       },
     }),
-    prisma.voiceStory.create({
+    prisma.voiceRecording.create({
       data: {
         userId: user.id,
         title: 'Advice I wish I\'d known at 20',
+        description: 'Wisdom to pass on to the next generation.',
         transcript: 'If I could go back and tell my younger self anything, it would be this: Don\'t rush. Life isn\'t a race. Take time to enjoy the small moments - the morning coffee, the sunset walks, the quiet conversations. Also, call your parents more. They won\'t be around forever, and you\'ll miss them more than you can imagine. And most importantly, be kind to yourself. You\'re doing better than you think.',
         duration: 120,
-        promptId: null,
+        fileUrl: 'https://example.com/audio/story3.mp3',
+        fileKey: 'audio/story3.mp3',
+        fileSize: 1440000,
+        encrypted: false,
       },
     }),
-    prisma.voiceStory.create({
+    prisma.voiceRecording.create({
       data: {
         userId: user.id,
         title: 'Our family\'s secret recipe',
+        description: 'The apple pie recipe that has been in our family for generations.',
         transcript: 'This apple pie recipe has been in our family for four generations. My great-grandmother brought it over from Ireland. The secret is in the spices - a pinch of cardamom along with the cinnamon. And you must use Granny Smith apples, nothing else. I\'m passing this recipe to you, Emma, as my mother passed it to me. Guard it well and share it with your children.',
         duration: 90,
-        promptId: null,
+        fileUrl: 'https://example.com/audio/story4.mp3',
+        fileKey: 'audio/story4.mp3',
+        fileSize: 1080000,
+        encrypted: false,
       },
     }),
-    prisma.voiceStory.create({
+    prisma.voiceRecording.create({
       data: {
         userId: user.id,
         title: 'The Christmas miracle of 1987',
+        description: 'A story about kindness and hope during hard times.',
         transcript: 'We had nothing that year. Your father had lost his job, and we could barely afford to keep the lights on. I didn\'t know how we\'d give the kids any presents. But on Christmas Eve, there was a knock at the door. A stranger handed us an envelope with $500 cash and a note that said "Merry Christmas from a friend." We never found out who it was, but that act of kindness changed everything. It\'s why I always try to help others when I can.',
         duration: 200,
-        promptId: null,
+        fileUrl: 'https://example.com/audio/story5.mp3',
+        fileKey: 'audio/story5.mp3',
+        fileSize: 2400000,
+        encrypted: false,
       },
     }),
   ]);
 
-  console.log(`✅ Created ${voiceStories.length} voice stories with transcripts`);
+  console.log(`✅ Created ${voiceRecordings.length} voice recordings with transcripts`);
 
   // Create comprehensive letters
   const letters = await Promise.all([
@@ -289,7 +317,8 @@ Don't mourn for too long. Live your lives fully. Love deeply. Laugh often. And w
 Tell Lily about me. Show her the photos, play her my voice recordings. I want her to know her grandmother loved her more than words can say.`,
         signature: 'With all my love, forever and always, Mom',
         deliveryTrigger: 'POSTHUMOUS',
-        status: 'SEALED',
+        sealedAt: new Date(),
+        encrypted: false,
         recipients: {
           create: [
             { familyMemberId: familyMembers[0].id },
@@ -315,9 +344,10 @@ Your father and I have been married for 30 years, and I love him more today than
 
 I'm so proud of the woman you've become. You're going to be an amazing wife.`,
         signature: 'All my love, Mom',
-        deliveryTrigger: 'DATE',
+        deliveryTrigger: 'SCHEDULED',
         scheduledDate: new Date('2025-06-15'),
-        status: 'SEALED',
+        sealedAt: new Date(),
+        encrypted: false,
         recipients: {
           create: [
             { familyMemberId: familyMembers[0].id },
@@ -344,9 +374,10 @@ I've left you my grandmother's ring - the one with the sapphire. It's been passe
 
 Make us proud, Lily. But more importantly, make yourself proud.`,
         signature: 'With endless love, Grandma Sarah',
-        deliveryTrigger: 'DATE',
+        deliveryTrigger: 'SCHEDULED',
         scheduledDate: new Date('2038-12-25'),
-        status: 'SEALED',
+        sealedAt: new Date(),
+        encrypted: false,
         recipients: {
           create: [
             { familyMemberId: familyMembers[5].id },
@@ -370,7 +401,7 @@ I know I don't say it enough, but you are the best decision I ever made. Choosin
 Here's to 30 more years, my love. And then 30 more after that.`,
         signature: 'Forever yours, Sarah',
         deliveryTrigger: 'IMMEDIATE',
-        status: 'DRAFT',
+        encrypted: false,
         recipients: {
           create: [
             { familyMemberId: familyMembers[4].id },
@@ -388,7 +419,7 @@ Summary:
 - 1 demo user (demo@heirloom.app / demo123456)
 - ${familyMembers.length} family members
 - ${memories.length} memories with images
-- ${voiceStories.length} voice stories with transcripts
+- ${voiceRecordings.length} voice recordings with transcripts
 - ${letters.length} letters (sealed and draft)
   `);
 }
