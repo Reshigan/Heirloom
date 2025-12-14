@@ -296,6 +296,13 @@ export function AdminDashboard() {
                       </td>
                     </tr>
                   ))}
+                  {(!users?.users || users.users.length === 0) && (
+                    <tr>
+                      <td colSpan={5} className="text-center py-8 text-paper/50">
+                        No users found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
               {users?.pagination && (
