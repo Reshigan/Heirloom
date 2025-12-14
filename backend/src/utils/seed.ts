@@ -3,16 +3,44 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// Sample image URLs (using placeholder images)
+const SAMPLE_IMAGES = [
+  'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800',
+  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800',
+  'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800',
+  'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=800',
+  'https://images.unsplash.com/photo-1609220136736-443140cffec6?w=800',
+  'https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?w=800',
+  'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800',
+  'https://images.unsplash.com/photo-1504439904031-93ded9f93e4e?w=800',
+];
+
+async function clearDatabase() {
+  console.log('🧹 Clearing existing data...');
+  
+  // Delete in order to respect foreign key constraints
+  await prisma.letterRecipient.deleteMany({});
+  await prisma.letter.deleteMany({});
+  await prisma.voiceStory.deleteMany({});
+  await prisma.memory.deleteMany({});
+  await prisma.familyMember.deleteMany({});
+  await prisma.subscription.deleteMany({});
+  await prisma.user.deleteMany({});
+  
+  console.log('✅ Database cleared');
+}
+
 async function main() {
   console.log('🌱 Seeding database...');
+
+  // Clear existing data first
+  await clearDatabase();
 
   // Create demo user
   const passwordHash = await bcrypt.hash('demo123456', 12);
   
-  const user = await prisma.user.upsert({
-    where: { email: 'demo@heirloom.app' },
-    update: { passwordHash },
-    create: {
+  const user = await prisma.user.create({
+    data: {
       email: 'demo@heirloom.app',
       passwordHash,
       firstName: 'Sarah',
@@ -20,7 +48,7 @@ async function main() {
       emailVerified: true,
       subscription: {
         create: {
-          tier: 'FAMILY',
+          tier: 'ESSENTIAL',
           status: 'ACTIVE',
         },
       },
@@ -29,7 +57,7 @@ async function main() {
 
   console.log(`✅ Created user: ${user.email}`);
 
-  // Create family members
+  // Create family members with more details
   const familyMembers = await Promise.all([
     prisma.familyMember.create({
       data: {
@@ -37,6 +65,7 @@ async function main() {
         name: 'Emma Johnson',
         relationship: 'Daughter',
         email: 'emma@example.com',
+        birthDate: new Date('1995-06-15'),
       },
     }),
     prisma.familyMember.create({
@@ -45,6 +74,7 @@ async function main() {
         name: 'Michael Johnson',
         relationship: 'Son',
         email: 'michael@example.com',
+        birthDate: new Date('1998-03-22'),
       },
     }),
     prisma.familyMember.create({
@@ -52,6 +82,7 @@ async function main() {
         userId: user.id,
         name: 'James Wilson',
         relationship: 'Father',
+        birthDate: new Date('1945-11-08'),
       },
     }),
     prisma.familyMember.create({
@@ -59,6 +90,33 @@ async function main() {
         userId: user.id,
         name: 'Rose Wilson',
         relationship: 'Mother',
+        birthDate: new Date('1948-04-12'),
+      },
+    }),
+    prisma.familyMember.create({
+      data: {
+        userId: user.id,
+        name: 'David Johnson',
+        relationship: 'Husband',
+        email: 'david@example.com',
+        birthDate: new Date('1968-09-30'),
+      },
+    }),
+    prisma.familyMember.create({
+      data: {
+        userId: user.id,
+        name: 'Lily Johnson',
+        relationship: 'Granddaughter',
+        birthDate: new Date('2020-12-25'),
+      },
+    }),
+    prisma.familyMember.create({
+      data: {
+        userId: user.id,
+        name: 'Thomas Wilson',
+        relationship: 'Brother',
+        email: 'thomas@example.com',
+        birthDate: new Date('1972-07-04'),
       },
     }),
   ]);
@@ -84,53 +142,255 @@ async function main() {
 
   console.log(`✅ Created ${prompts.count} story prompts`);
 
-  // Create sample memories
-  await prisma.memory.createMany({
-    data: [
-      {
+  // Create comprehensive memories with images
+  const memories = await Promise.all([
+    prisma.memory.create({
+      data: {
         userId: user.id,
         type: 'PHOTO',
         title: 'Summer at the lake house',
-        description: 'The summer of 2023, when everyone came together.',
+        description: 'The summer of 2023, when everyone came together for a week of swimming, fishing, and making memories. The kids caught their first fish!',
+        mediaUrl: SAMPLE_IMAGES[0],
       },
-      {
+    }),
+    prisma.memory.create({
+      data: {
         userId: user.id,
         type: 'PHOTO',
-        title: 'Emma\'s graduation',
-        description: 'So proud of how far she\'s come.',
+        title: 'Emma\'s graduation day',
+        description: 'So proud of how far she\'s come. Graduated summa cum laude from Stanford University with a degree in Computer Science.',
+        mediaUrl: SAMPLE_IMAGES[1],
       },
-      {
+    }),
+    prisma.memory.create({
+      data: {
         userId: user.id,
-        type: 'VOICE',
-        title: 'The story of how we met',
-        description: 'A recording for the grandchildren.',
+        type: 'PHOTO',
+        title: 'Christmas morning 2022',
+        description: 'The whole family gathered around the tree. Lily was so excited to open her presents - her first Christmas she could really understand!',
+        mediaUrl: SAMPLE_IMAGES[2],
       },
-    ],
-  });
-
-  console.log('✅ Created sample memories');
-
-  // Create sample letter
-  await prisma.letter.create({
-    data: {
-      userId: user.id,
-      title: 'To my children',
-      salutation: 'My dearest Emma and Michael,',
-      body: 'There are so many things I want to tell you both...',
-      signature: 'With all my love, Mom',
-      deliveryTrigger: 'POSTHUMOUS',
-      recipients: {
-        create: [
-          { familyMemberId: familyMembers[0].id },
-          { familyMemberId: familyMembers[1].id },
-        ],
+    }),
+    prisma.memory.create({
+      data: {
+        userId: user.id,
+        type: 'PHOTO',
+        title: 'Our 25th wedding anniversary',
+        description: 'David surprised me with a trip to Paris. We renewed our vows at a small chapel overlooking the Seine.',
+        mediaUrl: SAMPLE_IMAGES[3],
       },
-    },
-  });
+    }),
+    prisma.memory.create({
+      data: {
+        userId: user.id,
+        type: 'PHOTO',
+        title: 'Michael\'s first day at his new job',
+        description: 'He was so nervous but so excited. Now he\'s a senior engineer at Google. Time flies!',
+        mediaUrl: SAMPLE_IMAGES[4],
+      },
+    }),
+    prisma.memory.create({
+      data: {
+        userId: user.id,
+        type: 'PHOTO',
+        title: 'Mom and Dad\'s 50th anniversary',
+        description: 'We threw them a surprise party. Dad cried when he saw everyone. It was beautiful.',
+        mediaUrl: SAMPLE_IMAGES[5],
+      },
+    }),
+    prisma.memory.create({
+      data: {
+        userId: user.id,
+        type: 'PHOTO',
+        title: 'Family reunion at the old farmhouse',
+        description: 'First time in 10 years we got all the cousins together. The farmhouse looked exactly the same.',
+        mediaUrl: SAMPLE_IMAGES[6],
+      },
+    }),
+    prisma.memory.create({
+      data: {
+        userId: user.id,
+        type: 'PHOTO',
+        title: 'Lily\'s first birthday',
+        description: 'She smashed that cake like a champion! Her little face covered in frosting was the cutest thing.',
+        mediaUrl: SAMPLE_IMAGES[7],
+      },
+    }),
+  ]);
 
-  console.log('✅ Created sample letter');
+  console.log(`✅ Created ${memories.length} memories with images`);
+
+  // Create voice stories with transcripts
+  const voiceStories = await Promise.all([
+    prisma.voiceStory.create({
+      data: {
+        userId: user.id,
+        title: 'How I met your grandfather',
+        transcript: 'It was the summer of 1965. I was working at the local diner when this handsome young man walked in. He ordered a coffee and a slice of apple pie, and he came back every single day for three months before he finally asked me out. Your grandfather was shy, but persistent. Our first date was a picnic by the river, and he brought wildflowers he picked himself. I knew then that he was the one.',
+        duration: 180,
+        promptId: null,
+      },
+    }),
+    prisma.voiceStory.create({
+      data: {
+        userId: user.id,
+        title: 'The day Emma was born',
+        transcript: 'June 15th, 1995. It was the hottest day of the year, and I was in labor for 18 hours. But when they placed her in my arms, everything else disappeared. She had the tiniest fingers and the loudest cry. Your father cried too - he was so overwhelmed with joy. We named her Emma after my grandmother, who had passed just a year before.',
+        duration: 150,
+        promptId: null,
+      },
+    }),
+    prisma.voiceStory.create({
+      data: {
+        userId: user.id,
+        title: 'Advice I wish I\'d known at 20',
+        transcript: 'If I could go back and tell my younger self anything, it would be this: Don\'t rush. Life isn\'t a race. Take time to enjoy the small moments - the morning coffee, the sunset walks, the quiet conversations. Also, call your parents more. They won\'t be around forever, and you\'ll miss them more than you can imagine. And most importantly, be kind to yourself. You\'re doing better than you think.',
+        duration: 120,
+        promptId: null,
+      },
+    }),
+    prisma.voiceStory.create({
+      data: {
+        userId: user.id,
+        title: 'Our family\'s secret recipe',
+        transcript: 'This apple pie recipe has been in our family for four generations. My great-grandmother brought it over from Ireland. The secret is in the spices - a pinch of cardamom along with the cinnamon. And you must use Granny Smith apples, nothing else. I\'m passing this recipe to you, Emma, as my mother passed it to me. Guard it well and share it with your children.',
+        duration: 90,
+        promptId: null,
+      },
+    }),
+    prisma.voiceStory.create({
+      data: {
+        userId: user.id,
+        title: 'The Christmas miracle of 1987',
+        transcript: 'We had nothing that year. Your father had lost his job, and we could barely afford to keep the lights on. I didn\'t know how we\'d give the kids any presents. But on Christmas Eve, there was a knock at the door. A stranger handed us an envelope with $500 cash and a note that said "Merry Christmas from a friend." We never found out who it was, but that act of kindness changed everything. It\'s why I always try to help others when I can.',
+        duration: 200,
+        promptId: null,
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${voiceStories.length} voice stories with transcripts`);
+
+  // Create comprehensive letters
+  const letters = await Promise.all([
+    prisma.letter.create({
+      data: {
+        userId: user.id,
+        title: 'To my children on my passing',
+        salutation: 'My dearest Emma and Michael,',
+        body: `If you're reading this, I'm no longer with you in body, but please know that my love for you transcends all boundaries, even death itself.
+
+I want you to know how proud I am of both of you. Emma, your determination and kindness remind me so much of your grandmother. Michael, your creativity and gentle heart have always been a source of joy.
+
+Please take care of each other. Family is everything. When times get hard, remember the summers at the lake house, the Christmas mornings, the Sunday dinners. Those moments were my greatest treasures.
+
+Don't mourn for too long. Live your lives fully. Love deeply. Laugh often. And when you miss me, just look at the stars - I'll be there, watching over you always.
+
+Tell Lily about me. Show her the photos, play her my voice recordings. I want her to know her grandmother loved her more than words can say.`,
+        signature: 'With all my love, forever and always, Mom',
+        deliveryTrigger: 'POSTHUMOUS',
+        status: 'SEALED',
+        recipients: {
+          create: [
+            { familyMemberId: familyMembers[0].id },
+            { familyMemberId: familyMembers[1].id },
+          ],
+        },
+      },
+    }),
+    prisma.letter.create({
+      data: {
+        userId: user.id,
+        title: 'For Emma on her wedding day',
+        salutation: 'My beautiful Emma,',
+        body: `Today you become a wife, and my heart is overflowing with joy and just a little bit of bittersweet tears.
+
+I remember the day you were born like it was yesterday. Now here you are, a grown woman, ready to start your own family. Where did the time go?
+
+Marriage is a beautiful journey, but it's not always easy. There will be hard days. On those days, remember why you chose each other. Remember the love that brought you here today.
+
+Be patient with each other. Communicate openly. Never go to bed angry. And always, always make time for each other, even when life gets busy.
+
+Your father and I have been married for 30 years, and I love him more today than the day we wed. That's my wish for you - a love that grows deeper with time.
+
+I'm so proud of the woman you've become. You're going to be an amazing wife.`,
+        signature: 'All my love, Mom',
+        deliveryTrigger: 'DATE',
+        scheduledDate: new Date('2025-06-15'),
+        status: 'SEALED',
+        recipients: {
+          create: [
+            { familyMemberId: familyMembers[0].id },
+          ],
+        },
+      },
+    }),
+    prisma.letter.create({
+      data: {
+        userId: user.id,
+        title: 'To Lily on her 18th birthday',
+        salutation: 'My precious Lily,',
+        body: `Happy 18th birthday, my darling granddaughter!
+
+I'm writing this when you're just 4 years old, running around the house with your pigtails bouncing, asking a million questions about everything. I hope you never lose that curiosity.
+
+By now, you're a young woman ready to take on the world. I may or may not be there to see it, but I want you to know how much you've been loved from the very first moment.
+
+You were born on Christmas Day - the greatest gift our family ever received. Your laughter has been the soundtrack of our happiest moments.
+
+As you step into adulthood, remember: Be brave. Be kind. Be yourself. The world needs exactly who you are.
+
+I've left you my grandmother's ring - the one with the sapphire. It's been passed down through four generations of strong women in our family. Now it's yours.
+
+Make us proud, Lily. But more importantly, make yourself proud.`,
+        signature: 'With endless love, Grandma Sarah',
+        deliveryTrigger: 'DATE',
+        scheduledDate: new Date('2038-12-25'),
+        status: 'SEALED',
+        recipients: {
+          create: [
+            { familyMemberId: familyMembers[5].id },
+          ],
+        },
+      },
+    }),
+    prisma.letter.create({
+      data: {
+        userId: user.id,
+        title: 'Thank you, David',
+        salutation: 'My darling David,',
+        body: `After 30 years of marriage, I still get butterflies when you walk into the room.
+
+Thank you for being my partner, my best friend, my rock. Thank you for the coffee you bring me every morning, for holding my hand during the scary times, for making me laugh when I want to cry.
+
+Thank you for being an amazing father to our children. They are who they are because of you.
+
+I know I don't say it enough, but you are the best decision I ever made. Choosing you, building a life with you - it's been the greatest adventure.
+
+Here's to 30 more years, my love. And then 30 more after that.`,
+        signature: 'Forever yours, Sarah',
+        deliveryTrigger: 'IMMEDIATE',
+        status: 'DRAFT',
+        recipients: {
+          create: [
+            { familyMemberId: familyMembers[4].id },
+          ],
+        },
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${letters.length} letters`);
 
   console.log('🎉 Seeding complete!');
+  console.log(`
+Summary:
+- 1 demo user (demo@heirloom.app / demo123456)
+- ${familyMembers.length} family members
+- ${memories.length} memories with images
+- ${voiceStories.length} voice stories with transcripts
+- ${letters.length} letters (sealed and draft)
+  `);
 }
 
 main()
