@@ -585,12 +585,12 @@ Here's to 30 more years, my love. And then 30 more after that.`,
 
   // Create activities
   const activitiesData = [
-    { type: 'MEMORY_CREATED', description: 'Added memory: Summer begins', metadata: { memoryId: memories[memories.length - 1].id } },
-    { type: 'VOICE_RECORDED', description: 'Recorded: A letter to my grandchildren', metadata: { recordingId: voiceRecordings[voiceRecordings.length - 1].id } },
-    { type: 'LETTER_SEALED', description: 'Sealed letter: To my children on my passing', metadata: { letterId: letters[0].id } },
-    { type: 'FAMILY_ADDED', description: 'Added family member: Oliver Mitchell', metadata: { memberId: familyMembers[familyMembers.length - 1].id } },
-    { type: 'LOGIN', description: 'Logged in from Chrome on MacOS', metadata: { device: 'Chrome', os: 'MacOS' } },
-    { type: 'SETTINGS_UPDATED', description: 'Updated notification preferences', metadata: { setting: 'notifications' } },
+    { type: 'MEMORY_CREATED', action: 'Added memory: Summer begins', resourceType: 'memory', resourceId: memories[memories.length - 1].id },
+    { type: 'VOICE_RECORDED', action: 'Recorded: A letter to my grandchildren', resourceType: 'voice', resourceId: voiceRecordings[voiceRecordings.length - 1].id },
+    { type: 'LETTER_SEALED', action: 'Sealed letter: To my children on my passing', resourceType: 'letter', resourceId: letters[0].id },
+    { type: 'FAMILY_ADDED', action: 'Added family member: Oliver Mitchell', resourceType: 'family', resourceId: familyMembers[familyMembers.length - 1].id },
+    { type: 'LOGIN', action: 'Logged in from Chrome on MacOS', resourceType: null, resourceId: null },
+    { type: 'SETTINGS_UPDATED', action: 'Updated notification preferences', resourceType: 'settings', resourceId: null },
   ];
 
   for (const a of activitiesData) {
@@ -598,8 +598,9 @@ Here's to 30 more years, my love. And then 30 more after that.`,
       data: {
         userId: user.id,
         type: a.type,
-        description: a.description,
-        metadata: a.metadata,
+        action: a.action,
+        resourceType: a.resourceType,
+        resourceId: a.resourceId,
       },
     });
   }
@@ -613,12 +614,14 @@ Here's to 30 more years, my love. And then 30 more after that.`,
         userId: user.id,
         year,
         totalMemories: Math.floor(Math.random() * 30) + 20,
-        totalVoiceMinutes: Math.floor(Math.random() * 60) + 30,
+        totalVoiceStories: Math.floor(Math.random() * 10) + 5,
         totalLetters: Math.floor(Math.random() * 5) + 2,
+        totalStorage: BigInt(Math.floor(Math.random() * 1000000000) + 500000000),
         topEmotions: ['love', 'joy', 'nostalgia', 'gratitude'],
         longestStreak: Math.floor(Math.random() * 20) + 10,
-        familyMembersAdded: Math.floor(Math.random() * 3) + 1,
-        mostActiveMonth: ['June', 'July', 'December'][Math.floor(Math.random() * 3)],
+        currentStreak: Math.floor(Math.random() * 10) + 1,
+        topTaggedPeople: ['Emma', 'David', 'Lily', 'Michael'],
+        highlights: [{ title: 'Best memory of the year', type: 'memory' }],
         generatedAt: new Date(year, 11, 31),
       },
     });
@@ -629,9 +632,10 @@ Here's to 30 more years, my love. And then 30 more after that.`,
   await prisma.deadManSwitch.create({
     data: {
       userId: user.id,
-      isEnabled: true,
-      checkInInterval: 30,
-      gracePeriod: 7,
+      enabled: true,
+      checkInIntervalDays: 30,
+      gracePeriodDays: 7,
+      requiredVerifications: 2,
       lastCheckIn: new Date(),
       nextCheckInDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     },
@@ -640,9 +644,9 @@ Here's to 30 more years, my love. And then 30 more after that.`,
 
   // Create legacy contacts
   const legacyContactsData = [
-    { name: 'Emma Johnson-Mitchell', email: 'emma@example.com', relationship: 'Daughter', isPrimary: true },
-    { name: 'Michael Johnson', email: 'michael@example.com', relationship: 'Son', isPrimary: false },
-    { name: 'David Johnson', email: 'david@example.com', relationship: 'Husband', isPrimary: false },
+    { name: 'Emma Johnson-Mitchell', email: 'emma@example.com', relationship: 'Daughter' },
+    { name: 'Michael Johnson', email: 'michael@example.com', relationship: 'Son' },
+    { name: 'David Johnson', email: 'david@example.com', relationship: 'Husband' },
   ];
 
   for (const lc of legacyContactsData) {
@@ -652,8 +656,8 @@ Here's to 30 more years, my love. And then 30 more after that.`,
         name: lc.name,
         email: lc.email,
         relationship: lc.relationship,
-        isPrimary: lc.isPrimary,
-        isVerified: true,
+        verificationStatus: 'VERIFIED',
+        verifiedAt: new Date(),
       },
     });
   }
