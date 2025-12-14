@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
+import { SupportButton } from './components/SupportBot';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -48,11 +49,23 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
 }
 
+// Global SupportBot that only shows when authenticated
+function GlobalSupportButton() {
+  const { isAuthenticated, hasHydrated } = useAuthStore();
+  
+  if (!hasHydrated || !isAuthenticated) {
+    return null;
+  }
+  
+  return <SupportButton />;
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <CustomCursor />
+        <GlobalSupportButton />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
