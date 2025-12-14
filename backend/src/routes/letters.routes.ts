@@ -5,9 +5,32 @@ import { validate, createLetterSchema, updateLetterSchema, idParamSchema } from 
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { billingService } from '../services/billing.service';
 import { emailService } from '../services/email.service';
+import { tinyLLMService } from '../services/tinyllm.service';
 
 const router = Router();
 router.use(authenticate);
+
+/**
+ * POST /api/letters/suggest
+ * Get AI-generated letter suggestion using TinyLLM
+ */
+router.post('/suggest', asyncHandler(async (req: Request, res: Response) => {
+  const { recipientName, relationship, occasion, tone, keywords } = req.body;
+  
+  if (!recipientName || !relationship) {
+    throw ApiError.badRequest('recipientName and relationship are required');
+  }
+
+  const suggestion = await tinyLLMService.suggestLetter({
+    recipientName,
+    relationship,
+    occasion,
+    tone,
+    keywords,
+  });
+
+  res.json(suggestion);
+}));
 
 /**
  * GET /api/letters
@@ -121,12 +144,18 @@ router.post('/:id/seal', validate(idParamSchema), asyncHandler(async (req: Reque
     const user = req.user!;
     for (const recipient of letter.recipients) {
       if (recipient.familyMember.email) {
-        const sent = await emailService.sendLetterDelivery(
-          recipient.familyMember.email,
-          recipient.familyMember.name,
-          `${user.firstName} ${user.lastName}`,
-          { salutation: letter.salutation || '', body: letter.body, signature: letter.signature || '' }
-        );
+        let sent = false;
+        try {
+          await emailService.sendLetterDelivery(
+            recipient.familyMember.email,
+            recipient.familyMember.name,
+            `${user.firstName} ${user.lastName}`,
+            { salutation: letter.salutation || '', body: letter.body, signature: letter.signature || '' }
+          );
+          sent = true;
+        } catch {
+          sent = false;
+        }
 
         await prisma.letterDelivery.create({
           data: {
@@ -135,8 +164,8 @@ router.post('/:id/seal', validate(idParamSchema), asyncHandler(async (req: Reque
             status: sent ? 'DELIVERED' : 'FAILED',
             sentAt: sent ? new Date() : null,
             deliveredAt: sent ? new Date() : null,
-            failedAt: sent ? null : new Date(),
-            failureReason: sent ? null : 'Email delivery failed',
+            failedAt: !sent ? new Date() : null,
+            failureReason: !sent ? 'Email delivery failed' : null,
           },
         });
       }

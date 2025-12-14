@@ -170,6 +170,7 @@ export const deadManSwitchService = {
     });
 
     for (const dms of upcomingSwitches) {
+      if (!dms.nextCheckInDue) continue;
       const daysUntil = Math.ceil(
         (dms.nextCheckInDue.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
       );
