@@ -55,7 +55,7 @@ api.interceptors.response.use(
 export const authApi = {
   register: (data: { email: string; password: string; firstName: string; lastName: string }) =>
     api.post('/auth/register', data),
-  login: (email: string, password: string) => api.post('/auth/login', { email, password }),
+  login: (data: { email: string; password: string }) => api.post('/auth/login', data),
   logout: () => api.post('/auth/logout'),
   me: () => api.get('/auth/me'),
   refresh: (refreshToken: string) => api.post('/auth/refresh', { refreshToken }),
@@ -116,8 +116,6 @@ export const billingApi = {
   getPricing: (currency?: string) => api.get('/billing/pricing', { params: { currency } }),
   checkout: (data: { tier: string; billingCycle?: string; currency?: string }) =>
     api.post('/billing/checkout', data),
-  changePlan: (data: { tier: string; billingCycle?: string }) =>
-    api.post('/billing/change-plan', data),
   portal: () => api.post('/billing/portal'),
   updateCurrency: (currency: string) => api.patch('/billing/currency', { currency }),
 };

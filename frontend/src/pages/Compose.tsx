@@ -1,568 +1,603 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Send, Calendar, Clock, Check, AlertCircle, X, Sparkles, Loader2 } from 'lucide-react';
-import { lettersApi, familyApi } from '../services/api';
-import { EmotionBadge } from '../components/ui/EmotionBadge';
+import { useNavigate } from 'react-router-dom';
+import { Navigation } from '../components/Navigation';
 
-type DeliveryTrigger = 'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS';
+// Custom SVG Icons
+const Icons = {
+  envelope: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M22 6l-10 7L2 6" />
+    </svg>
+  ),
+  clock: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+  ),
+  calendar: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  ),
+  heart: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+    </svg>
+  ),
+  lock: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0110 0v4" />
+    </svg>
+  ),
+  send: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+    </svg>
+  ),
+  save: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+      <path d="M17 21v-8H7v8M7 3v5h8" />
+    </svg>
+  ),
+  trash: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
+  ),
+  user: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M20 21a8 8 0 10-16 0" />
+    </svg>
+  ),
+  plus: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  ),
+  waxSeal: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M15 10c1.3 0 1.3 2 0 2-1.3 0-1.8-2-3.2-2-1.2 0-1.2 2 0 2 1.4 0 1.9-2 3.2-2z" />
+    </svg>
+  ),
+  infinity: (
+    <svg viewBox="0 0 24 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18.178 2c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.873 0-4.873 8 0 8 5.606 0 7.644-8 12.74-8z" />
+    </svg>
+  ),
+  arrowLeft: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+  ),
+  check: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  ),
+};
+
+interface Letter {
+  id: string;
+  title: string;
+  body: string;
+  salutation: string;
+  signature: string;
+  recipients: string[];
+  deliveryTrigger: 'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS';
+  scheduledDate?: string;
+  sealedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface FamilyMember {
+  id: string;
+  name: string;
+  relationship: string;
+  email?: string;
+}
+
+const deliveryOptions = [
+  {
+    id: 'IMMEDIATE',
+    label: 'Send Now',
+    description: 'Deliver immediately after sealing',
+    icon: Icons.send,
+  },
+  {
+    id: 'SCHEDULED',
+    label: 'Schedule Delivery',
+    description: 'Choose a specific date',
+    icon: Icons.calendar,
+  },
+  {
+    id: 'POSTHUMOUS',
+    label: 'Posthumous',
+    description: 'Deliver after I\'m gone',
+    icon: Icons.heart,
+  },
+];
+
+const letterPrompts = [
+  "What I want you to know about our family history...",
+  "The most important lessons I've learned in life...",
+  "My hopes and dreams for your future...",
+  "The story of how we met / you were born...",
+  "What I love most about you...",
+  "Advice for your wedding day...",
+  "Words for when times get tough...",
+  "My favorite memories of us together...",
+];
 
 export function Compose() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const queryClient = useQueryClient();
-  const editId = searchParams.get('edit');
-
-  const [form, setForm] = useState({
-    title: '',
-    salutation: 'My dearest',
-    body: '',
-    signature: 'With all my love',
-    deliveryTrigger: 'POSTHUMOUS' as DeliveryTrigger,
-    scheduledDate: '',
-    recipientIds: [] as string[],
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  const [emotion, setEmotion] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isSuggesting, setIsSuggesting] = useState(false);
-  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
-  const [suggestionForm, setSuggestionForm] = useState({
-    recipientName: '',
-    relationship: 'child',
-    occasion: '',
-    tone: 'warm and loving',
-  });
-
-  const { data: family } = useQuery({
-    queryKey: ['family'],
-    queryFn: () => familyApi.getAll().then(r => r.data),
-  });
-
-  const { data: existingLetter } = useQuery({
-    queryKey: ['letter', editId],
-    queryFn: () => lettersApi.getOne(editId!).then(r => r.data),
-    enabled: !!editId,
-  });
+  const [letters, setLetters] = useState<Letter[]>([]);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showComposer, setShowComposer] = useState(false);
+  const [_selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+  
+  // Composer state
+  const [title, setTitle] = useState('');
+  const [salutation, setSalutation] = useState('My Dearest');
+  const [body, setBody] = useState('');
+  const [signature, setSignature] = useState('With all my love,');
+  const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+  const [deliveryTrigger, setDeliveryTrigger] = useState<'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS'>('POSTHUMOUS');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSealConfirm, setShowSealConfirm] = useState(false);
+  const [isSealing, setIsSealing] = useState(false);
 
   useEffect(() => {
-    if (existingLetter) {
-      setForm({
-        title: existingLetter.title || '',
-        salutation: existingLetter.salutation || 'My dearest',
-        body: existingLetter.body || '',
-        signature: existingLetter.signature || 'With all my love',
-        deliveryTrigger: existingLetter.deliveryTrigger || 'POSTHUMOUS',
-        scheduledDate: existingLetter.scheduledDate ? new Date(existingLetter.scheduledDate).toISOString().split('T')[0] : '',
-        recipientIds: existingLetter.recipients?.map((r: any) => r.id) || [],
-      });
-    }
-  }, [existingLetter]);
+    fetchLetters();
+    fetchFamilyMembers();
+  }, []);
 
-  const showToast = (type: 'success' | 'error', message: string) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 4000);
-  };
-
-  const createMutation = useMutation({
-    mutationFn: (data: typeof form) => lettersApi.create(data),
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ['letters'] });
-      showToast('success', 'Letter saved as draft');
-      navigate(`/compose?edit=${res.data.id}`);
-    },
-    onError: (error: any) => {
-      setErrors({ submit: error.response?.data?.error || 'Failed to save letter' });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (data: typeof form) => lettersApi.update(editId!, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['letters'] });
-      queryClient.invalidateQueries({ queryKey: ['letter', editId] });
-      showToast('success', 'Letter updated');
-    },
-    onError: (error: any) => {
-      setErrors({ submit: error.response?.data?.error || 'Failed to update letter' });
-    },
-  });
-
-  const sealMutation = useMutation({
-    mutationFn: (id: string) => lettersApi.seal(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['letters'] });
-      showToast('success', 'Letter sealed and scheduled for delivery');
-      navigate('/dashboard');
-    },
-    onError: (error: any) => {
-      showToast('error', error.response?.data?.error || 'Failed to seal letter');
-    },
-  });
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    if (!form.body.trim()) newErrors.body = 'Letter content is required';
-    if (form.recipientIds.length === 0) newErrors.recipients = 'Select at least one recipient';
-    if (form.deliveryTrigger === 'SCHEDULED' && !form.scheduledDate) {
-      newErrors.scheduledDate = 'Select a delivery date';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = () => {
-    if (editId) {
-      updateMutation.mutate(form);
-    } else {
-      createMutation.mutate(form);
+  const fetchLetters = async () => {
+    try {
+      // Mock data for now
+      setLetters([
+        {
+          id: '1',
+          title: 'To My Children',
+          body: 'My dearest children, if you are reading this...',
+          salutation: 'My Dearest Children',
+          signature: 'With all my love, Mom',
+          recipients: ['1', '2'],
+          deliveryTrigger: 'POSTHUMOUS',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ]);
+    } catch (error) {
+      console.error('Failed to fetch letters:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSeal = () => {
-    if (!validateForm()) return;
-    if (!editId) {
-      showToast('error', 'Please save the letter first');
-      return;
+  const fetchFamilyMembers = async () => {
+    try {
+      // Mock data
+      setFamilyMembers([
+        { id: '1', name: 'Sarah', relationship: 'Daughter', email: 'sarah@example.com' },
+        { id: '2', name: 'Michael', relationship: 'Son', email: 'michael@example.com' },
+        { id: '3', name: 'Emma', relationship: 'Granddaughter', email: 'emma@example.com' },
+      ]);
+    } catch (error) {
+      console.error('Failed to fetch family members:', error);
     }
-    if (confirm('Once sealed, this letter cannot be edited. Are you sure?')) {
-      sealMutation.mutate(editId);
+  };
+
+  const handleNewLetter = () => {
+    setSelectedLetter(null);
+    setTitle('');
+    setSalutation('My Dearest');
+    setBody('');
+    setSignature('With all my love,');
+    setSelectedRecipients([]);
+    setDeliveryTrigger('POSTHUMOUS');
+    setScheduledDate('');
+    setShowComposer(true);
+  };
+
+  const handleEditLetter = (letter: Letter) => {
+    setSelectedLetter(letter);
+    setTitle(letter.title);
+    setSalutation(letter.salutation);
+    setBody(letter.body);
+    setSignature(letter.signature);
+    setSelectedRecipients(letter.recipients);
+    setDeliveryTrigger(letter.deliveryTrigger);
+    setScheduledDate(letter.scheduledDate || '');
+    setShowComposer(true);
+  };
+
+  const handleSaveDraft = async () => {
+    setIsSaving(true);
+    try {
+      // API call would go here
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setShowComposer(false);
+      fetchLetters();
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSealLetter = async () => {
+    setIsSealing(true);
+    try {
+      // API call would go here
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setShowSealConfirm(false);
+      setShowComposer(false);
+      fetchLetters();
+    } catch (error) {
+      console.error('Failed to seal letter:', error);
+    } finally {
+      setIsSealing(false);
     }
   };
 
   const toggleRecipient = (id: string) => {
-    setForm(prev => ({
-      ...prev,
-      recipientIds: prev.recipientIds.includes(id)
-        ? prev.recipientIds.filter(r => r !== id)
-        : [...prev.recipientIds, id],
-    }));
+    setSelectedRecipients(prev =>
+      prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
+    );
   };
 
-  const analyzeEmotion = async () => {
-    if (!form.body.trim()) return;
-    setIsAnalyzing(true);
-    try {
-      const response = await fetch('/api/letters/analyze-text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-        body: JSON.stringify({ text: `${form.salutation} ${form.body} ${form.signature}` }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setEmotion(data.emotion?.label || null);
-      }
-    } catch (error) {
-      console.error('Failed to analyze emotion:', error);
-    } finally {
-      setIsAnalyzing(false);
-    }
+  const insertPrompt = (prompt: string) => {
+    setBody(prev => prev + (prev ? '\n\n' : '') + prompt + '\n\n');
   };
 
-  useEffect(() => {
-    const debounce = setTimeout(() => {
-      if (form.body.length > 50) {
-        analyzeEmotion();
-      }
-    }, 1000);
-    return () => clearTimeout(debounce);
-  }, [form.body]);
-
-  const handleSuggestion = async () => {
-    if (!suggestionForm.recipientName || !suggestionForm.relationship) {
-      showToast('error', 'Please fill in recipient name and relationship');
-      return;
-    }
-    setIsSuggesting(true);
-    try {
-      const response = await fetch('/api/letters/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-        body: JSON.stringify(suggestionForm),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setForm(prev => ({
-          ...prev,
-          salutation: data.salutation || prev.salutation,
-          body: data.body || prev.body,
-          signature: data.signature || prev.signature,
-        }));
-        setEmotion(data.emotion || null);
-        setShowSuggestionModal(false);
-        showToast('success', 'Letter suggestion applied');
-      } else {
-        showToast('error', 'Failed to get suggestion');
-      }
-    } catch (error) {
-      console.error('Failed to get suggestion:', error);
-      showToast('error', 'Failed to get suggestion');
-    } finally {
-      setIsSuggesting(false);
-    }
-  };
-
-  const wordCount = form.body.trim().split(/\s+/).filter(Boolean).length;
-
-  return (
-    <div className="min-h-screen px-6 md:px-12 py-12 relative">
-      {/* Candle glow effect */}
-      <div className="fixed top-24 right-12 pointer-events-none">
-        <motion.div
-          className="w-64 h-64 rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(255, 179, 71, 0.15) 0%, transparent 70%)' }}
-          animate={{ scale: [1, 1.05, 1], opacity: [0.6, 0.8, 0.6] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        />
-      </div>
-
-      {/* Toast Notification */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-xl shadow-2xl ${
-              toast.type === 'success' ? 'bg-green-900/90 border border-green-500/30' : 'bg-red-900/90 border border-red-500/30'
-            }`}
-          >
+  if (showComposer) {
+    return (
+      <div className="min-h-screen bg-void text-paper">
+        <Navigation />
+        
+        <main className="pt-24 pb-16 px-4 max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={() => setShowComposer(false)}
+              className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
+            >
+              <span className="w-5 h-5">{Icons.arrowLeft}</span>
+              <span>Back to Letters</span>
+            </button>
+            
             <div className="flex items-center gap-3">
-              {toast.type === 'success' ? (
-                <Check size={20} className="text-green-400" />
-              ) : (
-                <AlertCircle size={20} className="text-red-400" />
-              )}
-              <span className="text-paper">{toast.message}</span>
+              <button
+                onClick={handleSaveDraft}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 bg-void-light border border-gold/20 rounded-lg text-paper/80 hover:border-gold/40 transition-colors"
+              >
+                <span className="w-4 h-4">{Icons.save}</span>
+                <span>{isSaving ? 'Saving...' : 'Save Draft'}</span>
+              </button>
+              
+              <button
+                onClick={() => setShowSealConfirm(true)}
+                disabled={!body.trim() || selectedRecipients.length === 0}
+                className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-gold to-gold-dim text-void-deep font-semibold rounded-lg hover:shadow-lg hover:shadow-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="w-4 h-4">{Icons.waxSeal}</span>
+                <span>Seal Letter</span>
+              </button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Back button */}
-      <motion.button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        whileHover={{ x: -4 }}
-      >
-        <ArrowLeft size={20} />
-        Back to Vault
-      </motion.button>
-
-      <div className="max-w-4xl mx-auto">
-        {/* Recipients */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-4 mb-8"
-        >
-          <span className="text-paper/40 text-sm">To:</span>
-          <div className="flex gap-2 flex-wrap">
-            {family?.map((member: any) => (
-              <button
-                key={member.id}
-                onClick={() => toggleRecipient(member.id)}
-                className={`w-10 h-10 rounded-full border flex items-center justify-center text-sm transition-all ${
-                  form.recipientIds.includes(member.id)
-                    ? 'border-gold bg-gold/20 text-gold'
-                    : 'border-white/10 text-paper/40 hover:border-gold/30'
-                }`}
-              >
-                {member.name[0]}
-              </button>
-            ))}
-            <button
-              onClick={() => navigate('/family')}
-              className="w-10 h-10 rounded-full border border-dashed border-white/10 text-paper/30 hover:border-gold/30 flex items-center justify-center"
-            >
-              +
-            </button>
-          </div>
-          {errors.recipients && <span className="text-blood text-sm">{errors.recipients}</span>}
-        </motion.div>
-
-        {/* Letter tools bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="flex items-center justify-between mb-4"
-        >
-          <button
-            onClick={() => setShowSuggestionModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gold/10 border border-gold/30 rounded-lg text-gold hover:bg-gold/20 transition-all"
-          >
-            <Sparkles size={16} />
-            Help me write
-          </button>
-          
-          <div className="flex items-center gap-2">
-            {isAnalyzing && (
-              <span className="flex items-center gap-2 text-paper/40 text-sm">
-                <Loader2 size={14} className="animate-spin" />
-                Analyzing...
-              </span>
-            )}
-            {emotion && !isAnalyzing && (
-              <EmotionBadge emotion={emotion} size="md" />
-            )}
-          </div>
-        </motion.div>
-
-        {/* Letter paper */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="relative bg-[#f5f1e8] p-12 md:p-16 min-h-[600px] shadow-2xl rounded-sm"
-          style={{
-            backgroundImage: 'repeating-linear-gradient(transparent, transparent 35px, #e8e2d6 35px, #e8e2d6 36px)',
-          }}
-        >
-          {/* Red margin line */}
-          <div className="absolute top-0 bottom-0 left-16 w-px bg-red-300/40" />
-
-          {/* Salutation */}
-          <input
-            type="text"
-            value={form.salutation}
-            onChange={(e) => setForm({ ...form, salutation: e.target.value })}
-            className="w-full bg-transparent text-2xl text-[#2c1810] border-none outline-none mb-8 placeholder-[#2c1810]/30"
-            style={{ fontFamily: "'Caveat', cursive" }}
-            placeholder="My dearest..."
-          />
-
-          {/* Body */}
-          <textarea
-            value={form.body}
-            onChange={(e) => setForm({ ...form, body: e.target.value })}
-            className={`w-full bg-transparent text-xl text-[#2c1810] border-none outline-none resize-none min-h-[300px] placeholder-[#2c1810]/30 ${
-              errors.body ? 'ring-2 ring-red-400 rounded' : ''
-            }`}
-            style={{ fontFamily: "'Caveat', cursive", lineHeight: '36px' }}
-            placeholder="Write your letter here..."
-          />
-          {errors.body && <p className="text-red-600 text-sm mt-2">{errors.body}</p>}
-
-          {/* Signature */}
-          <div className="text-right mt-12">
-            <input
-              type="text"
-              value={form.signature}
-              onChange={(e) => setForm({ ...form, signature: e.target.value })}
-              className="bg-transparent text-xl text-[#2c1810] border-none outline-none text-right placeholder-[#2c1810]/30"
-              style={{ fontFamily: "'Caveat', cursive" }}
-              placeholder="With love..."
-            />
           </div>
 
-          {/* Word count */}
-          <div className="absolute bottom-4 right-4 text-[#2c1810]/30 text-sm">{wordCount} words</div>
-        </motion.div>
-
-        {/* Delivery options */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-8 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
-        >
-          <div className="flex gap-2 flex-wrap">
-            {[
-              { value: 'IMMEDIATE', label: 'Immediately', icon: Send },
-              { value: 'SCHEDULED', label: 'On Date', icon: Calendar },
-              { value: 'POSTHUMOUS', label: "After I'm Gone", icon: Clock },
-            ].map(({ value, label, icon: Icon }) => (
-              <button
-                key={value}
-                onClick={() => setForm({ ...form, deliveryTrigger: value as DeliveryTrigger })}
-                className={`flex items-center gap-2 px-4 py-2 border transition-all rounded ${
-                  form.deliveryTrigger === value
-                    ? 'border-gold text-gold bg-gold/10'
-                    : 'border-white/10 text-paper/40 hover:border-gold/30'
-                }`}
-              >
-                <Icon size={16} />
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {form.deliveryTrigger === 'SCHEDULED' && (
-            <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
-            >
+          {/* Composer */}
+          <div className="space-y-6">
+            {/* Title */}
+            <div>
+              <label className="block text-sm text-paper/60 mb-2">Letter Title (for your reference)</label>
               <input
-                type="date"
-                value={form.scheduledDate}
-                onChange={(e) => setForm({ ...form, scheduledDate: e.target.value })}
-                className={`px-4 py-2 bg-void border rounded text-paper ${
-                  errors.scheduledDate ? 'border-blood' : 'border-white/10'
-                }`}
-                min={new Date().toISOString().split('T')[0]}
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., To My Children on Their Wedding Days"
+                className="w-full px-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
               />
-              {errors.scheduledDate && <p className="text-blood text-sm mt-1">{errors.scheduledDate}</p>}
-            </motion.div>
-          )}
-        </motion.div>
+            </div>
 
-        {errors.submit && (
-          <div className="mt-4 p-4 bg-blood/10 border border-blood/30 rounded-xl text-blood">
-            {errors.submit}
-          </div>
-        )}
-
-        {/* Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 flex gap-4 justify-end"
-        >
-          <button
-            onClick={handleSave}
-            disabled={createMutation.isPending || updateMutation.isPending}
-            className="btn btn-secondary"
-          >
-            {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save Draft'}
-          </button>
-
-          {editId && !existingLetter?.sealedAt && (
-            <button
-              onClick={handleSeal}
-              disabled={sealMutation.isPending || form.recipientIds.length === 0}
-              className="btn bg-[#8b0000] text-paper hover:bg-[#a00000] disabled:opacity-50 flex items-center gap-2"
-            >
-              <div className="w-6 h-6 rounded-full border border-paper/30 flex items-center justify-center text-xs">
-                <span className="text-gold">&#8734;</span>
-              </div>
-              {sealMutation.isPending ? 'Sealing...' : 'Seal Letter'}
-            </button>
-          )}
-        </motion.div>
-      </div>
-
-      {/* Letter Suggestion Modal */}
-      <AnimatePresence>
-        {showSuggestionModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowSuggestionModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-void border border-white/10 rounded-2xl p-6 max-w-md w-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-display text-gold">Letter Writing Assistant</h3>
+            {/* Recipients */}
+            <div>
+              <label className="block text-sm text-paper/60 mb-3">Recipients</label>
+              <div className="flex flex-wrap gap-2">
+                {familyMembers.map((member) => (
+                  <button
+                    key={member.id}
+                    onClick={() => toggleRecipient(member.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+                      selectedRecipients.includes(member.id)
+                        ? 'bg-gold/20 border-gold text-gold'
+                        : 'bg-void-light border-gold/20 text-paper/60 hover:border-gold/40'
+                    }`}
+                  >
+                    <span className="w-4 h-4">{Icons.user}</span>
+                    <span>{member.name}</span>
+                    {selectedRecipients.includes(member.id) && (
+                      <span className="w-4 h-4">{Icons.check}</span>
+                    )}
+                  </button>
+                ))}
                 <button
-                  onClick={() => setShowSuggestionModal(false)}
-                  className="text-paper/40 hover:text-paper"
+                  onClick={() => navigate('/family')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-gold/30 text-paper/40 hover:border-gold/50 hover:text-paper/60 transition-all"
                 >
-                  <X size={20} />
+                  <span className="w-4 h-4">{Icons.plus}</span>
+                  <span>Add Family Member</span>
                 </button>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-paper/60 text-sm mb-2">Recipient Name</label>
+            {/* Letter Content */}
+            <div className="bg-void-light border border-gold/20 rounded-2xl p-8">
+              {/* Salutation */}
+              <input
+                type="text"
+                value={salutation}
+                onChange={(e) => setSalutation(e.target.value)}
+                placeholder="Dear..."
+                className="w-full text-2xl font-serif text-gold bg-transparent border-none focus:outline-none mb-6"
+              />
+              
+              {/* Body */}
+              <textarea
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                placeholder="Write your letter here..."
+                rows={15}
+                className="w-full bg-transparent border-none text-paper text-lg leading-relaxed focus:outline-none resize-none placeholder:text-paper/30"
+              />
+              
+              {/* Signature */}
+              <div className="mt-8 pt-6 border-t border-gold/10">
+                <input
+                  type="text"
+                  value={signature}
+                  onChange={(e) => setSignature(e.target.value)}
+                  placeholder="With love..."
+                  className="w-full text-lg font-serif text-paper/80 bg-transparent border-none focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Writing Prompts */}
+            <div>
+              <label className="block text-sm text-paper/60 mb-3">Need inspiration? Try a prompt:</label>
+              <div className="flex flex-wrap gap-2">
+                {letterPrompts.map((prompt, index) => (
+                  <button
+                    key={index}
+                    onClick={() => insertPrompt(prompt)}
+                    className="px-3 py-1.5 text-sm bg-void-light border border-gold/10 rounded-lg text-paper/50 hover:text-paper/80 hover:border-gold/30 transition-colors"
+                  >
+                    {prompt.substring(0, 40)}...
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Delivery Options */}
+            <div>
+              <label className="block text-sm text-paper/60 mb-3">When should this letter be delivered?</label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {deliveryOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => setDeliveryTrigger(option.id as typeof deliveryTrigger)}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      deliveryTrigger === option.id
+                        ? 'bg-gold/10 border-gold'
+                        : 'bg-void-light border-gold/20 hover:border-gold/40'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 mb-3 ${deliveryTrigger === option.id ? 'text-gold' : 'text-paper/50'}`}>
+                      {option.icon}
+                    </div>
+                    <div className={`font-medium ${deliveryTrigger === option.id ? 'text-gold' : 'text-paper'}`}>
+                      {option.label}
+                    </div>
+                    <div className="text-sm text-paper/50 mt-1">{option.description}</div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Scheduled Date Picker */}
+              {deliveryTrigger === 'SCHEDULED' && (
+                <div className="mt-4">
+                  <label className="block text-sm text-paper/60 mb-2">Delivery Date</label>
                   <input
-                    type="text"
-                    value={suggestionForm.recipientName}
-                    onChange={(e) => setSuggestionForm({ ...suggestionForm, recipientName: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-paper focus:border-gold/50 outline-none"
-                    placeholder="e.g., Sarah"
+                    type="date"
+                    value={scheduledDate}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="px-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50"
                   />
                 </div>
+              )}
+            </div>
+          </div>
+        </main>
 
-                <div>
-                  <label className="block text-paper/60 text-sm mb-2">Relationship</label>
-                  <select
-                    value={suggestionForm.relationship}
-                    onChange={(e) => setSuggestionForm({ ...suggestionForm, relationship: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-paper focus:border-gold/50 outline-none"
-                  >
-                    <option value="child">Child</option>
-                    <option value="spouse">Spouse</option>
-                    <option value="parent">Parent</option>
-                    <option value="sibling">Sibling</option>
-                    <option value="grandchild">Grandchild</option>
-                    <option value="friend">Friend</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-paper/60 text-sm mb-2">Occasion (optional)</label>
-                  <select
-                    value={suggestionForm.occasion}
-                    onChange={(e) => setSuggestionForm({ ...suggestionForm, occasion: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-paper focus:border-gold/50 outline-none"
-                  >
-                    <option value="">General / No specific occasion</option>
-                    <option value="birthday">Birthday</option>
-                    <option value="wedding">Wedding</option>
-                    <option value="graduation">Graduation</option>
-                    <option value="holiday">Holiday</option>
-                    <option value="memorial">Memorial / Remembrance</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-paper/60 text-sm mb-2">Tone</label>
-                  <select
-                    value={suggestionForm.tone}
-                    onChange={(e) => setSuggestionForm({ ...suggestionForm, tone: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-paper focus:border-gold/50 outline-none"
-                  >
-                    <option value="warm and loving">Warm and Loving</option>
-                    <option value="reflective and nostalgic">Reflective and Nostalgic</option>
-                    <option value="encouraging and proud">Encouraging and Proud</option>
-                    <option value="grateful and appreciative">Grateful and Appreciative</option>
-                    <option value="hopeful and optimistic">Hopeful and Optimistic</option>
-                  </select>
-                </div>
+        {/* Seal Confirmation Modal */}
+        {showSealConfirm && (
+          <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
+            <div className="bg-void-light border border-gold/30 rounded-2xl p-8 max-w-md w-full text-center">
+              {/* Wax Seal Animation */}
+              <div className="w-24 h-24 mx-auto mb-6 text-blood">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <circle cx="50" cy="50" r="45" fill="url(#sealGradient)" />
+                  <defs>
+                    <radialGradient id="sealGradient" cx="30%" cy="30%">
+                      <stop offset="0%" stopColor="#c04060" />
+                      <stop offset="50%" stopColor="#8b2942" />
+                      <stop offset="100%" stopColor="#5a1a2a" />
+                    </radialGradient>
+                  </defs>
+                  <g transform="translate(50,50)" className="text-paper/90">
+                    <path d="M-15 0c0-4 1.5-8 4-8s4 4 4 8-1.5 8-4 8-4-4-4-8M11 0c0-4 1.5-8 4-8s4 4 4 8-1.5 8-4 8-4-4-4-8" 
+                          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </g>
+                </svg>
               </div>
-
-              <div className="flex gap-3 mt-6">
+              
+              <h3 className="text-2xl font-serif text-paper mb-3">Seal This Letter?</h3>
+              <p className="text-paper/60 mb-6">
+                Once sealed, this letter cannot be edited. It will be encrypted and stored securely until delivery.
+              </p>
+              
+              <div className="flex gap-3">
                 <button
-                  onClick={() => setShowSuggestionModal(false)}
-                  className="flex-1 px-4 py-3 border border-white/10 rounded-lg text-paper/60 hover:text-paper hover:border-white/20 transition-all"
+                  onClick={() => setShowSealConfirm(false)}
+                  disabled={isSealing}
+                  className="flex-1 px-4 py-3 bg-void border border-gold/20 rounded-xl text-paper/80 hover:border-gold/40 transition-colors"
                 >
-                  Cancel
+                  Keep Editing
                 </button>
                 <button
-                  onClick={handleSuggestion}
-                  disabled={isSuggesting || !suggestionForm.recipientName}
-                  className="flex-1 px-4 py-3 bg-gold text-void rounded-lg font-medium hover:bg-gold/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  onClick={handleSealLetter}
+                  disabled={isSealing}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blood to-blood/80 text-paper font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
                 >
-                  {isSuggesting ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      Generating...
-                    </>
+                  {isSealing ? (
+                    <span>Sealing...</span>
                   ) : (
                     <>
-                      <Sparkles size={16} />
-                      Generate Letter
+                      <span className="w-5 h-5">{Icons.lock}</span>
+                      <span>Seal Forever</span>
                     </>
                   )}
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-void text-paper">
+      <Navigation />
+      
+      <main className="pt-24 pb-16 px-4 max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-serif text-paper mb-2">Letters</h1>
+            <p className="text-paper/60">Write messages to be delivered across time</p>
+          </div>
+          
+          <button
+            onClick={handleNewLetter}
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-gold to-gold-dim text-void-deep font-semibold rounded-xl hover:shadow-lg hover:shadow-gold/20 transition-all"
+          >
+            <span className="w-5 h-5">{Icons.plus}</span>
+            <span>New Letter</span>
+          </button>
+        </div>
+
+        {/* Letters Grid */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : letters.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-20 h-20 mx-auto mb-6 text-gold/30">
+              {Icons.envelope}
+            </div>
+            <h3 className="text-xl font-serif text-paper mb-2">No letters yet</h3>
+            <p className="text-paper/60 mb-6 max-w-md mx-auto">
+              Write letters to your loved ones that will be delivered at just the right moment.
+            </p>
+            <button
+              onClick={handleNewLetter}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gold to-gold-dim text-void-deep font-semibold rounded-xl hover:shadow-lg hover:shadow-gold/20 transition-all"
+            >
+              <span className="w-5 h-5">{Icons.plus}</span>
+              <span>Write Your First Letter</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {letters.map((letter) => (
+              <div
+                key={letter.id}
+                onClick={() => handleEditLetter(letter)}
+                className="group bg-void-light border border-gold/20 rounded-2xl p-6 cursor-pointer hover:border-gold/40 transition-all"
+              >
+                {/* Sealed Status */}
+                {letter.sealedAt ? (
+                  <div className="flex items-center gap-2 text-blood mb-4">
+                    <span className="w-5 h-5">{Icons.waxSeal}</span>
+                    <span className="text-sm">Sealed</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-paper/40 mb-4">
+                    <span className="w-5 h-5">{Icons.save}</span>
+                    <span className="text-sm">Draft</span>
+                  </div>
+                )}
+                
+                {/* Title */}
+                <h3 className="text-lg font-serif text-paper mb-2 group-hover:text-gold transition-colors">
+                  {letter.title || 'Untitled Letter'}
+                </h3>
+                
+                {/* Preview */}
+                <p className="text-paper/50 text-sm line-clamp-3 mb-4">
+                  {letter.body}
+                </p>
+                
+                {/* Footer */}
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-1 text-paper/40">
+                    <span className="w-4 h-4">{Icons.user}</span>
+                    <span>{letter.recipients.length} recipient{letter.recipients.length !== 1 ? 's' : ''}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-1 text-paper/40">
+                    <span className="w-4 h-4">
+                      {letter.deliveryTrigger === 'IMMEDIATE' && Icons.send}
+                      {letter.deliveryTrigger === 'SCHEDULED' && Icons.calendar}
+                      {letter.deliveryTrigger === 'POSTHUMOUS' && Icons.heart}
+                    </span>
+                    <span>
+                      {letter.deliveryTrigger === 'IMMEDIATE' && 'Immediate'}
+                      {letter.deliveryTrigger === 'SCHEDULED' && 'Scheduled'}
+                      {letter.deliveryTrigger === 'POSTHUMOUS' && 'Posthumous'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {/* New Letter Card */}
+            <button
+              onClick={handleNewLetter}
+              className="flex flex-col items-center justify-center min-h-[250px] border-2 border-dashed border-gold/20 rounded-2xl text-paper/40 hover:border-gold/40 hover:text-paper/60 transition-all"
+            >
+              <span className="w-12 h-12 mb-4">{Icons.plus}</span>
+              <span>New Letter</span>
+            </button>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

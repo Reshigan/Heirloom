@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
-import { SupportButton } from './components/SupportBot';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -14,7 +13,6 @@ import { Compose } from './pages/Compose';
 import { Record } from './pages/Record';
 import { Family } from './pages/Family';
 import { Settings } from './pages/Settings';
-import Wrapped from './pages/Wrapped';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,38 +24,13 @@ const queryClient = new QueryClient({
 });
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, hasHydrated } = useAuthStore();
-
-  if (!hasHydrated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-void">
-        <div className="animate-spin w-8 h-8 border-2 border-gold border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
+  const { isAuthenticated } = useAuthStore();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, hasHydrated } = useAuthStore();
-
-  if (!hasHydrated) {
-    return null;
-  }
-
+  const { isAuthenticated } = useAuthStore();
   return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
-}
-
-// Global SupportBot that only shows when authenticated
-function GlobalSupportButton() {
-  const { isAuthenticated, hasHydrated } = useAuthStore();
-  
-  if (!hasHydrated || !isAuthenticated) {
-    return null;
-  }
-  
-  return <SupportButton />;
 }
 
 export default function App() {
@@ -65,7 +38,6 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <CustomCursor />
-        <GlobalSupportButton />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
@@ -140,22 +112,6 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/wrapped"
-            element={
-              <ProtectedRoute>
-                <Wrapped />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/wrapped/:year"
-            element={
-              <ProtectedRoute>
-                <Wrapped />
               </ProtectedRoute>
             }
           />

@@ -38,7 +38,7 @@ export const authService = {
    * Hash a password
    */
   async hashPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 12);
+    return bcrypt.hash(password, env.BCRYPT_ROUNDS);
   },
 
   /**
@@ -52,20 +52,20 @@ export const authService = {
    * Generate JWT tokens
    */
   generateTokens(payload: TokenPayload): AuthTokens {
-    const accessExpiresIn = this.parseExpiration(env.JWT_EXPIRES_IN);
-    const refreshExpiresIn = this.parseExpiration(env.JWT_REFRESH_EXPIRES_IN);
-
     const accessToken = jwt.sign(payload, env.JWT_SECRET, {
-      expiresIn: accessExpiresIn,
+      expiresIn: env.JWT_EXPIRES_IN,
     });
 
     const refreshToken = jwt.sign(
       { ...payload, type: 'refresh' },
       env.JWT_REFRESH_SECRET,
-      { expiresIn: refreshExpiresIn }
+      { expiresIn: env.JWT_REFRESH_EXPIRES_IN }
     );
 
-    return { accessToken, refreshToken, expiresIn: accessExpiresIn };
+    // Parse expiration time
+    const expiresIn = this.parseExpiration(env.JWT_EXPIRES_IN);
+
+    return { accessToken, refreshToken, expiresIn };
   },
 
   /**

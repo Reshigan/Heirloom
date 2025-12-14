@@ -88,10 +88,6 @@ model User {
   deadManSwitch     DeadManSwitch?
   keyEscrows        KeyEscrow[]        @relation("UserKeyEscrows")
   checkInHistory    CheckInHistory[]
-  supportTickets    SupportTicket[]
-  supportMessages   SupportMessage[]
-  botConversations  BotConversation[]
-  activities        Activity[]
 
   @@index([email])
 }
@@ -308,25 +304,19 @@ model LegacyContact {
 }
 
 model Notification {
-  id              String   @id @default(uuid())
-  userId          String
-  type            String
-  title           String
-  message         String
-  emotionalAppeal String?
-  icon            String?
-  actionLabel     String?
-  actionRoute     String?
-  data            Json?
-  read            Boolean  @default(false)
-  readAt          DateTime?
-  createdAt       DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([read])
-  @@index([createdAt])
 }
 
 model StoryPrompt {
@@ -414,126 +404,4 @@ model KeyEscrow {
 
   @@unique([userId, beneficiaryId])
   @@index([userId])
-}
-
-// ============================================================================
-// SUPPORT SYSTEM
-// ============================================================================
-
-enum TicketPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum TicketStatus {
-  OPEN
-  PENDING
-  RESOLVED
-  ESCALATED
-  CLOSED
-}
-
-enum MessageRole {
-  USER
-  ASSISTANT
-  SYSTEM
-  INTERNAL
-}
-
-model SupportTicket {
-  id          String         @id @default(uuid())
-  userId      String
-  subject     String
-  category    String
-  priority    TicketPriority @default(MEDIUM)
-  status      TicketStatus   @default(OPEN)
-  assignedTo  String?
-  metadata    Json           @default("{}")
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  resolvedAt  DateTime?
-
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages    SupportMessage[]
-
-  @@index([userId])
-  @@index([status])
-  @@index([priority])
-  @@index([assignedTo])
-}
-
-model SupportMessage {
-  id          String      @id @default(uuid())
-  ticketId    String
-  userId      String?
-  role        MessageRole @default(USER)
-  content     String
-  attachments Json[]      @default([])
-  createdAt   DateTime    @default(now())
-
-  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  user        User?         @relation(fields: [userId], references: [id])
-
-  @@index([ticketId])
-}
-
-model BotConversation {
-  id         String   @id @default(uuid())
-  userId     String?
-  query      String
-  response   String
-  intent     String?
-  helpful    Boolean?
-  articleIds String[]
-  createdAt  DateTime @default(now())
-
-  user       User?    @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([intent])
-  @@index([createdAt])
-}
-
-// ============================================================================
-// ANALYTICS & ACTIVITY
-// ============================================================================
-
-model Activity {
-  id           String   @id @default(uuid())
-  userId       String
-  type         String
-  action       String
-  resourceType String?
-  resourceId   String?
-  metadata     Json?
-  createdAt    DateTime @default(now())
-
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([type])
-  @@index([createdAt])
-}
-
-model WrappedData {
-  id                String   @id @default(uuid())
-  userId            String
-  year              Int
-  totalMemories     Int      @default(0)
-  totalVoiceStories Int      @default(0)
-  totalLetters      Int      @default(0)
-  totalStorage      BigInt   @default(0)
-  longestStreak     Int      @default(0)
-  currentStreak     Int      @default(0)
-  topEmotions       Json     @default("[]")
-  topTaggedPeople   Json     @default("[]")
-  highlights        Json     @default("[]")
-  summary           String?
-  generatedAt       DateTime @default(now())
-
-  @@unique([userId, year])
-  @@index([userId])
-  @@index([year])
 }

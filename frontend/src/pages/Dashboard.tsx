@@ -3,30 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Shield, Crown, ChevronRight, X, Check, Loader2,
-  Settings, LogOut, Bell
+  Bell, Settings, Shield, Clock, Crown,
+  ChevronRight, X, Check, Loader2
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const sanctuaryRef = useRef<HTMLDivElement>(null);
+  const deskRef = useRef<HTMLDivElement>(null);
   
   const [showTrialWarning, setShowTrialWarning] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
-  // Mouse tracking for global parallax
+  // Mouse tracking for parallax
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
-  // Smooth parallax transforms
-  const parallaxX = useSpring(useTransform(mouseX, [-500, 500], [15, -15]), { stiffness: 50, damping: 30 });
-  const parallaxY = useSpring(useTransform(mouseY, [-300, 300], [10, -10]), { stiffness: 50, damping: 30 });
+  const rotateX = useTransform(mouseY, [-300, 300], [2, -2]);
+  const rotateY = useTransform(mouseX, [-500, 500], [-3, 3]);
+  
+  const springRotateX = useSpring(rotateX, { stiffness: 100, damping: 30 });
+  const springRotateY = useSpring(rotateY, { stiffness: 100, damping: 30 });
 
   // Queries
   const { data: subscription } = useQuery({
@@ -67,11 +68,13 @@ export function Dashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Mouse move handler
+  // Mouse move handler for desk parallax
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
+      if (!deskRef.current) return;
+      const rect = deskRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
       mouseX.set(e.clientX - centerX);
       mouseY.set(e.clientY - centerY);
     };
@@ -83,142 +86,36 @@ export function Dashboard() {
   const isTrialing = subscription?.status === 'TRIALING';
   const trialDaysLeft = subscription?.trialDaysRemaining || 0;
 
-  // Card data for the sanctuary items
-  const sanctuaryItems = [
-    {
-      id: 'memories',
-      title: 'Memory Vault',
-      subtitle: `${stats?.totalMemories || 0} treasures preserved`,
-      icon: '📷',
-      gradient: 'from-amber-900/40 via-amber-800/20 to-transparent',
-      accent: '#c9a959',
-      path: '/memories',
-      description: 'Your photographs and precious moments',
-    },
-    {
-      id: 'compose',
-      title: 'Letters',
-      subtitle: `${stats?.totalLetters || 0} sealed across time`,
-      icon: '✉️',
-      gradient: 'from-rose-900/30 via-rose-800/15 to-transparent',
-      accent: '#8b2942',
-      path: '/compose',
-      description: 'Words waiting for their perfect moment',
-    },
-    {
-      id: 'voice',
-      title: 'Voice Archive',
-      subtitle: `${stats?.totalRecordings || 0} stories captured`,
-      icon: '🎙️',
-      gradient: 'from-emerald-900/30 via-emerald-800/15 to-transparent',
-      accent: '#2d5a4a',
-      path: '/record',
-      description: 'Your voice, echoing through generations',
-    },
-    {
-      id: 'family',
-      title: 'Family Tree',
-      subtitle: `${family?.length || 0} souls connected`,
-      icon: '🌳',
-      gradient: 'from-blue-900/30 via-blue-800/15 to-transparent',
-      accent: '#3d5a80',
-      path: '/family',
-      description: 'The constellation of your lineage',
-    },
-  ];
-
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#05070a]">
-      
-      {/* ============ IMMERSIVE BACKGROUND LAYERS ============ */}
-      
-      {/* Deep space base */}
-      <div className="fixed inset-0 bg-gradient-to-b from-[#0a0c12] via-[#080a0f] to-[#05070a]" />
-      
-      {/* Volumetric fog layers */}
-      <motion.div 
-        className="fixed inset-0 pointer-events-none"
-        style={{ x: parallaxX, y: parallaxY }}
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_50%_-20%,rgba(201,169,89,0.08),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_80%_20%,rgba(139,41,66,0.05),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_20%_80%,rgba(45,90,74,0.04),transparent_50%)]" />
-      </motion.div>
-
-      {/* Animated nebula clouds */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <motion.div
-          className="absolute w-[800px] h-[600px] -top-40 -left-40"
-          style={{
-            background: 'radial-gradient(circle, rgba(201,169,89,0.03) 0%, transparent 70%)',
-            filter: 'blur(80px)',
-          }}
-          animate={{
-            x: [0, 100, 50, 0],
-            y: [0, 50, 100, 0],
-            scale: [1, 1.2, 1.1, 1],
-          }}
-          transition={{ duration: 60, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute w-[600px] h-[600px] -bottom-40 -right-20"
-          style={{
-            background: 'radial-gradient(circle, rgba(139,41,66,0.04) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-          }}
-          animate={{
-            x: [0, -80, -40, 0],
-            y: [0, -60, -30, 0],
-            scale: [1, 1.15, 1.05, 1],
-          }}
-          transition={{ duration: 45, repeat: Infinity, ease: 'easeInOut' }}
-        />
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Sanctuary Background */}
+      <div className="sanctuary-bg">
+        <div className="sanctuary-orb sanctuary-orb-1" />
+        <div className="sanctuary-orb sanctuary-orb-2" />
+        <div className="sanctuary-orb sanctuary-orb-3" />
+        <div className="sanctuary-stars" />
+        <div className="sanctuary-mist" />
       </div>
 
-      {/* Star field - multiple layers for depth */}
+      {/* Floating dust particles */}
       <div className="fixed inset-0 pointer-events-none">
-        {[...Array(80)].map((_, i) => (
+        {[...Array(40)].map((_, i) => (
           <motion.div
-            key={`star-${i}`}
-            className="absolute rounded-full"
+            key={i}
+            className="absolute rounded-full bg-gold/20"
             style={{
-              width: Math.random() > 0.9 ? 2 : 1,
-              height: Math.random() > 0.9 ? 2 : 1,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              background: i % 5 === 0 ? '#c9a959' : 'rgba(245,243,238,0.6)',
-            }}
-            animate={{
-              opacity: [0.2, 0.8, 0.2],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Floating golden particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(30)].map((_, i) => (
-          <motion.div
-            key={`particle-${i}`}
-            className="absolute w-1 h-1 rounded-full bg-gold/40"
-            style={{
+              width: Math.random() > 0.7 ? 3 : 2,
+              height: Math.random() > 0.7 ? 3 : 2,
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
             }}
             animate={{
-              y: [0, -200, 0],
-              x: [0, Math.random() * 100 - 50, 0],
+              y: [0, -150, 0],
+              x: [0, Math.random() * 50 - 25, 0],
               opacity: [0, 0.6, 0],
-              scale: [0, 1, 0],
             }}
             transition={{
-              duration: 15 + Math.random() * 20,
+              duration: 15 + Math.random() * 15,
               repeat: Infinity,
               delay: Math.random() * 15,
               ease: 'easeInOut',
@@ -227,86 +124,58 @@ export function Dashboard() {
         ))}
       </div>
 
-      {/* Central light beam from above */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1px] h-[60vh] pointer-events-none">
-        <div className="w-full h-full bg-gradient-to-b from-gold/20 via-gold/5 to-transparent" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-[radial-gradient(ellipse,rgba(201,169,89,0.1),transparent_70%)] blur-2xl" />
+      {/* Ambient warm light from top */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none">
+        <div className="w-full h-full bg-gradient-radial from-amber-500/10 via-transparent to-transparent blur-3xl" />
       </div>
 
-      {/* ============ TOAST NOTIFICATION ============ */}
+      {/* Toast */}
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl backdrop-blur-xl border ${
-              toast.type === 'success' 
-                ? 'bg-emerald-500/10 border-emerald-500/30' 
-                : 'bg-red-500/10 border-red-500/30'
-            } flex items-center gap-3 shadow-2xl`}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-xl glass-strong flex items-center gap-3 ${
+              toast.type === 'success' ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'
+            }`}
           >
-            {toast.type === 'success' ? (
-              <Check className="text-emerald-400" size={20} />
-            ) : (
-              <X className="text-red-400" size={20} />
-            )}
-            <span className="text-paper/90">{toast.message}</span>
+            {toast.type === 'success' ? <Check className="text-green-400" size={20} /> : <X className="text-red-400" size={20} />}
+            <span>{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ============ HEADER ============ */}
+      {/* Header */}
       <motion.header
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
         className="relative z-20 px-6 md:px-12 py-6"
       >
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          {/* Logo */}
           <motion.div 
-            className="flex items-center gap-4 cursor-pointer group"
+            className="flex items-center gap-3 cursor-pointer"
             onClick={() => navigate('/dashboard')}
             whileHover={{ scale: 1.02 }}
           >
-            <div className="relative">
-              <motion.span 
-                className="text-4xl text-gold block"
-                animate={{ 
-                  rotate: 360,
-                  textShadow: [
-                    '0 0 20px rgba(201,169,89,0.3)',
-                    '0 0 40px rgba(201,169,89,0.5)',
-                    '0 0 20px rgba(201,169,89,0.3)',
-                  ],
-                }}
-                transition={{ 
-                  rotate: { duration: 30, repeat: Infinity, ease: 'linear' },
-                  textShadow: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
-                }}
-              >
-                ∞
-              </motion.span>
-              <div className="absolute inset-0 blur-xl bg-gold/20 rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <div>
-              <span className="text-xl tracking-[0.2em] text-paper/90 font-light">HEIRLOOM</span>
-              <div className="h-px w-0 group-hover:w-full bg-gradient-to-r from-gold to-transparent transition-all duration-500" />
-            </div>
+            <motion.span 
+              className="text-3xl text-gold"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            >
+              ∞
+            </motion.span>
+            <span className="text-xl tracking-[0.15em] text-paper/80">HEIRLOOM</span>
           </motion.div>
 
-          {/* Header Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* Dead Man's Switch Status */}
             {deadmanStatus?.enabled && (
               <motion.button
                 onClick={() => checkInMutation.mutate()}
                 disabled={checkInMutation.isPending}
-                className={`px-4 py-2 rounded-xl backdrop-blur-md border transition-all flex items-center gap-2 text-sm ${
-                  deadmanStatus.needsCheckIn 
-                    ? 'bg-blood/10 border-blood/40 text-blood hover:bg-blood/20' 
-                    : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+                className={`px-4 py-2 rounded-lg glass flex items-center gap-2 text-sm transition-all ${
+                  deadmanStatus.needsCheckIn ? 'border border-blood/50 text-blood' : 'text-green-400'
                 }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -316,88 +185,89 @@ export function Dashboard() {
                 ) : (
                   <Shield size={16} />
                 )}
-                <span className="hidden sm:inline">
-                  {deadmanStatus.needsCheckIn ? 'Check In' : 'Protected'}
-                </span>
+                {deadmanStatus.needsCheckIn ? 'Check In Required' : 'Protected'}
               </motion.button>
             )}
 
             {/* Notifications */}
-            <motion.button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-3 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Bell size={18} className="text-paper/70" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-gold rounded-full animate-pulse" />
-            </motion.button>
+            <div className="relative">
+              <motion.button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="w-10 h-10 rounded-full glass flex items-center justify-center text-paper/60 hover:text-gold transition-colors relative"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Bell size={20} />
+                {isTrialing && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-blood rounded-full" />
+                )}
+              </motion.button>
+            </div>
 
             {/* Settings */}
             <motion.button
               onClick={() => navigate('/settings')}
-              className="p-3 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
-              whileHover={{ scale: 1.05, rotate: 90 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Settings size={18} className="text-paper/70" />
-            </motion.button>
-
-            {/* Logout */}
-            <motion.button
-              onClick={logout}
-              className="p-3 rounded-xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-blood/20 hover:border-blood/30 transition-all"
+              className="w-10 h-10 rounded-full glass flex items-center justify-center text-paper/60 hover:text-gold transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <LogOut size={18} className="text-paper/70" />
+              <Settings size={20} />
+            </motion.button>
+
+            {/* User avatar */}
+            <motion.button
+              onClick={() => navigate('/settings')}
+              className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void font-medium relative overflow-hidden"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+              <span className="relative">{user?.firstName?.[0] || 'U'}</span>
             </motion.button>
           </div>
         </div>
       </motion.header>
 
-      {/* ============ TRIAL WARNING BANNER ============ */}
+      {/* Trial Warning Banner */}
       <AnimatePresence>
         {isTrialing && showTrialWarning && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="relative z-10 mx-6 md:mx-12 mb-6"
+            className="relative z-10 px-6 md:px-12"
           >
             <div className="max-w-7xl mx-auto">
-              <div className="relative overflow-hidden rounded-2xl backdrop-blur-xl bg-gradient-to-r from-gold/10 via-gold/5 to-transparent border border-gold/20">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(201,169,89,0.1),transparent_50%)]" />
-                <div className="relative px-6 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-xl bg-gold/20">
-                      <Crown className="text-gold" size={20} />
-                    </div>
-                    <div>
-                      <p className="text-paper/90 font-medium">
-                        {trialDaysLeft} days remaining in your trial
-                      </p>
-                      <p className="text-paper/50 text-sm">
-                        Unlock unlimited storage and premium features
-                      </p>
-                    </div>
+              <div className="glass border border-gold/20 rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                    <Clock size={20} className="text-gold" />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <motion.button
-                      onClick={() => navigate('/settings?tab=billing')}
-                      className="px-5 py-2 rounded-xl bg-gold text-void font-medium text-sm hover:bg-gold-bright transition-colors"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Upgrade Now
-                    </motion.button>
-                    <button
-                      onClick={() => setShowTrialWarning(false)}
-                      className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-                    >
-                      <X size={16} className="text-paper/50" />
-                    </button>
+                  <div>
+                    <p className="font-medium">
+                      {trialDaysLeft} days left in your trial
+                    </p>
+                    <p className="text-sm text-paper/50">
+                      Upgrade now to keep your memories forever
+                    </p>
                   </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <motion.button
+                    onClick={() => navigate('/settings?tab=subscription')}
+                    className="btn btn-primary btn-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Crown size={16} />
+                    Upgrade
+                  </motion.button>
+                  <button
+                    onClick={() => setShowTrialWarning(false)}
+                    className="text-paper/40 hover:text-paper transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
                 </div>
               </div>
             </div>
@@ -405,282 +275,528 @@ export function Dashboard() {
         )}
       </AnimatePresence>
 
-      {/* ============ MAIN CONTENT ============ */}
-      <main className="relative z-10 px-6 md:px-12 pb-12">
+      {/* Main Content */}
+      <main className="relative z-10 px-6 md:px-12 py-8">
         <div className="max-w-7xl mx-auto">
-          
-          {/* Welcome Section */}
+          {/* Welcome */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-center mb-16"
+            className="text-center mb-8"
           >
-            <motion.h1 
-              className="text-4xl md:text-6xl font-light mb-4 tracking-tight"
-              style={{
-                background: 'linear-gradient(135deg, #f5f3ee 0%, #c9a959 50%, #f5f3ee 100%)',
-                backgroundSize: '200% auto',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-              animate={{
-                backgroundPosition: ['0% center', '200% center'],
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-            >
-              Welcome back, {user?.firstName || 'Friend'}
-            </motion.h1>
-            <p className="text-paper/40 text-lg">Your sanctuary awaits</p>
-            
-            {/* Decorative line */}
-            <motion.div 
-              className="mt-8 mx-auto w-32 h-px"
-              style={{
-                background: 'linear-gradient(90deg, transparent, #c9a959, transparent)',
-              }}
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1, delay: 0.5 }}
-            />
+            <h1 className="text-3xl md:text-4xl font-light mb-2">
+              Welcome back, <em className="text-gold">{user?.firstName || 'Friend'}</em>
+            </h1>
+            <p className="text-paper/50">Your sanctuary awaits</p>
           </motion.div>
 
-          {/* ============ SANCTUARY CARDS GRID ============ */}
+          {/* 3D Desk with Objects */}
           <motion.div
-            ref={sanctuaryRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
-            style={{ perspective: '2000px' }}
+            ref={deskRef}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="relative mb-12"
+            style={{
+              perspective: '1500px',
+            }}
           >
-            {sanctuaryItems.map((item, index) => (
-              <motion.button
-                key={item.id}
-                onClick={() => navigate(item.path)}
-                onMouseEnter={() => setHoveredCard(item.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 * index }}
-                className="group relative text-left"
+            <motion.div
+              style={{
+                rotateX: springRotateX,
+                rotateY: springRotateY,
+                transformStyle: 'preserve-3d',
+              }}
+            >
+              {/* Desk Surface */}
+              <div 
+                className="relative rounded-2xl p-8 md:p-12 min-h-[500px]"
                 style={{
-                  transformStyle: 'preserve-3d',
-                }}
-                whileHover={{ 
-                  scale: 1.02,
-                  rotateX: -2,
-                  rotateY: index % 2 === 0 ? 2 : -2,
-                  z: 50,
+                  background: `
+                    linear-gradient(135deg, 
+                      rgba(60,45,30,0.95) 0%, 
+                      rgba(45,35,25,0.95) 25%,
+                      rgba(35,28,20,0.95) 50%,
+                      rgba(40,32,22,0.95) 75%,
+                      rgba(50,40,28,0.95) 100%
+                    )
+                  `,
+                  boxShadow: `
+                    0 50px 100px -20px rgba(0,0,0,0.8),
+                    0 30px 60px -30px rgba(0,0,0,0.6),
+                    inset 0 1px 0 rgba(255,255,255,0.05),
+                    inset 0 -2px 0 rgba(0,0,0,0.3)
+                  `,
                 }}
               >
-                {/* Card */}
+                {/* Wood grain texture overlay */}
                 <div 
-                  className="relative overflow-hidden rounded-3xl p-8 min-h-[240px] transition-all duration-500"
+                  className="absolute inset-0 rounded-2xl opacity-30 pointer-events-none"
                   style={{
-                    background: `linear-gradient(135deg, rgba(20,22,30,0.9) 0%, rgba(12,14,20,0.95) 100%)`,
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    boxShadow: hoveredCard === item.id 
-                      ? `0 30px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px ${item.accent}30, inset 0 1px 0 rgba(255,255,255,0.05)`
-                      : '0 20px 60px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)',
+                    backgroundImage: `
+                      repeating-linear-gradient(
+                        90deg,
+                        transparent 0px,
+                        rgba(0,0,0,0.03) 1px,
+                        transparent 2px,
+                        transparent 20px
+                      ),
+                      repeating-linear-gradient(
+                        0deg,
+                        transparent 0px,
+                        rgba(139,90,43,0.05) 100px,
+                        transparent 200px
+                      )
+                    `,
                   }}
-                >
-                  {/* Gradient overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-60 group-hover:opacity-100 transition-opacity duration-500`} />
-                  
-                  {/* Animated border glow */}
-                  <motion.div
-                    className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    style={{
-                      background: `linear-gradient(135deg, ${item.accent}20, transparent, ${item.accent}10)`,
-                    }}
-                  />
-                  
-                  {/* Shine effect */}
-                  <motion.div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100"
-                    style={{
-                      background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.03) 55%, transparent 60%)',
-                    }}
-                    initial={{ x: '-100%' }}
-                    whileHover={{ x: '100%' }}
-                    transition={{ duration: 0.8 }}
-                  />
+                />
 
-                  {/* Content */}
-                  <div className="relative z-10 h-full flex flex-col">
-                    {/* Icon */}
-                    <motion.div 
-                      className="text-5xl mb-6"
-                      animate={hoveredCard === item.id ? { 
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, -5, 0],
-                      } : {}}
-                      transition={{ duration: 0.5 }}
-                    >
-                      {item.icon}
-                    </motion.div>
-                    
-                    {/* Title */}
-                    <h3 
-                      className="text-2xl font-light mb-2 transition-colors duration-300"
-                      style={{ color: hoveredCard === item.id ? item.accent : '#f5f3ee' }}
-                    >
-                      {item.title}
-                    </h3>
-                    
-                    {/* Description */}
-                    <p className="text-paper/40 text-sm mb-4 line-clamp-2">
-                      {item.description}
-                    </p>
-                    
-                    {/* Stats */}
-                    <div className="mt-auto flex items-center justify-between">
-                      <span className="text-paper/60 text-sm">{item.subtitle}</span>
-                      <motion.div
-                        className="flex items-center gap-1 text-sm"
-                        style={{ color: item.accent }}
-                        animate={hoveredCard === item.id ? { x: [0, 5, 0] } : {}}
-                        transition={{ duration: 0.5, repeat: hoveredCard === item.id ? Infinity : 0 }}
-                      >
-                        Enter <ChevronRight size={16} />
-                      </motion.div>
+                {/* Desk edge highlight */}
+                <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-amber-600/20 to-transparent" />
+
+                {/* Desk Objects Container */}
+                <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+                  
+                  {/* Photo Stack - Memories */}
+                  <motion.button
+                    onClick={() => navigate('/memories')}
+                    className="group relative"
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    <div className="relative w-full aspect-[4/5]">
+                      {/* Stacked photos effect */}
+                      {[2, 1, 0].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute inset-0 rounded-lg"
+                          style={{
+                            transform: `rotate(${(i - 1) * 6}deg) translateZ(${i * 4}px)`,
+                            background: 'linear-gradient(145deg, #f5f0e6 0%, #e8e0d0 100%)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5)',
+                          }}
+                          animate={i === 0 ? { rotate: [0, 2, 0] } : {}}
+                          transition={{ duration: 4, repeat: Infinity }}
+                        >
+                          {/* Photo content area */}
+                          <div className="absolute inset-3 rounded bg-gradient-to-br from-amber-100 to-amber-200/50 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-blood/10" />
+                            {/* Simulated image */}
+                            <div className="absolute inset-4 bg-gradient-to-br from-amber-800/30 to-amber-900/20 rounded" />
+                          </div>
+                          {/* Frame edge */}
+                          <div className="absolute inset-0 rounded-lg border border-amber-200/30" />
+                        </motion.div>
+                      ))}
+                      
+                      {/* Glass reflection */}
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" style={{ transform: 'translateZ(12px)' }} />
                     </div>
-                  </div>
+                    
+                    <div className="mt-4 text-center">
+                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Memories</h3>
+                      <p className="text-sm text-paper/50">{stats?.totalMemories || 0} captured</p>
+                    </div>
+                    
+                    {/* Hover glow */}
+                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
+                  </motion.button>
 
-                  {/* Corner accent */}
-                  <div 
-                    className="absolute top-0 right-0 w-32 h-32 opacity-20 group-hover:opacity-40 transition-opacity"
-                    style={{
-                      background: `radial-gradient(circle at top right, ${item.accent}, transparent 70%)`,
-                    }}
-                  />
-                </div>
-              </motion.button>
-            ))}
-          </motion.div>
-
-          {/* ============ BOTTOM STATS ROW ============ */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {/* Storage Card */}
-            <div className="relative overflow-hidden rounded-2xl p-6 backdrop-blur-xl bg-white/[0.02] border border-white/[0.05]">
-              <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent" />
-              <div className="relative">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-paper/60 font-light">Storage</h3>
-                  <span className="text-xs px-3 py-1 rounded-full bg-gold/10 text-gold border border-gold/20">
-                    {subscription?.tier || 'Trial'}
-                  </span>
-                </div>
-                
-                {/* Progress bar */}
-                <div className="h-2 rounded-full bg-white/5 overflow-hidden mb-3">
-                  <motion.div 
-                    className="h-full rounded-full"
-                    style={{
-                      background: 'linear-gradient(90deg, #c9a959, #e8d5a3)',
-                    }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${limits?.storageUsedPercent || 0}%` }}
-                    transition={{ duration: 1, delay: 0.8 }}
-                  />
-                </div>
-                
-                <div className="flex justify-between text-sm">
-                  <span className="text-paper/40">{limits?.storageUsedMB || 0} MB used</span>
-                  <span className="text-paper/60">{limits?.storageLimitMB || 100} MB</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Protection Status Card */}
-            <div className="relative overflow-hidden rounded-2xl p-6 backdrop-blur-xl bg-white/[0.02] border border-white/[0.05]">
-              <div className={`absolute inset-0 bg-gradient-to-br ${deadmanStatus?.enabled ? 'from-emerald-500/5' : 'from-paper/5'} to-transparent`} />
-              <div className="relative">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-paper/60 font-light">Protection</h3>
-                  <Shield 
-                    size={20} 
-                    className={deadmanStatus?.enabled ? 'text-emerald-400' : 'text-paper/30'} 
-                  />
-                </div>
-                
-                {deadmanStatus?.enabled ? (
-                  <>
-                    <p className="text-emerald-400 font-medium mb-2">Active</p>
-                    <p className="text-sm text-paper/40">
-                      Next check-in: {deadmanStatus.nextCheckIn 
-                        ? new Date(deadmanStatus.nextCheckIn).toLocaleDateString() 
-                        : 'N/A'}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-paper/40 mb-3">Not configured</p>
-                    <motion.button
-                      onClick={() => navigate('/settings?tab=deadman')}
-                      className="text-sm text-gold hover:text-gold-bright transition-colors flex items-center gap-1"
-                      whileHover={{ x: 3 }}
-                    >
-                      Set up protection <ChevronRight size={14} />
-                    </motion.button>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Quick Actions Card */}
-            <div className="relative overflow-hidden rounded-2xl p-6 backdrop-blur-xl bg-white/[0.02] border border-white/[0.05]">
-              <div className="absolute inset-0 bg-gradient-to-br from-blood/5 to-transparent" />
-              <div className="relative">
-                <h3 className="text-paper/60 font-light mb-4">Quick Actions</h3>
-                
-                <div className="space-y-2">
+                  {/* Letter with Pen - Compose */}
                   <motion.button
                     onClick={() => navigate('/compose')}
-                    className="w-full text-left px-4 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.03] hover:border-gold/20 transition-all flex items-center justify-between group"
-                    whileHover={{ x: 3 }}
+                    className="group relative"
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{ transformStyle: 'preserve-3d' }}
                   >
-                    <span className="text-paper/80">Write a letter</span>
-                    <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+                    <div className="relative w-full aspect-[4/5]">
+                      {/* Paper */}
+                      <motion.div
+                        className="absolute inset-0 rounded-sm"
+                        style={{
+                          background: 'linear-gradient(180deg, #faf8f3 0%, #f5f0e6 50%, #ebe5d9 100%)',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2)',
+                          transform: 'rotate(-2deg)',
+                        }}
+                      >
+                        {/* Paper texture */}
+                        <div className="absolute inset-0 opacity-50" style={{
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                        }} />
+                        
+                        {/* Writing lines */}
+                        <div className="absolute inset-6 space-y-3">
+                          {[...Array(8)].map((_, i) => (
+                            <div key={i} className="h-px bg-blue-200/30" />
+                          ))}
+                        </div>
+                        
+                        {/* Handwritten text simulation */}
+                        <div className="absolute inset-6 pt-2">
+                          <div className="h-1 w-16 bg-amber-900/20 rounded mb-3" />
+                          <div className="h-0.5 w-24 bg-amber-900/15 rounded mb-2" />
+                          <div className="h-0.5 w-20 bg-amber-900/15 rounded mb-2" />
+                          <div className="h-0.5 w-28 bg-amber-900/10 rounded" />
+                        </div>
+                      </motion.div>
+                      
+                      {/* Fountain Pen */}
+                      <motion.div
+                        className="absolute -right-4 top-1/2"
+                        style={{
+                          width: '120px',
+                          height: '16px',
+                          background: 'linear-gradient(90deg, #1a1a2e 0%, #2d2d44 50%, #1a1a2e 100%)',
+                          borderRadius: '2px 8px 8px 2px',
+                          transform: 'rotate(35deg) translateY(-50%)',
+                          boxShadow: '0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+                        }}
+                        animate={{ rotate: [35, 37, 35] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                      >
+                        {/* Pen nib */}
+                        <div 
+                          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full"
+                          style={{
+                            width: '20px',
+                            height: '8px',
+                            background: 'linear-gradient(90deg, #c9a959 0%, #a08335 100%)',
+                            clipPath: 'polygon(100% 0%, 100% 100%, 0% 50%)',
+                          }}
+                        />
+                        {/* Gold band */}
+                        <div className="absolute right-8 top-0 bottom-0 w-4 bg-gradient-to-b from-gold via-gold-dim to-gold rounded-sm" />
+                        {/* Clip */}
+                        <div 
+                          className="absolute right-2 -top-2 w-1 h-6 bg-gradient-to-b from-gold to-gold-dim rounded-full"
+                          style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}
+                        />
+                      </motion.div>
+                    </div>
+                    
+                    <div className="mt-4 text-center">
+                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Write Letter</h3>
+                      <p className="text-sm text-paper/50">{stats?.totalLetters || 0} written</p>
+                    </div>
+                    
+                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
                   </motion.button>
-                  
+
+                  {/* Vintage Recorder - Voice */}
                   <motion.button
                     onClick={() => navigate('/record')}
-                    className="w-full text-left px-4 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.03] hover:border-gold/20 transition-all flex items-center justify-between group"
-                    whileHover={{ x: 3 }}
+                    className="group relative"
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{ transformStyle: 'preserve-3d' }}
                   >
-                    <span className="text-paper/80">Record your voice</span>
-                    <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+                    <div className="relative w-full aspect-[4/5]">
+                      {/* Recorder body */}
+                      <div 
+                        className="absolute inset-0 rounded-xl"
+                        style={{
+                          background: 'linear-gradient(180deg, #2a2520 0%, #1a1510 50%, #0f0d0a 100%)',
+                          boxShadow: '0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+                        }}
+                      >
+                        {/* Chrome trim */}
+                        <div className="absolute top-2 left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-gold/40 to-transparent rounded-full" />
+                        
+                        {/* Reels */}
+                        <div className="absolute top-6 left-0 right-0 flex justify-center gap-6">
+                          {[0, 1].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="relative"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                            >
+                              <div 
+                                className="w-12 h-12 rounded-full"
+                                style={{
+                                  background: 'radial-gradient(circle at 30% 30%, #4a4540 0%, #2a2520 50%, #1a1510 100%)',
+                                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
+                                }}
+                              >
+                                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-gold/10 to-transparent" />
+                                <div className="absolute inset-4 rounded-full bg-void" />
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                        
+                        {/* VU Meter */}
+                        <div 
+                          className="absolute bottom-12 left-4 right-4 h-8 rounded"
+                          style={{
+                            background: '#0a0908',
+                            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.8)',
+                          }}
+                        >
+                          <div className="absolute inset-1 flex items-end justify-center gap-0.5">
+                            {[...Array(12)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                className="w-1 rounded-sm"
+                                style={{
+                                  background: i < 8 ? '#22c55e' : i < 10 ? '#eab308' : '#ef4444',
+                                }}
+                                animate={{ height: ['20%', `${30 + Math.random() * 70}%`, '20%'] }}
+                                transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.05 }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Control buttons */}
+                        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blood shadow-lg" />
+                          <div className="w-6 h-6 rounded bg-gray-700 shadow-lg" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 text-center">
+                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Record Voice</h3>
+                      <p className="text-sm text-paper/50">{stats?.totalVoiceMinutes || 0} minutes</p>
+                    </div>
+                    
+                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
+                  </motion.button>
+
+                  {/* Family Frame */}
+                  <motion.button
+                    onClick={() => navigate('/family')}
+                    className="group relative"
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    <div className="relative w-full aspect-[4/5]">
+                      {/* Ornate Frame */}
+                      <div 
+                        className="absolute inset-0 rounded-lg"
+                        style={{
+                          background: 'linear-gradient(135deg, #8b7355 0%, #6b5344 25%, #5a4636 50%, #6b5344 75%, #8b7355 100%)',
+                          boxShadow: '0 12px 32px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.1), inset 0 -2px 0 rgba(0,0,0,0.3)',
+                          padding: '12px',
+                        }}
+                      >
+                        {/* Inner frame shadow */}
+                        <div 
+                          className="absolute inset-3 rounded"
+                          style={{
+                            boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.4)',
+                            background: 'linear-gradient(180deg, #1a1510 0%, #2a2520 100%)',
+                          }}
+                        >
+                          {/* Family members preview */}
+                          <div className="absolute inset-2 flex flex-wrap items-center justify-center gap-2 p-2">
+                            {family?.slice(0, 4).map((member: any, i: number) => (
+                              <motion.div
+                                key={member.id}
+                                className="w-8 h-8 rounded-full bg-gradient-to-br from-gold/80 to-gold-dim flex items-center justify-center text-xs text-void font-medium"
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: i * 0.1 }}
+                              >
+                                {member.name[0]}
+                              </motion.div>
+                            ))}
+                            {(!family || family.length === 0) && (
+                              <div className="text-paper/30 text-xs text-center">
+                                Add family
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Frame decorations */}
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full bg-gradient-to-b from-gold/30 to-transparent" />
+                        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full bg-gradient-to-t from-gold/30 to-transparent" />
+                      </div>
+                      
+                      {/* Glass reflection */}
+                      <div className="absolute inset-3 rounded bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
+                    </div>
+                    
+                    <div className="mt-4 text-center">
+                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Family</h3>
+                      <p className="text-sm text-paper/50">{family?.length || 0} members</p>
+                    </div>
+                    
+                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
                   </motion.button>
                 </div>
+
+                {/* Decorative Objects */}
+                
+                {/* Ink Bottle */}
+                <motion.div
+                  className="absolute bottom-8 left-8 w-12 h-16"
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ duration: 4, repeat: Infinity }}
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  <div 
+                    className="w-full h-full rounded-b-lg rounded-t-sm"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(20,20,30,0.9) 0%, rgba(10,10,20,0.95) 100%)',
+                      boxShadow: 'inset 0 -8px 16px rgba(201,169,89,0.2), 0 4px 8px rgba(0,0,0,0.4)',
+                    }}
+                  >
+                    {/* Ink level */}
+                    <div className="absolute bottom-0 left-1 right-1 h-1/2 rounded-b-md bg-gradient-to-t from-gold/30 to-transparent" />
+                    {/* Glass shine */}
+                    <div className="absolute inset-0 rounded-b-lg bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                  </div>
+                  {/* Cap */}
+                  <div 
+                    className="absolute -top-3 left-1 right-1 h-4 rounded-t-full"
+                    style={{
+                      background: 'linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%)',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                    }}
+                  />
+                </motion.div>
+
+                {/* Wax Seal */}
+                <motion.div
+                  className="absolute bottom-8 right-8"
+                  animate={{ rotate: [0, 2, 0, -2, 0] }}
+                  transition={{ duration: 6, repeat: Infinity }}
+                >
+                  <div className="wax-seal w-14 h-14">
+                    <span className="text-lg">∞</span>
+                  </div>
+                </motion.div>
+
+                {/* Candle */}
+                <motion.div
+                  className="absolute top-4 right-8 w-6"
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  {/* Flame glow */}
+                  <motion.div
+                    className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full"
+                    style={{
+                      background: 'radial-gradient(circle, rgba(255,180,50,0.3) 0%, transparent 70%)',
+                    }}
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.5, 0.8, 0.5],
+                    }}
+                    transition={{ duration: 0.5, repeat: Infinity }}
+                  />
+                  {/* Flame */}
+                  <motion.div
+                    className="absolute -top-6 left-1/2 -translate-x-1/2"
+                    animate={{
+                      scaleY: [1, 1.2, 0.9, 1.1, 1],
+                      scaleX: [1, 0.9, 1.1, 0.95, 1],
+                    }}
+                    transition={{ duration: 0.3, repeat: Infinity }}
+                  >
+                    <div 
+                      className="w-3 h-6"
+                      style={{
+                        background: 'linear-gradient(0deg, #ff6b00 0%, #ffcc00 50%, #fff 100%)',
+                        borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                        filter: 'blur(1px)',
+                      }}
+                    />
+                  </motion.div>
+                  {/* Candle body */}
+                  <div 
+                    className="w-6 h-20 rounded-sm"
+                    style={{
+                      background: 'linear-gradient(180deg, #f5f0e0 0%, #e8e0d0 50%, #ddd5c5 100%)',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.3), inset -2px 0 4px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    {/* Dripping wax */}
+                    <div className="absolute top-0 -left-1 w-2 h-8 bg-gradient-to-b from-white to-transparent rounded-full opacity-50" />
+                  </div>
+                </motion.div>
+
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Stats Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="grid md:grid-cols-3 gap-6"
+          >
+            {/* Storage */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-paper/70">Storage Used</h3>
+                <span className="badge badge-gold">{subscription?.tier || 'Trial'}</span>
+              </div>
+              <div className="progress-bar mb-2">
+                <div 
+                  className="progress-bar-fill" 
+                  style={{ width: `${limits?.storageUsedPercent || 0}%` }} 
+                />
+              </div>
+              <div className="flex justify-between text-sm text-paper/50">
+                <span>{limits?.storageUsedMB || 0} MB used</span>
+                <span>{limits?.storageLimitMB || 100} MB limit</span>
+              </div>
+            </div>
+
+            {/* Dead Man's Switch */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-paper/70">Protection Status</h3>
+                <Shield size={20} className={deadmanStatus?.enabled ? 'text-green-400' : 'text-paper/30'} />
+              </div>
+              {deadmanStatus?.enabled ? (
+                <>
+                  <p className="text-green-400 mb-2">Active</p>
+                  <p className="text-sm text-paper/50">
+                    Next check-in: {deadmanStatus.nextCheckIn ? new Date(deadmanStatus.nextCheckIn).toLocaleDateString() : 'N/A'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-paper/50 mb-2">Not configured</p>
+                  <button
+                    onClick={() => navigate('/settings?tab=deadman')}
+                    className="text-sm text-gold hover:text-gold-bright transition-colors flex items-center gap-1"
+                  >
+                    Set up protection <ChevronRight size={14} />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="card">
+              <h3 className="text-paper/70 mb-4">Quick Actions</h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => navigate('/compose')}
+                  className="w-full text-left px-4 py-3 rounded-lg glass hover:bg-white/5 transition-all flex items-center justify-between group"
+                >
+                  <span>Write a letter</span>
+                  <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+                </button>
+                <button
+                  onClick={() => navigate('/record')}
+                  className="w-full text-left px-4 py-3 rounded-lg glass hover:bg-white/5 transition-all flex items-center justify-between group"
+                >
+                  <span>Record your voice</span>
+                  <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+                </button>
               </div>
             </div>
           </motion.div>
-
-          {/* ============ FOOTER INFINITY ============ */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="mt-16 text-center"
-          >
-            <motion.span 
-              className="text-3xl text-gold/20"
-              animate={{ 
-                opacity: [0.2, 0.4, 0.2],
-              }}
-              transition={{ duration: 4, repeat: Infinity }}
-            >
-              ∞
-            </motion.span>
-          </motion.div>
-
         </div>
       </main>
     </div>

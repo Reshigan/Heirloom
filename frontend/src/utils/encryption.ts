@@ -30,8 +30,8 @@ export async function deriveKey(
   const saltArray = typeof salt === 'string' 
     ? Uint8Array.from(atob(salt), c => c.charCodeAt(0))
     : salt;
-  const saltBuffer = new ArrayBuffer(saltArray.length);
-  new Uint8Array(saltBuffer).set(saltArray);
+  // Convert Uint8Array to ArrayBuffer for WebCrypto API compatibility
+  const saltBuffer = new Uint8Array(saltArray).buffer as ArrayBuffer;
 
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -44,7 +44,7 @@ export async function deriveKey(
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: saltBuffer as ArrayBuffer,
+      salt: saltBuffer,
       iterations: PBKDF2_ITERATIONS,
       hash: 'SHA-512',
     },
