@@ -27,6 +27,15 @@ async function clearDatabase() {
   await prisma.subscription.deleteMany({});
   await prisma.user.deleteMany({});
   
+  // Clear admin-related tables (if they exist)
+  try {
+    await prisma.couponRedemption.deleteMany({});
+    await prisma.coupon.deleteMany({});
+    await prisma.adminUser.deleteMany({});
+  } catch (e) {
+    // Tables may not exist yet
+  }
+  
   console.log('✅ Database cleared');
 }
 
@@ -413,14 +422,72 @@ Here's to 30 more years, my love. And then 30 more after that.`,
 
   console.log(`✅ Created ${letters.length} letters`);
 
+  // Create admin user
+  const adminPasswordHash = await bcrypt.hash('admin123456', 12);
+  const adminUser = await prisma.adminUser.create({
+    data: {
+      email: 'admin@heirloom.app',
+      passwordHash: adminPasswordHash,
+      firstName: 'Admin',
+      lastName: 'User',
+      role: 'SUPER_ADMIN',
+      isActive: true,
+    },
+  });
+
+  console.log(`✅ Created admin user: ${adminUser.email}`);
+
+  // Create sample coupons
+  const coupons = await Promise.all([
+    prisma.coupon.create({
+      data: {
+        code: 'WELCOME20',
+        description: '20% off for new users',
+        discountType: 'PERCENTAGE',
+        discountValue: 20,
+        maxUses: 100,
+        currentUses: 0,
+        isActive: true,
+        createdById: adminUser.id,
+      },
+    }),
+    prisma.coupon.create({
+      data: {
+        code: 'FAMILY50',
+        description: '$5 off Family plan',
+        discountType: 'FIXED_AMOUNT',
+        discountValue: 500, // $5.00 in cents
+        applicableTiers: ['FAMILY'],
+        isActive: true,
+        createdById: adminUser.id,
+      },
+    }),
+    prisma.coupon.create({
+      data: {
+        code: 'LEGACY2024',
+        description: '30% off Legacy plan',
+        discountType: 'PERCENTAGE',
+        discountValue: 30,
+        applicableTiers: ['LEGACY'],
+        validUntil: new Date('2025-12-31'),
+        isActive: true,
+        createdById: adminUser.id,
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${coupons.length} sample coupons`);
+
   console.log('🎉 Seeding complete!');
   console.log(`
 Summary:
 - 1 demo user (demo@heirloom.app / demo123456)
+- 1 admin user (admin@heirloom.app / admin123456)
 - ${familyMembers.length} family members
 - ${memories.length} memories with images
 - ${voiceRecordings.length} voice recordings with transcripts
 - ${letters.length} letters (sealed and draft)
+- ${coupons.length} sample coupons
   `);
 }
 

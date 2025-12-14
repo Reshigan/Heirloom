@@ -114,10 +114,39 @@ export const billingApi = {
   getSubscription: () => api.get('/billing/subscription'),
   getLimits: () => api.get('/billing/limits'),
   getPricing: (currency?: string) => api.get('/billing/pricing', { params: { currency } }),
-  checkout: (data: { tier: string; billingCycle?: string; currency?: string }) =>
+  checkout: (data: { tier: string; billingCycle?: string; currency?: string; couponCode?: string }) =>
     api.post('/billing/checkout', data),
   portal: () => api.post('/billing/portal'),
   updateCurrency: (currency: string) => api.patch('/billing/currency', { currency }),
+  validateCoupon: (data: { code: string; tier?: string }) => api.post('/billing/validate-coupon', data),
+  changePlan: (data: { tier: string; billingCycle?: string }) => api.post('/billing/change-plan', data),
+};
+
+// Admin API
+export const adminApi = {
+  login: (data: { email: string; password: string }) => api.post('/admin/login', data),
+  me: () => api.get('/admin/me'),
+  createAdmin: (data: { email: string; password: string; firstName: string; lastName: string; role?: string }) =>
+    api.post('/admin/create', data),
+  getCoupons: () => api.get('/admin/coupons'),
+  createCoupon: (data: {
+    code: string;
+    description?: string;
+    discountType?: string;
+    discountValue: number;
+    maxUses?: number;
+    minPurchase?: number;
+    applicableTiers?: string[];
+    validFrom?: string;
+    validUntil?: string;
+  }) => api.post('/admin/coupons', data),
+  updateCoupon: (id: string, data: any) => api.patch(`/admin/coupons/${id}`, data),
+  deleteCoupon: (id: string) => api.delete(`/admin/coupons/${id}`),
+  getAnalyticsOverview: () => api.get('/admin/analytics/overview'),
+  getAnalyticsRevenue: () => api.get('/admin/analytics/revenue'),
+  getAnalyticsUsers: () => api.get('/admin/analytics/users'),
+  getUsers: (params?: { page?: number; limit?: number; search?: string }) =>
+    api.get('/admin/users', { params }),
 };
 
 // Settings API

@@ -537,3 +537,75 @@ model WrappedData {
   @@index([userId])
   @@index([year])
 }
+
+// ============================================================================
+// ADMIN & COUPONS
+// ============================================================================
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  SUPPORT
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  createdCoupons Coupon[]
+
+  @@index([email])
+  @@index([role])
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model Coupon {
+  id              String       @id @default(uuid())
+  code            String       @unique
+  description     String?
+  discountType    DiscountType @default(PERCENTAGE)
+  discountValue   Float        // Percentage (0-100) or fixed amount in cents
+  maxUses         Int?         // null = unlimited
+  currentUses     Int          @default(0)
+  minPurchase     Float?       // Minimum purchase amount in cents
+  applicableTiers String[]     @default([]) // Empty = all tiers
+  validFrom       DateTime     @default(now())
+  validUntil      DateTime?
+  isActive        Boolean      @default(true)
+  createdById     String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  createdBy       AdminUser?   @relation(fields: [createdById], references: [id])
+  redemptions     CouponRedemption[]
+
+  @@index([code])
+  @@index([isActive])
+  @@index([validUntil])
+}
+
+model CouponRedemption {
+  id              String   @id @default(uuid())
+  couponId        String
+  userId          String
+  discountApplied Float    // Amount discounted in cents
+  orderId         String?  // Stripe checkout session ID
+  redeemedAt      DateTime @default(now())
+
+  coupon          Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@index([userId])
+}

@@ -19,6 +19,7 @@ import encryptionRoutes from './routes/encryption.routes';
 import supportRoutes from './routes/support';
 import notificationsRoutes from './routes/notifications';
 import wrappedRoutes from './routes/wrapped';
+import adminRoutes from './routes/admin.routes';
 
 const app = express();
 
@@ -70,6 +71,7 @@ app.use('/api/encryption', encryptionRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/wrapped', wrappedRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling
 app.use(errorHandler);

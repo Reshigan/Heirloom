@@ -13,6 +13,8 @@ import { Compose } from './pages/Compose';
 import { Record } from './pages/Record';
 import { Family } from './pages/Family';
 import { Settings } from './pages/Settings';
+import { AdminLogin } from './pages/AdminLogin';
+import { AdminDashboard } from './pages/AdminDashboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,8 +118,12 @@ export default function App() {
             }
           />
 
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+                    {/* Admin routes */}
+                    <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+                    {/* Catch all */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
