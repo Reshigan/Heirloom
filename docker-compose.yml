@@ -59,12 +59,36 @@ services:
       dockerfile: Dockerfile
     container_name: heirloom-backend
     environment:
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       PORT: 3001
-      DATABASE_URL: postgresql://heirloom:heirloom_dev@postgres:5432/heirloom
+      API_URL: ${API_URL:-http://localhost:3001}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      DATABASE_URL: postgresql://heirloom:${POSTGRES_PASSWORD:-heirloom_dev}@postgres:5432/heirloom
       REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-heirloom_jwt_secret_key_32_chars_min_dev}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-heirloom_refresh_secret_key_32_chars_min_dev}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-30d}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-heirloom-uploads}
+      S3_BUCKET_REGION: ${S3_BUCKET_REGION:-us-east-1}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_placeholder}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-placeholder}
+      SMTP_PASS: ${SMTP_PASS:-placeholder}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@heirloom.app}
+      ENCRYPTION_MASTER_KEY: ${ENCRYPTION_MASTER_KEY:-heirloom_encryption_master_key_32_chars_min_dev}
+      TINYLLM_BASE_URL: ${TINYLLM_BASE_URL:-http://host.docker.internal:11434}
+      TINYLLM_API_KEY: ${TINYLLM_API_KEY:-ollama}
+      TINYLLM_MODEL: ${TINYLLM_MODEL:-tinyllama}
     ports:
       - "3001:3001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -81,14 +105,14 @@ services:
       dockerfile: Dockerfile
     container_name: heirloom-frontend
     environment:
-      VITE_API_URL: http://localhost:3001/api
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
     ports:
       - "3000:3000"
     depends_on:
       - backend
     volumes:
       - ./frontend/src:/app/src
-    command: npm run dev
+    command: ["npm", "run", "dev", "--", "--host"]
 
 volumes:
   postgres_data:
