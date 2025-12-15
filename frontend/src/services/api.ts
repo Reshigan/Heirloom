@@ -163,6 +163,14 @@ export const legacyContactsApi = {
   resendVerification: (id: string) => api.post(`/settings/legacy-contacts/${id}/resend`),
 };
 
+// Wrapped API
+export const wrappedApi = {
+  getCurrent: () => api.get('/wrapped/current'),
+  getYear: (year: number) => api.get(`/wrapped/${year}`),
+  regenerate: (year: number) => api.post(`/wrapped/${year}/regenerate`),
+  getYears: () => api.get('/wrapped'),
+};
+
 // Admin API (uses separate admin token)
 const adminAxios = axios.create({
   baseURL: API_URL,

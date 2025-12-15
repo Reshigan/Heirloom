@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import { wrappedApi } from '../services/api';
 
 // Types for wrapped data
 interface WrappedStats {
@@ -63,67 +65,53 @@ interface Highlight {
   preview?: string;
 }
 
-// Mock data generator (would come from API in production)
-const generateMockStats = (): WrappedStats => ({
-  totalMemories: 247,
-  totalVoiceStories: 34,
-  totalLetters: 12,
-  totalMinutesRecorded: 186,
-  familyMembersConnected: 8,
-  memoriesShared: 156,
-  topEmotions: [
-    { emotion: 'Joy', count: 89, percentage: 36, color: '#c9a959', icon: '✨' },
-    { emotion: 'Love', count: 67, percentage: 27, color: '#e8d5a3', icon: '❤️' },
-    { emotion: 'Nostalgia', count: 45, percentage: 18, color: '#8b7355', icon: '🌅' },
-    { emotion: 'Gratitude', count: 28, percentage: 11, color: '#1a3a3a', icon: '🙏' },
-    { emotion: 'Pride', count: 18, percentage: 8, color: '#8b2942', icon: '🏆' },
-  ],
+// Default stats when API data is loading or unavailable
+const getDefaultStats = (): WrappedStats => ({
+  totalMemories: 0,
+  totalVoiceStories: 0,
+  totalLetters: 0,
+  totalMinutesRecorded: 0,
+  familyMembersConnected: 0,
+  memoriesShared: 0,
+  topEmotions: [],
   monthlyActivity: [
-    { month: 'Jan', memories: 18, voices: 2, letters: 1 },
-    { month: 'Feb', memories: 22, voices: 3, letters: 0 },
-    { month: 'Mar', memories: 15, voices: 2, letters: 2 },
-    { month: 'Apr', memories: 28, voices: 4, letters: 1 },
-    { month: 'May', memories: 19, voices: 2, letters: 1 },
-    { month: 'Jun', memories: 24, voices: 3, letters: 1 },
-    { month: 'Jul', memories: 31, voices: 5, letters: 2 },
-    { month: 'Aug', memories: 26, voices: 3, letters: 1 },
-    { month: 'Sep', memories: 20, voices: 3, letters: 1 },
-    { month: 'Oct', memories: 17, voices: 2, letters: 1 },
-    { month: 'Nov', memories: 14, voices: 3, letters: 0 },
-    { month: 'Dec', memories: 13, voices: 2, letters: 1 },
+    { month: 'Jan', memories: 0, voices: 0, letters: 0 },
+    { month: 'Feb', memories: 0, voices: 0, letters: 0 },
+    { month: 'Mar', memories: 0, voices: 0, letters: 0 },
+    { month: 'Apr', memories: 0, voices: 0, letters: 0 },
+    { month: 'May', memories: 0, voices: 0, letters: 0 },
+    { month: 'Jun', memories: 0, voices: 0, letters: 0 },
+    { month: 'Jul', memories: 0, voices: 0, letters: 0 },
+    { month: 'Aug', memories: 0, voices: 0, letters: 0 },
+    { month: 'Sep', memories: 0, voices: 0, letters: 0 },
+    { month: 'Oct', memories: 0, voices: 0, letters: 0 },
+    { month: 'Nov', memories: 0, voices: 0, letters: 0 },
+    { month: 'Dec', memories: 0, voices: 0, letters: 0 },
   ],
   mostActiveDay: 'Sunday',
-  longestStreak: 23,
-  milestones: [
-    { date: '2024-01-15', title: 'First Memory', description: 'You started your legacy journey', type: 'memory' },
-    { date: '2024-03-22', title: 'First Voice Story', description: 'Your voice was captured for the first time', type: 'voice' },
-    { date: '2024-04-10', title: 'Family Connected', description: '5 family members joined your constellation', type: 'family' },
-    { date: '2024-07-04', title: '100 Memories', description: 'A century of moments preserved', type: 'memory' },
-    { date: '2024-08-15', title: 'First Time Letter', description: 'You wrote to your future self', type: 'letter' },
-  ],
-  topRecipients: [
-    { name: 'Sarah', relationship: 'Daughter', itemsShared: 45 },
-    { name: 'Mom', relationship: 'Mother', itemsShared: 38 },
-    { name: 'James', relationship: 'Son', itemsShared: 32 },
-    { name: 'Dad', relationship: 'Father', itemsShared: 21 },
-  ],
-  wordCloud: [
-    { word: 'family', count: 89, sentiment: 'positive' },
-    { word: 'love', count: 76, sentiment: 'positive' },
-    { word: 'remember', count: 54, sentiment: 'neutral' },
-    { word: 'grateful', count: 43, sentiment: 'positive' },
-    { word: 'together', count: 41, sentiment: 'positive' },
-    { word: 'home', count: 38, sentiment: 'positive' },
-    { word: 'birthday', count: 34, sentiment: 'positive' },
-    { word: 'childhood', count: 31, sentiment: 'neutral' },
-    { word: 'adventure', count: 28, sentiment: 'positive' },
-    { word: 'proud', count: 25, sentiment: 'positive' },
-  ],
-  yearHighlights: [
-    { id: '1', type: 'memory', title: 'Summer vacation in Italy', date: '2024-07-15', emotion: 'Joy' },
-    { id: '2', type: 'voice', title: 'Grandma\'s apple pie recipe', date: '2024-04-22', emotion: 'Nostalgia' },
-    { id: '3', type: 'letter', title: 'Letter to my future grandchildren', date: '2024-09-10', emotion: 'Love' },
-  ],
+  longestStreak: 0,
+  milestones: [],
+  topRecipients: [],
+  wordCloud: [],
+  yearHighlights: [],
+});
+
+// Transform API response to WrappedStats format
+const transformApiResponse = (data: any): WrappedStats => ({
+  totalMemories: data.totalMemories || 0,
+  totalVoiceStories: data.totalVoiceStories || 0,
+  totalLetters: data.totalLetters || 0,
+  totalMinutesRecorded: data.totalMinutesRecorded || 0,
+  familyMembersConnected: data.familyMembersConnected || 0,
+  memoriesShared: data.memoriesShared || 0,
+  topEmotions: data.topEmotions || [],
+  monthlyActivity: data.monthlyActivity || getDefaultStats().monthlyActivity,
+  mostActiveDay: data.mostActiveDay || 'Sunday',
+  longestStreak: data.longestStreak || 0,
+  milestones: data.milestones || [],
+  topRecipients: data.topRecipients || [],
+  wordCloud: data.wordCloud || [],
+  yearHighlights: data.yearHighlights || [],
 });
 
 // Slide components
@@ -636,10 +624,21 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
 // Main Wrapped component
 const Wrapped: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [stats] = useState<WrappedStats>(generateMockStats);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
-  const year = 2024;
+  const year = new Date().getFullYear();
+
+  // Fetch wrapped data from API
+  const { data: apiData, isLoading } = useQuery({
+    queryKey: ['wrapped', year],
+    queryFn: async () => {
+      const response = await wrappedApi.getCurrent();
+      return response.data;
+    },
+  });
+
+  // Transform API data or use defaults
+  const stats: WrappedStats = apiData ? transformApiResponse(apiData) : getDefaultStats();
 
   const slides = [
     <IntroSlide key="intro" year={year} />,

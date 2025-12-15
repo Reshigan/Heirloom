@@ -835,15 +835,11 @@ What can I help you with today?`,
     setMessages(prev => [...prev, botMessage]);
     setIsTyping(false);
     setShowFeedback(true);
-    
-    // Log for analytics
-    console.log('[Support] Query:', messageText, '| Intent:', detectIntent(messageText));
   };
   
   // Handle feedback
-  const handleFeedback = (helpful: boolean) => {
-    console.log('[Support] Feedback:', helpful ? 'helpful' : 'not helpful');
-    // Send to analytics in production
+  const handleFeedback = (_helpful: boolean) => {
+    // Analytics tracking would be implemented here in production
   };
   
   // Handle key press

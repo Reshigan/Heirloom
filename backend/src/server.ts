@@ -17,6 +17,7 @@ import settingsRoutes from './routes/settings.routes';
 import deadmanRoutes from './routes/deadman.routes';
 import encryptionRoutes from './routes/encryption.routes';
 import adminRoutes from './routes/admin.routes';
+import wrappedRoutes from './routes/wrapped';
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/deadman', deadmanRoutes);
 app.use('/api/encryption', encryptionRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/wrapped', wrappedRoutes);
 
 // Error handling
 app.use(errorHandler);

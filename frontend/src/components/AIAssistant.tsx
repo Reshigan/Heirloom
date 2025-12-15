@@ -59,9 +59,8 @@ class OllamaService {
       const data = await response.json();
       return data.response;
     } catch (error) {
-      console.error('Ollama error:', error);
-      // Fallback to mock responses if Ollama is not available
-      return this.getMockResponse(prompt);
+      // Return error message instead of mock data
+      throw new Error('AI assistant is temporarily unavailable. Please try again later.');
     }
   }
 
@@ -109,10 +108,9 @@ class OllamaService {
         }
       }
     } catch (error) {
-      console.error('Ollama streaming error:', error);
-      // Fallback
-      const mockResponse = this.getMockResponse(prompt);
-      for (const char of mockResponse) {
+      // Return error message instead of mock data
+      const errorMessage = 'AI assistant is temporarily unavailable. Please try again later.';
+      for (const char of errorMessage) {
         onToken(char);
         await new Promise(resolve => setTimeout(resolve, 20));
       }
@@ -130,66 +128,6 @@ Your role is to help users:
 Be gentle, supportive, and help users express their deepest feelings. 
 Focus on legacy, family connections, gratitude, and preserving meaningful moments.
 Keep responses concise but meaningful. Use warm, personal language.`;
-  }
-
-  private getMockResponse(prompt: string): string {
-    // Provide intelligent fallback responses when Ollama is unavailable
-    const lowerPrompt = prompt.toLowerCase();
-    
-    if (lowerPrompt.includes('letter') || lowerPrompt.includes('write')) {
-      return `Here's a heartfelt starting point for your letter:
-
-"My dearest [name],
-
-As I sit down to write this, I'm filled with so many feelings I want to share with you. There are moments in life that shape who we become, and you have been central to so many of mine.
-
-I want you to know how much you mean to me, not just today, but always..."
-
-Would you like me to help you continue with a specific memory or feeling you'd like to express?`;
-    }
-    
-    if (lowerPrompt.includes('caption') || lowerPrompt.includes('photo')) {
-      return `Here are some caption ideas for your memory:
-
-✨ "Some moments are too precious for words, but I'll try anyway..."
-✨ "This is what happiness looks like in our family."
-✨ "A moment I never want to forget."
-✨ "The little things that become the big memories."
-
-Which style resonates with you? I can help customize it further.`;
-    }
-    
-    if (lowerPrompt.includes('voice') || lowerPrompt.includes('story') || lowerPrompt.includes('prompt')) {
-      return `Here are some voice recording prompts to get you started:
-
-🎙️ "Tell me about a time when you felt truly proud of yourself..."
-🎙️ "What's a family tradition you hope continues for generations?"
-🎙️ "Describe your favorite childhood memory in detail..."
-🎙️ "What advice would you give to your younger self?"
-
-Would you like me to create more prompts around a specific theme?`;
-    }
-    
-    if (lowerPrompt.includes('emotion') || lowerPrompt.includes('feeling') || lowerPrompt.includes('analyze')) {
-      return `Based on what you've shared, I sense a mix of emotions:
-
-💛 Primary: Nostalgia - a warm longing for cherished moments
-💜 Secondary: Gratitude - appreciation for the people in your life
-Sentiment: Deeply positive
-
-This content would resonate well with themes of: family, love, memories, togetherness
-
-Would you like suggestions on how to enhance these emotional elements?`;
-    }
-    
-    return `I'd love to help you with that! As your Heirloom assistant, I can help you:
-
-• Write heartfelt letters to loved ones
-• Create meaningful captions for your photos
-• Generate voice recording prompts
-• Analyze the emotions in your memories
-
-What would you like to explore today?`;
   }
 
   async analyzeEmotion(text: string): Promise<EmotionAnalysis> {
