@@ -23,8 +23,9 @@ export function Dashboard() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
-  const rotateX = useTransform(mouseY, [-300, 300], [2, -2]);
-  const rotateY = useTransform(mouseX, [-500, 500], [-3, 3]);
+  // Reduced parallax for more cinematic, less toy-like feel
+  const rotateX = useTransform(mouseY, [-300, 300], [1.2, -1.2]);
+  const rotateY = useTransform(mouseX, [-500, 500], [-1.8, 1.8]);
   
   const springRotateX = useSpring(rotateX, { stiffness: 100, damping: 30 });
   const springRotateY = useSpring(rotateY, { stiffness: 100, damping: 30 });
@@ -308,302 +309,308 @@ export function Dashboard() {
                 transformStyle: 'preserve-3d',
               }}
             >
-              {/* Desk Surface */}
+              {/* Desk Surface - Premium dark wood slab */}
               <div 
-                className="relative rounded-2xl p-8 md:p-12 min-h-[500px]"
+                className="relative rounded-3xl md:rounded-[28px] p-8 md:p-12 min-h-[520px]"
                 style={{
                   background: `
-                    linear-gradient(135deg, 
-                      rgba(60,45,30,0.95) 0%, 
-                      rgba(45,35,25,0.95) 25%,
-                      rgba(35,28,20,0.95) 50%,
-                      rgba(40,32,22,0.95) 75%,
-                      rgba(50,40,28,0.95) 100%
-                    )
+                    radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 100%, rgba(0, 0, 0, 0.5) 0%, transparent 55%),
+                    linear-gradient(135deg, #2a2118 0%, #1e1811 50%, #17120c 100%)
                   `,
                   boxShadow: `
-                    0 50px 100px -20px rgba(0,0,0,0.8),
-                    0 30px 60px -30px rgba(0,0,0,0.6),
-                    inset 0 1px 0 rgba(255,255,255,0.05),
-                    inset 0 -2px 0 rgba(0,0,0,0.3)
+                    0 50px 100px rgba(0,0,0,0.85),
+                    0 25px 50px rgba(0,0,0,0.7),
+                    0 10px 20px rgba(0,0,0,0.5),
+                    inset 0 1px 0 rgba(255,255,255,0.08),
+                    inset 0 -1px 0 rgba(0,0,0,0.4)
                   `,
                 }}
               >
-                {/* Wood grain texture overlay */}
+                {/* Subtle noise texture for tactile feel */}
                 <div 
-                  className="absolute inset-0 rounded-2xl opacity-30 pointer-events-none"
+                  className="absolute inset-0 rounded-3xl md:rounded-[28px] pointer-events-none opacity-[0.12]"
                   style={{
-                    backgroundImage: `
-                      repeating-linear-gradient(
-                        90deg,
-                        transparent 0px,
-                        rgba(0,0,0,0.03) 1px,
-                        transparent 2px,
-                        transparent 20px
-                      ),
-                      repeating-linear-gradient(
-                        0deg,
-                        transparent 0px,
-                        rgba(139,90,43,0.05) 100px,
-                        transparent 200px
-                      )
-                    `,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`,
+                    mixBlendMode: 'soft-light',
                   }}
                 />
 
-                {/* Desk edge highlight */}
-                <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-amber-600/20 to-transparent" />
+                {/* Subtle top edge highlight */}
+                <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
 
                 {/* Desk Objects Container */}
                 <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
                   
-                  {/* Photo Stack - Memories */}
+                  {/* Photo Stack - Memories - Premium matte paper look */}
                   <motion.button
                     onClick={() => navigate('/memories')}
                     className="group relative"
-                    whileHover={{ scale: 1.05, y: -10 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.02, y: -6 }}
+                    whileTap={{ scale: 0.99 }}
                     style={{ transformStyle: 'preserve-3d' }}
                   >
+                    {/* Ambient occlusion shadow */}
+                    <div 
+                      className="absolute -inset-2 rounded-2xl pointer-events-none"
+                      style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
+                    />
                     <div className="relative w-full aspect-[4/5]">
-                      {/* Stacked photos effect */}
+                      {/* Stacked photos effect - more subtle rotation */}
                       {[2, 1, 0].map((i) => (
-                        <motion.div
+                        <div
                           key={i}
-                          className="absolute inset-0 rounded-lg"
+                          className="absolute inset-0 rounded-[10px]"
                           style={{
-                            transform: `rotate(${(i - 1) * 6}deg) translateZ(${i * 4}px)`,
-                            background: 'linear-gradient(145deg, #f5f0e6 0%, #e8e0d0 100%)',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5)',
+                            transform: `rotate(${(i - 1) * 3.5}deg) translateZ(${i * 3}px)`,
+                            background: 'linear-gradient(145deg, #f5f1e7 0%, #e7ddcf 45%, #d9cdbb 100%)',
+                            boxShadow: '0 8px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.6)',
                           }}
-                          animate={i === 0 ? { rotate: [0, 2, 0] } : {}}
-                          transition={{ duration: 4, repeat: Infinity }}
                         >
-                          {/* Photo content area */}
-                          <div className="absolute inset-3 rounded bg-gradient-to-br from-amber-100 to-amber-200/50 overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-blood/10" />
-                            {/* Simulated image */}
-                            <div className="absolute inset-4 bg-gradient-to-br from-amber-800/30 to-amber-900/20 rounded" />
-                          </div>
-                          {/* Frame edge */}
-                          <div className="absolute inset-0 rounded-lg border border-amber-200/30" />
-                        </motion.div>
+                          {/* Photo content area - darker, more realistic */}
+                          <div 
+                            className="absolute inset-3 rounded-[8px] overflow-hidden"
+                            style={{
+                              background: 'radial-gradient(circle at 20% 0%, rgba(255,255,255,0.15) 0%, transparent 40%), linear-gradient(135deg, #2b3a4a 0%, #1b2633 45%, #11151b 100%)',
+                              boxShadow: 'inset 0 0 12px rgba(0,0,0,0.3)',
+                            }}
+                          />
+                          {/* Subtle frame edge */}
+                          <div className="absolute inset-0 rounded-[10px] border border-amber-100/20" />
+                        </div>
                       ))}
                       
-                      {/* Glass reflection */}
-                      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" style={{ transform: 'translateZ(12px)' }} />
+                      {/* Subtle glass reflection */}
+                      <div className="absolute inset-0 rounded-[10px] bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" style={{ transform: 'translateZ(10px)' }} />
                     </div>
                     
                     <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Memories</h3>
+                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">Memories</h3>
                       <p className="text-sm text-paper/50">{stats?.totalMemories || 0} captured</p>
                     </div>
-                    
-                    {/* Hover glow */}
-                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
                   </motion.button>
 
-                  {/* Letter with Pen - Compose */}
+                  {/* Letter with Pen - Compose - Luxury stationery look */}
                   <motion.button
                     onClick={() => navigate('/compose')}
                     className="group relative"
-                    whileHover={{ scale: 1.05, y: -10 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.02, y: -6 }}
+                    whileTap={{ scale: 0.99 }}
                     style={{ transformStyle: 'preserve-3d' }}
                   >
+                    {/* Ambient occlusion shadow */}
+                    <div 
+                      className="absolute -inset-2 rounded-2xl pointer-events-none"
+                      style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
+                    />
                     <div className="relative w-full aspect-[4/5]">
-                      {/* Paper */}
-                      <motion.div
-                        className="absolute inset-0 rounded-sm"
+                      {/* Paper - Premium stationery */}
+                      <div
+                        className="absolute inset-0 rounded-[8px]"
                         style={{
-                          background: 'linear-gradient(180deg, #faf8f3 0%, #f5f0e6 50%, #ebe5d9 100%)',
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2)',
-                          transform: 'rotate(-2deg)',
+                          background: 'linear-gradient(180deg, #faf7f0 0%, #f3ede2 55%, #e7dece 100%)',
+                          boxShadow: '0 12px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.8)',
+                          transform: 'rotate(-1.5deg)',
                         }}
                       >
-                        {/* Paper texture */}
-                        <div className="absolute inset-0 opacity-50" style={{
-                          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                        }} />
+                        {/* Subtle paper texture */}
+                        <div 
+                          className="absolute inset-0 rounded-[8px] opacity-20"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E")`,
+                            mixBlendMode: 'soft-light',
+                          }}
+                        />
                         
-                        {/* Writing lines */}
-                        <div className="absolute inset-6 space-y-3">
-                          {[...Array(8)].map((_, i) => (
-                            <div key={i} className="h-px bg-blue-200/30" />
+                        {/* Elegant writing lines */}
+                        <div className="absolute inset-7 space-y-5 opacity-40">
+                          {[...Array(6)].map((_, i) => (
+                            <div key={i} className="h-px bg-[#c4b8a6]/50" />
                           ))}
                         </div>
                         
-                        {/* Handwritten text simulation */}
-                        <div className="absolute inset-6 pt-2">
-                          <div className="h-1 w-16 bg-amber-900/20 rounded mb-3" />
-                          <div className="h-0.5 w-24 bg-amber-900/15 rounded mb-2" />
-                          <div className="h-0.5 w-20 bg-amber-900/15 rounded mb-2" />
-                          <div className="h-0.5 w-28 bg-amber-900/10 rounded" />
+                        {/* Subtle handwritten text simulation */}
+                        <div className="absolute inset-7 pt-1">
+                          <div className="h-0.5 w-14 bg-amber-900/15 rounded mb-4" />
+                          <div className="h-0.5 w-20 bg-amber-900/10 rounded mb-3" />
+                          <div className="h-0.5 w-16 bg-amber-900/10 rounded" />
                         </div>
-                      </motion.div>
+                      </div>
                       
-                      {/* Fountain Pen */}
-                      <motion.div
-                        className="absolute -right-4 top-1/2"
+                      {/* Fountain Pen - Premium metallic */}
+                      <div
+                        className="absolute -right-5 top-1/2"
                         style={{
-                          width: '120px',
-                          height: '16px',
-                          background: 'linear-gradient(90deg, #1a1a2e 0%, #2d2d44 50%, #1a1a2e 100%)',
-                          borderRadius: '2px 8px 8px 2px',
-                          transform: 'rotate(35deg) translateY(-50%)',
-                          boxShadow: '0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+                          width: '126px',
+                          height: '18px',
+                          borderRadius: '3px 9px 9px 3px',
+                          background: 'linear-gradient(90deg, #181825 0%, #25263a 35%, #1a1b2a 70%, #0f101a 100%)',
+                          boxShadow: '0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
+                          transform: 'rotate(30deg) translateY(-50%)',
                         }}
-                        animate={{ rotate: [35, 37, 35] }}
-                        transition={{ duration: 3, repeat: Infinity }}
                       >
-                        {/* Pen nib */}
+                        {/* Pen nib - refined gold */}
                         <div 
                           className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full"
                           style={{
-                            width: '20px',
-                            height: '8px',
-                            background: 'linear-gradient(90deg, #c9a959 0%, #a08335 100%)',
+                            width: '18px',
+                            height: '7px',
+                            background: 'linear-gradient(90deg, #d4af37 0%, #b8962e 100%)',
                             clipPath: 'polygon(100% 0%, 100% 100%, 0% 50%)',
                           }}
                         />
-                        {/* Gold band */}
-                        <div className="absolute right-8 top-0 bottom-0 w-4 bg-gradient-to-b from-gold via-gold-dim to-gold rounded-sm" />
+                        {/* Gold band - subtle */}
+                        <div className="absolute right-8 top-0 bottom-0 w-3 bg-gradient-to-b from-[#d4af37] via-[#b8962e] to-[#d4af37] rounded-sm opacity-90" />
                         {/* Clip */}
                         <div 
-                          className="absolute right-2 -top-2 w-1 h-6 bg-gradient-to-b from-gold to-gold-dim rounded-full"
+                          className="absolute right-2 -top-1.5 w-0.5 h-5 bg-gradient-to-b from-[#d4af37] to-[#b8962e] rounded-full"
                           style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}
                         />
-                      </motion.div>
+                      </div>
                     </div>
                     
                     <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Write Letter</h3>
+                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">Write Letter</h3>
                       <p className="text-sm text-paper/50">{stats?.totalLetters || 0} written</p>
                     </div>
-                    
-                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
                   </motion.button>
 
-                  {/* Vintage Recorder - Voice */}
+                  {/* Vintage Recorder - Voice - Premium audio equipment look */}
                   <motion.button
                     onClick={() => navigate('/record')}
                     className="group relative"
-                    whileHover={{ scale: 1.05, y: -10 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.02, y: -6 }}
+                    whileTap={{ scale: 0.99 }}
                     style={{ transformStyle: 'preserve-3d' }}
                   >
+                    {/* Ambient occlusion shadow */}
+                    <div 
+                      className="absolute -inset-2 rounded-2xl pointer-events-none"
+                      style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
+                    />
                     <div className="relative w-full aspect-[4/5]">
-                      {/* Recorder body */}
+                      {/* Recorder body - Premium dark metal */}
                       <div 
                         className="absolute inset-0 rounded-xl"
                         style={{
-                          background: 'linear-gradient(180deg, #2a2520 0%, #1a1510 50%, #0f0d0a 100%)',
-                          boxShadow: '0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+                          background: 'linear-gradient(180deg, #26211d 0%, #15110d 50%, #0b0805 100%)',
+                          boxShadow: '0 16px 36px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)',
                         }}
                       >
-                        {/* Chrome trim */}
-                        <div className="absolute top-2 left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-gold/40 to-transparent rounded-full" />
+                        {/* Subtle chrome trim */}
+                        <div className="absolute top-2 left-4 right-4 h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent rounded-full" />
                         
-                        {/* Reels */}
+                        {/* Reels - Static, premium look */}
                         <div className="absolute top-6 left-0 right-0 flex justify-center gap-6">
                           {[0, 1].map((i) => (
-                            <motion.div
-                              key={i}
-                              className="relative"
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                            >
+                            <div key={i} className="relative">
                               <div 
                                 className="w-12 h-12 rounded-full"
                                 style={{
-                                  background: 'radial-gradient(circle at 30% 30%, #4a4540 0%, #2a2520 50%, #1a1510 100%)',
-                                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
+                                  background: 'radial-gradient(circle at 30% 30%, #3a3530 0%, #252220 50%, #151210 100%)',
+                                  boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.3)',
                                 }}
                               >
-                                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-gold/10 to-transparent" />
-                                <div className="absolute inset-4 rounded-full bg-void" />
+                                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-amber-500/5 to-transparent" />
+                                <div className="absolute inset-4 rounded-full bg-[#0a0908]" />
                               </div>
-                            </motion.div>
+                            </div>
                           ))}
                         </div>
                         
-                        {/* VU Meter */}
+                        {/* VU Meter - Subtle, professional */}
                         <div 
                           className="absolute bottom-12 left-4 right-4 h-8 rounded"
                           style={{
-                            background: '#0a0908',
-                            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.8)',
+                            background: '#080706',
+                            boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.8)',
                           }}
                         >
                           <div className="absolute inset-1 flex items-end justify-center gap-0.5">
                             {[...Array(12)].map((_, i) => (
                               <motion.div
                                 key={i}
-                                className="w-1 rounded-sm"
+                                className="w-1 rounded-sm opacity-85"
                                 style={{
-                                  background: i < 8 ? '#22c55e' : i < 10 ? '#eab308' : '#ef4444',
+                                  background: i < 8 ? '#16a34a' : i < 10 ? '#ca8a04' : '#dc2626',
                                 }}
-                                animate={{ height: ['20%', `${30 + Math.random() * 70}%`, '20%'] }}
-                                transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.05 }}
+                                animate={{ height: ['18%', `${22 + Math.random() * 35}%`, '18%'] }}
+                                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.06, ease: 'easeInOut' }}
                               />
                             ))}
                           </div>
                         </div>
                         
-                        {/* Control buttons */}
+                        {/* Control buttons - Refined */}
                         <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blood shadow-lg" />
-                          <div className="w-6 h-6 rounded bg-gray-700 shadow-lg" />
+                          <div 
+                            className="w-5 h-5 rounded-full"
+                            style={{
+                              background: 'radial-gradient(circle at 30% 30%, #dc2626 0%, #991b1b 100%)',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                            }}
+                          />
+                          <div 
+                            className="w-5 h-5 rounded"
+                            style={{
+                              background: 'linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%)',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
                     
                     <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Record Voice</h3>
+                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">Record Voice</h3>
                       <p className="text-sm text-paper/50">{stats?.totalVoiceMinutes || 0} minutes</p>
                     </div>
-                    
-                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
                   </motion.button>
 
-                  {/* Family Frame */}
+                  {/* Family Frame - Premium wooden frame look */}
                   <motion.button
                     onClick={() => navigate('/family')}
                     className="group relative"
-                    whileHover={{ scale: 1.05, y: -10 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.02, y: -6 }}
+                    whileTap={{ scale: 0.99 }}
                     style={{ transformStyle: 'preserve-3d' }}
                   >
+                    {/* Ambient occlusion shadow */}
+                    <div 
+                      className="absolute -inset-2 rounded-2xl pointer-events-none"
+                      style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
+                    />
                     <div className="relative w-full aspect-[4/5]">
-                      {/* Ornate Frame */}
+                      {/* Premium wooden frame */}
                       <div 
                         className="absolute inset-0 rounded-lg"
                         style={{
-                          background: 'linear-gradient(135deg, #8b7355 0%, #6b5344 25%, #5a4636 50%, #6b5344 75%, #8b7355 100%)',
-                          boxShadow: '0 12px 32px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.1), inset 0 -2px 0 rgba(0,0,0,0.3)',
-                          padding: '12px',
+                          background: 'linear-gradient(135deg, #5c4a3a 0%, #4a3c30 25%, #3d3228 50%, #4a3c30 75%, #5c4a3a 100%)',
+                          boxShadow: '0 16px 36px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)',
+                          padding: '10px',
                         }}
                       >
-                        {/* Inner frame shadow */}
+                        {/* Inner frame with depth */}
                         <div 
                           className="absolute inset-3 rounded"
                           style={{
-                            boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.4)',
-                            background: 'linear-gradient(180deg, #1a1510 0%, #2a2520 100%)',
+                            boxShadow: 'inset 0 4px 16px rgba(0,0,0,0.5)',
+                            background: 'linear-gradient(180deg, #151210 0%, #1e1a16 100%)',
                           }}
                         >
                           {/* Family members preview */}
                           <div className="absolute inset-2 flex flex-wrap items-center justify-center gap-2 p-2">
                             {family?.slice(0, 4).map((member: any, i: number) => (
-                              <motion.div
+                              <div
                                 key={member.id}
-                                className="w-8 h-8 rounded-full bg-gradient-to-br from-gold/80 to-gold-dim flex items-center justify-center text-xs text-void font-medium"
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: i * 0.1 }}
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-xs text-void font-medium"
+                                style={{
+                                  background: 'linear-gradient(135deg, #d4af37 0%, #b8962e 100%)',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                                }}
                               >
                                 {member.name[0]}
-                              </motion.div>
+                              </div>
                             ))}
                             {(!family || family.length === 0) && (
                               <div className="text-paper/30 text-xs text-center">
@@ -613,113 +620,107 @@ export function Dashboard() {
                           </div>
                         </div>
                         
-                        {/* Frame decorations */}
-                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full bg-gradient-to-b from-gold/30 to-transparent" />
-                        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full bg-gradient-to-t from-gold/30 to-transparent" />
+                        {/* Subtle frame accent */}
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-gradient-to-b from-amber-500/15 to-transparent" />
                       </div>
                       
-                      {/* Glass reflection */}
-                      <div className="absolute inset-3 rounded bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
+                      {/* Subtle glass reflection */}
+                      <div className="absolute inset-3 rounded bg-gradient-to-br from-white/3 via-transparent to-transparent pointer-events-none" />
                     </div>
                     
                     <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Family</h3>
+                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">Family</h3>
                       <p className="text-sm text-paper/50">{family?.length || 0} members</p>
                     </div>
-                    
-                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
                   </motion.button>
                 </div>
 
-                {/* Decorative Objects */}
+                {/* Decorative Objects - Subtle, premium props */}
                 
-                {/* Ink Bottle */}
-                <motion.div
-                  className="absolute bottom-8 left-8 w-12 h-16"
-                  animate={{ y: [0, -3, 0] }}
-                  transition={{ duration: 4, repeat: Infinity }}
+                {/* Ink Bottle - Static, refined */}
+                <div
+                  className="absolute bottom-8 left-8 w-10 h-14"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   <div 
                     className="w-full h-full rounded-b-lg rounded-t-sm"
                     style={{
-                      background: 'linear-gradient(180deg, rgba(20,20,30,0.9) 0%, rgba(10,10,20,0.95) 100%)',
-                      boxShadow: 'inset 0 -8px 16px rgba(201,169,89,0.2), 0 4px 8px rgba(0,0,0,0.4)',
+                      background: 'linear-gradient(180deg, rgba(18,18,25,0.95) 0%, rgba(8,8,15,0.98) 100%)',
+                      boxShadow: 'inset 0 -6px 12px rgba(180,150,70,0.15), 0 6px 12px rgba(0,0,0,0.5)',
                     }}
                   >
-                    {/* Ink level */}
-                    <div className="absolute bottom-0 left-1 right-1 h-1/2 rounded-b-md bg-gradient-to-t from-gold/30 to-transparent" />
-                    {/* Glass shine */}
-                    <div className="absolute inset-0 rounded-b-lg bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                    {/* Ink level - subtle */}
+                    <div className="absolute bottom-0 left-1 right-1 h-2/5 rounded-b-md bg-gradient-to-t from-amber-600/20 to-transparent" />
+                    {/* Glass shine - subtle */}
+                    <div className="absolute inset-0 rounded-b-lg bg-gradient-to-r from-transparent via-white/5 to-transparent" />
                   </div>
                   {/* Cap */}
                   <div 
-                    className="absolute -top-3 left-1 right-1 h-4 rounded-t-full"
+                    className="absolute -top-2.5 left-1 right-1 h-3 rounded-t-full"
                     style={{
-                      background: 'linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%)',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                      background: 'linear-gradient(180deg, #2a2a2a 0%, #151515 100%)',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
                     }}
                   />
-                </motion.div>
+                </div>
 
-                {/* Wax Seal */}
-                <motion.div
-                  className="absolute bottom-8 right-8"
-                  animate={{ rotate: [0, 2, 0, -2, 0] }}
-                  transition={{ duration: 6, repeat: Infinity }}
-                >
-                  <div className="wax-seal w-14 h-14">
-                    <span className="text-lg">∞</span>
+                {/* Wax Seal - Static, premium */}
+                <div className="absolute bottom-8 right-8">
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    style={{
+                      background: 'radial-gradient(circle at 30% 30%, #8b2020 0%, #6b1515 50%, #4a0f0f 100%)',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    <span className="text-amber-200/80 text-base">∞</span>
                   </div>
-                </motion.div>
+                </div>
 
-                {/* Candle */}
-                <motion.div
-                  className="absolute top-4 right-8 w-6"
+                {/* Candle - Subtle, elegant */}
+                <div
+                  className="absolute top-4 right-8 w-5"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
-                  {/* Flame glow */}
+                  {/* Flame glow - subtle */}
                   <motion.div
-                    className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full"
+                    className="absolute -top-7 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full"
                     style={{
-                      background: 'radial-gradient(circle, rgba(255,180,50,0.3) 0%, transparent 70%)',
+                      background: 'radial-gradient(circle, rgba(255,180,50,0.2) 0%, transparent 70%)',
                     }}
                     animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.5, 0.8, 0.5],
+                      scale: [1, 1.08, 1],
+                      opacity: [0.4, 0.6, 0.4],
                     }}
-                    transition={{ duration: 0.5, repeat: Infinity }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                  {/* Flame */}
+                  {/* Flame - slower, more natural */}
                   <motion.div
-                    className="absolute -top-6 left-1/2 -translate-x-1/2"
+                    className="absolute -top-5 left-1/2 -translate-x-1/2"
                     animate={{
-                      scaleY: [1, 1.2, 0.9, 1.1, 1],
-                      scaleX: [1, 0.9, 1.1, 0.95, 1],
+                      scaleY: [1, 1.06, 0.96, 1.03, 1],
+                      scaleX: [1, 0.97, 1.03, 0.98, 1],
                     }}
-                    transition={{ duration: 0.3, repeat: Infinity }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut' }}
                   >
                     <div 
-                      className="w-3 h-6"
+                      className="w-2.5 h-5"
                       style={{
-                        background: 'linear-gradient(0deg, #ff6b00 0%, #ffcc00 50%, #fff 100%)',
+                        background: 'linear-gradient(0deg, #e65c00 0%, #ffaa33 50%, #fff8e0 100%)',
                         borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                        filter: 'blur(1px)',
+                        filter: 'blur(0.5px)',
                       }}
                     />
                   </motion.div>
-                  {/* Candle body */}
+                  {/* Candle body - refined */}
                   <div 
-                    className="w-6 h-20 rounded-sm"
+                    className="w-5 h-16 rounded-sm"
                     style={{
-                      background: 'linear-gradient(180deg, #f5f0e0 0%, #e8e0d0 50%, #ddd5c5 100%)',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.3), inset -2px 0 4px rgba(0,0,0,0.1)',
+                      background: 'linear-gradient(180deg, #f0ebe0 0%, #e5ddd0 50%, #d8d0c2 100%)',
+                      boxShadow: '0 6px 12px rgba(0,0,0,0.35), inset -1px 0 3px rgba(0,0,0,0.08)',
                     }}
-                  >
-                    {/* Dripping wax */}
-                    <div className="absolute top-0 -left-1 w-2 h-8 bg-gradient-to-b from-white to-transparent rounded-full opacity-50" />
-                  </div>
-                </motion.div>
+                  />
+                </div>
 
               </div>
             </motion.div>
