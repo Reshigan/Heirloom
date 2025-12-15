@@ -233,10 +233,9 @@ export function Compose() {
         salutation,
         body,
         signature,
-        recipients: selectedRecipients,
+        recipientIds: selectedRecipients,
         deliveryTrigger,
         scheduledDate: scheduledDate || undefined,
-        status: 'DRAFT',
       };
       
       if (selectedLetter) {
@@ -264,10 +263,9 @@ export function Compose() {
           salutation,
           body,
           signature,
-          recipients: selectedRecipients,
+          recipientIds: selectedRecipients,
           deliveryTrigger,
           scheduledDate: scheduledDate || undefined,
-          status: 'SEALED',
         };
         const response = await lettersApi.create(letterData);
         await lettersApi.seal(response.data.id);
