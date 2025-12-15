@@ -900,6 +900,30 @@ em {
   box-shadow: 0 0 0 3px rgba(201, 169, 89, 0.3);
 }
 
+/* True 3D Candle Flame Animation */
+@keyframes flame-flicker {
+  0% {
+    transform: scaleY(1) translateX(0px) skewX(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scaleY(1.05) translateX(-0.5px) skewX(-1deg);
+    filter: brightness(1.05);
+  }
+  50% {
+    transform: scaleY(0.96) translateX(0.6px) skewX(1.2deg);
+    filter: brightness(0.95);
+  }
+  75% {
+    transform: scaleY(1.08) translateX(-0.4px) skewX(-0.8deg);
+    filter: brightness(1.08);
+  }
+  100% {
+    transform: scaleY(1) translateX(0px) skewX(0deg);
+    filter: brightness(1);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   h1 { font-size: 2.5rem; }

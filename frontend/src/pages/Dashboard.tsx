@@ -677,50 +677,114 @@ export function Dashboard() {
                   </div>
                 </div>
 
-                {/* Candle - Subtle, elegant */}
-                <div
-                  className="absolute top-4 right-8 w-5"
-                  style={{ transformStyle: 'preserve-3d' }}
-                >
-                  {/* Flame glow - subtle */}
-                  <motion.div
-                    className="absolute -top-7 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full"
-                    style={{
-                      background: 'radial-gradient(circle, rgba(255,180,50,0.2) 0%, transparent 70%)',
-                    }}
-                    animate={{
-                      scale: [1, 1.08, 1],
-                      opacity: [0.4, 0.6, 0.4],
-                    }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                  {/* Flame - slower, more natural */}
-                  <motion.div
-                    className="absolute -top-5 left-1/2 -translate-x-1/2"
-                    animate={{
-                      scaleY: [1, 1.06, 0.96, 1.03, 1],
-                      scaleX: [1, 0.97, 1.03, 0.98, 1],
-                    }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    <div 
-                      className="w-2.5 h-5"
-                      style={{
-                        background: 'linear-gradient(0deg, #e65c00 0%, #ffaa33 50%, #fff8e0 100%)',
-                        borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                        filter: 'blur(0.5px)',
-                      }}
-                    />
-                  </motion.div>
-                  {/* Candle body - refined */}
-                  <div 
-                    className="w-5 h-16 rounded-sm"
-                    style={{
-                      background: 'linear-gradient(180deg, #f0ebe0 0%, #e5ddd0 50%, #d8d0c2 100%)',
-                      boxShadow: '0 6px 12px rgba(0,0,0,0.35), inset -1px 0 3px rgba(0,0,0,0.08)',
-                    }}
-                  />
-                </div>
+                                {/* True 3D Candle */}
+                                <div
+                                  className="absolute top-2 right-6"
+                                  style={{ width: 40, height: 90, perspective: 400 }}
+                                >
+                                  <div
+                                    className="relative w-full h-full"
+                                    style={{ transformStyle: 'preserve-3d', transform: 'rotateX(8deg) rotateY(-10deg)' }}
+                                  >
+                                    {/* Contact shadow on desk */}
+                                    <div
+                                      className="absolute left-1/2 bottom-0 -translate-x-1/2"
+                                      style={{
+                                        width: 36,
+                                        height: 14,
+                                        borderRadius: '50%',
+                                        background: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,0.7) 0%, transparent 70%)',
+                                        opacity: 0.75,
+                                        filter: 'blur(3px)',
+                                        transform: 'translateZ(0)',
+                                      }}
+                                    />
+
+                                    {/* Candle body - cylindrical with lateral gradient */}
+                                    <div
+                                      className="absolute left-1/2 bottom-1 -translate-x-1/2"
+                                      style={{
+                                        width: 18,
+                                        height: 52,
+                                        borderRadius: 999,
+                                        background: 'linear-gradient(90deg, #1b1a16 0%, #f8f3e2 22%, #fdf8ea 45%, #f1e7cf 60%, #c1b69c 80%, #6b6351 100%)',
+                                        boxShadow: '0 6px 12px rgba(0,0,0,0.65), inset 0 0 6px rgba(0,0,0,0.3)',
+                                        transform: 'translateZ(8px)',
+                                      }}
+                                    />
+
+                                    {/* Top ellipse / wax rim */}
+                                    <div
+                                      className="absolute left-1/2 bottom-[53px] -translate-x-1/2"
+                                      style={{
+                                        width: 20,
+                                        height: 10,
+                                        borderRadius: '50%',
+                                        background: 'radial-gradient(circle at 30% 20%, #fff9ea 0%, #f6ebd4 45%, #cbbda3 80%, #736755 100%)',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(0,0,0,0.35)',
+                                        transform: 'translateZ(10px)',
+                                      }}
+                                    />
+
+                                    {/* Wick */}
+                                    <div
+                                      className="absolute left-1/2 bottom-[60px] -translate-x-1/2"
+                                      style={{
+                                        width: 2,
+                                        height: 6,
+                                        borderRadius: 999,
+                                        background: 'linear-gradient(to bottom, #2b2118, #0b0704)',
+                                        transform: 'translateZ(12px)',
+                                      }}
+                                    />
+
+                                    {/* Flame with CSS animation */}
+                                    <div
+                                      className="absolute left-1/2 bottom-[66px] -translate-x-1/2"
+                                      style={{ transform: 'translateZ(14px)' }}
+                                    >
+                                      {/* Outer glow halo */}
+                                      <div
+                                        className="absolute -inset-4 pointer-events-none"
+                                        style={{
+                                          background: 'radial-gradient(circle, rgba(251,191,36,0.35) 0%, rgba(251,146,60,0.2) 40%, transparent 70%)',
+                                          filter: 'blur(4px)',
+                                        }}
+                                      />
+                      
+                                      {/* Flame shape with flicker animation */}
+                                      <div
+                                        className="relative"
+                                        style={{
+                                          width: 10,
+                                          height: 18,
+                                          transformOrigin: '50% 100%',
+                                          animation: 'flame-flicker 1.6s ease-in-out infinite',
+                                        }}
+                                      >
+                                        {/* Outer flame */}
+                                        <div
+                                          style={{
+                                            position: 'absolute',
+                                            inset: 0,
+                                            borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                                            background: 'radial-gradient(circle at 30% 20%, #fff7d1 0%, #facc6b 35%, #f97316 70%, transparent 72%)',
+                                            filter: 'blur(0.4px)',
+                                          }}
+                                        />
+                                        {/* Inner flame core */}
+                                        <div
+                                          style={{
+                                            position: 'absolute',
+                                            inset: 3,
+                                            borderRadius: '50% 50% 50% 50% / 65% 65% 35% 35%',
+                                            background: 'radial-gradient(circle at 30% 10%, #ffffff 0%, #fde68a 40%, transparent 70%)',
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
 
               </div>
             </motion.div>
