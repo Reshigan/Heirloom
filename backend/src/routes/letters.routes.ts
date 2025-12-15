@@ -5,32 +5,9 @@ import { validate, createLetterSchema, updateLetterSchema, idParamSchema } from 
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { billingService } from '../services/billing.service';
 import { emailService } from '../services/email.service';
-import { tinyLLMService } from '../services/tinyllm.service';
 
 const router = Router();
 router.use(authenticate);
-
-/**
- * POST /api/letters/suggest
- * Get AI-generated letter suggestion using TinyLLM
- */
-router.post('/suggest', asyncHandler(async (req: Request, res: Response) => {
-  const { recipientName, relationship, occasion, tone, keywords } = req.body;
-  
-  if (!recipientName || !relationship) {
-    throw ApiError.badRequest('recipientName and relationship are required');
-  }
-
-  const suggestion = await tinyLLMService.suggestLetter({
-    recipientName,
-    relationship,
-    occasion,
-    tone,
-    keywords,
-  });
-
-  res.json(suggestion);
-}));
 
 /**
  * GET /api/letters
