@@ -19,6 +19,9 @@ import encryptionRoutes from './routes/encryption.routes';
 
 const app = express();
 
+// Trust proxy for rate limiting behind Nginx
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 app.use(cors({

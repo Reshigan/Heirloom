@@ -10,8 +10,7 @@ type Memory = {
   title: string;
   description?: string;
   type: 'PHOTO' | 'VIDEO';
-  mediaUrl?: string;
-  thumbnailUrl?: string;
+  fileUrl?: string;
   recipients: { familyMember: { id: string; name: string } }[];
   createdAt: string;
 };
@@ -270,9 +269,9 @@ export function Memories() {
                     <>
                       {/* Thumbnail */}
                       <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-blood/10">
-                        {memory.thumbnailUrl ? (
+                        {memory.fileUrl ? (
                           <img
-                            src={memory.thumbnailUrl}
+                            src={memory.fileUrl}
                             alt={memory.title}
                             className="w-full h-full object-cover"
                           />
@@ -309,8 +308,8 @@ export function Memories() {
                   ) : (
                     <>
                       <div className="w-20 h-20 rounded-lg glass flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {memory.thumbnailUrl ? (
-                          <img src={memory.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                        {memory.fileUrl ? (
+                          <img src={memory.fileUrl} alt="" className="w-full h-full object-cover" />
                         ) : memory.type === 'VIDEO' ? (
                           <Video size={24} className="text-paper/30" />
                         ) : (
@@ -377,11 +376,11 @@ export function Memories() {
               </button>
 
               <div className="aspect-video rounded-xl overflow-hidden mb-6 bg-void-light">
-                {selectedMemory.mediaUrl ? (
+                {selectedMemory.fileUrl ? (
                   selectedMemory.type === 'VIDEO' ? (
-                    <video src={selectedMemory.mediaUrl} controls className="w-full h-full object-contain" />
+                    <video src={selectedMemory.fileUrl} controls className="w-full h-full object-contain" />
                   ) : (
-                    <img src={selectedMemory.mediaUrl} alt={selectedMemory.title} className="w-full h-full object-contain" />
+                    <img src={selectedMemory.fileUrl} alt={selectedMemory.title} className="w-full h-full object-contain" />
                   )
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
