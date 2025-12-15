@@ -163,4 +163,30 @@ export const legacyContactsApi = {
   resendVerification: (id: string) => api.post(`/settings/legacy-contacts/${id}/resend`),
 };
 
+// Admin API (uses separate admin token)
+const adminAxios = axios.create({
+  baseURL: API_URL,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+adminAxios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('adminToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const adminApi = {
+  login: (data: { email: string; password: string }) => adminAxios.post('/admin/login', data),
+  getAnalyticsOverview: () => adminAxios.get('/admin/analytics/overview'),
+  getAnalyticsRevenue: () => adminAxios.get('/admin/analytics/revenue'),
+  getAnalyticsUsers: () => adminAxios.get('/admin/analytics/users'),
+  getCoupons: () => adminAxios.get('/admin/coupons'),
+  createCoupon: (data: any) => adminAxios.post('/admin/coupons', data),
+  updateCoupon: (id: string, data: any) => adminAxios.patch(`/admin/coupons/${id}`, data),
+  deleteCoupon: (id: string) => adminAxios.delete(`/admin/coupons/${id}`),
+  getUsers: (params?: { search?: string; limit?: number }) => adminAxios.get('/admin/users', { params }),
+};
+
 export default api;
