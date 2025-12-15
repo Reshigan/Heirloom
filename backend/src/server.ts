@@ -16,6 +16,7 @@ import billingRoutes from './routes/billing.routes';
 import settingsRoutes from './routes/settings.routes';
 import deadmanRoutes from './routes/deadman.routes';
 import encryptionRoutes from './routes/encryption.routes';
+import adminRoutes from './routes/admin.routes';
 
 const app = express();
 
@@ -67,6 +68,7 @@ app.use('/api/billing', billingRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/deadman', deadmanRoutes);
 app.use('/api/encryption', encryptionRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling
 app.use(errorHandler);
