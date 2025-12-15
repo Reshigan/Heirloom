@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
+import { authApi } from '../services/api';
 
 export function Login() {
   const navigate = useNavigate();
@@ -13,6 +14,13 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showIntro, setShowIntro] = useState(true);
+
+  // Startup animation
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +28,8 @@ export function Login() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      const { data } = await authApi.login(email, password);
+      login(data.user, data.token, data.refreshToken);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password');
@@ -31,6 +40,97 @@ export function Login() {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
+      {/* Startup Animation Overlay */}
+      <AnimatePresence>
+        {showIntro && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="fixed inset-0 z-50 bg-void-deep flex items-center justify-center"
+          >
+            {/* Animated rings */}
+            <div className="relative">
+              {[...Array(3)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute inset-0 border border-gold/30 rounded-full"
+                  style={{
+                    width: 200 + i * 60,
+                    height: 200 + i * 60,
+                    left: -(100 + i * 30),
+                    top: -(100 + i * 30),
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ 
+                    scale: [0, 1.2, 1], 
+                    opacity: [0, 0.8, 0.3],
+                    rotate: i % 2 === 0 ? [0, 360] : [360, 0]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    delay: i * 0.2,
+                    rotate: { duration: 20, repeat: Infinity, ease: 'linear' }
+                  }}
+                />
+              ))}
+              
+              {/* Center infinity logo */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="relative z-10 text-center"
+              >
+                <motion.div
+                  className="text-7xl text-gold mb-4"
+                  animate={{ 
+                    textShadow: [
+                      '0 0 20px rgba(201,169,89,0.5)',
+                      '0 0 60px rgba(201,169,89,0.8)',
+                      '0 0 20px rgba(201,169,89,0.5)'
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  ∞
+                </motion.div>
+                <motion.span 
+                  className="text-xl tracking-[0.3em] text-paper/60"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 }}
+                >
+                  HEIRLOOM
+                </motion.span>
+              </motion.div>
+            </div>
+
+            {/* Floating golden particles */}
+            {[...Array(30)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 rounded-full bg-gold"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{
+                  opacity: [0, 0.8, 0],
+                  scale: [0, 1, 0],
+                  y: [0, -100],
+                }}
+                transition={{
+                  duration: 2 + Math.random(),
+                  delay: Math.random() * 2,
+                  repeat: Infinity,
+                }}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Sanctuary Background */}
       <div className="sanctuary-bg">
         <div className="sanctuary-orb sanctuary-orb-1" />

@@ -143,7 +143,7 @@ export function Compose() {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showComposer, setShowComposer] = useState(false);
-  const [_selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+  const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
   
   // Composer state
   const [title, setTitle] = useState('');

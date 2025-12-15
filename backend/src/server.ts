@@ -16,10 +16,6 @@ import billingRoutes from './routes/billing.routes';
 import settingsRoutes from './routes/settings.routes';
 import deadmanRoutes from './routes/deadman.routes';
 import encryptionRoutes from './routes/encryption.routes';
-import supportRoutes from './routes/support';
-import notificationsRoutes from './routes/notifications';
-import wrappedRoutes from './routes/wrapped';
-import adminRoutes from './routes/admin.routes';
 
 const app = express();
 
@@ -33,7 +29,7 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Increased for testing
+  max: 100,
   message: { error: 'Too many requests, please try again later' },
 });
 app.use(limiter);
@@ -68,10 +64,6 @@ app.use('/api/billing', billingRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/deadman', deadmanRoutes);
 app.use('/api/encryption', encryptionRoutes);
-app.use('/api/support', supportRoutes);
-app.use('/api/notifications', notificationsRoutes);
-app.use('/api/wrapped', wrappedRoutes);
-app.use('/api/admin', adminRoutes);
 
 // Error handling
 app.use(errorHandler);

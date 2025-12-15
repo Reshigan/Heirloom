@@ -260,14 +260,13 @@ export const billingService = {
   },
 
   /**
-   * Create checkout session with currency and optional coupon
+   * Create checkout session with currency
    */
   async createCheckoutSession(
     userId: string,
     tier: 'ESSENTIAL' | 'FAMILY' | 'LEGACY',
     billingCycle: 'monthly' | 'yearly',
-    currency: string = 'USD',
-    couponCode?: string
+    currency: string = 'USD'
   ): Promise<string> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error('User not found');
@@ -294,27 +293,7 @@ export const billingService = {
         break;
     }
 
-    // Validate and apply coupon if provided
-    let discountAmount = 0;
-    let couponId: string | undefined;
-    if (couponCode) {
-      const couponValidation = await this.validateCoupon(couponCode, tier);
-      if (couponValidation.valid && couponValidation.coupon) {
-        const originalAmount = Math.round(priceData.amount * 100);
-        const discountedAmount = this.applyCouponDiscount(originalAmount, couponValidation.coupon);
-        discountAmount = originalAmount - discountedAmount;
-        
-        // Get coupon ID for tracking
-        const coupon = await prisma.coupon.findUnique({ where: { code: couponCode.toUpperCase() } });
-        if (coupon) {
-          couponId = coupon.id;
-        }
-      }
-    }
-
-    const finalAmount = Math.round(priceData.amount * 100) - discountAmount;
-
-    const sessionConfig: any = {
+    const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
       line_items: [{
@@ -322,9 +301,9 @@ export const billingService = {
           currency: currency.toLowerCase(),
           product_data: {
             name: `Heirloom ${tier.charAt(0) + tier.slice(1).toLowerCase()} Plan`,
-            description: `${billingCycle === 'yearly' ? 'Annual' : 'Monthly'} subscription${discountAmount > 0 ? ' (discount applied)' : ''}`,
+            description: `${billingCycle === 'yearly' ? 'Annual' : 'Monthly'} subscription`,
           },
-          unit_amount: finalAmount,
+          unit_amount: Math.round(priceData.amount * 100),
           recurring: {
             interval: billingCycle === 'yearly' ? 'year' : 'month',
           },
@@ -334,32 +313,13 @@ export const billingService = {
       mode: 'subscription',
       success_url: `${env.FRONTEND_URL}/settings?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${env.FRONTEND_URL}/settings?canceled=true`,
-      metadata: { userId, tier, couponId: couponId || '', discountAmount: discountAmount.toString() },
+      metadata: { userId, tier },
       subscription_data: {
         metadata: { userId, tier },
       },
-      allow_promotion_codes: !couponCode, // Allow Stripe promo codes if no custom coupon
-    };
+    });
 
-    const session = await stripe.checkout.sessions.create(sessionConfig);
-
-    // Track coupon usage if applied
-    if (couponId && discountAmount > 0) {
-      await prisma.coupon.update({
-        where: { id: couponId },
-        data: { currentUses: { increment: 1 } },
-      });
-      await prisma.couponRedemption.create({
-        data: {
-          couponId,
-          userId,
-          discountApplied: discountAmount,
-          orderId: session.id,
-        },
-      });
-    }
-
-    logger.info(`Created checkout session for user ${userId}: ${session.id}${couponCode ? ` with coupon ${couponCode}` : ''}`);
+    logger.info(`Created checkout session for user ${userId}: ${session.id}`);
     return session.url!;
   },
 
@@ -599,192 +559,5 @@ export const billingService = {
       currentPeriodEnd: subscription.currentPeriodEnd,
       cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
     };
-  },
-
-  /**
-   * Validate a coupon code
-   */
-  async validateCoupon(code: string, tier?: string): Promise<{
-    valid: boolean;
-    coupon?: {
-      code: string;
-      discountType: string;
-      discountValue: number;
-      description?: string;
-    };
-    error?: string;
-  }> {
-    const coupon = await prisma.coupon.findUnique({
-      where: { code: code.toUpperCase() },
-    });
-
-    if (!coupon) {
-      return { valid: false, error: 'Invalid coupon code' };
-    }
-
-    if (!coupon.isActive) {
-      return { valid: false, error: 'This coupon is no longer active' };
-    }
-
-    if (coupon.validUntil && new Date() > coupon.validUntil) {
-      return { valid: false, error: 'This coupon has expired' };
-    }
-
-    if (coupon.validFrom && new Date() < coupon.validFrom) {
-      return { valid: false, error: 'This coupon is not yet valid' };
-    }
-
-    if (coupon.maxUses && coupon.currentUses >= coupon.maxUses) {
-      return { valid: false, error: 'This coupon has reached its usage limit' };
-    }
-
-    if (tier && coupon.applicableTiers.length > 0 && !coupon.applicableTiers.includes(tier)) {
-      return { valid: false, error: 'This coupon is not valid for the selected plan' };
-    }
-
-    return {
-      valid: true,
-      coupon: {
-        code: coupon.code,
-        discountType: coupon.discountType,
-        discountValue: coupon.discountValue,
-        description: coupon.description || undefined,
-      },
-    };
-  },
-
-  /**
-   * Apply coupon discount to amount
-   */
-  applyCouponDiscount(amount: number, coupon: { discountType: string; discountValue: number }): number {
-    if (coupon.discountType === 'PERCENTAGE') {
-      return Math.round(amount * (1 - coupon.discountValue / 100));
-    } else {
-      return Math.max(0, amount - coupon.discountValue);
-    }
-  },
-
-  /**
-   * Change subscription plan (upgrade or downgrade)
-   */
-  async changePlan(
-    userId: string,
-    newTier: 'ESSENTIAL' | 'FAMILY' | 'LEGACY',
-    billingCycle: 'monthly' | 'yearly' = 'monthly'
-  ): Promise<{ success: boolean; message: string; tier: string }> {
-    const subscription = await prisma.subscription.findUnique({
-      where: { userId },
-      include: { user: true },
-    });
-
-    if (!subscription) {
-      throw new Error('No subscription found');
-    }
-
-    if (subscription.tier === newTier) {
-      return { success: false, message: 'You are already on this plan', tier: subscription.tier };
-    }
-
-    // Demo user special case
-    if (!subscription.stripeSubscriptionId) {
-      const user = subscription.user;
-      if (user.email === 'demo@heirloom.app') {
-        await prisma.subscription.update({
-          where: { userId },
-          data: { tier: newTier as SubscriptionTier },
-        });
-        const isUpgrade = this.getTierRank(newTier) > this.getTierRank(subscription.tier);
-        const action = isUpgrade ? 'upgraded' : 'downgraded';
-        logger.info(`Demo user ${userId} ${action} from ${subscription.tier} to ${newTier} (no Stripe)`);
-        return {
-          success: true,
-          message: `Successfully ${action} to ${newTier} plan. (Demo mode - no billing)`,
-          tier: newTier,
-        };
-      }
-      throw new Error('No active Stripe subscription. Please subscribe first.');
-    }
-
-    const user = subscription.user;
-    const currency = user.preferredCurrency || 'USD';
-    const pricing = this.getPricingInCurrency(currency);
-
-    let priceData;
-    switch (newTier) {
-      case 'ESSENTIAL':
-        priceData = billingCycle === 'monthly' ? pricing.essential.monthly : pricing.essential.yearly;
-        break;
-      case 'FAMILY':
-        priceData = billingCycle === 'monthly' ? pricing.family.monthly : pricing.family.yearly;
-        break;
-      case 'LEGACY':
-        priceData = pricing.legacy.yearly;
-        break;
-    }
-
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
-    const currentItem = stripeSubscription.items.data[0];
-
-    if (!currentItem) {
-      throw new Error('No subscription item found');
-    }
-
-    const productName = `Heirloom ${newTier.charAt(0) + newTier.slice(1).toLowerCase()} Plan`;
-    const products = await stripe.products.list({ limit: 100 });
-    let product = products.data.find(p => p.name === productName);
-
-    if (!product) {
-      product = await stripe.products.create({
-        name: productName,
-        metadata: { tier: newTier },
-      });
-    }
-
-    const price = await stripe.prices.create({
-      product: product.id,
-      currency: currency.toLowerCase(),
-      unit_amount: Math.round(priceData.amount * 100),
-      recurring: {
-        interval: billingCycle === 'yearly' || newTier === 'LEGACY' ? 'year' : 'month',
-      },
-    });
-
-    await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
-      items: [{
-        id: currentItem.id,
-        price: price.id,
-      }],
-      proration_behavior: 'always_invoice',
-      metadata: { userId, tier: newTier },
-    });
-
-    await prisma.subscription.update({
-      where: { userId },
-      data: { tier: newTier as SubscriptionTier },
-    });
-
-    const isUpgrade = this.getTierRank(newTier) > this.getTierRank(subscription.tier);
-    const action = isUpgrade ? 'upgraded' : 'downgraded';
-
-    logger.info(`User ${userId} ${action} from ${subscription.tier} to ${newTier}`);
-
-    return {
-      success: true,
-      message: `Successfully ${action} to ${newTier} plan. Changes applied immediately with proration.`,
-      tier: newTier,
-    };
-  },
-
-  /**
-   * Get tier rank for comparison
-   */
-  getTierRank(tier: string): number {
-    const ranks: Record<string, number> = {
-      FREE: 0,
-      ESSENTIAL: 1,
-      FAMILY: 2,
-      LEGACY: 3,
-    };
-    return ranks[tier] || 0;
   },
 };

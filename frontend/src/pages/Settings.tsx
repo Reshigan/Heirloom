@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, Tag, ArrowUp, ArrowDown } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -20,14 +21,11 @@ export function Settings() {
   const queryClient = useQueryClient();
   const { user, updateUser, logout } = useAuthStore();
 
-    const [activeTab, setActiveTab] = useState<string>('profile');
-    const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
-    const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
-    const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
-    const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
-    const [couponCode, setCouponCode] = useState('');
-    const [couponValidation, setCouponValidation] = useState<{ valid: boolean; coupon?: any; error?: string } | null>(null);
-    const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('profile');
+  const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
+  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
+  const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
+  const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
 
   const { data: subscription } = useQuery({
     queryKey: ['subscription'],
@@ -82,31 +80,12 @@ export function Settings() {
     },
   });
 
-    const checkoutMutation = useMutation({
-      mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency, couponCode: couponValidation?.valid ? couponCode : undefined }),
-      onSuccess: (res) => {
-        window.location.href = res.data.url;
-      },
-    });
-
-    const changePlanMutation = useMutation({
-      mutationFn: (tier: string) => billingApi.changePlan({ tier }),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['subscription'] });
-        queryClient.invalidateQueries({ queryKey: ['limits'] });
-        setSelectedTier(null);
-      },
-    });
-
-    const validateCouponMutation = useMutation({
-      mutationFn: (code: string) => billingApi.validateCoupon({ code, tier: selectedTier || undefined }),
-      onSuccess: (res) => {
-        setCouponValidation(res.data);
-      },
-      onError: () => {
-        setCouponValidation({ valid: false, error: 'Failed to validate coupon' });
-      },
-    });
+  const checkoutMutation = useMutation({
+    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
+    onSuccess: (res) => {
+      window.location.href = res.data.url;
+    },
+  });
 
   const configureDeadmanMutation = useMutation({
     mutationFn: () => deadmanApi.configure(deadmanConfig),
@@ -222,218 +201,85 @@ export function Settings() {
               </div>
             )}
 
-                        {activeTab === 'subscription' && (
-                          <div className="space-y-6">
-                            {/* Current plan */}
-                            <div className="card">
-                              <h3 className="text-lg mb-4">Current Plan</h3>
-                              <div className="flex items-center justify-between mb-4">
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="px-3 py-1.5 bg-gold/20 text-gold text-sm font-medium tracking-wider border border-gold/30">{subscription?.tier || 'FREE'}</span>
-                                    {subscription?.isTrialing && (
-                                      <span className="px-2 py-1 bg-blood/20 text-blood text-xs">
-                                        Trial: {subscription.trialDaysLeft} days left
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {subscription?.isTrialing && (
-                                <div className="p-4 bg-blood/10 border border-blood/30 mb-6">
-                                  <p className="text-blood text-sm">
-                                    <strong>Warning:</strong> Your trial expires in {subscription.trialDaysLeft} days.
-                                    All content will be deleted when the trial ends. Upgrade now to keep your memories safe.
-                                  </p>
-                                </div>
-                              )}
-
-                              {limits && (
-                                <div className="space-y-3 mb-6">
-                                  {[
-                                    { label: 'Memories', data: limits.memories },
-                                    { label: 'Voice minutes', data: limits.voice },
-                                    { label: 'Letters', data: limits.letters },
-                                    { label: 'Storage (MB)', data: limits.storage },
-                                  ].map(({ label, data }) => (
-                                    <div key={label}>
-                                      <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-paper/50">{label}</span>
-                                        <span>{data.current} / {data.max === -1 ? '∞' : data.max}</span>
-                                      </div>
-                                      <div className="h-1 bg-white/10 rounded">
-                                        <div
-                                          className="h-full bg-gold rounded"
-                                          style={{ width: `${data.max === -1 ? 0 : Math.min(100, (data.current / data.max) * 100)}%` }}
-                                        />
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Coupon Code */}
-                            <div className="card">
-                              <h3 className="text-lg mb-4 flex items-center gap-2">
-                                <Tag size={18} className="text-gold" />
-                                Have a coupon code?
-                              </h3>
-                              <div className="flex gap-3">
-                                <input
-                                  type="text"
-                                  placeholder="Enter coupon code"
-                                  value={couponCode}
-                                  onChange={(e) => {
-                                    setCouponCode(e.target.value.toUpperCase());
-                                    setCouponValidation(null);
-                                  }}
-                                  className="input flex-1"
-                                />
-                                <button
-                                  onClick={() => validateCouponMutation.mutate(couponCode)}
-                                  disabled={!couponCode || validateCouponMutation.isPending}
-                                  className="btn btn-secondary"
-                                >
-                                  {validateCouponMutation.isPending ? 'Validating...' : 'Apply'}
-                                </button>
-                              </div>
-                              {couponValidation && (
-                                <div className={`mt-3 p-3 rounded ${couponValidation.valid ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-blood/10 border border-blood/30 text-blood'}`}>
-                                  {couponValidation.valid ? (
-                                    <div className="flex items-center gap-2">
-                                      <Check size={16} />
-                                      <span>
-                                        Coupon applied! {couponValidation.coupon?.discountType === 'PERCENTAGE' 
-                                          ? `${couponValidation.coupon.discountValue}% off` 
-                                          : `$${(couponValidation.coupon?.discountValue / 100).toFixed(2)} off`}
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    <span>{couponValidation.error}</span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* All Plans */}
-                            <div className="card">
-                              <h3 className="text-lg mb-6">Choose Your Plan</h3>
-                              {pricing && (
-                                <div className="grid md:grid-cols-4 gap-4">
-                                  {[
-                                    { tier: 'FREE', name: 'Free', price: { formatted: '$0' }, features: ['5 memories', '10 voice minutes', '3 letters', '100MB storage'] },
-                                    { tier: 'ESSENTIAL', name: 'Essential', price: pricing.pricing.essential.monthly, features: ['50 memories', '60 voice minutes', '20 letters', '1GB storage'] },
-                                    { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family.monthly, popular: true, features: ['Unlimited memories', '300 voice minutes', '100 letters', '10GB storage'] },
-                                    { tier: 'LEGACY', name: 'Legacy', price: pricing.pricing.legacy.yearly, yearly: true, features: ['Unlimited everything', 'Priority support', 'Advanced encryption', 'Lifetime access'] },
-                                  ].map(({ tier, name, price, popular, yearly, features }) => {
-                                    const isCurrentPlan = subscription?.tier === tier;
-                                    const tierRanks: Record<string, number> = { FREE: 0, ESSENTIAL: 1, FAMILY: 2, LEGACY: 3 };
-                                    const currentTierRank = tierRanks[subscription?.tier || 'FREE'] || 0;
-                                    const thisTierRank = tierRanks[tier] || 0;
-                                    const isUpgrade = thisTierRank > currentTierRank;
-
-                                    return (
-                                      <div 
-                                        key={tier} 
-                                        className={`relative p-5 rounded-lg border transition-all ${
-                                          isCurrentPlan 
-                                            ? 'border-gold bg-gold/10 ring-2 ring-gold/30' 
-                                            : popular 
-                                              ? 'border-gold/30 bg-white/[0.02]' 
-                                              : 'border-white/10 bg-white/[0.02] hover:border-white/20'
-                                        }`}
-                                      >
-                                        {popular && !isCurrentPlan && (
-                                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs font-medium">
-                                            POPULAR
-                                          </div>
-                                        )}
-                                        {isCurrentPlan && (
-                                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-green-500 text-void text-xs font-medium flex items-center gap-1">
-                                            <Check size={12} />
-                                            CURRENT
-                                          </div>
-                                        )}
-                            
-                                        <h4 className="text-lg font-medium mb-2">{name}</h4>
-                                        <div className="flex items-baseline gap-1 mb-4">
-                                          <span className={`text-2xl ${isCurrentPlan ? 'text-gold' : 'text-paper'}`}>
-                                            {price.formatted}
-                                          </span>
-                                          <span className="text-paper/40 text-sm">/{yearly ? 'year' : 'month'}</span>
-                                        </div>
-                            
-                                        <ul className="space-y-2 mb-6 text-sm">
-                                          {features.map((feature, i) => (
-                                            <li key={i} className="flex items-center gap-2 text-paper/70">
-                                              <Check size={14} className="text-gold" />
-                                              {feature}
-                                            </li>
-                                          ))}
-                                        </ul>
-
-                                        {isCurrentPlan ? (
-                                          <button disabled className="btn w-full bg-gold/20 text-gold cursor-default">
-                                            Current Plan
-                                          </button>
-                                        ) : tier === 'FREE' ? (
-                                          <button
-                                            onClick={() => changePlanMutation.mutate(tier)}
-                                            disabled={changePlanMutation.isPending}
-                                            className="btn w-full border border-paper/20 text-paper/70 hover:bg-white/5 flex items-center justify-center gap-2"
-                                          >
-                                            <ArrowDown size={16} />
-                                            Downgrade
-                                          </button>
-                                        ) : isUpgrade ? (
-                                          <button
-                                            onClick={() => {
-                                              setSelectedTier(tier);
-                                              checkoutMutation.mutate(tier);
-                                            }}
-                                            disabled={checkoutMutation.isPending}
-                                            className="btn btn-primary w-full flex items-center justify-center gap-2"
-                                          >
-                                            <ArrowUp size={16} />
-                                            Upgrade
-                                          </button>
-                                        ) : (
-                                          <button
-                                            onClick={() => changePlanMutation.mutate(tier)}
-                                            disabled={changePlanMutation.isPending}
-                                            className="btn w-full border border-paper/20 text-paper/70 hover:bg-white/5 flex items-center justify-center gap-2"
-                                          >
-                                            <ArrowDown size={16} />
-                                            Downgrade
-                                          </button>
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Plan Change Status */}
-                            {changePlanMutation.isPending && (
-                              <div className="card bg-gold/10 border-gold/30">
-                                <p className="text-gold">Changing your plan...</p>
-                              </div>
-                            )}
-                            {changePlanMutation.isSuccess && (
-                              <div className="card bg-green-500/10 border-green-500/30">
-                                <p className="text-green-400">Plan changed successfully!</p>
-                              </div>
-                            )}
-                            {changePlanMutation.isError && (
-                              <div className="card bg-blood/10 border-blood/30">
-                                <p className="text-blood">Failed to change plan. Please try again.</p>
-                              </div>
-                            )}
-                          </div>
+            {activeTab === 'subscription' && (
+              <div className="space-y-6">
+                {/* Current plan */}
+                <div className="card">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-1 bg-gold/20 text-gold text-xs tracking-wider">{subscription?.tier || 'FREE'}</span>
+                        {subscription?.isTrialing && (
+                          <span className="px-2 py-1 bg-blood/20 text-blood text-xs">
+                            Trial: {subscription.trialDaysLeft} days left
+                          </span>
                         )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {subscription?.isTrialing && (
+                    <div className="p-4 bg-blood/10 border border-blood/30 mb-6">
+                      <p className="text-blood text-sm">
+                        <strong>Warning:</strong> Your trial expires in {subscription.trialDaysLeft} days.
+                        All content will be deleted when the trial ends. Upgrade now to keep your memories safe.
+                      </p>
+                    </div>
+                  )}
+
+                  {limits && (
+                    <div className="space-y-3 mb-6">
+                      {[
+                        { label: 'Memories', data: limits.memories },
+                        { label: 'Voice minutes', data: limits.voice },
+                        { label: 'Letters', data: limits.letters },
+                        { label: 'Storage (MB)', data: limits.storage },
+                      ].map(({ label, data }) => (
+                        <div key={label}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-paper/50">{label}</span>
+                            <span>{data.current} / {data.max === -1 ? '∞' : data.max}</span>
+                          </div>
+                          <div className="h-1 bg-white/10 rounded">
+                            <div
+                              className="h-full bg-gold rounded"
+                              style={{ width: `${data.max === -1 ? 0 : Math.min(100, (data.current / data.max) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Pricing */}
+                {pricing && (
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {[
+                      { tier: 'ESSENTIAL', name: 'Essential', price: pricing.pricing.essential.monthly },
+                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family.monthly, popular: true },
+                      { tier: 'LEGACY', name: 'Legacy', price: pricing.pricing.legacy.yearly, yearly: true },
+                    ].map(({ tier, name, price, popular, yearly }) => (
+                      <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
+                        {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
+                        <h3 className="text-lg">{name}</h3>
+                        <div className="flex items-baseline gap-1 my-4">
+                          <span className="text-3xl text-gold">{price.formatted}</span>
+                          <span className="text-paper/40">/{yearly ? 'year' : 'month'}</span>
+                        </div>
+                        <button
+                          onClick={() => checkoutMutation.mutate(tier)}
+                          disabled={subscription?.tier === tier || checkoutMutation.isPending}
+                          className={`btn w-full ${subscription?.tier === tier ? 'btn-secondary' : 'btn-primary'}`}
+                        >
+                          {subscription?.tier === tier ? 'Current Plan' : 'Upgrade'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {activeTab === 'deadman' && (
               <div className="space-y-6">
