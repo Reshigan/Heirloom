@@ -15,6 +15,8 @@ import { Family } from './pages/Family';
 import { Settings } from './pages/Settings';
 import { Billing } from './pages/Billing';
 import { Letters } from './pages/Letters';
+import { AdminLogin } from './pages/AdminLogin';
+import { AdminDashboard } from './pages/AdminDashboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -133,6 +135,10 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Admin routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />

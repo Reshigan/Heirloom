@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
+import { lettersApi, familyApi } from '../services/api';
 
 // Custom SVG Icons
 const Icons = {
@@ -164,20 +165,20 @@ export function Compose() {
 
   const fetchLetters = async () => {
     try {
-      // Mock data for now
-      setLetters([
-        {
-          id: '1',
-          title: 'To My Children',
-          body: 'My dearest children, if you are reading this...',
-          salutation: 'My Dearest Children',
-          signature: 'With all my love, Mom',
-          recipients: ['1', '2'],
-          deliveryTrigger: 'POSTHUMOUS',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ]);
+      const response = await lettersApi.getAll();
+      const lettersData = response.data.letters || response.data || [];
+      setLetters(lettersData.map((letter: any) => ({
+        id: letter.id,
+        title: letter.title,
+        body: letter.body || letter.content || '',
+        salutation: letter.salutation || 'Dear',
+        signature: letter.signature || 'With love',
+        recipients: letter.recipients?.map((r: any) => r.familyMemberId || r.id) || [],
+        deliveryTrigger: letter.deliveryTrigger || 'POSTHUMOUS',
+        scheduledDate: letter.scheduledDate,
+        createdAt: letter.createdAt,
+        updatedAt: letter.updatedAt,
+      })));
     } catch (error) {
       console.error('Failed to fetch letters:', error);
     } finally {
@@ -187,12 +188,14 @@ export function Compose() {
 
   const fetchFamilyMembers = async () => {
     try {
-      // Mock data
-      setFamilyMembers([
-        { id: '1', name: 'Sarah', relationship: 'Daughter', email: 'sarah@example.com' },
-        { id: '2', name: 'Michael', relationship: 'Son', email: 'michael@example.com' },
-        { id: '3', name: 'Emma', relationship: 'Granddaughter', email: 'emma@example.com' },
-      ]);
+      const response = await familyApi.getAll();
+      const membersData = response.data.members || response.data || [];
+      setFamilyMembers(membersData.map((member: any) => ({
+        id: member.id,
+        name: member.name,
+        relationship: member.relationship,
+        email: member.email || '',
+      })));
     } catch (error) {
       console.error('Failed to fetch family members:', error);
     }
@@ -225,8 +228,22 @@ export function Compose() {
   const handleSaveDraft = async () => {
     setIsSaving(true);
     try {
-      // API call would go here
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const letterData = {
+        title,
+        salutation,
+        body,
+        signature,
+        recipients: selectedRecipients,
+        deliveryTrigger,
+        scheduledDate: scheduledDate || undefined,
+        status: 'DRAFT',
+      };
+      
+      if (selectedLetter) {
+        await lettersApi.update(selectedLetter.id, letterData);
+      } else {
+        await lettersApi.create(letterData);
+      }
       setShowComposer(false);
       fetchLetters();
     } catch (error) {
@@ -239,8 +256,22 @@ export function Compose() {
   const handleSealLetter = async () => {
     setIsSealing(true);
     try {
-      // API call would go here
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (selectedLetter) {
+        await lettersApi.seal(selectedLetter.id);
+      } else {
+        const letterData = {
+          title,
+          salutation,
+          body,
+          signature,
+          recipients: selectedRecipients,
+          deliveryTrigger,
+          scheduledDate: scheduledDate || undefined,
+          status: 'SEALED',
+        };
+        const response = await lettersApi.create(letterData);
+        await lettersApi.seal(response.data.id);
+      }
       setShowSealConfirm(false);
       setShowComposer(false);
       fetchLetters();
