@@ -13,14 +13,16 @@ import { secureHeaders } from 'hono/secure-headers';
 
 // Routes
 import { authRoutes } from './routes/auth';
-import { familyRoutes } from './routes/family';
-import { memoriesRoutes } from './routes/memories';
-import { lettersRoutes } from './routes/letters';
-import { voiceRoutes } from './routes/voice';
-import { billingRoutes } from './routes/billing';
-import { settingsRoutes } from './routes/settings';
-import { deadmanRoutes } from './routes/deadman';
-import { encryptionRoutes } from './routes/encryption';
+import { 
+  familyRoutes, 
+  memoriesRoutes, 
+  lettersRoutes, 
+  voiceRoutes, 
+  billingRoutes, 
+  settingsRoutes, 
+  deadmanRoutes, 
+  encryptionRoutes 
+} from './routes/index';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
 
