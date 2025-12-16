@@ -27,9 +27,11 @@ export async function deriveKey(
   salt: string | Uint8Array
 ): Promise<CryptoKey> {
   const encoder = new TextEncoder();
-  const saltBuffer = typeof salt === 'string' 
+  const saltArray = typeof salt === 'string' 
     ? Uint8Array.from(atob(salt), c => c.charCodeAt(0))
     : salt;
+  // Create a new Uint8Array to ensure proper ArrayBuffer type for WebCrypto API
+  const saltBuffer = new Uint8Array(saltArray);
 
   const keyMaterial = await crypto.subtle.importKey(
     'raw',

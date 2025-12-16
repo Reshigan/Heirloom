@@ -3,11 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2, Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
-import { authApi } from '../services/api';
 
 export function Signup() {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { register } = useAuthStore();
   
   const [form, setForm] = useState({
     firstName: '',
@@ -46,13 +45,7 @@ export function Signup() {
     setErrors({});
 
     try {
-      const { data } = await authApi.register({
-        firstName: form.firstName,
-        lastName: form.lastName,
-        email: form.email,
-        password: form.password,
-      });
-      login(data.user, data.token, data.refreshToken);
+      await register(form.email, form.password, form.firstName, form.lastName);
       navigate('/dashboard');
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
