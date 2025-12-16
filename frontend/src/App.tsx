@@ -17,7 +17,7 @@ import { Billing } from './pages/Billing';
 import { Letters } from './pages/Letters';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { Wrapped } from './pages/Wrapped';
+import Wrapped from './pages/Wrapped';
 
 const queryClient = new QueryClient({
   defaultOptions: {
