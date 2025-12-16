@@ -20,6 +20,8 @@ import { Letters } from './pages/Letters';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 import Wrapped from './pages/Wrapped';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +50,8 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route
             path="/login"
             element={
