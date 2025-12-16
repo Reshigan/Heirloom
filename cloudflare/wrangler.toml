@@ -98,9 +98,9 @@ vars = { ENVIRONMENT = "development", APP_URL = "http://localhost:3000" }
 # command = "npm run build"
 
 # Custom domain routes
-# routes = [
-#   { pattern = "api.heirloom.blue", custom_domain = true }
-# ]
+routes = [
+  { pattern = "api.heirloom.blue/*", zone_id = "4f33448ad768746ae4f365abde120f0d" }
+]
 
 # Tail workers for logging
 # [tail_consumers]
