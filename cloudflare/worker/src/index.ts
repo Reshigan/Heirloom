@@ -25,6 +25,7 @@ import {
 } from './routes/index';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
+import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail } from './email-templates';
 
 // Types
 export interface Env {
@@ -297,7 +298,8 @@ async function sendReminderEmails(env: Env) {
 }
 
 async function sendWarningEmail(env: Env, email: string, name: string, missedCount: number) {
-  // Send via Resend
+  // Send via Resend with themed template
+  const emailContent = urgentCheckInEmail(name, missedCount);
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -307,20 +309,15 @@ async function sendWarningEmail(env: Env, email: string, name: string, missedCou
     body: JSON.stringify({
       from: 'Heirloom <noreply@heirloom.blue>',
       to: email,
-      subject: `⚠️ Check-in Required - ${missedCount} missed`,
-      html: `
-        <h1>Hi ${name},</h1>
-        <p>We noticed you've missed ${missedCount} check-in(s) on Heirloom.</p>
-        <p>Please check in soon to confirm you're well.</p>
-        <a href="${env.APP_URL}/dashboard" style="display:inline-block;padding:12px 24px;background:#c9a959;color:#050608;text-decoration:none;border-radius:8px;">
-          Check In Now
-        </a>
-      `,
+      subject: emailContent.subject,
+      html: emailContent.html,
     }),
   });
 }
 
 async function sendReminderEmail(env: Env, email: string, name: string) {
+  // Send via Resend with themed template
+  const emailContent = checkInReminderEmail(name, 3);
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -330,23 +327,19 @@ async function sendReminderEmail(env: Env, email: string, name: string) {
     body: JSON.stringify({
       from: 'Heirloom <noreply@heirloom.blue>',
       to: email,
-      subject: 'Friendly Reminder: Check-in Due Soon',
-      html: `
-        <h1>Hi ${name},</h1>
-        <p>Just a friendly reminder that your Heirloom check-in is due in the next few days.</p>
-        <a href="${env.APP_URL}/dashboard" style="display:inline-block;padding:12px 24px;background:#c9a959;color:#050608;text-decoration:none;border-radius:8px;">
-          Check In Now
-        </a>
-      `,
+      subject: emailContent.subject,
+      html: emailContent.html,
     }),
   });
 }
 
 async function sendTriggerNotifications(env: Env, userId: string) {
-  // Get legacy contacts
+  // Get legacy contacts and user info
   const contacts = await env.DB.prepare(`
-    SELECT * FROM legacy_contacts 
-    WHERE user_id = ? AND verification_status = 'VERIFIED'
+    SELECT lc.*, u.first_name as user_name
+    FROM legacy_contacts lc
+    JOIN users u ON lc.user_id = u.id
+    WHERE lc.user_id = ? AND lc.verification_status = 'VERIFIED'
   `).bind(userId).all();
   
   // Send verification requests to each
@@ -359,6 +352,12 @@ async function sendTriggerNotifications(env: Env, userId: string) {
       FROM dead_man_switches dms WHERE dms.user_id = ?
     `).bind(contact.id, token, userId).run();
     
+    // Send via Resend with themed template
+    const emailContent = deathVerificationRequestEmail(
+      contact.name as string,
+      contact.user_name as string,
+      token
+    );
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -368,13 +367,8 @@ async function sendTriggerNotifications(env: Env, userId: string) {
       body: JSON.stringify({
         from: 'Heirloom <noreply@heirloom.blue>',
         to: contact.email,
-        subject: 'Heirloom: Verification Required',
-        html: `
-          <h1>Important Verification Request</h1>
-          <p>A Heirloom user has named you as a trusted contact.</p>
-          <p>We require verification before releasing their legacy content.</p>
-          <a href="${env.APP_URL}/verify/${token}">Verify Now</a>
-        `,
+        subject: emailContent.subject,
+        html: emailContent.html,
       }),
     });
   }
