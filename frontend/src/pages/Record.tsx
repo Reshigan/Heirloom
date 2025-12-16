@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users } from 'lucide-react';
+import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
 
 export function Record() {
@@ -207,14 +207,35 @@ export function Record() {
     }));
   };
 
-  const prompts = [
+  // All available prompts
+  const allPrompts = [
     { id: '1', text: 'Tell me about the happiest day of your life', category: 'Memories' },
     { id: '2', text: 'What advice would you give your younger self?', category: 'Wisdom' },
     { id: '3', text: 'Describe your favorite family tradition', category: 'Family' },
     { id: '4', text: 'What do you want your children to know about you?', category: 'Legacy' },
     { id: '5', text: 'Share a story about how you met your partner', category: 'Love' },
     { id: '6', text: 'What are you most grateful for in life?', category: 'Gratitude' },
+    { id: '7', text: 'What was your childhood dream?', category: 'Memories' },
+    { id: '8', text: 'Describe a moment that changed your life', category: 'Legacy' },
+    { id: '9', text: 'What lesson took you the longest to learn?', category: 'Wisdom' },
+    { id: '10', text: 'Tell a funny story from your past', category: 'Memories' },
+    { id: '11', text: 'What do you hope your grandchildren will remember about you?', category: 'Legacy' },
+    { id: '12', text: 'Describe your perfect day', category: 'Gratitude' },
   ];
+
+  // Helper to get random prompts
+  const getRandomPrompts = (count: number) => {
+    const shuffled = [...allPrompts].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
+  // State for visible prompts (randomized on mount)
+  const [visiblePrompts, setVisiblePrompts] = useState(() => getRandomPrompts(4));
+
+  // Shuffle prompts
+  const shufflePrompts = () => {
+    setVisiblePrompts(getRandomPrompts(4));
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -571,35 +592,46 @@ export function Record() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="space-y-6"
+              className="space-y-4"
             >
-              <div className="card">
-                <div className="flex items-center gap-2 mb-4">
-                  <Lightbulb size={18} className="text-gold" />
-                  <h3 className="text-lg">Story Prompts</h3>
+              <div className="card p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Lightbulb size={16} className="text-gold" />
+                    <h3 className="text-base">Story Prompts</h3>
+                  </div>
+                  <motion.button
+                    onClick={shufflePrompts}
+                    className="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
+                    whileHover={{ rotate: 180 }}
+                    whileTap={{ scale: 0.9 }}
+                    title="Shuffle prompts"
+                  >
+                    <RefreshCw size={14} className="text-gold" />
+                  </motion.button>
                 </div>
-                <p className="text-paper/50 text-sm mb-4">
-                  Need inspiration? Select a prompt to guide your recording.
+                <p className="text-paper/50 text-xs mb-3">
+                  Select a prompt to guide your recording.
                 </p>
                 
-                <div className="space-y-2">
-                  {prompts.map((prompt) => (
+                <div className="space-y-1.5">
+                  {visiblePrompts.map((prompt) => (
                     <motion.button
                       key={prompt.id}
                       onClick={() => {
                         setSelectedPrompt(prompt.id);
                         setForm(prev => ({ ...prev, promptId: prompt.id, title: prompt.text.slice(0, 50) }));
                       }}
-                      className={`w-full text-left p-4 rounded-lg transition-all ${
+                      className={`w-full text-left p-3 rounded-lg transition-all ${
                         selectedPrompt === prompt.id
                           ? 'glass bg-gold/20 border border-gold/30'
                           : 'glass hover:bg-white/5'
                       }`}
-                      whileHover={{ x: 4 }}
+                      whileHover={{ x: 2 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <span className="text-xs text-gold/60 tracking-wider">{prompt.category}</span>
-                      <p className="text-sm mt-1">{prompt.text}</p>
+                      <p className="text-xs mt-0.5 leading-relaxed">{prompt.text}</p>
                     </motion.button>
                   ))}
                 </div>
