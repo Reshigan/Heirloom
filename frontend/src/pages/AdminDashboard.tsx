@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Users, CreditCard, BarChart3, Tag, LogOut, Plus, Trash2, 
-  DollarSign, Activity, Search, X
+  DollarSign, Activity, Search, X, MessageSquare, Shield,
+  FileText, Mail, Download, Clock, AlertTriangle, CheckCircle,
+  UserPlus, Settings, Send, Eye
 } from 'lucide-react';
 import { adminApi } from '../services/api';
 
@@ -28,7 +30,10 @@ export function AdminDashboard() {
   const admin = useAdminAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [showCouponModal, setShowCouponModal] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
   const [userSearch, setUserSearch] = useState('');
+  const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   // Queries
   const { data: overview } = useQuery({
@@ -56,6 +61,55 @@ export function AdminDashboard() {
     queryFn: () => adminApi.getUsers({ search: userSearch, limit: 20 }).then(r => r.data),
   });
 
+  const { data: tickets } = useQuery({
+    queryKey: ['admin-tickets'],
+    queryFn: () => adminApi.getTickets({ limit: 50 }).then(r => r.data),
+    enabled: activeTab === 'support',
+  });
+
+  const { data: systemHealth } = useQuery({
+    queryKey: ['admin-system-health'],
+    queryFn: () => adminApi.getSystemHealth().then(r => r.data),
+    enabled: activeTab === 'system',
+    refetchInterval: 30000,
+  });
+
+  const { data: systemStats } = useQuery({
+    queryKey: ['admin-system-stats'],
+    queryFn: () => adminApi.getSystemStats().then(r => r.data),
+    enabled: activeTab === 'system',
+  });
+
+  const { data: auditLogs } = useQuery({
+    queryKey: ['admin-audit-logs'],
+    queryFn: () => adminApi.getAuditLogs({ limit: 50 }).then(r => r.data),
+    enabled: activeTab === 'audit',
+  });
+
+  const { data: adminUsers } = useQuery({
+    queryKey: ['admin-admin-users'],
+    queryFn: () => adminApi.getAdminUsers().then(r => r.data),
+    enabled: activeTab === 'admins',
+  });
+
+  const { data: emailLogs } = useQuery({
+    queryKey: ['admin-email-logs'],
+    queryFn: () => adminApi.getEmailLogs({ limit: 50 }).then(r => r.data),
+    enabled: activeTab === 'emails',
+  });
+
+  const { data: revenueReport } = useQuery({
+    queryKey: ['admin-revenue-report'],
+    queryFn: () => adminApi.getRevenueReport().then(r => r.data),
+    enabled: activeTab === 'reports',
+  });
+
+  const { data: userGrowth } = useQuery({
+    queryKey: ['admin-user-growth'],
+    queryFn: () => adminApi.getUserGrowthReport().then(r => r.data),
+    enabled: activeTab === 'reports',
+  });
+
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
@@ -66,8 +120,14 @@ export function AdminDashboard() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'coupons', label: 'Coupons', icon: Tag },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'coupons', label: 'Coupons', icon: Tag },
+    { id: 'support', label: 'Support', icon: MessageSquare },
+    { id: 'system', label: 'System', icon: Shield },
+    { id: 'audit', label: 'Audit Logs', icon: FileText },
+    { id: 'admins', label: 'Admins', icon: UserPlus },
+    { id: 'emails', label: 'Emails', icon: Mail },
+    { id: 'reports', label: 'Reports', icon: Download },
   ];
 
   return (
@@ -90,7 +150,7 @@ export function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Tabs */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-8 flex-wrap">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -319,11 +379,391 @@ export function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* Support Tab */}
+        {activeTab === 'support' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl">Support Tickets</h2>
+              <div className="flex gap-2">
+                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded">
+                  {tickets?.data?.filter((t: any) => t.status === 'OPEN').length || 0} Open
+                </span>
+                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded">
+                  {tickets?.data?.filter((t: any) => t.status === 'IN_PROGRESS').length || 0} In Progress
+                </span>
+              </div>
+            </div>
+
+            <div className="card">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Subject</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">User</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Priority</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Created</th>
+                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tickets?.data?.map((ticket: any) => (
+                    <tr key={ticket.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <td className="py-3 px-4">
+                        <div className="text-paper">{ticket.subject}</div>
+                        <div className="text-paper/50 text-sm">{ticket.category}</div>
+                      </td>
+                      <td className="py-3 px-4 text-paper/70">{ticket.email}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 text-xs ${
+                          ticket.priority === 'HIGH' ? 'bg-blood/20 text-blood' :
+                          ticket.priority === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-white/10 text-paper/50'
+                        }`}>
+                          {ticket.priority}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 text-xs ${
+                          ticket.status === 'OPEN' ? 'bg-yellow-500/20 text-yellow-400' :
+                          ticket.status === 'IN_PROGRESS' ? 'bg-blue-500/20 text-blue-400' :
+                          ticket.status === 'RESOLVED' ? 'bg-green-500/20 text-green-400' :
+                          'bg-white/10 text-paper/50'
+                        }`}>
+                          {ticket.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-paper/50 text-sm">
+                        {new Date(ticket.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => setSelectedTicket(ticket.id)}
+                          className="text-paper/50 hover:text-gold transition-colors"
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!tickets?.data || tickets.data.length === 0) && (
+                    <tr>
+                      <td colSpan={6} className="text-center py-8 text-paper/50">
+                        No support tickets
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* System Health Tab */}
+        {activeTab === 'system' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl">System Health</h2>
+              <span className={`px-3 py-1 text-sm rounded ${
+                systemHealth?.status === 'healthy' ? 'bg-green-500/20 text-green-400' :
+                'bg-yellow-500/20 text-yellow-400'
+              }`}>
+                {systemHealth?.status || 'Unknown'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {systemHealth?.checks && Object.entries(systemHealth.checks).map(([key, value]) => (
+                key !== 'timestamp' && (
+                  <div key={key} className="card">
+                    <div className="flex items-center justify-between">
+                      <span className="text-paper capitalize">{key}</span>
+                      <span className={`flex items-center gap-2 ${
+                        value === 'healthy' ? 'text-green-400' : 'text-blood'
+                      }`}>
+                        {value === 'healthy' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
+                        {value as string}
+                      </span>
+                    </div>
+                  </div>
+                )
+              ))}
+            </div>
+
+            <div className="card">
+              <h3 className="text-lg mb-4">System Statistics</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-paper mb-1">{systemStats?.users || 0}</div>
+                  <div className="text-paper/50 text-sm">Total Users</div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-paper mb-1">{systemStats?.openTickets || 0}</div>
+                  <div className="text-paper/50 text-sm">Open Tickets</div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-paper mb-1">
+                    {((systemStats?.storage?.total || 0) / (1024 * 1024 * 1024)).toFixed(2)} GB
+                  </div>
+                  <div className="text-paper/50 text-sm">Storage Used</div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-paper mb-1">
+                    {(systemStats?.content?.memories || 0) + (systemStats?.content?.letters || 0)}
+                  </div>
+                  <div className="text-paper/50 text-sm">Total Content</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Audit Logs Tab */}
+        {activeTab === 'audit' && (
+          <div className="space-y-6">
+            <h2 className="text-xl">Audit Logs</h2>
+
+            <div className="card">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Action</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Admin</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Details</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditLogs?.data?.map((log: any) => (
+                    <tr key={log.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-1 bg-white/10 text-paper text-xs">
+                          {log.action}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-paper/70">{log.admin?.email || 'System'}</td>
+                      <td className="py-3 px-4 text-paper/50 text-sm">
+                        {log.details ? JSON.stringify(log.details).substring(0, 50) : '-'}
+                      </td>
+                      <td className="py-3 px-4 text-paper/50 text-sm">
+                        {new Date(log.createdAt).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                  {(!auditLogs?.data || auditLogs.data.length === 0) && (
+                    <tr>
+                      <td colSpan={4} className="text-center py-8 text-paper/50">
+                        No audit logs
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Admin Users Tab */}
+        {activeTab === 'admins' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl">Admin Users</h2>
+              {admin.role === 'SUPER_ADMIN' && (
+                <button
+                  onClick={() => setShowAdminModal(true)}
+                  className="btn btn-primary flex items-center gap-2"
+                >
+                  <UserPlus size={18} />
+                  Add Admin
+                </button>
+              )}
+            </div>
+
+            <div className="card">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Name</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Email</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Role</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Last Login</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminUsers?.map((adminUser: any) => (
+                    <tr key={adminUser.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <td className="py-3 px-4 text-paper">
+                        {adminUser.firstName} {adminUser.lastName}
+                      </td>
+                      <td className="py-3 px-4 text-paper/70">{adminUser.email}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 text-xs ${
+                          adminUser.role === 'SUPER_ADMIN' ? 'bg-purple-500/20 text-purple-400' :
+                          'bg-gold/20 text-gold'
+                        }`}>
+                          {adminUser.role}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 text-xs ${
+                          adminUser.isActive ? 'bg-green-500/20 text-green-400' : 'bg-blood/20 text-blood'
+                        }`}>
+                          {adminUser.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-paper/50 text-sm">
+                        {adminUser.lastLoginAt ? new Date(adminUser.lastLoginAt).toLocaleString() : 'Never'}
+                      </td>
+                    </tr>
+                  ))}
+                  {(!adminUsers || adminUsers.length === 0) && (
+                    <tr>
+                      <td colSpan={5} className="text-center py-8 text-paper/50">
+                        No admin users
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Emails Tab */}
+        {activeTab === 'emails' && (
+          <div className="space-y-6">
+            <h2 className="text-xl">Email Management</h2>
+
+            <div className="card">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">To</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Subject</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Sent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {emailLogs?.data?.map((email: any) => (
+                    <tr key={email.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <td className="py-3 px-4 text-paper/70">{email.to}</td>
+                      <td className="py-3 px-4 text-paper">{email.subject}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 text-xs ${
+                          email.status === 'SENT' ? 'bg-green-500/20 text-green-400' :
+                          email.status === 'FAILED' ? 'bg-blood/20 text-blood' :
+                          'bg-yellow-500/20 text-yellow-400'
+                        }`}>
+                          {email.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-paper/50 text-sm">
+                        {email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                  {(!emailLogs?.data || emailLogs.data.length === 0) && (
+                    <tr>
+                      <td colSpan={4} className="text-center py-8 text-paper/50">
+                        No email logs
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Reports Tab */}
+        {activeTab === 'reports' && (
+          <div className="space-y-6">
+            <h2 className="text-xl">Reports & Analytics</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Revenue Report */}
+              <div className="card">
+                <h3 className="text-lg mb-4">Revenue Report</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-white/[0.02] rounded">
+                    <span className="text-paper/70">Monthly Recurring Revenue</span>
+                    <span className="text-green-400 text-xl">${revenueReport?.mrr?.toFixed(2) || '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-white/[0.02] rounded">
+                    <span className="text-paper/70">Annual Recurring Revenue</span>
+                    <span className="text-green-400 text-xl">${revenueReport?.arr?.toFixed(2) || '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-white/[0.02] rounded">
+                    <span className="text-paper/70">Active Subscriptions</span>
+                    <span className="text-paper text-xl">{revenueReport?.activeSubscriptions || 0}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* User Growth */}
+              <div className="card">
+                <h3 className="text-lg mb-4">User Growth (Last 30 Days)</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-white/[0.02] rounded">
+                    <span className="text-paper/70">Total New Signups</span>
+                    <span className="text-gold text-xl">{userGrowth?.totalSignups || 0}</span>
+                  </div>
+                  <div className="mt-4">
+                    <div className="text-paper/50 text-sm mb-2">Daily Signups</div>
+                    <div className="flex gap-1 h-20 items-end">
+                      {userGrowth?.data?.slice(-14).map((day: any, i: number) => (
+                        <div
+                          key={i}
+                          className="flex-1 bg-gold/50 rounded-t"
+                          style={{ height: `${Math.max(10, (day.signups / Math.max(...(userGrowth?.data?.map((d: any) => d.signups) || [1]))) * 100)}%` }}
+                          title={`${day.date}: ${day.signups} signups`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Export Button */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Export Data</h3>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => window.open(`${import.meta.env.VITE_API_URL}/admin/reports/export/users?format=csv`, '_blank')}
+                  className="btn btn-secondary flex items-center gap-2"
+                >
+                  <Download size={18} />
+                  Export Users (CSV)
+                </button>
+                <button
+                  onClick={() => window.open(`${import.meta.env.VITE_API_URL}/admin/reports/export/users?format=json`, '_blank')}
+                  className="btn btn-secondary flex items-center gap-2"
+                >
+                  <Download size={18} />
+                  Export Users (JSON)
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Create Coupon Modal */}
+      {/* Modals */}
       {showCouponModal && (
         <CreateCouponModal onClose={() => setShowCouponModal(false)} />
+      )}
+      {showAdminModal && (
+        <CreateAdminModal onClose={() => setShowAdminModal(false)} />
+      )}
+      {selectedUser && (
+        <UserActionsModal user={selectedUser} onClose={() => setSelectedUser(null)} />
+      )}
+      {selectedTicket && (
+        <TicketDetailModal ticketId={selectedTicket} onClose={() => setSelectedTicket(null)} />
       )}
     </div>
   );
@@ -535,6 +975,314 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
             >
               {createMutation.isPending ? 'Creating...' : 'Create Coupon'}
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Create Admin Modal
+function CreateAdminModal({ onClose }: { onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    role: 'ADMIN',
+  });
+
+  const createMutation = useMutation({
+    mutationFn: () => adminApi.createAdminUser(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-admin-users'] });
+      onClose();
+    },
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+      <div className="bg-void border border-white/10 rounded-lg w-full max-w-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl">Add Admin User</h3>
+          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-paper/50 mb-2">Email</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="input"
+              placeholder="admin@heirloom.blue"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-paper/50 mb-2">First Name</label>
+              <input
+                type="text"
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className="input"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-paper/50 mb-2">Last Name</label>
+              <input
+                type="text"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className="input"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-paper/50 mb-2">Role</label>
+            <select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              className="input"
+            >
+              <option value="ADMIN">Admin</option>
+              <option value="SUPER_ADMIN">Super Admin</option>
+            </select>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button onClick={onClose} className="btn btn-secondary flex-1">
+              Cancel
+            </button>
+            <button
+              onClick={() => createMutation.mutate()}
+              disabled={!formData.email || !formData.firstName || !formData.lastName || createMutation.isPending}
+              className="btn btn-primary flex-1"
+            >
+              {createMutation.isPending ? 'Creating...' : 'Create Admin'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// User Actions Modal
+function UserActionsModal({ user, onClose }: { user: any; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [trialDays, setTrialDays] = useState(7);
+  const [couponCode, setCouponCode] = useState('');
+
+  const extendTrialMutation = useMutation({
+    mutationFn: () => adminApi.extendTrial(user.id, trialDays),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      alert('Trial extended successfully');
+    },
+  });
+
+  const applyCouponMutation = useMutation({
+    mutationFn: () => adminApi.applyCouponToUser(user.id, couponCode),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      alert('Coupon applied successfully');
+      setCouponCode('');
+    },
+  });
+
+  const cancelSubscriptionMutation = useMutation({
+    mutationFn: () => adminApi.cancelSubscription(user.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      alert('Subscription cancelled');
+      onClose();
+    },
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+      <div className="bg-void border border-white/10 rounded-lg w-full max-w-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl">User Actions</h3>
+          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="mb-4 p-4 bg-white/[0.02] rounded">
+          <div className="text-paper">{user.firstName} {user.lastName}</div>
+          <div className="text-paper/50 text-sm">{user.email}</div>
+        </div>
+
+        <div className="space-y-6">
+          {/* Extend Trial */}
+          <div>
+            <label className="block text-sm text-paper/50 mb-2">Extend Trial</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={trialDays}
+                onChange={(e) => setTrialDays(parseInt(e.target.value))}
+                className="input flex-1"
+                min={1}
+                max={365}
+              />
+              <button
+                onClick={() => extendTrialMutation.mutate()}
+                disabled={extendTrialMutation.isPending}
+                className="btn btn-secondary"
+              >
+                {extendTrialMutation.isPending ? '...' : `+${trialDays} days`}
+              </button>
+            </div>
+          </div>
+
+          {/* Apply Coupon */}
+          <div>
+            <label className="block text-sm text-paper/50 mb-2">Apply Coupon</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                className="input flex-1"
+                placeholder="COUPON_CODE"
+              />
+              <button
+                onClick={() => applyCouponMutation.mutate()}
+                disabled={!couponCode || applyCouponMutation.isPending}
+                className="btn btn-secondary"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+
+          {/* Cancel Subscription */}
+          <div className="pt-4 border-t border-white/10">
+            <button
+              onClick={() => {
+                if (confirm('Are you sure you want to cancel this subscription?')) {
+                  cancelSubscriptionMutation.mutate();
+                }
+              }}
+              disabled={cancelSubscriptionMutation.isPending}
+              className="btn bg-blood/20 text-blood hover:bg-blood/30 w-full"
+            >
+              Cancel Subscription
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Ticket Detail Modal
+function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [reply, setReply] = useState('');
+
+  const { data: ticket } = useQuery({
+    queryKey: ['admin-ticket', ticketId],
+    queryFn: () => adminApi.getTicket(ticketId).then(r => r.data),
+  });
+
+  const replyMutation = useMutation({
+    mutationFn: () => adminApi.replyToTicket(ticketId, reply),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-ticket', ticketId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
+      setReply('');
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: (status: string) => adminApi.updateTicket(ticketId, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-ticket', ticketId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
+    },
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+      <div className="bg-void border border-white/10 rounded-lg w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl">{ticket?.subject}</h3>
+          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="mb-4 flex gap-2">
+          <span className={`px-2 py-1 text-xs ${
+            ticket?.status === 'OPEN' ? 'bg-yellow-500/20 text-yellow-400' :
+            ticket?.status === 'IN_PROGRESS' ? 'bg-blue-500/20 text-blue-400' :
+            'bg-green-500/20 text-green-400'
+          }`}>
+            {ticket?.status}
+          </span>
+          <span className={`px-2 py-1 text-xs ${
+            ticket?.priority === 'HIGH' ? 'bg-blood/20 text-blood' :
+            'bg-white/10 text-paper/50'
+          }`}>
+            {ticket?.priority}
+          </span>
+        </div>
+
+        <div className="mb-4 p-4 bg-white/[0.02] rounded">
+          <div className="text-paper/50 text-sm">From: {ticket?.user?.name} ({ticket?.user?.email})</div>
+        </div>
+
+        {/* Messages */}
+        <div className="space-y-4 mb-6">
+          {ticket?.messages?.map((msg: any) => (
+            <div
+              key={msg.id}
+              className={`p-4 rounded ${
+                msg.senderType === 'ADMIN' ? 'bg-gold/10 ml-8' : 'bg-white/[0.02] mr-8'
+              }`}
+            >
+              <div className="text-paper/50 text-xs mb-2">
+                {msg.senderType === 'ADMIN' ? 'Admin' : 'User'} - {new Date(msg.createdAt).toLocaleString()}
+              </div>
+              <div className="text-paper">{msg.content}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Reply */}
+        <div className="space-y-4">
+          <textarea
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            className="input w-full h-24"
+            placeholder="Type your reply..."
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => replyMutation.mutate()}
+              disabled={!reply || replyMutation.isPending}
+              className="btn btn-primary flex items-center gap-2"
+            >
+              <Send size={16} />
+              Send Reply
+            </button>
+            {ticket?.status !== 'RESOLVED' && (
+              <button
+                onClick={() => updateStatusMutation.mutate('RESOLVED')}
+                className="btn btn-secondary"
+              >
+                Mark Resolved
+              </button>
+            )}
           </div>
         </div>
       </div>
