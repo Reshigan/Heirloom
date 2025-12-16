@@ -1,11 +1,11 @@
 /**
  * Email Templates for Heirloom
- * Matches the dark theme with gold accents
+ * Matches the marketing site sanctuary theme with paper stationery style
  */
 
 const APP_URL = 'https://heirloom.blue';
 
-// Base template wrapper with Heirloom branding
+// Base template wrapper with Heirloom branding - Marketing site theme
 export const baseTemplate = (content: string) => `
 <!DOCTYPE html>
 <html>
@@ -13,162 +13,204 @@ export const baseTemplate = (content: string) => `
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Playfair+Display:wght@400;500&display=swap');
+    
     body { 
-      font-family: 'Georgia', serif; 
-      background: #050505; 
-      color: #f8f5ef; 
+      font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif; 
+      background: #0a0c10;
       margin: 0; 
-      padding: 40px; 
-      line-height: 1.6;
+      padding: 40px 20px; 
+      line-height: 1.7;
     }
-    .container { 
-      max-width: 600px; 
-      margin: 0 auto; 
-      background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
-      border: 1px solid rgba(201,169,89,0.2);
-      border-radius: 8px;
-      overflow: hidden;
+    .wrapper {
+      max-width: 640px;
+      margin: 0 auto;
     }
     .header { 
       text-align: center; 
-      padding: 40px 20px; 
-      border-bottom: 1px solid rgba(201,169,89,0.2);
-      background: linear-gradient(180deg, rgba(201,169,89,0.1) 0%, transparent 100%);
+      padding: 30px 20px;
+      margin-bottom: 8px;
     }
     .logo { 
-      font-size: 28px; 
-      color: #c9a959; 
-      letter-spacing: 4px;
-      font-weight: normal;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 14px; 
+      color: #f5f3ee;
+      letter-spacing: 0.2em;
+      font-weight: 400;
+      opacity: 0.8;
     }
     .logo-symbol {
-      font-size: 32px;
-      margin-right: 8px;
+      display: block;
+      font-size: 36px;
+      color: #c9a959;
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+    .paper { 
+      background: #f5f3ee;
+      border-radius: 4px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,169,89,0.1);
+      overflow: hidden;
+      position: relative;
+    }
+    .paper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #c9a959, #e8d5a3, #c9a959);
     }
     .content { 
-      padding: 40px 30px; 
-      line-height: 1.8; 
+      padding: 48px 40px; 
+      color: #1a1510;
     }
     .content h2 {
-      color: #f8f5ef;
-      font-size: 24px;
-      margin-bottom: 20px;
-      font-weight: normal;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: #1a1510;
+      font-size: 28px;
+      margin: 0 0 24px 0;
+      font-weight: 400;
+      letter-spacing: -0.01em;
     }
     .content p {
       margin: 16px 0;
-      color: rgba(248,245,239,0.9);
+      color: #1a1510;
+      font-size: 17px;
+      opacity: 0.85;
     }
     .button { 
       display: inline-block; 
-      padding: 16px 32px; 
-      background: linear-gradient(135deg, #c9a959, #8b7355); 
-      color: #050505 !important; 
+      padding: 14px 32px; 
+      background: linear-gradient(135deg, #c9a959 0%, #8b7355 100%); 
+      color: #0a0c10 !important; 
       text-decoration: none; 
-      font-weight: bold; 
-      margin: 24px 0;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 500; 
+      margin: 28px 0 12px 0;
       border-radius: 4px;
       font-size: 14px;
-      letter-spacing: 1px;
-    }
-    .button:hover {
-      background: linear-gradient(135deg, #d4b56a, #9c8466);
-    }
-    .footer { 
-      text-align: center; 
-      padding: 30px 20px; 
-      border-top: 1px solid rgba(201,169,89,0.2); 
-      color: rgba(248,245,239,0.4); 
-      font-size: 12px;
-      background: rgba(0,0,0,0.3);
-    }
-    .footer p {
-      margin: 8px 0;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 14px rgba(201,169,89,0.3);
     }
     .gold { 
-      color: #c9a959; 
+      color: #8b7355;
+      font-weight: 500;
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #c9a959, transparent);
+      margin: 32px 0;
+      opacity: 0.3;
     }
     .urgent { 
-      border-left: 4px solid #8b2942; 
-      padding: 20px;
+      border-left: 3px solid #8b2942; 
+      padding: 16px 20px;
       margin: 24px 0;
-      background: rgba(139,41,66,0.15);
+      background: rgba(139,41,66,0.08);
       border-radius: 0 4px 4px 0;
     }
     .urgent strong {
-      color: #c9a959;
+      color: #8b2942;
     }
     .info-box {
-      background: rgba(248,245,239,0.05);
-      padding: 20px;
+      background: rgba(201,169,89,0.08);
+      padding: 20px 24px;
       margin: 24px 0;
       border-radius: 4px;
       border-left: 3px solid #c9a959;
     }
+    .info-box p {
+      margin: 8px 0;
+    }
     .letter-box {
-      background: rgba(248,245,239,0.03);
-      padding: 30px;
-      margin: 30px 0;
+      background: #faf8f3;
+      padding: 32px;
+      margin: 28px 0;
       border-left: 3px solid #c9a959;
       font-style: italic;
+      border-radius: 0 4px 4px 0;
     }
     .letter-box .salutation {
-      color: #c9a959;
-      margin-bottom: 20px;
+      color: #8b7355;
+      margin-bottom: 16px;
+      font-style: normal;
+      font-weight: 500;
     }
     .letter-box .signature {
       text-align: right;
-      margin-top: 30px;
-      color: #c9a959;
+      margin-top: 24px;
+      color: #8b7355;
+      font-style: normal;
     }
     .seal {
       text-align: center;
-      margin: 40px 0;
+      margin: 36px 0 12px 0;
     }
     .seal-icon {
-      width: 60px;
-      height: 60px;
+      width: 56px;
+      height: 56px;
       background: linear-gradient(135deg, #8b2942, #6b1f32);
       border-radius: 50%;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: #f8f5ef;
+      margin: 0 auto 12px auto;
+      line-height: 56px;
+      font-size: 22px;
+      color: #f5f3ee;
     }
     .seal-text {
-      color: rgba(248,245,239,0.5);
-      font-size: 12px;
-      margin-top: 10px;
+      color: #8b7355;
+      font-size: 13px;
+      letter-spacing: 0.05em;
     }
     ul {
       padding-left: 20px;
+      margin: 20px 0;
     }
     li {
-      margin: 8px 0;
-      color: rgba(248,245,239,0.9);
+      margin: 10px 0;
+      color: #1a1510;
+      opacity: 0.85;
     }
     .code-box {
-      background: rgba(248,245,239,0.05);
-      padding: 20px;
-      font-family: monospace;
+      background: #e8e4db;
+      padding: 16px 20px;
+      font-family: 'SF Mono', Monaco, monospace;
       word-break: break-all;
       margin: 20px 0;
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 13px;
+      color: #1a1510;
+    }
+    .footer { 
+      text-align: center; 
+      padding: 32px 20px 16px 20px;
+      color: #f5f3ee;
+      font-size: 13px;
+      opacity: 0.4;
+    }
+    .footer p {
+      margin: 6px 0;
+    }
+    .footer a {
+      color: #c9a959;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="wrapper">
     <div class="header">
-      <div class="logo"><span class="logo-symbol">&#8734;</span>HEIRLOOM</div>
+      <span class="logo-symbol">&#8734;</span>
+      <div class="logo">HEIRLOOM</div>
     </div>
-    <div class="content">${content}</div>
+    <div class="paper">
+      <div class="content">${content}</div>
+    </div>
     <div class="footer">
       <p>&copy; ${new Date().getFullYear()} Heirloom. Preserving what matters.</p>
-      <p>This email was sent from a notification-only address.</p>
+      <p><a href="${APP_URL}">heirloom.blue</a></p>
     </div>
   </div>
 </body>

@@ -7,6 +7,8 @@ import { CustomCursor } from './components/CustomCursor';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 import { Dashboard } from './pages/Dashboard';
 import { Memories } from './pages/Memories';
 import { Compose } from './pages/Compose';
@@ -54,16 +56,32 @@ export default function App() {
               </PublicRoute>
             }
           />
-          <Route
-            path="/signup"
-            element={
-              <PublicRoute>
-                <Signup />
-              </PublicRoute>
-            }
-          />
+                    <Route
+                      path="/signup"
+                      element={
+                        <PublicRoute>
+                          <Signup />
+                        </PublicRoute>
+                      }
+                    />
+                    <Route
+                      path="/forgot-password"
+                      element={
+                        <PublicRoute>
+                          <ForgotPassword />
+                        </PublicRoute>
+                      }
+                    />
+                    <Route
+                      path="/reset-password"
+                      element={
+                        <PublicRoute>
+                          <ResetPassword />
+                        </PublicRoute>
+                      }
+                    />
 
-          {/* Protected routes */}
+                    {/* Protected routes */}
           <Route
             path="/dashboard"
             element={

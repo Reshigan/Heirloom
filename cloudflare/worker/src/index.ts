@@ -103,6 +103,44 @@ app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Test email endpoint
+app.post('/api/test-email', async (c) => {
+  const body = await c.req.json();
+  const { email } = body;
+  
+  if (!email) {
+    return c.json({ error: 'Email is required' }, 400);
+  }
+  
+  try {
+    const { testEmail } = await import('./email-templates');
+    const emailContent = testEmail();
+    
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: email,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      return c.json({ error: 'Failed to send email', details: error }, 500);
+    }
+    
+    return c.json({ success: true, message: 'Test email sent successfully' });
+  } catch (err: any) {
+    return c.json({ error: 'Failed to send email', details: err.message }, 500);
+  }
+});
+
 // ============================================
 // API ROUTES
 // ============================================

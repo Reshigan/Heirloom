@@ -309,8 +309,142 @@ authRoutes.get('/me', async (c) => {
 });
 
 // ============================================
+// FORGOT PASSWORD
+// ============================================
+
+authRoutes.post('/forgot-password', async (c) => {
+  const body = await c.req.json();
+  const { email } = body;
+  
+  if (!email) {
+    return c.json({ error: 'Email is required' }, 400);
+  }
+  
+  // Find user (but don't reveal if they exist)
+  const user = await c.env.DB.prepare(
+    'SELECT id, first_name FROM users WHERE email = ?'
+  ).bind(email.toLowerCase()).first();
+  
+  // Always return success to prevent email enumeration
+  if (!user) {
+    return c.json({ message: 'If an account exists with this email, you will receive a password reset link.' });
+  }
+  
+  // Generate secure token
+  const token = crypto.randomUUID() + '-' + crypto.randomUUID();
+  const tokenHash = await hashToken(token);
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
+  
+  // Delete any existing reset tokens for this user
+  await c.env.DB.prepare(
+    'DELETE FROM password_resets WHERE user_id = ?'
+  ).bind(user.id).run();
+  
+  // Store token hash in database
+  await c.env.DB.prepare(`
+    INSERT INTO password_resets (id, user_id, token_hash, expires_at)
+    VALUES (?, ?, ?, ?)
+  `).bind(crypto.randomUUID(), user.id, tokenHash, expiresAt).run();
+  
+  // Send password reset email
+  try {
+    const { passwordResetEmail } = await import('../email-templates');
+    const emailContent = passwordResetEmail(user.first_name as string, token);
+    
+    const resendApiKey = c.env.RESEND_API_KEY;
+    if (resendApiKey) {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: email.toLowerCase(),
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+    }
+  } catch (err) {
+    console.error('Failed to send password reset email:', err);
+    // Don't fail the request if email fails
+  }
+  
+  return c.json({ message: 'If an account exists with this email, you will receive a password reset link.' });
+});
+
+// ============================================
+// RESET PASSWORD
+// ============================================
+
+authRoutes.post('/reset-password', async (c) => {
+  const body = await c.req.json();
+  const { token, password } = body;
+  
+  if (!token || !password) {
+    return c.json({ error: 'Token and password are required' }, 400);
+  }
+  
+  if (password.length < 8) {
+    return c.json({ error: 'Password must be at least 8 characters' }, 400);
+  }
+  
+  // Hash the token to compare with stored hash
+  const tokenHash = await hashToken(token);
+  
+  // Find the reset token
+  const resetRecord = await c.env.DB.prepare(`
+    SELECT id, user_id, expires_at, used_at FROM password_resets WHERE token_hash = ?
+  `).bind(tokenHash).first();
+  
+  if (!resetRecord) {
+    return c.json({ error: 'Invalid or expired reset link' }, 400);
+  }
+  
+  // Check if already used
+  if (resetRecord.used_at) {
+    return c.json({ error: 'This reset link has already been used' }, 400);
+  }
+  
+  // Check expiry
+  const expiresAt = new Date(resetRecord.expires_at as string);
+  if (Date.now() > expiresAt.getTime()) {
+    return c.json({ error: 'This reset link has expired' }, 400);
+  }
+  
+  // Hash new password
+  const passwordHash = await hashPassword(password);
+  
+  // Update user's password
+  await c.env.DB.prepare(
+    'UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?'
+  ).bind(passwordHash, new Date().toISOString(), resetRecord.user_id).run();
+  
+  // Mark token as used
+  await c.env.DB.prepare(
+    'UPDATE password_resets SET used_at = ? WHERE id = ?'
+  ).bind(new Date().toISOString(), resetRecord.id).run();
+  
+  // Invalidate all existing sessions for this user
+  await c.env.DB.prepare(
+    'DELETE FROM sessions WHERE user_id = ?'
+  ).bind(resetRecord.user_id).run();
+  
+  return c.json({ message: 'Password has been reset successfully. Please log in with your new password.' });
+});
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
+
+async function hashToken(token: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(token);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
+}
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
