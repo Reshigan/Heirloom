@@ -2,9 +2,42 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe, Check, ArrowUp, ArrowDown, Tag } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+
+// Subscription plans with features
+const SUBSCRIPTION_PLANS = [
+  {
+    tier: 'FREE',
+    name: 'Free',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    features: ['5 memories', '10 voice minutes', '3 letters', '100MB storage'],
+  },
+  {
+    tier: 'ESSENTIAL',
+    name: 'Essential',
+    monthlyPrice: 9.99,
+    yearlyPrice: 99,
+    features: ['50 memories', '60 voice minutes', '20 letters', '1GB storage', 'Email delivery'],
+  },
+  {
+    tier: 'FAMILY',
+    name: 'Family',
+    monthlyPrice: 19.99,
+    yearlyPrice: 199,
+    popular: true,
+    features: ['Unlimited memories', '300 voice minutes', '100 letters', '10GB storage', 'Video messages', 'Family tree'],
+  },
+  {
+    tier: 'LEGACY',
+    name: 'Legacy',
+    monthlyPrice: 49.99,
+    yearlyPrice: 499,
+    features: ['Unlimited everything', 'Priority support', 'Advanced encryption', 'Lifetime access', 'Dedicated manager'],
+  },
+];
 
 const CURRENCIES = [
   { code: 'USD', name: 'US Dollar', symbol: '$' },
@@ -83,7 +116,17 @@ export function Settings() {
   const checkoutMutation = useMutation({
     mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
     onSuccess: (res) => {
-      window.location.href = res.data.url;
+      if (res.data.url) {
+        window.location.href = res.data.url;
+      }
+    },
+  });
+
+  const changePlanMutation = useMutation({
+    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['limits'] });
     },
   });
 
@@ -203,12 +246,15 @@ export function Settings() {
 
             {activeTab === 'subscription' && (
               <div className="space-y-6">
-                {/* Current plan */}
+                {/* Current plan header */}
                 <div className="card">
+                  <h3 className="text-lg mb-4">Current Plan</h3>
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-gold/20 text-gold text-xs tracking-wider">{subscription?.tier || 'FREE'}</span>
+                        <span className="px-3 py-1.5 bg-gold/20 text-gold text-sm font-medium tracking-wider border border-gold/30">
+                          {subscription?.tier || 'FREE'}
+                        </span>
                         {subscription?.isTrialing && (
                           <span className="px-2 py-1 bg-blood/20 text-blood text-xs">
                             Trial: {subscription.trialDaysLeft} days left
@@ -228,7 +274,7 @@ export function Settings() {
                   )}
 
                   {limits && (
-                    <div className="space-y-3 mb-6">
+                    <div className="space-y-3">
                       {[
                         { label: 'Memories', data: limits.memories },
                         { label: 'Voice minutes', data: limits.voice },
@@ -252,30 +298,109 @@ export function Settings() {
                   )}
                 </div>
 
-                {/* Pricing */}
-                {pricing && (
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {[
-                      { tier: 'ESSENTIAL', name: 'Essential', price: pricing.pricing.essential.monthly },
-                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family.monthly, popular: true },
-                      { tier: 'LEGACY', name: 'Legacy', price: pricing.pricing.legacy.yearly, yearly: true },
-                    ].map(({ tier, name, price, popular, yearly }) => (
-                      <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
-                        {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
-                        <h3 className="text-lg">{name}</h3>
-                        <div className="flex items-baseline gap-1 my-4">
-                          <span className="text-3xl text-gold">{price.formatted}</span>
-                          <span className="text-paper/40">/{yearly ? 'year' : 'month'}</span>
-                        </div>
-                        <button
-                          onClick={() => checkoutMutation.mutate(tier)}
-                          disabled={subscription?.tier === tier || checkoutMutation.isPending}
-                          className={`btn w-full ${subscription?.tier === tier ? 'btn-secondary' : 'btn-primary'}`}
+                {/* All Plans */}
+                <div className="card">
+                  <h3 className="text-lg mb-6">Choose Your Plan</h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {SUBSCRIPTION_PLANS.map((plan) => {
+                      const isCurrentPlan = (subscription?.tier || 'FREE') === plan.tier;
+                      const tierRanks: Record<string, number> = { FREE: 0, ESSENTIAL: 1, FAMILY: 2, LEGACY: 3 };
+                      const currentTierRank = tierRanks[subscription?.tier || 'FREE'] || 0;
+                      const thisTierRank = tierRanks[plan.tier] || 0;
+                      const isUpgrade = thisTierRank > currentTierRank;
+
+                      return (
+                        <div 
+                          key={plan.tier} 
+                          className={`relative p-5 rounded-lg border transition-all ${
+                            isCurrentPlan 
+                              ? 'border-gold bg-gold/10 ring-2 ring-gold/30' 
+                              : plan.popular 
+                                ? 'border-gold/30 bg-white/[0.02]' 
+                                : 'border-white/10 bg-white/[0.02] hover:border-white/20'
+                          }`}
                         >
-                          {subscription?.tier === tier ? 'Current Plan' : 'Upgrade'}
-                        </button>
-                      </div>
-                    ))}
+                          {plan.popular && !isCurrentPlan && (
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs font-medium">
+                              POPULAR
+                            </div>
+                          )}
+                          {isCurrentPlan && (
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-green-500 text-void text-xs font-medium flex items-center gap-1">
+                              <Check size={12} />
+                              CURRENT
+                            </div>
+                          )}
+              
+                          <h4 className="text-lg font-medium mb-2">{plan.name}</h4>
+                          <div className="flex items-baseline gap-1 mb-4">
+                            <span className={`text-2xl ${isCurrentPlan ? 'text-gold' : 'text-paper'}`}>
+                              ${plan.monthlyPrice}
+                            </span>
+                            <span className="text-paper/40 text-sm">/month</span>
+                          </div>
+              
+                          <ul className="space-y-2 mb-6 text-sm">
+                            {plan.features.map((feature, i) => (
+                              <li key={i} className="flex items-center gap-2 text-paper/70">
+                                <Check size={14} className="text-gold flex-shrink-0" />
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+
+                          {isCurrentPlan ? (
+                            <button disabled className="btn w-full bg-gold/20 text-gold cursor-default">
+                              Current Plan
+                            </button>
+                          ) : plan.tier === 'FREE' ? (
+                            <button
+                              onClick={() => changePlanMutation.mutate(plan.tier)}
+                              disabled={changePlanMutation.isPending}
+                              className="btn w-full border border-paper/20 text-paper/70 hover:bg-white/5 flex items-center justify-center gap-2"
+                            >
+                              <ArrowDown size={16} />
+                              Downgrade
+                            </button>
+                          ) : isUpgrade ? (
+                            <button
+                              onClick={() => checkoutMutation.mutate(plan.tier)}
+                              disabled={checkoutMutation.isPending}
+                              className="btn btn-primary w-full flex items-center justify-center gap-2"
+                            >
+                              <ArrowUp size={16} />
+                              Upgrade
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => changePlanMutation.mutate(plan.tier)}
+                              disabled={changePlanMutation.isPending}
+                              className="btn w-full border border-paper/20 text-paper/70 hover:bg-white/5 flex items-center justify-center gap-2"
+                            >
+                              <ArrowDown size={16} />
+                              Downgrade
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Plan Change Status */}
+                {changePlanMutation.isPending && (
+                  <div className="card bg-gold/10 border-gold/30">
+                    <p className="text-gold">Changing your plan...</p>
+                  </div>
+                )}
+                {changePlanMutation.isSuccess && (
+                  <div className="card bg-green-500/10 border-green-500/30">
+                    <p className="text-green-400">Plan changed successfully!</p>
+                  </div>
+                )}
+                {changePlanMutation.isError && (
+                  <div className="card bg-blood/10 border-blood/30">
+                    <p className="text-blood">Failed to change plan. Please try again.</p>
                   </div>
                 )}
               </div>
