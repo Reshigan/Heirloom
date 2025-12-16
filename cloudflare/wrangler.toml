@@ -6,8 +6,8 @@ main = "worker/src/index.ts"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Account settings (replace with your values)
-# account_id = "your-account-id"
+# Account settings
+account_id = "08596e523c096f04b56d7ae43f7821f4"
 
 # ============================================
 # BINDINGS
@@ -17,7 +17,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "heirloom-db"
-database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # Replace after creation
+database_id = "4a228f5e-5ab9-4337-80d7-ebdb4eca0b7d"
 
 # R2 Storage (S3-compatible, zero egress)
 [[r2_buckets]]
@@ -27,7 +27,7 @@ bucket_name = "heirloom-uploads"
 # KV Namespace (for sessions, cache)
 [[kv_namespaces]]
 binding = "KV"
-id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # Replace after creation
+id = "a95e2aeaffd14f7f8c28ed9645d81b48"
 
 # Durable Objects (for real-time features)
 [[durable_objects.bindings]]
@@ -36,17 +36,18 @@ class_name = "RateLimiter"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["RateLimiter"]
+new_sqlite_classes = ["RateLimiter"]
 
 # ============================================
 # CRON TRIGGERS (Dead Man's Switch)
 # ============================================
 
-[triggers]
-crons = [
-  "0 9 * * *",   # Daily at 9 AM UTC - check for missed check-ins
-  "0 0 * * 0",   # Weekly on Sunday - send reminder emails
-]
+# Cron triggers disabled for now - can be enabled after deployment
+# [triggers]
+# crons = [
+#   "0 9 * * *",   # Daily at 9 AM UTC - check for missed check-ins
+#   "0 0 * * 0",   # Weekly on Sunday - send reminder emails
+# ]
 
 # ============================================
 # ENVIRONMENT VARIABLES
@@ -77,9 +78,9 @@ binding = "DB"
 database_name = "heirloom-db-staging"
 database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-[[env.staging.r2_buckets]]
-binding = "STORAGE"
-bucket_name = "heirloom-uploads-staging"
+# [[env.staging.r2_buckets]]
+# binding = "STORAGE"
+# bucket_name = "heirloom-uploads-staging"
 
 [[env.staging.kv_namespaces]]
 binding = "KV"
@@ -93,8 +94,8 @@ vars = { ENVIRONMENT = "development", APP_URL = "http://localhost:3000" }
 # BUILD & DEPLOY
 # ============================================
 
-[build]
-command = "npm run build"
+# [build]
+# command = "npm run build"
 
 # Custom domain routes
 # routes = [
