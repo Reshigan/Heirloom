@@ -6,36 +6,29 @@ import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe, 
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
-// Subscription plans with features
+// Mass-Adoption Pricing: $1 / $2 / $5
 const SUBSCRIPTION_PLANS = [
   {
-    tier: 'FREE',
-    name: 'Free',
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    features: ['5 memories', '10 voice minutes', '3 letters', '100MB storage'],
-  },
-  {
-    tier: 'ESSENTIAL',
-    name: 'Essential',
-    monthlyPrice: 9.99,
-    yearlyPrice: 99,
-    features: ['50 memories', '60 voice minutes', '20 letters', '1GB storage', 'Email delivery'],
+    tier: 'STARTER',
+    name: 'Starter',
+    monthlyPrice: 1,
+    yearlyPrice: 10,
+    features: ['500MB storage', '3 voice recordings/month', '5 letters/month', '50 photos', '2 family members'],
   },
   {
     tier: 'FAMILY',
     name: 'Family',
-    monthlyPrice: 19.99,
-    yearlyPrice: 199,
+    monthlyPrice: 2,
+    yearlyPrice: 20,
     popular: true,
-    features: ['Unlimited memories', '300 voice minutes', '100 letters', '10GB storage', 'Video messages', 'Family tree'],
+    features: ['5GB storage', '20 voice recordings/month', 'Unlimited letters', 'Unlimited photos', '10 family members', '2 min video messages', 'Posthumous delivery', 'Family tree'],
   },
   {
-    tier: 'LEGACY',
-    name: 'Legacy',
-    monthlyPrice: 49.99,
-    yearlyPrice: 499,
-    features: ['Unlimited everything', 'Priority support', 'Advanced encryption', 'Lifetime access', 'Dedicated manager'],
+    tier: 'FOREVER',
+    name: 'Forever',
+    monthlyPrice: 5,
+    yearlyPrice: 50,
+    features: ['25GB storage', 'Unlimited voice recordings', 'Unlimited letters', 'Unlimited photos', 'Unlimited family members', '10 min video messages', 'AI transcription', 'Legal documents', 'Priority support'],
   },
 ];
 
@@ -44,9 +37,10 @@ const CURRENCIES = [
   { code: 'EUR', name: 'Euro', symbol: '€' },
   { code: 'GBP', name: 'British Pound', symbol: '£' },
   { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
   { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
 ];
 
 export function Settings() {
@@ -301,11 +295,11 @@ export function Settings() {
                 {/* All Plans */}
                 <div className="card">
                   <h3 className="text-lg mb-6">Choose Your Plan</h3>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid md:grid-cols-3 gap-4">
                     {SUBSCRIPTION_PLANS.map((plan) => {
-                      const isCurrentPlan = (subscription?.tier || 'FREE') === plan.tier;
-                      const tierRanks: Record<string, number> = { FREE: 0, ESSENTIAL: 1, FAMILY: 2, LEGACY: 3 };
-                      const currentTierRank = tierRanks[subscription?.tier || 'FREE'] || 0;
+                      const isCurrentPlan = (subscription?.tier || 'STARTER') === plan.tier;
+                      const tierRanks: Record<string, number> = { STARTER: 0, FAMILY: 1, FOREVER: 2 };
+                      const currentTierRank = tierRanks[subscription?.tier || 'STARTER'] || 0;
                       const thisTierRank = tierRanks[plan.tier] || 0;
                       const isUpgrade = thisTierRank > currentTierRank;
 
@@ -352,15 +346,6 @@ export function Settings() {
                           {isCurrentPlan ? (
                             <button disabled className="btn w-full bg-gold/20 text-gold cursor-default">
                               Current Plan
-                            </button>
-                          ) : plan.tier === 'FREE' ? (
-                            <button
-                              onClick={() => changePlanMutation.mutate(plan.tier)}
-                              disabled={changePlanMutation.isPending}
-                              className="btn w-full border border-paper/20 text-paper/70 hover:bg-white/5 flex items-center justify-center gap-2"
-                            >
-                              <ArrowDown size={16} />
-                              Downgrade
                             </button>
                           ) : isUpgrade ? (
                             <button
