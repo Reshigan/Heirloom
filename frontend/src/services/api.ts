@@ -243,6 +243,16 @@ export const adminApi = {
   getUserGrowthReport: (params?: { startDate?: string; endDate?: string }) => 
     adminAxios.get('/admin/reports/user-growth', { params }),
   exportUsers: (format: 'csv' | 'json') => adminAxios.get('/admin/reports/export/users', { params: { format } }),
+  
+  // Billing Analysis
+  getBillingErrors: (params?: { status?: string; page?: number; limit?: number }) => 
+    adminAxios.get('/admin/billing/errors', { params }),
+  getBillingErrorStats: () => adminAxios.get('/admin/billing/errors/stats'),
+  notifyBillingError: (errorId: string) => adminAxios.post(`/admin/billing/errors/${errorId}/notify`),
+  reprocessBillingError: (errorId: string) => adminAxios.post(`/admin/billing/errors/${errorId}/reprocess`),
+  resolveBillingError: (errorId: string, data: { resolution?: string }) => 
+    adminAxios.post(`/admin/billing/errors/${errorId}/resolve`, data),
+  notifyAllFailedBilling: () => adminAxios.post('/admin/billing/notify-all-failed'),
 };
 
 export default api;

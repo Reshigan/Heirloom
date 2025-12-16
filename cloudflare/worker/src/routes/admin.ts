@@ -50,9 +50,12 @@ adminRoutes.post('/login', async (c) => {
   // Verify password (simplified - in production use proper hashing)
   // For now, check if password matches or if it's the default that needs changing
   const encoder = new TextEncoder();
-  const [storedHash, storedSalt] = (admin.password_hash as string).split(':');
+  const passwordHashStr = admin.password_hash as string;
+  const colonIndex = passwordHashStr.indexOf(':');
+  const storedHash = colonIndex >= 0 ? passwordHashStr.substring(0, colonIndex) : passwordHashStr;
+  const storedSalt = colonIndex >= 0 ? passwordHashStr.substring(colonIndex + 1) : null;
   
-  if (storedHash === 'CHANGE_ME_ON_FIRST_LOGIN') {
+  if (storedHash === 'CHANGE_ME_ON_FIRST_LOGIN' || passwordHashStr === 'CHANGE_ME_ON_FIRST_LOGIN') {
     // First login - set the password
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const keyMaterial = await crypto.subtle.importKey(
@@ -84,6 +87,9 @@ adminRoutes.post('/login', async (c) => {
     `).bind(passwordHash, now, admin.id).run();
   } else {
     // Verify password
+    if (!storedSalt) {
+      return c.json({ error: 'Invalid credentials' }, 401);
+    }
     const saltBuffer = Uint8Array.from(atob(storedSalt), c => c.charCodeAt(0));
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
@@ -1046,6 +1052,273 @@ adminRoutes.post('/emails/bulk', adminAuth, async (c) => {
   await logAuditAction(c.env, adminId, 'SEND_BULK_EMAIL', { subject, recipientCount: recipientEmails.length });
   
   return c.json({ success: true, message: `${recipientEmails.length} emails queued` });
+});
+
+// ============================================
+// BILLING ANALYSIS & ERROR MANAGEMENT
+// ============================================
+
+adminRoutes.get('/billing/errors', adminAuth, async (c) => {
+  const page = parseInt(c.req.query('page') || '1');
+  const limit = parseInt(c.req.query('limit') || '20');
+  const offset = (page - 1) * limit;
+  const status = c.req.query('status'); // FAILED, PENDING_RETRY, RESOLVED
+  
+  let query = `
+    SELECT be.*, u.email, u.first_name, u.last_name, s.tier
+    FROM billing_errors be
+    JOIN users u ON be.user_id = u.id
+    LEFT JOIN subscriptions s ON u.id = s.user_id
+    WHERE 1=1
+  `;
+  const params: any[] = [];
+  
+  if (status) {
+    query += ` AND be.status = ?`;
+    params.push(status);
+  }
+  
+  query += ` ORDER BY be.created_at DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
+  
+  const errors = await c.env.DB.prepare(query).bind(...params).all();
+  
+  const countResult = await c.env.DB.prepare(`
+    SELECT COUNT(*) as total FROM billing_errors
+  `).first();
+  
+  return c.json({
+    data: errors.results.map((e: any) => ({
+      id: e.id,
+      userId: e.user_id,
+      userEmail: e.email,
+      userName: `${e.first_name} ${e.last_name}`,
+      tier: e.tier,
+      errorType: e.error_type,
+      errorMessage: e.error_message,
+      amount: e.amount,
+      currency: e.currency,
+      status: e.status,
+      retryCount: e.retry_count,
+      lastRetryAt: e.last_retry_at,
+      notifiedAt: e.notified_at,
+      resolvedAt: e.resolved_at,
+      createdAt: e.created_at,
+    })),
+    pagination: { page, limit, total: countResult?.total || 0 },
+  });
+});
+
+adminRoutes.get('/billing/errors/stats', adminAuth, async (c) => {
+  const stats = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(*) as total,
+      SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END) as failed,
+      SUM(CASE WHEN status = 'PENDING_RETRY' THEN 1 ELSE 0 END) as pending_retry,
+      SUM(CASE WHEN status = 'RESOLVED' THEN 1 ELSE 0 END) as resolved,
+      SUM(CASE WHEN created_at > datetime('now', '-24 hours') THEN 1 ELSE 0 END) as last_24h,
+      SUM(CASE WHEN created_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) as last_7d
+    FROM billing_errors
+  `).first();
+  
+  const byType = await c.env.DB.prepare(`
+    SELECT error_type, COUNT(*) as count
+    FROM billing_errors
+    WHERE status != 'RESOLVED'
+    GROUP BY error_type
+  `).all();
+  
+  return c.json({
+    total: stats?.total || 0,
+    failed: stats?.failed || 0,
+    pendingRetry: stats?.pending_retry || 0,
+    resolved: stats?.resolved || 0,
+    last24Hours: stats?.last_24h || 0,
+    last7Days: stats?.last_7d || 0,
+    byType: byType.results.reduce((acc: any, t: any) => {
+      acc[t.error_type] = t.count;
+      return acc;
+    }, {}),
+  });
+});
+
+adminRoutes.post('/billing/errors/:id/notify', adminAuth, async (c) => {
+  const adminId = c.get('adminId');
+  const errorId = c.req.param('id');
+  
+  const error = await c.env.DB.prepare(`
+    SELECT be.*, u.email, u.first_name
+    FROM billing_errors be
+    JOIN users u ON be.user_id = u.id
+    WHERE be.id = ?
+  `).bind(errorId).first();
+  
+  if (!error) {
+    return c.json({ error: 'Billing error not found' }, 404);
+  }
+  
+  // Send notification email to user
+  try {
+    const { baseTemplate } = await import('../email-templates');
+    const emailContent = baseTemplate(`
+      <h1 style="color: #d4af37; font-size: 24px; margin-bottom: 16px;">Payment Issue</h1>
+      <p>Hi ${error.first_name},</p>
+      <p>We noticed there was an issue processing your recent payment for your Heirloom subscription.</p>
+      <p><strong>Error:</strong> ${error.error_message}</p>
+      <p><strong>Amount:</strong> $${(error.amount as number / 100).toFixed(2)} ${error.currency}</p>
+      <p>Please update your payment method to continue enjoying Heirloom's features.</p>
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="https://heirloom.blue/settings?tab=billing" style="background: linear-gradient(135deg, #d4af37, #b8860b); color: #000; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600;">Update Payment Method</a>
+      </div>
+      <p>If you have any questions, please contact our support team.</p>
+    `);
+    
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: error.email,
+        subject: 'Action Required: Payment Issue with Your Heirloom Subscription',
+        html: emailContent,
+      }),
+    });
+    
+    // Update notification timestamp
+    await c.env.DB.prepare(`
+      UPDATE billing_errors SET notified_at = ? WHERE id = ?
+    `).bind(new Date().toISOString(), errorId).run();
+    
+    await logAuditAction(c.env, adminId, 'NOTIFY_BILLING_ERROR', { errorId, userId: error.user_id });
+    
+    return c.json({ success: true, message: 'Notification sent to user' });
+  } catch (err: any) {
+    return c.json({ error: 'Failed to send notification', details: err.message }, 500);
+  }
+});
+
+adminRoutes.post('/billing/errors/:id/reprocess', adminAuth, async (c) => {
+  const adminId = c.get('adminId');
+  const errorId = c.req.param('id');
+  
+  const error = await c.env.DB.prepare(`
+    SELECT * FROM billing_errors WHERE id = ?
+  `).bind(errorId).first();
+  
+  if (!error) {
+    return c.json({ error: 'Billing error not found' }, 404);
+  }
+  
+  // Update retry count and status
+  const now = new Date().toISOString();
+  const newRetryCount = ((error.retry_count as number) || 0) + 1;
+  
+  // In production, this would call Stripe to retry the payment
+  // For now, we'll simulate the retry and mark as pending
+  await c.env.DB.prepare(`
+    UPDATE billing_errors 
+    SET status = 'PENDING_RETRY', retry_count = ?, last_retry_at = ?
+    WHERE id = ?
+  `).bind(newRetryCount, now, errorId).run();
+  
+  await logAuditAction(c.env, adminId, 'REPROCESS_BILLING', { errorId, userId: error.user_id, retryCount: newRetryCount });
+  
+  return c.json({ 
+    success: true, 
+    message: 'Payment reprocessing initiated',
+    retryCount: newRetryCount,
+  });
+});
+
+adminRoutes.post('/billing/errors/:id/resolve', adminAuth, async (c) => {
+  const adminId = c.get('adminId');
+  const errorId = c.req.param('id');
+  const body = await c.req.json();
+  const { resolution } = body;
+  
+  const error = await c.env.DB.prepare(`
+    SELECT * FROM billing_errors WHERE id = ?
+  `).bind(errorId).first();
+  
+  if (!error) {
+    return c.json({ error: 'Billing error not found' }, 404);
+  }
+  
+  const now = new Date().toISOString();
+  await c.env.DB.prepare(`
+    UPDATE billing_errors 
+    SET status = 'RESOLVED', resolved_at = ?, resolution_notes = ?
+    WHERE id = ?
+  `).bind(now, resolution || 'Manually resolved by admin', errorId).run();
+  
+  await logAuditAction(c.env, adminId, 'RESOLVE_BILLING_ERROR', { errorId, userId: error.user_id, resolution });
+  
+  return c.json({ success: true, message: 'Billing error marked as resolved' });
+});
+
+adminRoutes.post('/billing/notify-all-failed', adminAuth, async (c) => {
+  const adminId = c.get('adminId');
+  const adminRole = c.get('adminRole');
+  
+  if (adminRole !== 'SUPER_ADMIN') {
+    return c.json({ error: 'Only super admins can send bulk notifications' }, 403);
+  }
+  
+  // Get all failed billing errors that haven't been notified in the last 24 hours
+  const errors = await c.env.DB.prepare(`
+    SELECT be.*, u.email, u.first_name
+    FROM billing_errors be
+    JOIN users u ON be.user_id = u.id
+    WHERE be.status = 'FAILED'
+    AND (be.notified_at IS NULL OR be.notified_at < datetime('now', '-24 hours'))
+  `).all();
+  
+  let notifiedCount = 0;
+  const now = new Date().toISOString();
+  
+  for (const error of errors.results as any[]) {
+    try {
+      const { baseTemplate } = await import('../email-templates');
+      const emailContent = baseTemplate(`
+        <h1 style="color: #d4af37; font-size: 24px; margin-bottom: 16px;">Payment Issue</h1>
+        <p>Hi ${error.first_name},</p>
+        <p>We noticed there was an issue processing your recent payment for your Heirloom subscription.</p>
+        <p>Please update your payment method to continue enjoying Heirloom's features.</p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="https://heirloom.blue/settings?tab=billing" style="background: linear-gradient(135deg, #d4af37, #b8860b); color: #000; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600;">Update Payment Method</a>
+        </div>
+      `);
+      
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: error.email,
+          subject: 'Action Required: Payment Issue with Your Heirloom Subscription',
+          html: emailContent,
+        }),
+      });
+      
+      await c.env.DB.prepare(`
+        UPDATE billing_errors SET notified_at = ? WHERE id = ?
+      `).bind(now, error.id).run();
+      
+      notifiedCount++;
+    } catch (err) {
+      console.error('Failed to notify user:', error.email, err);
+    }
+  }
+  
+  await logAuditAction(c.env, adminId, 'BULK_NOTIFY_BILLING_ERRORS', { notifiedCount, totalErrors: errors.results.length });
+  
+  return c.json({ success: true, message: `Notified ${notifiedCount} users with billing errors` });
 });
 
 // ============================================

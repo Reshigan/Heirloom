@@ -98,6 +98,18 @@ export function AdminDashboard() {
     enabled: activeTab === 'emails',
   });
 
+  const { data: billingErrors } = useQuery({
+    queryKey: ['admin-billing-errors'],
+    queryFn: () => adminApi.getBillingErrors({ limit: 50 }).then(r => r.data),
+    enabled: activeTab === 'billing',
+  });
+
+  const { data: billingStats } = useQuery({
+    queryKey: ['admin-billing-stats'],
+    queryFn: () => adminApi.getBillingErrorStats().then(r => r.data),
+    enabled: activeTab === 'billing',
+  });
+
   const { data: revenueReport } = useQuery({
     queryKey: ['admin-revenue-report'],
     queryFn: () => adminApi.getRevenueReport().then(r => r.data),
@@ -122,6 +134,7 @@ export function AdminDashboard() {
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'coupons', label: 'Coupons', icon: Tag },
+    { id: 'billing', label: 'Billing', icon: CreditCard },
     { id: 'support', label: 'Support', icon: MessageSquare },
     { id: 'system', label: 'System', icon: Shield },
     { id: 'audit', label: 'Audit Logs', icon: FileText },
@@ -295,6 +308,151 @@ export function AdminDashboard() {
                     <tr>
                       <td colSpan={6} className="text-center py-8 text-paper/50">
                         No coupons created yet
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Billing Tab */}
+        {activeTab === 'billing' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl">Billing Analysis & Error Management</h2>
+              <button
+                onClick={() => adminApi.notifyAllFailedBilling().then(() => alert('Notifications sent!'))}
+                className="btn btn-primary flex items-center gap-2"
+              >
+                <Send size={18} />
+                Notify All Failed
+              </button>
+            </div>
+
+            {/* Billing Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-500/20 rounded">
+                    <AlertTriangle className="w-5 h-5 text-red-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-red-400">{billingStats?.failed || 0}</div>
+                    <div className="text-paper/50 text-sm">Failed Payments</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-yellow-500/20 rounded">
+                    <Clock className="w-5 h-5 text-yellow-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-yellow-400">{billingStats?.pendingRetry || 0}</div>
+                    <div className="text-paper/50 text-sm">Pending Retry</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/20 rounded">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-green-400">{billingStats?.resolved || 0}</div>
+                    <div className="text-paper/50 text-sm">Resolved</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/20 rounded">
+                    <Activity className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-blue-400">{billingStats?.last24Hours || 0}</div>
+                    <div className="text-paper/50 text-sm">Last 24 Hours</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Billing Errors Table */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Billing Errors</h3>
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">User</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Error Type</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Amount</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Retries</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Date</th>
+                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {billingErrors?.data?.map((error: any) => (
+                    <tr key={error.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <td className="py-3 px-4">
+                        <div className="text-paper">{error.userName}</div>
+                        <div className="text-paper/50 text-sm">{error.userEmail}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded">
+                          {error.errorType?.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-paper/70">
+                        ${((error.amount || 0) / 100).toFixed(2)} {error.currency}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 text-xs rounded ${
+                          error.status === 'FAILED' ? 'bg-red-500/20 text-red-400' :
+                          error.status === 'PENDING_RETRY' ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-green-500/20 text-green-400'
+                        }`}>
+                          {error.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-paper/50">{error.retryCount || 0}</td>
+                      <td className="py-3 px-4 text-paper/50 text-sm">
+                        {new Date(error.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => adminApi.notifyBillingError(error.id).then(() => alert('Notification sent!'))}
+                            className="p-1 text-paper/50 hover:text-gold transition-colors"
+                            title="Notify User"
+                          >
+                            <Mail size={16} />
+                          </button>
+                          <button
+                            onClick={() => adminApi.reprocessBillingError(error.id).then(() => alert('Reprocessing initiated!'))}
+                            className="p-1 text-paper/50 hover:text-blue-400 transition-colors"
+                            title="Reprocess Payment"
+                          >
+                            <Activity size={16} />
+                          </button>
+                          <button
+                            onClick={() => adminApi.resolveBillingError(error.id, { resolution: 'Manually resolved' }).then(() => alert('Marked as resolved!'))}
+                            className="p-1 text-paper/50 hover:text-green-400 transition-colors"
+                            title="Mark Resolved"
+                          >
+                            <CheckCircle size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!billingErrors?.data || billingErrors.data.length === 0) && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-paper/50">
+                        No billing errors found - all payments are processing successfully
                       </td>
                     </tr>
                   )}

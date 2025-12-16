@@ -149,6 +149,9 @@ app.post('/api/test-email', async (c) => {
 app.route('/api/auth', authRoutes);
 app.route('/api/billing/webhook', billingRoutes);
 
+// Admin routes (separate auth - must be before protected routes)
+app.route('/api/admin', adminRoutes);
+
 // Protected routes (auth required)
 const protectedApp = new Hono<{ Bindings: Env }>();
 
@@ -194,9 +197,6 @@ protectedApp.route('/encryption', encryptionRoutes);
 protectedApp.route('/wrapped', wrappedRoutes);
 
 app.route('/api', protectedApp);
-
-// Admin routes (separate auth)
-app.route('/api/admin', adminRoutes);
 
 // ============================================
 // ERROR HANDLING
