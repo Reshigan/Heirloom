@@ -1,11 +1,11 @@
 /**
  * Email Templates for Heirloom
- * Matches the marketing site sanctuary theme with paper stationery style
+ * Matches the Dashboard Home Screen - dark wood desk with glass cards
  */
 
 const APP_URL = 'https://heirloom.blue';
 
-// Base template wrapper with Heirloom branding - Marketing site theme
+// Base template wrapper with Heirloom branding - Dashboard Home Screen style
 export const baseTemplate = (content: string) => `
 <!DOCTYPE html>
 <html>
@@ -13,10 +13,8 @@ export const baseTemplate = (content: string) => `
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Playfair+Display:wght@400;500&display=swap');
-    
     body { 
-      font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif; 
+      font-family: Georgia, 'Times New Roman', serif; 
       background: #0a0c10;
       margin: 0; 
       padding: 40px 20px; 
@@ -28,170 +26,169 @@ export const baseTemplate = (content: string) => `
     }
     .header { 
       text-align: center; 
-      padding: 30px 20px;
-      margin-bottom: 8px;
+      padding: 30px 20px 24px 20px;
     }
     .logo { 
-      font-family: 'Playfair Display', Georgia, serif;
       font-size: 14px; 
       color: #f5f3ee;
-      letter-spacing: 0.2em;
-      font-weight: 400;
+      letter-spacing: 0.15em;
+      font-weight: normal;
       opacity: 0.8;
     }
     .logo-symbol {
       display: block;
-      font-size: 36px;
+      font-size: 40px;
       color: #c9a959;
       margin-bottom: 12px;
       line-height: 1;
     }
-    .paper { 
-      background: #f5f3ee;
-      border-radius: 4px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,169,89,0.1);
+    .tagline {
+      color: rgba(245,243,238,0.5);
+      font-size: 13px;
+      margin-top: 8px;
+      font-style: italic;
+    }
+    .desk { 
+      background: linear-gradient(135deg, #2a2118 0%, #1e1811 50%, #17120c 100%);
+      border-radius: 20px;
+      box-shadow: 0 50px 100px rgba(0,0,0,0.6), 0 25px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
       overflow: hidden;
       position: relative;
     }
-    .paper::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #c9a959, #e8d5a3, #c9a959);
+    .desk-edge {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,169,89,0.15), transparent);
+      margin: 0 20px;
+    }
+    .glass-card {
+      background: rgba(18,21,28,0.9);
+      border: 1px solid rgba(201,169,89,0.15);
+      border-radius: 12px;
+      margin: 24px;
+      padding: 32px;
     }
     .content { 
-      padding: 48px 40px; 
-      color: #1a1510;
+      color: #f5f3ee;
     }
     .content h2 {
-      font-family: 'Playfair Display', Georgia, serif;
-      color: #1a1510;
-      font-size: 28px;
-      margin: 0 0 24px 0;
-      font-weight: 400;
+      color: #f5f3ee;
+      font-size: 26px;
+      margin: 0 0 20px 0;
+      font-weight: normal;
       letter-spacing: -0.01em;
     }
     .content p {
-      margin: 16px 0;
-      color: #1a1510;
-      font-size: 17px;
-      opacity: 0.85;
+      margin: 14px 0;
+      color: rgba(245,243,238,0.85);
+      font-size: 16px;
     }
     .button { 
       display: inline-block; 
-      padding: 14px 32px; 
+      padding: 14px 28px; 
       background: linear-gradient(135deg, #c9a959 0%, #8b7355 100%); 
       color: #0a0c10 !important; 
       text-decoration: none; 
-      font-family: 'Playfair Display', Georgia, serif;
-      font-weight: 500; 
-      margin: 28px 0 12px 0;
-      border-radius: 4px;
-      font-size: 14px;
-      letter-spacing: 0.1em;
+      font-weight: bold; 
+      margin: 24px 0 8px 0;
+      border-radius: 6px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      box-shadow: 0 4px 14px rgba(201,169,89,0.3);
+      box-shadow: 0 4px 20px rgba(201,169,89,0.25);
     }
     .gold { 
-      color: #8b7355;
-      font-weight: 500;
+      color: #c9a959;
     }
     .divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, #c9a959, transparent);
-      margin: 32px 0;
-      opacity: 0.3;
+      background: linear-gradient(90deg, transparent, rgba(201,169,89,0.3), transparent);
+      margin: 28px 0;
     }
     .urgent { 
       border-left: 3px solid #8b2942; 
       padding: 16px 20px;
-      margin: 24px 0;
-      background: rgba(139,41,66,0.08);
-      border-radius: 0 4px 4px 0;
+      margin: 20px 0;
+      background: rgba(139,41,66,0.15);
+      border-radius: 0 8px 8px 0;
     }
     .urgent strong {
-      color: #8b2942;
+      color: #c9a959;
     }
     .info-box {
-      background: rgba(201,169,89,0.08);
-      padding: 20px 24px;
-      margin: 24px 0;
-      border-radius: 4px;
+      background: rgba(201,169,89,0.1);
+      padding: 18px 22px;
+      margin: 20px 0;
+      border-radius: 8px;
       border-left: 3px solid #c9a959;
     }
     .info-box p {
-      margin: 8px 0;
+      margin: 6px 0;
     }
     .letter-box {
-      background: #faf8f3;
-      padding: 32px;
-      margin: 28px 0;
+      background: rgba(245,243,238,0.05);
+      padding: 28px;
+      margin: 24px 0;
       border-left: 3px solid #c9a959;
       font-style: italic;
-      border-radius: 0 4px 4px 0;
+      border-radius: 0 8px 8px 0;
     }
     .letter-box .salutation {
-      color: #8b7355;
+      color: #c9a959;
       margin-bottom: 16px;
       font-style: normal;
-      font-weight: 500;
     }
     .letter-box .signature {
       text-align: right;
       margin-top: 24px;
-      color: #8b7355;
+      color: #c9a959;
       font-style: normal;
     }
     .seal {
       text-align: center;
-      margin: 36px 0 12px 0;
+      margin: 32px 0 8px 0;
     }
     .seal-icon {
-      width: 56px;
-      height: 56px;
+      width: 52px;
+      height: 52px;
       background: linear-gradient(135deg, #8b2942, #6b1f32);
       border-radius: 50%;
-      margin: 0 auto 12px auto;
-      line-height: 56px;
-      font-size: 22px;
+      margin: 0 auto 10px auto;
+      line-height: 52px;
+      font-size: 20px;
       color: #f5f3ee;
     }
     .seal-text {
-      color: #8b7355;
-      font-size: 13px;
+      color: rgba(245,243,238,0.5);
+      font-size: 12px;
       letter-spacing: 0.05em;
     }
     ul {
       padding-left: 20px;
-      margin: 20px 0;
+      margin: 18px 0;
     }
     li {
-      margin: 10px 0;
-      color: #1a1510;
-      opacity: 0.85;
+      margin: 8px 0;
+      color: rgba(245,243,238,0.85);
     }
     .code-box {
-      background: #e8e4db;
+      background: rgba(245,243,238,0.08);
       padding: 16px 20px;
-      font-family: 'SF Mono', Monaco, monospace;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
       word-break: break-all;
-      margin: 20px 0;
-      border-radius: 4px;
+      margin: 18px 0;
+      border-radius: 6px;
       font-size: 13px;
-      color: #1a1510;
+      color: #f5f3ee;
+      border: 1px solid rgba(201,169,89,0.1);
     }
     .footer { 
       text-align: center; 
-      padding: 32px 20px 16px 20px;
-      color: #f5f3ee;
-      font-size: 13px;
-      opacity: 0.4;
+      padding: 28px 20px 12px 20px;
+      color: rgba(245,243,238,0.4);
+      font-size: 12px;
     }
     .footer p {
-      margin: 6px 0;
+      margin: 5px 0;
     }
     .footer a {
       color: #c9a959;
@@ -204,9 +201,13 @@ export const baseTemplate = (content: string) => `
     <div class="header">
       <span class="logo-symbol">&#8734;</span>
       <div class="logo">HEIRLOOM</div>
+      <div class="tagline">Your sanctuary awaits</div>
     </div>
-    <div class="paper">
-      <div class="content">${content}</div>
+    <div class="desk">
+      <div class="desk-edge"></div>
+      <div class="glass-card">
+        <div class="content">${content}</div>
+      </div>
     </div>
     <div class="footer">
       <p>&copy; ${new Date().getFullYear()} Heirloom. Preserving what matters.</p>
