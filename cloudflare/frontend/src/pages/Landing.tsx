@@ -1,7 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { ArrowRight, Pen, Mic, Image, Shield, Clock, Heart, Lock, Users, Sparkles, Check } from 'lucide-react';
+import { ArrowRight, Pen, Mic, Image, Shield, Clock, Heart, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey } from 'lucide-react';
 
 export function Landing() {
   const heroRef = useRef(null);
@@ -24,26 +24,30 @@ export function Landing() {
     { icon: Lock, title: 'E2E Encryption', desc: 'Zero-knowledge architecture. Only you and your beneficiaries can decrypt.' },
   ];
   
+  // Mass-Adoption Pricing: $1 / $2 / $5
   const plans = [
     { 
-      name: 'Essential', 
-      price: '$2.99', 
+      name: 'Starter', 
+      price: '$1', 
       period: '/month',
-      features: ['100 memories', '30 min voice', '20 letters', '5 recipients', '1GB storage'],
+      yearlyPrice: '$10/year',
+      features: ['500MB storage', '3 voice recordings/month', '5 letters/month', '50 photos', '2 family members'],
       popular: false 
     },
     { 
       name: 'Family', 
-      price: '$11.99', 
+      price: '$2', 
       period: '/month',
-      features: ['Unlimited memories', '60 min voice', 'Unlimited letters', 'Unlimited recipients', '10GB storage', 'Priority support'],
+      yearlyPrice: '$20/year',
+      features: ['5GB storage', '20 voice recordings/month', 'Unlimited letters', 'Unlimited photos', '10 family members', '2 min video messages', 'Family tree'],
       popular: true 
     },
     { 
-      name: 'Legacy', 
-      price: '$299', 
-      period: '/year',
-      features: ['Everything in Family', 'Unlimited voice', 'Professional archival', '100GB storage', 'Estate planning tools', 'Dedicated support'],
+      name: 'Forever', 
+      price: '$5', 
+      period: '/month',
+      yearlyPrice: '$50/year',
+      features: ['25GB storage', 'Unlimited voice', 'Unlimited letters', 'Unlimited photos', 'Unlimited family', '10 min video', 'AI transcription', 'Priority support'],
       popular: false 
     },
   ];
@@ -292,10 +296,11 @@ export function Landing() {
                 )}
                 
                 <h3 className="text-xl font-medium mb-2">{plan.name}</h3>
-                <div className="flex items-baseline gap-1 mb-6">
+                <div className="flex items-baseline gap-1 mb-2">
                   <span className="text-4xl text-gold">{plan.price}</span>
                   <span className="text-paper/40">{plan.period}</span>
                 </div>
+                <div className="text-sm text-paper/40 mb-6">or {plan.yearlyPrice} (save 17%)</div>
                 
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature) => (
@@ -315,6 +320,75 @@ export function Landing() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+      
+      {/* Military-Grade Security */}
+      <section className="py-32 px-6 md:px-12 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-light/30 to-transparent" />
+        
+        <div className="max-w-6xl mx-auto relative">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <span className="text-gold tracking-[0.3em] text-sm">SECURITY</span>
+            <h2 className="text-4xl md:text-5xl font-light mt-4">Military-Grade Encryption</h2>
+            <p className="text-paper/50 mt-4 max-w-2xl mx-auto">
+              Your memories are protected with the same encryption standards used by governments and financial institutions worldwide.
+            </p>
+          </motion.div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: ShieldCheck,
+                title: 'AES-256 Encryption',
+                desc: 'Your data is encrypted with AES-256, the gold standard used by the U.S. government for classified information. Virtually unbreakable.',
+              },
+              {
+                icon: KeyRound,
+                title: 'Zero-Knowledge Architecture',
+                desc: 'We never see your data. Your encryption keys are derived from your password and never leave your device. Not even we can access your content.',
+              },
+              {
+                icon: FileKey,
+                title: 'End-to-End Encrypted',
+                desc: 'From the moment you create content to when your loved ones receive it, everything is encrypted. No middleman can ever read your memories.',
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="card text-center"
+              >
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full glass flex items-center justify-center">
+                  <item.icon size={28} className="text-gold" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-xl font-medium mb-3">{item.title}</h3>
+                <p className="text-paper/50 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-12 text-center"
+          >
+            <div className="inline-flex items-center gap-3 px-6 py-3 glass-subtle rounded-full">
+              <Lock size={18} className="text-gold" />
+              <span className="text-paper/60 text-sm">SOC 2 Type II Compliant • GDPR Ready • HIPAA Compatible</span>
+            </div>
+          </motion.div>
         </div>
       </section>
       

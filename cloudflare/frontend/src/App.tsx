@@ -7,6 +7,8 @@ import { CustomCursor } from './components/CustomCursor';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
 import { Dashboard } from './pages/Dashboard';
 import { Memories } from './pages/Memories';
 import { Compose } from './pages/Compose';
@@ -43,6 +45,8 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route
             path="/login"
             element={
