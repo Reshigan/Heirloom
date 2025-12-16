@@ -8,6 +8,8 @@ const envSchema = z.object({
   PORT: z.string().transform(Number).default('3001'),
   API_URL: z.string().url(),
   FRONTEND_URL: z.string().url(),
+  // Comma-separated list of allowed origins for CORS (Cloudflare Pages, preview URLs, etc.)
+  CORS_ORIGINS: z.string().optional(),
 
   // Database
   DATABASE_URL: z.string(),

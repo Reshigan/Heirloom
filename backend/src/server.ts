@@ -21,14 +21,41 @@ import wrappedRoutes from './routes/wrapped';
 
 const app = express();
 
-// Trust proxy for rate limiting behind Nginx
-app.set('trust proxy', 1);
+// Trust proxy for rate limiting behind Nginx/Cloudflare
+// Set to 2 if Cloudflare is in front of Nginx, 1 if just one proxy
+app.set('trust proxy', 2);
+
+// Parse allowed CORS origins from environment
+const getAllowedOrigins = (): string[] => {
+  const origins = [env.FRONTEND_URL];
+  if (env.CORS_ORIGINS) {
+    origins.push(...env.CORS_ORIGINS.split(',').map(o => o.trim()).filter(Boolean));
+  }
+  return origins;
+};
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  // Allow Cloudflare to set these headers
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+
+// CORS configuration for Cloudflare deployment
+const allowedOrigins = getAllowedOrigins();
 app.use(cors({
-  origin: env.FRONTEND_URL,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['X-Total-Count', 'X-Page', 'X-Limit'],
 }));
 
 // Rate limiting

@@ -1,0 +1,31 @@
+{
+  "name": "heirloom-worker",
+  "version": "1.0.0",
+  "description": "Heirloom API - Cloudflare Workers",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "db:create": "wrangler d1 create heirloom-db",
+    "db:migrate": "wrangler d1 execute heirloom-db --file=./migrations/0001_initial.sql",
+    "db:migrate:staging": "wrangler d1 execute heirloom-db-staging --file=./migrations/0001_initial.sql",
+    "db:migrate:local": "wrangler d1 execute heirloom-db --local --file=./migrations/0001_initial.sql",
+    "kv:create": "wrangler kv:namespace create KV",
+    "r2:create": "wrangler r2 bucket create heirloom-uploads",
+    "secret:jwt": "wrangler secret put JWT_SECRET",
+    "secret:stripe": "wrangler secret put STRIPE_SECRET_KEY",
+    "secret:resend": "wrangler secret put RESEND_API_KEY",
+    "tail": "wrangler tail",
+    "types": "wrangler types"
+  },
+  "dependencies": {
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.91.0"
+  }
+}
