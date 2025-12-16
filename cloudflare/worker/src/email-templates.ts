@@ -1,11 +1,12 @@
 /**
  * Email Templates for Heirloom
- * Matches the Dashboard Home Screen - dark wood desk with glass cards
+ * Matches the Dashboard Home Screen - sanctuary gradient with stars
  */
 
 const APP_URL = 'https://heirloom.blue';
+const BG_IMAGE_URL = 'https://heirloom.blue/email-assets/sanctuary-bg.png';
 
-// Base template wrapper with Heirloom branding - Dashboard Home Screen style
+// Base template wrapper with Heirloom branding - Sanctuary background with stars
 export const baseTemplate = (content: string) => `
 <!DOCTYPE html>
 <html>
@@ -15,10 +16,19 @@ export const baseTemplate = (content: string) => `
   <style>
     body { 
       font-family: Georgia, 'Times New Roman', serif; 
-      background: #0a0c10;
       margin: 0; 
-      padding: 40px 20px; 
+      padding: 0;
       line-height: 1.7;
+      background-color: #050608;
+    }
+    .outer-wrapper {
+      background-color: #050608;
+      background-image: url('${BG_IMAGE_URL}');
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: cover;
+      padding: 40px 20px;
+      min-height: 100%;
     }
     .wrapper {
       max-width: 640px;
@@ -48,24 +58,12 @@ export const baseTemplate = (content: string) => `
       margin-top: 8px;
       font-style: italic;
     }
-    .desk { 
-      background: linear-gradient(135deg, #2a2118 0%, #1e1811 50%, #17120c 100%);
-      border-radius: 20px;
-      box-shadow: 0 50px 100px rgba(0,0,0,0.6), 0 25px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-      overflow: hidden;
-      position: relative;
-    }
-    .desk-edge {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(201,169,89,0.15), transparent);
-      margin: 0 20px;
-    }
     .glass-card {
-      background: rgba(18,21,28,0.9);
-      border: 1px solid rgba(201,169,89,0.15);
-      border-radius: 12px;
-      margin: 24px;
+      background: rgba(18,21,28,0.85);
+      border: 1px solid rgba(201,169,89,0.2);
+      border-radius: 16px;
       padding: 32px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.4);
     }
     .content { 
       color: #f5f3ee;
@@ -197,21 +195,20 @@ export const baseTemplate = (content: string) => `
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="header">
-      <span class="logo-symbol">&#8734;</span>
-      <div class="logo">HEIRLOOM</div>
-      <div class="tagline">Your sanctuary awaits</div>
-    </div>
-    <div class="desk">
-      <div class="desk-edge"></div>
+  <div class="outer-wrapper">
+    <div class="wrapper">
+      <div class="header">
+        <span class="logo-symbol">&#8734;</span>
+        <div class="logo">HEIRLOOM</div>
+        <div class="tagline">Your sanctuary awaits</div>
+      </div>
       <div class="glass-card">
         <div class="content">${content}</div>
       </div>
-    </div>
-    <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} Heirloom. Preserving what matters.</p>
-      <p><a href="${APP_URL}">heirloom.blue</a></p>
+      <div class="footer">
+        <p>&copy; ${new Date().getFullYear()} Heirloom. Preserving what matters.</p>
+        <p><a href="${APP_URL}">heirloom.blue</a></p>
+      </div>
     </div>
   </div>
 </body>
