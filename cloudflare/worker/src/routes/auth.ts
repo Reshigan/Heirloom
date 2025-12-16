@@ -417,7 +417,7 @@ async function createSession(env: Env, userId: string, existingSessionId?: strin
     `).bind(
       sessionId,
       userId,
-      token.substring(0, 50),
+      sessionId, // Use sessionId instead of truncated token to avoid uniqueness issues
       new Date(exp * 1000).toISOString(),
       new Date().toISOString()
     ).run();
