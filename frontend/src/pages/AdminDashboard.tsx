@@ -141,13 +141,17 @@ export function AdminDashboard() {
             {/* Subscription Breakdown */}
             <div className="card">
               <h3 className="text-lg mb-4">Subscription Breakdown</h3>
-              <div className="grid grid-cols-4 gap-4">
-                {['free', 'essential', 'family', 'legacy'].map((tier) => (
-                  <div key={tier} className="p-4 bg-white/[0.02] border border-white/10 rounded">
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { key: 'starter', label: 'Starter ($1/mo)' },
+                  { key: 'family', label: 'Family ($2/mo)' },
+                  { key: 'forever', label: 'Forever ($5/mo)' },
+                ].map(({ key, label }) => (
+                  <div key={key} className="p-4 bg-white/[0.02] border border-white/10 rounded">
                     <div className="text-2xl text-gold mb-1">
-                      {overview?.subscriptions?.[tier] || 0}
+                      {overview?.subscriptions?.[key] || overview?.subscriptions?.[key.toUpperCase()] || 0}
                     </div>
-                    <div className="text-paper/50 text-sm capitalize">{tier}</div>
+                    <div className="text-paper/50 text-sm">{label}</div>
                   </div>
                 ))}
               </div>
@@ -277,12 +281,12 @@ export function AdminDashboard() {
                       </td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 text-xs ${
-                          user.subscription?.tier === 'LEGACY' ? 'bg-purple-500/20 text-purple-400' :
+                          user.subscription?.tier === 'FOREVER' ? 'bg-purple-500/20 text-purple-400' :
                           user.subscription?.tier === 'FAMILY' ? 'bg-gold/20 text-gold' :
-                          user.subscription?.tier === 'ESSENTIAL' ? 'bg-blue-500/20 text-blue-400' :
+                          user.subscription?.tier === 'STARTER' ? 'bg-blue-500/20 text-blue-400' :
                           'bg-white/10 text-paper/50'
                         }`}>
-                          {user.subscription?.tier || 'FREE'}
+                          {user.subscription?.tier || 'STARTER'}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-paper/70">
