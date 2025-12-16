@@ -24,8 +24,12 @@ router.post(
       lastName,
     });
 
-    // Send welcome email
-    await emailService.sendWelcome(user.email, user.firstName);
+    // Send welcome email (non-blocking, don't fail registration if email fails)
+    try {
+      await emailService.sendWelcome(user.email, user.firstName);
+    } catch (emailError) {
+      console.warn(`Failed to send welcome email to ${user.email}:`, emailError);
+    }
 
     res.status(201).json({
       user: {
