@@ -89,8 +89,21 @@ memoriesRoutes.get('/stats/summary', async (c) => {
     FROM memories WHERE user_id = ?
   `).bind(userId).first();
   
+  // Get letter count from letters table (letters are stored separately)
+  const letterCount = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM letters WHERE user_id = ?
+  `).bind(userId).first();
+  
+  // Get voice recording stats
+  const voiceStats = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count, SUM(duration) as total_minutes FROM voice_recordings WHERE user_id = ?
+  `).bind(userId).first();
+  
   return c.json({
     total: stats?.total || 0,
+    totalMemories: stats?.total || 0,
+    totalLetters: letterCount?.count || 0,
+    totalVoiceMinutes: Math.round(((voiceStats?.total_minutes as number) || 0) / 60),
     byType: {
       photos: stats?.photos || 0,
       videos: stats?.videos || 0,
