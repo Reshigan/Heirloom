@@ -237,6 +237,17 @@ export function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
               <span className="relative">{user?.firstName?.[0] || 'U'}</span>
             </motion.button>
+
+            {/* Logout */}
+            <motion.button
+              onClick={logout}
+              className="w-10 h-10 rounded-full glass flex items-center justify-center text-paper/60 hover:text-blood transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Sign out"
+            >
+              <LogOut size={20} />
+            </motion.button>
           </div>
         </div>
       </motion.header>
