@@ -55,20 +55,29 @@ export function Record() {
         contentType: file.type,
       });
       
-      await fetch(urlData.uploadUrl, {
+      // Upload file to R2 storage with auth header
+      const token = localStorage.getItem('token');
+      const uploadRes = await fetch(urlData.uploadUrl, {
         method: 'PUT',
         body: file,
-        headers: { 'Content-Type': file.type },
+        headers: {
+          'Content-Type': file.type,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
       
-      // Construct the file URL for playback
-      // @ts-ignore - Vite env types
-      const fileUrl = `${import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue/api'}/voice/file/${encodeURIComponent(urlData.key)}`;
+      if (!uploadRes.ok) {
+        const errorBody = await uploadRes.text();
+        throw new Error(`Upload failed (${uploadRes.status}): ${errorBody}`);
+      }
+      
+      // Get the response with key and fileUrl from the upload endpoint
+      const uploadResult = await uploadRes.json();
       
       return voiceApi.create({
         title: data.form.title || 'Untitled Recording',
-        fileKey: urlData.key,
-        fileUrl,
+        fileKey: uploadResult.key,
+        fileUrl: uploadResult.fileUrl,
         mimeType: file.type,
         duration: Math.floor(recordingTime),
         fileSize: file.size,
