@@ -67,9 +67,9 @@ export const authApi = {
 export const familyApi = {
   getAll: () => api.get('/family'),
   getOne: (id: string) => api.get(`/family/${id}`),
-  create: (data: { name: string; relationship: string; email?: string; phone?: string }) =>
+  create: (data: { name: string; relationship: string; email?: string; phone?: string; avatarUrl?: string }) =>
     api.post('/family', data),
-  update: (id: string, data: Partial<{ name: string; relationship: string; email: string }>) =>
+  update: (id: string, data: Partial<{ name: string; relationship: string; email: string; avatarUrl: string }>) =>
     api.patch(`/family/${id}`, data),
   delete: (id: string) => api.delete(`/family/${id}`),
 };
@@ -128,11 +128,13 @@ export const billingApi = {
 // Settings API
 export const settingsApi = {
   getProfile: () => api.get('/settings/profile'),
-  updateProfile: (data: { firstName?: string; lastName?: string }) =>
+  updateProfile: (data: { firstName?: string; lastName?: string; avatarUrl?: string }) =>
     api.patch('/settings/profile', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post('/settings/change-password', data),
   deleteAccount: (password: string) => api.delete('/settings/account', { data: { password } }),
+  getUploadUrl: (data: { filename: string; contentType: string }) =>
+    api.post('/settings/upload-url', data),
 };
 
 // Dead Man's Switch API

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe, Check, ArrowUp, ArrowDown, Tag } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe, Check, ArrowUp, ArrowDown, Tag, Camera } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { AvatarCropperModal } from '../components/AvatarCropperModal';
 
 // Mass-Adoption Pricing: $1 / $2 / $5
 const SUBSCRIPTION_PLANS = [
@@ -48,11 +49,67 @@ export function Settings() {
   const queryClient = useQueryClient();
   const { user, updateUser, logout } = useAuthStore();
 
-  const [activeTab, setActiveTab] = useState<string>('profile');
-  const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
-  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
-  const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
-  const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
+    const [activeTab, setActiveTab] = useState<string>('profile');
+    const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
+    const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
+    const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
+    const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
+  
+    // Avatar upload state
+    const [showAvatarCropper, setShowAvatarCropper] = useState(false);
+    const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatarUrl || null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Handle file selection for avatar
+    const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setSelectedImageSrc(event.target?.result as string);
+          setShowAvatarCropper(true);
+        };
+        reader.readAsDataURL(file);
+      }
+      // Reset input so same file can be selected again
+      if (e.target) e.target.value = '';
+    };
+
+    // Handle cropped avatar upload
+    const handleAvatarCropComplete = async (croppedFile: File, previewUrl: string) => {
+      setIsUploadingAvatar(true);
+      try {
+        // Get upload URL from API
+        const { data: urlData } = await settingsApi.getUploadUrl({
+          filename: croppedFile.name,
+          contentType: croppedFile.type,
+        });
+      
+        // Upload to R2
+        await fetch(urlData.uploadUrl, {
+          method: 'PUT',
+          body: croppedFile,
+          headers: { 'Content-Type': croppedFile.type },
+        });
+      
+        // Update profile with new avatar URL
+        await settingsApi.updateProfile({ avatarUrl: urlData.url });
+      
+        // Update local state
+        setAvatarPreview(previewUrl);
+        updateUser({ ...user!, avatarUrl: urlData.url });
+        queryClient.invalidateQueries({ queryKey: ['auth-me'] });
+      
+        setShowAvatarCropper(false);
+        setSelectedImageSrc(null);
+      } catch (error) {
+        console.error('Failed to upload avatar:', error);
+      } finally {
+        setIsUploadingAvatar(false);
+      }
+    };
 
   const { data: subscription } = useQuery({
     queryKey: ['subscription'],
@@ -204,17 +261,46 @@ export function Settings() {
 
           {/* Content */}
           <div className="flex-1 space-y-6">
-            {activeTab === 'profile' && (
-              <div className="card">
-                <div className="flex items-center gap-6 mb-8">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-2xl font-medium">
-                    {initials}
-                  </div>
-                  <div>
-                    <h2 className="text-xl">{user?.firstName} {user?.lastName}</h2>
-                    <p className="text-paper/50">{user?.email}</p>
-                  </div>
-                </div>
+                        {activeTab === 'profile' && (
+                          <div className="card">
+                            <div className="flex items-center gap-6 mb-8">
+                              <div className="relative group">
+                                {avatarPreview || user?.avatarUrl ? (
+                                  <img 
+                                    src={avatarPreview || user?.avatarUrl || undefined} 
+                                    alt="Profile" 
+                                    className="w-20 h-20 rounded-full object-cover border-2 border-gold/30"
+                                  />
+                                ) : (
+                                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-2xl font-medium">
+                                    {initials}
+                                  </div>
+                                )}
+                                <button
+                                  onClick={() => fileInputRef.current?.click()}
+                                  className="absolute inset-0 flex items-center justify-center bg-void/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                >
+                                  <Camera size={24} className="text-gold" />
+                                </button>
+                                <input
+                                  ref={fileInputRef}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleAvatarFileSelect}
+                                  className="hidden"
+                                />
+                              </div>
+                              <div>
+                                <h2 className="text-xl">{user?.firstName} {user?.lastName}</h2>
+                                <p className="text-paper/50">{user?.email}</p>
+                                <button
+                                  onClick={() => fileInputRef.current?.click()}
+                                  className="text-sm text-gold hover:text-gold-dim mt-1"
+                                >
+                                  Change photo
+                                </button>
+                              </div>
+                            </div>
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -626,6 +712,18 @@ export function Settings() {
         </div>
       </div>
       </div>
+
+      {/* Avatar Cropper Modal */}
+      <AvatarCropperModal
+        isOpen={showAvatarCropper}
+        imageSrc={selectedImageSrc}
+        onCancel={() => {
+          setShowAvatarCropper(false);
+          setSelectedImageSrc(null);
+        }}
+        onComplete={handleAvatarCropComplete}
+        isUploading={isUploadingAvatar}
+      />
     </div>
   );
 }

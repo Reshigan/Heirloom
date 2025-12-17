@@ -73,6 +73,61 @@ settingsRoutes.patch('/profile', async (c) => {
   });
 });
 
+// Get upload URL for avatar
+settingsRoutes.post('/upload-url', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json();
+  
+  const { filename, contentType } = body;
+  
+  if (!filename || !contentType) {
+    return c.json({ error: 'Filename and content type are required' }, 400);
+  }
+  
+  // Generate unique key for the file
+  const key = `avatars/${userId}/${Date.now()}-${filename}`;
+  
+  // Check if R2 bucket is available
+  if (!c.env.R2_BUCKET) {
+    return c.json({ error: 'Storage not configured' }, 500);
+  }
+  
+  // Generate a signed URL for direct upload to R2
+  // For Cloudflare R2, we'll use a presigned URL approach
+  const uploadUrl = `https://api.heirloom.blue/api/settings/upload/${key}`;
+  const publicUrl = `https://uploads.heirloom.blue/${key}`;
+  
+  return c.json({
+    uploadUrl,
+    key,
+    url: publicUrl,
+  });
+});
+
+// Handle direct file upload to R2
+settingsRoutes.put('/upload/:key{.+}', async (c) => {
+  const userId = c.get('userId');
+  const key = c.req.param('key');
+  
+  // Verify the key belongs to this user
+  if (!key.startsWith(`avatars/${userId}/`)) {
+    return c.json({ error: 'Unauthorized' }, 403);
+  }
+  
+  if (!c.env.R2_BUCKET) {
+    return c.json({ error: 'Storage not configured' }, 500);
+  }
+  
+  const body = await c.req.arrayBuffer();
+  const contentType = c.req.header('Content-Type') || 'image/jpeg';
+  
+  await c.env.R2_BUCKET.put(key, body, {
+    httpMetadata: { contentType },
+  });
+  
+  return c.json({ success: true, key });
+});
+
 // Change password (supports both /password and /change-password for compatibility)
 settingsRoutes.post('/change-password', async (c) => {
   const userId = c.get('userId');

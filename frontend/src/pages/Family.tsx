@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, X, Pen, Trash2, Mail, Phone, Heart, Users, Check, AlertCircle } from 'lucide-react';
-import { familyApi } from '../services/api';
+import { ArrowLeft, Plus, X, Pen, Trash2, Mail, Phone, Heart, Users, Check, AlertCircle, Camera } from 'lucide-react';
+import { familyApi, settingsApi } from '../services/api';
+import { AvatarCropperModal } from '../components/AvatarCropperModal';
 
 const RELATIONSHIPS = ['Spouse', 'Partner', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Grandparent', 'Friend', 'Other'];
 
@@ -11,11 +12,59 @@ export function Family() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', relationship: '', email: '', phone: '' });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [form, setForm] = useState({ name: '', relationship: '', email: '', phone: '', avatarUrl: '' });
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  
+    // Avatar upload state
+    const [showAvatarCropper, setShowAvatarCropper] = useState(false);
+    const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Handle file selection for avatar
+    const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setSelectedImageSrc(event.target?.result as string);
+          setShowAvatarCropper(true);
+        };
+        reader.readAsDataURL(file);
+      }
+      if (e.target) e.target.value = '';
+    };
+
+    // Handle cropped avatar upload
+    const handleAvatarCropComplete = async (croppedFile: File, previewUrl: string) => {
+      setIsUploadingAvatar(true);
+      try {
+        const { data: urlData } = await settingsApi.getUploadUrl({
+          filename: croppedFile.name,
+          contentType: croppedFile.type,
+        });
+      
+        await fetch(urlData.uploadUrl, {
+          method: 'PUT',
+          body: croppedFile,
+          headers: { 'Content-Type': croppedFile.type },
+        });
+      
+        setAvatarPreview(previewUrl);
+        setForm({ ...form, avatarUrl: urlData.url });
+        setShowAvatarCropper(false);
+        setSelectedImageSrc(null);
+      } catch (error) {
+        console.error('Failed to upload avatar:', error);
+        showToast('error', 'Failed to upload photo');
+      } finally {
+        setIsUploadingAvatar(false);
+      }
+    };
 
   const { data: family, isLoading } = useQuery({
     queryKey: ['family'],
@@ -33,32 +82,34 @@ export function Family() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const createMutation = useMutation({
-    mutationFn: (data: typeof form) => familyApi.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['family'] });
-      setShowAddModal(false);
-      setForm({ name: '', relationship: '', email: '', phone: '' });
-      showToast('success', 'Family member added successfully');
-    },
-    onError: (error: any) => {
-      setErrors({ submit: error.response?.data?.error || 'Failed to add family member' });
-    },
-  });
+    const createMutation = useMutation({
+      mutationFn: (data: typeof form) => familyApi.create(data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['family'] });
+        setShowAddModal(false);
+        setForm({ name: '', relationship: '', email: '', phone: '', avatarUrl: '' });
+        setAvatarPreview(null);
+        showToast('success', 'Family member added successfully');
+      },
+      onError: (error: any) => {
+        setErrors({ submit: error.response?.data?.error || 'Failed to add family member' });
+      },
+    });
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<typeof form> }) => familyApi.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['family'] });
-      setEditingId(null);
-      setShowAddModal(false);
-      setForm({ name: '', relationship: '', email: '', phone: '' });
-      showToast('success', 'Family member updated');
-    },
-    onError: () => {
-      showToast('error', 'Failed to update');
-    },
-  });
+    const updateMutation = useMutation({
+      mutationFn: ({ id, data }: { id: string; data: Partial<typeof form> }) => familyApi.update(id, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['family'] });
+        setEditingId(null);
+        setShowAddModal(false);
+        setForm({ name: '', relationship: '', email: '', phone: '', avatarUrl: '' });
+        setAvatarPreview(null);
+        showToast('success', 'Family member updated');
+      },
+      onError: () => {
+        showToast('error', 'Failed to update');
+      },
+    });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => familyApi.delete(id),
@@ -100,16 +151,18 @@ export function Family() {
     }
   };
 
-  const openEditModal = (member: any) => {
-    setForm({
-      name: member.name,
-      relationship: member.relationship,
-      email: member.email || '',
-      phone: member.phone || '',
-    });
-    setEditingId(member.id);
-    setShowAddModal(true);
-  };
+    const openEditModal = (member: any) => {
+      setForm({
+        name: member.name,
+        relationship: member.relationship,
+        email: member.email || '',
+        phone: member.phone || '',
+        avatarUrl: member.avatarUrl || '',
+      });
+      setAvatarPreview(member.avatarUrl || null);
+      setEditingId(member.id);
+      setShowAddModal(true);
+    };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -302,14 +355,15 @@ export function Family() {
               );
             })}
 
-            {/* Add button */}
-            <motion.button
-              onClick={() => {
-                setEditingId(null);
-                setForm({ name: '', relationship: '', email: '', phone: '' });
-                setErrors({});
-                setShowAddModal(true);
-              }}
+                        {/* Add button */}
+                        <motion.button
+                          onClick={() => {
+                            setEditingId(null);
+                            setForm({ name: '', relationship: '', email: '', phone: '', avatarUrl: '' });
+                            setAvatarPreview(null);
+                            setErrors({});
+                            setShowAddModal(true);
+                          }}
               className="absolute bottom-0 right-0 w-14 h-14 rounded-full glass border border-dashed border-gold/30 flex items-center justify-center text-gold/50 hover:text-gold hover:border-gold hover:bg-gold/10 transition-all"
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.95 }}
@@ -481,18 +535,50 @@ export function Family() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="block text-sm text-paper/50 mb-2">Name *</label>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className={`input ${errors.name ? 'border-blood' : ''}`}
-                    placeholder="Enter name"
-                  />
-                  {errors.name && <p className="text-blood text-sm mt-1">{errors.name}</p>}
-                </div>
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                              {/* Avatar Upload */}
+                              <div className="flex justify-center mb-4">
+                                <div className="relative group">
+                                  {avatarPreview || form.avatarUrl ? (
+                                    <img 
+                                      src={avatarPreview || form.avatarUrl} 
+                                      alt="Avatar" 
+                                      className="w-24 h-24 rounded-full object-cover border-2 border-gold/30"
+                                    />
+                                  ) : (
+                                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold/20 to-gold-dim/20 flex items-center justify-center text-gold text-3xl font-medium border-2 border-dashed border-gold/30">
+                                      {form.name ? form.name[0].toUpperCase() : '?'}
+                                    </div>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="absolute inset-0 flex items-center justify-center bg-void/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                  >
+                                    <Camera size={24} className="text-gold" />
+                                  </button>
+                                  <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleAvatarFileSelect}
+                                    className="hidden"
+                                  />
+                                </div>
+                              </div>
+                              <p className="text-center text-paper/40 text-sm -mt-2 mb-4">Click to add photo</p>
+
+                              <div>
+                                <label className="block text-sm text-paper/50 mb-2">Name *</label>
+                                <input
+                                  type="text"
+                                  value={form.name}
+                                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                  className={`input ${errors.name ? 'border-blood' : ''}`}
+                                  placeholder="Enter name"
+                                />
+                                {errors.name && <p className="text-blood text-sm mt-1">{errors.name}</p>}
+                              </div>
 
                 <div>
                   <label className="block text-sm text-paper/50 mb-2">Relationship *</label>
@@ -569,6 +655,18 @@ export function Family() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Avatar Cropper Modal */}
+      <AvatarCropperModal
+        isOpen={showAvatarCropper}
+        imageSrc={selectedImageSrc}
+        onCancel={() => {
+          setShowAvatarCropper(false);
+          setSelectedImageSrc(null);
+        }}
+        onComplete={handleAvatarCropComplete}
+        isUploading={isUploadingAvatar}
+      />
     </div>
   );
 }

@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
 import { lettersApi, familyApi } from '../services/api';
 
+// API URL for Ollama
+const OLLAMA_API = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
+
 // Custom SVG Icons
 const Icons = {
   envelope: (
@@ -83,6 +86,17 @@ const Icons = {
       <path d="M20 6L9 17l-5-5" />
     </svg>
   ),
+  sparkles: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+      <circle cx="12" cy="12" r="4" />
+    </svg>
+  ),
+  loader: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.364-6.364l-2.828 2.828M9.464 14.536l-2.828 2.828m12.728 0l-2.828-2.828M9.464 9.464L6.636 6.636" />
+    </svg>
+  ),
 };
 
 interface Letter {
@@ -154,11 +168,66 @@ export function Compose() {
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [deliveryTrigger, setDeliveryTrigger] = useState<'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS'>('POSTHUMOUS');
   const [scheduledDate, setScheduledDate] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [showSealConfirm, setShowSealConfirm] = useState(false);
-  const [isSealing, setIsSealing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [showSealConfirm, setShowSealConfirm] = useState(false);
+    const [isSealing, setIsSealing] = useState(false);
+    const [isAiAssisting, setIsAiAssisting] = useState(false);
+    const [aiSuggestion, setAiSuggestion] = useState('');
 
-  useEffect(() => {
+    // AI Assist function using Ollama
+    const handleAiAssist = async () => {
+      if (isAiAssisting) return;
+    
+      setIsAiAssisting(true);
+      setAiSuggestion('');
+    
+      try {
+        const recipientNames = selectedRecipients
+          .map(id => familyMembers.find(m => m.id === id)?.name)
+          .filter(Boolean)
+          .join(', ');
+      
+        const prompt = `You are helping someone write a heartfelt letter to their loved ones (${recipientNames || 'family'}). 
+      
+  Current letter content:
+  ${salutation}
+  ${body || '[No content yet]'}
+  ${signature}
+
+  Please suggest a thoughtful continuation or improvement for this letter. Keep it warm, personal, and emotionally resonant. Write 2-3 sentences that could be added. Only provide the suggested text, no explanations.`;
+
+        const response = await fetch(`${OLLAMA_API}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama3.2',
+            prompt,
+            stream: false,
+          }),
+        });
+      
+        if (response.ok) {
+          const data = await response.json();
+          setAiSuggestion(data.response?.trim() || '');
+        } else {
+          setAiSuggestion('AI assist is currently unavailable. Please try again later.');
+        }
+      } catch (error) {
+        console.error('AI assist error:', error);
+        setAiSuggestion('Could not connect to AI. Please check your connection.');
+      } finally {
+        setIsAiAssisting(false);
+      }
+    };
+
+    const insertAiSuggestion = () => {
+      if (aiSuggestion && !aiSuggestion.includes('unavailable') && !aiSuggestion.includes('Could not')) {
+        setBody(prev => prev + (prev ? '\n\n' : '') + aiSuggestion);
+        setAiSuggestion('');
+      }
+    };
+
+    useEffect(() => {
     fetchLetters();
     fetchFamilyMembers();
   }, []);
@@ -372,37 +441,96 @@ export function Compose() {
               </div>
             </div>
 
-            {/* Letter Content */}
-            <div className="bg-void-light border border-gold/20 rounded-2xl p-8">
-              {/* Salutation */}
-              <input
-                type="text"
-                value={salutation}
-                onChange={(e) => setSalutation(e.target.value)}
-                placeholder="Dear..."
-                className="w-full text-2xl font-serif text-gold bg-transparent border-none focus:outline-none mb-6"
-              />
+                        {/* Letter Content - Handwritten Style */}
+                        <div className="relative">
+                          {/* Paper texture background */}
+                          <div 
+                            className="absolute inset-0 rounded-2xl opacity-10"
+                            style={{
+                              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                            }}
+                          />
               
-              {/* Body */}
-              <textarea
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                placeholder="Write your letter here..."
-                rows={15}
-                className="w-full bg-transparent border-none text-paper text-lg leading-relaxed focus:outline-none resize-none placeholder:text-paper/30"
-              />
-              
-              {/* Signature */}
-              <div className="mt-8 pt-6 border-t border-gold/10">
-                <input
-                  type="text"
-                  value={signature}
-                  onChange={(e) => setSignature(e.target.value)}
-                  placeholder="With love..."
-                  className="w-full text-lg font-serif text-paper/80 bg-transparent border-none focus:outline-none"
-                />
-              </div>
-            </div>
+                          <div 
+                            className="relative bg-gradient-to-b from-amber-50/5 to-amber-100/5 border border-gold/30 rounded-2xl p-8 shadow-inner"
+                            style={{
+                              backgroundImage: `repeating-linear-gradient(transparent, transparent 31px, rgba(201,169,89,0.1) 31px, rgba(201,169,89,0.1) 32px)`,
+                              backgroundPosition: '0 24px',
+                            }}
+                          >
+                            {/* AI Assist Button */}
+                            <div className="absolute top-4 right-4 flex items-center gap-2">
+                              <button
+                                onClick={handleAiAssist}
+                                disabled={isAiAssisting}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-500/20 to-gold/20 border border-gold/30 rounded-lg text-gold hover:border-gold/50 transition-all disabled:opacity-50"
+                                title="Get AI writing suggestions"
+                              >
+                                <span className={`w-4 h-4 ${isAiAssisting ? 'animate-spin' : ''}`}>
+                                  {isAiAssisting ? Icons.loader : Icons.sparkles}
+                                </span>
+                                <span className="text-sm">{isAiAssisting ? 'Thinking...' : 'AI Assist'}</span>
+                              </button>
+                            </div>
+
+                            {/* Salutation */}
+                            <input
+                              type="text"
+                              value={salutation}
+                              onChange={(e) => setSalutation(e.target.value)}
+                              placeholder="Dear..."
+                              className="w-full text-2xl text-gold bg-transparent border-none focus:outline-none mb-6"
+                              style={{ fontFamily: "'Caveat', 'Dancing Script', cursive, serif" }}
+                            />
+                
+                            {/* Body */}
+                            <textarea
+                              value={body}
+                              onChange={(e) => setBody(e.target.value)}
+                              placeholder="Write your letter here... Let your heart speak freely."
+                              rows={15}
+                              className="w-full bg-transparent border-none text-paper text-xl leading-loose focus:outline-none resize-none placeholder:text-paper/30"
+                              style={{ fontFamily: "'Caveat', 'Dancing Script', cursive, serif" }}
+                            />
+
+                            {/* AI Suggestion Box */}
+                            {aiSuggestion && (
+                              <div className="mt-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 text-purple-400 text-sm mb-2">
+                                      <span className="w-4 h-4">{Icons.sparkles}</span>
+                                      <span>AI Suggestion</span>
+                                    </div>
+                                    <p className="text-paper/80 italic" style={{ fontFamily: "'Caveat', 'Dancing Script', cursive, serif" }}>
+                                      {aiSuggestion}
+                                    </p>
+                                  </div>
+                                  {!aiSuggestion.includes('unavailable') && !aiSuggestion.includes('Could not') && (
+                                    <button
+                                      onClick={insertAiSuggestion}
+                                      className="px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 rounded-lg text-purple-300 hover:bg-purple-500/30 transition-colors text-sm"
+                                    >
+                                      Insert
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                
+                            {/* Signature */}
+                            <div className="mt-8 pt-6 border-t border-gold/20">
+                              <input
+                                type="text"
+                                value={signature}
+                                onChange={(e) => setSignature(e.target.value)}
+                                placeholder="With love..."
+                                className="w-full text-xl text-paper/80 bg-transparent border-none focus:outline-none"
+                                style={{ fontFamily: "'Caveat', 'Dancing Script', cursive, serif" }}
+                              />
+                            </div>
+                          </div>
+                        </div>
 
             {/* Writing Prompts */}
             <div>
