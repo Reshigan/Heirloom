@@ -61,12 +61,17 @@ export function Record() {
         headers: { 'Content-Type': file.type },
       });
       
+      // Construct the file URL for playback
+      // @ts-ignore - Vite env types
+      const fileUrl = `${import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue/api'}/voice/file/${encodeURIComponent(urlData.key)}`;
+      
       return voiceApi.create({
         title: data.form.title || 'Untitled Recording',
-        s3Key: urlData.key,
+        fileKey: urlData.key,
+        fileUrl,
         mimeType: file.type,
         duration: Math.floor(recordingTime),
-        promptId: data.form.promptId,
+        fileSize: file.size,
         recipientIds: data.form.recipientIds,
       });
     },
