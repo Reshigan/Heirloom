@@ -2,9 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe, Check, AlertCircle } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+
+// Notification preferences type
+interface NotificationPrefs {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  reminderEmails: boolean;
+  marketingEmails: boolean;
+  weeklyDigest: boolean;
+}
 
 const CURRENCIES = [
   { code: 'USD', name: 'US Dollar', symbol: '$' },
@@ -21,11 +30,23 @@ export function Settings() {
   const queryClient = useQueryClient();
   const { user, updateUser, logout } = useAuthStore();
 
-  const [activeTab, setActiveTab] = useState<string>('profile');
-  const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
-  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
-  const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
-  const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
+    const [activeTab, setActiveTab] = useState<string>('profile');
+    const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
+    const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
+    const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
+    const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
+  
+    // Notification preferences state
+    const [notificationPrefs, setNotificationPrefs] = useState<NotificationPrefs>({
+      emailNotifications: true,
+      pushNotifications: true,
+      reminderEmails: true,
+      marketingEmails: false,
+      weeklyDigest: true,
+    });
+  
+    // Status messages for user feedback
+    const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const { data: subscription } = useQuery({
     queryKey: ['subscription'],
@@ -52,70 +73,141 @@ export function Settings() {
     queryFn: () => encryptionApi.getParams().then(r => r.data),
   });
 
-  const { data: legacyContacts } = useQuery({
-    queryKey: ['legacy-contacts'],
-    queryFn: () => legacyContactsApi.getAll().then(r => r.data),
-  });
+    const { data: legacyContacts } = useQuery({
+      queryKey: ['legacy-contacts'],
+      queryFn: () => legacyContactsApi.getAll().then(r => r.data),
+    });
 
-  const updateProfileMutation = useMutation({
-    mutationFn: () => settingsApi.updateProfile(profile),
-    onSuccess: (res) => {
-      updateUser(res.data);
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-    },
-  });
+    // Fetch notification preferences
+    const { data: notificationData } = useQuery({
+      queryKey: ['notifications'],
+      queryFn: () => settingsApi.getNotifications().then(r => r.data),
+    });
 
-  const changePasswordMutation = useMutation({
-    mutationFn: () => settingsApi.changePassword({ currentPassword: passwords.current, newPassword: passwords.new }),
-    onSuccess: () => {
-      setPasswords({ current: '', new: '', confirm: '' });
-      alert('Password changed successfully');
-    },
-  });
+    // Update notification prefs when data loads
+    useEffect(() => {
+      if (notificationData?.preferences) {
+        setNotificationPrefs(notificationData.preferences);
+      }
+    }, [notificationData]);
 
-  const updateCurrencyMutation = useMutation({
-    mutationFn: (currency: string) => billingApi.updateCurrency(currency),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pricing'] });
-    },
-  });
+    // Clear status message after 3 seconds
+    useEffect(() => {
+      if (statusMessage) {
+        const timer = setTimeout(() => setStatusMessage(null), 3000);
+        return () => clearTimeout(timer);
+      }
+    }, [statusMessage]);
 
-  const checkoutMutation = useMutation({
-    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
-    onSuccess: (res) => {
-      window.location.href = res.data.url;
-    },
-  });
+    const updateProfileMutation = useMutation({
+      mutationFn: () => settingsApi.updateProfile(profile),
+      onSuccess: (res) => {
+        updateUser(res.data);
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+        setStatusMessage({ type: 'success', text: 'Profile updated successfully' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to update profile' });
+      },
+    });
 
-  const configureDeadmanMutation = useMutation({
-    mutationFn: () => deadmanApi.configure(deadmanConfig),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
-    },
-  });
+    const changePasswordMutation = useMutation({
+      mutationFn: () => settingsApi.changePassword({ currentPassword: passwords.current, newPassword: passwords.new }),
+      onSuccess: () => {
+        setPasswords({ current: '', new: '', confirm: '' });
+        setStatusMessage({ type: 'success', text: 'Password changed successfully' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to change password. Check your current password.' });
+      },
+    });
 
-  const checkInMutation = useMutation({
-    mutationFn: () => deadmanApi.checkIn(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
-    },
-  });
+    const updateCurrencyMutation = useMutation({
+      mutationFn: (currency: string) => billingApi.updateCurrency(currency),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['pricing'] });
+        setStatusMessage({ type: 'success', text: 'Currency updated' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to update currency' });
+      },
+    });
 
-  const addLegacyContactMutation = useMutation({
-    mutationFn: () => legacyContactsApi.add(newLegacyContact),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['legacy-contacts'] });
-      setNewLegacyContact({ name: '', email: '', relationship: '' });
-    },
-  });
+    const checkoutMutation = useMutation({
+      mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
+      onSuccess: (res) => {
+        window.location.href = res.data.url;
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to start checkout' });
+      },
+    });
 
-  const deleteAccountMutation = useMutation({
-    mutationFn: (password: string) => settingsApi.deleteAccount(password),
-    onSuccess: () => {
-      logout();
-      navigate('/');
-    },
-  });
+    const configureDeadmanMutation = useMutation({
+      mutationFn: () => deadmanApi.configure(deadmanConfig),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
+        setStatusMessage({ type: 'success', text: 'Dead man\'s switch configured' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to configure dead man\'s switch' });
+      },
+    });
+
+    const checkInMutation = useMutation({
+      mutationFn: () => deadmanApi.checkIn(),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
+        setStatusMessage({ type: 'success', text: 'Check-in successful' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to check in' });
+      },
+    });
+
+    const addLegacyContactMutation = useMutation({
+      mutationFn: () => legacyContactsApi.add(newLegacyContact),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['legacy-contacts'] });
+        setNewLegacyContact({ name: '', email: '', relationship: '' });
+        setStatusMessage({ type: 'success', text: 'Legacy contact added' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to add legacy contact' });
+      },
+    });
+
+    const deleteAccountMutation = useMutation({
+      mutationFn: (password: string) => settingsApi.deleteAccount(password),
+      onSuccess: () => {
+        logout();
+        navigate('/');
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to delete account. Check your password.' });
+      },
+    });
+
+    // Notification preferences mutation
+    const updateNotificationsMutation = useMutation({
+      mutationFn: (prefs: NotificationPrefs) => settingsApi.updateNotifications(prefs),
+      onSuccess: (res) => {
+        if (res.data.preferences) {
+          setNotificationPrefs(res.data.preferences);
+        }
+        setStatusMessage({ type: 'success', text: 'Notification preferences saved' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to save notification preferences' });
+      },
+    });
+
+    // Helper to update a single notification preference
+    const handleNotificationToggle = (key: keyof NotificationPrefs, value: boolean) => {
+      const updated = { ...notificationPrefs, [key]: value };
+      setNotificationPrefs(updated);
+      updateNotificationsMutation.mutate(updated);
+    };
 
   const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
 
@@ -135,10 +227,22 @@ export function Settings() {
         Back to Vault
       </button>
 
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-light mb-12">Settings</h1>
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-4xl font-light mb-12">Settings</h1>
 
-        <div className="flex flex-col md:flex-row gap-8">
+              {/* Status message toast */}
+              {statusMessage && (
+                <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg transition-all ${
+                  statusMessage.type === 'success' 
+                    ? 'bg-green-500/20 border border-green-500/30 text-green-400' 
+                    : 'bg-blood/20 border border-blood/30 text-blood'
+                }`}>
+                  {statusMessage.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
+                  <span>{statusMessage.text}</span>
+                </div>
+              )}
+
+              <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <div className="md:w-56 space-y-1">
             {tabs.map(({ id, label, icon: Icon }) => (
@@ -440,27 +544,35 @@ export function Settings() {
               </div>
             )}
 
-            {activeTab === 'notifications' && (
-              <div className="card space-y-6">
-                {[
-                  { id: 'email', label: 'Email notifications', desc: 'Receive updates about your memories' },
-                  { id: 'checkin', label: 'Check-in reminders', desc: 'Get reminded to check in for dead man\'s switch' },
-                  { id: 'delivery', label: 'Delivery confirmations', desc: 'Know when your letters are delivered' },
-                  { id: 'trial', label: 'Trial warnings', desc: 'Get notified before your trial expires' },
-                ].map(({ id, label, desc }) => (
-                  <div key={id} className="flex items-center justify-between">
-                    <div>
-                      <div className="text-paper">{label}</div>
-                      <div className="text-paper/40 text-sm">{desc}</div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" defaultChecked className="sr-only peer" />
-                      <div className="w-12 h-7 bg-white/10 peer-checked:bg-gold rounded-full peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-paper after:rounded-full after:h-5 after:w-5 after:transition-all" />
-                    </label>
-                  </div>
-                ))}
-              </div>
-            )}
+                        {activeTab === 'notifications' && (
+                          <div className="card space-y-6">
+                            {[
+                              { id: 'emailNotifications' as keyof NotificationPrefs, label: 'Email notifications', desc: 'Receive updates about your memories' },
+                              { id: 'reminderEmails' as keyof NotificationPrefs, label: 'Check-in reminders', desc: 'Get reminded to check in for dead man\'s switch' },
+                              { id: 'pushNotifications' as keyof NotificationPrefs, label: 'Delivery confirmations', desc: 'Know when your letters are delivered' },
+                              { id: 'weeklyDigest' as keyof NotificationPrefs, label: 'Weekly digest', desc: 'Get a weekly summary of your activity' },
+                            ].map(({ id, label, desc }) => (
+                              <div key={id} className="flex items-center justify-between">
+                                <div>
+                                  <div className="text-paper">{label}</div>
+                                  <div className="text-paper/40 text-sm">{desc}</div>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={notificationPrefs[id]} 
+                                    onChange={(e) => handleNotificationToggle(id, e.target.checked)}
+                                    className="sr-only peer" 
+                                  />
+                                  <div className="w-12 h-7 bg-white/10 peer-checked:bg-gold rounded-full peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-paper after:rounded-full after:h-5 after:w-5 after:transition-all" />
+                                </label>
+                              </div>
+                            ))}
+                            {updateNotificationsMutation.isPending && (
+                              <div className="text-paper/40 text-sm">Saving...</div>
+                            )}
+                          </div>
+                        )}
 
             {activeTab === 'security' && (
               <div className="space-y-6">

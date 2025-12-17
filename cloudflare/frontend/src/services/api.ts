@@ -1,11 +1,23 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// @ts-ignore - Vite env types
+const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue/api';
 
 const api = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
 });
+
+// Token management functions
+export const setTokens = (accessToken: string, refreshToken: string) => {
+  localStorage.setItem('token', accessToken);
+  localStorage.setItem('refreshToken', refreshToken);
+};
+
+export const clearTokens = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+};
 
 // Add auth token to requests
 api.interceptors.request.use((config) => {
@@ -44,7 +56,7 @@ api.interceptors.response.use(
 export const authApi = {
   register: (data: { email: string; password: string; firstName: string; lastName: string }) =>
     api.post('/auth/register', data),
-  login: (email: string, password: string) => api.post('/auth/login', { email, password }),
+  login: (data: { email: string; password: string }) => api.post('/auth/login', data),
   logout: () => api.post('/auth/logout'),
   me: () => api.get('/auth/me'),
   refresh: (refreshToken: string) => api.post('/auth/refresh', { refreshToken }),
@@ -115,11 +127,14 @@ export const billingApi = {
 // Settings API
 export const settingsApi = {
   getProfile: () => api.get('/settings/profile'),
-  updateProfile: (data: { firstName?: string; lastName?: string }) =>
+  updateProfile: (data: { firstName?: string; lastName?: string; avatarUrl?: string }) =>
     api.patch('/settings/profile', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post('/settings/change-password', data),
   deleteAccount: (password: string) => api.delete('/settings/account', { data: { password } }),
+  getNotifications: () => api.get('/settings/notifications'),
+  updateNotifications: (data: { emailNotifications?: boolean; pushNotifications?: boolean; reminderEmails?: boolean; marketingEmails?: boolean; weeklyDigest?: boolean }) =>
+    api.patch('/settings/notifications', data),
 };
 
 // Dead Man's Switch API
