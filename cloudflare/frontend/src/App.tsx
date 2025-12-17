@@ -19,6 +19,7 @@ import { Billing } from './pages/Billing';
 import { Letters } from './pages/Letters';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
+import Wrapped from './pages/Wrapped';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -131,16 +132,24 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/letters"
-            element={
-              <ProtectedRoute>
-                <Letters />
-              </ProtectedRoute>
-            }
-          />
+                    <Route
+                      path="/letters"
+                      element={
+                        <ProtectedRoute>
+                          <Letters />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/wrapped"
+                      element={
+                        <ProtectedRoute>
+                          <Wrapped />
+                        </ProtectedRoute>
+                      }
+                    />
 
-          {/* Admin routes */}
+                    {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />

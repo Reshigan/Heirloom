@@ -169,7 +169,15 @@ export const legacyContactsApi = {
   resendVerification: (id: string) => api.post(`/settings/legacy-contacts/${id}/resend`),
 };
 
-// Admin API (uses admin token from localStorage)
+// Wrapped API (Year in Review)
+export const wrappedApi = {
+  getCurrent: () => api.get('/wrapped/' + new Date().getFullYear()),
+  getYear: (year: number) => api.get(`/wrapped/${year}`),
+  regenerate: (year: number) => api.post(`/wrapped/${year}/regenerate`),
+  getYears: () => api.get('/wrapped'),
+};
+
+// Admin API(uses admin token from localStorage)
 const adminAxios = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
