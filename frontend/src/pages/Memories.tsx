@@ -1,9 +1,25 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List } from 'lucide-react';
+import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun } from 'lucide-react';
 import { memoriesApi, familyApi } from '../services/api';
+
+type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
+
+const EMOTIONS: { value: EmotionType; label: string; icon: React.ElementType; color: string }[] = [
+  { value: 'joyful', label: 'Joyful', icon: Sparkles, color: 'text-yellow-400 bg-yellow-400/20' },
+  { value: 'nostalgic', label: 'Nostalgic', icon: Cloud, color: 'text-amber-400 bg-amber-400/20' },
+  { value: 'grateful', label: 'Grateful', icon: Gift, color: 'text-emerald-400 bg-emerald-400/20' },
+  { value: 'loving', label: 'Loving', icon: Heart, color: 'text-rose-400 bg-rose-400/20' },
+  { value: 'bittersweet', label: 'Bittersweet', icon: Droplet, color: 'text-purple-400 bg-purple-400/20' },
+  { value: 'reflective', label: 'Reflective', icon: Eye, color: 'text-indigo-400 bg-indigo-400/20' },
+  { value: 'proud', label: 'Proud', icon: Trophy, color: 'text-orange-400 bg-orange-400/20' },
+  { value: 'peaceful', label: 'Peaceful', icon: Leaf, color: 'text-teal-400 bg-teal-400/20' },
+  { value: 'hopeful', label: 'Hopeful', icon: Sun, color: 'text-sky-400 bg-sky-400/20' },
+];
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 type Memory = {
   id: string;
@@ -11,6 +27,7 @@ type Memory = {
   description?: string;
   type: 'PHOTO' | 'VIDEO';
   fileUrl?: string;
+  emotion?: EmotionType;
   recipients: { familyMember: { id: string; name: string } }[];
   createdAt: string;
 };
@@ -26,6 +43,11 @@ export function Memories() {
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  
+  // Timeline filter state
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
   
   const [form, setForm] = useState({
     title: '',
@@ -138,6 +160,44 @@ export function Memories() {
     }));
   };
 
+  // Get available years from memories
+  const availableYears = useMemo(() => {
+    if (!memories?.memories) return [new Date().getFullYear()];
+    const years = new Set<number>();
+    memories.memories.forEach((m: Memory) => {
+      years.add(new Date(m.createdAt).getFullYear());
+    });
+    const yearArray = Array.from(years).sort((a, b) => b - a);
+    return yearArray.length > 0 ? yearArray : [new Date().getFullYear()];
+  }, [memories]);
+
+  // Filter memories by timeline and emotion
+  const filteredMemories = useMemo(() => {
+    if (!memories?.memories) return [];
+    return memories.memories.filter((m: Memory) => {
+      const date = new Date(m.createdAt);
+      const matchesYear = date.getFullYear() === selectedYear;
+      const matchesMonth = selectedMonth === null || date.getMonth() === selectedMonth;
+      const matchesEmotion = selectedEmotion === null || m.emotion === selectedEmotion;
+      return matchesYear && matchesMonth && matchesEmotion;
+    });
+  }, [memories, selectedYear, selectedMonth, selectedEmotion]);
+
+  // Get emotion counts for current filter
+  const emotionCounts = useMemo(() => {
+    if (!memories?.memories) return {};
+    const counts: Record<string, number> = {};
+    memories.memories.forEach((m: Memory) => {
+      const date = new Date(m.createdAt);
+      if (date.getFullYear() === selectedYear && (selectedMonth === null || date.getMonth() === selectedMonth)) {
+        if (m.emotion) {
+          counts[m.emotion] = (counts[m.emotion] || 0) + 1;
+        }
+      }
+    });
+    return counts;
+  }, [memories, selectedYear, selectedMonth]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Sanctuary Background */}
@@ -236,6 +296,109 @@ export function Memories() {
             </motion.div>
           </div>
 
+          {/* Timeline Slider */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            {/* Year Selector */}
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <button
+                onClick={() => {
+                  const idx = availableYears.indexOf(selectedYear);
+                  if (idx < availableYears.length - 1) {
+                    setSelectedYear(availableYears[idx + 1]);
+                    setSelectedMonth(null);
+                  }
+                }}
+                disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
+                className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <div className="flex items-center gap-2">
+                <Calendar size={18} className="text-gold" />
+                <span className="text-2xl font-light text-gold">{selectedYear}</span>
+              </div>
+              <button
+                onClick={() => {
+                  const idx = availableYears.indexOf(selectedYear);
+                  if (idx > 0) {
+                    setSelectedYear(availableYears[idx - 1]);
+                    setSelectedMonth(null);
+                  }
+                }}
+                disabled={availableYears.indexOf(selectedYear) === 0}
+                className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+
+            {/* Month Slider */}
+            <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
+              <button
+                onClick={() => setSelectedMonth(null)}
+                className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                  selectedMonth === null
+                    ? 'bg-gold text-void font-medium'
+                    : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                }`}
+              >
+                All
+              </button>
+              {MONTHS.map((month, idx) => (
+                <button
+                  key={month}
+                  onClick={() => setSelectedMonth(selectedMonth === idx ? null : idx)}
+                  className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                    selectedMonth === idx
+                      ? 'bg-gold text-void font-medium'
+                      : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                  }`}
+                >
+                  {month}
+                </button>
+              ))}
+            </div>
+
+            {/* Emotion Filter */}
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <span className="text-paper/40 text-sm mr-2">Filter by emotion:</span>
+              <button
+                onClick={() => setSelectedEmotion(null)}
+                className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                  selectedEmotion === null
+                    ? 'bg-white/20 text-paper font-medium'
+                    : 'glass text-paper/50 hover:text-paper'
+                }`}
+              >
+                All
+              </button>
+              {EMOTIONS.map((emotion) => {
+                const Icon = emotion.icon;
+                const count = emotionCounts[emotion.value] || 0;
+                return (
+                  <button
+                    key={emotion.value}
+                    onClick={() => setSelectedEmotion(selectedEmotion === emotion.value ? null : emotion.value)}
+                    className={`px-3 py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 ${
+                      selectedEmotion === emotion.value
+                        ? emotion.color + ' font-medium'
+                        : 'glass text-paper/50 hover:text-paper'
+                    }`}
+                  >
+                    <Icon size={14} />
+                    {emotion.label}
+                    {count > 0 && <span className="text-xs opacity-60">({count})</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+
           {/* Memory Grid/List */}
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -243,7 +406,7 @@ export function Memories() {
                 <div key={i} className="aspect-square skeleton rounded-xl" />
               ))}
             </div>
-          ) : memories?.memories?.length > 0 ? (
+          ) : filteredMemories.length > 0 ? (
             <motion.div
               className={viewMode === 'grid' 
                 ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' 
@@ -252,7 +415,7 @@ export function Memories() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              {memories.memories.map((memory: Memory, i: number) => (
+              {filteredMemories.map((memory: Memory, i: number) => (
                 <motion.button
                   key={memory.id}
                   onClick={() => setSelectedMemory(memory)}
@@ -340,12 +503,30 @@ export function Memories() {
               <div className="w-24 h-24 rounded-full glass flex items-center justify-center mx-auto mb-6">
                 <Image size={40} className="text-paper/30" />
               </div>
-              <h3 className="text-xl font-light mb-2">No memories yet</h3>
-              <p className="text-paper/50 mb-6">Start preserving your precious moments</p>
-              <button onClick={() => setShowUploadModal(true)} className="btn btn-primary">
-                <Plus size={18} />
-                Upload Your First Memory
-              </button>
+              {memories?.memories?.length > 0 ? (
+                <>
+                  <h3 className="text-xl font-light mb-2">No memories match your filters</h3>
+                  <p className="text-paper/50 mb-6">Try adjusting the year, month, or emotion filter</p>
+                  <button 
+                    onClick={() => {
+                      setSelectedMonth(null);
+                      setSelectedEmotion(null);
+                    }} 
+                    className="btn btn-secondary"
+                  >
+                    Clear Filters
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl font-light mb-2">No memories yet</h3>
+                  <p className="text-paper/50 mb-6">Start preserving your precious moments</p>
+                  <button onClick={() => setShowUploadModal(true)} className="btn btn-primary">
+                    <Plus size={18} />
+                    Upload Your First Memory
+                  </button>
+                </>
+              )}
             </motion.div>
           )}
         </div>
