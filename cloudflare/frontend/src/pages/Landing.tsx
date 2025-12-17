@@ -78,11 +78,11 @@ export function Landing() {
             <span className="text-lg tracking-[0.2em] text-paper/80">HEIRLOOM</span>
           </Link>
           
-          <div className="flex items-center gap-6">
-            <Link to="/login" className="text-paper/60 hover:text-gold transition-colors hidden md:block">
+          <div className="flex items-center gap-4 md:gap-6">
+            <Link to="/login" className="btn btn-secondary text-sm md:text-base px-4 py-2 md:px-6 md:py-3">
               Sign In
             </Link>
-            <Link to="/signup" className="btn btn-primary">
+            <Link to="/signup" className="btn btn-primary text-sm md:text-base px-4 py-2 md:px-6 md:py-3">
               Start Free Trial
             </Link>
           </div>
