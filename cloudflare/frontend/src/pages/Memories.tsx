@@ -63,7 +63,7 @@ export function Memories() {
       
       // Upload file to R2 storage with auth header
       const token = localStorage.getItem('token');
-      await fetch(uploadData.uploadUrl, {
+      const uploadRes = await fetch(uploadData.uploadUrl, {
         method: 'PUT',
         body: data.file,
         headers: { 
@@ -72,14 +72,25 @@ export function Memories() {
         },
       });
       
+      if (!uploadRes.ok) {
+        const errorBody = await uploadRes.text();
+        throw new Error(`Upload failed (${uploadRes.status}): ${errorBody}`);
+      }
+      
+      // Get the response with key and fileUrl from the upload endpoint
+      const uploadResult = await uploadRes.json();
+      
       setUploadProgress(70);
       
-      // Create memory record
+      // Create memory record with correct field names that backend expects
       return memoriesApi.create({
         title: data.title,
         description: data.description,
         type: data.type,
-        mediaKey: uploadData.key,
+        fileKey: uploadResult.key,
+        fileUrl: uploadResult.fileUrl,
+        fileSize: data.file.size,
+        mimeType: data.file.type,
         recipientIds: data.recipientIds,
       });
     },
