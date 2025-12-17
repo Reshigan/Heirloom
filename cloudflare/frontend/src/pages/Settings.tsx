@@ -356,18 +356,18 @@ export function Settings() {
                 </div>
 
                 {/* Pricing */}
-                {pricing && (
+                {pricing?.pricing && (
                   <div className="grid md:grid-cols-3 gap-4">
                     {[
-                      { tier: 'ESSENTIAL', name: 'Essential', price: pricing.pricing.essential.monthly },
-                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family.monthly, popular: true },
-                      { tier: 'LEGACY', name: 'Legacy', price: pricing.pricing.legacy.yearly, yearly: true },
+                      { tier: 'STARTER', name: 'Starter', price: pricing.pricing.starter?.monthly },
+                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family?.monthly, popular: true },
+                      { tier: 'FOREVER', name: 'Forever', price: pricing.pricing.forever?.yearly, yearly: true },
                     ].map(({ tier, name, price, popular, yearly }) => (
                       <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
                         {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
                         <h3 className="text-lg">{name}</h3>
                         <div className="flex items-baseline gap-1 my-4">
-                          <span className="text-3xl text-gold">{price.formatted}</span>
+                          <span className="text-3xl text-gold">{price?.formatted || 'N/A'}</span>
                           <span className="text-paper/40">/{yearly ? 'year' : 'month'}</span>
                         </div>
                         <button
