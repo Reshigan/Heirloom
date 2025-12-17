@@ -169,4 +169,82 @@ export const legacyContactsApi = {
   resendVerification: (id: string) => api.post(`/settings/legacy-contacts/${id}/resend`),
 };
 
+// Admin API (uses admin token from localStorage)
+const adminAxios = axios.create({
+  baseURL: API_URL,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+adminAxios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('adminToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const adminApi = {
+  login: (data: { email: string; password: string }) => adminAxios.post('/admin/login', data),
+  logout: () => adminAxios.post('/admin/logout'),
+  getMe: () => adminAxios.get('/admin/me'),
+  getAnalyticsOverview: () => adminAxios.get('/admin/analytics/overview'),
+  getAnalyticsRevenue: () => adminAxios.get('/admin/analytics/revenue'),
+  getAnalyticsUsers: () => adminAxios.get('/admin/analytics/users'),
+  
+  // Coupons
+  getCoupons: () => adminAxios.get('/admin/coupons'),
+  createCoupon: (data: any) => adminAxios.post('/admin/coupons', data),
+  updateCoupon: (id: string, data: any) => adminAxios.patch(`/admin/coupons/${id}`, data),
+  deleteCoupon: (id: string) => adminAxios.delete(`/admin/coupons/${id}`),
+  
+  // Users
+  getUsers: (params?: { search?: string; limit?: number; page?: number }) => adminAxios.get('/admin/users', { params }),
+  getUser: (id: string) => adminAxios.get(`/admin/users/${id}`),
+  updateUser: (id: string, data: any) => adminAxios.patch(`/admin/users/${id}`, data),
+  extendTrial: (userId: string, days: number) => adminAxios.post(`/admin/users/${userId}/extend-trial`, { days }),
+  applyCouponToUser: (userId: string, couponCode: string) => adminAxios.post(`/admin/users/${userId}/apply-coupon`, { couponCode }),
+  cancelSubscription: (userId: string) => adminAxios.post(`/admin/users/${userId}/cancel-subscription`),
+  
+  // Support Tickets
+  getTickets: (params?: { status?: string; priority?: string; page?: number; limit?: number }) => 
+    adminAxios.get('/admin/support/tickets', { params }),
+  getTicket: (id: string) => adminAxios.get(`/admin/support/tickets/${id}`),
+  updateTicket: (id: string, data: any) => adminAxios.patch(`/admin/support/tickets/${id}`, data),
+  replyToTicket: (id: string, message: string) => adminAxios.post(`/admin/support/tickets/${id}/reply`, { message }),
+  
+  // System Health
+  getSystemHealth: () => adminAxios.get('/admin/system/health'),
+  getSystemStats: () => adminAxios.get('/admin/system/stats'),
+  
+  // Audit Logs
+  getAuditLogs: (params?: { action?: string; adminId?: string; page?: number; limit?: number }) => 
+    adminAxios.get('/admin/audit-logs', { params }),
+  
+  // Admin Users
+  getAdminUsers: () => adminAxios.get('/admin/admin-users'),
+  createAdminUser: (data: { email: string; firstName: string; lastName: string; role: string }) => 
+    adminAxios.post('/admin/admin-users', data),
+  updateAdminUser: (id: string, data: any) => adminAxios.patch(`/admin/admin-users/${id}`, data),
+  deleteAdminUser: (id: string) => adminAxios.delete(`/admin/admin-users/${id}`),
+  
+  // Email Management
+  getEmailLogs: (params?: { status?: string; page?: number; limit?: number }) => 
+    adminAxios.get('/admin/emails', { params }),
+  sendBulkEmail: (data: { subject: string; body: string; recipients: string[] | 'all' }) => 
+    adminAxios.post('/admin/emails/bulk', data),
+  
+  // Reports
+  getRevenueReport: () => adminAxios.get('/admin/reports/revenue'),
+  getUserGrowthReport: () => adminAxios.get('/admin/reports/user-growth'),
+  exportUsers: (format: 'csv' | 'json') => adminAxios.get(`/admin/reports/export/users?format=${format}`),
+  
+  // Billing Errors
+  getBillingErrors: (params?: { status?: string; page?: number; limit?: number }) => 
+    adminAxios.get('/admin/billing/errors', { params }),
+  getBillingErrorStats: () => adminAxios.get('/admin/billing/errors/stats'),
+  retryBillingError: (id: string) => adminAxios.post(`/admin/billing/errors/${id}/retry`),
+  notifyBillingError: (id: string) => adminAxios.post(`/admin/billing/errors/${id}/notify`),
+  notifyAllFailedBilling: () => adminAxios.post('/admin/billing/errors/notify-all'),
+};
+
 export default api;
