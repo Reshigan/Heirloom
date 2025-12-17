@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users } from 'lucide-react';
+import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
 
 export function Record() {
@@ -27,7 +27,7 @@ export function Record() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationRef = useRef<number | null>(null);
 

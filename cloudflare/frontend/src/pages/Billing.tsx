@@ -74,7 +74,7 @@ export function Billing() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const { data: subscription, isLoading } = useQuery({
+  const { data: subscription } = useQuery({
     queryKey: ['subscription'],
     queryFn: () => billingApi.getSubscription().then(r => r.data),
   });

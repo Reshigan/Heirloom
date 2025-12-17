@@ -28,8 +28,8 @@ export async function deriveKey(
 ): Promise<CryptoKey> {
   const encoder = new TextEncoder();
   const saltBuffer = typeof salt === 'string' 
-    ? Uint8Array.from(atob(salt), c => c.charCodeAt(0))
-    : salt;
+    ? new Uint8Array(Array.from(atob(salt), c => c.charCodeAt(0)))
+    : new Uint8Array(salt);
 
   const keyMaterial = await crypto.subtle.importKey(
     'raw',

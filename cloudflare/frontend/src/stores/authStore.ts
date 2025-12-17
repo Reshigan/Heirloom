@@ -10,6 +10,7 @@ export interface User {
   avatarUrl: string | null;
   emailVerified: boolean;
   twoFactorEnabled: boolean;
+  preferredCurrency?: string;
 }
 
 interface AuthState {

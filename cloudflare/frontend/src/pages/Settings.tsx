@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, AlertCircle } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 

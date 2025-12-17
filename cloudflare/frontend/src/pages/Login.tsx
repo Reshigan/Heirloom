@@ -28,8 +28,8 @@ export function Login() {
     setIsLoading(true);
 
     try {
-      const { data } = await authApi.login(email, password);
-      login(data.user, data.token, data.refreshToken);
+      const { data } = await authApi.login({ email, password });
+      login(data.user, data.token);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password');

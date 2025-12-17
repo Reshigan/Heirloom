@@ -52,7 +52,7 @@ export function Signup() {
         email: form.email,
         password: form.password,
       });
-      login(data.user, data.token, data.refreshToken);
+      login(data.user, data.token);
       navigate('/dashboard');
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
