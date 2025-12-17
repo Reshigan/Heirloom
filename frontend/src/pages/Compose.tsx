@@ -275,7 +275,14 @@ export function Compose() {
   const fetchLetters = async () => {
     try {
       const response = await lettersApi.getAll();
-      const lettersData = response.data.letters || response.data || [];
+      // Backend returns { data: [...], pagination: {...} }
+      // Axios wraps this in response.data, so letters are at response.data.data
+      const lettersData = response.data?.data || response.data?.letters || [];
+      if (!Array.isArray(lettersData)) {
+        console.warn('Letters data is not an array:', lettersData);
+        setLetters([]);
+        return;
+      }
       setLetters(lettersData.map((letter: any) => ({
         id: letter.id,
         title: letter.title,
@@ -298,7 +305,13 @@ export function Compose() {
   const fetchFamilyMembers = async () => {
     try {
       const response = await familyApi.getAll();
-      const membersData = response.data.members || response.data || [];
+      // Backend returns { data: [...], pagination: {...} }
+      const membersData = response.data?.data || response.data?.members || [];
+      if (!Array.isArray(membersData)) {
+        console.warn('Family members data is not an array:', membersData);
+        setFamilyMembers([]);
+        return;
+      }
       setFamilyMembers(membersData.map((member: any) => ({
         id: member.id,
         name: member.name,
