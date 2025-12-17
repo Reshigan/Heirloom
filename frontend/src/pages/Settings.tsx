@@ -166,7 +166,17 @@ export function Settings() {
   ];
 
   return (
-    <div className="min-h-screen px-6 md:px-12 py-12">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Sanctuary Background */}
+      <div className="sanctuary-bg">
+        <div className="sanctuary-orb sanctuary-orb-1" />
+        <div className="sanctuary-orb sanctuary-orb-2" />
+        <div className="sanctuary-orb sanctuary-orb-3" />
+        <div className="sanctuary-stars" />
+        <div className="sanctuary-mist" />
+      </div>
+
+      <div className="relative z-10 px-6 md:px-12 py-12">
       <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
         <ArrowLeft size={20} />
         Back to Vault

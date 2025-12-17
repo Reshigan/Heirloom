@@ -101,6 +101,114 @@ voiceRoutes.post('/upload-url', async (c) => {
   });
 });
 
+// Upload file data to R2 using the key from the URL (supports both POST and PUT)
+voiceRoutes.put('/upload/*', async (c) => {
+  const userId = c.get('userId');
+
+  // Extract everything after /voice/upload/
+  const url = new URL(c.req.url);
+  const pathAfterUpload = url.pathname.split('/voice/upload/')[1];
+  if (!pathAfterUpload) {
+    return c.json({ error: 'Invalid upload key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterUpload);
+
+  // Safety: ensure the key belongs to this user
+  if (!key.startsWith(`voice/${userId}/`)) {
+    return c.json({ error: 'Invalid key for user' }, 403);
+  }
+
+  const contentType = c.req.header('Content-Type') || 'audio/webm';
+  
+  try {
+    // Get the raw body as ArrayBuffer for R2
+    const bodyData = await c.req.arrayBuffer();
+    if (!bodyData || bodyData.byteLength === 0) {
+      return c.json({ error: 'No file data' }, 400);
+    }
+
+    await c.env.STORAGE.put(key, bodyData, {
+      httpMetadata: { contentType },
+    });
+
+    // Generate the public URL for the file
+    const fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(key)}`;
+
+    return c.json({ success: true, key, fileUrl }, 201);
+  } catch (err: any) {
+    console.error('Error uploading voice to R2:', err);
+    return c.json({ error: 'Failed to upload file', details: err.message }, 500);
+  }
+});
+
+voiceRoutes.post('/upload/*', async (c) => {
+  const userId = c.get('userId');
+
+  // Extract everything after /voice/upload/
+  const url = new URL(c.req.url);
+  const pathAfterUpload = url.pathname.split('/voice/upload/')[1];
+  if (!pathAfterUpload) {
+    return c.json({ error: 'Invalid upload key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterUpload);
+
+  // Safety: ensure the key belongs to this user
+  if (!key.startsWith(`voice/${userId}/`)) {
+    return c.json({ error: 'Invalid key for user' }, 403);
+  }
+
+  const contentType = c.req.header('Content-Type') || 'audio/webm';
+  
+  try {
+    // Get the raw body as ArrayBuffer for R2
+    const bodyData = await c.req.arrayBuffer();
+    if (!bodyData || bodyData.byteLength === 0) {
+      return c.json({ error: 'No file data' }, 400);
+    }
+
+    await c.env.STORAGE.put(key, bodyData, {
+      httpMetadata: { contentType },
+    });
+
+    // Generate the public URL for the file
+    const fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(key)}`;
+
+    return c.json({ success: true, key, fileUrl }, 201);
+  } catch (err: any) {
+    console.error('Error uploading voice to R2:', err);
+    return c.json({ error: 'Failed to upload file', details: err.message }, 500);
+  }
+});
+
+// Serve file from R2
+voiceRoutes.get('/file/*', async (c) => {
+  const url = new URL(c.req.url);
+  const pathAfterFile = url.pathname.split('/voice/file/')[1];
+  if (!pathAfterFile) {
+    return c.json({ error: 'Invalid file key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterFile);
+
+  try {
+    const object = await c.env.STORAGE.get(key);
+    if (!object) {
+      return c.json({ error: 'File not found' }, 404);
+    }
+
+    const headers = new Headers();
+    headers.set('Content-Type', object.httpMetadata?.contentType || 'audio/webm');
+    headers.set('Cache-Control', 'public, max-age=31536000');
+
+    return new Response(object.body, { headers });
+  } catch (err: any) {
+    console.error('Error serving file from R2:', err);
+    return c.json({ error: 'Failed to retrieve file' }, 500);
+  }
+});
+
 // Get a specific voice recording
 voiceRoutes.get('/:id', async (c) => {
   const userId = c.get('userId');

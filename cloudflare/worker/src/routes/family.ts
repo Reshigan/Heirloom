@@ -114,15 +114,18 @@ familyRoutes.post('/', async (c) => {
     SELECT tier FROM subscriptions WHERE user_id = ?
   `).bind(userId).first();
   
-  const tier = subscription?.tier || 'FREE';
+  const tier = subscription?.tier || 'STARTER';
   const limits: Record<string, number> = {
+    STARTER: 2,
+    FAMILY: 10,
+    FOREVER: -1, // Unlimited
+    // Legacy tier names for backwards compatibility
     FREE: 2,
     ESSENTIAL: 5,
-    FAMILY: -1,
     LEGACY: -1,
   };
   
-  const maxRecipients = limits[tier as string] || 2;
+  const maxRecipients = limits[tier as string] ?? 2;
   
   if (maxRecipients !== -1) {
     const count = await c.env.DB.prepare(`

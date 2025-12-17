@@ -117,6 +117,114 @@ memoriesRoutes.post('/upload-url', async (c) => {
   });
 });
 
+// Upload file data to R2 using the key from the URL (supports both POST and PUT)
+memoriesRoutes.put('/upload/*', async (c) => {
+  const userId = c.get('userId');
+
+  // Extract everything after /memories/upload/
+  const url = new URL(c.req.url);
+  const pathAfterUpload = url.pathname.split('/memories/upload/')[1];
+  if (!pathAfterUpload) {
+    return c.json({ error: 'Invalid upload key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterUpload);
+
+  // Safety: ensure the key belongs to this user
+  if (!key.startsWith(`memories/${userId}/`)) {
+    return c.json({ error: 'Invalid key for user' }, 403);
+  }
+
+  const contentType = c.req.header('Content-Type') || 'application/octet-stream';
+  
+  try {
+    // Get the raw body as ArrayBuffer for R2
+    const bodyData = await c.req.arrayBuffer();
+    if (!bodyData || bodyData.byteLength === 0) {
+      return c.json({ error: 'No file data' }, 400);
+    }
+
+    await c.env.STORAGE.put(key, bodyData, {
+      httpMetadata: { contentType },
+    });
+
+    // Generate the public URL for the file
+    const fileUrl = `${c.env.API_URL}/api/memories/file/${encodeURIComponent(key)}`;
+
+    return c.json({ success: true, key, fileUrl }, 201);
+  } catch (err: any) {
+    console.error('Error uploading memory to R2:', err);
+    return c.json({ error: 'Failed to upload file', details: err.message }, 500);
+  }
+});
+
+memoriesRoutes.post('/upload/*', async (c) => {
+  const userId = c.get('userId');
+
+  // Extract everything after /memories/upload/
+  const url = new URL(c.req.url);
+  const pathAfterUpload = url.pathname.split('/memories/upload/')[1];
+  if (!pathAfterUpload) {
+    return c.json({ error: 'Invalid upload key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterUpload);
+
+  // Safety: ensure the key belongs to this user
+  if (!key.startsWith(`memories/${userId}/`)) {
+    return c.json({ error: 'Invalid key for user' }, 403);
+  }
+
+  const contentType = c.req.header('Content-Type') || 'application/octet-stream';
+  
+  try {
+    // Get the raw body as ArrayBuffer for R2
+    const bodyData = await c.req.arrayBuffer();
+    if (!bodyData || bodyData.byteLength === 0) {
+      return c.json({ error: 'No file data' }, 400);
+    }
+
+    await c.env.STORAGE.put(key, bodyData, {
+      httpMetadata: { contentType },
+    });
+
+    // Generate the public URL for the file
+    const fileUrl = `${c.env.API_URL}/api/memories/file/${encodeURIComponent(key)}`;
+
+    return c.json({ success: true, key, fileUrl }, 201);
+  } catch (err: any) {
+    console.error('Error uploading memory to R2:', err);
+    return c.json({ error: 'Failed to upload file', details: err.message }, 500);
+  }
+});
+
+// Serve file from R2
+memoriesRoutes.get('/file/*', async (c) => {
+  const url = new URL(c.req.url);
+  const pathAfterFile = url.pathname.split('/memories/file/')[1];
+  if (!pathAfterFile) {
+    return c.json({ error: 'Invalid file key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterFile);
+
+  try {
+    const object = await c.env.STORAGE.get(key);
+    if (!object) {
+      return c.json({ error: 'File not found' }, 404);
+    }
+
+    const headers = new Headers();
+    headers.set('Content-Type', object.httpMetadata?.contentType || 'application/octet-stream');
+    headers.set('Cache-Control', 'public, max-age=31536000');
+
+    return new Response(object.body, { headers });
+  } catch (err: any) {
+    console.error('Error serving file from R2:', err);
+    return c.json({ error: 'Failed to retrieve file' }, 500);
+  }
+});
+
 // Get a specific memory
 memoriesRoutes.get('/:id', async (c) => {
   const userId = c.get('userId');

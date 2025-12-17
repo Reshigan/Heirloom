@@ -73,8 +73,8 @@ settingsRoutes.patch('/profile', async (c) => {
   });
 });
 
-// Change password
-settingsRoutes.post('/password', async (c) => {
+// Change password (supports both /password and /change-password for compatibility)
+settingsRoutes.post('/change-password', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   

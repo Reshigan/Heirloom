@@ -144,7 +144,17 @@ export function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-void">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Sanctuary Background */}
+      <div className="sanctuary-bg">
+        <div className="sanctuary-orb sanctuary-orb-1" />
+        <div className="sanctuary-orb sanctuary-orb-2" />
+        <div className="sanctuary-orb sanctuary-orb-3" />
+        <div className="sanctuary-stars" />
+        <div className="sanctuary-mist" />
+      </div>
+
+      <div className="relative z-10">
       {/* Header */}
       <header className="border-b border-white/10 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -923,6 +933,7 @@ export function AdminDashboard() {
       {selectedTicket && (
         <TicketDetailModal ticketId={selectedTicket} onClose={() => setSelectedTicket(null)} />
       )}
+      </div>
     </div>
   );
 }
