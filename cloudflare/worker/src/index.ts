@@ -11,17 +11,15 @@ import { jwt } from 'hono/jwt';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 
-// Routes
+// Routes - import from individual files (not routes/index.ts which has stubs)
 import { authRoutes } from './routes/auth';
-import { 
-  familyRoutes, 
-  memoriesRoutes, 
-  lettersRoutes, 
-  voiceRoutes, 
-  billingRoutes, 
-  deadmanRoutes, 
-  encryptionRoutes 
-} from './routes/index';
+import { familyRoutes } from './routes/family';
+import { memoriesRoutes } from './routes/memories';
+import { lettersRoutes } from './routes/letters';
+import { voiceRoutes } from './routes/voice';
+import { billingRoutes } from './routes/billing';
+import { deadmanRoutes } from './routes/deadman';
+import { encryptionRoutes } from './routes/encryption';
 import { settingsRoutes } from './routes/settings';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
