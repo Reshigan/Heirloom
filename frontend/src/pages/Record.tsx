@@ -2,8 +2,9 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2 } from 'lucide-react';
+import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
+import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
 
@@ -77,12 +78,13 @@ export function Record() {
       queryFn: () => voiceApi.getAll().then(r => r.data),
     });
 
-    // Timeline filter state
-    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-    const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
-    const [showRecordingsList, setShowRecordingsList] = useState(false);
-    const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+        // Timeline filter state
+        const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+        const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+        const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+        const [showRecordingsList, setShowRecordingsList] = useState(false);
+        const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+        const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
 
     // Get available years from recordings
     const availableYears = useMemo(() => {
@@ -618,25 +620,33 @@ export function Record() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
-                        <div className="flex flex-wrap gap-2">
-                          {family?.map((member: any) => (
-                            <button
-                              key={member.id}
-                              type="button"
-                              onClick={() => toggleRecipient(member.id)}
-                              className={`px-3 py-2 rounded-lg text-sm transition-all ${
-                                form.recipientIds.includes(member.id)
-                                  ? 'glass bg-gold/20 text-gold border border-gold/30'
-                                  : 'glass text-paper/60 hover:text-paper'
-                              }`}
-                            >
-                              {member.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                                            <div>
+                                              <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
+                                              <div className="flex flex-wrap gap-2">
+                                                {family?.map((member: any) => (
+                                                  <button
+                                                    key={member.id}
+                                                    type="button"
+                                                    onClick={() => toggleRecipient(member.id)}
+                                                    className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                                                      form.recipientIds.includes(member.id)
+                                                        ? 'glass bg-gold/20 text-gold border border-gold/30'
+                                                        : 'glass text-paper/60 hover:text-paper'
+                                                    }`}
+                                                  >
+                                                    {member.name}
+                                                  </button>
+                                                ))}
+                                                <button
+                                                  type="button"
+                                                  onClick={() => setShowAddFamilyModal(true)}
+                                                  className="px-3 py-2 rounded-lg text-sm border border-dashed border-gold/30 text-paper/40 hover:border-gold/50 hover:text-paper/60 transition-all flex items-center gap-1.5"
+                                                >
+                                                  <Plus size={14} />
+                                                  Add Family Member
+                                                </button>
+                                              </div>
+                                            </div>
 
                       <motion.button
                         onClick={handleSave}
@@ -948,6 +958,23 @@ export function Record() {
           </motion.div>
         </div>
       </div>
+
+      {/* Add Family Member Modal */}
+      <AddFamilyMemberModal
+        isOpen={showAddFamilyModal}
+        onClose={() => setShowAddFamilyModal(false)}
+        onCreated={(member) => {
+          queryClient.setQueryData(['family'], (old: any) => {
+            if (!old) return [member];
+            if (Array.isArray(old)) return [...old, member];
+            return old;
+          });
+          setForm(prev => ({
+            ...prev,
+            recipientIds: [...prev.recipientIds, member.id],
+          }));
+        }}
+      />
     </div>
   );
 }

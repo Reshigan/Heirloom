@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
+import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 import { lettersApi, familyApi } from '../services/api';
 
 // API URL for Ollama
@@ -168,11 +169,12 @@ export function Compose() {
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [deliveryTrigger, setDeliveryTrigger] = useState<'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS'>('POSTHUMOUS');
   const [scheduledDate, setScheduledDate] = useState('');
-    const [isSaving, setIsSaving] = useState(false);
-    const [showSealConfirm, setShowSealConfirm] = useState(false);
-    const [isSealing, setIsSealing] = useState(false);
-    const [isAiAssisting, setIsAiAssisting] = useState(false);
-    const [aiSuggestion, setAiSuggestion] = useState('');
+        const [isSaving, setIsSaving] = useState(false);
+        const [showSealConfirm, setShowSealConfirm] = useState(false);
+        const [isSealing, setIsSealing] = useState(false);
+        const [isAiAssisting, setIsAiAssisting] = useState(false);
+        const [aiSuggestion, setAiSuggestion] = useState('');
+        const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
 
     // AI Assist function - provides helpful suggestions even without Ollama
     const handleAiAssist = async () => {
@@ -484,13 +486,13 @@ export function Compose() {
                     )}
                   </button>
                 ))}
-                <button
-                  onClick={() => navigate('/family')}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-gold/30 text-paper/40 hover:border-gold/50 hover:text-paper/60 transition-all"
-                >
-                  <span className="w-4 h-4">{Icons.plus}</span>
-                  <span>Add Family Member</span>
-                </button>
+                                <button
+                                  onClick={() => setShowAddFamilyModal(true)}
+                                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-gold/30 text-paper/40 hover:border-gold/50 hover:text-paper/60 transition-all"
+                                >
+                                  <span className="w-4 h-4">{Icons.plus}</span>
+                                  <span>Add Family Member</span>
+                                </button>
               </div>
             </div>
 
@@ -808,6 +810,16 @@ export function Compose() {
           </div>
         )}
       </main>
+
+      {/* Add Family Member Modal */}
+      <AddFamilyMemberModal
+        isOpen={showAddFamilyModal}
+        onClose={() => setShowAddFamilyModal(false)}
+        onCreated={(member) => {
+          setFamilyMembers(prev => [...prev, member]);
+          setSelectedRecipients(prev => [...prev, member.id]);
+        }}
+      />
     </div>
   );
 }
