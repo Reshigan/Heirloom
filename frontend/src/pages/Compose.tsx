@@ -176,7 +176,7 @@ export function Compose() {
         const [aiSuggestion, setAiSuggestion] = useState('');
         const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
 
-    // AI Assist function - provides helpful suggestions even without Ollama
+    // AI Assist function - uses TinyLLM backend service
     const handleAiAssist = async () => {
       if (isAiAssisting) return;
     
@@ -205,9 +205,9 @@ export function Compose() {
 
 "That moment taught me something I carry with me to this day..."
 
-"Looking back, I realize how much that shaped who we are..."
+"Looking back, I realize how much those moments shaped who we are..."
 
-"I hope you hold onto this memory as dearly as I do..."`;
+"I hope you hold onto these memories as dearly as I do..."`;
         } else {
           // General continuation
           return `Here are some ways to continue your letter:
@@ -220,46 +220,27 @@ export function Compose() {
         }
       };
 
-      // Try Ollama if configured, otherwise use smart fallback
-      const isOllamaConfigured = OLLAMA_API && OLLAMA_API !== 'http://localhost:11434';
-      
-      if (isOllamaConfigured) {
-        try {
-          const prompt = `You are helping someone write a heartfelt letter to their loved ones (${recipientNames || 'family'}). 
+      // Try TinyLLM backend service first, then fall back to local suggestions
+      try {
+        const { data } = await lettersApi.aiSuggest({
+          salutation,
+          body,
+          signature,
+          recipientNames: recipientNames || undefined,
+        });
         
-    Current letter content:
-    ${salutation}
-    ${body || '[No content yet]'}
-    ${signature}
-
-    Please suggest a thoughtful continuation or improvement for this letter. Keep it warm, personal, and emotionally resonant. Write 2-3 sentences that could be added. Only provide the suggested text, no explanations.`;
-
-          const response = await fetch(`${OLLAMA_API}/api/generate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              model: 'llama3.2',
-              prompt,
-              stream: false,
-            }),
-          });
-        
-          if (response.ok) {
-            const data = await response.json();
-            setAiSuggestion(data.response?.trim() || getSmartSuggestion());
-          } else {
-            setAiSuggestion(getSmartSuggestion());
-          }
-        } catch (error) {
-          console.error('AI assist error:', error);
+        if (data.suggestion) {
+          setAiSuggestion(data.suggestion);
+        } else {
           setAiSuggestion(getSmartSuggestion());
         }
-      } else {
-        // Use smart fallback when Ollama is not configured
+      } catch (error) {
+        console.error('AI assist error:', error);
+        // Fall back to local smart suggestions
         setAiSuggestion(getSmartSuggestion());
+      } finally {
+        setIsAiAssisting(false);
       }
-      
-      setIsAiAssisting(false);
     };
 
     const insertAiSuggestion = () => {
@@ -424,13 +405,22 @@ export function Compose() {
         <main className="pt-24 pb-16 px-4 max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <button
-              onClick={() => setShowComposer(false)}
-              className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
-            >
-              <span className="w-5 h-5">{Icons.arrowLeft}</span>
-              <span>Back to Letters</span>
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setShowComposer(false)}
+                className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
+              >
+                <span className="w-5 h-5">{Icons.arrowLeft}</span>
+                <span>Back to Letters</span>
+              </button>
+              <span className="text-paper/30">|</span>
+              <button
+                onClick={() => navigate('/memories')}
+                className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
+              >
+                <span>Back to Vault</span>
+              </button>
+            </div>
             
             <div className="flex items-center gap-3">
               <button

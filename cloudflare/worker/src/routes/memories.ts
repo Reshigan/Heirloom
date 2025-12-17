@@ -293,9 +293,8 @@ memoriesRoutes.post('/', async (c) => {
   // Merge emotion into metadata
   const enrichedMetadata = {
     ...(metadata || {}),
-    emotion: emotionResult.emotion,
+    emotion: emotionResult.label,
     emotionConfidence: emotionResult.confidence,
-    emotionKeywords: emotionResult.keywords,
   };
   
   await c.env.DB.prepare(`
@@ -324,7 +323,7 @@ memoriesRoutes.post('/', async (c) => {
     description: memory?.description,
     fileUrl: memory?.file_url,
     fileKey: memory?.file_key,
-    emotion: emotionResult.emotion,
+    emotion: emotionResult.label,
     emotionConfidence: emotionResult.confidence,
     createdAt: memory?.created_at,
   }, 201);

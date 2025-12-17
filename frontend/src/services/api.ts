@@ -96,6 +96,8 @@ export const lettersApi = {
   update: (id: string, data: any) => api.patch(`/letters/${id}`, data),
   seal: (id: string) => api.post(`/letters/${id}/seal`),
   delete: (id: string) => api.delete(`/letters/${id}`),
+  aiSuggest: (data: { salutation?: string; body?: string; signature?: string; recipientNames?: string; tone?: string; occasion?: string }) =>
+    api.post('/letters/ai-suggest', data),
 };
 
 // Voice API

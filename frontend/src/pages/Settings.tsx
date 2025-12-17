@@ -222,6 +222,10 @@ export function Settings() {
     mutationFn: () => deadmanApi.configure(deadmanConfig),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
+      setStatusMessage({ type: 'success', text: 'Dead Man\'s Switch configured successfully' });
+    },
+    onError: () => {
+      setStatusMessage({ type: 'error', text: 'Failed to configure Dead Man\'s Switch' });
     },
   });
 
@@ -229,6 +233,10 @@ export function Settings() {
     mutationFn: () => deadmanApi.checkIn(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
+      setStatusMessage({ type: 'success', text: 'Check-in recorded successfully' });
+    },
+    onError: () => {
+      setStatusMessage({ type: 'error', text: 'Failed to record check-in' });
     },
   });
 

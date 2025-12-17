@@ -134,18 +134,35 @@ export function Record() {
         contentType: file.type,
       });
       
-      await fetch(urlData.uploadUrl, {
+      // Upload the file to R2 storage
+      const uploadResponse = await fetch(urlData.uploadUrl, {
         method: 'PUT',
         body: file,
-        headers: { 'Content-Type': file.type },
+        headers: { 
+          'Content-Type': file.type,
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
       });
+      
+      let fileUrl = `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/voice/file/${encodeURIComponent(urlData.key)}`;
+      
+      // Try to get the file URL from the upload response
+      try {
+        const uploadResult = await uploadResponse.json();
+        if (uploadResult.fileUrl) {
+          fileUrl = uploadResult.fileUrl;
+        }
+      } catch {
+        // Response might not be JSON, use default URL
+      }
       
       return voiceApi.create({
         title: data.form.title || 'Untitled Recording',
-        s3Key: urlData.key,
+        fileKey: urlData.key,
+        fileUrl,
         mimeType: file.type,
         duration: Math.floor(recordingTime),
-        promptId: data.form.promptId,
+        fileSize: file.size,
         recipientIds: data.form.recipientIds,
       });
     },
