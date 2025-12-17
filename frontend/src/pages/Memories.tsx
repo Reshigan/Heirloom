@@ -174,43 +174,53 @@ export function Memories() {
     }));
   };
 
-  // Get available years from memories
-  const availableYears = useMemo(() => {
-    if (!memories?.memories) return [new Date().getFullYear()];
-    const years = new Set<number>();
-    memories.memories.forEach((m: Memory) => {
-      years.add(new Date(m.createdAt).getFullYear());
-    });
-    const yearArray = Array.from(years).sort((a, b) => b - a);
-    return yearArray.length > 0 ? yearArray : [new Date().getFullYear()];
-  }, [memories]);
+    // Get the memories array from the API response (handles both { data: [...] } and direct array)
+    const memoriesList = useMemo(() => {
+      if (!memories) return [];
+      // API returns { data: [...], pagination: {...} }
+      if (Array.isArray(memories)) return memories;
+      if (memories.data && Array.isArray(memories.data)) return memories.data;
+      if (memories.memories && Array.isArray(memories.memories)) return memories.memories;
+      return [];
+    }, [memories]);
 
-  // Filter memories by timeline and emotion
-  const filteredMemories = useMemo(() => {
-    if (!memories?.memories) return [];
-    return memories.memories.filter((m: Memory) => {
-      const date = new Date(m.createdAt);
-      const matchesYear = date.getFullYear() === selectedYear;
-      const matchesMonth = selectedMonth === null || date.getMonth() === selectedMonth;
-      const matchesEmotion = selectedEmotion === null || m.emotion === selectedEmotion;
-      return matchesYear && matchesMonth && matchesEmotion;
-    });
-  }, [memories, selectedYear, selectedMonth, selectedEmotion]);
+    // Get available years from memories
+    const availableYears = useMemo(() => {
+      if (!memoriesList.length) return [new Date().getFullYear()];
+      const years = new Set<number>();
+      memoriesList.forEach((m: Memory) => {
+        years.add(new Date(m.createdAt).getFullYear());
+      });
+      const yearArray = Array.from(years).sort((a, b) => b - a);
+      return yearArray.length > 0 ? yearArray : [new Date().getFullYear()];
+    }, [memoriesList]);
 
-  // Get emotion counts for current filter
-  const emotionCounts = useMemo(() => {
-    if (!memories?.memories) return {};
-    const counts: Record<string, number> = {};
-    memories.memories.forEach((m: Memory) => {
-      const date = new Date(m.createdAt);
-      if (date.getFullYear() === selectedYear && (selectedMonth === null || date.getMonth() === selectedMonth)) {
-        if (m.emotion) {
-          counts[m.emotion] = (counts[m.emotion] || 0) + 1;
+    // Filter memories by timeline and emotion
+    const filteredMemories = useMemo(() => {
+      if (!memoriesList.length) return [];
+      return memoriesList.filter((m: Memory) => {
+        const date = new Date(m.createdAt);
+        const matchesYear = date.getFullYear() === selectedYear;
+        const matchesMonth = selectedMonth === null || date.getMonth() === selectedMonth;
+        const matchesEmotion = selectedEmotion === null || m.emotion === selectedEmotion;
+        return matchesYear && matchesMonth && matchesEmotion;
+      });
+    }, [memoriesList, selectedYear, selectedMonth, selectedEmotion]);
+
+    // Get emotion counts for current filter
+    const emotionCounts = useMemo(() => {
+      if (!memoriesList.length) return {};
+      const counts: Record<string, number> = {};
+      memoriesList.forEach((m: Memory) => {
+        const date = new Date(m.createdAt);
+        if (date.getFullYear() === selectedYear && (selectedMonth === null || date.getMonth() === selectedMonth)) {
+          if (m.emotion) {
+            counts[m.emotion] = (counts[m.emotion] || 0) + 1;
+          }
         }
-      }
-    });
-    return counts;
-  }, [memories, selectedYear, selectedMonth]);
+      });
+      return counts;
+    }, [memoriesList, selectedYear, selectedMonth]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">

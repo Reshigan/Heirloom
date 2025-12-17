@@ -144,7 +144,10 @@ export const settingsApi = {
 export const deadmanApi = {
   getStatus: () => api.get('/deadman/status'),
   configure: (data: { intervalDays: number; gracePeriodDays?: number }) =>
-    api.post('/deadman/configure', data),
+    api.post('/deadman/configure', { 
+      checkInIntervalDays: data.intervalDays, 
+      gracePeriodDays: data.gracePeriodDays 
+    }),
   checkIn: () => api.post('/deadman/checkin'),
   cancel: (password: string) => api.post('/deadman/cancel', { password }),
   disable: () => api.post('/deadman/disable'),
@@ -154,8 +157,10 @@ export const deadmanApi = {
 
 // Encryption API
 export const encryptionApi = {
-  setup: (password: string) => api.post('/encryption/setup', { password }),
+  setup: (data: { encryptedMasterKey: string; encryptionSalt: string; keyDerivationParams?: any }) => 
+    api.post('/encryption/setup', data),
   getParams: () => api.get('/encryption/params'),
+  getStatus: () => api.get('/encryption/status'),
   setupEscrow: (data: { beneficiaryIds: string[]; encryptedKey: string }) =>
     api.post('/encryption/escrow', data),
   getEscrow: () => api.get('/encryption/escrow'),
