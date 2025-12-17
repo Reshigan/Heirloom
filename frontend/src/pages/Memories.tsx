@@ -82,22 +82,23 @@ export function Memories() {
         contentType: data.file.type,
       });
       
-      // Upload file to R2
+      // Upload file to R2 - include credentials for auth
       const uploadResponse = await fetch(uploadData.uploadUrl, {
         method: 'PUT',
         body: data.file,
         headers: { 'Content-Type': data.file.type },
+        credentials: 'include',
       });
       
-      // Get the file URL from the upload response
-      let fileUrl = '';
-      try {
-        const uploadResult = await uploadResponse.json();
-        fileUrl = uploadResult.fileUrl || '';
-      } catch {
-        // If response is not JSON, construct the URL from the key
-        fileUrl = `${import.meta.env.VITE_API_URL}/memories/file/${encodeURIComponent(uploadData.key)}`;
+      // Check if upload was successful
+      if (!uploadResponse.ok) {
+        const errorBody = await uploadResponse.json().catch(() => null);
+        throw new Error(errorBody?.error || 'Failed to upload memory file');
       }
+      
+      // Get the file URL from the upload response
+      const uploadResult = await uploadResponse.json();
+      const fileUrl = uploadResult.fileUrl || `${import.meta.env.VITE_API_URL}/memories/file/${encodeURIComponent(uploadData.key)}`;
       
       setUploadProgress(70);
       
