@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Bell, Settings, LogOut, Shield, Clock, Crown, AlertTriangle,
+  Bell, Settings, Shield, Clock, Crown,
   ChevronRight, X, Check, Loader2
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
@@ -11,7 +11,7 @@ import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api'
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const deskRef = useRef<HTMLDivElement>(null);
   

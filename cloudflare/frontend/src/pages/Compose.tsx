@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
-import { lettersApi } from '../services/api';
+import { lettersApi, familyApi } from '../services/api';
 
 // Custom SVG Icons
 const Icons = {
@@ -252,22 +252,25 @@ export function Compose() {
 
   const fetchLetters = async () => {
     try {
-      // Mock data for now
-      setLetters([
-        {
-          id: '1',
-          title: 'To My Children',
-          body: 'My dearest children, if you are reading this...',
-          salutation: 'My Dearest Children',
-          signature: 'With all my love, Mom',
-          recipients: ['1', '2'],
-          deliveryTrigger: 'POSTHUMOUS',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ]);
+      const { data } = await lettersApi.getAll();
+      // Handle both array and paginated response formats
+      const lettersList = Array.isArray(data) ? data : (data.data || []);
+      setLetters(lettersList.map((letter: any) => ({
+        id: letter.id,
+        title: letter.title || '',
+        body: letter.body || letter.bodyPreview || '',
+        salutation: letter.salutation || '',
+        signature: letter.signature || '',
+        recipients: letter.recipients?.map((r: any) => r.id) || [],
+        deliveryTrigger: letter.deliveryTrigger || 'POSTHUMOUS',
+        scheduledDate: letter.scheduledDate,
+        sealedAt: letter.sealedAt,
+        createdAt: letter.createdAt,
+        updatedAt: letter.updatedAt,
+      })));
     } catch (error) {
       console.error('Failed to fetch letters:', error);
+      setLetters([]);
     } finally {
       setIsLoading(false);
     }
@@ -275,14 +278,18 @@ export function Compose() {
 
   const fetchFamilyMembers = async () => {
     try {
-      // Mock data
-      setFamilyMembers([
-        { id: '1', name: 'Sarah', relationship: 'Daughter', email: 'sarah@example.com' },
-        { id: '2', name: 'Michael', relationship: 'Son', email: 'michael@example.com' },
-        { id: '3', name: 'Emma', relationship: 'Granddaughter', email: 'emma@example.com' },
-      ]);
+      const { data } = await familyApi.getAll();
+      // Handle both array and paginated response formats
+      const membersList = Array.isArray(data) ? data : (data.data || []);
+      setFamilyMembers(membersList.map((member: any) => ({
+        id: member.id,
+        name: member.name,
+        relationship: member.relationship,
+        email: member.email,
+      })));
     } catch (error) {
       console.error('Failed to fetch family members:', error);
+      setFamilyMembers([]);
     }
   };
 
@@ -313,12 +320,34 @@ export function Compose() {
   const handleSaveDraft = async () => {
     setIsSaving(true);
     try {
-      // API call would go here
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (selectedLetter) {
+        // Update existing letter
+        await lettersApi.update(selectedLetter.id, {
+          title,
+          salutation,
+          body,
+          signature,
+          deliveryTrigger,
+          scheduledDate: scheduledDate || undefined,
+          recipientIds: selectedRecipients,
+        });
+      } else {
+        // Create new letter
+        await lettersApi.create({
+          title,
+          salutation,
+          body,
+          signature,
+          deliveryTrigger,
+          scheduledDate: scheduledDate || undefined,
+          recipientIds: selectedRecipients,
+        });
+      }
       setShowComposer(false);
       fetchLetters();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save draft:', error);
+      alert(error.response?.data?.error || 'Failed to save draft. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -327,13 +356,42 @@ export function Compose() {
   const handleSealLetter = async () => {
     setIsSealing(true);
     try {
-      // API call would go here
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // First save the letter if it's new
+      let letterId = selectedLetter?.id;
+      if (!letterId) {
+        const { data } = await lettersApi.create({
+          title,
+          salutation,
+          body,
+          signature,
+          deliveryTrigger,
+          scheduledDate: scheduledDate || undefined,
+          recipientIds: selectedRecipients,
+        });
+        letterId = data.id;
+      } else {
+        // Update existing letter before sealing
+        await lettersApi.update(letterId, {
+          title,
+          salutation,
+          body,
+          signature,
+          deliveryTrigger,
+          scheduledDate: scheduledDate || undefined,
+          recipientIds: selectedRecipients,
+        });
+      }
+      // Now seal the letter
+      if (!letterId) {
+        throw new Error('Failed to create letter');
+      }
+      await lettersApi.seal(letterId);
       setShowSealConfirm(false);
       setShowComposer(false);
       fetchLetters();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to seal letter:', error);
+      alert(error.response?.data?.error || 'Failed to seal letter. Please try again.');
     } finally {
       setIsSealing(false);
     }

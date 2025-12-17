@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Plus, Search, Filter, Mail, Clock, CheckCircle, AlertCircle,
-  MoreVertical, Edit2, Trash2, Eye, Send, Calendar, Users, X
+  Plus, Search, Mail, Clock, CheckCircle, AlertCircle,
+  Edit2, Trash2, Send, Calendar, Users, X
 } from 'lucide-react';
 import { lettersApi } from '../services/api';
 
