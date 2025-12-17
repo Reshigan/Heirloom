@@ -19,10 +19,10 @@ import {
   lettersRoutes, 
   voiceRoutes, 
   billingRoutes, 
-  settingsRoutes, 
   deadmanRoutes, 
   encryptionRoutes 
 } from './routes/index';
+import { settingsRoutes } from './routes/settings';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail } from './email-templates';
