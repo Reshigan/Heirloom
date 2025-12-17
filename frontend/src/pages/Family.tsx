@@ -355,16 +355,16 @@ export function Family() {
               );
             })}
 
-                        {/* Add button */}
-                        <motion.button
-                          onClick={() => {
-                            setEditingId(null);
-                            setForm({ name: '', relationship: '', email: '', phone: '', avatarUrl: '' });
-                            setAvatarPreview(null);
-                            setErrors({});
-                            setShowAddModal(true);
-                          }}
-              className="absolute bottom-0 right-0 w-14 h-14 rounded-full glass border border-dashed border-gold/30 flex items-center justify-center text-gold/50 hover:text-gold hover:border-gold hover:bg-gold/10 transition-all"
+            {/* Add button - positioned at bottom-right of constellation */}
+            <motion.button
+              onClick={() => {
+                setEditingId(null);
+                setForm({ name: '', relationship: '', email: '', phone: '', avatarUrl: '' });
+                setAvatarPreview(null);
+                setErrors({});
+                setShowAddModal(true);
+              }}
+              className="absolute bottom-6 right-6 z-30 w-14 h-14 rounded-full glass border border-dashed border-gold/30 flex items-center justify-center text-gold/50 hover:text-gold hover:border-gold hover:bg-gold/10 transition-all"
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0 }}
