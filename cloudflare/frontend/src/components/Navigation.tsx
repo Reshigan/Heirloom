@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Image, Pen, Mic, Users, Settings, LogOut } from 'lucide-react';
+import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles } from 'lucide-react';
 import clsx from 'clsx';
 import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
@@ -11,6 +11,7 @@ const navItems = [
   { path: '/compose', icon: Pen, label: 'Write' },
   { path: '/record', icon: Mic, label: 'Record' },
   { path: '/family', icon: Users, label: 'Family' },
+  { path: '/wrapped', icon: Sparkles, label: 'Year Wrapped' },
 ];
 
 export function Navigation() {
