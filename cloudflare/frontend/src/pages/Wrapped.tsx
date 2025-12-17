@@ -313,18 +313,29 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
         </motion.div>
       ))}
     </div>
-    <motion.p
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 1.2 }}
-      className="text-lg text-gold mt-8 text-center"
-    >
-      {stats.topEmotions[0].emotion} was your dominant feeling ✨
-    </motion.p>
+    {stats.topEmotions.length > 0 ? (
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+        className="text-lg text-gold mt-8 text-center"
+      >
+        {stats.topEmotions[0].emotion} was your dominant feeling ✨
+      </motion.p>
+    ) : (
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+        className="text-lg text-paper/60 mt-8 text-center"
+      >
+        No emotion data recorded yet
+      </motion.p>
+    )}
   </motion.div>
 );
 
-const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
+const FamilySlide:React.FC<{ stats: WrappedStats }> = ({ stats }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -641,8 +652,10 @@ const Wrapped: React.FC = () => {
 
   // Get available years (default to current year if no data)
   const availableYears = useMemo(() => {
-    if (yearsData?.years && yearsData.years.length > 0) {
-      return yearsData.years.sort((a: number, b: number) => b - a);
+    // Backend returns availableYears array with {year, hasData, wrappedGenerated, generatedAt}
+    const years = yearsData?.availableYears?.map((y: { year: number }) => y.year) ?? [];
+    if (years.length > 0) {
+      return years.sort((a: number, b: number) => b - a);
     }
     // Default to last 5 years if no data
     return Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -652,13 +665,9 @@ const Wrapped: React.FC = () => {
   const { data: apiData } = useQuery({
     queryKey: ['wrapped', selectedYear],
     queryFn: async () => {
-      if (selectedYear === currentYear) {
-        const response = await wrappedApi.getCurrent();
-        return response.data;
-      } else {
-        const response = await wrappedApi.getYear(selectedYear);
-        return response.data;
-      }
+      // Always use getYear to avoid /wrapped/current endpoint issues
+      const response = await wrappedApi.getYear(selectedYear);
+      return response.data;
     },
   });
 
