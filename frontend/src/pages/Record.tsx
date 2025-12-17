@@ -52,6 +52,7 @@ export function Record() {
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const savedAudioRef = useRef<HTMLAudioElement | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -891,9 +892,30 @@ export function Record() {
                               <button
                                 onClick={() => {
                                   if (playingRecordingId === recording.id) {
+                                    if (savedAudioRef.current) {
+                                      savedAudioRef.current.pause();
+                                    }
                                     setPlayingRecordingId(null);
                                   } else {
-                                    setPlayingRecordingId(recording.id);
+                                    if (savedAudioRef.current) {
+                                      savedAudioRef.current.pause();
+                                    }
+                                    if (recording.fileUrl) {
+                                      const audio = new Audio(recording.fileUrl);
+                                      savedAudioRef.current = audio;
+                                      audio.onended = () => setPlayingRecordingId(null);
+                                      audio.onerror = () => {
+                                        showToast('Failed to play recording', 'error');
+                                        setPlayingRecordingId(null);
+                                      };
+                                      audio.play().catch(() => {
+                                        showToast('Failed to play recording', 'error');
+                                        setPlayingRecordingId(null);
+                                      });
+                                      setPlayingRecordingId(recording.id);
+                                    } else {
+                                      showToast('Recording file not available', 'error');
+                                    }
                                   }
                                 }}
                                 className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors"
