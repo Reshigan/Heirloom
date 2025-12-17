@@ -1,0 +1,605 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionTier {
+  FREE
+  ESSENTIAL
+  FAMILY
+  LEGACY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+}
+
+enum MemoryType {
+  PHOTO
+  VOICE
+  LETTER
+  VIDEO
+}
+
+enum DeliveryTrigger {
+  IMMEDIATE
+  SCHEDULED
+  POSTHUMOUS
+}
+
+enum DeliveryStatus {
+  PENDING
+  SCHEDULED
+  DELIVERED
+  FAILED
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum SwitchStatus {
+  ACTIVE
+  WARNING
+  TRIGGERED
+  VERIFIED
+  RELEASED
+  CANCELLED
+}
+
+model User {
+  id                String             @id @default(uuid())
+  email             String             @unique
+  passwordHash      String
+  firstName         String
+  lastName          String
+  avatarUrl         String?
+  emailVerified     Boolean            @default(false)
+  twoFactorEnabled  Boolean            @default(false)
+  twoFactorSecret   String?
+  preferredCurrency String             @default("USD")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  lastLoginAt       DateTime?
+
+  // Encryption
+  encryptionSalt    String?
+  encryptedMasterKey String?
+  keyDerivationParams Json?
+
+  // Relations
+  subscription      Subscription?
+  familyMembers     FamilyMember[]
+  memories          Memory[]
+  letters           Letter[]
+  voiceRecordings   VoiceRecording[]
+  notifications     Notification[]
+  sessions          Session[]
+  legacyContacts    LegacyContact[]
+  deadManSwitch     DeadManSwitch?
+  keyEscrows        KeyEscrow[]        @relation("UserKeyEscrows")
+  checkInHistory    CheckInHistory[]
+  supportTickets    SupportTicket[]
+  supportMessages   SupportMessage[]
+  botConversations  BotConversation[]
+  activities        Activity[]
+
+  @@index([email])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String             @unique
+  tier                 SubscriptionTier   @default(FREE)
+  status               SubscriptionStatus @default(TRIALING)
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  trialEndsAt          DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([stripeCustomerId])
+}
+
+model FamilyMember {
+  id           String   @id @default(uuid())
+  userId       String
+  name         String
+  relationship String
+  email        String?
+  phone        String?
+  avatarUrl    String?
+  birthDate    DateTime?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  memories     MemoryRecipient[]
+  letters      LetterRecipient[]
+  voiceRecipients VoiceRecipient[]
+  keyEscrows   KeyEscrow[]
+
+  @@index([userId])
+}
+
+model Memory {
+  id          String       @id @default(uuid())
+  userId      String
+  type        MemoryType
+  title       String
+  description String?
+  fileUrl     String?
+  fileKey     String?
+  fileSize    Int?
+  mimeType    String?
+  metadata    Json?
+  
+  // Encryption metadata
+  encrypted   Boolean      @default(true)
+  encryptionIv String?
+  encryptionAuthTag String?
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipients  MemoryRecipient[]
+
+  @@index([userId])
+  @@index([type])
+}
+
+model MemoryRecipient {
+  id             String   @id @default(uuid())
+  memoryId       String
+  familyMemberId String
+  createdAt      DateTime @default(now())
+
+  memory         Memory       @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  familyMember   FamilyMember @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([memoryId, familyMemberId])
+}
+
+model Letter {
+  id              String          @id @default(uuid())
+  userId          String
+  title           String?
+  salutation      String?
+  body            String
+  signature       String?
+  deliveryTrigger DeliveryTrigger @default(IMMEDIATE)
+  scheduledDate   DateTime?
+  sealedAt        DateTime?
+  
+  // Encryption
+  encrypted       Boolean         @default(true)
+  encryptionIv    String?
+  encryptionAuthTag String?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipients      LetterRecipient[]
+  deliveries      LetterDelivery[]
+
+  @@index([userId])
+  @@index([deliveryTrigger])
+}
+
+model LetterRecipient {
+  id             String   @id @default(uuid())
+  letterId       String
+  familyMemberId String
+  createdAt      DateTime @default(now())
+
+  letter         Letter       @relation(fields: [letterId], references: [id], onDelete: Cascade)
+  familyMember   FamilyMember @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([letterId, familyMemberId])
+}
+
+model LetterDelivery {
+  id           String         @id @default(uuid())
+  letterId     String
+  recipientEmail String
+  status       DeliveryStatus @default(PENDING)
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  failedAt     DateTime?
+  failureReason String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  letter       Letter         @relation(fields: [letterId], references: [id], onDelete: Cascade)
+
+  @@index([letterId])
+  @@index([status])
+}
+
+model VoiceRecording {
+  id          String   @id @default(uuid())
+  userId      String
+  title       String
+  description String?
+  fileUrl     String
+  fileKey     String
+  duration    Int
+  fileSize    Int
+  waveformData Json?
+  transcript  String?
+  prompt      String?
+  
+  // Encryption
+  encrypted   Boolean  @default(true)
+  encryptionIv String?
+  encryptionAuthTag String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipients  VoiceRecipient[]
+
+  @@index([userId])
+}
+
+model VoiceRecipient {
+  id               String   @id @default(uuid())
+  voiceRecordingId String
+  familyMemberId   String
+  createdAt        DateTime @default(now())
+
+  voiceRecording   VoiceRecording @relation(fields: [voiceRecordingId], references: [id], onDelete: Cascade)
+  familyMember     FamilyMember   @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([voiceRecordingId, familyMemberId])
+}
+
+model LegacyContact {
+  id                 String             @id @default(uuid())
+  userId             String
+  name               String
+  email              String
+  phone              String?
+  relationship       String
+  verificationStatus VerificationStatus @default(PENDING)
+  verificationToken  String?            @unique
+  verifiedAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  switchVerifications SwitchVerification[]
+
+  @@index([userId])
+  @@index([verificationToken])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+}
+
+model StoryPrompt {
+  id        String   @id @default(uuid())
+  category  String
+  text      String
+  emoji     String?
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([category])
+  @@index([active])
+}
+
+// Dead Man's Switch
+model DeadManSwitch {
+  id                   String       @id @default(uuid())
+  userId               String       @unique
+  enabled              Boolean      @default(true)
+  status               SwitchStatus @default(ACTIVE)
+  checkInIntervalDays  Int          @default(30)
+  gracePeriodDays      Int          @default(7)
+  requiredVerifications Int         @default(2)
+  lastCheckIn          DateTime?
+  nextCheckInDue       DateTime?
+  missedCheckIns       Int          @default(0)
+  triggeredAt          DateTime?
+  verifiedAt           DateTime?
+  releasedAt           DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  user                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifications        SwitchVerification[]
+
+  @@index([status])
+  @@index([nextCheckInDue])
+}
+
+model SwitchVerification {
+  id                String        @id @default(uuid())
+  deadManSwitchId   String
+  legacyContactId   String
+  verificationToken String        @unique
+  verified          Boolean       @default(false)
+  verifiedAt        DateTime?
+  expiresAt         DateTime
+  createdAt         DateTime      @default(now())
+
+  deadManSwitch     DeadManSwitch @relation(fields: [deadManSwitchId], references: [id], onDelete: Cascade)
+  legacyContact     LegacyContact @relation(fields: [legacyContactId], references: [id], onDelete: Cascade)
+
+  @@index([verificationToken])
+}
+
+model CheckInHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  checkedInAt DateTime
+  method      String   // MANUAL, AUTO, SMS, EMAIL
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Key Escrow for end-to-end encryption
+model KeyEscrow {
+  id               String   @id @default(uuid())
+  userId           String
+  beneficiaryId    String
+  encryptedKey     String   // User's key encrypted with server master key
+  releaseCondition String   @default("POSTHUMOUS")
+  released         Boolean  @default(false)
+  releasedAt       DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User         @relation("UserKeyEscrows", fields: [userId], references: [id], onDelete: Cascade)
+  beneficiary      FamilyMember @relation(fields: [beneficiaryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, beneficiaryId])
+  @@index([userId])
+}
+
+// ============================================================================
+// SUPPORT SYSTEM
+// ============================================================================
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  ESCALATED
+  CLOSED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  INTERNAL
+}
+
+model SupportTicket {
+  id          String         @id @default(uuid())
+  userId      String
+  subject     String
+  category    String
+  priority    TicketPriority @default(MEDIUM)
+  status      TicketStatus   @default(OPEN)
+  assignedTo  String?
+  metadata    Json           @default("{}")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  resolvedAt  DateTime?
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    SupportMessage[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([priority])
+  @@index([assignedTo])
+}
+
+model SupportMessage {
+  id          String      @id @default(uuid())
+  ticketId    String
+  userId      String?
+  role        MessageRole @default(USER)
+  content     String
+  attachments Json[]      @default([])
+  createdAt   DateTime    @default(now())
+
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user        User?         @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+}
+
+model BotConversation {
+  id         String   @id @default(uuid())
+  userId     String?
+  query      String
+  response   String
+  intent     String?
+  helpful    Boolean?
+  articleIds String[]
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([intent])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// ANALYTICS & ACTIVITY
+// ============================================================================
+
+model Activity {
+  id           String   @id @default(uuid())
+  userId       String
+  type         String
+  action       String
+  resourceType String?
+  resourceId   String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model WrappedData {
+  id                String   @id @default(uuid())
+  userId            String
+  year              Int
+  totalMemories     Int      @default(0)
+  totalVoiceStories Int      @default(0)
+  totalLetters      Int      @default(0)
+  totalStorage      BigInt   @default(0)
+  longestStreak     Int      @default(0)
+  currentStreak     Int      @default(0)
+  topEmotions       Json     @default("[]")
+  topTaggedPeople   Json     @default("[]")
+  highlights        Json     @default("[]")
+  summary           String?
+  generatedAt       DateTime @default(now())
+
+  @@unique([userId, year])
+  @@index([userId])
+  @@index([year])
+}
+
+// ============================================================================
+// ADMIN & COUPONS
+// ============================================================================
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  SUPPORT
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  createdCoupons Coupon[]
+
+  @@index([email])
+  @@index([role])
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model Coupon {
+  id              String       @id @default(uuid())
+  code            String       @unique
+  description     String?
+  discountType    DiscountType @default(PERCENTAGE)
+  discountValue   Float        // Percentage (0-100) or fixed amount in cents
+  maxUses         Int?         // null = unlimited
+  currentUses     Int          @default(0)
+  minPurchase     Float?       // Minimum purchase amount in cents
+  applicableTiers String[]     @default([]) // Empty = all tiers
+  validFrom       DateTime     @default(now())
+  validUntil      DateTime?
+  isActive        Boolean      @default(true)
+  createdById     String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  createdBy       AdminUser?   @relation(fields: [createdById], references: [id])
+  redemptions     CouponRedemption[]
+
+  @@index([code])
+  @@index([isActive])
+  @@index([validUntil])
+}
+
+model CouponRedemption {
+  id              String   @id @default(uuid())
+  couponId        String
+  userId          String
+  discountApplied Float    // Amount discounted in cents
+  orderId         String?  // Stripe checkout session ID
+  redeemedAt      DateTime @default(now())
+
+  coupon          Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@index([userId])
+}

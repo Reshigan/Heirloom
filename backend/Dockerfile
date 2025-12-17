@@ -1,32 +1,26 @@
-FROM python:3.12-slim
-
-# Install system dependencies including FFmpeg
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+FROM node:20-slim
 
 WORKDIR /app
 
-# Install poetry
-RUN pip install poetry==1.8.3
-
-# Copy dependency files
-COPY pyproject.toml poetry.lock* ./
+# Install OpenSSL for Prisma
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root
+COPY package*.json ./
+RUN npm ci
 
-# Copy application code
+# Copy prisma schema and generate client
+COPY prisma ./prisma
+RUN npx prisma generate
+
+# Copy source code
 COPY . .
 
-# Create media directory
-RUN mkdir -p /app/media
+# Build TypeScript
+RUN npm run build
 
 # Expose port
-EXPOSE 8000
+EXPOSE 3001
 
-# Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start server
+CMD ["npm", "start"]
