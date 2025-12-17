@@ -5,8 +5,106 @@
 
 import { Hono } from 'hono';
 import type { Env } from '../index';
+import { generateLetterSuggestion, classifyEmotion } from '../services/tinyllm';
 
 export const lettersRoutes = new Hono<{ Bindings: Env }>();
+
+// AI-powered letter suggestion using TinyLLM
+lettersRoutes.post('/ai-suggest', async (c) => {
+  const body = await c.req.json();
+  const { salutation, body: letterBody, signature, recipientNames, tone, occasion } = body;
+  
+  // If we have existing letter content, provide contextual suggestions
+  if (letterBody && letterBody.trim().length > 20) {
+    // Analyze the existing content and provide continuation suggestions
+    const emotion = classifyEmotion(letterBody);
+    
+    const continuationSuggestions: Record<string, string[]> = {
+      joyful: [
+        "I hope this letter finds you smiling, just as I am while writing it.",
+        "Every time I think of you, my heart fills with happiness.",
+        "May the joy we share continue to grow with each passing day.",
+      ],
+      nostalgic: [
+        "Those memories we created together are treasures I hold close to my heart.",
+        "Looking back, I realize how much those moments shaped who we are today.",
+        "I hope you hold onto these memories as dearly as I do.",
+      ],
+      grateful: [
+        "I cannot express enough how thankful I am to have you in my life.",
+        "Your presence has been a blessing that I never take for granted.",
+        "Thank you for being exactly who you are.",
+      ],
+      loving: [
+        "My love for you grows stronger with each passing day.",
+        "You are the light that brightens even my darkest days.",
+        "Know that you are loved beyond measure, always and forever.",
+      ],
+      bittersweet: [
+        "Though we may be apart, you are always in my thoughts.",
+        "I cherish every moment we had, even as I miss you deeply.",
+        "Some goodbyes are not forever, just until we meet again.",
+      ],
+      sad: [
+        "Even in difficult times, please know that you are not alone.",
+        "I hope these words bring you some comfort during this time.",
+        "Remember that after every storm, the sun will shine again.",
+      ],
+      reflective: [
+        "Life has taught me many lessons, but knowing you has been the greatest.",
+        "As I reflect on our journey together, I am filled with gratitude.",
+        "These moments of reflection remind me of what truly matters.",
+      ],
+      proud: [
+        "I am so incredibly proud of the person you have become.",
+        "Your achievements inspire me more than you know.",
+        "Never forget how far you have come and how much you have accomplished.",
+      ],
+      peaceful: [
+        "May you find peace in knowing how much you are loved.",
+        "In the quiet moments, remember that you are cherished.",
+        "I hope this letter brings you a sense of calm and comfort.",
+      ],
+      hopeful: [
+        "The future holds so many wonderful possibilities for you.",
+        "I believe in you and all that you will accomplish.",
+        "Keep looking forward with hope, for the best is yet to come.",
+      ],
+    };
+    
+    const suggestions = continuationSuggestions[emotion.label] || continuationSuggestions.loving;
+    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+    
+    return c.json({
+      suggestion: randomSuggestion,
+      emotion: emotion.label,
+      confidence: emotion.confidence,
+    });
+  }
+  
+  // If no content yet, provide opening suggestions based on recipient
+  if (recipientNames) {
+    const openingSuggestions = [
+      `As I sit down to write this letter to you, ${recipientNames}, I am filled with so many thoughts I want to share.`,
+      `There are some things I have always wanted to tell you, ${recipientNames}, and today feels like the right time.`,
+      `When you read this letter, ${recipientNames}, I hope you feel how much you mean to me.`,
+      `I have been thinking about you lately, ${recipientNames}, and wanted to put my feelings into words.`,
+    ];
+    
+    return c.json({
+      suggestion: openingSuggestions[Math.floor(Math.random() * openingSuggestions.length)],
+      emotion: 'loving',
+      confidence: 0.8,
+    });
+  }
+  
+  // Default suggestion
+  return c.json({
+    suggestion: "I wanted to take a moment to tell you how much you mean to me. Life moves so quickly, and sometimes we forget to express the love we carry in our hearts.",
+    emotion: 'loving',
+    confidence: 0.7,
+  });
+});
 
 // Get all letters with pagination
 lettersRoutes.get('/', async (c) => {

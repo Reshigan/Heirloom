@@ -2,8 +2,9 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2 } from 'lucide-react';
+import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
+import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
 
@@ -51,6 +52,7 @@ export function Record() {
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const savedAudioRef = useRef<HTMLAudioElement | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -77,12 +79,13 @@ export function Record() {
       queryFn: () => voiceApi.getAll().then(r => r.data),
     });
 
-    // Timeline filter state
-    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-    const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
-    const [showRecordingsList, setShowRecordingsList] = useState(false);
-    const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+        // Timeline filter state
+        const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+        const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+        const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+        const [showRecordingsList, setShowRecordingsList] = useState(false);
+        const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+        const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
 
     // Get available years from recordings
     const availableYears = useMemo(() => {
@@ -131,18 +134,35 @@ export function Record() {
         contentType: file.type,
       });
       
-      await fetch(urlData.uploadUrl, {
+      // Upload the file to R2 storage
+      const uploadResponse = await fetch(urlData.uploadUrl, {
         method: 'PUT',
         body: file,
-        headers: { 'Content-Type': file.type },
+        headers: { 
+          'Content-Type': file.type,
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
       });
+      
+      let fileUrl = `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/voice/file/${encodeURIComponent(urlData.key)}`;
+      
+      // Try to get the file URL from the upload response
+      try {
+        const uploadResult = await uploadResponse.json();
+        if (uploadResult.fileUrl) {
+          fileUrl = uploadResult.fileUrl;
+        }
+      } catch {
+        // Response might not be JSON, use default URL
+      }
       
       return voiceApi.create({
         title: data.form.title || 'Untitled Recording',
-        s3Key: urlData.key,
+        fileKey: urlData.key,
+        fileUrl,
         mimeType: file.type,
         duration: Math.floor(recordingTime),
-        promptId: data.form.promptId,
+        fileSize: file.size,
         recipientIds: data.form.recipientIds,
       });
     },
@@ -618,25 +638,33 @@ export function Record() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
-                        <div className="flex flex-wrap gap-2">
-                          {family?.map((member: any) => (
-                            <button
-                              key={member.id}
-                              type="button"
-                              onClick={() => toggleRecipient(member.id)}
-                              className={`px-3 py-2 rounded-lg text-sm transition-all ${
-                                form.recipientIds.includes(member.id)
-                                  ? 'glass bg-gold/20 text-gold border border-gold/30'
-                                  : 'glass text-paper/60 hover:text-paper'
-                              }`}
-                            >
-                              {member.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                                            <div>
+                                              <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
+                                              <div className="flex flex-wrap gap-2">
+                                                {family?.map((member: any) => (
+                                                  <button
+                                                    key={member.id}
+                                                    type="button"
+                                                    onClick={() => toggleRecipient(member.id)}
+                                                    className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                                                      form.recipientIds.includes(member.id)
+                                                        ? 'glass bg-gold/20 text-gold border border-gold/30'
+                                                        : 'glass text-paper/60 hover:text-paper'
+                                                    }`}
+                                                  >
+                                                    {member.name}
+                                                  </button>
+                                                ))}
+                                                <button
+                                                  type="button"
+                                                  onClick={() => setShowAddFamilyModal(true)}
+                                                  className="px-3 py-2 rounded-lg text-sm border border-dashed border-gold/30 text-paper/40 hover:border-gold/50 hover:text-paper/60 transition-all flex items-center gap-1.5"
+                                                >
+                                                  <Plus size={14} />
+                                                  Add Family Member
+                                                </button>
+                                              </div>
+                                            </div>
 
                       <motion.button
                         onClick={handleSave}
@@ -881,9 +909,30 @@ export function Record() {
                               <button
                                 onClick={() => {
                                   if (playingRecordingId === recording.id) {
+                                    if (savedAudioRef.current) {
+                                      savedAudioRef.current.pause();
+                                    }
                                     setPlayingRecordingId(null);
                                   } else {
-                                    setPlayingRecordingId(recording.id);
+                                    if (savedAudioRef.current) {
+                                      savedAudioRef.current.pause();
+                                    }
+                                    if (recording.fileUrl) {
+                                      const audio = new Audio(recording.fileUrl);
+                                      savedAudioRef.current = audio;
+                                      audio.onended = () => setPlayingRecordingId(null);
+                                      audio.onerror = () => {
+                                        showToast('Failed to play recording', 'error');
+                                        setPlayingRecordingId(null);
+                                      };
+                                      audio.play().catch(() => {
+                                        showToast('Failed to play recording', 'error');
+                                        setPlayingRecordingId(null);
+                                      });
+                                      setPlayingRecordingId(recording.id);
+                                    } else {
+                                      showToast('Recording file not available', 'error');
+                                    }
                                   }
                                 }}
                                 className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors"
@@ -948,6 +997,23 @@ export function Record() {
           </motion.div>
         </div>
       </div>
+
+      {/* Add Family Member Modal */}
+      <AddFamilyMemberModal
+        isOpen={showAddFamilyModal}
+        onClose={() => setShowAddFamilyModal(false)}
+        onCreated={(member) => {
+          queryClient.setQueryData(['family'], (old: any) => {
+            if (!old) return [member];
+            if (Array.isArray(old)) return [...old, member];
+            return old;
+          });
+          setForm(prev => ({
+            ...prev,
+            recipientIds: [...prev.recipientIds, member.id],
+          }));
+        }}
+      />
     </div>
   );
 }

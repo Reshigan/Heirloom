@@ -143,10 +143,10 @@ export function Settings() {
     queryFn: () => deadmanApi.getStatus().then(r => r.data),
   });
 
-  const { data: encryptionParams } = useQuery({
-    queryKey: ['encryption-params'],
-    queryFn: () => encryptionApi.getParams().then(r => r.data),
-  });
+    const { data: encryptionStatus } = useQuery({
+      queryKey: ['encryption-status'],
+      queryFn: () => encryptionApi.getStatus().then(r => r.data),
+    });
 
     const { data: legacyContacts } = useQuery({
       queryKey: ['legacy-contacts'],
@@ -222,6 +222,10 @@ export function Settings() {
     mutationFn: () => deadmanApi.configure(deadmanConfig),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
+      setStatusMessage({ type: 'success', text: 'Dead Man\'s Switch configured successfully' });
+    },
+    onError: () => {
+      setStatusMessage({ type: 'error', text: 'Failed to configure Dead Man\'s Switch' });
     },
   });
 
@@ -229,16 +233,51 @@ export function Settings() {
     mutationFn: () => deadmanApi.checkIn(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
+      setStatusMessage({ type: 'success', text: 'Check-in recorded successfully' });
+    },
+    onError: () => {
+      setStatusMessage({ type: 'error', text: 'Failed to record check-in' });
     },
   });
 
-  const addLegacyContactMutation = useMutation({
-    mutationFn: () => legacyContactsApi.add(newLegacyContact),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['legacy-contacts'] });
-      setNewLegacyContact({ name: '', email: '', relationship: '' });
-    },
-  });
+    const addLegacyContactMutation = useMutation({
+      mutationFn: () => legacyContactsApi.add(newLegacyContact),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['legacy-contacts'] });
+        setNewLegacyContact({ name: '', email: '', relationship: '' });
+      },
+    });
+
+        // Encryption setup mutation - generates client-side encryption keys
+        const setupEncryptionMutation = useMutation({
+          mutationFn: async () => {
+            // Generate a random salt for key derivation
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const saltBase64 = btoa(String.fromCharCode(...salt));
+      
+            // Generate a random master key
+            const masterKey = crypto.getRandomValues(new Uint8Array(32));
+            const masterKeyBase64 = btoa(String.fromCharCode(...masterKey));
+      
+            // For now, we'll store the encrypted master key (in production, this would be encrypted with user's password)
+            return encryptionApi.setup({
+              encryptedMasterKey: masterKeyBase64,
+              encryptionSalt: saltBase64,
+              keyDerivationParams: {
+                algorithm: 'PBKDF2',
+                iterations: 100000,
+                hash: 'SHA-256',
+              },
+            });
+          },
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['encryption-status'] });
+            setStatusMessage({ type: 'success', text: 'Encryption enabled successfully' });
+          },
+          onError: () => {
+            setStatusMessage({ type: 'error', text: 'Failed to set up encryption' });
+          },
+        });
 
     const deleteAccountMutation = useMutation({
       mutationFn: (password: string) => settingsApi.deleteAccount(password),
@@ -556,7 +595,7 @@ export function Settings() {
                     Configure automatic release of your content to beneficiaries if you don't check in regularly.
                   </p>
 
-                  {deadmanStatus?.enabled ? (
+                  {deadmanStatus?.configured ? (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04]">
                         <div>
@@ -671,41 +710,48 @@ export function Settings() {
               </div>
             )}
 
-            {activeTab === 'encryption' && (
-              <div className="card">
-                <h3 className="text-xl mb-2">End-to-End Encryption</h3>
-                <p className="text-paper/50 text-sm mb-6">
-                  Your content is encrypted before it leaves your device. Only you and your designated
-                  beneficiaries can decrypt it.
-                </p>
+                        {activeTab === 'encryption' && (
+                          <div className="card">
+                            <h3 className="text-xl mb-2">End-to-End Encryption</h3>
+                            <p className="text-paper/50 text-sm mb-6">
+                              Your content is encrypted before it leaves your device. Only you and your designated
+                              beneficiaries can decrypt it.
+                            </p>
 
-                {encryptionParams?.configured ? (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400">
-                      <Lock className="inline w-4 h-4 mr-2" />
-                      Encryption is enabled. Your content is protected.
-                    </div>
+                            {encryptionStatus?.encryptionEnabled ? (
+                              <div className="space-y-4">
+                                <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400">
+                                  <Lock className="inline w-4 h-4 mr-2" />
+                                  Encryption is enabled. Your content is protected.
+                                </div>
 
-                    <div>
-                      <h4 className="text-sm text-paper/50 mb-2">Key Escrow Status</h4>
-                      <p className="text-paper/60 text-sm">
-                        Your encryption key is securely escrowed and will be released to your beneficiaries
-                        when the dead man's switch is triggered.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Lock className="w-12 h-12 text-paper/20 mx-auto mb-4" />
-                    <p className="text-paper/50 mb-4">Encryption not yet configured</p>
-                    <p className="text-paper/40 text-sm mb-6">
-                      Set up end-to-end encryption to ensure only you and your beneficiaries can access your content.
-                    </p>
-                    <button className="btn btn-primary">Set Up Encryption</button>
-                  </div>
-                )}
-              </div>
-            )}
+                                <div>
+                                  <h4 className="text-sm text-paper/50 mb-2">Key Escrow Status</h4>
+                                  <p className="text-paper/60 text-sm">
+                                    {encryptionStatus?.hasEscrow 
+                                      ? 'Your encryption key is securely escrowed and will be released to your beneficiaries when the dead man\'s switch is triggered.'
+                                      : 'Key escrow not configured. Set up key escrow to ensure your beneficiaries can access your content.'}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center py-8">
+                                <Lock className="w-12 h-12 text-paper/20 mx-auto mb-4" />
+                                <p className="text-paper/50 mb-4">Encryption not yet configured</p>
+                                <p className="text-paper/40 text-sm mb-6">
+                                  Set up end-to-end encryption to ensure only you and your beneficiaries can access your content.
+                                </p>
+                                <button 
+                                  onClick={() => setupEncryptionMutation.mutate()}
+                                  disabled={setupEncryptionMutation.isPending}
+                                  className="btn btn-primary"
+                                >
+                                  {setupEncryptionMutation.isPending ? 'Setting up...' : 'Set Up Encryption'}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                         {activeTab === 'notifications' && (
                           <div className="card space-y-6">

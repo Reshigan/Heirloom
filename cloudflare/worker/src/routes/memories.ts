@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env } from '../index';
+import { classifyEmotion } from '../services/tinyllm';
 
 export const memoriesRoutes = new Hono<{ Bindings: Env }>();
 
@@ -45,20 +46,25 @@ memoriesRoutes.get('/', async (c) => {
   const countResult = await c.env.DB.prepare(countQuery).bind(...countParams).first();
   
   return c.json({
-    data: memories.results.map((m: any) => ({
-      id: m.id,
-      type: m.type,
-      title: m.title,
-      description: m.description,
-      fileUrl: m.file_url,
-      fileKey: m.file_key,
-      fileSize: m.file_size,
-      mimeType: m.mime_type,
-      metadata: m.metadata ? JSON.parse(m.metadata) : null,
-      encrypted: !!m.encrypted,
-      createdAt: m.created_at,
-      updatedAt: m.updated_at,
-    })),
+    data: memories.results.map((m: any) => {
+      const parsedMetadata = m.metadata ? JSON.parse(m.metadata) : null;
+      return {
+        id: m.id,
+        type: m.type,
+        title: m.title,
+        description: m.description,
+        fileUrl: m.file_url,
+        fileKey: m.file_key,
+        fileSize: m.file_size,
+        mimeType: m.mime_type,
+        metadata: parsedMetadata,
+        emotion: parsedMetadata?.emotion || null,
+        emotionConfidence: parsedMetadata?.emotionConfidence || null,
+        encrypted: !!m.encrypted,
+        createdAt: m.created_at,
+        updatedAt: m.updated_at,
+      };
+    }),
     pagination: {
       page,
       limit,
@@ -280,10 +286,21 @@ memoriesRoutes.post('/', async (c) => {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   
+  // Classify emotion using TinyLLM
+  const textToClassify = `${title} ${description || ''}`.trim();
+  const emotionResult = classifyEmotion(textToClassify);
+  
+  // Merge emotion into metadata
+  const enrichedMetadata = {
+    ...(metadata || {}),
+    emotion: emotionResult.label,
+    emotionConfidence: emotionResult.confidence,
+  };
+  
   await c.env.DB.prepare(`
     INSERT INTO memories (id, user_id, type, title, description, file_url, file_key, file_size, mime_type, metadata, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, metadata ? JSON.stringify(metadata) : null, now, now).run();
+  `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), now, now).run();
   
   // Add recipients
   if (recipientIds && recipientIds.length > 0) {
@@ -306,6 +323,8 @@ memoriesRoutes.post('/', async (c) => {
     description: memory?.description,
     fileUrl: memory?.file_url,
     fileKey: memory?.file_key,
+    emotion: emotionResult.label,
+    emotionConfidence: emotionResult.confidence,
     createdAt: memory?.created_at,
   }, 201);
 });

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
+import { lettersApi } from '../services/api';
 
 // Custom SVG Icons
 const Icons = {
@@ -82,6 +83,17 @@ const Icons = {
       <path d="M20 6L9 17l-5-5" />
     </svg>
   ),
+  sparkles: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+      <circle cx="12" cy="12" r="4" />
+    </svg>
+  ),
+  loader: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.364-6.364l-2.828 2.828M9.464 14.536l-2.828 2.828m12.728 0l-2.828-2.828M9.464 9.464L6.636 6.636" />
+    </svg>
+  ),
 };
 
 interface Letter {
@@ -156,6 +168,82 @@ export function Compose() {
   const [isSaving, setIsSaving] = useState(false);
   const [showSealConfirm, setShowSealConfirm] = useState(false);
   const [isSealing, setIsSealing] = useState(false);
+  const [isAiAssisting, setIsAiAssisting] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState('');
+
+  // AI Assist function - uses TinyLLM backend service
+  const handleAiAssist = async () => {
+    if (isAiAssisting) return;
+  
+    setIsAiAssisting(true);
+    setAiSuggestion('');
+  
+    const recipientNames = selectedRecipients
+      .map(id => familyMembers.find(m => m.id === id)?.name)
+      .filter(Boolean)
+      .join(', ');
+
+    // Smart fallback suggestions based on context
+    const getSmartSuggestion = () => {
+      if (!body || body.trim().length < 20) {
+        // Opening suggestions
+        return `Here are some heartfelt ways to begin your letter to ${recipientNames || 'your loved ones'}:
+
+"As I sit down to write this, I'm filled with so many feelings I want to share with you..."
+
+"There are some things I've always wanted to tell you, and today feels like the right time..."
+
+"When you read this letter, I hope you feel how much you mean to me..."`;
+      } else if (body.toLowerCase().includes('remember') || body.toLowerCase().includes('memory')) {
+        // Memory-related suggestions
+        return `To continue your memory:
+
+"That moment taught me something I carry with me to this day..."
+
+"Looking back, I realize how much those moments shaped who we are..."
+
+"I hope you hold onto these memories as dearly as I do..."`;
+      } else {
+        // General continuation
+        return `Here are some ways to continue your letter:
+
+"What I want you to know most of all is..."
+
+"Through all of life's ups and downs, remember that..."
+
+"I hope these words find you when you need them most..."`;
+      }
+    };
+
+    // Try TinyLLM backend service first, then fall back to local suggestions
+    try {
+      const { data } = await lettersApi.aiSuggest({
+        salutation,
+        body,
+        signature,
+        recipientNames: recipientNames || undefined,
+      });
+      
+      if (data.suggestion) {
+        setAiSuggestion(data.suggestion);
+      } else {
+        setAiSuggestion(getSmartSuggestion());
+      }
+    } catch (error) {
+      console.error('AI assist error:', error);
+      // Fall back to local smart suggestions
+      setAiSuggestion(getSmartSuggestion());
+    } finally {
+      setIsAiAssisting(false);
+    }
+  };
+
+  const insertAiSuggestion = () => {
+    if (aiSuggestion && !aiSuggestion.includes('unavailable') && !aiSuggestion.includes('Could not')) {
+      setBody(prev => prev + (prev ? '\n\n' : '') + aiSuggestion);
+      setAiSuggestion('');
+    }
+  };
 
   useEffect(() => {
     fetchLetters();
@@ -269,13 +357,22 @@ export function Compose() {
         <main className="pt-24 pb-16 px-4 max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <button
-              onClick={() => setShowComposer(false)}
-              className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
-            >
-              <span className="w-5 h-5">{Icons.arrowLeft}</span>
-              <span>Back to Letters</span>
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setShowComposer(false)}
+                className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
+              >
+                <span className="w-5 h-5">{Icons.arrowLeft}</span>
+                <span>Back to Letters</span>
+              </button>
+              <span className="text-paper/30">|</span>
+              <button
+                onClick={() => navigate('/memories')}
+                className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
+              >
+                <span>Back to Vault</span>
+              </button>
+            </div>
             
             <div className="flex items-center gap-3">
               <button
@@ -373,6 +470,35 @@ export function Compose() {
                   className="w-full text-lg font-serif text-paper/80 bg-transparent border-none focus:outline-none"
                 />
               </div>
+            </div>
+
+            {/* AI Assist */}
+            <div className="bg-void-light border border-gold/20 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm text-paper/60">AI Writing Assistant</label>
+                <button
+                  onClick={handleAiAssist}
+                  disabled={isAiAssisting}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gold/20 to-gold-dim/20 border border-gold/30 rounded-lg text-gold hover:border-gold/50 transition-all disabled:opacity-50"
+                >
+                  <span className={`w-4 h-4 ${isAiAssisting ? 'animate-spin' : ''}`}>
+                    {isAiAssisting ? Icons.loader : Icons.sparkles}
+                  </span>
+                  <span>{isAiAssisting ? 'Thinking...' : 'Get Suggestions'}</span>
+                </button>
+              </div>
+              
+              {aiSuggestion && (
+                <div className="mt-3 p-4 bg-void border border-gold/10 rounded-lg">
+                  <p className="text-paper/80 text-sm whitespace-pre-line">{aiSuggestion}</p>
+                  <button
+                    onClick={insertAiSuggestion}
+                    className="mt-3 text-sm text-gold hover:text-gold-dim transition-colors"
+                  >
+                    Insert into letter
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Writing Prompts */}

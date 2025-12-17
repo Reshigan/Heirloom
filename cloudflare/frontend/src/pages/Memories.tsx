@@ -61,11 +61,15 @@ export function Memories() {
         contentType: data.file.type,
       });
       
-      // Upload file to S3
+      // Upload file to R2 storage with auth header
+      const token = localStorage.getItem('token');
       await fetch(uploadData.uploadUrl, {
         method: 'PUT',
         body: data.file,
-        headers: { 'Content-Type': data.file.type },
+        headers: { 
+          'Content-Type': data.file.type,
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
       });
       
       setUploadProgress(70);
