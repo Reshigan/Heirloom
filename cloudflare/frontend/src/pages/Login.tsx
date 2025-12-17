@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
-import { authApi } from '../services/api';
 
 export function Login() {
   const navigate = useNavigate();
@@ -28,8 +27,7 @@ export function Login() {
     setIsLoading(true);
 
     try {
-      const { data } = await authApi.login({ email, password });
-      login(data.user, data.token);
+      await login(email, password);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password');
