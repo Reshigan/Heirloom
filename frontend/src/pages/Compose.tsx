@@ -307,8 +307,10 @@ export function Compose() {
   const fetchFamilyMembers = async () => {
     try {
       const response = await familyApi.getAll();
-      // Backend returns { data: [...], pagination: {...} }
-      const membersData = response.data?.data || response.data?.members || [];
+      // Backend returns array directly, not wrapped in { data: [...] }
+      const membersData = Array.isArray(response.data) 
+        ? response.data 
+        : (response.data?.data || response.data?.members || []);
       if (!Array.isArray(membersData)) {
         console.warn('Family members data is not an array:', membersData);
         setFamilyMembers([]);
