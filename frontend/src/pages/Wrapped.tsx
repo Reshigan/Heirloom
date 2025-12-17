@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { wrappedApi } from '../services/api';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 // Types for wrapped data
 interface WrappedStats {
@@ -626,19 +627,44 @@ const Wrapped: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
-  const year = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
-  // Fetch wrapped data from API
-  const { data: apiData, isLoading } = useQuery({
-    queryKey: ['wrapped', year],
+  // Fetch available years from API
+  const { data: yearsData } = useQuery({
+    queryKey: ['wrapped-years'],
     queryFn: async () => {
-      const response = await wrappedApi.getCurrent();
+      const response = await wrappedApi.getYears();
       return response.data;
+    },
+  });
+
+  // Get available years (default to current year if no data)
+  const availableYears = useMemo(() => {
+    if (yearsData?.years && yearsData.years.length > 0) {
+      return yearsData.years.sort((a: number, b: number) => b - a);
+    }
+    // Default to last 5 years if no data
+    return Array.from({ length: 5 }, (_, i) => currentYear - i);
+  }, [yearsData, currentYear]);
+
+  // Fetch wrapped data from API for selected year
+  const { data: apiData, isLoading } = useQuery({
+    queryKey: ['wrapped', selectedYear],
+    queryFn: async () => {
+      if (selectedYear === currentYear) {
+        const response = await wrappedApi.getCurrent();
+        return response.data;
+      } else {
+        const response = await wrappedApi.getYear(selectedYear);
+        return response.data;
+      }
     },
   });
 
   // Transform API data or use defaults
   const stats: WrappedStats = apiData ? transformApiResponse(apiData) : getDefaultStats();
+  const year = selectedYear;
 
   const slides = [
     <IntroSlide key="intro" year={year} />,
@@ -728,6 +754,40 @@ const Wrapped: React.FC = () => {
             }}
           />
         ))}
+      </div>
+
+      {/* Year Slider */}
+      <div className="absolute top-8 left-8 flex items-center gap-3 z-50">
+        <button
+          onClick={() => {
+            const idx = availableYears.indexOf(selectedYear);
+            if (idx < availableYears.length - 1) {
+              setSelectedYear(availableYears[idx + 1]);
+              setCurrentSlide(0);
+            }
+          }}
+          disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
+          className="p-2 rounded-full border border-paper/30 text-paper/50 hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-paper/30 bg-void-deep/50 backdrop-blur-sm">
+          <Calendar size={16} className="text-gold" />
+          <span className="text-xl font-display text-gold">{selectedYear}</span>
+        </div>
+        <button
+          onClick={() => {
+            const idx = availableYears.indexOf(selectedYear);
+            if (idx > 0) {
+              setSelectedYear(availableYears[idx - 1]);
+              setCurrentSlide(0);
+            }
+          }}
+          disabled={availableYears.indexOf(selectedYear) === 0}
+          className="p-2 rounded-full border border-paper/30 text-paper/50 hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <ChevronRight size={18} />
+        </button>
       </div>
 
       {/* Progress dots */}

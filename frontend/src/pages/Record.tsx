@@ -1,9 +1,34 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2 } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
+
+type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
+
+const EMOTIONS: { value: EmotionType; label: string; icon: React.ElementType; color: string }[] = [
+  { value: 'joyful', label: 'Joyful', icon: Sparkles, color: 'text-yellow-400 bg-yellow-400/20' },
+  { value: 'nostalgic', label: 'Nostalgic', icon: Cloud, color: 'text-amber-400 bg-amber-400/20' },
+  { value: 'grateful', label: 'Grateful', icon: Gift, color: 'text-emerald-400 bg-emerald-400/20' },
+  { value: 'loving', label: 'Loving', icon: Heart, color: 'text-rose-400 bg-rose-400/20' },
+  { value: 'bittersweet', label: 'Bittersweet', icon: Droplet, color: 'text-purple-400 bg-purple-400/20' },
+  { value: 'reflective', label: 'Reflective', icon: Eye, color: 'text-indigo-400 bg-indigo-400/20' },
+  { value: 'proud', label: 'Proud', icon: Trophy, color: 'text-orange-400 bg-orange-400/20' },
+  { value: 'peaceful', label: 'Peaceful', icon: Leaf, color: 'text-teal-400 bg-teal-400/20' },
+  { value: 'hopeful', label: 'Hopeful', icon: Sun, color: 'text-sky-400 bg-sky-400/20' },
+];
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+type VoiceRecording = {
+  id: string;
+  title: string;
+  duration: number;
+  emotion?: EmotionType;
+  fileUrl?: string;
+  createdAt: string;
+};
 
 export function Record() {
   const navigate = useNavigate();
@@ -41,12 +66,63 @@ export function Record() {
     queryFn: () => familyApi.getAll().then(r => r.data),
   });
 
-  const { data: stats } = useQuery({
-    queryKey: ['voice-stats'],
-    queryFn: () => voiceApi.getStats().then(r => r.data),
-  });
+    const { data: stats } = useQuery({
+      queryKey: ['voice-stats'],
+      queryFn: () => voiceApi.getStats().then(r => r.data),
+    });
 
-  const uploadMutation = useMutation({
+    // Fetch all voice recordings for timeline view
+    const { data: recordings } = useQuery({
+      queryKey: ['voice'],
+      queryFn: () => voiceApi.getAll().then(r => r.data),
+    });
+
+    // Timeline filter state
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+    const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+    const [showRecordingsList, setShowRecordingsList] = useState(false);
+    const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+
+    // Get available years from recordings
+    const availableYears = useMemo(() => {
+      if (!recordings?.recordings) return [new Date().getFullYear()];
+      const years = new Set<number>();
+      recordings.recordings.forEach((r: VoiceRecording) => {
+        years.add(new Date(r.createdAt).getFullYear());
+      });
+      const yearArray = Array.from(years).sort((a, b) => b - a);
+      return yearArray.length > 0 ? yearArray : [new Date().getFullYear()];
+    }, [recordings]);
+
+    // Filter recordings by timeline and emotion
+    const filteredRecordings = useMemo(() => {
+      if (!recordings?.recordings) return [];
+      return recordings.recordings.filter((r: VoiceRecording) => {
+        const date = new Date(r.createdAt);
+        const matchesYear = date.getFullYear() === selectedYear;
+        const matchesMonth = selectedMonth === null || date.getMonth() === selectedMonth;
+        const matchesEmotion = selectedEmotion === null || r.emotion === selectedEmotion;
+        return matchesYear && matchesMonth && matchesEmotion;
+      });
+    }, [recordings, selectedYear, selectedMonth, selectedEmotion]);
+
+    // Get emotion counts for current filter
+    const emotionCounts = useMemo(() => {
+      if (!recordings?.recordings) return {};
+      const counts: Record<string, number> = {};
+      recordings.recordings.forEach((r: VoiceRecording) => {
+        const date = new Date(r.createdAt);
+        if (date.getFullYear() === selectedYear && (selectedMonth === null || date.getMonth() === selectedMonth)) {
+          if (r.emotion) {
+            counts[r.emotion] = (counts[r.emotion] || 0) + 1;
+          }
+        }
+      });
+      return counts;
+    }, [recordings, selectedYear, selectedMonth]);
+
+    const uploadMutation = useMutation({
     mutationFn: async (data: { blob: Blob; form: typeof form }) => {
       const file = new File([data.blob], 'recording.webm', { type: 'audio/webm' });
       
@@ -661,6 +737,215 @@ export function Record() {
               </div>
             </motion.div>
           </div>
+
+          {/* Previous Recordings Section with Timeline Slider */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-light flex items-center gap-2">
+                <Volume2 size={20} className="text-gold" />
+                Previous Recordings
+              </h2>
+              <button
+                onClick={() => setShowRecordingsList(!showRecordingsList)}
+                className="btn btn-secondary text-sm"
+              >
+                {showRecordingsList ? 'Hide' : 'Show'} Timeline
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {showRecordingsList && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  {/* Timeline Slider */}
+                  <div className="mb-8">
+                    {/* Year Selector */}
+                    <div className="flex items-center justify-center gap-4 mb-4">
+                      <button
+                        onClick={() => {
+                          const idx = availableYears.indexOf(selectedYear);
+                          if (idx < availableYears.length - 1) {
+                            setSelectedYear(availableYears[idx + 1]);
+                            setSelectedMonth(null);
+                          }
+                        }}
+                        disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
+                        className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <Calendar size={18} className="text-gold" />
+                        <span className="text-2xl font-light text-gold">{selectedYear}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const idx = availableYears.indexOf(selectedYear);
+                          if (idx > 0) {
+                            setSelectedYear(availableYears[idx - 1]);
+                            setSelectedMonth(null);
+                          }
+                        }}
+                        disabled={availableYears.indexOf(selectedYear) === 0}
+                        className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+
+                    {/* Month Slider */}
+                    <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
+                      <button
+                        onClick={() => setSelectedMonth(null)}
+                        className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                          selectedMonth === null
+                            ? 'bg-gold text-void font-medium'
+                            : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                        }`}
+                      >
+                        All
+                      </button>
+                      {MONTHS.map((month, idx) => (
+                        <button
+                          key={month}
+                          onClick={() => setSelectedMonth(selectedMonth === idx ? null : idx)}
+                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                            selectedMonth === idx
+                              ? 'bg-gold text-void font-medium'
+                              : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                          }`}
+                        >
+                          {month}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Emotion Filter */}
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                      <span className="text-paper/40 text-sm mr-2">Filter by emotion:</span>
+                      <button
+                        onClick={() => setSelectedEmotion(null)}
+                        className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                          selectedEmotion === null
+                            ? 'bg-white/20 text-paper font-medium'
+                            : 'glass text-paper/50 hover:text-paper'
+                        }`}
+                      >
+                        All
+                      </button>
+                      {EMOTIONS.map((emotion) => {
+                        const Icon = emotion.icon;
+                        const count = emotionCounts[emotion.value] || 0;
+                        return (
+                          <button
+                            key={emotion.value}
+                            onClick={() => setSelectedEmotion(selectedEmotion === emotion.value ? null : emotion.value)}
+                            className={`px-3 py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 ${
+                              selectedEmotion === emotion.value
+                                ? emotion.color + ' font-medium'
+                                : 'glass text-paper/50 hover:text-paper'
+                            }`}
+                          >
+                            <Icon size={14} />
+                            {emotion.label}
+                            {count > 0 && <span className="text-xs opacity-60">({count})</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Recordings List */}
+                  {filteredRecordings.length > 0 ? (
+                    <div className="space-y-3">
+                      {filteredRecordings.map((recording: VoiceRecording) => {
+                        const emotionData = EMOTIONS.find(e => e.value === recording.emotion);
+                        const EmotionIcon = emotionData?.icon;
+                        return (
+                          <motion.div
+                            key={recording.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="card p-4 flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-4">
+                              <button
+                                onClick={() => {
+                                  if (playingRecordingId === recording.id) {
+                                    setPlayingRecordingId(null);
+                                  } else {
+                                    setPlayingRecordingId(recording.id);
+                                  }
+                                }}
+                                className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors"
+                              >
+                                {playingRecordingId === recording.id ? (
+                                  <Pause size={18} className="text-gold" />
+                                ) : (
+                                  <Play size={18} className="text-gold ml-0.5" />
+                                )}
+                              </button>
+                              <div>
+                                <h4 className="font-medium">{recording.title}</h4>
+                                <div className="flex items-center gap-3 text-sm text-paper/50">
+                                  <span>{formatTime(recording.duration)}</span>
+                                  <span>{new Date(recording.createdAt).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {emotionData && EmotionIcon && (
+                                <span className={`px-3 py-1 rounded-full text-xs flex items-center gap-1.5 ${emotionData.color}`}>
+                                  <EmotionIcon size={12} />
+                                  {emotionData.label}
+                                </span>
+                              )}
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-12"
+                    >
+                      {recordings?.recordings?.length > 0 ? (
+                        <>
+                          <h3 className="text-xl font-light mb-2">No recordings match your filters</h3>
+                          <p className="text-paper/50 mb-6">Try adjusting the year, month, or emotion filter</p>
+                          <button 
+                            onClick={() => {
+                              setSelectedMonth(null);
+                              setSelectedEmotion(null);
+                            }} 
+                            className="btn btn-secondary"
+                          >
+                            Clear Filters
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="text-xl font-light mb-2">No recordings yet</h3>
+                          <p className="text-paper/50">Start recording your voice messages above</p>
+                        </>
+                      )}
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
     </div>
