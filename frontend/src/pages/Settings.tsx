@@ -53,11 +53,23 @@ export function Settings() {
     const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
     const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
     const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
-    const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
+        const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
   
-    // Avatar upload state
-    const [showAvatarCropper, setShowAvatarCropper] = useState(false);
-    const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
+        // Notification preferences state
+        const [notificationPrefs, setNotificationPrefs] = useState({
+          emailNotifications: true,
+          pushNotifications: true,
+          reminderEmails: true,
+          marketingEmails: false,
+          weeklyDigest: true,
+        });
+    
+        // Status messages for user feedback
+        const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  
+        // Avatar upload state
+        const [showAvatarCropper, setShowAvatarCropper] = useState(false);
+        const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatarUrl || null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -136,18 +148,43 @@ export function Settings() {
     queryFn: () => encryptionApi.getParams().then(r => r.data),
   });
 
-  const { data: legacyContacts } = useQuery({
-    queryKey: ['legacy-contacts'],
-    queryFn: () => legacyContactsApi.getAll().then(r => r.data),
-  });
+    const { data: legacyContacts } = useQuery({
+      queryKey: ['legacy-contacts'],
+      queryFn: () => legacyContactsApi.getAll().then(r => r.data),
+    });
 
-  const updateProfileMutation = useMutation({
-    mutationFn: () => settingsApi.updateProfile(profile),
-    onSuccess: (res) => {
-      updateUser(res.data);
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-    },
-  });
+    // Fetch notification preferences
+    const { data: notificationData } = useQuery({
+      queryKey: ['notifications'],
+      queryFn: () => settingsApi.getNotifications().then(r => r.data),
+    });
+
+    // Update notification prefs when data loads
+    useEffect(() => {
+      if (notificationData?.preferences) {
+        setNotificationPrefs(notificationData.preferences);
+      }
+    }, [notificationData]);
+
+    // Clear status message after 3 seconds
+    useEffect(() => {
+      if (statusMessage) {
+        const timer = setTimeout(() => setStatusMessage(null), 3000);
+        return () => clearTimeout(timer);
+      }
+    }, [statusMessage]);
+
+    const updateProfileMutation = useMutation({
+      mutationFn: () => settingsApi.updateProfile(profile),
+      onSuccess: (res) => {
+        updateUser(res.data);
+        queryClient.invalidateQueries({ queryKey: ['profile'] });
+        setStatusMessage({ type: 'success', text: 'Profile updated successfully' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to update profile' });
+      },
+    });
 
   const changePasswordMutation = useMutation({
     mutationFn: () => settingsApi.changePassword({ currentPassword: passwords.current, newPassword: passwords.new }),
@@ -203,15 +240,39 @@ export function Settings() {
     },
   });
 
-  const deleteAccountMutation = useMutation({
-    mutationFn: (password: string) => settingsApi.deleteAccount(password),
-    onSuccess: () => {
-      logout();
-      navigate('/');
-    },
-  });
+    const deleteAccountMutation = useMutation({
+      mutationFn: (password: string) => settingsApi.deleteAccount(password),
+      onSuccess: () => {
+        logout();
+        navigate('/');
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to delete account. Check your password.' });
+      },
+    });
 
-  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
+    // Notification preferences mutation
+    const updateNotificationsMutation = useMutation({
+      mutationFn: (prefs: typeof notificationPrefs) => settingsApi.updateNotifications(prefs),
+      onSuccess: (res) => {
+        if (res.data.preferences) {
+          setNotificationPrefs(res.data.preferences);
+        }
+        setStatusMessage({ type: 'success', text: 'Notification preferences saved' });
+      },
+      onError: () => {
+        setStatusMessage({ type: 'error', text: 'Failed to save notification preferences' });
+      },
+    });
+
+    // Helper to update a single notification preference
+    const handleNotificationToggle = (key: keyof typeof notificationPrefs, value: boolean) => {
+      const updated = { ...notificationPrefs, [key]: value };
+      setNotificationPrefs(updated);
+      updateNotificationsMutation.mutate(updated);
+    };
+
+    const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -646,27 +707,35 @@ export function Settings() {
               </div>
             )}
 
-            {activeTab === 'notifications' && (
-              <div className="card space-y-6">
-                {[
-                  { id: 'email', label: 'Email notifications', desc: 'Receive updates about your memories' },
-                  { id: 'checkin', label: 'Check-in reminders', desc: 'Get reminded to check in for dead man\'s switch' },
-                  { id: 'delivery', label: 'Delivery confirmations', desc: 'Know when your letters are delivered' },
-                  { id: 'trial', label: 'Trial warnings', desc: 'Get notified before your trial expires' },
-                ].map(({ id, label, desc }) => (
-                  <div key={id} className="flex items-center justify-between">
-                    <div>
-                      <div className="text-paper">{label}</div>
-                      <div className="text-paper/40 text-sm">{desc}</div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" defaultChecked className="sr-only peer" />
-                      <div className="w-12 h-7 bg-white/10 peer-checked:bg-gold rounded-full peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-paper after:rounded-full after:h-5 after:w-5 after:transition-all" />
-                    </label>
-                  </div>
-                ))}
-              </div>
-            )}
+                        {activeTab === 'notifications' && (
+                          <div className="card space-y-6">
+                            {[
+                              { id: 'emailNotifications' as keyof typeof notificationPrefs, label: 'Email notifications', desc: 'Receive updates about your memories' },
+                              { id: 'reminderEmails' as keyof typeof notificationPrefs, label: 'Check-in reminders', desc: 'Get reminded to check in for dead man\'s switch' },
+                              { id: 'pushNotifications' as keyof typeof notificationPrefs, label: 'Delivery confirmations', desc: 'Know when your letters are delivered' },
+                              { id: 'weeklyDigest' as keyof typeof notificationPrefs, label: 'Weekly digest', desc: 'Get a weekly summary of your activity' },
+                            ].map(({ id, label, desc }) => (
+                              <div key={id} className="flex items-center justify-between">
+                                <div>
+                                  <div className="text-paper">{label}</div>
+                                  <div className="text-paper/40 text-sm">{desc}</div>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={notificationPrefs[id]} 
+                                    onChange={(e) => handleNotificationToggle(id, e.target.checked)}
+                                    className="sr-only peer" 
+                                  />
+                                  <div className="w-12 h-7 bg-white/10 peer-checked:bg-gold rounded-full peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-paper after:rounded-full after:h-5 after:w-5 after:transition-all" />
+                                </label>
+                              </div>
+                            ))}
+                            {updateNotificationsMutation.isPending && (
+                              <div className="text-paper/40 text-sm">Saving...</div>
+                            )}
+                          </div>
+                        )}
 
             {activeTab === 'security' && (
               <div className="space-y-6">

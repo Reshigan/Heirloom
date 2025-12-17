@@ -135,6 +135,9 @@ export const settingsApi = {
   deleteAccount: (password: string) => api.delete('/settings/account', { data: { password } }),
   getUploadUrl: (data: { filename: string; contentType: string }) =>
     api.post('/settings/upload-url', data),
+  getNotifications: () => api.get('/settings/notifications'),
+  updateNotifications: (data: { emailNotifications?: boolean; pushNotifications?: boolean; reminderEmails?: boolean; marketingEmails?: boolean; weeklyDigest?: boolean }) =>
+    api.patch('/settings/notifications', data),
 };
 
 // Dead Man's Switch API
