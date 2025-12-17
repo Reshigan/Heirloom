@@ -82,21 +82,35 @@ export function Memories() {
         contentType: data.file.type,
       });
       
-      // Upload file to S3
-      await fetch(uploadData.uploadUrl, {
+      // Upload file to R2
+      const uploadResponse = await fetch(uploadData.uploadUrl, {
         method: 'PUT',
         body: data.file,
         headers: { 'Content-Type': data.file.type },
       });
       
+      // Get the file URL from the upload response
+      let fileUrl = '';
+      try {
+        const uploadResult = await uploadResponse.json();
+        fileUrl = uploadResult.fileUrl || '';
+      } catch {
+        // If response is not JSON, construct the URL from the key
+        fileUrl = `${import.meta.env.VITE_API_URL}/memories/file/${encodeURIComponent(uploadData.key)}`;
+      }
+      
       setUploadProgress(70);
       
-      // Create memory record
+      // Create memory record with correct field names (fileKey, fileUrl instead of mediaKey)
+      // Include fileSize and mimeType so storage stats update correctly
       return memoriesApi.create({
         title: data.title,
         description: data.description,
         type: data.type,
-        mediaKey: uploadData.key,
+        fileKey: uploadData.key,
+        fileUrl: fileUrl,
+        fileSize: data.file.size,
+        mimeType: data.file.type,
         recipientIds: data.recipientIds,
       });
     },

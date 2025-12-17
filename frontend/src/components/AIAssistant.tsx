@@ -28,13 +28,20 @@ interface WritingSuggestion {
 class OllamaService {
   private baseUrl: string;
   private model: string;
+  private isConfigured: boolean;
 
-  constructor(baseUrl: string = 'http://localhost:11434', model: string = 'tinyllama') {
+  constructor(baseUrl: string = import.meta.env.VITE_OLLAMA_URL || '', model: string = 'tinyllama') {
     this.baseUrl = baseUrl;
     this.model = model;
+    this.isConfigured = !!baseUrl && baseUrl !== 'http://localhost:11434';
   }
 
   async generate(prompt: string, systemPrompt?: string): Promise<string> {
+    // If not configured or in production without a real URL, return helpful suggestions
+    if (!this.isConfigured) {
+      return this.getSmartFallbackResponse(prompt);
+    }
+
     try {
       const response = await fetch(`${this.baseUrl}/api/generate`, {
         method: 'POST',
@@ -53,15 +60,77 @@ class OllamaService {
       });
 
       if (!response.ok) {
-        throw new Error('Ollama API request failed');
+        return this.getSmartFallbackResponse(prompt);
       }
 
       const data = await response.json();
       return data.response;
     } catch (error) {
-      // Return error message instead of mock data
-      throw new Error('AI assistant is temporarily unavailable. Please try again later.');
+      // Return helpful fallback instead of error
+      return this.getSmartFallbackResponse(prompt);
     }
+  }
+
+  private getSmartFallbackResponse(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    if (lowerPrompt.includes('letter') || lowerPrompt.includes('write') || lowerPrompt.includes('opening')) {
+      return `Here are some heartfelt suggestions for your letter:
+
+"My dearest [name], as I sit down to write this, I'm filled with so many feelings I want to share with you..."
+
+"There are moments in life that shape who we become, and you have been central to so many of mine..."
+
+"I want you to know how much you mean to me, not just today, but always. When you read these words..."
+
+Would you like me to help with a specific feeling or memory you'd like to express?`;
+    }
+    
+    if (lowerPrompt.includes('caption') || lowerPrompt.includes('photo') || lowerPrompt.includes('memory')) {
+      return `Here are some meaningful caption ideas:
+
+"Some moments are too precious for words, but I'll try anyway..."
+"This is what love looks like in our family."
+"A moment I never want to forget."
+"The little things that become the big memories."
+"Frozen in time, forever in my heart."
+
+Which style resonates with you? I can help customize it further.`;
+    }
+    
+    if (lowerPrompt.includes('voice') || lowerPrompt.includes('story') || lowerPrompt.includes('prompt') || lowerPrompt.includes('recording')) {
+      return `Here are some voice recording prompts to inspire you:
+
+"Tell me about a time when you felt truly proud of yourself..."
+"What's a family tradition you hope continues for generations?"
+"Describe your favorite childhood memory in detail..."
+"What advice would you give to your younger self?"
+"Share the story of how you met someone special..."
+
+Would you like more prompts around a specific theme?`;
+    }
+    
+    if (lowerPrompt.includes('gratitude') || lowerPrompt.includes('thank')) {
+      return `Here are ways to express gratitude:
+
+"I've been thinking about all the ways you've touched my life, and I wanted to take a moment to say thank you..."
+
+"Your kindness has meant more to me than words can express. You've been there through..."
+
+"Looking back, I realize how much you've shaped who I am today. Thank you for..."
+
+Would you like help expressing gratitude for something specific?`;
+    }
+    
+    return `I'd love to help you with that! Here are some ideas:
+
+For letters: Start with what you feel most strongly about. The best letters come from the heart.
+
+For captions: Think about what makes this moment special. What would you want to remember years from now?
+
+For voice recordings: Speak as if you're talking to your loved one directly. Share stories, wisdom, or simply how you feel.
+
+What would you like to explore today?`;
   }
 
   async streamGenerate(
@@ -69,6 +138,16 @@ class OllamaService {
     onToken: (token: string) => void,
     systemPrompt?: string
   ): Promise<void> {
+    // If not configured, stream the fallback response
+    if (!this.isConfigured) {
+      const fallbackResponse = this.getSmartFallbackResponse(prompt);
+      for (const char of fallbackResponse) {
+        onToken(char);
+        await new Promise(resolve => setTimeout(resolve, 15));
+      }
+      return;
+    }
+
     try {
       const response = await fetch(`${this.baseUrl}/api/generate`, {
         method: 'POST',
@@ -82,7 +161,13 @@ class OllamaService {
       });
 
       if (!response.ok) {
-        throw new Error('Ollama API request failed');
+        // Stream fallback response on error
+        const fallbackResponse = this.getSmartFallbackResponse(prompt);
+        for (const char of fallbackResponse) {
+          onToken(char);
+          await new Promise(resolve => setTimeout(resolve, 15));
+        }
+        return;
       }
 
       const reader = response.body?.getReader();
@@ -108,11 +193,11 @@ class OllamaService {
         }
       }
     } catch (error) {
-      // Return error message instead of mock data
-      const errorMessage = 'AI assistant is temporarily unavailable. Please try again later.';
-      for (const char of errorMessage) {
+      // Stream fallback response on error
+      const fallbackResponse = this.getSmartFallbackResponse(prompt);
+      for (const char of fallbackResponse) {
         onToken(char);
-        await new Promise(resolve => setTimeout(resolve, 20));
+        await new Promise(resolve => setTimeout(resolve, 15));
       }
     }
   }

@@ -41,10 +41,22 @@ export function Dashboard() {
     queryFn: () => billingApi.getLimits().then(r => r.data),
   });
 
-  const { data: stats } = useQuery({
+  const { data: rawStats } = useQuery({
     queryKey: ['memories-stats'],
     queryFn: () => memoriesApi.getStats().then(r => r.data),
   });
+
+  // Map backend stats response to expected dashboard format
+  // Backend returns: { total, byType: { photos, videos, voice, letters }, totalStorage }
+  // Dashboard expects: { totalMemories, totalLetters, totalVoiceMinutes }
+  const stats = rawStats ? {
+    totalMemories: rawStats.total || 0,
+    totalLetters: rawStats.byType?.letters || 0,
+    totalVoiceMinutes: rawStats.byType?.voice || 0, // Using voice count as proxy for minutes
+    totalPhotos: rawStats.byType?.photos || 0,
+    totalVideos: rawStats.byType?.videos || 0,
+    totalStorage: rawStats.totalStorage || 0,
+  } : undefined;
 
   const { data: family } = useQuery({
     queryKey: ['family'],

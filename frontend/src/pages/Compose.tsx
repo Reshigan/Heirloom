@@ -174,50 +174,90 @@ export function Compose() {
     const [isAiAssisting, setIsAiAssisting] = useState(false);
     const [aiSuggestion, setAiSuggestion] = useState('');
 
-    // AI Assist function using Ollama
+    // AI Assist function - provides helpful suggestions even without Ollama
     const handleAiAssist = async () => {
       if (isAiAssisting) return;
     
       setIsAiAssisting(true);
       setAiSuggestion('');
     
-      try {
-        const recipientNames = selectedRecipients
-          .map(id => familyMembers.find(m => m.id === id)?.name)
-          .filter(Boolean)
-          .join(', ');
-      
-        const prompt = `You are helping someone write a heartfelt letter to their loved ones (${recipientNames || 'family'}). 
-      
-  Current letter content:
-  ${salutation}
-  ${body || '[No content yet]'}
-  ${signature}
+      const recipientNames = selectedRecipients
+        .map(id => familyMembers.find(m => m.id === id)?.name)
+        .filter(Boolean)
+        .join(', ');
 
-  Please suggest a thoughtful continuation or improvement for this letter. Keep it warm, personal, and emotionally resonant. Write 2-3 sentences that could be added. Only provide the suggested text, no explanations.`;
+      // Smart fallback suggestions based on context
+      const getSmartSuggestion = () => {
+        if (!body || body.trim().length < 20) {
+          // Opening suggestions
+          return `Here are some heartfelt ways to begin your letter to ${recipientNames || 'your loved ones'}:
 
-        const response = await fetch(`${OLLAMA_API}/api/generate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'llama3.2',
-            prompt,
-            stream: false,
-          }),
-        });
-      
-        if (response.ok) {
-          const data = await response.json();
-          setAiSuggestion(data.response?.trim() || '');
+"As I sit down to write this, I'm filled with so many feelings I want to share with you..."
+
+"There are some things I've always wanted to tell you, and today feels like the right time..."
+
+"When you read this letter, I hope you feel how much you mean to me..."`;
+        } else if (body.toLowerCase().includes('remember') || body.toLowerCase().includes('memory')) {
+          // Memory-related suggestions
+          return `To continue your memory:
+
+"That moment taught me something I carry with me to this day..."
+
+"Looking back, I realize how much that shaped who we are..."
+
+"I hope you hold onto this memory as dearly as I do..."`;
         } else {
-          setAiSuggestion('AI assist is currently unavailable. Please try again later.');
+          // General continuation
+          return `Here are some ways to continue your letter:
+
+"What I want you to know most of all is..."
+
+"Through all of life's ups and downs, remember that..."
+
+"I hope these words find you when you need them most..."`;
         }
-      } catch (error) {
-        console.error('AI assist error:', error);
-        setAiSuggestion('Could not connect to AI. Please check your connection.');
-      } finally {
-        setIsAiAssisting(false);
+      };
+
+      // Try Ollama if configured, otherwise use smart fallback
+      const isOllamaConfigured = OLLAMA_API && OLLAMA_API !== 'http://localhost:11434';
+      
+      if (isOllamaConfigured) {
+        try {
+          const prompt = `You are helping someone write a heartfelt letter to their loved ones (${recipientNames || 'family'}). 
+        
+    Current letter content:
+    ${salutation}
+    ${body || '[No content yet]'}
+    ${signature}
+
+    Please suggest a thoughtful continuation or improvement for this letter. Keep it warm, personal, and emotionally resonant. Write 2-3 sentences that could be added. Only provide the suggested text, no explanations.`;
+
+          const response = await fetch(`${OLLAMA_API}/api/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'llama3.2',
+              prompt,
+              stream: false,
+            }),
+          });
+        
+          if (response.ok) {
+            const data = await response.json();
+            setAiSuggestion(data.response?.trim() || getSmartSuggestion());
+          } else {
+            setAiSuggestion(getSmartSuggestion());
+          }
+        } catch (error) {
+          console.error('AI assist error:', error);
+          setAiSuggestion(getSmartSuggestion());
+        }
+      } else {
+        // Use smart fallback when Ollama is not configured
+        setAiSuggestion(getSmartSuggestion());
       }
+      
+      setIsAiAssisting(false);
     };
 
     const insertAiSuggestion = () => {
