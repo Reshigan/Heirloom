@@ -8,6 +8,23 @@ import type { Env } from '../index';
 
 export const encryptionRoutes = new Hono<{ Bindings: Env }>();
 
+// Get encryption parameters (for client-side key derivation)
+encryptionRoutes.get('/params', async (c) => {
+  // Return default encryption parameters
+  // These are used by the client to derive encryption keys
+  return c.json({
+    algorithm: 'AES-GCM',
+    keySize: 256,
+    ivSize: 12,
+    tagSize: 128,
+    keyDerivation: {
+      algorithm: 'PBKDF2',
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+  });
+});
+
 // Get encryption status
 encryptionRoutes.get('/status', async (c) => {
   const userId = c.get('userId');

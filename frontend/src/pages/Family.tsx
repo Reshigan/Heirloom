@@ -241,130 +241,154 @@ export function Family() {
             <p className="text-paper/50">The people who matter most to you</p>
           </motion.div>
 
-          {/* Constellation View */}
-          <div className="relative h-[600px] flex items-center justify-center mb-12">
-            {/* Connection lines */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
+          {/* Constellation View - outer relative wrapper for positioning */}
+          <div className="relative h-[600px] mb-12">
+            {/* Inner flex container for centering constellation content */}
+            <div className="flex h-full items-center justify-center">
+              {/* Connection lines */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                {family?.map((member: any, i: number) => {
+                  const angle = (i / Math.max(1, family.length)) * 2 * Math.PI - Math.PI / 2;
+                  const radius = 200;
+                  const x = 50 + (Math.cos(angle) * radius) / 6;
+                  const y = 50 + (Math.sin(angle) * radius) / 3;
+                  return (
+                    <motion.line
+                      key={member.id}
+                      x1="50%"
+                      y1="50%"
+                      x2={`${x}%`}
+                      y2={`${y}%`}
+                      stroke="url(#goldGradient)"
+                      strokeWidth="1"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 0.3 }}
+                      transition={{ duration: 1, delay: i * 0.1 }}
+                    />
+                  );
+                })}
+                <defs>
+                  <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="rgba(201,169,89,0.5)" />
+                    <stop offset="100%" stopColor="rgba(201,169,89,0.1)" />
+                  </linearGradient>
+                </defs>
+              </svg>
+
+              {/* Center - You */}
+              <motion.div
+                className="absolute z-20"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', delay: 0.2 }}
+              >
+                <div className="relative">
+                  <motion.div
+                    className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void font-medium text-lg shadow-lg"
+                    style={{
+                      boxShadow: '0 0 40px rgba(201,169,89,0.4), inset 0 2px 4px rgba(255,255,255,0.3)',
+                    }}
+                    animate={{
+                      boxShadow: [
+                        '0 0 30px rgba(201,169,89,0.3), inset 0 2px 4px rgba(255,255,255,0.3)',
+                        '0 0 60px rgba(201,169,89,0.5), inset 0 2px 4px rgba(255,255,255,0.3)',
+                        '0 0 30px rgba(201,169,89,0.3), inset 0 2px 4px rgba(255,255,255,0.3)',
+                      ],
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    YOU
+                  </motion.div>
+                  <motion.div
+                    className="absolute inset-0 rounded-full border border-gold/30"
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  />
+                </div>
+              </motion.div>
+
+              {/* Family members */}
               {family?.map((member: any, i: number) => {
                 const angle = (i / Math.max(1, family.length)) * 2 * Math.PI - Math.PI / 2;
                 const radius = 200;
-                const x = 50 + (Math.cos(angle) * radius) / 6;
-                const y = 50 + (Math.sin(angle) * radius) / 3;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+
                 return (
-                  <motion.line
+                  <motion.div
                     key={member.id}
-                    x1="50%"
-                    y1="50%"
-                    x2={`${x}%`}
-                    y2={`${y}%`}
-                    stroke="url(#goldGradient)"
-                    strokeWidth="1"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 0.3 }}
-                    transition={{ duration: 1, delay: i * 0.1 }}
-                  />
+                    className="absolute"
+                    style={{ x, y }}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{
+                      scale: 1,
+                      opacity: 1,
+                      y: [y - 5, y + 5, y - 5],
+                    }}
+                    transition={{
+                      scale: { delay: 0.3 + i * 0.1 },
+                      y: { duration: 4 + i, repeat: Infinity },
+                    }}
+                  >
+                    <motion.button
+                      onClick={() => navigate(`/family/${member.id}`)}
+                      className={`relative group ${id === member.id ? 'z-30' : ''}`}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <div 
+                        className={`w-20 h-20 rounded-full glass flex items-center justify-center border-2 transition-all ${
+                          id === member.id ? 'border-gold bg-gold/20' : 'border-gold/30 group-hover:border-gold'
+                        }`}
+                        style={{
+                          boxShadow: id === member.id 
+                            ? '0 0 30px rgba(201,169,89,0.4), inset 0 1px 0 rgba(255,255,255,0.1)'
+                            : 'inset 0 1px 0 rgba(255,255,255,0.1)',
+                        }}
+                      >
+                        <span className="text-2xl text-gold">{member.name[0]}</span>
+                      </div>
+                      <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-center whitespace-nowrap">
+                        <div className="text-paper text-sm font-medium">{member.name}</div>
+                        <div className="text-paper/40 text-xs">{member.relationship}</div>
+                      </div>
+                    </motion.button>
+                  </motion.div>
                 );
               })}
-              <defs>
-                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="rgba(201,169,89,0.5)" />
-                  <stop offset="100%" stopColor="rgba(201,169,89,0.1)" />
-                </linearGradient>
-              </defs>
-            </svg>
 
-            {/* Center - You */}
-            <motion.div
-              className="absolute z-20"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', delay: 0.2 }}
-            >
-              <div className="relative">
+              {/* Empty state */}
+              {!isLoading && (!family || family.length === 0) && (
                 <motion.div
-                  className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void font-medium text-lg shadow-lg"
-                  style={{
-                    boxShadow: '0 0 40px rgba(201,169,89,0.4), inset 0 2px 4px rgba(255,255,255,0.3)',
-                  }}
-                  animate={{
-                    boxShadow: [
-                      '0 0 30px rgba(201,169,89,0.3), inset 0 2px 4px rgba(255,255,255,0.3)',
-                      '0 0 60px rgba(201,169,89,0.5), inset 0 2px 4px rgba(255,255,255,0.3)',
-                      '0 0 30px rgba(201,169,89,0.3), inset 0 2px 4px rgba(255,255,255,0.3)',
-                    ],
-                  }}
-                  transition={{ duration: 3, repeat: Infinity }}
+                  className="absolute text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                 >
-                  YOU
-                </motion.div>
-                <motion.div
-                  className="absolute inset-0 rounded-full border border-gold/30"
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                />
-              </div>
-            </motion.div>
-
-            {/* Family members */}
-            {family?.map((member: any, i: number) => {
-              const angle = (i / Math.max(1, family.length)) * 2 * Math.PI - Math.PI / 2;
-              const radius = 200;
-              const x = Math.cos(angle) * radius;
-              const y = Math.sin(angle) * radius;
-
-              return (
-                <motion.div
-                  key={member.id}
-                  className="absolute"
-                  style={{ x, y }}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{
-                    scale: 1,
-                    opacity: 1,
-                    y: [y - 5, y + 5, y - 5],
-                  }}
-                  transition={{
-                    scale: { delay: 0.3 + i * 0.1 },
-                    y: { duration: 4 + i, repeat: Infinity },
-                  }}
-                >
-                  <motion.button
-                    onClick={() => navigate(`/family/${member.id}`)}
-                    className={`relative group ${id === member.id ? 'z-30' : ''}`}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                  <div className="w-20 h-20 rounded-full glass flex items-center justify-center mx-auto mb-4">
+                    <Users size={32} className="text-paper/30" />
+                  </div>
+                  <p className="text-paper/50 mb-4">No family members yet</p>
+                  <button 
+                    onClick={() => setShowAddModal(true)} 
+                    className="btn btn-primary"
                   >
-                    <div 
-                      className={`w-20 h-20 rounded-full glass flex items-center justify-center border-2 transition-all ${
-                        id === member.id ? 'border-gold bg-gold/20' : 'border-gold/30 group-hover:border-gold'
-                      }`}
-                      style={{
-                        boxShadow: id === member.id 
-                          ? '0 0 30px rgba(201,169,89,0.4), inset 0 1px 0 rgba(255,255,255,0.1)'
-                          : 'inset 0 1px 0 rgba(255,255,255,0.1)',
-                      }}
-                    >
-                      <span className="text-2xl text-gold">{member.name[0]}</span>
-                    </div>
-                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-center whitespace-nowrap">
-                      <div className="text-paper text-sm font-medium">{member.name}</div>
-                      <div className="text-paper/40 text-xs">{member.relationship}</div>
-                    </div>
-                  </motion.button>
+                    <Plus size={18} />
+                    Add Your First Family Member
+                  </button>
                 </motion.div>
-              );
-            })}
+              )}
+            </div>
 
-                        {/* Add button */}
-                        <motion.button
-                          onClick={() => {
-                            setEditingId(null);
-                            setForm({ name: '', relationship: '', email: '', phone: '', avatarUrl: '' });
-                            setAvatarPreview(null);
-                            setErrors({});
-                            setShowAddModal(true);
-                          }}
-              className="absolute bottom-0 right-0 w-14 h-14 rounded-full glass border border-dashed border-gold/30 flex items-center justify-center text-gold/50 hover:text-gold hover:border-gold hover:bg-gold/10 transition-all"
+            {/* Add button - positioned at bottom-right of outer container (sibling of flex) */}
+            <motion.button
+              onClick={() => {
+                setEditingId(null);
+                setForm({ name: '', relationship: '', email: '', phone: '', avatarUrl: '' });
+                setAvatarPreview(null);
+                setErrors({});
+                setShowAddModal(true);
+              }}
+              className="absolute bottom-6 right-6 z-30 w-14 h-14 rounded-full glass border border-dashed border-gold/30 flex items-center justify-center text-gold/50 hover:text-gold hover:border-gold hover:bg-gold/10 transition-all"
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0 }}
@@ -373,27 +397,6 @@ export function Family() {
             >
               <Plus size={24} />
             </motion.button>
-
-            {/* Empty state */}
-            {!isLoading && (!family || family.length === 0) && (
-              <motion.div
-                className="absolute text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <div className="w-20 h-20 rounded-full glass flex items-center justify-center mx-auto mb-4">
-                  <Users size={32} className="text-paper/30" />
-                </div>
-                <p className="text-paper/50 mb-4">No family members yet</p>
-                <button 
-                  onClick={() => setShowAddModal(true)} 
-                  className="btn btn-primary"
-                >
-                  <Plus size={18} />
-                  Add Your First Family Member
-                </button>
-              </motion.div>
-            )}
           </div>
         </div>
       </div>
