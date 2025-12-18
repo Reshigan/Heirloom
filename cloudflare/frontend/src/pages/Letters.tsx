@@ -63,7 +63,7 @@ export function Letters() {
 
   const filteredLetters = letters?.filter((letter: Letter) => {
     const matchesSearch = letter.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      letter.body.toLowerCase().includes(searchQuery.toLowerCase());
+      letter.body?.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (filter === 'all') return matchesSearch;
     if (filter === 'drafts') return matchesSearch && !letter.sealedAt;
