@@ -87,8 +87,8 @@ settingsRoutes.post('/upload-url', async (c) => {
   // Generate unique key for the file
   const key = `avatars/${userId}/${Date.now()}-${filename}`;
   
-  // Check if R2 bucket is available
-  if (!c.env.R2_BUCKET) {
+  // Check if R2 bucket is available (binding name is STORAGE in wrangler.jsonc)
+  if (!c.env.STORAGE) {
     return c.json({ error: 'Storage not configured' }, 500);
   }
   
@@ -114,14 +114,14 @@ settingsRoutes.put('/upload/:key{.+}', async (c) => {
     return c.json({ error: 'Unauthorized' }, 403);
   }
   
-  if (!c.env.R2_BUCKET) {
+  if (!c.env.STORAGE) {
     return c.json({ error: 'Storage not configured' }, 500);
   }
   
   const body = await c.req.arrayBuffer();
   const contentType = c.req.header('Content-Type') || 'image/jpeg';
   
-  await c.env.R2_BUCKET.put(key, body, {
+  await c.env.STORAGE.put(key, body, {
     httpMetadata: { contentType },
   });
   
@@ -153,8 +153,9 @@ settingsRoutes.post('/change-password', async (c) => {
   }
   
   // Verify current password using Web Crypto API
+  // Format is salt:hash (matching auth.ts hashPassword function)
   const encoder = new TextEncoder();
-  const [storedHash, storedSalt] = (user.password_hash as string).split(':');
+  const [storedSalt, storedHash] = (user.password_hash as string).split(':');
   const saltBuffer = Uint8Array.from(atob(storedSalt), c => c.charCodeAt(0));
   
   const keyMaterial = await crypto.subtle.importKey(
@@ -205,7 +206,8 @@ settingsRoutes.post('/change-password', async (c) => {
   
   const newHash = btoa(String.fromCharCode(...new Uint8Array(newDerivedBits)));
   const newSaltBase64 = btoa(String.fromCharCode(...newSalt));
-  const newPasswordHash = `${newHash}:${newSaltBase64}`;
+  // Store in salt:hash format to match auth.ts hashPassword function
+  const newPasswordHash = `${newSaltBase64}:${newHash}`;
   
   const now = new Date().toISOString();
   
