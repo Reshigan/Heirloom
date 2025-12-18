@@ -24,32 +24,49 @@ export function Landing() {
     { icon: Lock, title: 'E2E Encryption', desc: 'Zero-knowledge architecture. Only you and your beneficiaries can decrypt.' },
   ];
   
-  // Mass-Adoption Pricing: $1 / $2 / $5
+  // Simple storage-based pricing - All features included in every plan
   const plans = [
     { 
       name: 'Starter', 
       price: '$1', 
       period: '/month',
       yearlyPrice: '$10/year',
-      features: ['500MB storage', '3 voice recordings/month', '5 letters/month', '50 photos', '2 family members'],
-      popular: false 
+      storage: '500 MB',
+      storageDesc: '~500 photos or 2 hours of voice',
+      popular: false,
+      cta: 'Start for $1'
     },
     { 
       name: 'Family', 
-      price: '$2', 
-      period: '/month',
-      yearlyPrice: '$20/year',
-      features: ['5GB storage', '20 voice recordings/month', 'Unlimited letters', 'Unlimited photos', '10 family members', '2 min video messages', 'Family tree'],
-      popular: true 
-    },
-    { 
-      name: 'Forever', 
       price: '$5', 
       period: '/month',
       yearlyPrice: '$50/year',
-      features: ['25GB storage', 'Unlimited voice', 'Unlimited letters', 'Unlimited photos', 'Unlimited family', '10 min video', 'AI transcription', 'Priority support'],
-      popular: false 
+      storage: '5 GB',
+      storageDesc: '~5,000 photos or 20 hours of voice',
+      popular: true,
+      cta: 'Get Family'
     },
+    { 
+      name: 'Forever', 
+      price: '$15', 
+      period: '/month',
+      yearlyPrice: '$150/year',
+      storage: '50 GB',
+      storageDesc: '~50,000 photos or 200 hours of voice',
+      popular: false,
+      cta: 'Go Forever'
+    },
+  ];
+  
+  const allFeatures = [
+    'Unlimited memories',
+    'Unlimited letters',
+    'Unlimited voice recordings',
+    'Posthumous delivery',
+    'Dead man\'s switch',
+    'AI writing help',
+    'Year Wrapped',
+    'Family tree',
   ];
 
   return (
@@ -271,14 +288,27 @@ export function Landing() {
             initial={{ opacity: 0, y: 40 }}
             animate={pricingInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-center mb-20"
+            className="text-center mb-12"
           >
             <span className="text-gold tracking-[0.3em] text-sm">PRICING</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">Simple, transparent pricing</h2>
-            <p className="text-paper/50 mt-4">Start with a 14-day free trial. No credit card required.</p>
+            <h2 className="text-4xl md:text-5xl font-light mt-4">Start preserving your legacy for just $1/month</h2>
+            <p className="text-paper/50 mt-4 text-lg">All features included. Just pick your storage.</p>
           </motion.div>
           
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* Launch Special Banner */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={pricingInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 px-6 py-3 glass-subtle rounded-full border border-gold/20">
+              <Sparkles size={18} className="text-gold" />
+              <span className="text-paper/80">Launch Special: Use code <span className="text-gold font-medium">HEIRLOOM25</span> for 25% off</span>
+            </div>
+          </motion.div>
+          
+          <div className="grid md:grid-cols-3 gap-6 mb-16">
             {plans.map((plan, i) => (
               <motion.div
                 key={plan.name}
@@ -290,7 +320,7 @@ export function Landing() {
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="px-4 py-1 bg-gold text-void text-xs tracking-wider rounded-full font-medium">
-                      MOST POPULAR
+                      POPULAR
                     </span>
                   </div>
                 )}
@@ -300,26 +330,46 @@ export function Landing() {
                   <span className="text-4xl text-gold">{plan.price}</span>
                   <span className="text-paper/40">{plan.period}</span>
                 </div>
-                <div className="text-sm text-paper/40 mb-6">or {plan.yearlyPrice} (save 17%)</div>
+                <div className="text-sm text-paper/40 mb-4">or {plan.yearlyPrice} (2 months free)</div>
                 
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-3 text-paper/70">
-                      <Check size={16} className="text-gold flex-shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+                {/* Storage highlight */}
+                <div className="py-4 px-4 glass rounded-lg mb-6 text-center">
+                  <div className="text-2xl font-medium text-gold mb-1">{plan.storage}</div>
+                  <div className="text-xs text-paper/50">{plan.storageDesc}</div>
+                </div>
+                
+                <div className="text-center text-paper/60 mb-6">
+                  <Check size={16} className="inline text-gold mr-2" />
+                  All features included
+                </div>
                 
                 <Link
                   to="/signup"
                   className={`btn w-full justify-center ${plan.popular ? 'btn-primary' : 'btn-secondary'}`}
                 >
-                  Start Free Trial
+                  {plan.cta}
                 </Link>
               </motion.div>
             ))}
           </div>
+          
+          {/* All Features List */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={pricingInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-center"
+          >
+            <h3 className="text-lg font-medium mb-6 text-paper/80">What's included in every plan:</h3>
+            <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
+              {allFeatures.map((feature) => (
+                <div key={feature} className="flex items-center gap-2 px-4 py-2 glass-subtle rounded-full">
+                  <Check size={14} className="text-gold" />
+                  <span className="text-sm text-paper/70">{feature}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
       
