@@ -77,10 +77,11 @@
   // Cron triggers for Dead Man's Switch
   // Daily check at 9 AM UTC - checks for missed check-ins and sends reminders
   // Weekly check on Sundays at midnight UTC - processes triggered switches
+  // Note: Cloudflare uses standard cron format with day-of-week as 0-6 (Sun-Sat)
   "triggers": {
     "crons": [
       "0 9 * * *",
-      "0 0 * * 0"
+      "0 0 * * SUN"
     ]
   }
 }
