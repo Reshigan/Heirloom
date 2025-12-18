@@ -400,7 +400,7 @@ export function Settings() {
                     Configure automatic release of your content to beneficiaries if you don't check in regularly.
                   </p>
 
-                  {deadmanStatus?.enabled ? (
+                  {deadmanStatus?.configured ? (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04]">
                         <div>
