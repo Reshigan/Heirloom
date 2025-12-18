@@ -41,7 +41,7 @@ export function Letters() {
 
   const { data: letters, isLoading } = useQuery({
     queryKey: ['letters'],
-    queryFn: () => lettersApi.getAll().then(r => r.data),
+    queryFn: () => lettersApi.getAll().then(r => r.data?.data || []),
   });
 
   const deleteMutation = useMutation({
