@@ -4,14 +4,14 @@ import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Bell, Settings, Shield, Clock, Crown,
-  ChevronRight, X, Check, Loader2
+  ChevronRight, X, Check, Loader2, LogOut
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const queryClient = useQueryClient();
   const deskRef = useRef<HTMLDivElement>(null);
   
@@ -223,6 +223,17 @@ export function Dashboard() {
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
               <span className="relative">{user?.firstName?.[0] || 'U'}</span>
+            </motion.button>
+
+            {/* Logout button */}
+            <motion.button
+              onClick={logout}
+              className="w-10 h-10 rounded-full glass flex items-center justify-center text-paper/60 hover:text-blood transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Sign out"
+            >
+              <LogOut size={20} />
             </motion.button>
           </div>
         </div>
