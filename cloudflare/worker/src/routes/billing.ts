@@ -1,6 +1,13 @@
 /**
- * Billing Routes - Cloudflare Workers
- * Handles subscription and payment operations
+ * Heirloom Billing Routes - FINAL PRODUCTION VERSION
+ * 
+ * Simple 3-tier pricing based on storage:
+ * - Starter: $1/mo - 500MB
+ * - Family: $5/mo - 5GB  
+ * - Forever: $15/mo - 50GB
+ * 
+ * All tiers get ALL features. Only storage differs.
+ * Auto-detects country from Cloudflare for regional pricing.
  */
 
 import { Hono } from 'hono';
@@ -8,514 +15,444 @@ import type { Env } from '../index';
 
 export const billingRoutes = new Hono<{ Bindings: Env }>();
 
-// New Mass-Adoption Pricing Tiers
-// Starter: $1/mo - Entry level for individuals
-// Family: $2/mo - For families with more features
-// Forever: $5/mo - Premium with unlimited everything
+// =============================================================================
+// COUNTRY → CURRENCY MAPPING
+// =============================================================================
+const COUNTRY_CURRENCY: Record<string, string> = {
+  // Africa
+  ZA: 'ZAR', NG: 'NGN', KE: 'KES', GH: 'GHS', TZ: 'TZS', UG: 'UGX', 
+  RW: 'RWF', ZW: 'USD', BW: 'BWP', NA: 'NAD', MZ: 'MZN', ZM: 'ZMW',
+  
+  // Europe
+  GB: 'GBP',
+  DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', 
+  IE: 'EUR', PT: 'EUR', FI: 'EUR', GR: 'EUR', SK: 'EUR', SI: 'EUR', LT: 'EUR',
+  LV: 'EUR', EE: 'EUR', CY: 'EUR', MT: 'EUR', LU: 'EUR',
+  
+  // Asia
+  IN: 'INR', PK: 'PKR', BD: 'BDT', PH: 'PHP', ID: 'IDR', MY: 'MYR', 
+  SG: 'SGD', TH: 'THB', VN: 'VND', JP: 'JPY', KR: 'KRW', CN: 'CNY', 
+  HK: 'HKD', TW: 'TWD', AE: 'AED', SA: 'SAR',
+  
+  // Americas
+  US: 'USD', CA: 'CAD', MX: 'MXN', BR: 'BRL', AR: 'ARS', CO: 'COP', CL: 'CLP', PE: 'PEN',
+  
+  // Oceania
+  AU: 'AUD', NZ: 'NZD',
+};
 
+// =============================================================================
+// PRICING BY CURRENCY
+// =============================================================================
+const PRICING: Record<string, {
+  symbol: string;
+  code: string;
+  STARTER: { monthly: number; yearly: number };
+  FAMILY: { monthly: number; yearly: number };
+  FOREVER: { monthly: number; yearly: number };
+}> = {
+  USD: {
+    symbol: '$', code: 'USD',
+    STARTER: { monthly: 1, yearly: 10 },
+    FAMILY: { monthly: 5, yearly: 50 },
+    FOREVER: { monthly: 15, yearly: 150 },
+  },
+  ZAR: {
+    symbol: 'R', code: 'ZAR',
+    STARTER: { monthly: 18, yearly: 180 },
+    FAMILY: { monthly: 90, yearly: 900 },
+    FOREVER: { monthly: 270, yearly: 2700 },
+  },
+  NGN: {
+    symbol: '₦', code: 'NGN',
+    STARTER: { monthly: 500, yearly: 5000 },
+    FAMILY: { monthly: 2500, yearly: 25000 },
+    FOREVER: { monthly: 7500, yearly: 75000 },
+  },
+  KES: {
+    symbol: 'KSh', code: 'KES',
+    STARTER: { monthly: 100, yearly: 1000 },
+    FAMILY: { monthly: 500, yearly: 5000 },
+    FOREVER: { monthly: 1500, yearly: 15000 },
+  },
+  GHS: {
+    symbol: 'GH₵', code: 'GHS',
+    STARTER: { monthly: 12, yearly: 120 },
+    FAMILY: { monthly: 60, yearly: 600 },
+    FOREVER: { monthly: 180, yearly: 1800 },
+  },
+  INR: {
+    symbol: '₹', code: 'INR',
+    STARTER: { monthly: 50, yearly: 500 },
+    FAMILY: { monthly: 250, yearly: 2500 },
+    FOREVER: { monthly: 750, yearly: 7500 },
+  },
+  GBP: {
+    symbol: '£', code: 'GBP',
+    STARTER: { monthly: 0.79, yearly: 7.90 },
+    FAMILY: { monthly: 3.99, yearly: 39.90 },
+    FOREVER: { monthly: 11.99, yearly: 119.90 },
+  },
+  EUR: {
+    symbol: '€', code: 'EUR',
+    STARTER: { monthly: 0.99, yearly: 9.90 },
+    FAMILY: { monthly: 4.99, yearly: 49.90 },
+    FOREVER: { monthly: 14.99, yearly: 149.90 },
+  },
+  CAD: {
+    symbol: 'C$', code: 'CAD',
+    STARTER: { monthly: 1.39, yearly: 13.90 },
+    FAMILY: { monthly: 6.99, yearly: 69.90 },
+    FOREVER: { monthly: 20.99, yearly: 209.90 },
+  },
+  AUD: {
+    symbol: 'A$', code: 'AUD',
+    STARTER: { monthly: 1.49, yearly: 14.90 },
+    FAMILY: { monthly: 7.49, yearly: 74.90 },
+    FOREVER: { monthly: 22.49, yearly: 224.90 },
+  },
+  BRL: {
+    symbol: 'R$', code: 'BRL',
+    STARTER: { monthly: 5, yearly: 50 },
+    FAMILY: { monthly: 25, yearly: 250 },
+    FOREVER: { monthly: 75, yearly: 750 },
+  },
+  MXN: {
+    symbol: 'MX$', code: 'MXN',
+    STARTER: { monthly: 18, yearly: 180 },
+    FAMILY: { monthly: 90, yearly: 900 },
+    FOREVER: { monthly: 270, yearly: 2700 },
+  },
+  PHP: {
+    symbol: '₱', code: 'PHP',
+    STARTER: { monthly: 50, yearly: 500 },
+    FAMILY: { monthly: 250, yearly: 2500 },
+    FOREVER: { monthly: 750, yearly: 7500 },
+  },
+  PKR: {
+    symbol: 'Rs', code: 'PKR',
+    STARTER: { monthly: 250, yearly: 2500 },
+    FAMILY: { monthly: 1250, yearly: 12500 },
+    FOREVER: { monthly: 3750, yearly: 37500 },
+  },
+};
+
+const DEFAULT_CURRENCY = 'USD';
+
+// =============================================================================
+// HELPERS
+// =============================================================================
+function getCurrencyForCountry(countryCode: string): string {
+  const currency = COUNTRY_CURRENCY[countryCode?.toUpperCase()];
+  return (currency && PRICING[currency]) ? currency : DEFAULT_CURRENCY;
+}
+
+function getCountryFromRequest(c: any): string {
+  // Cloudflare provides country in cf object
+  const cfCountry = c.req.raw?.cf?.country;
+  if (cfCountry) return cfCountry;
+  
+  // Fallback: check headers
+  const headerCountry = c.req.header('cf-ipcountry') || c.req.header('x-country');
+  if (headerCountry) return headerCountry;
+  
+  return 'US';
+}
+
+// =============================================================================
+// TIER LIMITS - SIMPLE STORAGE-BASED (ALL FEATURES INCLUDED)
+// =============================================================================
 const TIER_LIMITS = {
   STARTER: {
     maxStorage: 500 * 1024 * 1024, // 500MB
-    maxRecipients: 2,
-    maxLetters: 5,
-    maxVoiceMinutes: 3,
-    maxPhotos: 50,
-    maxFamilyMembers: 2,
-    maxVideoMinutes: 0,
-    features: ['basic_memories', 'basic_letters', 'voice_recordings'],
-    posthumousDelivery: false,
-    deadManSwitchDays: 0,
-    familyTree: false,
-    aiTranscription: false,
-    legalDocs: false,
+    maxStorageLabel: '500 MB',
+    maxRecipients: -1,
+    maxLetters: -1,
+    maxVoiceMinutes: -1,
+    maxPhotos: -1,
+    maxFamilyMembers: -1,
+    maxVideoMinutes: 5,
+    posthumousDelivery: true,
+    deadManSwitchDays: 30,
+    familyTree: true,
+    aiTranscription: true,
+    aiLetterHelp: true,
+    yearWrapped: true,
     prioritySupport: false,
   },
   FAMILY: {
     maxStorage: 5 * 1024 * 1024 * 1024, // 5GB
-    maxRecipients: 10,
-    maxLetters: -1, // unlimited
-    maxVoiceMinutes: 20,
-    maxPhotos: -1, // unlimited
-    maxFamilyMembers: 10,
-    maxVideoMinutes: 2,
-    features: ['basic_memories', 'basic_letters', 'voice_recordings', 'emotion_capture', 'video_messages', 'family_tree'],
-    posthumousDelivery: true,
-    deadManSwitchDays: 30,
-    familyTree: true,
-    aiTranscription: false,
-    legalDocs: false,
-    prioritySupport: false,
-  },
-  FOREVER: {
-    maxStorage: 25 * 1024 * 1024 * 1024, // 25GB
-    maxRecipients: -1, // unlimited
+    maxStorageLabel: '5 GB',
+    maxRecipients: -1,
     maxLetters: -1,
-    maxVoiceMinutes: -1, // unlimited
+    maxVoiceMinutes: -1,
     maxPhotos: -1,
     maxFamilyMembers: -1,
-    maxVideoMinutes: 10,
-    features: ['basic_memories', 'basic_letters', 'voice_recordings', 'emotion_capture', 'video_messages', 'family_tree', 'ai_transcription', 'legal_docs', 'priority_support'],
+    maxVideoMinutes: 15,
+    posthumousDelivery: true,
+    deadManSwitchDays: 14,
+    familyTree: true,
+    aiTranscription: true,
+    aiLetterHelp: true,
+    yearWrapped: true,
+    prioritySupport: true,
+  },
+  FOREVER: {
+    maxStorage: 50 * 1024 * 1024 * 1024, // 50GB
+    maxStorageLabel: '50 GB',
+    maxRecipients: -1,
+    maxLetters: -1,
+    maxVoiceMinutes: -1,
+    maxPhotos: -1,
+    maxFamilyMembers: -1,
+    maxVideoMinutes: 60,
     posthumousDelivery: true,
     deadManSwitchDays: 7,
     familyTree: true,
     aiTranscription: true,
-    legalDocs: true,
+    aiLetterHelp: true,
+    yearWrapped: true,
     prioritySupport: true,
+    centuryGuarantee: true,
   },
 };
 
-// Legacy tier mapping for existing users
-const LEGACY_TIER_MAP: Record<string, string> = {
-  'FREE': 'STARTER',
-  'ESSENTIAL': 'STARTER',
-  'LEGACY': 'FOREVER',
+// =============================================================================
+// COUPONS
+// =============================================================================
+const COUPONS: Record<string, { discount: number; type: 'percent' | 'fixed'; expires?: string; maxUses?: number; description: string }> = {
+  'LEGACY2024': { discount: 25, type: 'percent', expires: '2025-01-31', maxUses: 1000, description: 'Early bird - 25% off' },
+  'HEIRLOOM25': { discount: 25, type: 'percent', expires: '2024-12-23', maxUses: 500, description: 'Launch weekend - 25% off' },
+  'ANNUAL20': { discount: 20, type: 'percent', description: 'Switch to annual - 20% off' },
+  'FRIEND10': { discount: 10, type: 'percent', description: 'Friend referral - 10% off' },
 };
 
-// Regional pricing in local currencies
-const REGIONAL_PRICING: Record<string, Record<string, { monthly: number; yearly: number }>> = {
-  USD: {
-    STARTER: { monthly: 1, yearly: 10 },
-    FAMILY: { monthly: 2, yearly: 20 },
-    FOREVER: { monthly: 5, yearly: 50 },
-  },
-  EUR: {
-    STARTER: { monthly: 1, yearly: 10 },
-    FAMILY: { monthly: 2, yearly: 20 },
-    FOREVER: { monthly: 5, yearly: 50 },
-  },
-  GBP: {
-    STARTER: { monthly: 1, yearly: 10 },
-    FAMILY: { monthly: 2, yearly: 20 },
-    FOREVER: { monthly: 4, yearly: 40 },
-  },
-  ZAR: {
-    STARTER: { monthly: 19, yearly: 190 },
-    FAMILY: { monthly: 39, yearly: 390 },
-    FOREVER: { monthly: 95, yearly: 950 },
-  },
-  NGN: {
-    STARTER: { monthly: 500, yearly: 5000 },
-    FAMILY: { monthly: 1000, yearly: 10000 },
-    FOREVER: { monthly: 2500, yearly: 25000 },
-  },
-  KES: {
-    STARTER: { monthly: 100, yearly: 1000 },
-    FAMILY: { monthly: 200, yearly: 2000 },
-    FOREVER: { monthly: 500, yearly: 5000 },
-  },
-  INR: {
-    STARTER: { monthly: 49, yearly: 490 },
-    FAMILY: { monthly: 99, yearly: 990 },
-    FOREVER: { monthly: 249, yearly: 2490 },
-  },
-  BRL: {
-    STARTER: { monthly: 5, yearly: 50 },
-    FAMILY: { monthly: 10, yearly: 100 },
-    FOREVER: { monthly: 25, yearly: 250 },
-  },
+const LEGACY_MAP: Record<string, string> = {
+  'FREE': 'STARTER', 'ESSENTIAL': 'STARTER', 'PREMIUM': 'FAMILY', 'LEGACY': 'FOREVER', 'PLUS': 'FAMILY'
 };
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-  ZAR: 'R',
-  NGN: '₦',
-  KES: 'KSh',
-  INR: '₹',
-  BRL: 'R$',
-};
-
-// Helper to normalize tier names (handle legacy tiers)
 function normalizeTier(tier: string): keyof typeof TIER_LIMITS {
-  if (tier in TIER_LIMITS) {
-    return tier as keyof typeof TIER_LIMITS;
-  }
-  return (LEGACY_TIER_MAP[tier] || 'STARTER') as keyof typeof TIER_LIMITS;
+  const upper = (tier || 'STARTER').toUpperCase();
+  return (TIER_LIMITS[upper as keyof typeof TIER_LIMITS] ? upper : LEGACY_MAP[upper] || 'STARTER') as keyof typeof TIER_LIMITS;
 }
 
-// Get current subscription status
+// =============================================================================
+// ROUTES
+// =============================================================================
+
+// Auto-detect country/currency
+billingRoutes.get('/detect', async (c) => {
+  const country = getCountryFromRequest(c);
+  const currency = getCurrencyForCountry(country);
+  const prices = PRICING[currency];
+  
+  return c.json({ country, currency, symbol: prices.symbol });
+});
+
+// Get pricing - auto-detects currency from country
+billingRoutes.get('/pricing', async (c) => {
+  const overrideCurrency = c.req.query('currency')?.toUpperCase();
+  const country = getCountryFromRequest(c);
+  const currency = overrideCurrency && PRICING[overrideCurrency] ? overrideCurrency : getCurrencyForCountry(country);
+  const prices = PRICING[currency];
+
+  return c.json({
+    country,
+    currency,
+    symbol: prices.symbol,
+    tiers: [
+      {
+        id: 'STARTER',
+        name: 'Starter',
+        storage: '500 MB',
+        monthly: { amount: prices.STARTER.monthly, display: `${prices.symbol}${prices.STARTER.monthly}` },
+        yearly: { amount: prices.STARTER.yearly, display: `${prices.symbol}${prices.STARTER.yearly}`, perMonth: `${prices.symbol}${(prices.STARTER.yearly / 12).toFixed(2)}` },
+      },
+      {
+        id: 'FAMILY',
+        name: 'Family',
+        storage: '5 GB',
+        popular: true,
+        monthly: { amount: prices.FAMILY.monthly, display: `${prices.symbol}${prices.FAMILY.monthly}` },
+        yearly: { amount: prices.FAMILY.yearly, display: `${prices.symbol}${prices.FAMILY.yearly}`, perMonth: `${prices.symbol}${(prices.FAMILY.yearly / 12).toFixed(2)}` },
+      },
+      {
+        id: 'FOREVER',
+        name: 'Forever',
+        storage: '50 GB',
+        monthly: { amount: prices.FOREVER.monthly, display: `${prices.symbol}${prices.FOREVER.monthly}` },
+        yearly: { amount: prices.FOREVER.yearly, display: `${prices.symbol}${prices.FOREVER.yearly}`, perMonth: `${prices.symbol}${(prices.FOREVER.yearly / 12).toFixed(2)}` },
+      },
+    ],
+    allFeatures: [
+      'Unlimited memories', 'Unlimited letters', 'Unlimited voice recordings',
+      'Posthumous delivery', 'Dead man\'s switch', 'AI writing help', 'Year Wrapped', 'Family tree'
+    ],
+    annualSavings: '2 months free',
+  });
+});
+
+// Get subscription
 billingRoutes.get('/subscription', async (c) => {
   const userId = c.get('userId');
+  const sub = await c.env.DB.prepare('SELECT * FROM subscriptions WHERE user_id = ?').bind(userId).first();
   
-  const subscription = await c.env.DB.prepare(`
-    SELECT * FROM subscriptions WHERE user_id = ?
-  `).bind(userId).first();
-  
-  if (!subscription) {
-    // Return starter tier defaults (was FREE)
-    return c.json({
-      tier: 'STARTER',
-      status: 'ACTIVE',
-      limits: TIER_LIMITS.STARTER,
-      currentPeriodEnd: null,
-      cancelAtPeriodEnd: false,
-    });
+  if (!sub) {
+    return c.json({ tier: 'STARTER', status: 'ACTIVE', storage: '500 MB', limits: TIER_LIMITS.STARTER });
   }
   
-  const tier = normalizeTier(subscription.tier as string);
-  
+  const tier = normalizeTier(sub.tier as string);
   return c.json({
-    id: subscription.id,
-    tier: tier,
-    status: subscription.status,
-    billingCycle: subscription.billing_cycle,
-    currentPeriodStart: subscription.current_period_start,
-    currentPeriodEnd: subscription.current_period_end,
-    cancelAtPeriodEnd: !!subscription.cancel_at_period_end,
-    limits: TIER_LIMITS[tier],
-    stripeCustomerId: subscription.stripe_customer_id,
-    stripeSubscriptionId: subscription.stripe_subscription_id,
+    id: sub.id, tier, status: sub.status, billingCycle: sub.billing_cycle,
+    currentPeriodEnd: sub.current_period_end, cancelAtPeriodEnd: !!sub.cancel_at_period_end,
+    storage: TIER_LIMITS[tier].maxStorageLabel, limits: TIER_LIMITS[tier],
   });
 });
 
-// Get usage stats
-billingRoutes.get('/usage', async (c) => {
-  const userId = c.get('userId');
-  
-  // Get subscription tier
-  const subscription = await c.env.DB.prepare(`
-    SELECT tier FROM subscriptions WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const tier = normalizeTier(subscription?.tier as string || 'STARTER');
-  const limits = TIER_LIMITS[tier];
-  
-  // Get current usage
-  const storageUsage = await c.env.DB.prepare(`
-    SELECT COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const voiceStorage = await c.env.DB.prepare(`
-    SELECT COALESCE(SUM(file_size), 0) as total FROM voice_recordings WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const recipientCount = await c.env.DB.prepare(`
-    SELECT COUNT(*) as count FROM family_members WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const letterCount = await c.env.DB.prepare(`
-    SELECT COUNT(*) as count FROM letters WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const voiceDuration = await c.env.DB.prepare(`
-    SELECT COALESCE(SUM(duration), 0) as total FROM voice_recordings WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const totalStorage = ((storageUsage?.total as number) || 0) + ((voiceStorage?.total as number) || 0);
-  
-  // Calculate storage in MB for frontend compatibility
-  const storageUsedMB = Math.round(totalStorage / (1024 * 1024));
-  const storageLimitMB = Math.round(limits.maxStorage / (1024 * 1024));
-  const storageUsedPercent = limits.maxStorage > 0 ? (totalStorage / limits.maxStorage) * 100 : 0;
-
-  return c.json({
-    // New flat fields for Dashboard compatibility
-    storageUsedMB,
-    storageLimitMB,
-    storageUsedPercent,
-    // Original nested structure for backwards compatibility
-    storage: {
-      used: totalStorage,
-      limit: limits.maxStorage,
-      percentage: storageUsedPercent,
-    },
-    recipients: {
-      used: recipientCount?.count || 0,
-      limit: limits.maxRecipients,
-      percentage: limits.maxRecipients > 0 ? ((recipientCount?.count as number || 0) / limits.maxRecipients) * 100 : 0,
-    },
-    letters: {
-      used: letterCount?.count || 0,
-      limit: limits.maxLetters,
-      percentage: limits.maxLetters > 0 ? ((letterCount?.count as number || 0) / limits.maxLetters) * 100 : 0,
-    },
-    voiceMinutes: {
-      used: Math.round(((voiceDuration?.total as number) || 0) / 60),
-      limit: limits.maxVoiceMinutes,
-      percentage: limits.maxVoiceMinutes > 0 ? (((voiceDuration?.total as number || 0) / 60) / limits.maxVoiceMinutes) * 100 : 0,
-    },
-  });
-});
-
-// Get pricing info with regional support
-billingRoutes.get('/pricing', async (c) => {
-  const currency = (c.req.query('currency') || 'USD').toUpperCase();
-  const prices = REGIONAL_PRICING[currency] || REGIONAL_PRICING.USD;
-  const symbol = CURRENCY_SYMBOLS[currency] || '$';
-  
-  return c.json({
-    currency,
-    symbol,
-    tiers: Object.entries(TIER_LIMITS).map(([name, limits]) => ({
-      name,
-      limits,
-      prices: prices[name as keyof typeof prices] || { monthly: 0, yearly: 0 },
-      formatted: {
-        monthly: `${symbol}${prices[name as keyof typeof prices]?.monthly || 0}`,
-        yearly: `${symbol}${prices[name as keyof typeof prices]?.yearly || 0}`,
-      },
-    })),
-    pricing: {
-      starter: {
-        monthly: { amount: prices.STARTER.monthly, formatted: `${symbol}${prices.STARTER.monthly}` },
-        yearly: { amount: prices.STARTER.yearly, formatted: `${symbol}${prices.STARTER.yearly}` },
-      },
-      family: {
-        monthly: { amount: prices.FAMILY.monthly, formatted: `${symbol}${prices.FAMILY.monthly}` },
-        yearly: { amount: prices.FAMILY.yearly, formatted: `${symbol}${prices.FAMILY.yearly}` },
-      },
-      forever: {
-        monthly: { amount: prices.FOREVER.monthly, formatted: `${symbol}${prices.FOREVER.monthly}` },
-        yearly: { amount: prices.FOREVER.yearly, formatted: `${symbol}${prices.FOREVER.yearly}` },
-      },
-    },
-  });
-});
-
-// Get all limits for current user (used by Settings page)
+// Get limits/usage
 billingRoutes.get('/limits', async (c) => {
   const userId = c.get('userId');
-  
-  // Get subscription tier
-  const subscription = await c.env.DB.prepare(`
-    SELECT tier FROM subscriptions WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const tier = normalizeTier(subscription?.tier as string || 'STARTER');
+  const sub = await c.env.DB.prepare('SELECT tier FROM subscriptions WHERE user_id = ?').bind(userId).first();
+  const tier = normalizeTier(sub?.tier as string || 'STARTER');
   const limits = TIER_LIMITS[tier];
   
-  // Get current usage counts
-  const memoriesCount = await c.env.DB.prepare(`
-    SELECT COUNT(*) as count FROM memories WHERE user_id = ?
-  `).bind(userId).first();
+  const memories = await c.env.DB.prepare('SELECT COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?').bind(userId).first();
+  const voice = await c.env.DB.prepare('SELECT COALESCE(SUM(file_size), 0) as total FROM voice_recordings WHERE user_id = ?').bind(userId).first();
   
-  const voiceDuration = await c.env.DB.prepare(`
-    SELECT COALESCE(SUM(duration), 0) as total FROM voice_recordings WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const letterCount = await c.env.DB.prepare(`
-    SELECT COUNT(*) as count FROM letters WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const storageUsage = await c.env.DB.prepare(`
-    SELECT COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const voiceStorage = await c.env.DB.prepare(`
-    SELECT COALESCE(SUM(file_size), 0) as total FROM voice_recordings WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const totalStorageMB = Math.round((((storageUsage?.total as number) || 0) + ((voiceStorage?.total as number) || 0)) / (1024 * 1024));
-  const maxStorageMB = limits.maxStorage === -1 ? -1 : Math.round(limits.maxStorage / (1024 * 1024));
-  
-  const voiceMinutesUsed = Math.round(((voiceDuration?.total as number) || 0) / 60);
+  const usedBytes = ((memories?.total as number) || 0) + ((voice?.total as number) || 0);
+  const percentage = Math.round((usedBytes / limits.maxStorage) * 100);
   
   return c.json({
-    memories: {
-      current: (memoriesCount?.count as number) || 0,
-      max: limits.maxPhotos,
-    },
-    voice: {
-      current: voiceMinutesUsed,
-      max: limits.maxVoiceMinutes,
-    },
-    letters: {
-      current: (letterCount?.count as number) || 0,
-      max: limits.maxLetters,
-    },
+    tier,
     storage: {
-      current: totalStorageMB,
-      max: maxStorageMB,
+      usedMB: Math.round(usedBytes / (1024 * 1024)),
+      maxLabel: limits.maxStorageLabel,
+      percentage,
+      warning: percentage > 80,
+      full: percentage >= 100,
     },
-  });
-});
-
-// Check limit for a specific resource
-billingRoutes.get('/limits/:resource', async (c) => {
-  const userId = c.get('userId');
-  const resource = c.req.param('resource');
-  
-  const subscription = await c.env.DB.prepare(`
-    SELECT tier FROM subscriptions WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const tier = normalizeTier(subscription?.tier as string || 'STARTER');
-  const limits = TIER_LIMITS[tier];
-  
-  let current = 0;
-  let max = 0;
-  
-  switch (resource) {
-    case 'recipients':
-    case 'maxRecipients':
-      const recipientCount = await c.env.DB.prepare(`
-        SELECT COUNT(*) as count FROM family_members WHERE user_id = ?
-      `).bind(userId).first();
-      current = (recipientCount?.count as number) || 0;
-      max = limits.maxRecipients;
-      break;
-    case 'letters':
-    case 'maxLetters':
-      const letterCount = await c.env.DB.prepare(`
-        SELECT COUNT(*) as count FROM letters WHERE user_id = ?
-      `).bind(userId).first();
-      current = (letterCount?.count as number) || 0;
-      max = limits.maxLetters;
-      break;
-    case 'storage':
-    case 'maxStorage':
-      const storageUsage = await c.env.DB.prepare(`
-        SELECT COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?
-      `).bind(userId).first();
-      current = (storageUsage?.total as number) || 0;
-      max = limits.maxStorage;
-      break;
-    default:
-      return c.json({ error: 'Unknown resource type' }, 400);
-  }
-  
-  return c.json({
-    resource,
-    current,
-    max,
-    allowed: max === -1 || current < max,
-    remaining: max === -1 ? -1 : Math.max(0, max - current),
-  });
-});
-
-// Create checkout session (placeholder - needs Stripe integration)
-billingRoutes.post('/checkout', async (c) => {
-  const userId = c.get('userId');
-  const body = await c.req.json();
-  const { tier, billingCycle, couponCode, currency } = body;
-  
-  // Accept both old and new tier names
-  const normalizedTier = normalizeTier(tier);
-  if (!['STARTER', 'FAMILY', 'FOREVER'].includes(normalizedTier)) {
-    return c.json({ error: 'Invalid tier' }, 400);
-  }
-  
-  // Get regional pricing
-  const currencyCode = (currency || 'USD').toUpperCase();
-  const prices = REGIONAL_PRICING[currencyCode] || REGIONAL_PRICING.USD;
-  const tierPrices = prices[normalizedTier as keyof typeof prices];
-  
-  // Validate coupon if provided
-  let discount = 0;
-  if (couponCode) {
-    const coupon = await c.env.DB.prepare(`
-      SELECT * FROM coupons 
-      WHERE code = ? AND is_active = 1 
-      AND (valid_until IS NULL OR valid_until > datetime('now'))
-      AND (max_uses IS NULL OR current_uses < max_uses)
-    `).bind(couponCode).first();
-    
-    if (coupon) {
-      if (coupon.discount_type === 'PERCENTAGE') {
-        discount = (coupon.discount_value as number) / 100;
-      } else {
-        discount = coupon.discount_value as number;
-      }
-    }
-  }
-  
-  const basePrice = billingCycle === 'yearly' ? tierPrices.yearly : tierPrices.monthly;
-  const finalPrice = discount < 1 ? basePrice * (1 - discount) : Math.max(0, basePrice - discount);
-  
-  // In production, this would create a Stripe checkout session
-  // For now, return a placeholder response
-  return c.json({
-    checkoutUrl: `${c.env.APP_URL}/checkout?tier=${normalizedTier}&cycle=${billingCycle}&price=${finalPrice}`,
-    tier: normalizedTier,
-    billingCycle,
-    currency: currencyCode,
-    originalPrice: basePrice,
-    discount: discount * (discount < 1 ? basePrice : 1),
-    finalPrice,
-    message: 'Stripe integration required for production',
-  });
-});
-
-// Change subscription tier
-billingRoutes.post('/change-plan', async (c) => {
-  const userId = c.get('userId');
-  const body = await c.req.json();
-  const { newTier } = body;
-  
-  // Accept both old and new tier names
-  const normalizedTier = normalizeTier(newTier || 'STARTER');
-  if (!['STARTER', 'FAMILY', 'FOREVER'].includes(normalizedTier)) {
-    return c.json({ error: 'Invalid tier' }, 400);
-  }
-  
-  const now = new Date().toISOString();
-  
-  // Check if subscription exists
-  const existing = await c.env.DB.prepare(`
-    SELECT * FROM subscriptions WHERE user_id = ?
-  `).bind(userId).first();
-  
-  if (existing) {
-    await c.env.DB.prepare(`
-      UPDATE subscriptions SET tier = ?, updated_at = ? WHERE user_id = ?
-    `).bind(normalizedTier, now, userId).run();
-  } else {
-    await c.env.DB.prepare(`
-      INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, created_at, updated_at)
-      VALUES (?, ?, ?, 'ACTIVE', 'monthly', ?, ?)
-    `).bind(crypto.randomUUID(), userId, normalizedTier, now, now).run();
-  }
-  
-  return c.json({
-    success: true,
-    tier: normalizedTier,
-    limits: TIER_LIMITS[normalizedTier],
-    message: `Plan changed to ${normalizedTier}`,
-  });
-});
-
-// Cancel subscription
-billingRoutes.post('/cancel', async (c) => {
-  const userId = c.get('userId');
-  const now = new Date().toISOString();
-  
-  await c.env.DB.prepare(`
-    UPDATE subscriptions SET cancel_at_period_end = 1, updated_at = ? WHERE user_id = ?
-  `).bind(now, userId).run();
-  
-  return c.json({
-    success: true,
-    message: 'Subscription will be cancelled at the end of the current billing period',
+    allFeaturesIncluded: true,
   });
 });
 
 // Validate coupon
 billingRoutes.post('/validate-coupon', async (c) => {
-  const body = await c.req.json();
-  const { code } = body;
+  const { code } = await c.req.json();
+  const coupon = COUPONS[code?.toUpperCase()];
   
-  if (!code) {
-    return c.json({ error: 'Coupon code is required' }, 400);
+  if (!coupon) return c.json({ valid: false, error: 'Invalid coupon code' }, 400);
+  if (coupon.expires && new Date(coupon.expires) < new Date()) {
+    return c.json({ valid: false, error: 'Coupon has expired' }, 400);
   }
   
-  const coupon = await c.env.DB.prepare(`
-    SELECT * FROM coupons 
-    WHERE code = ? AND is_active = 1 
-    AND (valid_until IS NULL OR valid_until > datetime('now'))
-    AND (max_uses IS NULL OR current_uses < max_uses)
-  `).bind(code).first();
+  return c.json({ valid: true, code: code.toUpperCase(), discount: coupon.discount, description: coupon.description });
+});
+
+// Calculate price
+billingRoutes.post('/calculate', async (c) => {
+  const { tier, billingCycle, couponCode } = await c.req.json();
   
-  if (!coupon) {
-    return c.json({ valid: false, error: 'Invalid or expired coupon' }, 400);
+  const country = getCountryFromRequest(c);
+  const currency = getCurrencyForCountry(country);
+  const prices = PRICING[currency];
+  const normalizedTier = normalizeTier(tier);
+  const tierPrices = prices[normalizedTier as keyof typeof prices.STARTER];
+  
+  if (!tierPrices || typeof tierPrices === 'string') return c.json({ error: 'Invalid tier' }, 400);
+  
+  const isYearly = billingCycle === 'yearly';
+  let basePrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
+  let discount = 0;
+  
+  if (couponCode) {
+    const coupon = COUPONS[couponCode.toUpperCase()];
+    if (coupon && (!coupon.expires || new Date(coupon.expires) > new Date())) {
+      discount = coupon.type === 'percent' ? basePrice * (coupon.discount / 100) : coupon.discount;
+    }
   }
+  
+  const finalPrice = Math.max(0, basePrice - discount);
   
   return c.json({
-    valid: true,
-    code: coupon.code,
-    description: coupon.description,
-    discountType: coupon.discount_type,
-    discountValue: coupon.discount_value,
-    applicableTiers: coupon.applicable_tiers ? JSON.parse(coupon.applicable_tiers as string) : [],
+    country, currency, symbol: prices.symbol, tier: normalizedTier, billingCycle,
+    basePrice, discount, finalPrice, display: `${prices.symbol}${finalPrice.toFixed(2)}`,
+  });
+});
+
+// Create checkout
+billingRoutes.post('/checkout', async (c) => {
+  const userId = c.get('userId');
+  const { tier, billingCycle, couponCode } = await c.req.json();
+  
+  const country = getCountryFromRequest(c);
+  const currency = getCurrencyForCountry(country);
+  const prices = PRICING[currency];
+  const normalizedTier = normalizeTier(tier);
+  const tierPrices = prices[normalizedTier as keyof typeof prices.STARTER];
+  
+  if (!tierPrices || typeof tierPrices === 'string') return c.json({ error: 'Invalid tier' }, 400);
+  
+  const isYearly = billingCycle === 'yearly';
+  let finalPrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
+  
+  if (couponCode) {
+    const coupon = COUPONS[couponCode.toUpperCase()];
+    if (coupon && (!coupon.expires || new Date(coupon.expires) > new Date())) {
+      finalPrice = Math.max(0, finalPrice - (coupon.type === 'percent' ? finalPrice * (coupon.discount / 100) : coupon.discount));
+    }
+  }
+  
+  // TODO: Create Stripe checkout session with currency-specific price
+  return c.json({
+    checkoutUrl: `${c.env.APP_URL}/checkout?tier=${normalizedTier}&cycle=${billingCycle}&currency=${currency}`,
+    tier: normalizedTier, billingCycle, currency, finalPrice,
+    message: 'IMPLEMENT: Create Stripe checkout with currency-specific price',
+  });
+});
+
+// Change plan
+billingRoutes.post('/change-plan', async (c) => {
+  const userId = c.get('userId');
+  const { tier, billingCycle } = await c.req.json();
+  const normalizedTier = normalizeTier(tier);
+  const now = new Date().toISOString();
+  
+  const existing = await c.env.DB.prepare('SELECT id FROM subscriptions WHERE user_id = ?').bind(userId).first();
+  
+  if (existing) {
+    await c.env.DB.prepare('UPDATE subscriptions SET tier = ?, billing_cycle = ?, updated_at = ? WHERE user_id = ?')
+      .bind(normalizedTier, billingCycle || 'monthly', now, userId).run();
+  } else {
+    await c.env.DB.prepare('INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .bind(crypto.randomUUID(), userId, normalizedTier, 'ACTIVE', billingCycle || 'monthly', now, now).run();
+  }
+  
+  return c.json({ success: true, tier: normalizedTier, storage: TIER_LIMITS[normalizedTier].maxStorageLabel });
+});
+
+// Cancel
+billingRoutes.post('/cancel', async (c) => {
+  const userId = c.get('userId');
+  await c.env.DB.prepare('UPDATE subscriptions SET cancel_at_period_end = 1, updated_at = ? WHERE user_id = ?')
+    .bind(new Date().toISOString(), userId).run();
+  return c.json({ success: true });
+});
+
+// Usage stats
+billingRoutes.get('/usage', async (c) => {
+  const userId = c.get('userId');
+  const sub = await c.env.DB.prepare('SELECT tier FROM subscriptions WHERE user_id = ?').bind(userId).first();
+  const tier = normalizeTier(sub?.tier as string || 'STARTER');
+  
+  const memories = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(file_size), 0) as size FROM memories WHERE user_id = ?').bind(userId).first();
+  const voice = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(file_size), 0) as size FROM voice_recordings WHERE user_id = ?').bind(userId).first();
+  const letters = await c.env.DB.prepare('SELECT COUNT(*) as count FROM letters WHERE user_id = ?').bind(userId).first();
+  
+  const totalBytes = ((memories?.size as number) || 0) + ((voice?.size as number) || 0);
+  
+  return c.json({
+    tier,
+    storage: { usedMB: Math.round(totalBytes / (1024 * 1024)), maxLabel: TIER_LIMITS[tier].maxStorageLabel, percentage: Math.round((totalBytes / TIER_LIMITS[tier].maxStorage) * 100) },
+    counts: { memories: memories?.count || 0, voiceRecordings: voice?.count || 0, letters: letters?.count || 0 },
   });
 });

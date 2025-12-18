@@ -1,11 +1,15 @@
 /**
  * TinyLLM Service for Cloudflare Workers
  * 
- * Uses keyword-based emotion classification as a fallback
- * Can be extended to use Cloudflare AI or external LLM APIs
+ * Uses Cloudflare Workers AI for AI features:
+ * - Emotion classification using text classification models
+ * - Letter suggestions using text generation models
+ * - Audio transcription using Whisper
+ * 
+ * Falls back to keyword-based classification if AI is unavailable.
  */
 
-export type EmotionType = 
+export type EmotionType =
   | 'joyful' 
   | 'nostalgic' 
   | 'grateful' 
@@ -196,4 +200,215 @@ export function analyzeText(text: string): { emotion: EmotionResult; summary: st
     emotion,
     summary: summaries[emotion.label],
   };
+}
+
+// ============================================
+// CLOUDFLARE WORKERS AI INTEGRATION
+// ============================================
+
+/**
+ * Classify emotion using Cloudflare Workers AI
+ * Falls back to keyword-based classification if AI is unavailable
+ */
+export async function classifyEmotionWithAI(
+  text: string,
+  ai?: Ai
+): Promise<EmotionResult> {
+  // If no AI binding, use keyword-based classification
+  if (!ai) {
+    return classifyEmotion(text);
+  }
+
+  try {
+    // Use Cloudflare's text generation model for emotion classification
+    // Using type assertion as model names may not be in older type definitions
+    const response = await ai.run('@cf/meta/llama-2-7b-chat-int8' as Parameters<typeof ai.run>[0], {
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an emotion classifier. Analyze the given text and respond with ONLY one of these emotions: joyful, nostalgic, grateful, loving, bittersweet, sad, reflective, proud, peaceful, hopeful. Respond with just the emotion word in lowercase, nothing else.'
+        },
+        {
+          role: 'user',
+          content: text.substring(0, 2000) // Limit text length
+        }
+      ],
+      max_tokens: 20
+    });
+
+    if (response && typeof response === 'object' && 'response' in response) {
+      const emotion = (response.response as string).trim().toLowerCase() as EmotionType;
+      const validEmotions: EmotionType[] = ['joyful', 'nostalgic', 'grateful', 'loving', 'bittersweet', 'sad', 'reflective', 'proud', 'peaceful', 'hopeful'];
+      
+      if (validEmotions.includes(emotion)) {
+        return { label: emotion, confidence: 0.85 };
+      }
+    }
+  } catch (error) {
+    console.error('Cloudflare AI emotion classification failed:', error);
+  }
+
+  // Fallback to keyword-based classification
+  return classifyEmotion(text);
+}
+
+/**
+ * Generate letter suggestion using Cloudflare Workers AI
+ * Falls back to template-based generation if AI is unavailable
+ */
+export async function generateLetterSuggestionWithAI(
+  input: LetterSuggestionInput,
+  ai?: Ai
+): Promise<LetterSuggestion> {
+  // If no AI binding, use template-based generation
+  if (!ai) {
+    return generateLetterSuggestion(input);
+  }
+
+  const { recipientName, relationship, occasion, tone } = input;
+
+  try {
+    // Using type assertion as model names may not be in older type definitions
+    const response = await ai.run('@cf/meta/llama-2-7b-chat-int8' as Parameters<typeof ai.run>[0], {
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a heartfelt letter writer helping someone write a meaningful letter to their loved one. Write with genuine emotion and warmth. Keep the letter personal and touching. Format your response exactly as: SALUTATION: [greeting]\nBODY: [2-3 paragraphs]\nSIGNATURE: [closing]'
+        },
+        {
+          role: 'user',
+          content: `Write a heartfelt letter to ${recipientName}, who is my ${relationship}.${occasion ? ` The occasion is: ${occasion}.` : ''}${tone ? ` The tone should be: ${tone}.` : ''}`
+        }
+      ],
+      max_tokens: 500
+    });
+
+    if (response && typeof response === 'object' && 'response' in response) {
+      const result = response.response as string;
+      
+      // Parse the response
+      const salutationMatch = result.match(/SALUTATION:\s*(.+?)(?=\nBODY:|$)/s);
+      const bodyMatch = result.match(/BODY:\s*(.+?)(?=\nSIGNATURE:|$)/s);
+      const signatureMatch = result.match(/SIGNATURE:\s*(.+?)$/s);
+
+      if (salutationMatch && bodyMatch && signatureMatch) {
+        const body = bodyMatch[1].trim();
+        const emotion = classifyEmotion(body);
+
+        return {
+          salutation: salutationMatch[1].trim(),
+          body,
+          signature: signatureMatch[1].trim(),
+          emotion: emotion.label,
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Cloudflare AI letter generation failed:', error);
+  }
+
+  // Fallback to template-based generation
+  return generateLetterSuggestion(input);
+}
+
+/**
+ * Transcribe audio using Cloudflare Workers AI Whisper model
+ */
+export async function transcribeAudioWithAI(
+  audioData: ArrayBuffer,
+  ai?: Ai
+): Promise<string | null> {
+  if (!ai) {
+    return null;
+  }
+
+  try {
+    const response = await ai.run('@cf/openai/whisper', {
+      audio: [...new Uint8Array(audioData)]
+    });
+
+    if (response && typeof response === 'object' && 'text' in response) {
+      return response.text as string;
+    }
+  } catch (error) {
+    console.error('Cloudflare AI audio transcription failed:', error);
+  }
+
+  return null;
+}
+
+/**
+ * Summarize text using Cloudflare Workers AI
+ */
+export async function summarizeTextWithAI(
+  text: string,
+  ai?: Ai
+): Promise<string | null> {
+  if (!ai) {
+    return null;
+  }
+
+  try {
+    // Using type assertion as model names may not be in older type definitions
+    const response = await ai.run('@cf/meta/llama-2-7b-chat-int8' as Parameters<typeof ai.run>[0], {
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful assistant that summarizes text concisely. Provide a brief 1-2 sentence summary.'
+        },
+        {
+          role: 'user',
+          content: `Summarize this: ${text.substring(0, 3000)}`
+        }
+      ],
+      max_tokens: 100
+    });
+
+    if (response && typeof response === 'object' && 'response' in response) {
+      return response.response as string;
+    }
+  } catch (error) {
+    console.error('Cloudflare AI summarization failed:', error);
+  }
+
+  return null;
+}
+
+// ============================================
+// LEGACY OLLAMA SUPPORT (backwards compatibility)
+// ============================================
+
+export interface OllamaConfig {
+  baseUrl: string;
+  model?: string;
+  timeout?: number;
+}
+
+/** @deprecated Use classifyEmotionWithAI instead */
+export async function classifyEmotionWithOllama(
+  text: string,
+  _config?: OllamaConfig
+): Promise<EmotionResult> {
+  return classifyEmotion(text);
+}
+
+/** @deprecated Use generateLetterSuggestionWithAI instead */
+export async function generateLetterSuggestionWithOllama(
+  input: LetterSuggestionInput,
+  _config?: OllamaConfig
+): Promise<LetterSuggestion> {
+  return generateLetterSuggestion(input);
+}
+
+/** @deprecated Use transcribeAudioWithAI instead */
+export async function transcribeAudioWithOllama(
+  _audioData: ArrayBuffer,
+  _config?: OllamaConfig
+): Promise<string | null> {
+  return null;
+}
+
+/** @deprecated No longer needed - use AI binding directly */
+export function createOllamaConfig(_env: { OLLAMA_BASE_URL?: string; OLLAMA_MODEL?: string }): OllamaConfig | undefined {
+  return undefined;
 }

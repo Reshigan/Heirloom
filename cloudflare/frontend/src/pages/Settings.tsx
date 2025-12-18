@@ -60,10 +60,11 @@ export function Settings() {
     queryFn: () => billingApi.getLimits().then(r => r.data),
   });
 
-  const { data: pricing } = useQuery({
-    queryKey: ['pricing', user?.preferredCurrency],
-    queryFn: () => billingApi.getPricing(user?.preferredCurrency).then(r => r.data),
-  });
+  // Pricing is now hardcoded in the UI - storage-based tiers with all features included
+  // const { data: pricing } = useQuery({
+  //   queryKey: ['pricing', user?.preferredCurrency],
+  //   queryFn: () => billingApi.getPricing(user?.preferredCurrency).then(r => r.data),
+  // });
 
   const { data: deadmanStatus } = useQuery({
     queryKey: ['deadman-status'],
@@ -358,32 +359,39 @@ export function Settings() {
                   )}
                 </div>
 
-                {/* Pricing */}
-                {pricing?.pricing && (
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {[
-                      { tier: 'STARTER', name: 'Starter', price: pricing.pricing.starter?.monthly },
-                      { tier: 'FAMILY', name: 'Family', price: pricing.pricing.family?.monthly, popular: true },
-                      { tier: 'FOREVER', name: 'Forever', price: pricing.pricing.forever?.yearly, yearly: true },
-                    ].map(({ tier, name, price, popular, yearly }) => (
-                      <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
-                        {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
-                        <h3 className="text-lg">{name}</h3>
-                        <div className="flex items-baseline gap-1 my-4">
-                          <span className="text-3xl text-gold">{price?.formatted || 'N/A'}</span>
-                          <span className="text-paper/40">/{yearly ? 'year' : 'month'}</span>
-                        </div>
-                        <button
-                          onClick={() => checkoutMutation.mutate(tier)}
-                          disabled={subscription?.tier === tier || checkoutMutation.isPending}
-                          className={`btn w-full ${subscription?.tier === tier ? 'btn-secondary' : 'btn-primary'}`}
-                        >
-                          {subscription?.tier === tier ? 'Current Plan' : 'Upgrade'}
-                        </button>
+                {/* Pricing - Storage-based tiers, all features included */}
+                <div className="mb-4">
+                  <p className="text-paper/60 text-sm text-center">All plans include all features. Just pick your storage.</p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {[
+                    { tier: 'STARTER', name: 'Starter', storage: '500 MB', monthlyPrice: '$1', yearlyPrice: '$10/year', storageDesc: '~500 photos' },
+                    { tier: 'FAMILY', name: 'Family', storage: '5 GB', monthlyPrice: '$5', yearlyPrice: '$50/year', storageDesc: '~5,000 photos', popular: true },
+                    { tier: 'FOREVER', name: 'Forever', storage: '50 GB', monthlyPrice: '$15', yearlyPrice: '$150/year', storageDesc: '~50,000 photos' },
+                  ].map(({ tier, name, storage, monthlyPrice, yearlyPrice, storageDesc, popular }) => (
+                    <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
+                      {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
+                      <h3 className="text-lg mb-2">{name}</h3>
+                      <div className="flex items-baseline gap-1 mb-1">
+                        <span className="text-3xl text-gold">{monthlyPrice}</span>
+                        <span className="text-paper/40">/month</span>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      <div className="text-xs text-paper/40 mb-4">or {yearlyPrice} (2 months free)</div>
+                      <div className="py-3 px-3 bg-white/[0.02] border border-white/[0.04] rounded mb-4 text-center">
+                        <div className="text-xl font-medium text-gold">{storage}</div>
+                        <div className="text-xs text-paper/50">{storageDesc}</div>
+                      </div>
+                      <div className="text-xs text-paper/50 text-center mb-4">All features included</div>
+                      <button
+                        onClick={() => checkoutMutation.mutate(tier)}
+                        disabled={subscription?.tier === tier || checkoutMutation.isPending}
+                        className={`btn w-full ${subscription?.tier === tier ? 'btn-secondary' : 'btn-primary'}`}
+                      >
+                        {subscription?.tier === tier ? 'Current Plan' : 'Upgrade'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

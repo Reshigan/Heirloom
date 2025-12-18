@@ -2,8 +2,24 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb } from 'lucide-react';
+import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, Volume2, Clock, Calendar } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
+
+interface VoiceRecording {
+  id: string;
+  title: string;
+  description?: string;
+  fileUrl: string;
+  fileKey: string;
+  duration: number;
+  fileSize: number;
+  transcript?: string;
+  emotion?: string;
+  encrypted: boolean;
+  recipients: { id: string; name: string; relationship: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 export function Record() {
   const navigate = useNavigate();
@@ -44,6 +60,57 @@ export function Record() {
   const { data: stats } = useQuery({
     queryKey: ['voice-stats'],
     queryFn: () => voiceApi.getStats().then(r => r.data),
+  });
+
+  // Fetch saved recordings
+  const { data: recordings, isLoading: recordingsLoading } = useQuery({
+    queryKey: ['voice-list'],
+    queryFn: () => voiceApi.getAll().then(r => r.data?.data || []) as Promise<VoiceRecording[]>,
+  });
+
+  // State for playing saved recordings
+  const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+  const savedAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playRecording = (recording: VoiceRecording) => {
+    if (playingRecordingId === recording.id) {
+      // Stop playing
+      if (savedAudioRef.current) {
+        savedAudioRef.current.pause();
+        savedAudioRef.current = null;
+      }
+      setPlayingRecordingId(null);
+    } else {
+      // Stop any currently playing
+      if (savedAudioRef.current) {
+        savedAudioRef.current.pause();
+      }
+      // Start playing new recording
+      const audio = new Audio(recording.fileUrl);
+      audio.onended = () => setPlayingRecordingId(null);
+      audio.onerror = () => {
+        showToast('Failed to play recording', 'error');
+        setPlayingRecordingId(null);
+      };
+      audio.play().catch(() => {
+        showToast('Failed to play recording', 'error');
+        setPlayingRecordingId(null);
+      });
+      savedAudioRef.current = audio;
+      setPlayingRecordingId(recording.id);
+    }
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => voiceApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['voice-list'] });
+      queryClient.invalidateQueries({ queryKey: ['voice-stats'] });
+      showToast('Recording deleted', 'success');
+    },
+    onError: () => {
+      showToast('Failed to delete recording', 'error');
+    },
   });
 
   const uploadMutation = useMutation({
@@ -643,6 +710,110 @@ export function Record() {
               </div>
             </motion.div>
           </div>
+
+          {/* Saved Recordings Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-12"
+          >
+            <div className="card">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Volume2 size={20} className="text-gold" />
+                  <h2 className="text-xl font-light">Your Recordings</h2>
+                </div>
+                {recordings && recordings.length > 0 && (
+                  <span className="text-paper/40 text-sm">{recordings.length} recording{recordings.length !== 1 ? 's' : ''}</span>
+                )}
+              </div>
+
+              {recordingsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 size={24} className="animate-spin text-gold" />
+                </div>
+              ) : recordings && recordings.length > 0 ? (
+                <div className="space-y-3">
+                  {recordings.map((recording) => (
+                    <motion.div
+                      key={recording.id}
+                      className="glass rounded-xl p-4 flex items-center gap-4 group"
+                      whileHover={{ scale: 1.01 }}
+                    >
+                      {/* Play Button */}
+                      <motion.button
+                        onClick={() => playRecording(recording)}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+                          playingRecordingId === recording.id
+                            ? 'bg-gold text-void'
+                            : 'bg-gold/20 text-gold hover:bg-gold/30'
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {playingRecordingId === recording.id ? (
+                          <Pause size={20} fill="currentColor" />
+                        ) : (
+                          <Play size={20} fill="currentColor" className="ml-0.5" />
+                        )}
+                      </motion.button>
+
+                      {/* Recording Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium truncate">{recording.title}</h3>
+                        <div className="flex items-center gap-4 text-sm text-paper/50 mt-1">
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} />
+                            {formatTime(recording.duration || 0)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar size={12} />
+                            {new Date(recording.createdAt).toLocaleDateString()}
+                          </span>
+                          {recording.emotion && (
+                            <span className="px-2 py-0.5 rounded-full bg-gold/10 text-gold text-xs">
+                              {recording.emotion}
+                            </span>
+                          )}
+                        </div>
+                        {recording.recipients && recording.recipients.length > 0 && (
+                          <div className="flex items-center gap-1 mt-2">
+                            <span className="text-xs text-paper/40">Shared with:</span>
+                            {recording.recipients.map((r) => (
+                              <span key={r.id} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-paper/60">
+                                {r.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Delete Button */}
+                      <motion.button
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this recording?')) {
+                            deleteMutation.mutate(recording.id);
+                          }
+                        }}
+                        className="p-2 rounded-lg text-paper/30 hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Trash2 size={16} />
+                      </motion.button>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-paper/40">
+                  <Volume2 size={48} className="mx-auto mb-4 opacity-30" />
+                  <p>No recordings yet</p>
+                  <p className="text-sm mt-1">Start recording to preserve your voice for loved ones</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>

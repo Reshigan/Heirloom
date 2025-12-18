@@ -23,6 +23,7 @@ import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 import Wrapped from './pages/Wrapped';
 import { NotFound } from './pages/NotFound';
+import { Inherit } from './pages/Inherit';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -168,12 +169,15 @@ export default function App() {
                       }
                     />
 
-                    {/* Admin routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+                              {/* Admin routes */}
+                    <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
 
-          {/* Catch all - 404 page */}
+                    {/* Recipient Portal - public route for inherited content */}
+                    <Route path="/inherit/:token" element={<Inherit />} />
+
+                    {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
