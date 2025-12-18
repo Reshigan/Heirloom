@@ -44,6 +44,7 @@ settingsRoutes.patch('/profile', async (c) => {
   const { firstName, lastName, avatarUrl, preferredCurrency } = body;
   const now = new Date().toISOString();
   
+  // Convert undefined to null for D1 compatibility
   await c.env.DB.prepare(`
     UPDATE users 
     SET first_name = COALESCE(?, first_name),
@@ -52,7 +53,14 @@ settingsRoutes.patch('/profile', async (c) => {
         preferred_currency = COALESCE(?, preferred_currency),
         updated_at = ?
     WHERE id = ?
-  `).bind(firstName, lastName, avatarUrl, preferredCurrency, now, userId).run();
+  `).bind(
+    firstName ?? null, 
+    lastName ?? null, 
+    avatarUrl ?? null, 
+    preferredCurrency ?? null, 
+    now, 
+    userId
+  ).run();
   
   const user = await c.env.DB.prepare(`
     SELECT id, email, first_name, last_name, avatar_url, preferred_currency, 
@@ -360,6 +368,7 @@ settingsRoutes.patch('/legacy-contacts/:id', async (c) => {
   const { name, email, phone, relationship, role } = body;
   const now = new Date().toISOString();
   
+  // Convert undefined to null for D1 compatibility
   await c.env.DB.prepare(`
     UPDATE legacy_contacts 
     SET name = COALESCE(?, name),
@@ -369,7 +378,15 @@ settingsRoutes.patch('/legacy-contacts/:id', async (c) => {
         role = COALESCE(?, role),
         updated_at = ?
     WHERE id = ?
-  `).bind(name, email, phone, relationship, role, now, contactId).run();
+  `).bind(
+    name ?? null, 
+    email ?? null, 
+    phone ?? null, 
+    relationship ?? null, 
+    role ?? null, 
+    now, 
+    contactId
+  ).run();
   
   const contact = await c.env.DB.prepare(`
     SELECT * FROM legacy_contacts WHERE id = ?

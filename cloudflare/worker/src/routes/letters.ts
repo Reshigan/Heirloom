@@ -283,6 +283,7 @@ lettersRoutes.patch('/:id', async (c) => {
   const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, recipientIds } = body;
   const now = new Date().toISOString();
   
+  // Convert undefined to null for D1 compatibility
   await c.env.DB.prepare(`
     UPDATE letters 
     SET title = COALESCE(?, title),
@@ -293,7 +294,16 @@ lettersRoutes.patch('/:id', async (c) => {
         scheduled_date = COALESCE(?, scheduled_date),
         updated_at = ?
     WHERE id = ?
-  `).bind(title, salutation, letterBody, signature, deliveryTrigger, scheduledDate, now, letterId).run();
+  `).bind(
+    title ?? null, 
+    salutation ?? null, 
+    letterBody ?? null, 
+    signature ?? null, 
+    deliveryTrigger ?? null, 
+    scheduledDate ?? null, 
+    now, 
+    letterId
+  ).run();
   
   // Update recipients if provided
   if (recipientIds && recipientIds.length > 0) {
