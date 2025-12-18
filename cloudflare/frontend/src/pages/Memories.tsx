@@ -38,7 +38,7 @@ export function Memories() {
 
   const { data: memories, isLoading } = useQuery({
     queryKey: ['memories', filterType],
-    queryFn: () => memoriesApi.getAll({ type: filterType === 'all' ? undefined : filterType }).then(r => r.data),
+    queryFn: () => memoriesApi.getAll({ type: filterType === 'all' ? undefined : filterType }).then(r => r.data?.data || []),
   });
 
   const { data: family } = useQuery({
@@ -261,7 +261,7 @@ export function Memories() {
                 <div key={i} className="aspect-square skeleton rounded-xl" />
               ))}
             </div>
-          ) : memories?.memories?.length > 0 ? (
+          ) : memories?.length > 0 ? (
             <motion.div
               className={viewMode === 'grid' 
                 ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' 
@@ -270,7 +270,7 @@ export function Memories() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              {memories.memories.map((memory: Memory, i: number) => (
+              {memories.map((memory: Memory, i: number) => (
                 <motion.button
                   key={memory.id}
                   onClick={() => setSelectedMemory(memory)}
