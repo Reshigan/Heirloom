@@ -1,11 +1,22 @@
 /**
  * TinyLLM Service for Cloudflare Workers
  * 
- * Uses keyword-based emotion classification as a fallback
- * Can be extended to use Cloudflare AI or external LLM APIs
+ * Supports two modes:
+ * 1. Ollama mode: Uses local Ollama server for AI features (requires OLLAMA_BASE_URL env var)
+ * 2. Keyword mode: Uses keyword-based emotion classification as fallback
+ * 
+ * Set OLLAMA_BASE_URL environment variable to enable Ollama integration.
+ * Example: OLLAMA_BASE_URL=http://localhost:11434
  */
 
-export type EmotionType = 
+// Configuration for Ollama integration
+export interface OllamaConfig {
+  baseUrl: string;
+  model?: string; // Default: 'llama3.2' or 'mistral'
+  timeout?: number; // Default: 30000ms
+}
+
+export type EmotionType =
   | 'joyful' 
   | 'nostalgic' 
   | 'grateful' 
@@ -195,5 +206,158 @@ export function analyzeText(text: string): { emotion: EmotionResult; summary: st
   return {
     emotion,
     summary: summaries[emotion.label],
+  };
+}
+
+// ============================================
+// OLLAMA INTEGRATION
+// ============================================
+
+/**
+ * Call Ollama API for text generation
+ * Falls back to template-based generation if Ollama is unavailable
+ */
+async function callOllama(
+  config: OllamaConfig,
+  prompt: string,
+  systemPrompt?: string
+): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), config.timeout || 30000);
+
+    const response = await fetch(`${config.baseUrl}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: config.model || 'llama3.2',
+        prompt,
+        system: systemPrompt,
+        stream: false,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error(`Ollama API error: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json() as { response?: string };
+    return data.response || null;
+  } catch (error) {
+    console.error('Ollama call failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Classify emotion using Ollama LLM
+ * Falls back to keyword-based classification if Ollama is unavailable
+ */
+export async function classifyEmotionWithOllama(
+  text: string,
+  config?: OllamaConfig
+): Promise<EmotionResult> {
+  // If no Ollama config, use keyword-based classification
+  if (!config?.baseUrl) {
+    return classifyEmotion(text);
+  }
+
+  const systemPrompt = `You are an emotion classifier. Analyze the given text and respond with ONLY one of these emotions: joyful, nostalgic, grateful, loving, bittersweet, sad, reflective, proud, peaceful, hopeful. Respond with just the emotion word, nothing else.`;
+
+  const result = await callOllama(config, text, systemPrompt);
+
+  if (result) {
+    const emotion = result.trim().toLowerCase() as EmotionType;
+    const validEmotions: EmotionType[] = ['joyful', 'nostalgic', 'grateful', 'loving', 'bittersweet', 'sad', 'reflective', 'proud', 'peaceful', 'hopeful'];
+    
+    if (validEmotions.includes(emotion)) {
+      return { label: emotion, confidence: 0.85 };
+    }
+  }
+
+  // Fallback to keyword-based classification
+  return classifyEmotion(text);
+}
+
+/**
+ * Generate letter suggestion using Ollama LLM
+ * Falls back to template-based generation if Ollama is unavailable
+ */
+export async function generateLetterSuggestionWithOllama(
+  input: LetterSuggestionInput,
+  config?: OllamaConfig
+): Promise<LetterSuggestion> {
+  // If no Ollama config, use template-based generation
+  if (!config?.baseUrl) {
+    return generateLetterSuggestion(input);
+  }
+
+  const { recipientName, relationship, occasion, tone } = input;
+
+  const systemPrompt = `You are a heartfelt letter writer helping someone write a meaningful letter to their loved one. Write with genuine emotion and warmth. Keep the letter personal and touching.`;
+
+  const prompt = `Write a heartfelt letter to ${recipientName}, who is my ${relationship}.${occasion ? ` The occasion is: ${occasion}.` : ''}${tone ? ` The tone should be: ${tone}.` : ''} 
+
+Format your response as:
+SALUTATION: [appropriate greeting]
+BODY: [the main letter content, 2-3 paragraphs]
+SIGNATURE: [closing phrase]`;
+
+  const result = await callOllama(config, prompt, systemPrompt);
+
+  if (result) {
+    // Parse the response
+    const salutationMatch = result.match(/SALUTATION:\s*(.+?)(?=BODY:|$)/s);
+    const bodyMatch = result.match(/BODY:\s*(.+?)(?=SIGNATURE:|$)/s);
+    const signatureMatch = result.match(/SIGNATURE:\s*(.+?)$/s);
+
+    if (salutationMatch && bodyMatch && signatureMatch) {
+      const body = bodyMatch[1].trim();
+      const emotion = classifyEmotion(body);
+
+      return {
+        salutation: salutationMatch[1].trim(),
+        body,
+        signature: signatureMatch[1].trim(),
+        emotion: emotion.label,
+      };
+    }
+  }
+
+  // Fallback to template-based generation
+  return generateLetterSuggestion(input);
+}
+
+/**
+ * Transcribe audio using Ollama (if whisper model is available)
+ * This is a placeholder - actual implementation depends on Ollama's audio capabilities
+ */
+export async function transcribeAudioWithOllama(
+  _audioData: ArrayBuffer,
+  _config?: OllamaConfig
+): Promise<string | null> {
+  // Note: Ollama doesn't natively support audio transcription
+  // This would require a separate Whisper server or similar
+  // For now, return null to indicate transcription is not available
+  console.log('Audio transcription via Ollama is not yet implemented');
+  return null;
+}
+
+/**
+ * Create an Ollama config from environment variables
+ */
+export function createOllamaConfig(env: { OLLAMA_BASE_URL?: string; OLLAMA_MODEL?: string }): OllamaConfig | undefined {
+  if (!env.OLLAMA_BASE_URL) {
+    return undefined;
+  }
+
+  return {
+    baseUrl: env.OLLAMA_BASE_URL,
+    model: env.OLLAMA_MODEL || 'llama3.2',
+    timeout: 30000,
   };
 }

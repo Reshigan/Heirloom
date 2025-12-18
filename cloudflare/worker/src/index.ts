@@ -23,6 +23,7 @@ import { encryptionRoutes } from './routes/encryption';
 import { settingsRoutes } from './routes/settings';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
+import { inheritRoutes } from './routes/inherit';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail } from './email-templates';
 
 // Types
@@ -146,6 +147,7 @@ app.post('/api/test-email', async (c) => {
 // Public routes (no auth required)
 app.route('/api/auth', authRoutes);
 app.route('/api/billing/webhook', billingRoutes);
+app.route('/api/inherit', inheritRoutes);
 
 // Admin routes (separate auth - must be before protected routes)
 app.route('/api/admin', adminRoutes);
