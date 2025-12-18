@@ -494,7 +494,7 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users?.users?.map((user: any) => (
+                  {users?.data?.map((user: any) => (
                     <tr key={user.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="text-paper">{user.firstName} {user.lastName}</div>
@@ -521,7 +521,7 @@ export function AdminDashboard() {
                       </td>
                     </tr>
                   ))}
-                  {(!users?.users || users.users.length === 0) && (
+                  {(!users?.data || users.data.length === 0) && (
                     <tr>
                       <td colSpan={5} className="text-center py-8 text-paper/50">
                         No users found
@@ -533,7 +533,7 @@ export function AdminDashboard() {
               {users?.pagination && (
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
                   <span className="text-paper/50 text-sm">
-                    Showing {users.users?.length || 0} of {users.pagination.total} users
+                    Showing {users.data?.length || 0} of {users.pagination.total} users
                   </span>
                 </div>
               )}
