@@ -135,7 +135,7 @@ export const settingsApi = {
     api.patch('/settings/profile', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post('/settings/change-password', data),
-  deleteAccount: (password: string) => api.delete('/settings/account', { data: { password } }),
+  deleteAccount: (password: string) => api.delete('/settings/account', { data: { password, confirmation: 'DELETE' } }),
   getNotifications: () => api.get('/settings/notifications'),
   updateNotifications: (data: { emailNotifications?: boolean; pushNotifications?: boolean; reminderEmails?: boolean; marketingEmails?: boolean; weeklyDigest?: boolean }) =>
     api.patch('/settings/notifications', data),

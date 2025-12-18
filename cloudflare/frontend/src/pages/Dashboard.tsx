@@ -170,12 +170,12 @@ export function Dashboard() {
 
           <div className="flex items-center gap-4">
             {/* Dead Man's Switch Status */}
-            {deadmanStatus?.enabled && (
+            {deadmanStatus?.configured && (
               <motion.button
                 onClick={() => checkInMutation.mutate()}
                 disabled={checkInMutation.isPending}
                 className={`px-4 py-2 rounded-lg glass flex items-center gap-2 text-sm transition-all ${
-                  deadmanStatus.needsCheckIn ? 'border border-blood/50 text-blood' : 'text-green-400'
+                  (deadmanStatus.daysUntilDue !== undefined && deadmanStatus.daysUntilDue <= 3) ? 'border border-blood/50 text-blood' : 'text-green-400'
                 }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -185,7 +185,7 @@ export function Dashboard() {
                 ) : (
                   <Shield size={16} />
                 )}
-                {deadmanStatus.needsCheckIn ? 'Check In Required' : 'Protected'}
+                {(deadmanStatus.daysUntilDue !== undefined && deadmanStatus.daysUntilDue <= 3) ? 'Check In Required' : 'Protected'}
               </motion.button>
             )}
 

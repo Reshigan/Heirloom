@@ -103,7 +103,7 @@ familyRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-  const { name, relationship, email, phone, birthDate, notes } = body;
+  const { name, relationship, email, phone, birthDate, notes, avatarUrl } = body;
   
   if (!name || !relationship) {
     return c.json({ error: 'Name and relationship are required' }, 400);
@@ -143,9 +143,9 @@ familyRoutes.post('/', async (c) => {
   const now = new Date().toISOString();
   
   await c.env.DB.prepare(`
-    INSERT INTO family_members (id, user_id, name, relationship, email, phone, birth_date, notes, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, name, relationship, email || null, phone || null, birthDate || null, notes || null, now, now).run();
+    INSERT INTO family_members (id, user_id, name, relationship, email, phone, birth_date, notes, avatar_url, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, userId, name, relationship, email || null, phone || null, birthDate || null, notes || null, avatarUrl || null, now, now).run();
   
   const member = await c.env.DB.prepare(`
     SELECT * FROM family_members WHERE id = ?
@@ -179,7 +179,7 @@ familyRoutes.patch('/:id', async (c) => {
     return c.json({ error: 'Family member not found' }, 404);
   }
   
-  const { name, relationship, email, phone, birthDate, notes } = body;
+  const { name, relationship, email, phone, birthDate, notes, avatarUrl } = body;
   const now = new Date().toISOString();
   
   await c.env.DB.prepare(`
@@ -190,9 +190,10 @@ familyRoutes.patch('/:id', async (c) => {
         phone = COALESCE(?, phone),
         birth_date = COALESCE(?, birth_date),
         notes = COALESCE(?, notes),
+        avatar_url = COALESCE(?, avatar_url),
         updated_at = ?
     WHERE id = ?
-  `).bind(name, relationship, email, phone, birthDate, notes, now, memberId).run();
+  `).bind(name, relationship, email, phone, birthDate, notes, avatarUrl, now, memberId).run();
   
   const member = await c.env.DB.prepare(`
     SELECT * FROM family_members WHERE id = ?
