@@ -204,11 +204,21 @@ billingRoutes.get('/usage', async (c) => {
   
   const totalStorage = ((storageUsage?.total as number) || 0) + ((voiceStorage?.total as number) || 0);
   
+  // Calculate storage in MB for frontend compatibility
+  const storageUsedMB = Math.round(totalStorage / (1024 * 1024));
+  const storageLimitMB = Math.round(limits.maxStorage / (1024 * 1024));
+  const storageUsedPercent = limits.maxStorage > 0 ? (totalStorage / limits.maxStorage) * 100 : 0;
+
   return c.json({
+    // New flat fields for Dashboard compatibility
+    storageUsedMB,
+    storageLimitMB,
+    storageUsedPercent,
+    // Original nested structure for backwards compatibility
     storage: {
       used: totalStorage,
       limit: limits.maxStorage,
-      percentage: limits.maxStorage > 0 ? (totalStorage / limits.maxStorage) * 100 : 0,
+      percentage: storageUsedPercent,
     },
     recipients: {
       used: recipientCount?.count || 0,

@@ -4,7 +4,7 @@ import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Bell, Settings, Shield, Clock, Crown,
-  ChevronRight, X, Check, Loader2, LogOut
+  ChevronRight, X, Check, Loader2, LogOut, Sparkles
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
@@ -188,6 +188,18 @@ export function Dashboard() {
                 {(deadmanStatus.daysUntilDue !== undefined && deadmanStatus.daysUntilDue <= 3) ? 'Check In Required' : 'Protected'}
               </motion.button>
             )}
+
+            {/* Year Wrapped */}
+            <motion.button
+              onClick={() => navigate('/wrapped')}
+              className="px-4 py-2 rounded-lg glass flex items-center gap-2 text-sm text-paper/60 hover:text-gold transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              title="Year Wrapped"
+            >
+              <Sparkles size={16} />
+              <span className="hidden md:inline">Year Wrapped</span>
+            </motion.button>
 
             {/* Notifications */}
             <div className="relative">
