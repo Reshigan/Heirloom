@@ -377,8 +377,8 @@ export function Dashboard() {
                 {/* Desk edge highlight */}
                 <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-amber-600/20 to-transparent" />
 
-                {/* Desk Objects Container */}
-                <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+                {/* Desk Objects Container - z-10 ensures cards are above decorative elements */}
+                <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
                   
                   {/* Photo Stack - Memories */}
                   <motion.button
@@ -574,9 +574,9 @@ export function Dashboard() {
 
                 {/* Decorative Objects */}
                 
-                {/* Ink Bottle */}
+                {/* Ink Bottle - hidden on mobile to prevent overlap */}
                 <motion.div
-                  className="absolute bottom-8 left-8 w-12 h-16"
+                  className="absolute bottom-8 left-8 w-12 h-16 hidden md:block pointer-events-none -z-10"
                   animate={{ y: [0, -3, 0] }}
                   transition={{ duration: 4, repeat: Infinity }}
                   style={{ transformStyle: 'preserve-3d' }}
@@ -603,9 +603,9 @@ export function Dashboard() {
                   />
                 </motion.div>
 
-                {/* Candle */}
+                {/* Candle - hidden on mobile to prevent overlap */}
                 <motion.div
-                  className="absolute top-4 right-8 w-6"
+                  className="absolute top-4 right-8 w-6 hidden md:block pointer-events-none -z-10"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   {/* Flame glow */}
