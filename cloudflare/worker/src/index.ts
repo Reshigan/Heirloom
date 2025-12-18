@@ -336,37 +336,55 @@ async function sendReminderEmails(env: Env) {
 async function sendWarningEmail(env: Env, email: string, name: string, missedCount: number) {
   // Send via Resend with themed template
   const emailContent = urgentCheckInEmail(name, missedCount);
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'Heirloom <noreply@heirloom.blue>',
-      to: email,
-      subject: emailContent.subject,
-      html: emailContent.html,
-    }),
-  });
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: email,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Failed to send warning email to ${email}: ${response.status} - ${errorBody}`);
+    }
+  } catch (error) {
+    console.error(`Error sending warning email to ${email}:`, error);
+  }
 }
 
 async function sendReminderEmail(env: Env, email: string, name: string) {
   // Send via Resend with themed template
   const emailContent = checkInReminderEmail(name, 3);
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'Heirloom <noreply@heirloom.blue>',
-      to: email,
-      subject: emailContent.subject,
-      html: emailContent.html,
-    }),
-  });
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: email,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Failed to send reminder email to ${email}: ${response.status} - ${errorBody}`);
+    }
+  } catch (error) {
+    console.error(`Error sending reminder email to ${email}:`, error);
+  }
 }
 
 async function sendTriggerNotifications(env: Env, userId: string) {
@@ -394,19 +412,28 @@ async function sendTriggerNotifications(env: Env, userId: string) {
       contact.user_name as string,
       token
     );
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: contact.email,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }),
-    });
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: contact.email,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(`Failed to send verification email to ${contact.email}: ${response.status} - ${errorBody}`);
+      }
+    } catch (error) {
+      console.error(`Error sending verification email to ${contact.email}:`, error);
+    }
   }
 }
 
