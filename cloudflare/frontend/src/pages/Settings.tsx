@@ -334,27 +334,24 @@ export function Settings() {
                     </div>
                   )}
 
-                  {limits && (
+                  {limits?.storage && (
                     <div className="space-y-3 mb-6">
-                      {[
-                        { label: 'Memories', data: limits.memories },
-                        { label: 'Voice minutes', data: limits.voice },
-                        { label: 'Letters', data: limits.letters },
-                        { label: 'Storage (MB)', data: limits.storage },
-                      ].map(({ label, data }) => (
-                        <div key={label}>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span className="text-paper/50">{label}</span>
-                            <span>{data.current} / {data.max === -1 ? '∞' : data.max}</span>
-                          </div>
-                          <div className="h-1 bg-white/10 rounded">
-                            <div
-                              className="h-full bg-gold rounded"
-                              style={{ width: `${data.max === -1 ? 0 : Math.min(100, (data.current / data.max) * 100)}%` }}
-                            />
-                          </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-paper/50">Storage</span>
+                          <span>{limits.storage.usedMB} MB / {limits.storage.maxLabel}</span>
                         </div>
-                      ))}
+                        <div className="h-1 bg-white/10 rounded">
+                          <div
+                            className={`h-full rounded ${limits.storage.warning ? 'bg-blood' : 'bg-gold'}`}
+                            style={{ width: `${Math.min(100, limits.storage.percentage)}%` }}
+                          />
+                        </div>
+                        {limits.storage.warning && (
+                          <p className="text-blood text-xs mt-1">Storage is running low. Consider upgrading your plan.</p>
+                        )}
+                      </div>
+                      <p className="text-paper/40 text-xs">All plans include unlimited memories, letters, and voice recordings. Storage is the only limit.</p>
                     </div>
                   )}
                 </div>
@@ -403,7 +400,7 @@ export function Settings() {
                     Configure automatic release of your content to beneficiaries if you don't check in regularly.
                   </p>
 
-                  {deadmanStatus?.enabled ? (
+                  {deadmanStatus?.configured ? (
                     <div className="space-y-6">
                       <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04]">
                         <div>
