@@ -313,6 +313,7 @@ voiceRoutes.patch('/:id', async (c) => {
   const { title, description, transcript, emotion } = body;
   const now = new Date().toISOString();
   
+  // Convert undefined to null for D1 compatibility
   await c.env.DB.prepare(`
     UPDATE voice_recordings 
     SET title = COALESCE(?, title),
@@ -321,7 +322,14 @@ voiceRoutes.patch('/:id', async (c) => {
         emotion = COALESCE(?, emotion),
         updated_at = ?
     WHERE id = ?
-  `).bind(title, description, transcript, emotion, now, recordingId).run();
+  `).bind(
+    title ?? null, 
+    description ?? null, 
+    transcript ?? null, 
+    emotion ?? null, 
+    now, 
+    recordingId
+  ).run();
   
   const recording = await c.env.DB.prepare(`
     SELECT * FROM voice_recordings WHERE id = ?
