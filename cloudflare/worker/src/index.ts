@@ -40,6 +40,9 @@ export interface Env {
   // Durable Objects
   RATE_LIMITER: DurableObjectNamespace;
   
+  // Cloudflare Workers AI
+  AI: Ai;
+  
   // Environment Variables
   ENVIRONMENT: string;
   APP_URL: string;

@@ -36,15 +36,20 @@
     }
   ],
   
-  // Durable Objects (for real-time features)
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "RATE_LIMITER",
-        "class_name": "RateLimiter"
-      }
-    ]
-  },
+    // Durable Objects (for real-time features)
+    "durable_objects": {
+      "bindings": [
+        {
+          "name": "RATE_LIMITER",
+          "class_name": "RateLimiter"
+        }
+      ]
+    },
+  
+    // Cloudflare Workers AI
+    "ai": {
+      "binding": "AI"
+    },
   
   // Migrations for Durable Objects
   "migrations": [

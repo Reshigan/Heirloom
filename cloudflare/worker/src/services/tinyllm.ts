@@ -1,20 +1,13 @@
 /**
  * TinyLLM Service for Cloudflare Workers
  * 
- * Supports two modes:
- * 1. Ollama mode: Uses local Ollama server for AI features (requires OLLAMA_BASE_URL env var)
- * 2. Keyword mode: Uses keyword-based emotion classification as fallback
+ * Uses Cloudflare Workers AI for AI features:
+ * - Emotion classification using text classification models
+ * - Letter suggestions using text generation models
+ * - Audio transcription using Whisper
  * 
- * Set OLLAMA_BASE_URL environment variable to enable Ollama integration.
- * Example: OLLAMA_BASE_URL=http://localhost:11434
+ * Falls back to keyword-based classification if AI is unavailable.
  */
-
-// Configuration for Ollama integration
-export interface OllamaConfig {
-  baseUrl: string;
-  model?: string; // Default: 'llama3.2' or 'mistral'
-  timeout?: number; // Default: 30000ms
-}
 
 export type EmotionType =
   | 'joyful' 
@@ -210,73 +203,49 @@ export function analyzeText(text: string): { emotion: EmotionResult; summary: st
 }
 
 // ============================================
-// OLLAMA INTEGRATION
+// CLOUDFLARE WORKERS AI INTEGRATION
 // ============================================
 
 /**
- * Call Ollama API for text generation
- * Falls back to template-based generation if Ollama is unavailable
+ * Classify emotion using Cloudflare Workers AI
+ * Falls back to keyword-based classification if AI is unavailable
  */
-async function callOllama(
-  config: OllamaConfig,
-  prompt: string,
-  systemPrompt?: string
-): Promise<string | null> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), config.timeout || 30000);
-
-    const response = await fetch(`${config.baseUrl}/api/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: config.model || 'llama3.2',
-        prompt,
-        system: systemPrompt,
-        stream: false,
-      }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      console.error(`Ollama API error: ${response.status}`);
-      return null;
-    }
-
-    const data = await response.json() as { response?: string };
-    return data.response || null;
-  } catch (error) {
-    console.error('Ollama call failed:', error);
-    return null;
-  }
-}
-
-/**
- * Classify emotion using Ollama LLM
- * Falls back to keyword-based classification if Ollama is unavailable
- */
-export async function classifyEmotionWithOllama(
+export async function classifyEmotionWithAI(
   text: string,
-  config?: OllamaConfig
+  ai?: Ai
 ): Promise<EmotionResult> {
-  // If no Ollama config, use keyword-based classification
-  if (!config?.baseUrl) {
+  // If no AI binding, use keyword-based classification
+  if (!ai) {
     return classifyEmotion(text);
   }
 
-  const systemPrompt = `You are an emotion classifier. Analyze the given text and respond with ONLY one of these emotions: joyful, nostalgic, grateful, loving, bittersweet, sad, reflective, proud, peaceful, hopeful. Respond with just the emotion word, nothing else.`;
+  try {
+    // Use Cloudflare's text generation model for emotion classification
+    // Using type assertion as model names may not be in older type definitions
+    const response = await ai.run('@cf/meta/llama-2-7b-chat-int8' as Parameters<typeof ai.run>[0], {
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an emotion classifier. Analyze the given text and respond with ONLY one of these emotions: joyful, nostalgic, grateful, loving, bittersweet, sad, reflective, proud, peaceful, hopeful. Respond with just the emotion word in lowercase, nothing else.'
+        },
+        {
+          role: 'user',
+          content: text.substring(0, 2000) // Limit text length
+        }
+      ],
+      max_tokens: 20
+    });
 
-  const result = await callOllama(config, text, systemPrompt);
-
-  if (result) {
-    const emotion = result.trim().toLowerCase() as EmotionType;
-    const validEmotions: EmotionType[] = ['joyful', 'nostalgic', 'grateful', 'loving', 'bittersweet', 'sad', 'reflective', 'proud', 'peaceful', 'hopeful'];
-    
-    if (validEmotions.includes(emotion)) {
-      return { label: emotion, confidence: 0.85 };
+    if (response && typeof response === 'object' && 'response' in response) {
+      const emotion = (response.response as string).trim().toLowerCase() as EmotionType;
+      const validEmotions: EmotionType[] = ['joyful', 'nostalgic', 'grateful', 'loving', 'bittersweet', 'sad', 'reflective', 'proud', 'peaceful', 'hopeful'];
+      
+      if (validEmotions.includes(emotion)) {
+        return { label: emotion, confidence: 0.85 };
+      }
     }
+  } catch (error) {
+    console.error('Cloudflare AI emotion classification failed:', error);
   }
 
   // Fallback to keyword-based classification
@@ -284,48 +253,58 @@ export async function classifyEmotionWithOllama(
 }
 
 /**
- * Generate letter suggestion using Ollama LLM
- * Falls back to template-based generation if Ollama is unavailable
+ * Generate letter suggestion using Cloudflare Workers AI
+ * Falls back to template-based generation if AI is unavailable
  */
-export async function generateLetterSuggestionWithOllama(
+export async function generateLetterSuggestionWithAI(
   input: LetterSuggestionInput,
-  config?: OllamaConfig
+  ai?: Ai
 ): Promise<LetterSuggestion> {
-  // If no Ollama config, use template-based generation
-  if (!config?.baseUrl) {
+  // If no AI binding, use template-based generation
+  if (!ai) {
     return generateLetterSuggestion(input);
   }
 
   const { recipientName, relationship, occasion, tone } = input;
 
-  const systemPrompt = `You are a heartfelt letter writer helping someone write a meaningful letter to their loved one. Write with genuine emotion and warmth. Keep the letter personal and touching.`;
+  try {
+    // Using type assertion as model names may not be in older type definitions
+    const response = await ai.run('@cf/meta/llama-2-7b-chat-int8' as Parameters<typeof ai.run>[0], {
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a heartfelt letter writer helping someone write a meaningful letter to their loved one. Write with genuine emotion and warmth. Keep the letter personal and touching. Format your response exactly as: SALUTATION: [greeting]\nBODY: [2-3 paragraphs]\nSIGNATURE: [closing]'
+        },
+        {
+          role: 'user',
+          content: `Write a heartfelt letter to ${recipientName}, who is my ${relationship}.${occasion ? ` The occasion is: ${occasion}.` : ''}${tone ? ` The tone should be: ${tone}.` : ''}`
+        }
+      ],
+      max_tokens: 500
+    });
 
-  const prompt = `Write a heartfelt letter to ${recipientName}, who is my ${relationship}.${occasion ? ` The occasion is: ${occasion}.` : ''}${tone ? ` The tone should be: ${tone}.` : ''} 
+    if (response && typeof response === 'object' && 'response' in response) {
+      const result = response.response as string;
+      
+      // Parse the response
+      const salutationMatch = result.match(/SALUTATION:\s*(.+?)(?=\nBODY:|$)/s);
+      const bodyMatch = result.match(/BODY:\s*(.+?)(?=\nSIGNATURE:|$)/s);
+      const signatureMatch = result.match(/SIGNATURE:\s*(.+?)$/s);
 
-Format your response as:
-SALUTATION: [appropriate greeting]
-BODY: [the main letter content, 2-3 paragraphs]
-SIGNATURE: [closing phrase]`;
+      if (salutationMatch && bodyMatch && signatureMatch) {
+        const body = bodyMatch[1].trim();
+        const emotion = classifyEmotion(body);
 
-  const result = await callOllama(config, prompt, systemPrompt);
-
-  if (result) {
-    // Parse the response
-    const salutationMatch = result.match(/SALUTATION:\s*(.+?)(?=BODY:|$)/s);
-    const bodyMatch = result.match(/BODY:\s*(.+?)(?=SIGNATURE:|$)/s);
-    const signatureMatch = result.match(/SIGNATURE:\s*(.+?)$/s);
-
-    if (salutationMatch && bodyMatch && signatureMatch) {
-      const body = bodyMatch[1].trim();
-      const emotion = classifyEmotion(body);
-
-      return {
-        salutation: salutationMatch[1].trim(),
-        body,
-        signature: signatureMatch[1].trim(),
-        emotion: emotion.label,
-      };
+        return {
+          salutation: salutationMatch[1].trim(),
+          body,
+          signature: signatureMatch[1].trim(),
+          emotion: emotion.label,
+        };
+      }
     }
+  } catch (error) {
+    console.error('Cloudflare AI letter generation failed:', error);
   }
 
   // Fallback to template-based generation
@@ -333,31 +312,103 @@ SIGNATURE: [closing phrase]`;
 }
 
 /**
- * Transcribe audio using Ollama (if whisper model is available)
- * This is a placeholder - actual implementation depends on Ollama's audio capabilities
+ * Transcribe audio using Cloudflare Workers AI Whisper model
  */
-export async function transcribeAudioWithOllama(
-  _audioData: ArrayBuffer,
-  _config?: OllamaConfig
+export async function transcribeAudioWithAI(
+  audioData: ArrayBuffer,
+  ai?: Ai
 ): Promise<string | null> {
-  // Note: Ollama doesn't natively support audio transcription
-  // This would require a separate Whisper server or similar
-  // For now, return null to indicate transcription is not available
-  console.log('Audio transcription via Ollama is not yet implemented');
+  if (!ai) {
+    return null;
+  }
+
+  try {
+    const response = await ai.run('@cf/openai/whisper', {
+      audio: [...new Uint8Array(audioData)]
+    });
+
+    if (response && typeof response === 'object' && 'text' in response) {
+      return response.text as string;
+    }
+  } catch (error) {
+    console.error('Cloudflare AI audio transcription failed:', error);
+  }
+
   return null;
 }
 
 /**
- * Create an Ollama config from environment variables
+ * Summarize text using Cloudflare Workers AI
  */
-export function createOllamaConfig(env: { OLLAMA_BASE_URL?: string; OLLAMA_MODEL?: string }): OllamaConfig | undefined {
-  if (!env.OLLAMA_BASE_URL) {
-    return undefined;
+export async function summarizeTextWithAI(
+  text: string,
+  ai?: Ai
+): Promise<string | null> {
+  if (!ai) {
+    return null;
   }
 
-  return {
-    baseUrl: env.OLLAMA_BASE_URL,
-    model: env.OLLAMA_MODEL || 'llama3.2',
-    timeout: 30000,
-  };
+  try {
+    // Using type assertion as model names may not be in older type definitions
+    const response = await ai.run('@cf/meta/llama-2-7b-chat-int8' as Parameters<typeof ai.run>[0], {
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful assistant that summarizes text concisely. Provide a brief 1-2 sentence summary.'
+        },
+        {
+          role: 'user',
+          content: `Summarize this: ${text.substring(0, 3000)}`
+        }
+      ],
+      max_tokens: 100
+    });
+
+    if (response && typeof response === 'object' && 'response' in response) {
+      return response.response as string;
+    }
+  } catch (error) {
+    console.error('Cloudflare AI summarization failed:', error);
+  }
+
+  return null;
+}
+
+// ============================================
+// LEGACY OLLAMA SUPPORT (backwards compatibility)
+// ============================================
+
+export interface OllamaConfig {
+  baseUrl: string;
+  model?: string;
+  timeout?: number;
+}
+
+/** @deprecated Use classifyEmotionWithAI instead */
+export async function classifyEmotionWithOllama(
+  text: string,
+  _config?: OllamaConfig
+): Promise<EmotionResult> {
+  return classifyEmotion(text);
+}
+
+/** @deprecated Use generateLetterSuggestionWithAI instead */
+export async function generateLetterSuggestionWithOllama(
+  input: LetterSuggestionInput,
+  _config?: OllamaConfig
+): Promise<LetterSuggestion> {
+  return generateLetterSuggestion(input);
+}
+
+/** @deprecated Use transcribeAudioWithAI instead */
+export async function transcribeAudioWithOllama(
+  _audioData: ArrayBuffer,
+  _config?: OllamaConfig
+): Promise<string | null> {
+  return null;
+}
+
+/** @deprecated No longer needed - use AI binding directly */
+export function createOllamaConfig(_env: { OLLAMA_BASE_URL?: string; OLLAMA_MODEL?: string }): OllamaConfig | undefined {
+  return undefined;
 }
