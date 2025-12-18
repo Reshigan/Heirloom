@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, Search, Mail, Clock, CheckCircle, AlertCircle,
-  Edit2, Trash2, Send, Calendar, Users, X
+  Edit2, Trash2, Send, Calendar, Users, X, Loader2
 } from 'lucide-react';
 import { lettersApi } from '../services/api';
 
@@ -50,6 +50,14 @@ export function Letters() {
       queryClient.invalidateQueries({ queryKey: ['letters'] });
       setShowDeleteModal(false);
       setLetterToDelete(null);
+    },
+  });
+
+  const sealMutation = useMutation({
+    mutationFn: (id: string) => lettersApi.seal(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['letters'] });
+      setSelectedLetter(null);
     },
   });
 
@@ -380,9 +388,17 @@ export function Letters() {
                   Edit
                 </button>
                 {!selectedLetter.sealedAt && (
-                  <button className="btn btn-primary">
-                    <Send size={16} />
-                    Seal & Send
+                  <button 
+                    onClick={() => sealMutation.mutate(selectedLetter.id)}
+                    disabled={sealMutation.isPending}
+                    className="btn btn-primary"
+                  >
+                    {sealMutation.isPending ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Send size={16} />
+                    )}
+                    {sealMutation.isPending ? 'Sealing...' : 'Seal & Send'}
                   </button>
                 )}
               </div>

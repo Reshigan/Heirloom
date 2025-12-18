@@ -145,7 +145,10 @@ export const settingsApi = {
 export const deadmanApi = {
   getStatus: () => api.get('/deadman/status'),
   configure: (data: { intervalDays: number; gracePeriodDays?: number }) =>
-    api.post('/deadman/configure', data),
+    api.post('/deadman/configure', { 
+      checkInIntervalDays: data.intervalDays, 
+      gracePeriodDays: data.gracePeriodDays 
+    }),
   checkIn: () => api.post('/deadman/checkin'),
   cancel: (password: string) => api.post('/deadman/cancel', { password }),
   disable: () => api.post('/deadman/disable'),

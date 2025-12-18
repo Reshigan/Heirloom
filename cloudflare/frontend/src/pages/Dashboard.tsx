@@ -484,88 +484,6 @@ export function Dashboard() {
                     <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
                   </motion.button>
 
-                  {/* Vintage Recorder - Voice */}
-                  <motion.button
-                    onClick={() => navigate('/record')}
-                    className="group relative"
-                    whileHover={{ scale: 1.05, y: -10 }}
-                    whileTap={{ scale: 0.98 }}
-                    style={{ transformStyle: 'preserve-3d' }}
-                  >
-                    <div className="relative w-full aspect-[4/5]">
-                      {/* Recorder body */}
-                      <div 
-                        className="absolute inset-0 rounded-xl"
-                        style={{
-                          background: 'linear-gradient(180deg, #2a2520 0%, #1a1510 50%, #0f0d0a 100%)',
-                          boxShadow: '0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
-                        }}
-                      >
-                        {/* Chrome trim */}
-                        <div className="absolute top-2 left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-gold/40 to-transparent rounded-full" />
-                        
-                        {/* Reels */}
-                        <div className="absolute top-6 left-0 right-0 flex justify-center gap-6">
-                          {[0, 1].map((i) => (
-                            <motion.div
-                              key={i}
-                              className="relative"
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                            >
-                              <div 
-                                className="w-12 h-12 rounded-full"
-                                style={{
-                                  background: 'radial-gradient(circle at 30% 30%, #4a4540 0%, #2a2520 50%, #1a1510 100%)',
-                                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
-                                }}
-                              >
-                                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-gold/10 to-transparent" />
-                                <div className="absolute inset-4 rounded-full bg-void" />
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                        
-                        {/* VU Meter */}
-                        <div 
-                          className="absolute bottom-12 left-4 right-4 h-8 rounded"
-                          style={{
-                            background: '#0a0908',
-                            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.8)',
-                          }}
-                        >
-                          <div className="absolute inset-1 flex items-end justify-center gap-0.5">
-                            {[...Array(12)].map((_, i) => (
-                              <motion.div
-                                key={i}
-                                className="w-1 rounded-sm"
-                                style={{
-                                  background: i < 8 ? '#22c55e' : i < 10 ? '#eab308' : '#ef4444',
-                                }}
-                                animate={{ height: ['20%', `${30 + Math.random() * 70}%`, '20%'] }}
-                                transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.05 }}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {/* Control buttons */}
-                        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-blood shadow-lg" />
-                          <div className="w-6 h-6 rounded bg-gray-700 shadow-lg" />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors">Record Voice</h3>
-                      <p className="text-sm text-paper/50">{stats?.totalVoiceMinutes || 0} minutes</p>
-                    </div>
-                    
-                    <div className="absolute -inset-4 rounded-2xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
-                  </motion.button>
-
                   {/* Family Frame */}
                   <motion.button
                     onClick={() => navigate('/family')}
@@ -660,17 +578,6 @@ export function Dashboard() {
                       boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
                     }}
                   />
-                </motion.div>
-
-                {/* Wax Seal */}
-                <motion.div
-                  className="absolute bottom-8 right-8"
-                  animate={{ rotate: [0, 2, 0, -2, 0] }}
-                  transition={{ duration: 6, repeat: Infinity }}
-                >
-                  <div className="wax-seal w-14 h-14">
-                    <span className="text-lg">∞</span>
-                  </div>
                 </motion.div>
 
                 {/* Candle */}

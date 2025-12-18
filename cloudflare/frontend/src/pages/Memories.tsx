@@ -96,6 +96,8 @@ export function Memories() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memories'] });
+      queryClient.invalidateQueries({ queryKey: ['memories-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['limits'] });
       setShowUploadModal(false);
       setForm({ title: '', description: '', type: 'PHOTO', file: null, recipientIds: [] });
       setUploadProgress(0);
