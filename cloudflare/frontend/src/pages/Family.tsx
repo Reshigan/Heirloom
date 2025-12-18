@@ -302,7 +302,7 @@ export function Family() {
               );
             })}
 
-            {/* Add button */}
+            {/* Add button - positioned prominently in top right */}
             <motion.button
               onClick={() => {
                 setEditingId(null);
@@ -310,14 +310,15 @@ export function Family() {
                 setErrors({});
                 setShowAddModal(true);
               }}
-              className="absolute bottom-0 right-0 w-14 h-14 rounded-full glass border border-dashed border-gold/30 flex items-center justify-center text-gold/50 hover:text-gold hover:border-gold hover:bg-gold/10 transition-all"
-              whileHover={{ scale: 1.1, rotate: 90 }}
+              className="absolute top-0 right-0 px-4 py-2 rounded-full glass border border-gold/30 flex items-center gap-2 text-gold hover:bg-gold/10 transition-all"
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              <Plus size={24} />
+              <Plus size={20} />
+              <span className="text-sm font-medium">Add Family Member</span>
             </motion.button>
 
             {/* Empty state */}
