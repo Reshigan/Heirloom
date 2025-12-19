@@ -829,16 +829,16 @@ export function Dashboard() {
                 <h3 className="text-paper/70">Storage Used</h3>
                 <span className="badge badge-gold">{subscription?.tier || 'Trial'}</span>
               </div>
-              <div className="progress-bar mb-2">
-                <div 
-                  className="progress-bar-fill" 
-                  style={{ width: `${limits?.storageUsedPercent || 0}%` }} 
-                />
-              </div>
-              <div className="flex justify-between text-sm text-paper/50">
-                <span>{limits?.storageUsedMB || 0} MB used</span>
-                <span>{limits?.storageLimitMB || 100} MB limit</span>
-              </div>
+                <div className="progress-bar mb-2">
+                  <div 
+                    className="progress-bar-fill" 
+                    style={{ width: `${limits?.storage?.percentage ?? limits?.storageUsedPercent ?? 0}%` }} 
+                  />
+                </div>
+                <div className="flex justify-between text-sm text-paper/50">
+                  <span>{limits?.storage?.usedMB ?? limits?.storageUsedMB ?? 0} MB used</span>
+                  <span>{limits?.storage?.maxLabel ?? limits?.storageLimitMB ?? '100 MB'} limit</span>
+                </div>
             </div>
 
             {/* Dead Man's Switch */}

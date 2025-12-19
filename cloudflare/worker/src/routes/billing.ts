@@ -298,14 +298,23 @@ billingRoutes.get('/subscription', async (c) => {
   const sub = await c.env.DB.prepare('SELECT * FROM subscriptions WHERE user_id = ?').bind(userId).first();
   
   if (!sub) {
-    return c.json({ tier: 'STARTER', status: 'ACTIVE', storage: '500 MB', limits: TIER_LIMITS.STARTER });
+    return c.json({ tier: 'STARTER', status: 'ACTIVE', storage: '500 MB', limits: TIER_LIMITS.STARTER, trialDaysRemaining: 0 });
   }
   
   const tier = normalizeTier(sub.tier as string);
+  
+  let trialDaysRemaining = 0;
+  if (sub.status === 'TRIALING' && sub.trial_ends_at) {
+    const trialEnd = new Date(sub.trial_ends_at as string);
+    const now = new Date();
+    trialDaysRemaining = Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+  }
+  
   return c.json({
     id: sub.id, tier, status: sub.status, billingCycle: sub.billing_cycle,
     currentPeriodEnd: sub.current_period_end, cancelAtPeriodEnd: !!sub.cancel_at_period_end,
     storage: TIER_LIMITS[tier].maxStorageLabel, limits: TIER_LIMITS[tier],
+    trialDaysRemaining,
   });
 });
 
@@ -314,19 +323,36 @@ billingRoutes.get('/limits', async (c) => {
   const userId = c.get('userId');
   const sub = await c.env.DB.prepare('SELECT tier FROM subscriptions WHERE user_id = ?').bind(userId).first();
   const tier = normalizeTier(sub?.tier as string || 'STARTER');
-  const limits = TIER_LIMITS[tier];
+  const tierLimits = TIER_LIMITS[tier];
   
-  const memories = await c.env.DB.prepare('SELECT COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?').bind(userId).first();
-  const voice = await c.env.DB.prepare('SELECT COALESCE(SUM(file_size), 0) as total FROM voice_recordings WHERE user_id = ?').bind(userId).first();
+  const memoriesResult = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?').bind(userId).first();
+  const voiceResult = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(duration), 0) as totalMinutes, COALESCE(SUM(file_size), 0) as total FROM voice_recordings WHERE user_id = ?').bind(userId).first();
+  const lettersResult = await c.env.DB.prepare('SELECT COUNT(*) as count FROM letters WHERE user_id = ?').bind(userId).first();
   
-  const usedBytes = ((memories?.total as number) || 0) + ((voice?.total as number) || 0);
-  const percentage = Math.round((usedBytes / limits.maxStorage) * 100);
+  const usedBytes = ((memoriesResult?.total as number) || 0) + ((voiceResult?.total as number) || 0);
+  const percentage = Math.round((usedBytes / tierLimits.maxStorage) * 100);
+  const usedMB = Math.round(usedBytes / (1024 * 1024));
+  const maxMB = Math.round(tierLimits.maxStorage / (1024 * 1024));
   
   return c.json({
     tier,
+    memories: {
+      current: (memoriesResult?.count as number) || 0,
+      max: -1,
+    },
+    voice: {
+      current: Math.round(((voiceResult?.totalMinutes as number) || 0) / 60),
+      max: -1,
+    },
+    letters: {
+      current: (lettersResult?.count as number) || 0,
+      max: -1,
+    },
     storage: {
-      usedMB: Math.round(usedBytes / (1024 * 1024)),
-      maxLabel: limits.maxStorageLabel,
+      current: usedMB,
+      max: maxMB,
+      usedMB,
+      maxLabel: tierLimits.maxStorageLabel,
       percentage,
       warning: percentage > 80,
       full: percentage >= 100,

@@ -23,6 +23,8 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import Wrapped from './pages/Wrapped';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
+import { Inherit } from './pages/Inherit';
+import { NotFound } from './pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +56,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/inherit/:token" element={<Inherit />} />
           <Route
             path="/login"
             element={
@@ -173,8 +176,8 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Catch all - 404 page */}
+          <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
