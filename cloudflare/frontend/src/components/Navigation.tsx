@@ -121,22 +121,22 @@ export function Navigation() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop - z-[60] to cover the nav bar (z-50) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-void/80 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-void/80 backdrop-blur-sm z-[60] md:hidden"
               onClick={() => setMobileMenuOpen(false)}
             />
             
-            {/* Drawer */}
+            {/* Drawer - z-[70] to be above backdrop */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-72 bg-void-deep border-l border-gold/20 z-50 md:hidden flex flex-col"
+              className="fixed top-0 right-0 bottom-0 w-72 bg-void-deep border-l border-gold/20 z-[70] md:hidden flex flex-col"
             >
               {/* Close button */}
               <div className="flex justify-end p-4">
