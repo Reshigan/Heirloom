@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe, Check, ArrowUp, ArrowDown, Tag, Camera } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
+import { Navigation } from '../components/Navigation';
 
 // Mass-Adoption Pricing: $1 / $2 / $5
 const SUBSCRIPTION_PLANS = [
@@ -46,10 +47,23 @@ const CURRENCIES = [
 
 export function Settings() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user, updateUser, logout } = useAuthStore();
 
-    const [activeTab, setActiveTab] = useState<string>('profile');
+  // Valid tab IDs
+  const validTabs = ['profile', 'subscription', 'deadman', 'encryption', 'notifications', 'security'];
+  
+  // Initialize activeTab from URL parameter or default to 'profile'
+  const tabFromUrl = searchParams.get('tab');
+  const initialTab = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'profile';
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
+  
+  // Update URL when tab changes
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId });
+  };
     const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
     const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
     const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
@@ -66,6 +80,10 @@ export function Settings() {
     
         // Status messages for user feedback
         const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+        
+        // Delete account modal state
+        const [showDeleteModal, setShowDeleteModal] = useState(false);
+        const [deletePassword, setDeletePassword] = useState('');
   
         // Avatar upload state
         const [showAvatarCropper, setShowAvatarCropper] = useState(false);
@@ -333,6 +351,8 @@ export function Settings() {
         <div className="sanctuary-mist" />
       </div>
 
+      <Navigation />
+
       <div className="relative z-10 px-6 md:px-12 py-12">
       <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
         <ArrowLeft size={20} />
@@ -348,7 +368,7 @@ export function Settings() {
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => setActiveTab(id)}
+                onClick={() => handleTabChange(id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${
                   activeTab === id ? 'bg-gold/10 text-gold border-l-2 border-gold' : 'text-paper/50 hover:text-gold'
                 }`}
@@ -811,10 +831,7 @@ export function Settings() {
                   <h3 className="text-lg text-blood mb-2">Danger Zone</h3>
                   <p className="text-paper/50 text-sm mb-4">Once you delete your account, there is no going back.</p>
                   <button
-                    onClick={() => {
-                      const password = prompt('Enter your password to confirm deletion:');
-                      if (password) deleteAccountMutation.mutate(password);
-                    }}
+                    onClick={() => setShowDeleteModal(true)}
                     className="btn border border-blood text-blood hover:bg-blood/10 flex items-center gap-2"
                   >
                     <Trash2 size={16} />
@@ -839,6 +856,69 @@ export function Settings() {
         onComplete={handleAvatarCropComplete}
         isUploading={isUploadingAvatar}
       />
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-void-light border border-blood/30 rounded-2xl p-8 max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-blood/20 flex items-center justify-center mx-auto mb-4">
+                <Trash2 size={32} className="text-blood" />
+              </div>
+              <h3 className="text-2xl font-serif text-paper mb-2">Delete Account?</h3>
+              <p className="text-paper/60 text-sm">
+                This action cannot be undone. All your memories, letters, and data will be permanently deleted.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-paper/60 mb-2">Enter your password to confirm</label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Your password"
+                  className="input w-full"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeletePassword('');
+                  }}
+                  className="flex-1 px-4 py-3 bg-void border border-gold/20 rounded-xl text-paper/80 hover:border-gold/40 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (deletePassword) {
+                      deleteAccountMutation.mutate(deletePassword);
+                      setShowDeleteModal(false);
+                      setDeletePassword('');
+                    }
+                  }}
+                  disabled={!deletePassword || deleteAccountMutation.isPending}
+                  className="flex-1 px-4 py-3 bg-blood text-paper font-semibold rounded-xl hover:bg-blood/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {deleteAccountMutation.isPending ? (
+                    <span>Deleting...</span>
+                  ) : (
+                    <>
+                      <Trash2 size={16} />
+                      <span>Delete Forever</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

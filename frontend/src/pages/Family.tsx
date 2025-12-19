@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, X, Pen, Trash2, Mail, Phone, Heart, Users, Check, AlertCircle, Camera } from 'lucide-react';
 import { familyApi, settingsApi } from '../services/api';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
+import { Navigation } from '../components/Navigation';
 
 const RELATIONSHIPS = ['Spouse', 'Partner', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Grandparent', 'Friend', 'Other'];
 
@@ -174,6 +175,8 @@ export function Family() {
         <div className="sanctuary-stars" />
         <div className="sanctuary-mist" />
       </div>
+
+      <Navigation />
 
       {/* Animated constellation stars */}
       <div className="fixed inset-0 pointer-events-none">

@@ -7,6 +7,7 @@ import {
   CreditCard, Loader2, AlertTriangle, X, Zap
 } from 'lucide-react';
 import { billingApi } from '../services/api';
+import { Navigation } from '../components/Navigation';
 
 const PLANS = [
   {
@@ -116,6 +117,8 @@ export function Billing() {
         <div className="sanctuary-stars" />
         <div className="sanctuary-mist" />
       </div>
+
+      <Navigation />
 
       {/* Floating particles */}
       <div className="fixed inset-0 pointer-events-none">
