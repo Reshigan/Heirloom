@@ -184,7 +184,7 @@ const TotalMemoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ type: 'spring', delay: 0.3 }}
       className="relative"
     >
-      <span className="text-9xl md:text-[12rem] font-display text-gold">
+      <span className="text-6xl sm:text-8xl md:text-[12rem] font-display text-gold">
         {stats.totalMemories}
       </span>
       <motion.div
@@ -257,7 +257,7 @@ const VoiceStoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ delay: 0.5, type: 'spring' }}
       className="flex items-baseline gap-4"
     >
-      <span className="text-8xl font-display text-gold">{stats.totalVoiceStories}</span>
+      <span className="text-5xl sm:text-7xl md:text-8xl font-display text-gold">{stats.totalVoiceStories}</span>
       <span className="text-3xl text-paper">stories</span>
     </motion.div>
     <motion.p
@@ -431,7 +431,7 @@ const StreakSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ rotate: -180, scale: 0 }}
       animate={{ rotate: 0, scale: 1 }}
       transition={{ type: 'spring', duration: 1 }}
-      className="text-8xl mb-8"
+      className="text-5xl sm:text-7xl md:text-8xl mb-8"
     >
       🔥
     </motion.div>
@@ -449,7 +449,7 @@ const StreakSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ type: 'spring', delay: 0.5 }}
       className="flex items-baseline gap-2"
     >
-      <span className="text-8xl font-display text-gold">{stats.longestStreak}</span>
+      <span className="text-5xl sm:text-7xl md:text-8xl font-display text-gold">{stats.longestStreak}</span>
       <span className="text-3xl text-paper">days</span>
     </motion.div>
     <motion.p
@@ -538,7 +538,7 @@ const LettersSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ type: 'spring', delay: 0.5 }}
       className="flex items-baseline gap-2"
     >
-      <span className="text-8xl font-display text-gold">{stats.totalLetters}</span>
+      <span className="text-5xl sm:text-7xl md:text-8xl font-display text-gold">{stats.totalLetters}</span>
       <span className="text-3xl text-paper">letters</span>
     </motion.div>
     <motion.p

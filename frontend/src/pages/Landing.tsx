@@ -110,7 +110,7 @@ export function Landing() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-light leading-[1.1] mb-8"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light leading-[1.1] mb-8"
           >
             Your memories deserve
             <br />

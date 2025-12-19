@@ -837,6 +837,9 @@ em {
   position: fixed;
   bottom: 24px;
   right: 24px;
+  left: 24px;
+  max-width: 400px;
+  margin-left: auto;
   padding: 16px 24px;
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -845,6 +848,12 @@ em {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   animation: slide-in-right 0.3s ease-out;
   z-index: 1001;
+}
+
+@media (min-width: 768px) {
+  .toast {
+    left: auto;
+  }
 }
 
 .toast-success { border-left: 3px solid #22c55e; }
@@ -924,6 +933,17 @@ em {
   }
 }
 
+/* Global focus styles for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   h1 { font-size: 2.5rem; }
@@ -931,4 +951,14 @@ em {
   
   .card { padding: 20px; }
   .btn { padding: 12px 20px; }
+  
+  /* Reduce sanctuary background animations on mobile for performance */
+  .sanctuary-orb {
+    animation: none;
+    opacity: 0.4;
+  }
+  
+  .sanctuary-stars {
+    animation: none;
+  }
 }
