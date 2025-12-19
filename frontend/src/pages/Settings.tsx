@@ -676,7 +676,7 @@ export function Settings() {
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input
                       type="text"
                       placeholder="Name"

@@ -242,7 +242,7 @@ export function Family() {
           </motion.div>
 
           {/* Constellation View - outer relative wrapper for positioning */}
-          <div className="relative h-[600px] mb-12">
+          <div className="relative h-[calc(100vh-200px)] min-h-[400px] max-h-[600px] mb-12">
             {/* Inner flex container for centering constellation content */}
             <div className="flex h-full items-center justify-center">
               {/* Connection lines */}

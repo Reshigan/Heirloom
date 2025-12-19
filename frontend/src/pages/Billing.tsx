@@ -236,7 +236,7 @@ export function Billing() {
         </motion.div>
 
         {/* Plans Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           {PLANS.map((plan, index) => {
             const Icon = plan.icon;
             const isCurrent = isCurrentPlan(plan.id);

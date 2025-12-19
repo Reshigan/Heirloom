@@ -756,8 +756,8 @@ const Wrapped: React.FC = () => {
         ))}
       </div>
 
-      {/* Year Slider */}
-      <div className="absolute top-8 left-8 flex items-center gap-3 z-50">
+      {/* Year Slider - positioned below progress dots on mobile */}
+      <div className="absolute top-20 sm:top-8 left-4 sm:left-8 flex items-center gap-2 sm:gap-3 z-50">
         <button
           onClick={() => {
             const idx = availableYears.indexOf(selectedYear);
