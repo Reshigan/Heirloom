@@ -7,6 +7,7 @@ import {
   MoreVertical, Edit2, Trash2, Eye, Send, Calendar, Users, X
 } from 'lucide-react';
 import { lettersApi } from '../services/api';
+import { Logo } from '../components/Logo';
 
 type DeliveryTrigger = 'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS';
 type FilterType = 'all' | 'drafts' | 'scheduled' | 'sent';
@@ -115,24 +116,11 @@ export function Letters() {
       {/* Header */}
       <header className="relative z-20 px-6 md:px-12 py-6">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <motion.div 
-            className="flex items-center gap-3 cursor-pointer"
-            onClick={() => navigate('/dashboard')}
-            whileHover={{ scale: 1.02 }}
-          >
-            <motion.span 
-              className="text-3xl text-gold"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            >
-              ∞
-            </motion.span>
-            <span className="text-xl tracking-[0.15em] text-paper/80">HEIRLOOM</span>
-          </motion.div>
+          <Logo size="md" />
 
           <motion.button
             onClick={() => navigate('/compose')}
-            className="btn btn-primary"
+            className="btn btn-primary flex items-center gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >

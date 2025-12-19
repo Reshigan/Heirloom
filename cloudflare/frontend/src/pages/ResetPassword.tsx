@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Loader2, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 import { authApi } from '../services/api';
 
 export function ResetPassword() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-
+  
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -17,17 +17,23 @@ export function ResetPassword() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  useEffect(() => {
+    if (!token) {
+      setError('Invalid reset link. Please request a new password reset.');
+    }
+  }, [token]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
@@ -36,50 +42,14 @@ export function ResetPassword() {
     try {
       await authApi.resetPassword({ token: token!, password });
       setSuccess(true);
+      // Redirect to login after 3 seconds
       setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Something went wrong. Your reset link may have expired.');
+      setError(err.response?.data?.error || 'Failed to reset password. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (!token) {
-    return (
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
-        {/* Sanctuary Background */}
-        <div className="sanctuary-bg">
-          <div className="sanctuary-orb sanctuary-orb-1" />
-          <div className="sanctuary-orb sanctuary-orb-2" />
-          <div className="sanctuary-orb sanctuary-orb-3" />
-          <div className="sanctuary-stars" />
-          <div className="sanctuary-mist" />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative w-full max-w-md"
-        >
-          <div className="absolute -inset-4 bg-gold/5 blur-3xl rounded-full" />
-          
-          <div className="card glass-strong relative text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blood/10 flex items-center justify-center">
-              <AlertCircle size={32} className="text-blood" />
-            </div>
-            <h1 className="text-2xl font-light mb-4">Invalid reset link</h1>
-            <p className="text-paper/50 mb-8">
-              This password reset link is invalid or has expired.
-            </p>
-            <Link to="/forgot-password" className="btn btn-primary">
-              Request a new link
-            </Link>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
@@ -94,7 +64,7 @@ export function ResetPassword() {
 
       {/* Floating particles */}
       <div className="fixed inset-0 pointer-events-none">
-        {[...Array(50)].map((_, i) => (
+        {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 rounded-full bg-gold/30"
@@ -143,28 +113,51 @@ export function ResetPassword() {
                   animate={{ rotate: [0, 360] }}
                   transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
                 >
-                  &#8734;
+                  ∞
                 </motion.div>
                 <span className="text-lg tracking-[0.2em] text-paper/60">HEIRLOOM</span>
               </Link>
             </motion.div>
 
-            {success ? (
+            {!token ? (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blood/10 flex items-center justify-center">
+                  <AlertCircle className="w-8 h-8 text-blood" />
+                </div>
+                <h1 className="text-2xl font-light mb-4">Invalid Reset Link</h1>
+                <p className="text-paper/60 mb-8">
+                  This password reset link is invalid or has expired.
+                </p>
+                <Link 
+                  to="/forgot-password" 
+                  className="btn btn-primary inline-flex items-center gap-2"
+                >
+                  Request New Link
+                </Link>
+              </motion.div>
+            ) : success ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center"
               >
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gold/10 flex items-center justify-center">
-                  <CheckCircle size={32} className="text-gold" />
+                  <CheckCircle className="w-8 h-8 text-gold" />
                 </div>
-                <h1 className="text-2xl font-light mb-4">Password reset!</h1>
-                <p className="text-paper/50 mb-4">
-                  Your password has been reset successfully.
+                <h1 className="text-2xl font-light mb-4">Password Reset!</h1>
+                <p className="text-paper/60 mb-8">
+                  Your password has been successfully reset. Redirecting you to login...
                 </p>
-                <p className="text-paper/30 text-sm">
-                  Redirecting to login...
-                </p>
+                <Link 
+                  to="/login" 
+                  className="btn btn-primary inline-flex items-center gap-2"
+                >
+                  Go to Login
+                </Link>
               </motion.div>
             ) : (
               <>
@@ -173,9 +166,9 @@ export function ResetPassword() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <h1 className="text-2xl font-light text-center mb-2">Reset password</h1>
+                  <h1 className="text-2xl font-light text-center mb-2">Reset your password</h1>
                   <p className="text-paper/50 text-center mb-8">
-                    Choose a new password for your account
+                    Enter your new password below
                   </p>
                 </motion.div>
 
@@ -191,14 +184,14 @@ export function ResetPassword() {
                   )}
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">New password</label>
+                    <label className="block text-sm text-paper/50 mb-2">New Password</label>
                     <div className="relative">
                       <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="At least 8 characters"
+                        placeholder="••••••••"
                         className="input pl-12 pr-12"
                         required
                         minLength={8}
@@ -211,17 +204,18 @@ export function ResetPassword() {
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
+                    <p className="text-xs text-paper/40 mt-1">Must be at least 8 characters</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">Confirm password</label>
+                    <label className="block text-sm text-paper/50 mb-2">Confirm Password</label>
                     <div className="relative">
                       <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm your password"
+                        placeholder="••••••••"
                         className="input pl-12 pr-12"
                         required
                       />
@@ -245,17 +239,17 @@ export function ResetPassword() {
                     {isLoading ? (
                       <Loader2 size={20} className="animate-spin" />
                     ) : (
-                      'Reset password'
+                      'Reset Password'
                     )}
                   </motion.button>
                 </form>
 
                 <div className="mt-8 text-center">
-                  <Link
-                    to="/login"
+                  <Link 
+                    to="/login" 
                     className="text-paper/50 hover:text-paper transition-colors"
                   >
-                    Back to login
+                    Back to Login
                   </Link>
                 </div>
               </>

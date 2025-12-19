@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, Search, Mail, Clock, CheckCircle, AlertCircle,
-  Edit2, Trash2, Send, Calendar, Users, X, Loader2
+  Edit2, Trash2, Send, Calendar, Users, X
 } from 'lucide-react';
 import { lettersApi } from '../services/api';
+import { Logo } from '../components/Logo';
 
 type DeliveryTrigger = 'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS';
 type FilterType = 'all' | 'drafts' | 'scheduled' | 'sent';
@@ -41,7 +42,7 @@ export function Letters() {
 
   const { data: letters, isLoading } = useQuery({
     queryKey: ['letters'],
-    queryFn: () => lettersApi.getAll().then(r => r.data?.data || []),
+    queryFn: () => lettersApi.getAll().then(r => r.data),
   });
 
   const deleteMutation = useMutation({
@@ -53,17 +54,9 @@ export function Letters() {
     },
   });
 
-  const sealMutation = useMutation({
-    mutationFn: (id: string) => lettersApi.seal(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['letters'] });
-      setSelectedLetter(null);
-    },
-  });
-
   const filteredLetters = letters?.filter((letter: Letter) => {
     const matchesSearch = letter.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      letter.body?.toLowerCase().includes(searchQuery.toLowerCase());
+      letter.body.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (filter === 'all') return matchesSearch;
     if (filter === 'drafts') return matchesSearch && !letter.sealedAt;
@@ -123,24 +116,11 @@ export function Letters() {
       {/* Header */}
       <header className="relative z-20 px-6 md:px-12 py-6">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <motion.div 
-            className="flex items-center gap-3 cursor-pointer"
-            onClick={() => navigate('/dashboard')}
-            whileHover={{ scale: 1.02 }}
-          >
-            <motion.span 
-              className="text-3xl text-gold"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            >
-              ∞
-            </motion.span>
-            <span className="text-xl tracking-[0.15em] text-paper/80">HEIRLOOM</span>
-          </motion.div>
+          <Logo size="md" />
 
           <motion.button
             onClick={() => navigate('/compose')}
-            className="btn btn-primary"
+            className="btn btn-primary flex items-center gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -388,17 +368,9 @@ export function Letters() {
                   Edit
                 </button>
                 {!selectedLetter.sealedAt && (
-                  <button 
-                    onClick={() => sealMutation.mutate(selectedLetter.id)}
-                    disabled={sealMutation.isPending}
-                    className="btn btn-primary"
-                  >
-                    {sealMutation.isPending ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <Send size={16} />
-                    )}
-                    {sealMutation.isPending ? 'Sealing...' : 'Seal & Send'}
+                  <button className="btn btn-primary">
+                    <Send size={16} />
+                    Seal & Send
                   </button>
                 )}
               </div>
