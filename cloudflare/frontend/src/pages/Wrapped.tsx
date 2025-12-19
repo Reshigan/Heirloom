@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { wrappedApi } from '../services/api';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
 // Types for wrapped data
 interface WrappedStats {
@@ -153,12 +153,12 @@ const IntroSlide: React.FC<{ year: number }> = ({ year }) => (
       transition={{ delay: 1.2, type: 'spring' }}
       className="mt-12 flex items-center gap-2 text-gold"
     >
-      <span className="text-sm uppercase tracking-widest">Swipe to begin</span>
+      <span className="text-sm uppercase tracking-widest">Tap to continue</span>
       <motion.span
-        animate={{ x: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ repeat: Infinity, duration: 2 }}
       >
-        →
+        ▶
       </motion.span>
     </motion.div>
   </motion.div>
@@ -622,11 +622,17 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
   </motion.div>
 );
 
+// Slide duration in milliseconds (like Spotify stories)
+const SLIDE_DURATION = 6000;
+
 // Main Wrapped component
 const Wrapped: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
@@ -678,14 +684,51 @@ const Wrapped: React.FC = () => {
     <SummarySlide key="summary" stats={stats} year={year} />,
   ];
 
-  // Auto-advance slides
+  // Progress bar and auto-advance logic (Spotify-style)
   useEffect(() => {
-    if (!isAutoPlaying) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev < slides.length - 1 ? prev + 1 : prev));
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [isAutoPlaying, slides.length]);
+    // Clear any existing interval
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+
+    if (!isAutoPlaying) {
+      return;
+    }
+
+    // Reset progress when slide changes
+    setProgress(0);
+
+    // Update progress every 50ms for smooth animation
+    const progressStep = (50 / SLIDE_DURATION) * 100;
+    progressIntervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          // Move to next slide when progress completes
+          setCurrentSlide((currentSlide) => {
+            if (currentSlide < slides.length - 1) {
+              return currentSlide + 1;
+            }
+            // Stop auto-play at the end
+            setIsAutoPlaying(false);
+            return currentSlide;
+          });
+          return 0;
+        }
+        return prev + progressStep;
+      });
+    }, 50);
+
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, [isAutoPlaying, currentSlide, slides.length]);
+
+  // Toggle play/pause
+  const togglePlayPause = useCallback(() => {
+    setIsAutoPlaying((prev) => !prev);
+  }, []);
 
   // Touch/swipe handling
   const x = useMotionValue(0);
@@ -790,23 +833,29 @@ const Wrapped: React.FC = () => {
         </button>
       </div>
 
-      {/* Progress dots */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 flex gap-2 z-50">
+      {/* Spotify-style progress bars */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 flex gap-1.5 z-50 px-4 max-w-md w-full">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => {
               setCurrentSlide(index);
-              setIsAutoPlaying(false);
+              setProgress(0);
+              setIsAutoPlaying(true);
             }}
-            className={`h-1 rounded-full transition-all ${
-              index === currentSlide
-                ? 'w-8 bg-gold'
-                : index < currentSlide
-                ? 'w-4 bg-gold/50'
-                : 'w-4 bg-paper/20'
-            }`}
-          />
+            className="flex-1 h-1 bg-paper/20 rounded-full overflow-hidden relative"
+          >
+            <div
+              className="absolute inset-y-0 left-0 bg-gold rounded-full transition-all duration-75"
+              style={{
+                width: index < currentSlide 
+                  ? '100%' 
+                  : index === currentSlide 
+                    ? `${progress}%` 
+                    : '0%'
+              }}
+            />
+          </button>
         ))}
       </div>
 
@@ -833,13 +882,14 @@ const Wrapped: React.FC = () => {
         </AnimatePresence>
       </motion.div>
 
-      {/* Navigation arrows */}
-      <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-4 z-50">
+      {/* Spotify-style controls */}
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-4 z-50">
+        {/* Previous button */}
         <button
           onClick={() => {
             if (currentSlide > 0) {
               setCurrentSlide(currentSlide - 1);
-              setIsAutoPlaying(false);
+              setProgress(0);
             }
           }}
           disabled={currentSlide === 0}
@@ -849,13 +899,23 @@ const Wrapped: React.FC = () => {
               : 'border-paper/30 text-paper hover:bg-paper/10'
           }`}
         >
-          ←
+          <ChevronLeft size={20} />
         </button>
+
+        {/* Play/Pause button (center, larger) */}
+        <button
+          onClick={togglePlayPause}
+          className="p-4 rounded-full bg-gold text-void-deep hover:bg-gold-bright transition-all shadow-lg"
+        >
+          {isAutoPlaying ? <Pause size={24} /> : <Play size={24} className="ml-0.5" />}
+        </button>
+
+        {/* Next button */}
         <button
           onClick={() => {
             if (currentSlide < slides.length - 1) {
               setCurrentSlide(currentSlide + 1);
-              setIsAutoPlaying(false);
+              setProgress(0);
             }
           }}
           disabled={currentSlide === slides.length - 1}
@@ -865,7 +925,15 @@ const Wrapped: React.FC = () => {
               : 'border-paper/30 text-paper hover:bg-paper/10'
           }`}
         >
-          →
+          <ChevronRight size={20} />
+        </button>
+
+        {/* Mute button (for future audio support) */}
+        <button
+          onClick={() => setIsMuted(!isMuted)}
+          className="p-2 rounded-full border border-paper/20 text-paper/50 hover:text-paper hover:border-paper/40 transition-all ml-4"
+        >
+          {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
       </div>
 
