@@ -206,10 +206,13 @@ voiceRoutes.get('/file/*', async (c) => {
     }
 
     const headers = new Headers();
+    // Default to audio/webm for voice recordings (most common format from MediaRecorder)
     headers.set('Content-Type', object.httpMetadata?.contentType || 'audio/webm');
     headers.set('Cache-Control', 'public, max-age=31536000');
     // Allow cross-origin embedding (audio served from api.heirloom.blue, embedded in heirloom.blue)
     headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    // Allow CORS for audio playback
+    headers.set('Access-Control-Allow-Origin', '*');
 
     return new Response(object.body, { headers });
   } catch (err: any) {
