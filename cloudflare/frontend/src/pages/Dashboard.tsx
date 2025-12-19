@@ -181,7 +181,7 @@ export function Dashboard() {
             >
               ∞
             </motion.span>
-            <span className="text-xl tracking-[0.15em] text-paper/80">HEIRLOOM</span>
+            <span className="text-xl tracking-[0.15em] text-paper/80">Heirloom</span>
           </motion.div>
 
           <div className="flex items-center gap-4">

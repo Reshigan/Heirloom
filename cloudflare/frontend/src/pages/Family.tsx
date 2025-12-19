@@ -373,7 +373,7 @@ export function Family() {
                   <p className="text-paper/50 mb-4">No family members yet</p>
                   <button 
                     onClick={() => setShowAddModal(true)} 
-                    className="btn btn-primary"
+                    className="btn btn-primary bg-gradient-to-r from-gold to-gold-dim text-void-deep font-semibold hover:shadow-lg hover:shadow-gold/20"
                   >
                     <Plus size={18} />
                     Add Your First Family Member
