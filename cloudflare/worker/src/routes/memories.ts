@@ -5,7 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env } from '../index';
-import { classifyEmotion } from '../services/tinyllm';
+import { classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 
 export const memoriesRoutes = new Hono<{ Bindings: Env }>();
 
@@ -299,9 +299,9 @@ memoriesRoutes.post('/', async (c) => {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   
-  // Classify emotion using TinyLLM
+  // Classify emotion using Cloudflare Workers AI (falls back to keyword-based)
   const textToClassify = `${title} ${description || ''}`.trim();
-  const emotionResult = classifyEmotion(textToClassify);
+  const emotionResult = await classifyEmotionWithAI(textToClassify, c.env.AI);
   
   // Merge emotion into metadata
   const enrichedMetadata = {

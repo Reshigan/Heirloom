@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
+import { Navigation } from '../components/Navigation';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -109,6 +110,8 @@ export function Dashboard() {
         <div className="sanctuary-stars" />
         <div className="sanctuary-mist" />
       </div>
+
+      <Navigation />
 
       {/* Floating dust particles */}
       <div className="fixed inset-0 pointer-events-none">

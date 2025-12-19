@@ -837,6 +837,9 @@ em {
   position: fixed;
   bottom: 24px;
   right: 24px;
+  left: 24px;
+  max-width: 400px;
+  margin-left: auto;
   padding: 16px 24px;
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -845,6 +848,12 @@ em {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   animation: slide-in-right 0.3s ease-out;
   z-index: 1001;
+}
+
+@media (min-width: 768px) {
+  .toast {
+    left: auto;
+  }
 }
 
 .toast-success { border-left: 3px solid #22c55e; }
@@ -924,6 +933,17 @@ em {
   }
 }
 
+/* Global focus styles for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   h1 { font-size: 2.5rem; }
@@ -931,4 +951,72 @@ em {
   
   .card { padding: 20px; }
   .btn { padding: 12px 20px; }
+  
+  /* Reduce sanctuary background animations on mobile for performance */
+  .sanctuary-orb {
+    animation: none;
+    opacity: 0.4;
+  }
+  
+  .sanctuary-stars {
+    animation: none;
+  }
+}
+
+/* Print styles for letters and memories */
+@media print {
+  /* Hide non-essential elements */
+  .sanctuary-bg,
+  .sanctuary-orb,
+  .sanctuary-stars,
+  .sanctuary-mist,
+  nav,
+  .btn,
+  button,
+  .glass,
+  .modal-backdrop,
+  .toast {
+    display: none !important;
+  }
+  
+  /* Reset background and colors for printing */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Make content readable */
+  .text-paper,
+  .text-paper\/50,
+  .text-paper\/60,
+  .text-paper\/70,
+  .text-paper\/80,
+  .text-gold,
+  h1, h2, h3, h4, h5, h6, p, span, div {
+    color: black !important;
+  }
+  
+  /* Remove shadows and borders */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  /* Ensure images print */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+  
+  /* Page breaks for letters */
+  .letter-content {
+    page-break-after: always;
+  }
+  
+  /* Ensure text is readable */
+  .card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    padding: 20px !important;
+  }
 }

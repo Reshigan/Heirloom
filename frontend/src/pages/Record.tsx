@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
+import { Navigation } from '../components/Navigation';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
 
@@ -343,6 +344,8 @@ export function Record() {
         <div className="sanctuary-stars" />
         <div className="sanctuary-mist" />
       </div>
+
+      <Navigation />
 
       {/* Soft ambient glow */}
       <div className="fixed inset-0 pointer-events-none">

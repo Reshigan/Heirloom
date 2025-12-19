@@ -224,7 +224,7 @@ export function AdminDashboard() {
             {/* Subscription Breakdown */}
             <div className="card">
               <h3 className="text-lg mb-4">Subscription Breakdown</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { key: 'starter', label: 'Starter ($1/mo)' },
                   { key: 'family', label: 'Family ($2/mo)' },

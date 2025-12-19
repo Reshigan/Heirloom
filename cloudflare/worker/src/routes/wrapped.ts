@@ -8,6 +8,38 @@ import type { Env } from '../index';
 
 export const wrappedRoutes = new Hono<{ Bindings: Env }>();
 
+// Get wrapped data for current year (must be before /:year to avoid matching "current" as a year)
+wrappedRoutes.get('/current', async (c) => {
+  const userId = c.get('userId');
+  const currentYear = new Date().getFullYear();
+  
+  // Check if wrapped data exists for current year
+  let wrapped = await c.env.DB.prepare(`
+    SELECT * FROM wrapped_data WHERE user_id = ? AND year = ?
+  `).bind(userId, currentYear).first();
+  
+  if (!wrapped) {
+    // Generate wrapped data for current year
+    wrapped = await generateWrappedData(c.env.DB, userId, currentYear);
+  }
+  
+  return c.json({
+    id: wrapped.id,
+    year: wrapped.year,
+    totalMemories: wrapped.total_memories,
+    totalVoiceStories: wrapped.total_voice_stories,
+    totalLetters: wrapped.total_letters,
+    totalStorage: wrapped.total_storage,
+    longestStreak: wrapped.longest_streak,
+    currentStreak: wrapped.current_streak,
+    topEmotions: wrapped.top_emotions ? JSON.parse(wrapped.top_emotions as string) : [],
+    topTaggedPeople: wrapped.top_tagged_people ? JSON.parse(wrapped.top_tagged_people as string) : [],
+    highlights: wrapped.highlights ? JSON.parse(wrapped.highlights as string) : [],
+    summary: wrapped.summary,
+    generatedAt: wrapped.generated_at,
+  });
+});
+
 // Get wrapped data for a specific year
 wrappedRoutes.get('/:year', async (c) => {
   const userId = c.get('userId');

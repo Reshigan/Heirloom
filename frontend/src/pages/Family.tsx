@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, X, Pen, Trash2, Mail, Phone, Heart, Users, Check, AlertCircle, Camera } from 'lucide-react';
 import { familyApi, settingsApi } from '../services/api';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
+import { Navigation } from '../components/Navigation';
 
 const RELATIONSHIPS = ['Spouse', 'Partner', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Grandparent', 'Friend', 'Other'];
 
@@ -175,6 +176,8 @@ export function Family() {
         <div className="sanctuary-mist" />
       </div>
 
+      <Navigation />
+
       {/* Animated constellation stars */}
       <div className="fixed inset-0 pointer-events-none">
         {[...Array(80)].map((_, i) => (
@@ -242,7 +245,7 @@ export function Family() {
           </motion.div>
 
           {/* Constellation View - outer relative wrapper for positioning */}
-          <div className="relative h-[600px] mb-12">
+          <div className="relative h-[calc(100vh-200px)] min-h-[400px] max-h-[600px] mb-12">
             {/* Inner flex container for centering constellation content */}
             <div className="flex h-full items-center justify-center">
               {/* Connection lines */}

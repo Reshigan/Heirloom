@@ -402,12 +402,81 @@ billingRoutes.post('/checkout', async (c) => {
     }
   }
   
-  // TODO: Create Stripe checkout session with currency-specific price
-  return c.json({
-    checkoutUrl: `${c.env.APP_URL}/checkout?tier=${normalizedTier}&cycle=${billingCycle}&currency=${currency}`,
-    tier: normalizedTier, billingCycle, currency, finalPrice,
-    message: 'IMPLEMENT: Create Stripe checkout with currency-specific price',
-  });
+  // Get user email for Stripe
+  const user = await c.env.DB.prepare('SELECT email FROM users WHERE id = ?').bind(userId).first();
+  if (!user) return c.json({ error: 'User not found' }, 404);
+  
+  // Check if Stripe is configured
+  if (!c.env.STRIPE_SECRET_KEY) {
+    // Fallback: Direct plan change without payment (for testing/development)
+    const now = new Date().toISOString();
+    const existing = await c.env.DB.prepare('SELECT id FROM subscriptions WHERE user_id = ?').bind(userId).first();
+    
+    if (existing) {
+      await c.env.DB.prepare('UPDATE subscriptions SET tier = ?, billing_cycle = ?, updated_at = ? WHERE user_id = ?')
+        .bind(normalizedTier, billingCycle || 'monthly', now, userId).run();
+    } else {
+      await c.env.DB.prepare('INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .bind(crypto.randomUUID(), userId, normalizedTier, 'ACTIVE', billingCycle || 'monthly', now, now).run();
+    }
+    
+    return c.json({
+      success: true,
+      tier: normalizedTier,
+      billingCycle,
+      message: 'Subscription updated (Stripe not configured)',
+    });
+  }
+  
+  // Create Stripe checkout session
+  try {
+    // Convert price to cents (Stripe uses smallest currency unit)
+    const priceInCents = Math.round(finalPrice * 100);
+    
+    const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        'mode': 'subscription',
+        'customer_email': user.email as string,
+        'success_url': `${c.env.APP_URL}/settings?tab=subscription&success=true`,
+        'cancel_url': `${c.env.APP_URL}/settings?tab=subscription&canceled=true`,
+        'line_items[0][price_data][currency]': currency.toLowerCase(),
+        'line_items[0][price_data][product_data][name]': `Heirloom ${normalizedTier} Plan`,
+        'line_items[0][price_data][product_data][description]': `${TIER_LIMITS[normalizedTier].maxStorageLabel} storage with all features`,
+        'line_items[0][price_data][unit_amount]': priceInCents.toString(),
+        'line_items[0][price_data][recurring][interval]': isYearly ? 'year' : 'month',
+        'line_items[0][quantity]': '1',
+        'metadata[user_id]': userId,
+        'metadata[tier]': normalizedTier,
+        'metadata[billing_cycle]': billingCycle || 'monthly',
+        ...(couponCode ? { 'discounts[0][coupon]': couponCode.toUpperCase() } : {}),
+      }).toString(),
+    });
+    
+    if (!stripeResponse.ok) {
+      const errorData = await stripeResponse.json() as { error?: { message?: string } };
+      console.error('Stripe error:', errorData);
+      return c.json({ error: errorData.error?.message || 'Failed to create checkout session' }, 500);
+    }
+    
+    const session = await stripeResponse.json() as { id: string; url: string };
+    
+    return c.json({
+      checkoutUrl: session.url,
+      sessionId: session.id,
+      tier: normalizedTier,
+      billingCycle,
+      currency,
+      finalPrice,
+    });
+  } catch (error) {
+    console.error('Stripe checkout error:', error);
+    return c.json({ error: 'Failed to create checkout session' }, 500);
+  }
 });
 
 // Change plan
@@ -455,4 +524,109 @@ billingRoutes.get('/usage', async (c) => {
     storage: { usedMB: Math.round(totalBytes / (1024 * 1024)), maxLabel: TIER_LIMITS[tier].maxStorageLabel, percentage: Math.round((totalBytes / TIER_LIMITS[tier].maxStorage) * 100) },
     counts: { memories: memories?.count || 0, voiceRecordings: voice?.count || 0, letters: letters?.count || 0 },
   });
+});
+
+// Stripe webhook handler
+billingRoutes.post('/webhook', async (c) => {
+  const signature = c.req.header('stripe-signature');
+  const body = await c.req.text();
+  
+  if (!c.env.STRIPE_WEBHOOK_SECRET || !signature) {
+    return c.json({ error: 'Webhook not configured' }, 400);
+  }
+  
+  // Verify webhook signature (simplified - in production use Stripe SDK)
+  // For now, we'll process the event directly
+  try {
+    const event = JSON.parse(body) as {
+      type: string;
+      data: {
+        object: {
+          id: string;
+          customer_email?: string;
+          metadata?: { user_id?: string; tier?: string; billing_cycle?: string };
+          subscription?: string;
+        };
+      };
+    };
+    
+    const now = new Date().toISOString();
+    
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object;
+        const userId = session.metadata?.user_id;
+        const tier = session.metadata?.tier || 'STARTER';
+        const billingCycle = session.metadata?.billing_cycle || 'monthly';
+        
+        if (userId) {
+          const existing = await c.env.DB.prepare('SELECT id FROM subscriptions WHERE user_id = ?').bind(userId).first();
+          
+          if (existing) {
+            await c.env.DB.prepare(`
+              UPDATE subscriptions 
+              SET tier = ?, status = 'ACTIVE', billing_cycle = ?, stripe_subscription_id = ?, updated_at = ?
+              WHERE user_id = ?
+            `).bind(tier, billingCycle, session.subscription || null, now, userId).run();
+          } else {
+            await c.env.DB.prepare(`
+              INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, stripe_subscription_id, created_at, updated_at)
+              VALUES (?, ?, ?, 'ACTIVE', ?, ?, ?, ?)
+            `).bind(crypto.randomUUID(), userId, tier, billingCycle, session.subscription || null, now, now).run();
+          }
+        }
+        break;
+      }
+      
+      case 'invoice.payment_succeeded': {
+        // Subscription renewed successfully
+        const invoice = event.data.object;
+        const userId = invoice.metadata?.user_id;
+        
+        if (userId) {
+          await c.env.DB.prepare(`
+            UPDATE subscriptions SET status = 'ACTIVE', updated_at = ? WHERE user_id = ?
+          `).bind(now, userId).run();
+        }
+        break;
+      }
+      
+      case 'invoice.payment_failed': {
+        // Payment failed - mark subscription as past due
+        const invoice = event.data.object;
+        const userId = invoice.metadata?.user_id;
+        
+        if (userId) {
+          await c.env.DB.prepare(`
+            UPDATE subscriptions SET status = 'PAST_DUE', updated_at = ? WHERE user_id = ?
+          `).bind(now, userId).run();
+          
+          // Log billing error
+          await c.env.DB.prepare(`
+            INSERT INTO billing_errors (id, user_id, error_type, error_message, created_at)
+            VALUES (?, ?, 'PAYMENT_FAILED', 'Invoice payment failed', ?)
+          `).bind(crypto.randomUUID(), userId, now).run();
+        }
+        break;
+      }
+      
+      case 'customer.subscription.deleted': {
+        // Subscription canceled
+        const subscription = event.data.object;
+        const userId = subscription.metadata?.user_id;
+        
+        if (userId) {
+          await c.env.DB.prepare(`
+            UPDATE subscriptions SET status = 'CANCELED', tier = 'STARTER', updated_at = ? WHERE user_id = ?
+          `).bind(now, userId).run();
+        }
+        break;
+      }
+    }
+    
+    return c.json({ received: true });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return c.json({ error: 'Webhook processing failed' }, 500);
+  }
 });

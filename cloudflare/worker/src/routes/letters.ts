@@ -5,19 +5,19 @@
 
 import { Hono } from 'hono';
 import type { Env } from '../index';
-import { generateLetterSuggestion, classifyEmotion } from '../services/tinyllm';
+import { generateLetterSuggestion, classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 
 export const lettersRoutes = new Hono<{ Bindings: Env }>();
 
-// AI-powered letter suggestion using TinyLLM
+// AI-powered letter suggestion using TinyLLM with Cloudflare Workers AI
 lettersRoutes.post('/ai-suggest', async (c) => {
   const body = await c.req.json();
   const { salutation, body: letterBody, signature, recipientNames, tone, occasion } = body;
   
   // If we have existing letter content, provide contextual suggestions
   if (letterBody && letterBody.trim().length > 20) {
-    // Analyze the existing content and provide continuation suggestions
-    const emotion = classifyEmotion(letterBody);
+    // Analyze the existing content using Cloudflare Workers AI (falls back to keyword-based)
+    const emotion = await classifyEmotionWithAI(letterBody, c.env.AI);
     
     const continuationSuggestions: Record<string, string[]> = {
       joyful: [
