@@ -59,8 +59,24 @@ export interface Env {
   CRON_ENABLED?: string;
 }
 
-// Create Hono app with typed env
-const app = new Hono<{ Bindings: Env }>();
+// Variables type for Hono context (set by middleware)
+export interface Variables {
+  user?: {
+    sub: string;
+    sessionId: string;
+    iat: number;
+    exp: number;
+  };
+  userId?: string;
+  adminId?: string;
+  adminRole?: string;
+}
+
+// Shared app type for routes
+export type AppEnv = { Bindings: Env; Variables: Variables };
+
+// Create Hono app with typed env and variables
+const app = new Hono<AppEnv>();
 
 // ============================================
 // MIDDLEWARE
@@ -75,14 +91,15 @@ app.use('*', secureHeaders({
   crossOriginResourcePolicy: false,
 }));
 
-// CORS
+// CORS - localhost only allowed in development
 app.use('*', cors({
   origin: (origin, c) => {
+    const isDev = c.env.ENVIRONMENT === 'development';
     const allowedOrigins = [
       'https://heirloom.blue',
       'https://www.heirloom.blue',
       'https://staging.heirloom.blue',
-      'http://localhost:3000',
+      ...(isDev ? ['http://localhost:3000'] : []),
     ];
     return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
   },
@@ -156,6 +173,49 @@ app.post('/api/test-email', async (c) => {
 // Public health check at /api/health (in addition to /health)
 app.get('/api/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ============================================
+// RATE LIMITING MIDDLEWARE
+// ============================================
+
+// Rate limiting for brute-forceable auth endpoints
+// Protects: login, register, forgot-password, reset-password, verify-2fa
+// Does NOT rate limit: refresh, logout, me (high-frequency or non-brute-forceable)
+const rateLimitedAuthPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-2fa'];
+
+app.use('/api/auth/*', async (c, next) => {
+  const path = c.req.path.replace('/api/auth', '');
+  
+  // Only rate limit brute-forceable endpoints
+  if (!rateLimitedAuthPaths.includes(path)) {
+    return next();
+  }
+  
+  const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown';
+  
+  try {
+    const id = c.env.RATE_LIMITER.idFromName(ip);
+    const limiter = c.env.RATE_LIMITER.get(id);
+    
+    // 10 requests per minute for auth endpoints
+    const response = await limiter.fetch(
+      new Request(`http://internal/check?ip=${ip}&limit=10&window=60000`)
+    );
+    const result = await response.json() as { allowed: boolean; remaining: number; reset: number };
+    
+    if (!result.allowed) {
+      return c.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(result.reset) } }
+      );
+    }
+  } catch (error) {
+    // If rate limiter fails, allow the request (fail open)
+    console.error('Rate limiter error:', error);
+  }
+  
+  return next();
 });
 
 // Public routes (no auth required)
@@ -372,7 +432,7 @@ app.get('/api/voice/file/*', async (c) => {
 app.route('/api/admin', adminRoutes);
 
 // Protected routes (auth required)
-const protectedApp = new Hono<{ Bindings: Env }>();
+const protectedApp = new Hono<AppEnv>();
 
 // JWT middleware for protected routes
 protectedApp.use('*', async (c, next) => {
