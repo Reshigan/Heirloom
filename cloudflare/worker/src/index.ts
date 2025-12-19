@@ -226,6 +226,70 @@ app.get('/api/billing/detect', async (c) => {
   return c.json({ country, currency, symbol });
 });
 
+// Public file serving routes (for <img> and <video> tags that can't send auth headers)
+// These files are stored with unguessable keys (memories/{userId}/{timestamp}-{filename})
+app.get('/api/memories/file/*', async (c) => {
+  const url = new URL(c.req.url);
+  const pathAfterFile = url.pathname.split('/memories/file/')[1];
+  if (!pathAfterFile) {
+    return c.json({ error: 'Invalid file key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterFile);
+
+  // Validate key format (must be memories/{userId}/{filename})
+  if (!key.startsWith('memories/')) {
+    return c.json({ error: 'Invalid file key format' }, 400);
+  }
+
+  try {
+    const object = await c.env.STORAGE.get(key);
+    if (!object) {
+      return c.json({ error: 'File not found' }, 404);
+    }
+
+    const headers = new Headers();
+    headers.set('Content-Type', object.httpMetadata?.contentType || 'application/octet-stream');
+    headers.set('Cache-Control', 'public, max-age=31536000');
+
+    return new Response(object.body, { headers });
+  } catch (err: any) {
+    console.error('Error serving file from R2:', err);
+    return c.json({ error: 'Failed to retrieve file' }, 500);
+  }
+});
+
+app.get('/api/voice/file/*', async (c) => {
+  const url = new URL(c.req.url);
+  const pathAfterFile = url.pathname.split('/voice/file/')[1];
+  if (!pathAfterFile) {
+    return c.json({ error: 'Invalid file key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterFile);
+
+  // Validate key format (must be voice/{userId}/{filename})
+  if (!key.startsWith('voice/')) {
+    return c.json({ error: 'Invalid file key format' }, 400);
+  }
+
+  try {
+    const object = await c.env.STORAGE.get(key);
+    if (!object) {
+      return c.json({ error: 'File not found' }, 404);
+    }
+
+    const headers = new Headers();
+    headers.set('Content-Type', object.httpMetadata?.contentType || 'application/octet-stream');
+    headers.set('Cache-Control', 'public, max-age=31536000');
+
+    return new Response(object.body, { headers });
+  } catch (err: any) {
+    console.error('Error serving file from R2:', err);
+    return c.json({ error: 'Failed to retrieve file' }, 500);
+  }
+});
+
 // Admin routes (separate auth - must be before protected routes)
 app.route('/api/admin', adminRoutes);
 
