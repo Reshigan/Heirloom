@@ -200,20 +200,82 @@ voiceRoutes.get('/file/*', async (c) => {
   const key = decodeURIComponent(pathAfterFile);
 
   try {
+    // Check for Range header (browsers send this for media playback)
+    const rangeHeader = c.req.header('Range');
+    
+    // Get file metadata first to know the size
+    const headObject = await c.env.STORAGE.head(key);
+    if (!headObject) {
+      return c.json({ error: 'File not found' }, 404);
+    }
+    
+    const fileSize = headObject.size;
+    
+    // Determine Content-Type: override if stored type is missing or not audio/*
+    let contentType = headObject.httpMetadata?.contentType;
+    if (!contentType || !contentType.startsWith('audio/')) {
+      // Infer from file extension
+      if (key.endsWith('.webm')) {
+        contentType = 'audio/webm';
+      } else if (key.endsWith('.mp4') || key.endsWith('.m4a')) {
+        contentType = 'audio/mp4';
+      } else if (key.endsWith('.wav')) {
+        contentType = 'audio/wav';
+      } else if (key.endsWith('.ogg')) {
+        contentType = 'audio/ogg';
+      } else {
+        // Default to audio/webm (most common from MediaRecorder)
+        contentType = 'audio/webm';
+      }
+    }
+    
+    const headers = new Headers();
+    headers.set('Content-Type', contentType);
+    headers.set('Cache-Control', 'public, max-age=31536000');
+    headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    headers.set('Access-Control-Allow-Origin', '*');
+    headers.set('Accept-Ranges', 'bytes');
+    // Debug header to confirm this handler is serving the file
+    headers.set('X-Heirloom-Voice-Handler', 'voice-routes-v2');
+    
+    // Handle Range requests for proper media streaming
+    if (rangeHeader) {
+      const match = rangeHeader.match(/bytes=(\d*)-(\d*)/);
+      if (match) {
+        const start = match[1] ? parseInt(match[1], 10) : 0;
+        const end = match[2] ? parseInt(match[2], 10) : fileSize - 1;
+        
+        // Validate range
+        if (start >= fileSize || end >= fileSize || start > end) {
+          return new Response('Range Not Satisfiable', {
+            status: 416,
+            headers: { 'Content-Range': `bytes */${fileSize}` }
+          });
+        }
+        
+        // Get the requested range from R2
+        const object = await c.env.STORAGE.get(key, {
+          range: { offset: start, length: end - start + 1 }
+        });
+        
+        if (!object) {
+          return c.json({ error: 'File not found' }, 404);
+        }
+        
+        headers.set('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+        headers.set('Content-Length', String(end - start + 1));
+        
+        return new Response(object.body, { status: 206, headers });
+      }
+    }
+    
+    // Full file request (no Range header)
     const object = await c.env.STORAGE.get(key);
     if (!object) {
       return c.json({ error: 'File not found' }, 404);
     }
-
-    const headers = new Headers();
-    // Default to audio/webm for voice recordings (most common format from MediaRecorder)
-    headers.set('Content-Type', object.httpMetadata?.contentType || 'audio/webm');
-    headers.set('Cache-Control', 'public, max-age=31536000');
-    // Allow cross-origin embedding (audio served from api.heirloom.blue, embedded in heirloom.blue)
-    headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
-    // Allow CORS for audio playback
-    headers.set('Access-Control-Allow-Origin', '*');
-
+    
+    headers.set('Content-Length', String(fileSize));
     return new Response(object.body, { headers });
   } catch (err: any) {
     console.error('Error serving file from R2:', err);
