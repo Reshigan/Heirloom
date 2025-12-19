@@ -70,7 +70,10 @@ const app = new Hono<{ Bindings: Env }>();
 app.use('*', logger());
 
 // Security headers
-app.use('*', secureHeaders());
+// Disable CORP globally so we can set it per-route (file serving routes need 'cross-origin' for embedding)
+app.use('*', secureHeaders({
+  crossOriginResourcePolicy: false,
+}));
 
 // CORS
 app.use('*', cors({
@@ -231,6 +234,7 @@ app.get('/api/billing/detect', async (c) => {
 
 // Public file serving routes (for <img> and <video> tags that can't send auth headers)
 // These files are stored with unguessable keys (memories/{userId}/{timestamp}-{filename})
+// IMPORTANT: Must set Cross-Origin-Resource-Policy: cross-origin to allow embedding from heirloom.blue
 app.get('/api/memories/file/*', async (c) => {
   const url = new URL(c.req.url);
   const pathAfterFile = url.pathname.split('/memories/file/')[1];
@@ -254,6 +258,8 @@ app.get('/api/memories/file/*', async (c) => {
     const headers = new Headers();
     headers.set('Content-Type', object.httpMetadata?.contentType || 'application/octet-stream');
     headers.set('Cache-Control', 'public, max-age=31536000');
+    // Allow cross-origin embedding (images served from api.heirloom.blue, embedded in heirloom.blue)
+    headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
 
     return new Response(object.body, { headers });
   } catch (err: any) {
@@ -285,6 +291,8 @@ app.get('/api/voice/file/*', async (c) => {
     const headers = new Headers();
     headers.set('Content-Type', object.httpMetadata?.contentType || 'application/octet-stream');
     headers.set('Cache-Control', 'public, max-age=31536000');
+    // Allow cross-origin embedding (audio served from api.heirloom.blue, embedded in heirloom.blue)
+    headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
 
     return new Response(object.body, { headers });
   } catch (err: any) {
