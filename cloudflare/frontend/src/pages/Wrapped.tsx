@@ -614,6 +614,7 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
       </div>
     </motion.div>
     
+    {stats.topEmotions && stats.topEmotions.length > 0 && (
     <motion.p
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -622,6 +623,7 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
     >
       Dominant emotion: <span className="text-gold">{stats.topEmotions[0].emotion}</span>
     </motion.p>
+    )}
     
     <motion.button
       initial={{ y: 20, opacity: 0 }}
