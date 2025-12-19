@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+import { useAuthStore } from '../stores/authStore';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -9,6 +10,7 @@ interface LogoProps {
 }
 
 export function Logo({ size = 'md', showText = true, className }: LogoProps) {
+  const { isAuthenticated } = useAuthStore();
   const sizes = {
     sm: { mark: 28, text: 16 },
     md: { mark: 36, text: 20 },
@@ -19,7 +21,7 @@ export function Logo({ size = 'md', showText = true, className }: LogoProps) {
   
   return (
     <Link
-      to="/"
+      to={isAuthenticated ? '/dashboard' : '/'}
       className={clsx('flex items-center gap-3 no-underline group', className)}
     >
       {/* Logo mark - simple rotating infinity like marketing site */}

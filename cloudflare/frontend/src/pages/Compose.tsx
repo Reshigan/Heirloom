@@ -68,9 +68,9 @@ const Icons = {
     </svg>
   ),
   waxSeal: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <circle cx="12" cy="12" r="8" />
-      <path d="M15 10c1.3 0 1.3 2 0 2-1.3 0-1.8-2-3.2-2-1.2 0-1.2 2 0 2 1.4 0 1.9-2 3.2-2z" />
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="0.5" strokeLinecap="round">
+      <circle cx="12" cy="12" r="9" />
+      <text x="12" y="16" textAnchor="middle" fontSize="10" fill="white" stroke="none">∞</text>
     </svg>
   ),
   infinity: (
@@ -443,10 +443,10 @@ export function Compose() {
                 className={`flex items-center gap-2 px-5 py-2 font-semibold rounded-lg transition-all ${
                   !body.trim() || selectedRecipients.length === 0
                     ? 'bg-void-light border border-paper/20 text-paper/40 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-gold to-gold-dim text-void-deep hover:shadow-lg hover:shadow-gold/20'
+                    : 'bg-gradient-to-r from-blood to-red-800 text-paper hover:shadow-lg hover:shadow-blood/30'
                 }`}
               >
-                <span className="w-4 h-4">{Icons.waxSeal}</span>
+                <span className="w-4 h-4 text-paper">{Icons.waxSeal}</span>
                 <span>Seal Letter</span>
               </button>
             </div>
