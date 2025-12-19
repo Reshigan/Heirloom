@@ -187,7 +187,9 @@ voiceRoutes.post('/upload/*', async (c) => {
   }
 });
 
-// Serve file from R2
+// Serve file from R2 (public route - no auth required)
+// Note: This route is also defined in index.ts as a public route
+// This one is kept for backwards compatibility but the index.ts version is preferred
 voiceRoutes.get('/file/*', async (c) => {
   const url = new URL(c.req.url);
   const pathAfterFile = url.pathname.split('/voice/file/')[1];
@@ -206,6 +208,8 @@ voiceRoutes.get('/file/*', async (c) => {
     const headers = new Headers();
     headers.set('Content-Type', object.httpMetadata?.contentType || 'audio/webm');
     headers.set('Cache-Control', 'public, max-age=31536000');
+    // Allow cross-origin embedding (audio served from api.heirloom.blue, embedded in heirloom.blue)
+    headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
 
     return new Response(object.body, { headers });
   } catch (err: any) {
