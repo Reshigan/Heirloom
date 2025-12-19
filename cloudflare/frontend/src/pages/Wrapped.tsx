@@ -271,7 +271,11 @@ const VoiceStoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
   </motion.div>
 );
 
-const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
+const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => {
+  // Safely handle undefined or empty topEmotions
+  const topEmotions = stats.topEmotions || [];
+  
+  return (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -285,8 +289,14 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
     >
       The emotions that colored your year
     </motion.p>
+    {topEmotions.length === 0 ? (
+      <div className="text-center text-paper/50">
+        <p className="text-lg mb-2">No emotion data yet</p>
+        <p className="text-sm">Start adding memories to see your emotional journey</p>
+      </div>
+    ) : (
     <div className="w-full max-w-md space-y-4">
-      {stats.topEmotions.map((emotion, index) => (
+      {topEmotions.map((emotion, index) => (
         <motion.div
           key={emotion.emotion}
           initial={{ x: -100, opacity: 0 }}
@@ -313,20 +323,22 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
         </motion.div>
       ))}
     </div>
-    {stats.topEmotions.length > 0 && (
+    )}
+    {topEmotions.length > 0 && (
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
         className="text-lg text-gold mt-8 text-center"
       >
-        {stats.topEmotions[0].emotion} was your dominant feeling ✨
+        {topEmotions[0].emotion} was your dominant feeling ✨
       </motion.p>
     )}
   </motion.div>
-);
+  );
+};
 
-const FamilySlide:React.FC<{ stats: WrappedStats }> = ({ stats }) => (
+const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -602,6 +614,7 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
       </div>
     </motion.div>
     
+    {stats.topEmotions && stats.topEmotions.length > 0 && (
     <motion.p
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -610,6 +623,7 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
     >
       Dominant emotion: <span className="text-gold">{stats.topEmotions[0].emotion}</span>
     </motion.p>
+    )}
     
     <motion.button
       initial={{ y: 20, opacity: 0 }}

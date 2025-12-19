@@ -166,7 +166,7 @@ export function Billing() {
             >
               ∞
             </motion.span>
-            <span className="text-xl tracking-[0.15em] text-paper/80">HEIRLOOM</span>
+            <span className="text-xl tracking-[0.15em] text-paper/80">Heirloom</span>
           </motion.div>
         </div>
       </header>

@@ -75,11 +75,11 @@ export function Landing() {
             >
               ∞
             </motion.span>
-            <span className="text-lg tracking-[0.2em] text-paper/80">HEIRLOOM</span>
+            <span className="text-lg tracking-[0.2em] text-paper/80">Heirloom</span>
           </Link>
           
           <div className="flex items-center gap-6">
-            <Link to="/login" className="text-paper/60 hover:text-gold transition-colors hidden md:block">
+            <Link to="/login" className="text-paper/80 hover:text-gold transition-colors hidden md:block font-medium">
               Sign In
             </Link>
             <Link to="/signup" className="btn btn-primary">
@@ -145,7 +145,7 @@ export function Landing() {
               Begin Your Legacy
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a href="#features" className="btn btn-secondary text-lg px-8 py-4">
+            <a href="#features" className="btn btn-secondary text-lg px-8 py-4 border-paper/40 text-paper hover:border-gold hover:text-gold">
               Discover More
             </a>
           </motion.div>
