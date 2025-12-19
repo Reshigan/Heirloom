@@ -147,10 +147,84 @@ app.post('/api/test-email', async (c) => {
 // API ROUTES
 // ============================================
 
+// Public health check at /api/health (in addition to /health)
+app.get('/api/health', (c) => {
+  return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Public routes (no auth required)
 app.route('/api/auth', authRoutes);
 app.route('/api/billing/webhook', billingRoutes);
 app.route('/api/inherit', inheritRoutes);
+
+// Public billing routes (pricing and detect don't require auth)
+app.get('/api/billing/pricing', async (c) => {
+  // Import the billing logic inline to avoid circular dependencies
+  const COUNTRY_CURRENCY: Record<string, string> = {
+    ZA: 'ZAR', NG: 'NGN', KE: 'KES', GH: 'GHS', TZ: 'TZS', UG: 'UGX', 
+    RW: 'RWF', ZW: 'USD', BW: 'BWP', NA: 'NAD', MZ: 'MZN', ZM: 'ZMW',
+    GB: 'GBP',
+    DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', 
+    IE: 'EUR', PT: 'EUR', FI: 'EUR', GR: 'EUR', SK: 'EUR', SI: 'EUR', LT: 'EUR',
+    LV: 'EUR', EE: 'EUR', CY: 'EUR', MT: 'EUR', LU: 'EUR',
+    IN: 'INR', PK: 'PKR', BD: 'BDT', PH: 'PHP', ID: 'IDR', MY: 'MYR', 
+    SG: 'SGD', TH: 'THB', VN: 'VND', JP: 'JPY', KR: 'KRW', CN: 'CNY', 
+    HK: 'HKD', TW: 'TWD', AE: 'AED', SA: 'SAR',
+    US: 'USD', CA: 'CAD', MX: 'MXN', BR: 'BRL', AR: 'ARS', CO: 'COP', CL: 'CLP', PE: 'PEN',
+    AU: 'AUD', NZ: 'NZD',
+  };
+
+  const PRICING: Record<string, any> = {
+    USD: { symbol: '$', code: 'USD', STARTER: { monthly: 1, yearly: 10 }, FAMILY: { monthly: 5, yearly: 50 }, FOREVER: { monthly: 15, yearly: 150 } },
+    ZAR: { symbol: 'R', code: 'ZAR', STARTER: { monthly: 18, yearly: 180 }, FAMILY: { monthly: 90, yearly: 900 }, FOREVER: { monthly: 270, yearly: 2700 } },
+    GBP: { symbol: '£', code: 'GBP', STARTER: { monthly: 0.79, yearly: 7.90 }, FAMILY: { monthly: 3.99, yearly: 39.90 }, FOREVER: { monthly: 11.99, yearly: 119.90 } },
+    EUR: { symbol: '€', code: 'EUR', STARTER: { monthly: 0.99, yearly: 9.90 }, FAMILY: { monthly: 4.99, yearly: 49.90 }, FOREVER: { monthly: 14.99, yearly: 149.90 } },
+    CAD: { symbol: 'C$', code: 'CAD', STARTER: { monthly: 1.39, yearly: 13.90 }, FAMILY: { monthly: 6.99, yearly: 69.90 }, FOREVER: { monthly: 20.99, yearly: 209.90 } },
+    AUD: { symbol: 'A$', code: 'AUD', STARTER: { monthly: 1.49, yearly: 14.90 }, FAMILY: { monthly: 7.49, yearly: 74.90 }, FOREVER: { monthly: 22.49, yearly: 224.90 } },
+    INR: { symbol: '₹', code: 'INR', STARTER: { monthly: 50, yearly: 500 }, FAMILY: { monthly: 250, yearly: 2500 }, FOREVER: { monthly: 750, yearly: 7500 } },
+  };
+
+  const cfCountry = c.req.raw?.cf?.country as string;
+  const headerCountry = c.req.header('cf-ipcountry') || c.req.header('x-country');
+  const country = cfCountry || headerCountry || 'US';
+  
+  const overrideCurrency = c.req.query('currency')?.toUpperCase();
+  const detectedCurrency = COUNTRY_CURRENCY[country?.toUpperCase()] || 'USD';
+  const currency = overrideCurrency && PRICING[overrideCurrency] ? overrideCurrency : (PRICING[detectedCurrency] ? detectedCurrency : 'USD');
+  const prices = PRICING[currency];
+
+  return c.json({
+    country,
+    currency,
+    symbol: prices.symbol,
+    tiers: [
+      { id: 'STARTER', name: 'Starter', storage: '500 MB', monthly: { amount: prices.STARTER.monthly, display: `${prices.symbol}${prices.STARTER.monthly}` }, yearly: { amount: prices.STARTER.yearly, display: `${prices.symbol}${prices.STARTER.yearly}`, perMonth: `${prices.symbol}${(prices.STARTER.yearly / 12).toFixed(2)}` } },
+      { id: 'FAMILY', name: 'Family', storage: '5 GB', popular: true, monthly: { amount: prices.FAMILY.monthly, display: `${prices.symbol}${prices.FAMILY.monthly}` }, yearly: { amount: prices.FAMILY.yearly, display: `${prices.symbol}${prices.FAMILY.yearly}`, perMonth: `${prices.symbol}${(prices.FAMILY.yearly / 12).toFixed(2)}` } },
+      { id: 'FOREVER', name: 'Forever', storage: '50 GB', monthly: { amount: prices.FOREVER.monthly, display: `${prices.symbol}${prices.FOREVER.monthly}` }, yearly: { amount: prices.FOREVER.yearly, display: `${prices.symbol}${prices.FOREVER.yearly}`, perMonth: `${prices.symbol}${(prices.FOREVER.yearly / 12).toFixed(2)}` } },
+    ],
+    allFeatures: ['Unlimited memories', 'Unlimited letters', 'Unlimited voice recordings', 'Posthumous delivery', 'Dead man\'s switch', 'AI writing help', 'Year Wrapped', 'Family tree'],
+    annualSavings: '2 months free',
+  });
+});
+
+app.get('/api/billing/detect', async (c) => {
+  const COUNTRY_CURRENCY: Record<string, string> = {
+    ZA: 'ZAR', NG: 'NGN', KE: 'KES', GH: 'GHS', GB: 'GBP',
+    DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR',
+    IN: 'INR', US: 'USD', CA: 'CAD', AU: 'AUD',
+  };
+  const PRICING_SYMBOLS: Record<string, string> = {
+    USD: '$', ZAR: 'R', GBP: '£', EUR: '€', CAD: 'C$', AUD: 'A$', INR: '₹',
+  };
+
+  const cfCountry = c.req.raw?.cf?.country as string;
+  const headerCountry = c.req.header('cf-ipcountry') || c.req.header('x-country');
+  const country = cfCountry || headerCountry || 'US';
+  const currency = COUNTRY_CURRENCY[country?.toUpperCase()] || 'USD';
+  const symbol = PRICING_SYMBOLS[currency] || '$';
+
+  return c.json({ country, currency, symbol });
+});
 
 // Admin routes (separate auth - must be before protected routes)
 app.route('/api/admin', adminRoutes);
