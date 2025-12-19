@@ -54,6 +54,9 @@ export interface Env {
   STRIPE_WEBHOOK_SECRET: string;
   RESEND_API_KEY: string;
   ENCRYPTION_MASTER_KEY: string;
+  
+  // Feature flags
+  CRON_ENABLED?: string;
 }
 
 // Create Hono app with typed env
@@ -370,6 +373,12 @@ export default {
   
   // Cron trigger for dead man's switch
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    // Safety guard: only run cron jobs if explicitly enabled
+    if (env.CRON_ENABLED !== 'true') {
+      console.error('Cron job triggered but CRON_ENABLED is not set to "true". Skipping execution.');
+      return;
+    }
+    
     const cronType = event.cron;
     
     if (cronType === '0 9 * * *') {

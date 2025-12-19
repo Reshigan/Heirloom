@@ -42,12 +42,13 @@ new_sqlite_classes = ["RateLimiter"]
 # CRON TRIGGERS (Dead Man's Switch)
 # ============================================
 
-# Cron triggers disabled for now - can be enabled after deployment
-# [triggers]
-# crons = [
-#   "0 9 * * *",   # Daily at 9 AM UTC - check for missed check-ins
-#   "0 0 * * 0",   # Weekly on Sunday - send reminder emails
-# ]
+# Cron triggers for Dead Man's Switch
+# NOTE: Set CRON_ENABLED=true via `wrangler secret put CRON_ENABLED` to activate
+[triggers]
+crons = [
+  "0 9 * * *",   # Daily at 9 AM UTC - check for missed check-ins
+  "0 0 * * 0",   # Weekly on Sunday - send reminder emails
+]
 
 # ============================================
 # ENVIRONMENT VARIABLES

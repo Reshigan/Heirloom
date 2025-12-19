@@ -526,6 +526,56 @@ billingRoutes.get('/usage', async (c) => {
   });
 });
 
+// Stripe webhook signature verification using HMAC-SHA256
+async function verifyStripeSignature(
+  payload: string,
+  signature: string,
+  secret: string,
+  tolerance: number = 300
+): Promise<boolean> {
+  const parts = signature.split(',').reduce((acc, part) => {
+    const [key, value] = part.split('=');
+    acc[key] = value;
+    return acc;
+  }, {} as Record<string, string>);
+
+  const timestamp = parts['t'];
+  const expectedSignature = parts['v1'];
+
+  if (!timestamp || !expectedSignature) {
+    return false;
+  }
+
+  const timestampNum = parseInt(timestamp, 10);
+  const now = Math.floor(Date.now() / 1000);
+  
+  if (Math.abs(now - timestampNum) > tolerance) {
+    return false;
+  }
+
+  const signedPayload = `${timestamp}.${payload}`;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  
+  const signatureBuffer = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(signedPayload)
+  );
+  
+  const computedSignature = Array.from(new Uint8Array(signatureBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  return computedSignature === expectedSignature;
+}
+
 // Stripe webhook handler
 billingRoutes.post('/webhook', async (c) => {
   const signature = c.req.header('stripe-signature');
@@ -535,8 +585,12 @@ billingRoutes.post('/webhook', async (c) => {
     return c.json({ error: 'Webhook not configured' }, 400);
   }
   
-  // Verify webhook signature (simplified - in production use Stripe SDK)
-  // For now, we'll process the event directly
+  const isValid = await verifyStripeSignature(body, signature, c.env.STRIPE_WEBHOOK_SECRET);
+  if (!isValid) {
+    console.error('Invalid Stripe webhook signature');
+    return c.json({ error: 'Invalid signature' }, 401);
+  }
+  
   try {
     const event = JSON.parse(body) as {
       type: string;

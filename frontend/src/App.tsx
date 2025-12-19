@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -44,10 +45,11 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <CustomCursor />
-        <Routes>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <CustomCursor />
+          <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -173,8 +175,9 @@ export default function App() {
 
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
