@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun } from 'lucide-react';
-import { memoriesApi, familyApi } from '../services/api';
+import { memoriesApi, familyApi, getAuthHeaders } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
@@ -83,12 +83,14 @@ export function Memories() {
         contentType: data.file.type,
       });
       
-      // Upload file to R2 - include credentials for auth
+      // Upload file to R2 - include Authorization header for protected endpoint
       const uploadResponse = await fetch(uploadData.uploadUrl, {
         method: 'PUT',
         body: data.file,
-        headers: { 'Content-Type': data.file.type },
-        credentials: 'include',
+        headers: { 
+          'Content-Type': data.file.type,
+          ...getAuthHeaders(),
+        },
       });
       
       // Check if upload was successful
@@ -99,7 +101,8 @@ export function Memories() {
       
       // Get the file URL from the upload response
       const uploadResult = await uploadResponse.json();
-      const fileUrl = uploadResult.fileUrl || `${import.meta.env.VITE_API_URL}/memories/file/${encodeURIComponent(uploadData.key)}`;
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api';
+      const fileUrl = uploadResult.fileUrl || `${apiUrl}/memories/file/${encodeURIComponent(uploadData.key)}`;
       
       setUploadProgress(70);
       

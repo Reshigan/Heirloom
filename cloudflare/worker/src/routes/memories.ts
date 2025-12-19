@@ -48,12 +48,17 @@ memoriesRoutes.get('/', async (c) => {
   return c.json({
     data: memories.results.map((m: any) => {
       const parsedMetadata = m.metadata ? JSON.parse(m.metadata) : null;
+      // Fallback: construct fileUrl from file_key if file_url is missing or broken
+      let fileUrl = m.file_url;
+      if ((!fileUrl || fileUrl.includes('undefined')) && m.file_key) {
+        fileUrl = `${c.env.API_URL}/api/memories/file/${encodeURIComponent(m.file_key)}`;
+      }
       return {
         id: m.id,
         type: m.type,
         title: m.title,
         description: m.description,
-        fileUrl: m.file_url,
+        fileUrl,
         fileKey: m.file_key,
         fileSize: m.file_size,
         mimeType: m.mime_type,
