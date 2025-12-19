@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus } from 'lucide-react';
+import { Mp3Encoder } from 'lamejs';
 import { voiceApi, familyApi } from '../services/api';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 import { Navigation } from '../components/Navigation';
@@ -129,12 +130,10 @@ export function Record() {
 
     const uploadMutation = useMutation({
     mutationFn: async (data: { blob: Blob; form: typeof form }) => {
-      // Use the actual blob type from the recording (Safari uses audio/mp4, Chrome uses audio/webm)
-      const actualMimeType = data.blob.type || recordingFormatRef.current.mimeType || 'audio/webm';
-      const extension = actualMimeType.includes('mp4') ? 'mp4' : 
-                       actualMimeType.includes('ogg') ? 'ogg' : 
-                       actualMimeType.includes('wav') ? 'wav' : 'webm';
-      const file = new File([data.blob], `recording.${extension}`, { type: actualMimeType });
+      // Convert to MP3 for universal cross-browser playback
+      // MP3 is supported by all browsers (Safari, Chrome, Firefox, Edge)
+      const mp3Blob = await convertToMp3(data.blob);
+      const file = new File([mp3Blob], 'recording.mp3', { type: 'audio/mpeg' });
       
       const { data: urlData } = await voiceApi.getUploadUrl({
         filename: file.name,
@@ -218,6 +217,71 @@ export function Record() {
       }
     };
   }, [isRecording]);
+
+  // Convert audio blob to MP3 for cross-browser compatibility
+  const convertToMp3 = async (audioBlob: Blob): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const arrayBuffer = reader.result as ArrayBuffer;
+          const audioContext = new AudioContext();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          
+          const sampleRate = audioBuffer.sampleRate;
+          const numChannels = audioBuffer.numberOfChannels;
+          const samples = audioBuffer.length;
+          
+          // Get audio data as Float32Array
+          const leftChannel = audioBuffer.getChannelData(0);
+          const rightChannel = numChannels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
+          
+          // Convert Float32 to Int16 for MP3 encoding
+          const leftInt16 = new Int16Array(samples);
+          const rightInt16 = new Int16Array(samples);
+          
+          for (let i = 0; i < samples; i++) {
+            // Clamp values to [-1, 1] and convert to Int16 range
+            leftInt16[i] = Math.max(-32768, Math.min(32767, Math.floor(leftChannel[i] * 32767)));
+            rightInt16[i] = Math.max(-32768, Math.min(32767, Math.floor(rightChannel[i] * 32767)));
+          }
+          
+          // Create MP3 encoder (128kbps for good quality/size balance)
+          const mp3Encoder = new Mp3Encoder(numChannels, sampleRate, 128);
+          const mp3Data: ArrayBuffer[] = [];
+          
+          // Encode in chunks of 1152 samples (MP3 frame size)
+          const chunkSize = 1152;
+          for (let i = 0; i < samples; i += chunkSize) {
+            const leftChunk = leftInt16.subarray(i, Math.min(i + chunkSize, samples));
+            const rightChunk = numChannels > 1 ? rightInt16.subarray(i, Math.min(i + chunkSize, samples)) : undefined;
+            
+            const mp3buf = mp3Encoder.encodeBuffer(leftChunk, rightChunk);
+            if (mp3buf.length > 0) {
+              // Convert Int8Array to ArrayBuffer for Blob compatibility
+              mp3Data.push(new Uint8Array(mp3buf).buffer);
+            }
+          }
+          
+          // Flush remaining data
+          const mp3End = mp3Encoder.flush();
+          if (mp3End.length > 0) {
+            mp3Data.push(new Uint8Array(mp3End).buffer);
+          }
+          
+          // Combine all MP3 chunks into a single blob
+          const mp3Blob = new Blob(mp3Data, { type: 'audio/mpeg' });
+          resolve(mp3Blob);
+        } catch (error) {
+          console.error('MP3 encoding error:', error);
+          // Fall back to original blob if encoding fails
+          resolve(audioBlob);
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(audioBlob);
+    });
+  };
 
   // Detect the best supported audio format for recording
   const getRecordingMimeType = (): { mimeType: string; extension: string } => {
