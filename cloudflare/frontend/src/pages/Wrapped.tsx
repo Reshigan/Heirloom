@@ -313,18 +313,20 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
         </motion.div>
       ))}
     </div>
-    <motion.p
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 1.2 }}
-      className="text-lg text-gold mt-8 text-center"
-    >
-      {stats.topEmotions[0].emotion} was your dominant feeling ✨
-    </motion.p>
+    {stats.topEmotions.length > 0 && (
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+        className="text-lg text-gold mt-8 text-center"
+      >
+        {stats.topEmotions[0].emotion} was your dominant feeling ✨
+      </motion.p>
+    )}
   </motion.div>
 );
 
-const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
+const FamilySlide:React.FC<{ stats: WrappedStats }> = ({ stats }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
