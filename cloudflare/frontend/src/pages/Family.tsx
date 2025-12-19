@@ -251,10 +251,17 @@ export function Family() {
               {/* Connection lines */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none">
                 {family?.map((member: any, i: number) => {
-                  const angle = (i / Math.max(1, family.length)) * 2 * Math.PI - Math.PI / 2;
-                  const radius = 200;
+                  // Use same dynamic radius calculation as nodes
+                  const memberCount = family.length;
+                  const baseRadius = 180;
+                  const ring = memberCount > 6 ? Math.floor(i / 6) : 0;
+                  const indexInRing = memberCount > 6 ? i % 6 : i;
+                  const membersInRing = memberCount > 6 ? Math.min(6, memberCount - ring * 6) : memberCount;
+                  const radius = baseRadius + ring * 100;
+                  const angleOffset = ring * (Math.PI / 6);
+                  const angle = (indexInRing / Math.max(1, membersInRing)) * 2 * Math.PI - Math.PI / 2 + angleOffset;
                   const x = 50 + (Math.cos(angle) * radius) / 6;
-                  const y = 50 + (Math.sin(angle) * radius) / 3;
+                  const y = 50 + (Math.sin(angle) * radius * 0.7) / 3;
                   return (
                     <motion.line
                       key={member.id}
@@ -312,10 +319,20 @@ export function Family() {
 
               {/* Family members */}
               {family?.map((member: any, i: number) => {
-                const angle = (i / Math.max(1, family.length)) * 2 * Math.PI - Math.PI / 2;
-                const radius = 200;
+                // Dynamic radius based on number of members to prevent overlap
+                const memberCount = family.length;
+                const baseRadius = 180;
+                // Increase radius for more members, and use multiple rings if needed
+                const ring = memberCount > 6 ? Math.floor(i / 6) : 0;
+                const indexInRing = memberCount > 6 ? i % 6 : i;
+                const membersInRing = memberCount > 6 ? Math.min(6, memberCount - ring * 6) : memberCount;
+                const radius = baseRadius + ring * 100;
+                
+                // Calculate angle with offset for each ring
+                const angleOffset = ring * (Math.PI / 6); // Offset each ring slightly
+                const angle = (indexInRing / Math.max(1, membersInRing)) * 2 * Math.PI - Math.PI / 2 + angleOffset;
                 const x = Math.cos(angle) * radius;
-                const y = Math.sin(angle) * radius;
+                const y = Math.sin(angle) * radius * 0.7; // Compress vertically to fit better
 
                 return (
                   <motion.div
@@ -326,7 +343,7 @@ export function Family() {
                     animate={{
                       scale: 1,
                       opacity: 1,
-                      y: [y - 5, y + 5, y - 5],
+                      y: [y - 3, y + 3, y - 3],
                     }}
                     transition={{
                       scale: { delay: 0.3 + i * 0.1 },
@@ -335,12 +352,12 @@ export function Family() {
                   >
                     <motion.button
                       onClick={() => navigate(`/family/${member.id}`)}
-                      className={`relative group ${id === member.id ? 'z-30' : ''}`}
+                      className={`relative group ${id === member.id ? 'z-30' : 'z-10'}`}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                     >
                       <div 
-                        className={`w-20 h-20 rounded-full glass flex items-center justify-center border-2 transition-all ${
+                        className={`w-16 h-16 md:w-20 md:h-20 rounded-full glass flex items-center justify-center border-2 transition-all ${
                           id === member.id ? 'border-gold bg-gold/20' : 'border-gold/30 group-hover:border-gold'
                         }`}
                         style={{
@@ -349,11 +366,11 @@ export function Family() {
                             : 'inset 0 1px 0 rgba(255,255,255,0.1)',
                         }}
                       >
-                        <span className="text-2xl text-gold">{member.name[0]}</span>
+                        <span className="text-xl md:text-2xl text-gold">{member.name[0]}</span>
                       </div>
-                      <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-center whitespace-nowrap">
-                        <div className="text-paper text-sm font-medium">{member.name}</div>
-                        <div className="text-paper/40 text-xs">{member.relationship}</div>
+                      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-center w-24">
+                        <div className="text-paper text-xs md:text-sm font-medium truncate">{member.name}</div>
+                        <div className="text-paper/40 text-xs truncate">{member.relationship}</div>
                       </div>
                     </motion.button>
                   </motion.div>
@@ -382,7 +399,7 @@ export function Family() {
               )}
             </div>
 
-            {/* Add button - positioned at bottom-right of outer container (sibling of flex) */}
+            {/* Add button - positioned at bottom-left to avoid overlap with constellation nodes */}
             <motion.button
               onClick={() => {
                 setEditingId(null);
@@ -391,7 +408,7 @@ export function Family() {
                 setErrors({});
                 setShowAddModal(true);
               }}
-              className="absolute bottom-6 right-6 z-30 w-14 h-14 rounded-full glass border border-dashed border-gold/30 flex items-center justify-center text-gold/50 hover:text-gold hover:border-gold hover:bg-gold/10 transition-all"
+              className="absolute bottom-4 left-4 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void shadow-lg hover:shadow-gold/30 transition-all"
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0 }}
