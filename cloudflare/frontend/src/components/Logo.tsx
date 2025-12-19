@@ -40,14 +40,14 @@ export function Logo({ size = 'md', showText = true, className }: LogoProps) {
           />
         </motion.div>
         
-        {/* Infinity symbol */}
+        {/* Infinity symbol - using canonical path from Icons.tsx */}
         <svg
-          viewBox="0 0 24 12"
+          viewBox="0 0 24 24"
           className="absolute"
           style={{ inset: mark * 0.2 }}
         >
           <motion.path
-            d="M6 6c0-2.5 1.5-4 3.5-4S13 3.5 12 6s-2 4-5 4-4-1.5-3-4m6 0c0-2.5 1.5-4 3.5-4S19 3.5 18 6s-2 4-5 4-4-1.5-3-4"
+            d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.873 0-4.873 8 0 8 5.606 0 7.644-8 12.74-8z"
             fill="none"
             stroke="var(--gold)"
             strokeWidth="1.5"
