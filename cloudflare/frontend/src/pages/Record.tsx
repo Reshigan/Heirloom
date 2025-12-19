@@ -89,10 +89,11 @@ export function Record() {
         const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
 
     // Get available years from recordings
+    // Note: API returns { data: [...], pagination: {...} }
     const availableYears = useMemo(() => {
-      if (!recordings?.recordings) return [new Date().getFullYear()];
+      if (!recordings?.data) return [new Date().getFullYear()];
       const years = new Set<number>();
-      recordings.recordings.forEach((r: VoiceRecording) => {
+      recordings.data.forEach((r: VoiceRecording) => {
         years.add(new Date(r.createdAt).getFullYear());
       });
       const yearArray = Array.from(years).sort((a, b) => b - a);
@@ -101,8 +102,8 @@ export function Record() {
 
     // Filter recordings by timeline and emotion
     const filteredRecordings = useMemo(() => {
-      if (!recordings?.recordings) return [];
-      return recordings.recordings.filter((r: VoiceRecording) => {
+      if (!recordings?.data) return [];
+      return recordings.data.filter((r: VoiceRecording) => {
         const date = new Date(r.createdAt);
         const matchesYear = date.getFullYear() === selectedYear;
         const matchesMonth = selectedMonth === null || date.getMonth() === selectedMonth;
@@ -113,9 +114,9 @@ export function Record() {
 
     // Get emotion counts for current filter
     const emotionCounts = useMemo(() => {
-      if (!recordings?.recordings) return {};
+      if (!recordings?.data) return {};
       const counts: Record<string, number> = {};
-      recordings.recordings.forEach((r: VoiceRecording) => {
+      recordings.data.forEach((r: VoiceRecording) => {
         const date = new Date(r.createdAt);
         if (date.getFullYear() === selectedYear && (selectedMonth === null || date.getMonth() === selectedMonth)) {
           if (r.emotion) {
@@ -972,7 +973,7 @@ export function Record() {
                       animate={{ opacity: 1 }}
                       className="text-center py-12"
                     >
-                      {recordings?.recordings?.length > 0 ? (
+                      {recordings?.data?.length > 0 ? (
                         <>
                           <h3 className="text-xl font-light mb-2">No recordings match your filters</h3>
                           <p className="text-paper/50 mb-6">Try adjusting the year, month, or emotion filter</p>
