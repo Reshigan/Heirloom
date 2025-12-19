@@ -641,20 +641,26 @@ export function Compose() {
         {showSealConfirm && (
           <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
             <div className="bg-void-light border border-gold/30 rounded-2xl p-8 max-w-md w-full text-center">
-              {/* Wax Seal Animation */}
-              <div className="w-24 h-24 mx-auto mb-6 text-blood">
+              {/* Wax Seal with Heirloom Infinity Symbol */}
+              <div className="w-24 h-24 mx-auto mb-6">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
-                  <circle cx="50" cy="50" r="45" fill="url(#sealGradient)" />
+                  <circle cx="50" cy="50" r="45" fill="url(#heirloomSealGradient)" />
                   <defs>
-                    <radialGradient id="sealGradient" cx="30%" cy="30%">
+                    <radialGradient id="heirloomSealGradient" cx="30%" cy="30%">
                       <stop offset="0%" stopColor="#c04060" />
                       <stop offset="50%" stopColor="#8b2942" />
                       <stop offset="100%" stopColor="#5a1a2a" />
                     </radialGradient>
                   </defs>
-                  <g transform="translate(50,50)" className="text-paper/90">
-                    <path d="M-15 0c0-4 1.5-8 4-8s4 4 4 8-1.5 8-4 8-4-4-4-8M11 0c0-4 1.5-8 4-8s4 4 4 8-1.5 8-4 8-4-4-4-8" 
-                          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  {/* Heirloom Infinity Symbol */}
+                  <g transform="translate(50, 50) scale(2.5)">
+                    <path 
+                      d="M-6 0c0-2.5 1.5-4 3.5-4S1 -2.5 0 0s-2 4-5 4-4-1.5-3-4m6 0c0-2.5 1.5-4 3.5-4S7 -2.5 6 0s-2 4-5 4-4-1.5-3-4"
+                      fill="none" 
+                      stroke="rgba(255,255,255,0.9)" 
+                      strokeWidth="1"
+                      strokeLinecap="round"
+                    />
                   </g>
                 </svg>
               </div>
