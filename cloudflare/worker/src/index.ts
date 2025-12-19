@@ -298,7 +298,9 @@ app.get('/api/voice/file/*', async (c) => {
     let contentType = headObject.httpMetadata?.contentType;
     if (!contentType || !contentType.startsWith('audio/')) {
       // Infer from file extension
-      if (key.endsWith('.webm')) {
+      if (key.endsWith('.mp3')) {
+        contentType = 'audio/mpeg';
+      } else if (key.endsWith('.webm')) {
         contentType = 'audio/webm';
       } else if (key.endsWith('.mp4') || key.endsWith('.m4a')) {
         contentType = 'audio/mp4';
@@ -307,8 +309,8 @@ app.get('/api/voice/file/*', async (c) => {
       } else if (key.endsWith('.ogg')) {
         contentType = 'audio/ogg';
       } else {
-        // Default to audio/webm (most common from MediaRecorder)
-        contentType = 'audio/webm';
+        // Default to audio/mpeg (MP3) for universal playback
+        contentType = 'audio/mpeg';
       }
     }
     
