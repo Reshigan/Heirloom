@@ -380,7 +380,7 @@ export function Record() {
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 px-6 md:px-12 py-12">
+      <div className="relative z-10 px-6 md:px-12 pt-24 md:pt-28 pb-12">
         <motion.button
           onClick={() => navigate('/dashboard')}
           className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8 group"
@@ -416,9 +416,9 @@ export function Record() {
             >
               {/* Vintage Recorder Device */}
               <div className="card relative overflow-hidden sm:overflow-visible">
-                {/* Device body - responsive padding for mobile */}
+                {/* Device body - compact padding on mobile */}
                 <div 
-                  className="rounded-2xl p-4 sm:p-8 relative"
+                  className="rounded-2xl p-3 sm:p-6 relative"
                   style={{
                     background: 'linear-gradient(180deg, #2a2520 0%, #1a1510 50%, #0f0d0a 100%)',
                     boxShadow: '0 30px 60px -15px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -2px 0 rgba(0,0,0,0.5)',
@@ -427,8 +427,8 @@ export function Record() {
                   {/* Chrome trim */}
                   <div className="absolute top-0 left-8 right-8 h-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent rounded-full" />
                   
-                  {/* Reels - responsive sizing for mobile */}
-                  <div className="flex justify-center gap-8 sm:gap-16 mb-8">
+                  {/* Reels - smaller on mobile for better fit */}
+                  <div className="flex justify-center gap-4 sm:gap-12 mb-4 sm:mb-8">
                     {[0, 1].map((i) => (
                       <motion.div
                         key={i}
@@ -437,7 +437,7 @@ export function Record() {
                         transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                       >
                         <div 
-                          className="w-16 h-16 sm:w-24 sm:h-24 rounded-full relative"
+                          className="w-12 h-12 sm:w-20 sm:h-20 rounded-full relative"
                           style={{
                             background: 'radial-gradient(circle at 30% 30%, #4a4540 0%, #2a2520 50%, #1a1510 100%)',
                             boxShadow: 'inset 0 4px 8px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3)',
@@ -459,9 +459,9 @@ export function Record() {
                     ))}
                   </div>
 
-                  {/* Waveform Display */}
+                  {/* Waveform Display - smaller on mobile */}
                   <div 
-                    className="h-32 rounded-lg mb-8 flex items-center justify-center gap-1 px-4 relative overflow-hidden"
+                    className="h-20 sm:h-32 rounded-lg mb-4 sm:mb-8 flex items-center justify-center gap-1 px-4 relative overflow-hidden"
                     style={{
                       background: 'linear-gradient(180deg, #0a0908 0%, #151210 100%)',
                       boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.8)',
@@ -504,11 +504,11 @@ export function Record() {
                     )}
                   </div>
 
-                  {/* Controls */}
-                  <div className="flex items-center justify-center gap-6">
+                  {/* Controls - smaller on mobile */}
+                  <div className="flex items-center justify-center gap-3 sm:gap-6">
                     {/* Timer */}
                     <div 
-                      className="px-6 py-3 rounded-lg font-mono text-2xl"
+                      className="px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-mono text-lg sm:text-2xl"
                       style={{
                         background: '#0a0908',
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.8)',
@@ -527,7 +527,7 @@ export function Record() {
                         whileTap={{ scale: 0.95 }}
                       >
                         <div 
-                          className="w-20 h-20 rounded-full flex items-center justify-center relative"
+                          className="w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center relative"
                           style={{
                             background: isRecording 
                               ? 'linear-gradient(180deg, #a83250 0%, #8b2942 100%)'
@@ -587,8 +587,8 @@ export function Record() {
                     )}
                   </div>
 
-                  {/* VU Meters */}
-                  <div className="flex justify-center gap-4 mt-6">
+                  {/* VU Meters - hidden on mobile to save space */}
+                  <div className="hidden sm:flex justify-center gap-4 mt-4 sm:mt-6">
                     {[0, 1].map((i) => (
                       <div key={i} className="flex items-end gap-0.5">
                         {[...Array(8)].map((_, j) => (
@@ -609,8 +609,8 @@ export function Record() {
                     ))}
                   </div>
 
-                  {/* Brand label */}
-                  <div className="text-center mt-6">
+                  {/* Brand label - hidden on mobile */}
+                  <div className="hidden sm:block text-center mt-4 sm:mt-6">
                     <span className="text-gold/30 text-xs tracking-[0.3em]">HEIRLOOM RECORDER</span>
                   </div>
                 </div>

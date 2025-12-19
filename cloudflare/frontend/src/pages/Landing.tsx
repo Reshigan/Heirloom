@@ -78,11 +78,11 @@ export function Landing() {
             <span className="text-lg tracking-[0.2em] text-paper/80">Heirloom</span>
           </Link>
           
-          <div className="flex items-center gap-6">
-            <Link to="/login" className="text-paper/80 hover:text-gold transition-colors hidden md:block font-medium">
+          <div className="flex items-center gap-4 md:gap-6">
+            <Link to="/login" className="text-paper/80 hover:text-gold transition-colors font-medium text-sm md:text-base">
               Sign In
             </Link>
-            <Link to="/signup" className="btn btn-primary">
+            <Link to="/signup" className="btn btn-primary text-sm md:text-base">
               Start Free Trial
             </Link>
           </div>

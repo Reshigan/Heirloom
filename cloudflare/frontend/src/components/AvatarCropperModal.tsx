@@ -169,14 +169,14 @@ export function AvatarCropperModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-void-deep/90 backdrop-blur-sm"
+        className="fixed inset-0 z-[100] flex items-start justify-center bg-void-deep/90 backdrop-blur-sm overflow-y-auto py-8"
         onClick={onCancel}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-void-light border border-gold/20 rounded-xl p-6 max-w-md w-full mx-4"
+          className="bg-void-light border border-gold/20 rounded-xl p-6 max-w-md w-full mx-4 my-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
