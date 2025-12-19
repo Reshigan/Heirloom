@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-// @ts-ignore - Vite env types
-const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -60,7 +59,7 @@ export const authApi = {
   logout: () => api.post('/auth/logout'),
   me: () => api.get('/auth/me'),
   refresh: (refreshToken: string) => api.post('/auth/refresh', { refreshToken }),
-  forgotPassword: (data: { email: string }) => api.post('/auth/forgot-password', data),
+  forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
   resetPassword: (data: { token: string; password: string }) => api.post('/auth/reset-password', data),
 };
 
@@ -68,9 +67,9 @@ export const authApi = {
 export const familyApi = {
   getAll: () => api.get('/family'),
   getOne: (id: string) => api.get(`/family/${id}`),
-  create: (data: { name: string; relationship: string; email?: string; phone?: string }) =>
+  create: (data: { name: string; relationship: string; email?: string; phone?: string; avatarUrl?: string }) =>
     api.post('/family', data),
-  update: (id: string, data: Partial<{ name: string; relationship: string; email: string }>) =>
+  update: (id: string, data: Partial<{ name: string; relationship: string; email: string; avatarUrl: string }>) =>
     api.patch(`/family/${id}`, data),
   delete: (id: string) => api.delete(`/family/${id}`),
 };
@@ -135,7 +134,9 @@ export const settingsApi = {
     api.patch('/settings/profile', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post('/settings/change-password', data),
-  deleteAccount: (password: string) => api.delete('/settings/account', { data: { password, confirmation: 'DELETE' } }),
+  deleteAccount: (password: string) => api.delete('/settings/account', { data: { password } }),
+  getUploadUrl: (data: { filename: string; contentType: string }) =>
+    api.post('/settings/upload-url', data),
   getNotifications: () => api.get('/settings/notifications'),
   updateNotifications: (data: { emailNotifications?: boolean; pushNotifications?: boolean; reminderEmails?: boolean; marketingEmails?: boolean; weeklyDigest?: boolean }) =>
     api.patch('/settings/notifications', data),
@@ -158,8 +159,10 @@ export const deadmanApi = {
 
 // Encryption API
 export const encryptionApi = {
-  setup: (password: string) => api.post('/encryption/setup', { password }),
+  setup: (data: { encryptedMasterKey: string; encryptionSalt: string; keyDerivationParams?: any }) => 
+    api.post('/encryption/setup', data),
   getParams: () => api.get('/encryption/params'),
+  getStatus: () => api.get('/encryption/status'),
   setupEscrow: (data: { beneficiaryIds: string[]; encryptedKey: string }) =>
     api.post('/encryption/escrow', data),
   getEscrow: () => api.get('/encryption/escrow'),
@@ -174,15 +177,15 @@ export const legacyContactsApi = {
   resendVerification: (id: string) => api.post(`/settings/legacy-contacts/${id}/resend`),
 };
 
-// Wrapped API (Year in Review)
+// Wrapped API
 export const wrappedApi = {
-  getCurrent: () => api.get('/wrapped/' + new Date().getFullYear()),
+  getCurrent: () => api.get('/wrapped/current'),
   getYear: (year: number) => api.get(`/wrapped/${year}`),
   regenerate: (year: number) => api.post(`/wrapped/${year}/regenerate`),
   getYears: () => api.get('/wrapped'),
 };
 
-// Admin API(uses admin token from localStorage)
+// Admin API (uses separate admin token)
 const adminAxios = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
@@ -247,17 +250,21 @@ export const adminApi = {
     adminAxios.post('/admin/emails/bulk', data),
   
   // Reports
-  getRevenueReport: () => adminAxios.get('/admin/reports/revenue'),
-  getUserGrowthReport: () => adminAxios.get('/admin/reports/user-growth'),
-  exportUsers: (format: 'csv' | 'json') => adminAxios.get(`/admin/reports/export/users?format=${format}`),
+  getRevenueReport: (params?: { startDate?: string; endDate?: string }) => 
+    adminAxios.get('/admin/reports/revenue', { params }),
+  getUserGrowthReport: (params?: { startDate?: string; endDate?: string }) => 
+    adminAxios.get('/admin/reports/user-growth', { params }),
+  exportUsers: (format: 'csv' | 'json') => adminAxios.get('/admin/reports/export/users', { params: { format } }),
   
-  // Billing Errors
+  // Billing Analysis
   getBillingErrors: (params?: { status?: string; page?: number; limit?: number }) => 
     adminAxios.get('/admin/billing/errors', { params }),
   getBillingErrorStats: () => adminAxios.get('/admin/billing/errors/stats'),
-  retryBillingError: (id: string) => adminAxios.post(`/admin/billing/errors/${id}/retry`),
-  notifyBillingError: (id: string) => adminAxios.post(`/admin/billing/errors/${id}/notify`),
-  notifyAllFailedBilling: () => adminAxios.post('/admin/billing/errors/notify-all'),
+  notifyBillingError: (errorId: string) => adminAxios.post(`/admin/billing/errors/${errorId}/notify`),
+  reprocessBillingError: (errorId: string) => adminAxios.post(`/admin/billing/errors/${errorId}/reprocess`),
+  resolveBillingError: (errorId: string, data: { resolution?: string }) => 
+    adminAxios.post(`/admin/billing/errors/${errorId}/resolve`, data),
+  notifyAllFailedBilling: () => adminAxios.post('/admin/billing/notify-all-failed'),
 };
 
 export default api;

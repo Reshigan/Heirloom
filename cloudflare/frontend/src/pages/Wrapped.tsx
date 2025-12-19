@@ -184,7 +184,7 @@ const TotalMemoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ type: 'spring', delay: 0.3 }}
       className="relative"
     >
-      <span className="text-9xl md:text-[12rem] font-display text-gold">
+      <span className="text-6xl sm:text-8xl md:text-[12rem] font-display text-gold">
         {stats.totalMemories}
       </span>
       <motion.div
@@ -257,7 +257,7 @@ const VoiceStoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ delay: 0.5, type: 'spring' }}
       className="flex items-baseline gap-4"
     >
-      <span className="text-8xl font-display text-gold">{stats.totalVoiceStories}</span>
+      <span className="text-5xl sm:text-7xl md:text-8xl font-display text-gold">{stats.totalVoiceStories}</span>
       <span className="text-3xl text-paper">stories</span>
     </motion.div>
     <motion.p
@@ -313,29 +313,18 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
         </motion.div>
       ))}
     </div>
-    {stats.topEmotions.length > 0 ? (
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="text-lg text-gold mt-8 text-center"
-      >
-        {stats.topEmotions[0].emotion} was your dominant feeling ✨
-      </motion.p>
-    ) : (
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="text-lg text-paper/60 mt-8 text-center"
-      >
-        No emotion data recorded yet
-      </motion.p>
-    )}
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.2 }}
+      className="text-lg text-gold mt-8 text-center"
+    >
+      {stats.topEmotions[0].emotion} was your dominant feeling ✨
+    </motion.p>
   </motion.div>
 );
 
-const FamilySlide:React.FC<{ stats: WrappedStats }> = ({ stats }) => (
+const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -442,7 +431,7 @@ const StreakSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ rotate: -180, scale: 0 }}
       animate={{ rotate: 0, scale: 1 }}
       transition={{ type: 'spring', duration: 1 }}
-      className="text-8xl mb-8"
+      className="text-5xl sm:text-7xl md:text-8xl mb-8"
     >
       🔥
     </motion.div>
@@ -460,7 +449,7 @@ const StreakSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ type: 'spring', delay: 0.5 }}
       className="flex items-baseline gap-2"
     >
-      <span className="text-8xl font-display text-gold">{stats.longestStreak}</span>
+      <span className="text-5xl sm:text-7xl md:text-8xl font-display text-gold">{stats.longestStreak}</span>
       <span className="text-3xl text-paper">days</span>
     </motion.div>
     <motion.p
@@ -549,7 +538,7 @@ const LettersSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ type: 'spring', delay: 0.5 }}
       className="flex items-baseline gap-2"
     >
-      <span className="text-8xl font-display text-gold">{stats.totalLetters}</span>
+      <span className="text-5xl sm:text-7xl md:text-8xl font-display text-gold">{stats.totalLetters}</span>
       <span className="text-3xl text-paper">letters</span>
     </motion.div>
     <motion.p
@@ -652,10 +641,8 @@ const Wrapped: React.FC = () => {
 
   // Get available years (default to current year if no data)
   const availableYears = useMemo(() => {
-    // Backend returns availableYears array with {year, hasData, wrappedGenerated, generatedAt}
-    const years = yearsData?.availableYears?.map((y: { year: number }) => y.year) ?? [];
-    if (years.length > 0) {
-      return years.sort((a: number, b: number) => b - a);
+    if (yearsData?.years && yearsData.years.length > 0) {
+      return yearsData.years.sort((a: number, b: number) => b - a);
     }
     // Default to last 5 years if no data
     return Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -665,9 +652,13 @@ const Wrapped: React.FC = () => {
   const { data: apiData } = useQuery({
     queryKey: ['wrapped', selectedYear],
     queryFn: async () => {
-      // Always use getYear to avoid /wrapped/current endpoint issues
-      const response = await wrappedApi.getYear(selectedYear);
-      return response.data;
+      if (selectedYear === currentYear) {
+        const response = await wrappedApi.getCurrent();
+        return response.data;
+      } else {
+        const response = await wrappedApi.getYear(selectedYear);
+        return response.data;
+      }
     },
   });
 
@@ -765,8 +756,8 @@ const Wrapped: React.FC = () => {
         ))}
       </div>
 
-      {/* Year Slider */}
-      <div className="absolute top-8 left-8 flex items-center gap-3 z-50">
+      {/* Year Slider - positioned below progress dots on mobile */}
+      <div className="absolute top-20 sm:top-8 left-4 sm:left-8 flex items-center gap-2 sm:gap-3 z-50">
         <button
           onClick={() => {
             const idx = availableYears.indexOf(selectedYear);

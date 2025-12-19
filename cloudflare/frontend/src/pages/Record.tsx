@@ -1,25 +1,36 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, Volume2, Clock, Calendar } from 'lucide-react';
+import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus } from 'lucide-react';
 import { voiceApi, familyApi } from '../services/api';
+import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
+import { Navigation } from '../components/Navigation';
 
-interface VoiceRecording {
+type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
+
+const EMOTIONS: { value: EmotionType; label: string; icon: React.ElementType; color: string }[] = [
+  { value: 'joyful', label: 'Joyful', icon: Sparkles, color: 'text-yellow-400 bg-yellow-400/20' },
+  { value: 'nostalgic', label: 'Nostalgic', icon: Cloud, color: 'text-amber-400 bg-amber-400/20' },
+  { value: 'grateful', label: 'Grateful', icon: Gift, color: 'text-emerald-400 bg-emerald-400/20' },
+  { value: 'loving', label: 'Loving', icon: Heart, color: 'text-rose-400 bg-rose-400/20' },
+  { value: 'bittersweet', label: 'Bittersweet', icon: Droplet, color: 'text-purple-400 bg-purple-400/20' },
+  { value: 'reflective', label: 'Reflective', icon: Eye, color: 'text-indigo-400 bg-indigo-400/20' },
+  { value: 'proud', label: 'Proud', icon: Trophy, color: 'text-orange-400 bg-orange-400/20' },
+  { value: 'peaceful', label: 'Peaceful', icon: Leaf, color: 'text-teal-400 bg-teal-400/20' },
+  { value: 'hopeful', label: 'Hopeful', icon: Sun, color: 'text-sky-400 bg-sky-400/20' },
+];
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+type VoiceRecording = {
   id: string;
   title: string;
-  description?: string;
-  fileUrl: string;
-  fileKey: string;
   duration: number;
-  fileSize: number;
-  transcript?: string;
-  emotion?: string;
-  encrypted: boolean;
-  recipients: { id: string; name: string; relationship: string }[];
+  emotion?: EmotionType;
+  fileUrl?: string;
   createdAt: string;
-  updatedAt: string;
-}
+};
 
 export function Record() {
   const navigate = useNavigate();
@@ -42,6 +53,7 @@ export function Record() {
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const savedAudioRef = useRef<HTMLAudioElement | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -57,63 +69,64 @@ export function Record() {
     queryFn: () => familyApi.getAll().then(r => r.data),
   });
 
-  const { data: stats } = useQuery({
-    queryKey: ['voice-stats'],
-    queryFn: () => voiceApi.getStats().then(r => r.data),
-  });
+    const { data: stats } = useQuery({
+      queryKey: ['voice-stats'],
+      queryFn: () => voiceApi.getStats().then(r => r.data),
+    });
 
-  // Fetch saved recordings
-  const { data: recordings, isLoading: recordingsLoading } = useQuery({
-    queryKey: ['voice-list'],
-    queryFn: () => voiceApi.getAll().then(r => r.data?.data || []) as Promise<VoiceRecording[]>,
-  });
+    // Fetch all voice recordings for timeline view
+    const { data: recordings } = useQuery({
+      queryKey: ['voice'],
+      queryFn: () => voiceApi.getAll().then(r => r.data),
+    });
 
-  // State for playing saved recordings
-  const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
-  const savedAudioRef = useRef<HTMLAudioElement | null>(null);
+        // Timeline filter state
+        const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+        const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+        const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+        const [showRecordingsList, setShowRecordingsList] = useState(false);
+        const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+        const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
 
-  const playRecording = (recording: VoiceRecording) => {
-    if (playingRecordingId === recording.id) {
-      // Stop playing
-      if (savedAudioRef.current) {
-        savedAudioRef.current.pause();
-        savedAudioRef.current = null;
-      }
-      setPlayingRecordingId(null);
-    } else {
-      // Stop any currently playing
-      if (savedAudioRef.current) {
-        savedAudioRef.current.pause();
-      }
-      // Start playing new recording
-      const audio = new Audio(recording.fileUrl);
-      audio.onended = () => setPlayingRecordingId(null);
-      audio.onerror = () => {
-        showToast('Failed to play recording', 'error');
-        setPlayingRecordingId(null);
-      };
-      audio.play().catch(() => {
-        showToast('Failed to play recording', 'error');
-        setPlayingRecordingId(null);
+    // Get available years from recordings
+    const availableYears = useMemo(() => {
+      if (!recordings?.recordings) return [new Date().getFullYear()];
+      const years = new Set<number>();
+      recordings.recordings.forEach((r: VoiceRecording) => {
+        years.add(new Date(r.createdAt).getFullYear());
       });
-      savedAudioRef.current = audio;
-      setPlayingRecordingId(recording.id);
-    }
-  };
+      const yearArray = Array.from(years).sort((a, b) => b - a);
+      return yearArray.length > 0 ? yearArray : [new Date().getFullYear()];
+    }, [recordings]);
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => voiceApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['voice-list'] });
-      queryClient.invalidateQueries({ queryKey: ['voice-stats'] });
-      showToast('Recording deleted', 'success');
-    },
-    onError: () => {
-      showToast('Failed to delete recording', 'error');
-    },
-  });
+    // Filter recordings by timeline and emotion
+    const filteredRecordings = useMemo(() => {
+      if (!recordings?.recordings) return [];
+      return recordings.recordings.filter((r: VoiceRecording) => {
+        const date = new Date(r.createdAt);
+        const matchesYear = date.getFullYear() === selectedYear;
+        const matchesMonth = selectedMonth === null || date.getMonth() === selectedMonth;
+        const matchesEmotion = selectedEmotion === null || r.emotion === selectedEmotion;
+        return matchesYear && matchesMonth && matchesEmotion;
+      });
+    }, [recordings, selectedYear, selectedMonth, selectedEmotion]);
 
-  const uploadMutation = useMutation({
+    // Get emotion counts for current filter
+    const emotionCounts = useMemo(() => {
+      if (!recordings?.recordings) return {};
+      const counts: Record<string, number> = {};
+      recordings.recordings.forEach((r: VoiceRecording) => {
+        const date = new Date(r.createdAt);
+        if (date.getFullYear() === selectedYear && (selectedMonth === null || date.getMonth() === selectedMonth)) {
+          if (r.emotion) {
+            counts[r.emotion] = (counts[r.emotion] || 0) + 1;
+          }
+        }
+      });
+      return counts;
+    }, [recordings, selectedYear, selectedMonth]);
+
+    const uploadMutation = useMutation({
     mutationFn: async (data: { blob: Blob; form: typeof form }) => {
       const file = new File([data.blob], 'recording.webm', { type: 'audio/webm' });
       
@@ -122,29 +135,32 @@ export function Record() {
         contentType: file.type,
       });
       
-      // Upload file to R2 storage with auth header
-      const token = localStorage.getItem('token');
-      const uploadRes = await fetch(urlData.uploadUrl, {
+      // Upload the file to R2 storage
+      const uploadResponse = await fetch(urlData.uploadUrl, {
         method: 'PUT',
         body: file,
-        headers: {
+        headers: { 
           'Content-Type': file.type,
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
       
-      if (!uploadRes.ok) {
-        const errorBody = await uploadRes.text();
-        throw new Error(`Upload failed (${uploadRes.status}): ${errorBody}`);
-      }
+      let fileUrl = `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/voice/file/${encodeURIComponent(urlData.key)}`;
       
-      // Get the response with key and fileUrl from the upload endpoint
-      const uploadResult = await uploadRes.json();
+      // Try to get the file URL from the upload response
+      try {
+        const uploadResult = await uploadResponse.json();
+        if (uploadResult.fileUrl) {
+          fileUrl = uploadResult.fileUrl;
+        }
+      } catch {
+        // Response might not be JSON, use default URL
+      }
       
       return voiceApi.create({
         title: data.form.title || 'Untitled Recording',
-        fileKey: uploadResult.key,
-        fileUrl: uploadResult.fileUrl,
+        fileKey: urlData.key,
+        fileUrl,
         mimeType: file.type,
         duration: Math.floor(recordingTime),
         fileSize: file.size,
@@ -288,14 +304,35 @@ export function Record() {
     }));
   };
 
-  const prompts = [
+  // All available prompts
+  const allPrompts = [
     { id: '1', text: 'Tell me about the happiest day of your life', category: 'Memories' },
     { id: '2', text: 'What advice would you give your younger self?', category: 'Wisdom' },
     { id: '3', text: 'Describe your favorite family tradition', category: 'Family' },
     { id: '4', text: 'What do you want your children to know about you?', category: 'Legacy' },
     { id: '5', text: 'Share a story about how you met your partner', category: 'Love' },
     { id: '6', text: 'What are you most grateful for in life?', category: 'Gratitude' },
+    { id: '7', text: 'What was your childhood dream?', category: 'Memories' },
+    { id: '8', text: 'Describe a moment that changed your life', category: 'Legacy' },
+    { id: '9', text: 'What lesson took you the longest to learn?', category: 'Wisdom' },
+    { id: '10', text: 'Tell a funny story from your past', category: 'Memories' },
+    { id: '11', text: 'What do you hope your grandchildren will remember about you?', category: 'Legacy' },
+    { id: '12', text: 'Describe your perfect day', category: 'Gratitude' },
   ];
+
+  // Helper to get random prompts
+  const getRandomPrompts = (count: number) => {
+    const shuffled = [...allPrompts].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
+  // State for visible prompts (randomized on mount)
+  const [visiblePrompts, setVisiblePrompts] = useState(() => getRandomPrompts(4));
+
+  // Shuffle prompts
+  const shufflePrompts = () => {
+    setVisiblePrompts(getRandomPrompts(4));
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -307,6 +344,8 @@ export function Record() {
         <div className="sanctuary-stars" />
         <div className="sanctuary-mist" />
       </div>
+
+      <Navigation />
 
       {/* Soft ambient glow */}
       <div className="fixed inset-0 pointer-events-none">
@@ -602,25 +641,33 @@ export function Record() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
-                        <div className="flex flex-wrap gap-2">
-                          {family?.map((member: any) => (
-                            <button
-                              key={member.id}
-                              type="button"
-                              onClick={() => toggleRecipient(member.id)}
-                              className={`px-3 py-2 rounded-lg text-sm transition-all ${
-                                form.recipientIds.includes(member.id)
-                                  ? 'glass bg-gold/20 text-gold border border-gold/30'
-                                  : 'glass text-paper/60 hover:text-paper'
-                              }`}
-                            >
-                              {member.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                                            <div>
+                                              <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
+                                              <div className="flex flex-wrap gap-2">
+                                                {family?.map((member: any) => (
+                                                  <button
+                                                    key={member.id}
+                                                    type="button"
+                                                    onClick={() => toggleRecipient(member.id)}
+                                                    className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                                                      form.recipientIds.includes(member.id)
+                                                        ? 'glass bg-gold/20 text-gold border border-gold/30'
+                                                        : 'glass text-paper/60 hover:text-paper'
+                                                    }`}
+                                                  >
+                                                    {member.name}
+                                                  </button>
+                                                ))}
+                                                <button
+                                                  type="button"
+                                                  onClick={() => setShowAddFamilyModal(true)}
+                                                  className="px-3 py-2 rounded-lg text-sm border border-dashed border-gold/30 text-paper/40 hover:border-gold/50 hover:text-paper/60 transition-all flex items-center gap-1.5"
+                                                >
+                                                  <Plus size={14} />
+                                                  Add Family Member
+                                                </button>
+                                              </div>
+                                            </div>
 
                       <motion.button
                         onClick={handleSave}
@@ -652,35 +699,46 @@ export function Record() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="space-y-6"
+              className="space-y-4"
             >
-              <div className="card">
-                <div className="flex items-center gap-2 mb-4">
-                  <Lightbulb size={18} className="text-gold" />
-                  <h3 className="text-lg">Story Prompts</h3>
+              <div className="card p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Lightbulb size={16} className="text-gold" />
+                    <h3 className="text-base">Story Prompts</h3>
+                  </div>
+                  <motion.button
+                    onClick={shufflePrompts}
+                    className="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
+                    whileHover={{ rotate: 180 }}
+                    whileTap={{ scale: 0.9 }}
+                    title="Shuffle prompts"
+                  >
+                    <RefreshCw size={14} className="text-gold" />
+                  </motion.button>
                 </div>
-                <p className="text-paper/50 text-sm mb-4">
-                  Need inspiration? Select a prompt to guide your recording.
+                <p className="text-paper/50 text-xs mb-3">
+                  Select a prompt to guide your recording.
                 </p>
                 
-                <div className="space-y-2">
-                  {prompts.map((prompt) => (
+                <div className="space-y-1.5">
+                  {visiblePrompts.map((prompt) => (
                     <motion.button
                       key={prompt.id}
                       onClick={() => {
                         setSelectedPrompt(prompt.id);
                         setForm(prev => ({ ...prev, promptId: prompt.id, title: prompt.text.slice(0, 50) }));
                       }}
-                      className={`w-full text-left p-4 rounded-lg transition-all ${
+                      className={`w-full text-left p-3 rounded-lg transition-all ${
                         selectedPrompt === prompt.id
                           ? 'glass bg-gold/20 border border-gold/30'
                           : 'glass hover:bg-white/5'
                       }`}
-                      whileHover={{ x: 4 }}
+                      whileHover={{ x: 2 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <span className="text-xs text-gold/60 tracking-wider">{prompt.category}</span>
-                      <p className="text-sm mt-1">{prompt.text}</p>
+                      <p className="text-xs mt-0.5 leading-relaxed">{prompt.text}</p>
                     </motion.button>
                   ))}
                 </div>
@@ -711,111 +769,254 @@ export function Record() {
             </motion.div>
           </div>
 
-          {/* Saved Recordings Section */}
+          {/* Previous Recordings Section with Timeline Slider */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mt-12"
+            className="mt-8"
           >
-            <div className="card">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <Volume2 size={20} className="text-gold" />
-                  <h2 className="text-xl font-light">Your Recordings</h2>
-                </div>
-                {recordings && recordings.length > 0 && (
-                  <span className="text-paper/40 text-sm">{recordings.length} recording{recordings.length !== 1 ? 's' : ''}</span>
-                )}
-              </div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-light flex items-center gap-2">
+                <Volume2 size={20} className="text-gold" />
+                Previous Recordings
+              </h2>
+              <button
+                onClick={() => setShowRecordingsList(!showRecordingsList)}
+                className="btn btn-secondary text-sm"
+              >
+                {showRecordingsList ? 'Hide' : 'Show'} Timeline
+              </button>
+            </div>
 
-              {recordingsLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 size={24} className="animate-spin text-gold" />
-                </div>
-              ) : recordings && recordings.length > 0 ? (
-                <div className="space-y-3">
-                  {recordings.map((recording) => (
-                    <motion.div
-                      key={recording.id}
-                      className="glass rounded-xl p-4 flex items-center gap-4 group"
-                      whileHover={{ scale: 1.01 }}
-                    >
-                      {/* Play Button */}
-                      <motion.button
-                        onClick={() => playRecording(recording)}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
-                          playingRecordingId === recording.id
-                            ? 'bg-gold text-void'
-                            : 'bg-gold/20 text-gold hover:bg-gold/30'
-                        }`}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {playingRecordingId === recording.id ? (
-                          <Pause size={20} fill="currentColor" />
-                        ) : (
-                          <Play size={20} fill="currentColor" className="ml-0.5" />
-                        )}
-                      </motion.button>
-
-                      {/* Recording Info */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium truncate">{recording.title}</h3>
-                        <div className="flex items-center gap-4 text-sm text-paper/50 mt-1">
-                          <span className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {formatTime(recording.duration || 0)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar size={12} />
-                            {new Date(recording.createdAt).toLocaleDateString()}
-                          </span>
-                          {recording.emotion && (
-                            <span className="px-2 py-0.5 rounded-full bg-gold/10 text-gold text-xs">
-                              {recording.emotion}
-                            </span>
-                          )}
-                        </div>
-                        {recording.recipients && recording.recipients.length > 0 && (
-                          <div className="flex items-center gap-1 mt-2">
-                            <span className="text-xs text-paper/40">Shared with:</span>
-                            {recording.recipients.map((r) => (
-                              <span key={r.id} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-paper/60">
-                                {r.name}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Delete Button */}
-                      <motion.button
+            <AnimatePresence>
+              {showRecordingsList && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  {/* Timeline Slider */}
+                  <div className="mb-8">
+                    {/* Year Selector */}
+                    <div className="flex items-center justify-center gap-4 mb-4">
+                      <button
                         onClick={() => {
-                          if (confirm('Are you sure you want to delete this recording?')) {
-                            deleteMutation.mutate(recording.id);
+                          const idx = availableYears.indexOf(selectedYear);
+                          if (idx < availableYears.length - 1) {
+                            setSelectedYear(availableYears[idx + 1]);
+                            setSelectedMonth(null);
                           }
                         }}
-                        className="p-2 rounded-lg text-paper/30 hover:text-red-400 hover:bg-red-400/10 transition-all opacity-0 group-hover:opacity-100"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
+                        disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
+                        className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
-                        <Trash2 size={16} />
-                      </motion.button>
+                        <ChevronLeft size={20} />
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <Calendar size={18} className="text-gold" />
+                        <span className="text-2xl font-light text-gold">{selectedYear}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const idx = availableYears.indexOf(selectedYear);
+                          if (idx > 0) {
+                            setSelectedYear(availableYears[idx - 1]);
+                            setSelectedMonth(null);
+                          }
+                        }}
+                        disabled={availableYears.indexOf(selectedYear) === 0}
+                        className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+
+                    {/* Month Slider */}
+                    <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
+                      <button
+                        onClick={() => setSelectedMonth(null)}
+                        className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                          selectedMonth === null
+                            ? 'bg-gold text-void font-medium'
+                            : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                        }`}
+                      >
+                        All
+                      </button>
+                      {MONTHS.map((month, idx) => (
+                        <button
+                          key={month}
+                          onClick={() => setSelectedMonth(selectedMonth === idx ? null : idx)}
+                          className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                            selectedMonth === idx
+                              ? 'bg-gold text-void font-medium'
+                              : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                          }`}
+                        >
+                          {month}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Emotion Filter */}
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                      <span className="text-paper/40 text-sm mr-2">Filter by emotion:</span>
+                      <button
+                        onClick={() => setSelectedEmotion(null)}
+                        className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                          selectedEmotion === null
+                            ? 'bg-white/20 text-paper font-medium'
+                            : 'glass text-paper/50 hover:text-paper'
+                        }`}
+                      >
+                        All
+                      </button>
+                      {EMOTIONS.map((emotion) => {
+                        const Icon = emotion.icon;
+                        const count = emotionCounts[emotion.value] || 0;
+                        return (
+                          <button
+                            key={emotion.value}
+                            onClick={() => setSelectedEmotion(selectedEmotion === emotion.value ? null : emotion.value)}
+                            className={`px-3 py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 ${
+                              selectedEmotion === emotion.value
+                                ? emotion.color + ' font-medium'
+                                : 'glass text-paper/50 hover:text-paper'
+                            }`}
+                          >
+                            <Icon size={14} />
+                            {emotion.label}
+                            {count > 0 && <span className="text-xs opacity-60">({count})</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Recordings List */}
+                  {filteredRecordings.length > 0 ? (
+                    <div className="space-y-3">
+                      {filteredRecordings.map((recording: VoiceRecording) => {
+                        const emotionData = EMOTIONS.find(e => e.value === recording.emotion);
+                        const EmotionIcon = emotionData?.icon;
+                        return (
+                          <motion.div
+                            key={recording.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="card p-4 flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-4">
+                              <button
+                                onClick={() => {
+                                  if (playingRecordingId === recording.id) {
+                                    if (savedAudioRef.current) {
+                                      savedAudioRef.current.pause();
+                                    }
+                                    setPlayingRecordingId(null);
+                                  } else {
+                                    if (savedAudioRef.current) {
+                                      savedAudioRef.current.pause();
+                                    }
+                                    if (recording.fileUrl) {
+                                      const audio = new Audio(recording.fileUrl);
+                                      savedAudioRef.current = audio;
+                                      audio.onended = () => setPlayingRecordingId(null);
+                                      audio.onerror = () => {
+                                        showToast('Failed to play recording', 'error');
+                                        setPlayingRecordingId(null);
+                                      };
+                                      audio.play().catch(() => {
+                                        showToast('Failed to play recording', 'error');
+                                        setPlayingRecordingId(null);
+                                      });
+                                      setPlayingRecordingId(recording.id);
+                                    } else {
+                                      showToast('Recording file not available', 'error');
+                                    }
+                                  }
+                                }}
+                                className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors"
+                              >
+                                {playingRecordingId === recording.id ? (
+                                  <Pause size={18} className="text-gold" />
+                                ) : (
+                                  <Play size={18} className="text-gold ml-0.5" />
+                                )}
+                              </button>
+                              <div>
+                                <h4 className="font-medium">{recording.title}</h4>
+                                <div className="flex items-center gap-3 text-sm text-paper/50">
+                                  <span>{formatTime(recording.duration)}</span>
+                                  <span>{new Date(recording.createdAt).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {emotionData && EmotionIcon && (
+                                <span className={`px-3 py-1 rounded-full text-xs flex items-center gap-1.5 ${emotionData.color}`}>
+                                  <EmotionIcon size={12} />
+                                  {emotionData.label}
+                                </span>
+                              )}
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-center py-12"
+                    >
+                      {recordings?.recordings?.length > 0 ? (
+                        <>
+                          <h3 className="text-xl font-light mb-2">No recordings match your filters</h3>
+                          <p className="text-paper/50 mb-6">Try adjusting the year, month, or emotion filter</p>
+                          <button 
+                            onClick={() => {
+                              setSelectedMonth(null);
+                              setSelectedEmotion(null);
+                            }} 
+                            className="btn btn-secondary"
+                          >
+                            Clear Filters
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="text-xl font-light mb-2">No recordings yet</h3>
+                          <p className="text-paper/50">Start recording your voice messages above</p>
+                        </>
+                      )}
                     </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 text-paper/40">
-                  <Volume2 size={48} className="mx-auto mb-4 opacity-30" />
-                  <p>No recordings yet</p>
-                  <p className="text-sm mt-1">Start recording to preserve your voice for loved ones</p>
-                </div>
+                  )}
+                </motion.div>
               )}
-            </div>
+            </AnimatePresence>
           </motion.div>
         </div>
       </div>
+
+      {/* Add Family Member Modal */}
+      <AddFamilyMemberModal
+        isOpen={showAddFamilyModal}
+        onClose={() => setShowAddFamilyModal(false)}
+        onCreated={(member) => {
+          queryClient.setQueryData(['family'], (old: any) => {
+            if (!old) return [member];
+            if (Array.isArray(old)) return [...old, member];
+            return old;
+          });
+          setForm(prev => ({
+            ...prev,
+            recipientIds: [...prev.recipientIds, member.id],
+          }));
+        }}
+      />
     </div>
   );
 }

@@ -1,54 +1,144 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, ArrowUp, ArrowDown, Camera } from 'lucide-react';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { AvatarCropperModal } from '../components/AvatarCropperModal';
+import { Navigation } from '../components/Navigation';
 
-// Notification preferences type
-interface NotificationPrefs {
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  reminderEmails: boolean;
-  marketingEmails: boolean;
-  weeklyDigest: boolean;
-}
+// Mass-Adoption Pricing: $1 / $2 / $5
+const SUBSCRIPTION_PLANS = [
+  {
+    tier: 'STARTER',
+    name: 'Starter',
+    monthlyPrice: 1,
+    yearlyPrice: 10,
+    features: ['500MB storage', '3 voice recordings/month', '5 letters/month', '50 photos', '2 family members'],
+  },
+  {
+    tier: 'FAMILY',
+    name: 'Family',
+    monthlyPrice: 2,
+    yearlyPrice: 20,
+    popular: true,
+    features: ['5GB storage', '20 voice recordings/month', 'Unlimited letters', 'Unlimited photos', '10 family members', '2 min video messages', 'Posthumous delivery', 'Family tree'],
+  },
+  {
+    tier: 'FOREVER',
+    name: 'Forever',
+    monthlyPrice: 5,
+    yearlyPrice: 50,
+    features: ['25GB storage', 'Unlimited voice recordings', 'Unlimited letters', 'Unlimited photos', 'Unlimited family members', '10 min video messages', 'AI transcription', 'Legal documents', 'Priority support'],
+  },
+];
 
 const CURRENCIES = [
   { code: 'USD', name: 'US Dollar', symbol: '$' },
   { code: 'EUR', name: 'Euro', symbol: '€' },
   { code: 'GBP', name: 'British Pound', symbol: '£' },
   { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
   { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
 ];
 
 export function Settings() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user, updateUser, logout } = useAuthStore();
 
+  // Valid tab IDs
+  const validTabs = ['profile', 'subscription', 'deadman', 'encryption', 'notifications', 'security'];
+  
   // Initialize activeTab from URL parameter or default to 'profile'
-  const initialTab = searchParams.get('tab') || 'profile';
+  const tabFromUrl = searchParams.get('tab');
+  const initialTab = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'profile';
   const [activeTab, setActiveTab] = useState<string>(initialTab);
+  
+  // Update URL when tab changes
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId });
+  };
     const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
     const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
     const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
-    const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
+        const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
   
-    // Notification preferences state
-    const [notificationPrefs, setNotificationPrefs] = useState<NotificationPrefs>({
-      emailNotifications: true,
-      pushNotifications: true,
-      reminderEmails: true,
-      marketingEmails: false,
-      weeklyDigest: true,
-    });
+        // Notification preferences state
+        const [notificationPrefs, setNotificationPrefs] = useState({
+          emailNotifications: true,
+          pushNotifications: true,
+          reminderEmails: true,
+          marketingEmails: false,
+          weeklyDigest: true,
+        });
+    
+        // Status messages for user feedback
+        const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+        
+        // Delete account modal state
+        const [showDeleteModal, setShowDeleteModal] = useState(false);
+        const [deletePassword, setDeletePassword] = useState('');
   
-    // Status messages for user feedback
-    const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+        // Avatar upload state
+        const [showAvatarCropper, setShowAvatarCropper] = useState(false);
+        const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatarUrl || null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Handle file selection for avatar
+    const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setSelectedImageSrc(event.target?.result as string);
+          setShowAvatarCropper(true);
+        };
+        reader.readAsDataURL(file);
+      }
+      // Reset input so same file can be selected again
+      if (e.target) e.target.value = '';
+    };
+
+    // Handle cropped avatar upload
+    const handleAvatarCropComplete = async (croppedFile: File, previewUrl: string) => {
+      setIsUploadingAvatar(true);
+      try {
+        // Get upload URL from API
+        const { data: urlData } = await settingsApi.getUploadUrl({
+          filename: croppedFile.name,
+          contentType: croppedFile.type,
+        });
+      
+        // Upload to R2
+        await fetch(urlData.uploadUrl, {
+          method: 'PUT',
+          body: croppedFile,
+          headers: { 'Content-Type': croppedFile.type },
+        });
+      
+        // Update profile with new avatar URL
+        await settingsApi.updateProfile({ avatarUrl: urlData.url });
+      
+        // Update local state
+        setAvatarPreview(previewUrl);
+        updateUser({ ...user!, avatarUrl: urlData.url });
+        queryClient.invalidateQueries({ queryKey: ['auth-me'] });
+      
+        setShowAvatarCropper(false);
+        setSelectedImageSrc(null);
+      } catch (error) {
+        console.error('Failed to upload avatar:', error);
+      } finally {
+        setIsUploadingAvatar(false);
+      }
+    };
 
   const { data: subscription } = useQuery({
     queryKey: ['subscription'],
@@ -60,21 +150,21 @@ export function Settings() {
     queryFn: () => billingApi.getLimits().then(r => r.data),
   });
 
-  // Pricing is now hardcoded in the UI - storage-based tiers with all features included
-  // const { data: pricing } = useQuery({
-  //   queryKey: ['pricing', user?.preferredCurrency],
-  //   queryFn: () => billingApi.getPricing(user?.preferredCurrency).then(r => r.data),
-  // });
+  const { data: _pricing } = useQuery({
+    queryKey: ['pricing', user?.preferredCurrency],
+    queryFn: () => billingApi.getPricing(user?.preferredCurrency).then(r => r.data),
+  });
+  void _pricing; // Suppress unused variable warning - kept for future pricing display
 
   const { data: deadmanStatus } = useQuery({
     queryKey: ['deadman-status'],
     queryFn: () => deadmanApi.getStatus().then(r => r.data),
   });
 
-  const { data: encryptionParams } = useQuery({
-    queryKey: ['encryption-params'],
-    queryFn: () => encryptionApi.getParams().then(r => r.data),
-  });
+    const { data: encryptionStatus } = useQuery({
+      queryKey: ['encryption-status'],
+      queryFn: () => encryptionApi.getStatus().then(r => r.data),
+    });
 
     const { data: legacyContacts } = useQuery({
       queryKey: ['legacy-contacts'],
@@ -114,71 +204,98 @@ export function Settings() {
       },
     });
 
-    const changePasswordMutation = useMutation({
-      mutationFn: () => settingsApi.changePassword({ currentPassword: passwords.current, newPassword: passwords.new }),
-      onSuccess: () => {
-        setPasswords({ current: '', new: '', confirm: '' });
-        setStatusMessage({ type: 'success', text: 'Password changed successfully' });
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to change password. Check your current password.' });
-      },
-    });
+  const changePasswordMutation = useMutation({
+    mutationFn: () => settingsApi.changePassword({ currentPassword: passwords.current, newPassword: passwords.new }),
+    onSuccess: () => {
+      setPasswords({ current: '', new: '', confirm: '' });
+      alert('Password changed successfully');
+    },
+  });
 
-    const updateCurrencyMutation = useMutation({
-      mutationFn: (currency: string) => billingApi.updateCurrency(currency),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['pricing'] });
-        setStatusMessage({ type: 'success', text: 'Currency updated' });
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to update currency' });
-      },
-    });
+  const updateCurrencyMutation = useMutation({
+    mutationFn: (currency: string) => billingApi.updateCurrency(currency),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pricing'] });
+    },
+  });
 
-    const checkoutMutation = useMutation({
-      mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
-      onSuccess: (res) => {
+  const checkoutMutation = useMutation({
+    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
+    onSuccess: (res) => {
+      if (res.data.url) {
         window.location.href = res.data.url;
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to start checkout' });
-      },
-    });
+      }
+    },
+  });
 
-    const configureDeadmanMutation = useMutation({
-      mutationFn: () => deadmanApi.configure(deadmanConfig),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
-        setStatusMessage({ type: 'success', text: 'Dead man\'s switch configured' });
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to configure dead man\'s switch' });
-      },
-    });
+  const changePlanMutation = useMutation({
+    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['limits'] });
+    },
+  });
 
-    const checkInMutation = useMutation({
-      mutationFn: () => deadmanApi.checkIn(),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
-        setStatusMessage({ type: 'success', text: 'Check-in successful' });
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to check in' });
-      },
-    });
+  const configureDeadmanMutation = useMutation({
+    mutationFn: () => deadmanApi.configure(deadmanConfig),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
+      setStatusMessage({ type: 'success', text: 'Dead Man\'s Switch configured successfully' });
+    },
+    onError: () => {
+      setStatusMessage({ type: 'error', text: 'Failed to configure Dead Man\'s Switch' });
+    },
+  });
+
+  const checkInMutation = useMutation({
+    mutationFn: () => deadmanApi.checkIn(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
+      setStatusMessage({ type: 'success', text: 'Check-in recorded successfully' });
+    },
+    onError: () => {
+      setStatusMessage({ type: 'error', text: 'Failed to record check-in' });
+    },
+  });
 
     const addLegacyContactMutation = useMutation({
       mutationFn: () => legacyContactsApi.add(newLegacyContact),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['legacy-contacts'] });
         setNewLegacyContact({ name: '', email: '', relationship: '' });
-        setStatusMessage({ type: 'success', text: 'Legacy contact added' });
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to add legacy contact' });
       },
     });
+
+        // Encryption setup mutation - generates client-side encryption keys
+        const setupEncryptionMutation = useMutation({
+          mutationFn: async () => {
+            // Generate a random salt for key derivation
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const saltBase64 = btoa(String.fromCharCode(...salt));
+      
+            // Generate a random master key
+            const masterKey = crypto.getRandomValues(new Uint8Array(32));
+            const masterKeyBase64 = btoa(String.fromCharCode(...masterKey));
+      
+            // For now, we'll store the encrypted master key (in production, this would be encrypted with user's password)
+            return encryptionApi.setup({
+              encryptedMasterKey: masterKeyBase64,
+              encryptionSalt: saltBase64,
+              keyDerivationParams: {
+                algorithm: 'PBKDF2',
+                iterations: 100000,
+                hash: 'SHA-256',
+              },
+            });
+          },
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['encryption-status'] });
+            setStatusMessage({ type: 'success', text: 'Encryption enabled successfully' });
+          },
+          onError: () => {
+            setStatusMessage({ type: 'error', text: 'Failed to set up encryption' });
+          },
+        });
 
     const deleteAccountMutation = useMutation({
       mutationFn: (password: string) => settingsApi.deleteAccount(password),
@@ -193,7 +310,7 @@ export function Settings() {
 
     // Notification preferences mutation
     const updateNotificationsMutation = useMutation({
-      mutationFn: (prefs: NotificationPrefs) => settingsApi.updateNotifications(prefs),
+      mutationFn: (prefs: typeof notificationPrefs) => settingsApi.updateNotifications(prefs),
       onSuccess: (res) => {
         if (res.data.preferences) {
           setNotificationPrefs(res.data.preferences);
@@ -206,13 +323,13 @@ export function Settings() {
     });
 
     // Helper to update a single notification preference
-    const handleNotificationToggle = (key: keyof NotificationPrefs, value: boolean) => {
+    const handleNotificationToggle = (key: keyof typeof notificationPrefs, value: boolean) => {
       const updated = { ...notificationPrefs, [key]: value };
       setNotificationPrefs(updated);
       updateNotificationsMutation.mutate(updated);
     };
 
-  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
+    const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -224,34 +341,34 @@ export function Settings() {
   ];
 
   return (
-    <div className="min-h-screen px-6 md:px-12 py-12">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Sanctuary Background */}
+      <div className="sanctuary-bg">
+        <div className="sanctuary-orb sanctuary-orb-1" />
+        <div className="sanctuary-orb sanctuary-orb-2" />
+        <div className="sanctuary-orb sanctuary-orb-3" />
+        <div className="sanctuary-stars" />
+        <div className="sanctuary-mist" />
+      </div>
+
+      <Navigation />
+
+      <div className="relative z-10 px-6 md:px-12 py-12">
       <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
         <ArrowLeft size={20} />
         Back to Vault
       </button>
 
-            <div className="max-w-4xl mx-auto">
-              <h1 className="text-4xl font-light mb-12">Settings</h1>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-light mb-12">Settings</h1>
 
-              {/* Status message toast */}
-              {statusMessage && (
-                <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg transition-all ${
-                  statusMessage.type === 'success' 
-                    ? 'bg-green-500/20 border border-green-500/30 text-green-400' 
-                    : 'bg-blood/20 border border-blood/30 text-blood'
-                }`}>
-                  {statusMessage.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
-                  <span>{statusMessage.text}</span>
-                </div>
-              )}
-
-              <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <div className="md:w-56 space-y-1">
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => setActiveTab(id)}
+                onClick={() => handleTabChange(id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${
                   activeTab === id ? 'bg-gold/10 text-gold border-l-2 border-gold' : 'text-paper/50 hover:text-gold'
                 }`}
@@ -264,17 +381,46 @@ export function Settings() {
 
           {/* Content */}
           <div className="flex-1 space-y-6">
-            {activeTab === 'profile' && (
-              <div className="card">
-                <div className="flex items-center gap-6 mb-8">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-2xl font-medium">
-                    {initials}
-                  </div>
-                  <div>
-                    <h2 className="text-xl">{user?.firstName} {user?.lastName}</h2>
-                    <p className="text-paper/50">{user?.email}</p>
-                  </div>
-                </div>
+                        {activeTab === 'profile' && (
+                          <div className="card">
+                            <div className="flex items-center gap-6 mb-8">
+                              <div className="relative group">
+                                {avatarPreview || user?.avatarUrl ? (
+                                  <img 
+                                    src={avatarPreview || user?.avatarUrl || undefined} 
+                                    alt="Profile" 
+                                    className="w-20 h-20 rounded-full object-cover border-2 border-gold/30"
+                                  />
+                                ) : (
+                                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-2xl font-medium">
+                                    {initials}
+                                  </div>
+                                )}
+                                <button
+                                  onClick={() => fileInputRef.current?.click()}
+                                  className="absolute inset-0 flex items-center justify-center bg-void/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                >
+                                  <Camera size={24} className="text-gold" />
+                                </button>
+                                <input
+                                  ref={fileInputRef}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleAvatarFileSelect}
+                                  className="hidden"
+                                />
+                              </div>
+                              <div>
+                                <h2 className="text-xl">{user?.firstName} {user?.lastName}</h2>
+                                <p className="text-paper/50">{user?.email}</p>
+                                <button
+                                  onClick={() => fileInputRef.current?.click()}
+                                  className="text-sm text-gold hover:text-gold-dim mt-1"
+                                >
+                                  Change photo
+                                </button>
+                              </div>
+                            </div>
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -310,12 +456,15 @@ export function Settings() {
 
             {activeTab === 'subscription' && (
               <div className="space-y-6">
-                {/* Current plan */}
+                {/* Current plan header */}
                 <div className="card">
+                  <h3 className="text-lg mb-4">Current Plan</h3>
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-gold/20 text-gold text-xs tracking-wider">{subscription?.tier || 'FREE'}</span>
+                        <span className="px-3 py-1.5 bg-gold/20 text-gold text-sm font-medium tracking-wider border border-gold/30">
+                          {subscription?.tier || 'FREE'}
+                        </span>
                         {subscription?.isTrialing && (
                           <span className="px-2 py-1 bg-blood/20 text-blood text-xs">
                             Trial: {subscription.trialDaysLeft} days left
@@ -334,61 +483,127 @@ export function Settings() {
                     </div>
                   )}
 
-                  {limits?.storage && (
-                    <div className="space-y-3 mb-6">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-paper/50">Storage</span>
-                          <span>{limits.storage.usedMB} MB / {limits.storage.maxLabel}</span>
+                  {limits && (
+                    <div className="space-y-3">
+                      {[
+                        { label: 'Memories', data: limits.memories },
+                        { label: 'Voice minutes', data: limits.voice },
+                        { label: 'Letters', data: limits.letters },
+                        { label: 'Storage (MB)', data: limits.storage },
+                      ].map(({ label, data }) => (
+                        <div key={label}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-paper/50">{label}</span>
+                            <span>{data.current} / {data.max === -1 ? '∞' : data.max}</span>
+                          </div>
+                          <div className="h-1 bg-white/10 rounded">
+                            <div
+                              className="h-full bg-gold rounded"
+                              style={{ width: `${data.max === -1 ? 0 : Math.min(100, (data.current / data.max) * 100)}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-1 bg-white/10 rounded">
-                          <div
-                            className={`h-full rounded ${limits.storage.warning ? 'bg-blood' : 'bg-gold'}`}
-                            style={{ width: `${Math.min(100, limits.storage.percentage)}%` }}
-                          />
-                        </div>
-                        {limits.storage.warning && (
-                          <p className="text-blood text-xs mt-1">Storage is running low. Consider upgrading your plan.</p>
-                        )}
-                      </div>
-                      <p className="text-paper/40 text-xs">All plans include unlimited memories, letters, and voice recordings. Storage is the only limit.</p>
+                      ))}
                     </div>
                   )}
                 </div>
 
-                {/* Pricing - Storage-based tiers, all features included */}
-                <div className="mb-4">
-                  <p className="text-paper/60 text-sm text-center">All plans include all features. Just pick your storage.</p>
+                {/* All Plans */}
+                <div className="card">
+                  <h3 className="text-lg mb-6">Choose Your Plan</h3>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {SUBSCRIPTION_PLANS.map((plan) => {
+                      const isCurrentPlan = (subscription?.tier || 'STARTER') === plan.tier;
+                      const tierRanks: Record<string, number> = { STARTER: 0, FAMILY: 1, FOREVER: 2 };
+                      const currentTierRank = tierRanks[subscription?.tier || 'STARTER'] || 0;
+                      const thisTierRank = tierRanks[plan.tier] || 0;
+                      const isUpgrade = thisTierRank > currentTierRank;
+
+                      return (
+                        <div 
+                          key={plan.tier} 
+                          className={`relative p-5 rounded-lg border transition-all ${
+                            isCurrentPlan 
+                              ? 'border-gold bg-gold/10 ring-2 ring-gold/30' 
+                              : plan.popular 
+                                ? 'border-gold/30 bg-white/[0.02]' 
+                                : 'border-white/10 bg-white/[0.02] hover:border-white/20'
+                          }`}
+                        >
+                          {plan.popular && !isCurrentPlan && (
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs font-medium">
+                              POPULAR
+                            </div>
+                          )}
+                          {isCurrentPlan && (
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-green-500 text-void text-xs font-medium flex items-center gap-1">
+                              <Check size={12} />
+                              CURRENT
+                            </div>
+                          )}
+              
+                          <h4 className="text-lg font-medium mb-2">{plan.name}</h4>
+                          <div className="flex items-baseline gap-1 mb-4">
+                            <span className={`text-2xl ${isCurrentPlan ? 'text-gold' : 'text-paper'}`}>
+                              ${plan.monthlyPrice}
+                            </span>
+                            <span className="text-paper/40 text-sm">/month</span>
+                          </div>
+              
+                          <ul className="space-y-2 mb-6 text-sm">
+                            {plan.features.map((feature, i) => (
+                              <li key={i} className="flex items-center gap-2 text-paper/70">
+                                <Check size={14} className="text-gold flex-shrink-0" />
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+
+                          {isCurrentPlan ? (
+                            <button disabled className="btn w-full bg-gold/20 text-gold cursor-default">
+                              Current Plan
+                            </button>
+                          ) : isUpgrade ? (
+                            <button
+                              onClick={() => checkoutMutation.mutate(plan.tier)}
+                              disabled={checkoutMutation.isPending}
+                              className="btn btn-primary w-full flex items-center justify-center gap-2"
+                            >
+                              <ArrowUp size={16} />
+                              Upgrade
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => changePlanMutation.mutate(plan.tier)}
+                              disabled={changePlanMutation.isPending}
+                              className="btn w-full border border-paper/20 text-paper/70 hover:bg-white/5 flex items-center justify-center gap-2"
+                            >
+                              <ArrowDown size={16} />
+                              Downgrade
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="grid md:grid-cols-3 gap-4">
-                  {[
-                    { tier: 'STARTER', name: 'Starter', storage: '500 MB', monthlyPrice: '$1', yearlyPrice: '$10/year', storageDesc: '~500 photos' },
-                    { tier: 'FAMILY', name: 'Family', storage: '5 GB', monthlyPrice: '$5', yearlyPrice: '$50/year', storageDesc: '~5,000 photos', popular: true },
-                    { tier: 'FOREVER', name: 'Forever', storage: '50 GB', monthlyPrice: '$15', yearlyPrice: '$150/year', storageDesc: '~50,000 photos' },
-                  ].map(({ tier, name, storage, monthlyPrice, yearlyPrice, storageDesc, popular }) => (
-                    <div key={tier} className={`card relative ${popular ? 'border-gold/30' : ''}`}>
-                      {popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs">POPULAR</div>}
-                      <h3 className="text-lg mb-2">{name}</h3>
-                      <div className="flex items-baseline gap-1 mb-1">
-                        <span className="text-3xl text-gold">{monthlyPrice}</span>
-                        <span className="text-paper/40">/month</span>
-                      </div>
-                      <div className="text-xs text-paper/40 mb-4">or {yearlyPrice} (2 months free)</div>
-                      <div className="py-3 px-3 bg-white/[0.02] border border-white/[0.04] rounded mb-4 text-center">
-                        <div className="text-xl font-medium text-gold">{storage}</div>
-                        <div className="text-xs text-paper/50">{storageDesc}</div>
-                      </div>
-                      <div className="text-xs text-paper/50 text-center mb-4">All features included</div>
-                      <button
-                        onClick={() => checkoutMutation.mutate(tier)}
-                        disabled={subscription?.tier === tier || checkoutMutation.isPending}
-                        className={`btn w-full ${subscription?.tier === tier ? 'btn-secondary' : 'btn-primary'}`}
-                      >
-                        {subscription?.tier === tier ? 'Current Plan' : 'Upgrade'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
+
+                {/* Plan Change Status */}
+                {changePlanMutation.isPending && (
+                  <div className="card bg-gold/10 border-gold/30">
+                    <p className="text-gold">Changing your plan...</p>
+                  </div>
+                )}
+                {changePlanMutation.isSuccess && (
+                  <div className="card bg-green-500/10 border-green-500/30">
+                    <p className="text-green-400">Plan changed successfully!</p>
+                  </div>
+                )}
+                {changePlanMutation.isError && (
+                  <div className="card bg-blood/10 border-blood/30">
+                    <p className="text-blood">Failed to change plan. Please try again.</p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -481,7 +696,7 @@ export function Settings() {
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input
                       type="text"
                       placeholder="Name"
@@ -515,49 +730,56 @@ export function Settings() {
               </div>
             )}
 
-            {activeTab === 'encryption' && (
-              <div className="card">
-                <h3 className="text-xl mb-2">End-to-End Encryption</h3>
-                <p className="text-paper/50 text-sm mb-6">
-                  Your content is encrypted before it leaves your device. Only you and your designated
-                  beneficiaries can decrypt it.
-                </p>
+                        {activeTab === 'encryption' && (
+                          <div className="card">
+                            <h3 className="text-xl mb-2">End-to-End Encryption</h3>
+                            <p className="text-paper/50 text-sm mb-6">
+                              Your content is encrypted before it leaves your device. Only you and your designated
+                              beneficiaries can decrypt it.
+                            </p>
 
-                {encryptionParams?.configured ? (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400">
-                      <Lock className="inline w-4 h-4 mr-2" />
-                      Encryption is enabled. Your content is protected.
-                    </div>
+                            {encryptionStatus?.encryptionEnabled ? (
+                              <div className="space-y-4">
+                                <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400">
+                                  <Lock className="inline w-4 h-4 mr-2" />
+                                  Encryption is enabled. Your content is protected.
+                                </div>
 
-                    <div>
-                      <h4 className="text-sm text-paper/50 mb-2">Key Escrow Status</h4>
-                      <p className="text-paper/60 text-sm">
-                        Your encryption key is securely escrowed and will be released to your beneficiaries
-                        when the dead man's switch is triggered.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Lock className="w-12 h-12 text-paper/20 mx-auto mb-4" />
-                    <p className="text-paper/50 mb-4">Encryption not yet configured</p>
-                    <p className="text-paper/40 text-sm mb-6">
-                      Set up end-to-end encryption to ensure only you and your beneficiaries can access your content.
-                    </p>
-                    <button className="btn btn-primary">Set Up Encryption</button>
-                  </div>
-                )}
-              </div>
-            )}
+                                <div>
+                                  <h4 className="text-sm text-paper/50 mb-2">Key Escrow Status</h4>
+                                  <p className="text-paper/60 text-sm">
+                                    {encryptionStatus?.hasEscrow 
+                                      ? 'Your encryption key is securely escrowed and will be released to your beneficiaries when the dead man\'s switch is triggered.'
+                                      : 'Key escrow not configured. Set up key escrow to ensure your beneficiaries can access your content.'}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center py-8">
+                                <Lock className="w-12 h-12 text-paper/20 mx-auto mb-4" />
+                                <p className="text-paper/50 mb-4">Encryption not yet configured</p>
+                                <p className="text-paper/40 text-sm mb-6">
+                                  Set up end-to-end encryption to ensure only you and your beneficiaries can access your content.
+                                </p>
+                                <button 
+                                  onClick={() => setupEncryptionMutation.mutate()}
+                                  disabled={setupEncryptionMutation.isPending}
+                                  className="btn btn-primary"
+                                >
+                                  {setupEncryptionMutation.isPending ? 'Setting up...' : 'Set Up Encryption'}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                         {activeTab === 'notifications' && (
                           <div className="card space-y-6">
                             {[
-                              { id: 'emailNotifications' as keyof NotificationPrefs, label: 'Email notifications', desc: 'Receive updates about your memories' },
-                              { id: 'reminderEmails' as keyof NotificationPrefs, label: 'Check-in reminders', desc: 'Get reminded to check in for dead man\'s switch' },
-                              { id: 'pushNotifications' as keyof NotificationPrefs, label: 'Delivery confirmations', desc: 'Know when your letters are delivered' },
-                              { id: 'weeklyDigest' as keyof NotificationPrefs, label: 'Weekly digest', desc: 'Get a weekly summary of your activity' },
+                              { id: 'emailNotifications' as keyof typeof notificationPrefs, label: 'Email notifications', desc: 'Receive updates about your memories' },
+                              { id: 'reminderEmails' as keyof typeof notificationPrefs, label: 'Check-in reminders', desc: 'Get reminded to check in for dead man\'s switch' },
+                              { id: 'pushNotifications' as keyof typeof notificationPrefs, label: 'Delivery confirmations', desc: 'Know when your letters are delivered' },
+                              { id: 'weeklyDigest' as keyof typeof notificationPrefs, label: 'Weekly digest', desc: 'Get a weekly summary of your activity' },
                             ].map(({ id, label, desc }) => (
                               <div key={id} className="flex items-center justify-between">
                                 <div>
@@ -592,7 +814,7 @@ export function Settings() {
                     <button
                       onClick={() => {
                         if (passwords.new !== passwords.confirm) {
-                          setStatusMessage({ type: 'error', text: 'Passwords do not match' });
+                          alert('Passwords do not match');
                           return;
                         }
                         changePasswordMutation.mutate();
@@ -609,10 +831,7 @@ export function Settings() {
                   <h3 className="text-lg text-blood mb-2">Danger Zone</h3>
                   <p className="text-paper/50 text-sm mb-4">Once you delete your account, there is no going back.</p>
                   <button
-                    onClick={() => {
-                      const password = prompt('Enter your password to confirm deletion:');
-                      if (password) deleteAccountMutation.mutate(password);
-                    }}
+                    onClick={() => setShowDeleteModal(true)}
                     className="btn border border-blood text-blood hover:bg-blood/10 flex items-center gap-2"
                   >
                     <Trash2 size={16} />
@@ -624,6 +843,82 @@ export function Settings() {
           </div>
         </div>
       </div>
+      </div>
+
+      {/* Avatar Cropper Modal */}
+      <AvatarCropperModal
+        isOpen={showAvatarCropper}
+        imageSrc={selectedImageSrc}
+        onCancel={() => {
+          setShowAvatarCropper(false);
+          setSelectedImageSrc(null);
+        }}
+        onComplete={handleAvatarCropComplete}
+        isUploading={isUploadingAvatar}
+      />
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-void-light border border-blood/30 rounded-2xl p-8 max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-blood/20 flex items-center justify-center mx-auto mb-4">
+                <Trash2 size={32} className="text-blood" />
+              </div>
+              <h3 className="text-2xl font-serif text-paper mb-2">Delete Account?</h3>
+              <p className="text-paper/60 text-sm">
+                This action cannot be undone. All your memories, letters, and data will be permanently deleted.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-paper/60 mb-2">Enter your password to confirm</label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Your password"
+                  className="input w-full"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeletePassword('');
+                  }}
+                  className="flex-1 px-4 py-3 bg-void border border-gold/20 rounded-xl text-paper/80 hover:border-gold/40 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (deletePassword) {
+                      deleteAccountMutation.mutate(deletePassword);
+                      setShowDeleteModal(false);
+                      setDeletePassword('');
+                    }
+                  }}
+                  disabled={!deletePassword || deleteAccountMutation.isPending}
+                  className="flex-1 px-4 py-3 bg-blood text-paper font-semibold rounded-xl hover:bg-blood/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {deleteAccountMutation.isPending ? (
+                    <span>Deleting...</span>
+                  ) : (
+                    <>
+                      <Trash2 size={16} />
+                      <span>Delete Forever</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

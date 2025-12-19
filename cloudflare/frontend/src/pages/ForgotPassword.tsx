@@ -16,7 +16,7 @@ export function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      await authApi.forgotPassword({ email });
+      await authApi.forgotPassword(email);
       setSuccess(true);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Something went wrong. Please try again.');
@@ -38,7 +38,7 @@ export function ForgotPassword() {
 
       {/* Floating particles */}
       <div className="fixed inset-0 pointer-events-none">
-        {[...Array(50)].map((_, i) => (
+        {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 rounded-full bg-gold/30"
@@ -87,7 +87,7 @@ export function ForgotPassword() {
                   animate={{ rotate: [0, 360] }}
                   transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
                 >
-                  &#8734;
+                  ∞
                 </motion.div>
                 <span className="text-lg tracking-[0.2em] text-paper/60">HEIRLOOM</span>
               </Link>
@@ -95,23 +95,23 @@ export function ForgotPassword() {
 
             {success ? (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center"
               >
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gold/10 flex items-center justify-center">
-                  <CheckCircle size={32} className="text-gold" />
+                  <CheckCircle className="w-8 h-8 text-gold" />
                 </div>
                 <h1 className="text-2xl font-light mb-4">Check your email</h1>
-                <p className="text-paper/50 mb-8">
-                  If an account exists with this email, you will receive a password reset link.
+                <p className="text-paper/60 mb-8">
+                  If an account exists with <span className="text-gold">{email}</span>, you will receive a password reset link shortly.
                 </p>
-                <Link
-                  to="/login"
+                <Link 
+                  to="/login" 
                   className="btn btn-primary inline-flex items-center gap-2"
                 >
                   <ArrowLeft size={18} />
-                  Back to login
+                  Back to Login
                 </Link>
               </motion.div>
             ) : (
@@ -121,7 +121,7 @@ export function ForgotPassword() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <h1 className="text-2xl font-light text-center mb-2">Forgot password?</h1>
+                  <h1 className="text-2xl font-light text-center mb-2">Forgot your password?</h1>
                   <p className="text-paper/50 text-center mb-8">
                     Enter your email and we'll send you a reset link
                   </p>
@@ -163,18 +163,18 @@ export function ForgotPassword() {
                     {isLoading ? (
                       <Loader2 size={20} className="animate-spin" />
                     ) : (
-                      'Send reset link'
+                      'Send Reset Link'
                     )}
                   </motion.button>
                 </form>
 
                 <div className="mt-8 text-center">
-                  <Link
-                    to="/login"
+                  <Link 
+                    to="/login" 
                     className="text-paper/50 hover:text-paper transition-colors inline-flex items-center gap-2"
                   >
                     <ArrowLeft size={16} />
-                    Back to login
+                    Back to Login
                   </Link>
                 </div>
               </>

@@ -224,7 +224,7 @@ export function AdminDashboard() {
             {/* Subscription Breakdown */}
             <div className="card">
               <h3 className="text-lg mb-4">Subscription Breakdown</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { key: 'starter', label: 'Starter ($1/mo)' },
                   { key: 'family', label: 'Family ($2/mo)' },
@@ -442,11 +442,18 @@ export function AdminDashboard() {
                             <Mail size={16} />
                           </button>
                           <button
-                            onClick={() => adminApi.retryBillingError(error.id).then(() => alert('Retry initiated!'))}
+                            onClick={() => adminApi.reprocessBillingError(error.id).then(() => alert('Reprocessing initiated!'))}
                             className="p-1 text-paper/50 hover:text-blue-400 transition-colors"
-                            title="Retry Payment"
+                            title="Reprocess Payment"
                           >
                             <Activity size={16} />
+                          </button>
+                          <button
+                            onClick={() => adminApi.resolveBillingError(error.id, { resolution: 'Manually resolved' }).then(() => alert('Marked as resolved!'))}
+                            className="p-1 text-paper/50 hover:text-green-400 transition-colors"
+                            title="Mark Resolved"
+                          >
+                            <CheckCircle size={16} />
                           </button>
                         </div>
                       </td>
@@ -494,7 +501,7 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users?.data?.map((user: any) => (
+                  {users?.users?.map((user: any) => (
                     <tr key={user.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="text-paper">{user.firstName} {user.lastName}</div>
@@ -521,7 +528,7 @@ export function AdminDashboard() {
                       </td>
                     </tr>
                   ))}
-                  {(!users?.data || users.data.length === 0) && (
+                  {(!users?.users || users.users.length === 0) && (
                     <tr>
                       <td colSpan={5} className="text-center py-8 text-paper/50">
                         No users found
@@ -533,7 +540,7 @@ export function AdminDashboard() {
               {users?.pagination && (
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
                   <span className="text-paper/50 text-sm">
-                    Showing {users.data?.length || 0} of {users.pagination.total} users
+                    Showing {users.users?.length || 0} of {users.pagination.total} users
                   </span>
                 </div>
               )}
@@ -894,14 +901,14 @@ export function AdminDashboard() {
               <h3 className="text-lg mb-4">Export Data</h3>
               <div className="flex gap-4">
                 <button
-                  onClick={() => window.open(`https://api.heirloom.blue/api/admin/reports/export/users?format=csv`, '_blank')}
+                  onClick={() => window.open(`${import.meta.env.VITE_API_URL}/admin/reports/export/users?format=csv`, '_blank')}
                   className="btn btn-secondary flex items-center gap-2"
                 >
                   <Download size={18} />
                   Export Users (CSV)
                 </button>
                 <button
-                  onClick={() => window.open(`https://api.heirloom.blue/api/admin/reports/export/users?format=json`, '_blank')}
+                  onClick={() => window.open(`${import.meta.env.VITE_API_URL}/admin/reports/export/users?format=json`, '_blank')}
                   className="btn btn-secondary flex items-center gap-2"
                 >
                   <Download size={18} />

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -9,8 +10,6 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
-import { Privacy } from './pages/Privacy';
-import { Terms } from './pages/Terms';
 import { Dashboard } from './pages/Dashboard';
 import { Memories } from './pages/Memories';
 import { Compose } from './pages/Compose';
@@ -22,8 +21,10 @@ import { Letters } from './pages/Letters';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 import Wrapped from './pages/Wrapped';
-import { NotFound } from './pages/NotFound';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
 import { Inherit } from './pages/Inherit';
+import { NotFound } from './pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,14 +47,16 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <CustomCursor />
-        <Routes>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <CustomCursor />
+          <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/inherit/:token" element={<Inherit />} />
           <Route
             path="/login"
             element={
@@ -169,18 +172,15 @@ export default function App() {
                       }
                     />
 
-                              {/* Admin routes */}
-                    <Route path="/admin/login" element={<AdminLogin />} />
-                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                    <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+                    {/* Admin routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-                    {/* Recipient Portal - public route for inherited content */}
-                    <Route path="/inherit/:token" element={<Inherit />} />
-
-                    {/* Catch all - 404 page */}
+          {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
