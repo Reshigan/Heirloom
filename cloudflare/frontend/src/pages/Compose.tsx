@@ -436,7 +436,11 @@ export function Compose() {
               <button
                 onClick={() => setShowSealConfirm(true)}
                 disabled={!body.trim() || selectedRecipients.length === 0}
-                className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-gold to-gold-dim text-void-deep font-semibold rounded-lg hover:shadow-lg hover:shadow-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`flex items-center gap-2 px-5 py-2 font-semibold rounded-lg transition-all ${
+                  !body.trim() || selectedRecipients.length === 0
+                    ? 'bg-void-light border border-paper/20 text-paper/40 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-gold to-gold-dim text-void-deep hover:shadow-lg hover:shadow-gold/20'
+                }`}
               >
                 <span className="w-4 h-4">{Icons.waxSeal}</span>
                 <span>Seal Letter</span>
@@ -487,6 +491,13 @@ export function Compose() {
                                   <span>Add Family Member</span>
                                 </button>
               </div>
+              {/* Helper text when no recipients selected */}
+              {selectedRecipients.length === 0 && (
+                <p className="mt-2 text-sm text-amber-400/80 flex items-center gap-2">
+                  <span className="w-4 h-4">{Icons.user}</span>
+                  Add at least one recipient to seal this letter
+                </p>
+              )}
             </div>
 
                         {/* Letter Content - Handwritten Style */}
