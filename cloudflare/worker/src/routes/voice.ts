@@ -29,11 +29,16 @@ voiceRoutes.get('/', async (c) => {
         WHERE vr.voice_recording_id = ?
       `).bind(recording.id).all();
       
+      // Fallback: construct fileUrl from file_key if file_url is missing or broken
+      let fileUrl = recording.file_url;
+      if ((!fileUrl || fileUrl.includes('undefined')) && recording.file_key) {
+        fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(recording.file_key)}`;
+      }
       return {
         id: recording.id,
         title: recording.title,
         description: recording.description,
-        fileUrl: recording.file_url,
+        fileUrl,
         fileKey: recording.file_key,
         duration: recording.duration,
         fileSize: recording.file_size,
@@ -229,11 +234,17 @@ voiceRoutes.get('/:id', async (c) => {
     WHERE vr.voice_recording_id = ?
   `).bind(recordingId).all();
   
+  // Fallback: construct fileUrl from file_key if file_url is missing or broken
+  let fileUrl = recording.file_url as string | null;
+  if ((!fileUrl || fileUrl.includes('undefined')) && recording.file_key) {
+    fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(recording.file_key as string)}`;
+  }
+  
   return c.json({
     id: recording.id,
     title: recording.title,
     description: recording.description,
-    fileUrl: recording.file_url,
+    fileUrl,
     fileKey: recording.file_key,
     duration: recording.duration,
     fileSize: recording.file_size,

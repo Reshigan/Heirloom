@@ -18,6 +18,16 @@ export const clearTokens = () => {
   localStorage.removeItem('refreshToken');
 };
 
+// Get current auth token (for use with raw fetch calls that bypass axios)
+export const getAuthToken = (): string | null => localStorage.getItem('token');
+
+// Get auth headers for raw fetch calls (e.g., file uploads)
+// Returns a Record type that can be spread into fetch headers
+export const getAuthHeaders = (): Record<string, string> => {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 // Add auth token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
