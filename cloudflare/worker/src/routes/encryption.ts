@@ -596,7 +596,7 @@ encryptionRoutes.get('/shamir/share/:contactId', async (c) => {
     SELECT rs.*, lc.user_id 
     FROM recipient_sessions rs
     JOIN legacy_contacts lc ON rs.legacy_contact_id = lc.id
-    WHERE rs.token = ? AND rs.legacy_contact_id = ? AND rs.expires_at > datetime('now')
+    WHERE rs.session_token = ? AND rs.legacy_contact_id = ? AND rs.expires_at > datetime('now')
   `).bind(sessionToken, contactId).first();
   
   if (!session) {
