@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Bell, Settings, LogOut, Shield, Clock, Crown,
+  Bell, Shield, Clock, Crown,
   ChevronRight, X, Check, Loader2
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
@@ -12,7 +12,7 @@ import { Navigation } from '../components/Navigation';
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const deskRef = useRef<HTMLDivElement>(null);
   
@@ -63,6 +63,20 @@ export function Dashboard() {
     queryKey: ['family'],
     queryFn: () => familyApi.getAll().then(r => r.data),
   });
+
+  // Fetch most recent memory for the dashboard card preview
+  const { data: recentMemories } = useQuery({
+    queryKey: ['memories-recent'],
+    queryFn: () => memoriesApi.getAll({ limit: 1 }).then(r => r.data),
+  });
+
+  // Get the most recent memory's image URL
+  const lastMemoryImage = (() => {
+    if (!recentMemories) return null;
+    const memories = Array.isArray(recentMemories) ? recentMemories : recentMemories.data;
+    if (!memories || memories.length === 0) return null;
+    return memories[0]?.fileUrl || null;
+  })();
 
   const { data: deadmanStatus } = useQuery({
     queryKey: ['deadman-status'],
@@ -162,28 +176,13 @@ export function Dashboard() {
         )}
       </AnimatePresence>
 
-      {/* Header */}
+      {/* Header - Extra controls not in Navigation */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-20 px-6 md:px-12 py-6"
+        className="relative z-20 px-6 md:px-12 pt-20 md:pt-24"
       >
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <motion.div 
-            className="flex items-center gap-3 cursor-pointer"
-            onClick={() => navigate('/dashboard')}
-            whileHover={{ scale: 1.02 }}
-          >
-            <motion.span 
-              className="text-3xl text-gold"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            >
-              ∞
-            </motion.span>
-            <span className="text-xl tracking-[0.15em] text-paper/80">Heirloom</span>
-          </motion.div>
-
+        <div className="flex items-center justify-end max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
             {/* Dead Man's Switch Status */}
             {deadmanStatus?.enabled && (
@@ -220,37 +219,6 @@ export function Dashboard() {
               </motion.button>
             </div>
 
-            {/* Settings */}
-            <motion.button
-              onClick={() => navigate('/settings')}
-              className="w-10 h-10 rounded-full glass flex items-center justify-center text-paper/60 hover:text-gold transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Settings size={20} />
-            </motion.button>
-
-            {/* User avatar */}
-            <motion.button
-              onClick={() => navigate('/settings')}
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void font-medium relative overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
-              <span className="relative">{user?.firstName?.[0] || 'U'}</span>
-            </motion.button>
-
-            {/* Logout */}
-            <motion.button
-              onClick={logout}
-              className="w-10 h-10 rounded-full glass flex items-center justify-center text-paper/60 hover:text-blood transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              title="Sign out"
-            >
-              <LogOut size={20} />
-            </motion.button>
           </div>
         </div>
       </motion.header>
@@ -393,14 +361,22 @@ export function Dashboard() {
                             boxShadow: '0 8px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.6)',
                           }}
                         >
-                          {/* Photo content area - darker, more realistic */}
+                          {/* Photo content area - show last memory image on front card */}
                           <div 
                             className="absolute inset-3 rounded-[8px] overflow-hidden"
                             style={{
-                              background: 'radial-gradient(circle at 20% 0%, rgba(255,255,255,0.15) 0%, transparent 40%), linear-gradient(135deg, #2b3a4a 0%, #1b2633 45%, #11151b 100%)',
+                              background: i === 0 && lastMemoryImage ? 'transparent' : 'radial-gradient(circle at 20% 0%, rgba(255,255,255,0.15) 0%, transparent 40%), linear-gradient(135deg, #2b3a4a 0%, #1b2633 45%, #11151b 100%)',
                               boxShadow: 'inset 0 0 12px rgba(0,0,0,0.3)',
                             }}
-                          />
+                          >
+                            {i === 0 && lastMemoryImage && (
+                              <img 
+                                src={lastMemoryImage} 
+                                alt="Last memory" 
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </div>
                           {/* Subtle frame edge */}
                           <div className="absolute inset-0 rounded-[10px] border border-amber-100/20" />
                         </div>
