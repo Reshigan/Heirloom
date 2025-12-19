@@ -962,3 +962,61 @@ textarea:focus-visible,
     animation: none;
   }
 }
+
+/* Print styles for letters and memories */
+@media print {
+  /* Hide non-essential elements */
+  .sanctuary-bg,
+  .sanctuary-orb,
+  .sanctuary-stars,
+  .sanctuary-mist,
+  nav,
+  .btn,
+  button,
+  .glass,
+  .modal-backdrop,
+  .toast {
+    display: none !important;
+  }
+  
+  /* Reset background and colors for printing */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Make content readable */
+  .text-paper,
+  .text-paper\/50,
+  .text-paper\/60,
+  .text-paper\/70,
+  .text-paper\/80,
+  .text-gold,
+  h1, h2, h3, h4, h5, h6, p, span, div {
+    color: black !important;
+  }
+  
+  /* Remove shadows and borders */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  /* Ensure images print */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+  
+  /* Page breaks for letters */
+  .letter-content {
+    page-break-after: always;
+  }
+  
+  /* Ensure text is readable */
+  .card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    padding: 20px !important;
+  }
+}
