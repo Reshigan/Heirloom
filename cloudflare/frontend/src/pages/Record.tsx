@@ -414,10 +414,10 @@ export function Record() {
               className="lg:col-span-2"
             >
               {/* Vintage Recorder Device */}
-              <div className="card relative overflow-visible">
-                {/* Device body */}
+              <div className="card relative overflow-hidden sm:overflow-visible">
+                {/* Device body - responsive padding for mobile */}
                 <div 
-                  className="rounded-2xl p-8 relative"
+                  className="rounded-2xl p-4 sm:p-8 relative"
                   style={{
                     background: 'linear-gradient(180deg, #2a2520 0%, #1a1510 50%, #0f0d0a 100%)',
                     boxShadow: '0 30px 60px -15px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -2px 0 rgba(0,0,0,0.5)',
@@ -426,8 +426,8 @@ export function Record() {
                   {/* Chrome trim */}
                   <div className="absolute top-0 left-8 right-8 h-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent rounded-full" />
                   
-                  {/* Reels */}
-                  <div className="flex justify-center gap-16 mb-8">
+                  {/* Reels - responsive sizing for mobile */}
+                  <div className="flex justify-center gap-8 sm:gap-16 mb-8">
                     {[0, 1].map((i) => (
                       <motion.div
                         key={i}
@@ -436,7 +436,7 @@ export function Record() {
                         transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                       >
                         <div 
-                          className="w-24 h-24 rounded-full relative"
+                          className="w-16 h-16 sm:w-24 sm:h-24 rounded-full relative"
                           style={{
                             background: 'radial-gradient(circle at 30% 30%, #4a4540 0%, #2a2520 50%, #1a1510 100%)',
                             boxShadow: 'inset 0 4px 8px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3)',

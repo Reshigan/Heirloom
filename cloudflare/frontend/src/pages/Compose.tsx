@@ -176,6 +176,7 @@ export function Compose() {
         const [isAiAssisting, setIsAiAssisting] = useState(false);
         const [aiSuggestion, setAiSuggestion] = useState('');
         const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
+        const [sealError, setSealError] = useState<string | null>(null);
 
     // AI Assist function - uses TinyLLM backend service
     const handleAiAssist = async () => {
@@ -362,6 +363,7 @@ export function Compose() {
 
   const handleSealLetter = async () => {
     setIsSealing(true);
+    setSealError(null);
     try {
       if (selectedLetter) {
         await lettersApi.seal(selectedLetter.id);
@@ -381,8 +383,10 @@ export function Compose() {
       setShowSealConfirm(false);
       setShowComposer(false);
       fetchLetters();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to seal letter:', error);
+      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to seal letter. Please try again.';
+      setSealError(errorMessage);
     } finally {
       setIsSealing(false);
     }
@@ -656,7 +660,6 @@ export function Compose() {
               {/* Wax Seal with Heirloom Infinity Symbol */}
               <div className="w-24 h-24 mx-auto mb-6">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
-                  <circle cx="50" cy="50" r="45" fill="url(#heirloomSealGradient)" />
                   <defs>
                     <radialGradient id="heirloomSealGradient" cx="30%" cy="30%">
                       <stop offset="0%" stopColor="#c04060" />
@@ -664,23 +667,32 @@ export function Compose() {
                       <stop offset="100%" stopColor="#5a1a2a" />
                     </radialGradient>
                   </defs>
-                  {/* Heirloom Infinity Symbol */}
-                  <g transform="translate(50, 50) scale(2.5)">
+                  <circle cx="50" cy="50" r="45" fill="url(#heirloomSealGradient)" />
+                  {/* Proper Infinity Symbol - same as Icons.tsx Infinity */}
+                  <g transform="translate(50, 50)">
                     <path 
-                      d="M-6 0c0-2.5 1.5-4 3.5-4S1 -2.5 0 0s-2 4-5 4-4-1.5-3-4m6 0c0-2.5 1.5-4 3.5-4S7 -2.5 6 0s-2 4-5 4-4-1.5-3-4"
+                      d="M-18 0c0-6 3.6-9.6 8.4-9.6s8.4 3.6 6 9.6c-2.4 6-4.8 9.6-12 9.6s-9.6-3.6-7.2-9.6m14.4 0c0-6 3.6-9.6 8.4-9.6s8.4 3.6 6 9.6c-2.4 6-4.8 9.6-12 9.6s-9.6-3.6-7.2-9.6"
                       fill="none" 
                       stroke="rgba(255,255,255,0.9)" 
-                      strokeWidth="1"
+                      strokeWidth="2.5"
                       strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </g>
                 </svg>
               </div>
               
               <h3 className="text-2xl font-serif text-paper mb-3">Seal This Letter?</h3>
-              <p className="text-paper/60 mb-6">
+              <p className="text-paper/60 mb-4">
                 Once sealed, this letter cannot be edited. It will be encrypted and stored securely until delivery.
               </p>
+              
+              {/* Error message */}
+              {sealError && (
+                <div className="mb-4 p-3 bg-blood/20 border border-blood/40 rounded-lg text-blood text-sm">
+                  {sealError}
+                </div>
+              )}
               
               <div className="flex gap-3">
                 <button

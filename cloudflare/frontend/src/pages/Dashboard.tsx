@@ -663,9 +663,9 @@ export function Dashboard() {
 
                 {/* Decorative Objects - Subtle, premium props */}
                 
-                {/* Ink Bottle - Static, refined */}
+                {/* Ink Bottle - Static, refined - hidden on mobile to prevent overlap */}
                 <div
-                  className="absolute bottom-8 left-8 w-10 h-14"
+                  className="absolute bottom-8 left-8 w-10 h-14 hidden md:block"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   <div 
@@ -690,8 +690,8 @@ export function Dashboard() {
                   />
                 </div>
 
-                {/* Wax Seal - Static, premium */}
-                <div className="absolute bottom-8 right-8">
+                {/* Wax Seal - Static, premium - hidden on mobile to prevent overlap */}
+                <div className="absolute bottom-8 right-8 hidden md:block">
                   <div 
                     className="w-12 h-12 rounded-full flex items-center justify-center"
                     style={{
@@ -703,9 +703,9 @@ export function Dashboard() {
                   </div>
                 </div>
 
-                                {/* True 3D Candle */}
+                                {/* True 3D Candle - hidden on mobile to prevent overlap */}
                                 <div
-                                  className="absolute top-2 right-6"
+                                  className="absolute top-2 right-6 hidden md:block"
                                   style={{ width: 40, height: 90, perspective: 400 }}
                                 >
                                   <div

@@ -38,7 +38,8 @@ export const Infinity = createIcon(
 export const WaxSeal = createIcon(
   <>
     <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.15" stroke="currentColor" />
-    <path d="M15 10c1.3 0 1.3 2 0 2-1.3 0-1.8-2-3.2-2-1.2 0-1.2 2 0 2 1.4 0 1.9-2 3.2-2z" />
+    {/* Infinity symbol instead of interlocking circles */}
+    <path d="M15.5 12c2 0 2 3.2 0 3.2-2 0-2.8-3.2-5-3.2-1.9 0-1.9 3.2 0 3.2 2.2 0 3-3.2 5-3.2z" transform="translate(0, -1.6) scale(0.8)" />
   </>
 );
 
