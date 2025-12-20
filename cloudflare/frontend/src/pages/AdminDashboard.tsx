@@ -6,7 +6,7 @@ import {
   DollarSign, Activity, Search, X, MessageSquare, Shield,
   FileText, Mail, Download, Clock, AlertTriangle, CheckCircle,
   UserPlus, Send, Eye
-} from 'lucide-react';
+} from '../components/Icons';
 import { adminApi } from '../services/api';
 
 // Admin auth check

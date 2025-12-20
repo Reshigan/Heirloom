@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Loader2, Share2, Check, Clock, Heart } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Share2, Check, Clock, Heart } from '../components/Icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
 import { Navigation } from '../components/Navigation';

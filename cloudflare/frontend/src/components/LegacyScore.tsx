@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Trophy, Star, TrendingUp, Loader2 } from 'lucide-react';
+import { Trophy, Star, TrendingUp, Loader2 } from './Icons';
 import { useQuery } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
 

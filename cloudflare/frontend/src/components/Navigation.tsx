@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X } from 'lucide-react';
 import clsx from 'clsx';
 import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
+import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X } from './Icons';
 
 const navItems = [
   { path: '/dashboard', icon: Home, label: 'Vault' },
@@ -42,16 +42,16 @@ export function Navigation() {
     : '??';
   
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-void/95 to-transparent pointer-events-none" />
+    <nav className="fixed top-0 left-0 right-0 z-[1000] px-6 md:px-12 py-4 md:py-6">
+      {/* Gradient background with glass effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-void-abyss/95 via-void-abyss/80 to-transparent backdrop-blur-sm pointer-events-none" />
       
-      <div className="relative flex items-center justify-between">
+      <div className="relative flex items-center justify-between max-w-7xl mx-auto">
         {/* Logo */}
         <Logo size="md" />
         
         {/* Nav links - desktop */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6 lg:gap-8">
           {navItems.map(({ path, icon: Icon, label }) => {
             const isActive = location.pathname === path;
             
@@ -60,17 +60,20 @@ export function Navigation() {
                 key={path}
                 to={path}
                 className={clsx(
-                  'flex items-center gap-2 text-sm tracking-wide transition-smooth',
-                  isActive ? 'text-gold' : 'text-paper/40 hover:text-gold'
+                  'relative flex items-center gap-2 py-2 font-display text-xs tracking-[0.15em] uppercase transition-all duration-300',
+                  isActive 
+                    ? 'text-gold' 
+                    : 'text-paper-50 hover:text-paper-90'
                 )}
               >
-                <Icon size={18} strokeWidth={1.5} />
+                <Icon size={16} strokeWidth={1.5} />
                 <span>{label}</span>
                 
                 {isActive && (
                   <motion.div
-                    className="absolute -bottom-1 left-0 right-0 h-px bg-gold"
+                    className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent"
                     layoutId="nav-underline"
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   />
                 )}
               </Link>
@@ -79,37 +82,39 @@ export function Navigation() {
         </div>
         
         {/* User menu - desktop */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
           <Link
             to="/settings"
             className={clsx(
-              'p-2 transition-smooth',
-              location.pathname === '/settings' ? 'text-gold' : 'text-paper/40 hover:text-gold'
+              'p-2 rounded-lg transition-all duration-300',
+              location.pathname === '/settings' 
+                ? 'text-gold bg-gold-10' 
+                : 'text-paper-50 hover:text-paper-90 hover:bg-paper-04'
             )}
           >
-            <Settings size={20} strokeWidth={1.5} />
+            <Settings size={18} strokeWidth={1.5} />
           </Link>
           
           {/* Avatar */}
           <Link
             to="/settings"
-            className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-sm font-medium"
+            className="w-9 h-9 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void-abyss text-xs font-display font-medium tracking-wide shadow-lg shadow-gold/20"
           >
             {initials}
           </Link>
           
           <button
             onClick={logout}
-            className="p-2 text-paper/40 hover:text-blood transition-smooth"
+            className="p-2 rounded-lg text-paper-50 hover:text-blood hover:bg-blood/10 transition-all duration-300"
             title="Sign out"
           >
-            <LogOut size={20} strokeWidth={1.5} />
+            <LogOut size={18} strokeWidth={1.5} />
           </button>
         </div>
         
         {/* Mobile menu button */}
         <button
-          className="md:hidden p-2 text-paper/60 hover:text-gold transition-smooth"
+          className="md:hidden p-2 rounded-lg text-paper-70 hover:text-gold hover:bg-gold-10 transition-all duration-300"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
         >
@@ -121,28 +126,28 @@ export function Navigation() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Backdrop - z-[60] to cover the nav bar (z-50) */}
+            {/* Backdrop - z-[9998] to be below drawer but above everything else */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-void/80 backdrop-blur-sm z-[60] md:hidden"
+              className="fixed inset-0 bg-void-abyss/90 backdrop-blur-md z-[9998] md:hidden"
               onClick={() => setMobileMenuOpen(false)}
             />
             
-            {/* Drawer - z-[70] to be above backdrop */}
+            {/* Drawer - z-[9999] to be above backdrop */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-72 bg-void-deep border-l border-gold/20 z-[70] md:hidden flex flex-col"
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-void-deep/95 backdrop-blur-xl border-l border-gold-20 z-[9999] md:hidden flex flex-col shadow-2xl shadow-void-abyss/50"
             >
               {/* Close button */}
               <div className="flex justify-end p-4">
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 text-paper/60 hover:text-gold transition-smooth"
+                  className="p-2 rounded-lg text-paper-50 hover:text-gold hover:bg-gold-10 transition-all duration-300"
                   aria-label="Close menu"
                 >
                   <X size={24} />
@@ -150,20 +155,20 @@ export function Navigation() {
               </div>
               
               {/* User info */}
-              <div className="px-6 pb-6 border-b border-gold/10">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void font-medium">
+              <div className="px-6 pb-6 border-b border-paper-08">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void-abyss font-display font-medium text-lg shadow-lg shadow-gold/30">
                     {initials}
                   </div>
-                  <div>
-                    <div className="text-paper font-medium">{user?.firstName} {user?.lastName}</div>
-                    <div className="text-paper/40 text-sm">{user?.email}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-paper font-display text-lg tracking-wide truncate">{user?.firstName} {user?.lastName}</div>
+                    <div className="text-paper-50 text-sm truncate">{user?.email}</div>
                   </div>
                 </div>
               </div>
               
               {/* Nav links */}
-              <nav className="flex-1 py-4 overflow-y-auto">
+              <nav className="flex-1 py-6 overflow-y-auto">
                 {navItems.map(({ path, icon: Icon, label }) => {
                   const isActive = location.pathname === path;
                   return (
@@ -171,8 +176,10 @@ export function Navigation() {
                       key={path}
                       to={path}
                       className={clsx(
-                        'flex items-center gap-3 px-6 py-3 text-base transition-smooth',
-                        isActive ? 'text-gold bg-gold/10' : 'text-paper/60 hover:text-gold hover:bg-gold/5'
+                        'flex items-center gap-4 px-6 py-4 font-display text-sm tracking-[0.1em] uppercase transition-all duration-300',
+                        isActive 
+                          ? 'text-gold bg-gold-10 border-r-2 border-gold' 
+                          : 'text-paper-70 hover:text-paper hover:bg-paper-04'
                       )}
                     >
                       <Icon size={20} strokeWidth={1.5} />
@@ -185,8 +192,10 @@ export function Navigation() {
                 <Link
                   to="/settings"
                   className={clsx(
-                    'flex items-center gap-3 px-6 py-3 text-base transition-smooth',
-                    location.pathname === '/settings' ? 'text-gold bg-gold/10' : 'text-paper/60 hover:text-gold hover:bg-gold/5'
+                    'flex items-center gap-4 px-6 py-4 font-display text-sm tracking-[0.1em] uppercase transition-all duration-300',
+                    location.pathname === '/settings' 
+                      ? 'text-gold bg-gold-10 border-r-2 border-gold' 
+                      : 'text-paper-70 hover:text-paper hover:bg-paper-04'
                   )}
                 >
                   <Settings size={20} strokeWidth={1.5} />
@@ -195,12 +204,12 @@ export function Navigation() {
               </nav>
               
               {/* Logout button */}
-              <div className="p-4 border-t border-gold/10">
+              <div className="p-6 border-t border-paper-08">
                 <button
                   onClick={logout}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-blood hover:bg-blood/10 rounded-lg transition-smooth"
+                  className="flex items-center justify-center gap-3 w-full px-4 py-3 text-blood font-display text-sm tracking-[0.1em] uppercase hover:bg-blood/10 rounded-lg transition-all duration-300 border border-blood/30"
                 >
-                  <LogOut size={20} strokeWidth={1.5} />
+                  <LogOut size={18} strokeWidth={1.5} />
                   <span>Sign out</span>
                 </button>
               </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, ArrowUp, ArrowDown, Camera, Download, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, ArrowUp, ArrowDown, Camera, Download, Loader2 } from '../components/Icons';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi, exportApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';

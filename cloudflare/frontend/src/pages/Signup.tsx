@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Loader2, Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
+import { Mail, Lock, User, Loader2, Eye, EyeOff, ArrowRight, Check } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 
 export function Signup() {

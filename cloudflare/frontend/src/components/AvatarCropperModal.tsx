@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, ZoomOut, Upload, Loader2 } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, Upload, Loader2 } from './Icons';
 
 interface AvatarCropperModalProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, Lock, Eye, Server, Trash2, Mail } from 'lucide-react';
+import { ArrowLeft, Shield, Lock, Eye, Server, Trash2, Mail } from '../components/Icons';
 
 export function Privacy() {
   return (

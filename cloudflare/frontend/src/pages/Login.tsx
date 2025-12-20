@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 
 export function Login() {

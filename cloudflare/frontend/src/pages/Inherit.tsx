@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Image, Mic, Play, Pause, Clock, Calendar, AlertCircle, Loader2, ChevronRight, Lock } from 'lucide-react';
+import { FileText, Image, Mic, Play, Pause, Clock, Calendar, AlertCircle, Loader2, ChevronRight, Lock } from '../components/Icons';
 
 // @ts-ignore - Vite env types
 const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue';

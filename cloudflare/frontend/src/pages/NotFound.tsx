@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, ArrowLeft } from 'lucide-react';
+import { Home, ArrowLeft } from '../components/Icons';
 
 export function NotFound() {
   const navigate = useNavigate();

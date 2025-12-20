@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus, FileText } from 'lucide-react';
+import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus, FileText } from '../components/Icons';
 import { Mp3Encoder } from 'lamejs';
 import { voiceApi, familyApi, transcriptionApi } from '../services/api';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';

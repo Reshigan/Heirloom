@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { EternalBackground } from './components/EternalBackground';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -52,6 +53,7 @@ export default function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <EternalBackground />
           <CustomCursor />
           <Routes>
           {/* Public routes */}

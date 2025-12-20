@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, FileText, Users, CreditCard, AlertTriangle, Scale, Mail } from 'lucide-react';
+import { ArrowLeft, FileText, Users, CreditCard, AlertTriangle, Scale, Mail } from '../components/Icons';
 
 export function Terms() {
   return (

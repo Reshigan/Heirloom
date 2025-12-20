@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Bell, Shield, Clock, Crown,
   ChevronRight, X, Check, Loader2
-} from 'lucide-react';
+} from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
