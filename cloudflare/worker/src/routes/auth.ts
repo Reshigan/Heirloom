@@ -63,6 +63,50 @@ authRoutes.post('/register', async (c) => {
     FROM users WHERE id = ?
   `).bind(userId).first();
   
+  // Send verification email to new user
+  try {
+    const resendApiKey = c.env.RESEND_API_KEY;
+    
+    if (resendApiKey) {
+      // Generate verification token
+      const verifyToken = crypto.randomUUID() + '-' + crypto.randomUUID();
+      const tokenHash = await hashToken(verifyToken);
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 hours
+      
+      // Store token
+      await c.env.DB.prepare(`
+        INSERT INTO email_verification_tokens (id, user_id, token_hash, expires_at)
+        VALUES (?, ?, ?, ?)
+      `).bind(crypto.randomUUID(), userId, tokenHash, expiresAt).run();
+      
+      // Send verification email
+      const { verificationEmail } = await import('../email-templates');
+      const emailContent = verificationEmail(firstName, verifyToken);
+      
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: email.toLowerCase(),
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Failed to send verification email:', response.status, errorBody);
+      }
+    }
+  } catch (err) {
+    console.error('Failed to send verification email:', err);
+    // Don't fail registration if verification email fails
+  }
+  
   // Send admin notification for new user signup
   try {
     const adminNotificationEmail = c.env.ADMIN_NOTIFICATION_EMAIL;

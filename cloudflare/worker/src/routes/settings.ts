@@ -326,17 +326,59 @@ settingsRoutes.post('/legacy-contacts', async (c) => {
     return c.json({ error: 'Name and email are required' }, 400);
   }
   
+  // Get user info for the email
+  const user = await c.env.DB.prepare(
+    'SELECT first_name, last_name FROM users WHERE id = ?'
+  ).bind(userId).first();
+  
+  const userName = user ? `${user.first_name} ${user.last_name}` : 'A Heirloom user';
+  
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   
+  // Generate verification token for the legacy contact
+  const verifyToken = crypto.randomUUID() + '-' + crypto.randomUUID();
+  
   await c.env.DB.prepare(`
-    INSERT INTO legacy_contacts (id, user_id, name, email, phone, relationship, role, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, name, email, phone || null, relationship || null, role || 'EXECUTOR', now, now).run();
+    INSERT INTO legacy_contacts (id, user_id, name, email, phone, relationship, role, verification_token, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, userId, name, email, phone || null, relationship || null, role || 'EXECUTOR', verifyToken, now, now).run();
   
   const contact = await c.env.DB.prepare(`
     SELECT * FROM legacy_contacts WHERE id = ?
   `).bind(id).first();
+  
+  // Send verification email to the legacy contact
+  try {
+    const resendApiKey = c.env.RESEND_API_KEY;
+    
+    if (resendApiKey) {
+      const { legacyContactVerificationEmail } = await import('../email-templates');
+      const emailContent = legacyContactVerificationEmail(name, userName, verifyToken);
+      
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: email,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Failed to send legacy contact verification email:', response.status, errorBody);
+      }
+    }
+  } catch (err) {
+    console.error('Failed to send legacy contact verification email:', err);
+    // Don't fail the request if email fails
+  }
   
   return c.json({
     id: contact?.id,
