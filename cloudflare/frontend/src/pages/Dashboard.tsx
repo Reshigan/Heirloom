@@ -9,6 +9,7 @@ import {
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
+import { LegacyScore } from '../components/LegacyScore';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -792,13 +793,23 @@ export function Dashboard() {
             </motion.div>
           </motion.div>
 
-          {/* Stats Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="grid md:grid-cols-3 gap-6"
-          >
+                    {/* Legacy Score */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.35 }}
+                      className="mb-6"
+                    >
+                      <LegacyScore />
+                    </motion.div>
+
+                    {/* Stats Cards */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="grid md:grid-cols-3 gap-6"
+                    >
             {/* Storage */}
             <div className="card">
               <div className="flex items-center justify-between mb-4">
