@@ -61,7 +61,7 @@ export function Letters() {
 
   const filteredLetters = letters?.filter((letter: Letter) => {
     const matchesSearch = letter.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      letter.body.toLowerCase().includes(searchQuery.toLowerCase());
+      letter.body?.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (filter === 'all') return matchesSearch;
     if (filter === 'drafts') return matchesSearch && !letter.sealedAt;
@@ -250,7 +250,7 @@ export function Letters() {
                           {letter.title || 'Untitled Letter'}
                         </h3>
                         <p className="text-paper/50 text-sm line-clamp-2">
-                          {letter.body.substring(0, 100)}...
+                          {letter.body?.substring(0, 100) || 'No content'}...
                         </p>
                       </div>
 
