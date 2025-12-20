@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Mail, Loader2, ArrowLeft, CheckCircle } from '../components/Icons';
 import { authApi } from '../services/api';
 
 export function ForgotPassword() {

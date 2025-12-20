@@ -168,6 +168,22 @@ export const Lock = createIcon(
   </>
 );
 
+export const KeyRound = createIcon(
+  <>
+    <path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z" />
+    <circle cx="16.5" cy="7.5" r="2.5" />
+  </>
+);
+
+export const FileKey = createIcon(
+  <>
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <path d="M14 2v6h6" />
+    <circle cx="10" cy="16" r="2" />
+    <path d="M16 16h-4m2-2v4" />
+  </>
+);
+
 export const Unlock = createIcon(
   <>
     <rect x="3" y="11" width="18" height="11" rx="2" />
@@ -453,6 +469,8 @@ export const Icons = {
   Shield,
   ShieldCheck,
   Lock,
+  KeyRound,
+  FileKey,
   Unlock,
   Clock,
   Calendar,
