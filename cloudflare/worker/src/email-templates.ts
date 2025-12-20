@@ -466,3 +466,44 @@ export const upcomingCheckInReminderEmail = (name: string, hoursUntil: number) =
     <p>Thank you for keeping your legacy secure.</p>
   `),
 });
+
+// ============================================
+// ADMIN NOTIFICATION EMAILS
+// ============================================
+
+export const adminNewUserNotificationEmail = (
+  newUserEmail: string,
+  newUserName: string,
+  signupDate: string
+) => ({
+  subject: `New User Signup: ${newUserName}`,
+  html: baseTemplate(`
+    <h2>New User Registration</h2>
+    <p>A new user has registered on Heirloom.</p>
+    <div class="info-box">
+      <p><strong>Name:</strong> <span class="gold">${newUserName}</span></p>
+      <p><strong>Email:</strong> ${newUserEmail}</p>
+      <p><strong>Signup Date:</strong> ${signupDate}</p>
+    </div>
+    <a href="${APP_URL}/admin" class="button">VIEW ADMIN DASHBOARD</a>
+  `),
+});
+
+export const adminLetterSentNotificationEmail = (
+  senderName: string,
+  senderEmail: string,
+  recipientEmail: string,
+  letterSubject: string
+) => ({
+  subject: `Letter Sent: ${senderName} to ${recipientEmail}`,
+  html: baseTemplate(`
+    <h2>Letter Delivery Notification</h2>
+    <p>A letter has been sent through Heirloom.</p>
+    <div class="info-box">
+      <p><strong>From:</strong> <span class="gold">${senderName}</span> (${senderEmail})</p>
+      <p><strong>To:</strong> ${recipientEmail}</p>
+      <p><strong>Subject:</strong> ${letterSubject}</p>
+    </div>
+    <a href="${APP_URL}/admin" class="button">VIEW ADMIN DASHBOARD</a>
+  `),
+});

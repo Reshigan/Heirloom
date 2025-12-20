@@ -63,6 +63,38 @@ authRoutes.post('/register', async (c) => {
     FROM users WHERE id = ?
   `).bind(userId).first();
   
+  // Send admin notification for new user signup
+  try {
+    const adminNotificationEmail = c.env.ADMIN_NOTIFICATION_EMAIL;
+    const resendApiKey = c.env.RESEND_API_KEY;
+    
+    if (adminNotificationEmail && resendApiKey) {
+      const { adminNewUserNotificationEmail } = await import('../email-templates');
+      const emailContent = adminNewUserNotificationEmail(
+        email.toLowerCase(),
+        `${firstName} ${lastName}`,
+        new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })
+      );
+      
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: adminNotificationEmail,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+    }
+  } catch (err) {
+    console.error('Failed to send admin notification:', err);
+    // Don't fail registration if admin notification fails
+  }
+  
   return c.json({
     user: {
       id: user.id,
