@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { authApi, setTokens, clearTokens } from '../services/api';
 
 export interface User {
@@ -25,6 +25,38 @@ interface AuthState {
   fetchUser: () => Promise<void>;
   updateUser: (updates: Partial<User>) => void;
 }
+
+// Safe localStorage wrapper that handles corrupted data gracefully
+const safeStorage: StateStorage = {
+  getItem: (name: string): string | null => {
+    try {
+      const value = localStorage.getItem(name);
+      if (value) {
+        // Validate that it's valid JSON before returning
+        JSON.parse(value);
+      }
+      return value;
+    } catch {
+      // If localStorage is corrupted, clear it and return null
+      localStorage.removeItem(name);
+      return null;
+    }
+  },
+  setItem: (name: string, value: string): void => {
+    try {
+      localStorage.setItem(name, value);
+    } catch {
+      // Ignore storage errors (e.g., quota exceeded)
+    }
+  },
+  removeItem: (name: string): void => {
+    try {
+      localStorage.removeItem(name);
+    } catch {
+      // Ignore removal errors
+    }
+  },
+};
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -88,6 +120,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'heirloom-auth',
+      storage: createJSONStorage(() => safeStorage),
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
     }
   )

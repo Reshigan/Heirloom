@@ -58,6 +58,7 @@ crons = [
 ENVIRONMENT = "production"
 APP_URL = "https://heirloom.blue"
 API_URL = "https://api.heirloom.blue"
+ADMIN_NOTIFICATION_EMAIL = "reshigan@vantax.co.za"
 
 # Secrets (set via `wrangler secret put`)
 # - JWT_SECRET

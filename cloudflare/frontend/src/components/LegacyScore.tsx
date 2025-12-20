@@ -46,8 +46,11 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
   }
 
   const { score, maxScore, percentage, tier, breakdown, suggestions } = scoreData;
-  const tierColor = tierColors[tier] || 'text-paper/50';
-  const tierIcon = tierIcons[tier] || '🌱';
+  // Handle tier as either a string or an object {name, emoji, description}
+  const tierName = typeof tier === 'object' && tier !== null ? tier.name : tier;
+  const tierEmoji = typeof tier === 'object' && tier !== null ? tier.emoji : null;
+  const tierColor = tierColors[tierName] || 'text-paper/50';
+  const tierIcon = tierEmoji || tierIcons[tierName] || '🌱';
 
   if (compact) {
     return (
@@ -60,7 +63,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
           <div className="flex items-center gap-3">
             <span className="text-2xl">{tierIcon}</span>
             <div>
-              <p className={`font-medium ${tierColor}`}>{tier}</p>
+              <p className={`font-medium ${tierColor}`}>{tierName}</p>
               <p className="text-paper/50 text-sm">{score} / {maxScore} points</p>
             </div>
           </div>
@@ -141,7 +144,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-3xl">{tierIcon}</span>
-            <span className={`text-2xl font-medium ${tierColor}`}>{tier}</span>
+            <span className={`text-2xl font-medium ${tierColor}`}>{tierName}</span>
           </div>
           <p className="text-paper/60">
             Keep building your legacy to unlock higher tiers!

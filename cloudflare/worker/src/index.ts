@@ -56,6 +56,9 @@ export interface Env {
   RESEND_API_KEY: string;
   ENCRYPTION_MASTER_KEY: string;
   
+  // Admin notifications
+  ADMIN_NOTIFICATION_EMAIL?: string;
+  
   // Feature flags
   CRON_ENABLED?: string;
 }
