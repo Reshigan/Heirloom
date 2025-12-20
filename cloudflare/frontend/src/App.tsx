@@ -25,6 +25,8 @@ import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
+import { VerifyEmail } from './pages/VerifyEmail';
+import { FutureLetter } from './pages/FutureLetter';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,9 +56,10 @@ export default function App() {
           <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/inherit/:token" element={<Inherit />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/inherit/:token" element={<Inherit />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
           <Route
             path="/login"
             element={
@@ -163,16 +166,24 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
-                    <Route
-                      path="/wrapped"
-                      element={
-                        <ProtectedRoute>
-                          <Wrapped />
-                        </ProtectedRoute>
-                      }
-                    />
+                                        <Route
+                                          path="/wrapped"
+                                          element={
+                                            <ProtectedRoute>
+                                              <Wrapped />
+                                            </ProtectedRoute>
+                                          }
+                                        />
+                                        <Route
+                                          path="/future-letter"
+                                          element={
+                                            <ProtectedRoute>
+                                              <FutureLetter />
+                                            </ProtectedRoute>
+                                          }
+                                        />
 
-                    {/* Admin routes */}
+                                        {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 

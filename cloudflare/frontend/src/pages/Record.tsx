@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus } from 'lucide-react';
+import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus, FileText } from 'lucide-react';
 import { Mp3Encoder } from 'lamejs';
-import { voiceApi, familyApi } from '../services/api';
+import { voiceApi, familyApi, transcriptionApi } from '../services/api';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 import { Navigation } from '../components/Navigation';
 
@@ -30,6 +30,7 @@ type VoiceRecording = {
   duration: number;
   emotion?: EmotionType;
   fileUrl?: string;
+  transcript?: string;
   createdAt: string;
 };
 
@@ -86,8 +87,10 @@ export function Record() {
         const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
         const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
         const [showRecordingsList, setShowRecordingsList] = useState(false);
-        const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
-        const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
+                const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+                const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
+                const [transcribingId, setTranscribingId] = useState<string | null>(null);
+                const [expandedTranscriptId, setExpandedTranscriptId] = useState<string | null>(null);
 
     // Get available years from recordings
     // Note: API returns { data: [...], pagination: {...} }
@@ -178,12 +181,32 @@ export function Record() {
       showToast('Recording saved successfully', 'success');
       resetRecording();
     },
-    onError: () => {
-      showToast('Failed to save recording', 'error');
-    },
-  });
+      onError: () => {
+        showToast('Failed to save recording', 'error');
+      },
+    });
 
-  // Waveform animation during recording
+    // Transcription mutation
+    const transcribeMutation = useMutation({
+      mutationFn: async (recordingId: string) => {
+        setTranscribingId(recordingId);
+        return transcriptionApi.transcribe(recordingId);
+      },
+      onSuccess: (response) => {
+        queryClient.invalidateQueries({ queryKey: ['voice'] });
+        showToast('Transcription complete', 'success');
+        if (response.data?.transcript) {
+          setExpandedTranscriptId(transcribingId);
+        }
+        setTranscribingId(null);
+      },
+      onError: () => {
+        showToast('Failed to transcribe recording', 'error');
+        setTranscribingId(null);
+      },
+    });
+
+    // Waveform animation during recording
   useEffect(() => {
     if (!isRecording || !analyserRef.current) return;
     
@@ -998,12 +1021,12 @@ export function Record() {
                   {/* Recordings List */}
                   {filteredRecordings.length > 0 ? (
                     <div className="space-y-3">
-                      {filteredRecordings.map((recording: VoiceRecording) => {
-                        const emotionData = EMOTIONS.find(e => e.value === recording.emotion);
-                        const EmotionIcon = emotionData?.icon;
-                        return (
-                          <motion.div
-                            key={recording.id}
+                                            {filteredRecordings.map((recording: VoiceRecording) => {
+                                              const emotionData = EMOTIONS.find(e => e.value === recording.emotion);
+                                              const EmotionIcon = emotionData?.icon;
+                                              return (
+                                                <React.Fragment key={recording.id}>
+                                                <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="card p-4 flex items-center justify-between"
@@ -1054,17 +1077,52 @@ export function Record() {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                              {emotionData && EmotionIcon && (
-                                <span className={`px-3 py-1 rounded-full text-xs flex items-center gap-1.5 ${emotionData.color}`}>
-                                  <EmotionIcon size={12} />
-                                  {emotionData.label}
-                                </span>
-                              )}
-                            </div>
-                          </motion.div>
-                        );
-                      })}
+                                                      <div className="flex items-center gap-3">
+                                                        {emotionData && EmotionIcon && (
+                                                          <span className={`px-3 py-1 rounded-full text-xs flex items-center gap-1.5 ${emotionData.color}`}>
+                                                            <EmotionIcon size={12} />
+                                                            {emotionData.label}
+                                                          </span>
+                                                        )}
+                                                        {recording.transcript ? (
+                                                          <button
+                                                            onClick={() => setExpandedTranscriptId(
+                                                              expandedTranscriptId === recording.id ? null : recording.id
+                                                            )}
+                                                            className="p-2 glass rounded-lg hover:bg-white/10 transition-colors"
+                                                            title="View transcript"
+                                                          >
+                                                            <FileText size={16} className="text-gold" />
+                                                          </button>
+                                                        ) : (
+                                                          <button
+                                                            onClick={() => transcribeMutation.mutate(recording.id)}
+                                                            disabled={transcribingId === recording.id}
+                                                            className="p-2 glass rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50"
+                                                            title="Transcribe recording"
+                                                          >
+                                                            {transcribingId === recording.id ? (
+                                                              <Loader2 size={16} className="animate-spin text-gold" />
+                                                            ) : (
+                                                              <FileText size={16} className="text-paper/50" />
+                                                            )}
+                                                          </button>
+                                                        )}
+                                                                            </div>
+                                                  </motion.div>
+                                                  {expandedTranscriptId === recording.id && recording.transcript && (
+                                                    <motion.div
+                                                      initial={{ opacity: 0, height: 0 }}
+                                                      animate={{ opacity: 1, height: 'auto' }}
+                                                      exit={{ opacity: 0, height: 0 }}
+                                                      className="card p-4 ml-14 mt-2 bg-void/50"
+                                                    >
+                                                      <p className="text-sm text-paper/70 leading-relaxed">{recording.transcript}</p>
+                                                                                                </motion.div>
+                                                                        )}
+                                                                      </React.Fragment>
+                                                                    );
+                                                                  })}
                     </div>
                   ) : (
                     <motion.div

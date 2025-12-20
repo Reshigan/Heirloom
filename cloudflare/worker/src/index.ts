@@ -24,7 +24,8 @@ import { settingsRoutes } from './routes/settings';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
 import { inheritRoutes } from './routes/inherit';
-import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail } from './email-templates';
+import { aiRoutes } from './routes/ai';
+import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail } from './email-templates';
 
 // Types
 export interface Env {
@@ -474,6 +475,7 @@ protectedApp.route('/settings', settingsRoutes);
 protectedApp.route('/deadman', deadmanRoutes);
 protectedApp.route('/encryption', encryptionRoutes);
 protectedApp.route('/wrapped', wrappedRoutes);
+protectedApp.route('/ai', aiRoutes);
 
 app.route('/api', protectedApp);
 
@@ -519,6 +521,8 @@ export default {
     if (cronType === '0 9 * * *') {
       // Daily check for missed check-ins
       await checkMissedCheckIns(env);
+      // Send upcoming check-in reminders (24 hours before due)
+      await sendUpcomingCheckInReminders(env);
     } else if (cronType === '0 0 * * 0') {
       // Weekly reminder emails
       await sendReminderEmails(env);
@@ -671,6 +675,56 @@ async function sendReminderEmail(env: Env, email: string, name: string) {
     }
   } catch (error) {
     console.error(`Error sending reminder email to ${email}:`, error);
+  }
+}
+
+async function sendUpcomingCheckInReminders(env: Env) {
+  // Find users with check-ins due in the next 24 hours who haven't been reminded yet
+  const result = await env.DB.prepare(`
+    SELECT dms.*, u.email, u.first_name
+    FROM dead_man_switches dms
+    JOIN users u ON dms.user_id = u.id
+    WHERE dms.enabled = 1 
+    AND dms.status = 'ACTIVE'
+    AND datetime(dms.next_check_in_due) <= datetime('now', '+24 hours')
+    AND datetime(dms.next_check_in_due) > datetime('now')
+    AND (dms.reminder_sent_at IS NULL OR datetime(dms.reminder_sent_at) < datetime('now', '-20 hours'))
+  `).all();
+  
+  for (const row of result.results) {
+    // Calculate hours until due
+    const dueDate = new Date(row.next_check_in_due as string);
+    const hoursUntil = Math.max(1, Math.round((dueDate.getTime() - Date.now()) / (1000 * 60 * 60)));
+    
+    // Send reminder email
+    const emailContent = upcomingCheckInReminderEmail(row.first_name as string, hoursUntil);
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: row.email,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+      
+      if (response.ok) {
+        // Mark reminder as sent
+        await env.DB.prepare(`
+          UPDATE dead_man_switches SET reminder_sent_at = ? WHERE id = ?
+        `).bind(new Date().toISOString(), row.id).run();
+      } else {
+        const errorBody = await response.text();
+        console.error(`Failed to send upcoming reminder to ${row.email}: ${response.status} - ${errorBody}`);
+      }
+    } catch (error) {
+      console.error(`Error sending upcoming reminder to ${row.email}:`, error);
+    }
   }
 }
 

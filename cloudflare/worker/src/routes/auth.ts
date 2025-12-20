@@ -436,6 +436,137 @@ authRoutes.post('/reset-password', async (c) => {
 });
 
 // ============================================
+// EMAIL VERIFICATION
+// ============================================
+
+authRoutes.get('/verify-email', async (c) => {
+  const token = c.req.query('token');
+  
+  if (!token) {
+    return c.json({ error: 'Verification token is required' }, 400);
+  }
+  
+  // Hash the token to compare with stored hash
+  const tokenHash = await hashToken(token);
+  
+  // Find the verification token
+  const verifyRecord = await c.env.DB.prepare(`
+    SELECT id, user_id, expires_at, used_at FROM email_verification_tokens WHERE token_hash = ?
+  `).bind(tokenHash).first();
+  
+  if (!verifyRecord) {
+    return c.json({ error: 'Invalid verification link' }, 400);
+  }
+  
+  // Check if already used
+  if (verifyRecord.used_at) {
+    return c.json({ error: 'This verification link has already been used' }, 400);
+  }
+  
+  // Check expiry
+  const expiresAt = new Date(verifyRecord.expires_at as string);
+  if (Date.now() > expiresAt.getTime()) {
+    return c.json({ error: 'This verification link has expired' }, 400);
+  }
+  
+  // Mark email as verified
+  await c.env.DB.prepare(
+    'UPDATE users SET email_verified = 1, updated_at = ? WHERE id = ?'
+  ).bind(new Date().toISOString(), verifyRecord.user_id).run();
+  
+  // Mark token as used
+  await c.env.DB.prepare(
+    'UPDATE email_verification_tokens SET used_at = ? WHERE id = ?'
+  ).bind(new Date().toISOString(), verifyRecord.id).run();
+  
+  return c.json({ message: 'Email verified successfully!' });
+});
+
+authRoutes.post('/resend-verification', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  
+  const token = authHeader.replace('Bearer ', '');
+  
+  try {
+    const payload = await verifyJWT(token, c.env.JWT_SECRET);
+    
+    // Get user
+    const user = await c.env.DB.prepare(
+      'SELECT id, email, first_name, email_verified FROM users WHERE id = ?'
+    ).bind(payload.sub).first();
+    
+    if (!user) {
+      return c.json({ error: 'User not found' }, 404);
+    }
+    
+    if (user.email_verified) {
+      return c.json({ error: 'Email is already verified' }, 400);
+    }
+    
+    // Invalidate old tokens
+    await c.env.DB.prepare(
+      'DELETE FROM email_verification_tokens WHERE user_id = ?'
+    ).bind(user.id).run();
+    
+    // Generate new token
+    const verifyToken = crypto.randomUUID() + '-' + crypto.randomUUID();
+    const tokenHash = await hashToken(verifyToken);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 hours
+    
+    // Store token
+    await c.env.DB.prepare(`
+      INSERT INTO email_verification_tokens (id, user_id, token_hash, expires_at)
+      VALUES (?, ?, ?, ?)
+    `).bind(crypto.randomUUID(), user.id, tokenHash, expiresAt).run();
+    
+    // Send verification email
+    const verifyUrl = `${c.env.APP_URL}/verify-email?token=${verifyToken}`;
+    
+    try {
+      const resendApiKey = c.env.RESEND_API_KEY;
+      if (resendApiKey) {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Heirloom <noreply@heirloom.blue>',
+            to: user.email,
+            subject: 'Verify your Heirloom email',
+            html: `
+              <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                <h1 style="color: #1a1a2e; font-size: 28px; margin-bottom: 20px;">Verify Your Email</h1>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Hi ${user.first_name},</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Please click the button below to verify your email address:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${verifyUrl}" style="background: linear-gradient(135deg, #d4af37, #f4d03f); color: #1a1a2e; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Verify Email</a>
+                </div>
+                <p style="color: #666; font-size: 14px;">This link expires in 24 hours.</p>
+                <p style="color: #666; font-size: 14px;">If you didn't create an account, you can safely ignore this email.</p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                <p style="color: #999; font-size: 12px; text-align: center;">Heirloom - Preserve Your Legacy</p>
+              </div>
+            `,
+          }),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to send verification email:', err);
+    }
+    
+    return c.json({ message: 'Verification email sent' });
+  } catch {
+    return c.json({ error: 'Invalid token' }, 401);
+  }
+});
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 

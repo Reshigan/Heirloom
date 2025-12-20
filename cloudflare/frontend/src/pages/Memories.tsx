@@ -2,8 +2,8 @@ import { useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun } from 'lucide-react';
-import { memoriesApi, familyApi, getAuthHeaders } from '../services/api';
+import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Search } from 'lucide-react';
+import { memoriesApi, familyApi, getAuthHeaders, searchApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
@@ -38,17 +38,22 @@ export function Memories() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [filterType, setFilterType] = useState<string>('all');
-  const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [filterType, setFilterType] = useState<string>('all');
+    const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   
-  // Timeline filter state
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-  const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+    // Search state
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  
+        // Timeline filter state
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+    const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
   
   const [form, setForm] = useState({
     title: '',
@@ -170,16 +175,50 @@ export function Memories() {
     }
   };
 
-  const toggleRecipient = (id: string) => {
-    setForm(prev => ({
-      ...prev,
-      recipientIds: prev.recipientIds.includes(id)
-        ? prev.recipientIds.filter(r => r !== id)
-        : [...prev.recipientIds, id],
-    }));
-  };
+    const toggleRecipient = (id: string) => {
+      setForm(prev => ({
+        ...prev,
+        recipientIds: prev.recipientIds.includes(id)
+          ? prev.recipientIds.filter(r => r !== id)
+          : [...prev.recipientIds, id],
+      }));
+    };
 
-    // Get the memories array from the API response (handles both { data: [...] } and direct array)
+    // Search handler
+    const handleSearch = async (query: string) => {
+      setSearchQuery(query);
+      if (!query.trim()) {
+        setSearchResults(null);
+        return;
+      }
+    
+      setIsSearching(true);
+      try {
+        const response = await searchApi.search(query, 'memories', 20);
+        setSearchResults(response.data.results || []);
+      } catch (error) {
+        console.error('Search failed:', error);
+        showToast('error', 'Search failed');
+        setSearchResults(null);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    // Debounced search
+    const handleSearchInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+      const query = e.target.value;
+      setSearchQuery(query);
+    
+      // Clear previous timeout
+      const timeoutId = setTimeout(() => {
+        handleSearch(query);
+      }, 300);
+    
+      return () => clearTimeout(timeoutId);
+    }, []);
+
+        // Get the memories array from the API response(handles both { data: [...] } and direct array)
     const memoriesList = useMemo(() => {
       if (!memories) return [];
       // API returns { data: [...], pagination: {...} }
@@ -270,22 +309,22 @@ export function Memories() {
         </motion.button>
 
         <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-4xl md:text-5xl font-light mb-2">Your <em>Memories</em></h1>
-              <p className="text-paper/50">Moments worth preserving forever</p>
-            </motion.div>
+                    {/* Header */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        <h1 className="text-4xl md:text-5xl font-light mb-2">Your <em>Memories</em></h1>
+                        <p className="text-paper/50">Moments worth preserving forever</p>
+                      </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="flex items-center gap-4"
-            >
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="flex items-center gap-4"
+                      >
               {/* View toggle */}
               <div className="flex items-center gap-1 glass rounded-lg p-1">
                 <button
@@ -324,17 +363,62 @@ export function Memories() {
                 <Plus size={18} />
                 Add Memory
               </button>
-            </motion.div>
-          </div>
+                      </motion.div>
+                    </div>
 
-          {/* Timeline Slider */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            {/* Year Selector */}
+                    {/* Search Bar */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 }}
+                      className="mb-8"
+                    >
+                      <div className="relative max-w-xl mx-auto">
+                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/40" />
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={handleSearchInput}
+                          placeholder="Search memories by title, description..."
+                          className="input pl-12 pr-4 w-full"
+                        />
+                        {isSearching && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <div className="w-5 h-5 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                          </div>
+                        )}
+                      </div>
+            
+                      {searchResults !== null && (
+                        <div className="mt-4 text-center">
+                          <p className="text-paper/50 text-sm">
+                            {searchResults.length === 0 
+                              ? 'No memories found matching your search' 
+                              : `Found ${searchResults.length} ${searchResults.length === 1 ? 'memory' : 'memories'}`}
+                          </p>
+                          {searchQuery && (
+                            <button
+                              onClick={() => {
+                                setSearchQuery('');
+                                setSearchResults(null);
+                              }}
+                              className="text-gold text-sm mt-2 hover:text-gold-bright transition-colors"
+                            >
+                              Clear search
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </motion.div>
+
+                    {/* Timeline Slider */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="mb-8"
+                    >
+                      {/* Year Selector */}
             <div className="flex items-center justify-center gap-4 mb-4">
               <button
                 onClick={() => {
