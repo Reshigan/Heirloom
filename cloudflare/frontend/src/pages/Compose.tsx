@@ -2,11 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
-import { lettersApi, familyApi } from '../services/api';
+import { lettersApi, familyApi, aiApi } from '../services/api';
 
-// API URL for Ollama (used for local development)
-const _OLLAMA_API = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
-void _OLLAMA_API; // Suppress unused variable warning - kept for future local AI integration
 
 // Custom SVG Icons
 const Icons = {
@@ -143,16 +140,6 @@ const deliveryOptions = [
   },
 ];
 
-const letterPrompts = [
-  "What I want you to know about our family history...",
-  "The most important lessons I've learned in life...",
-  "My hopes and dreams for your future...",
-  "The story of how we met / you were born...",
-  "What I love most about you...",
-  "Advice for your wedding day...",
-  "Words for when times get tough...",
-  "My favorite memories of us together...",
-];
 
 export function Compose() {
   const navigate = useNavigate();
@@ -161,6 +148,8 @@ export function Compose() {
   const [isLoading, setIsLoading] = useState(true);
   const [showComposer, setShowComposer] = useState(false);
   const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+  const [letterPrompts, setLetterPrompts] = useState<string[]>([]);
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(false);
   
   // Composer state
   const [title, setTitle] = useState('');
@@ -178,7 +167,7 @@ export function Compose() {
         const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
         const [sealError, setSealError] = useState<string | null>(null);
 
-    // AI Assist function - uses TinyLLM backend service
+    // AI Assist function - uses Cloudflare Workers AI backend
     const handleAiAssist = async () => {
       if (isAiAssisting) return;
     
@@ -190,39 +179,6 @@ export function Compose() {
         .filter(Boolean)
         .join(', ');
 
-      // Smart fallback suggestions based on context
-      const getSmartSuggestion = () => {
-        if (!body || body.trim().length < 20) {
-          // Opening suggestions
-          return `Here are some heartfelt ways to begin your letter to ${recipientNames || 'your loved ones'}:
-
-"As I sit down to write this, I'm filled with so many feelings I want to share with you..."
-
-"There are some things I've always wanted to tell you, and today feels like the right time..."
-
-"When you read this letter, I hope you feel how much you mean to me..."`;
-        } else if (body.toLowerCase().includes('remember') || body.toLowerCase().includes('memory')) {
-          // Memory-related suggestions
-          return `To continue your memory:
-
-"That moment taught me something I carry with me to this day..."
-
-"Looking back, I realize how much those moments shaped who we are..."
-
-"I hope you hold onto these memories as dearly as I do..."`;
-        } else {
-          // General continuation
-          return `Here are some ways to continue your letter:
-
-"What I want you to know most of all is..."
-
-"Through all of life's ups and downs, remember that..."
-
-"I hope these words find you when you need them most..."`;
-        }
-      };
-
-      // Try TinyLLM backend service first, then fall back to local suggestions
       try {
         const { data } = await lettersApi.aiSuggest({
           salutation,
@@ -234,12 +190,10 @@ export function Compose() {
         if (data.suggestion) {
           setAiSuggestion(data.suggestion);
         } else {
-          setAiSuggestion(getSmartSuggestion());
+          setAiSuggestion('AI suggestion unavailable. Please try again.');
         }
-      } catch (error) {
-        console.error('AI assist error:', error);
-        // Fall back to local smart suggestions
-        setAiSuggestion(getSmartSuggestion());
+      } catch {
+        setAiSuggestion('AI is temporarily unavailable. Please try again in a moment.');
       } finally {
         setIsAiAssisting(false);
       }
@@ -255,7 +209,22 @@ export function Compose() {
     useEffect(() => {
     fetchLetters();
     fetchFamilyMembers();
+    fetchLetterPrompts();
   }, []);
+
+  const fetchLetterPrompts = async () => {
+    setIsLoadingPrompts(true);
+    try {
+      const { data } = await aiApi.getPrompts(8);
+      if (data.prompts && data.prompts.length > 0) {
+        setLetterPrompts(data.prompts.map((p: { prompt: string }) => p.prompt));
+      }
+    } catch {
+      // Prompts are optional, fail silently
+    } finally {
+      setIsLoadingPrompts(false);
+    }
+  };
 
   const fetchLetters = async () => {
     try {
@@ -599,15 +568,24 @@ export function Compose() {
             <div>
               <label className="block text-sm text-paper/60 mb-3">Need inspiration? Try a prompt:</label>
               <div className="flex flex-wrap gap-2">
-                {letterPrompts.map((prompt, index) => (
-                  <button
-                    key={index}
-                    onClick={() => insertPrompt(prompt)}
-                    className="px-3 py-1.5 text-sm bg-void-light border border-gold/10 rounded-lg text-paper/50 hover:text-paper/80 hover:border-gold/30 transition-colors"
-                  >
-                    {prompt.substring(0, 40)}...
-                  </button>
-                ))}
+                {isLoadingPrompts ? (
+                  <div className="flex items-center gap-2 text-paper/40">
+                    <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                    <span className="text-sm">Loading prompts...</span>
+                  </div>
+                ) : letterPrompts.length === 0 ? (
+                  <p className="text-sm text-paper/40">No prompts available. Use the AI assist button above for suggestions.</p>
+                ) : (
+                  letterPrompts.map((prompt, index) => (
+                    <button
+                      key={index}
+                      onClick={() => insertPrompt(prompt)}
+                      className="px-3 py-1.5 text-sm bg-void-light border border-gold/10 rounded-lg text-paper/50 hover:text-paper/80 hover:border-gold/30 transition-colors"
+                    >
+                      {prompt.substring(0, 40)}...
+                    </button>
+                  ))
+                )}
               </div>
             </div>
 

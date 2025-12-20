@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { lettersApi, aiApi } from '../services/api';
 
 // Types
 interface Message {
@@ -24,267 +25,152 @@ interface WritingSuggestion {
   tone: string;
 }
 
-// Ollama API service
-class OllamaService {
-  private baseUrl: string;
-  private model: string;
-  private isConfigured: boolean;
-
-  constructor(baseUrl: string = import.meta.env.VITE_OLLAMA_URL || '', model: string = 'tinyllama') {
-    this.baseUrl = baseUrl;
-    this.model = model;
-    this.isConfigured = !!baseUrl && baseUrl !== 'http://localhost:11434';
-  }
-
-  async generate(prompt: string, systemPrompt?: string): Promise<string> {
-    // If not configured or in production without a real URL, return helpful suggestions
-    if (!this.isConfigured) {
-      return this.getSmartFallbackResponse(prompt);
-    }
-
+// AI Service using backend Cloudflare Workers AI
+class AIService {
+  async generateSuggestion(prompt: string, context?: { type?: string; existingContent?: string; recipientNames?: string }): Promise<string> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.model,
-          prompt: prompt,
-          system: systemPrompt || this.getDefaultSystemPrompt(),
-          stream: false,
-          options: {
-            temperature: 0.7,
-            top_p: 0.9,
-            max_tokens: 500,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        return this.getSmartFallbackResponse(prompt);
+      // Use the letters AI suggest endpoint for letter-related queries
+      if (context?.type === 'letter' || prompt.toLowerCase().includes('letter') || prompt.toLowerCase().includes('write')) {
+        const { data } = await lettersApi.aiSuggest({
+          body: context?.existingContent,
+          recipientNames: context?.recipientNames,
+        });
+        if (data.suggestion) {
+          return data.suggestion;
+        }
       }
-
-      const data = await response.json();
-      return data.response;
+      
+      // For voice/prompt related queries, get AI-generated prompts
+      if (prompt.toLowerCase().includes('voice') || prompt.toLowerCase().includes('prompt') || prompt.toLowerCase().includes('recording')) {
+        const { data } = await aiApi.getPrompts(3);
+        if (data.prompts && data.prompts.length > 0) {
+          return `Here are some AI-generated prompts for you:\n\n${data.prompts.map((p: { prompt: string }, i: number) => `${i + 1}. "${p.prompt}"`).join('\n\n')}\n\nWould you like more prompts or something specific?`;
+        }
+      }
+      
+      // For general queries, get a single AI prompt
+      const { data } = await aiApi.getPrompt();
+      if (data.prompt) {
+        return `Here's a thought to inspire you:\n\n"${data.prompt}"\n\nWould you like me to help with something specific?`;
+      }
+      
+      return 'I\'m here to help you capture your memories and write heartfelt messages. What would you like to create today?';
     } catch (error) {
-      // Return helpful fallback instead of error
-      return this.getSmartFallbackResponse(prompt);
+      // Return a helpful message when AI is unavailable
+      return 'AI assistance is temporarily unavailable. Please try again in a moment.';
     }
-  }
-
-  private getSmartFallbackResponse(prompt: string): string {
-    const lowerPrompt = prompt.toLowerCase();
-    
-    if (lowerPrompt.includes('letter') || lowerPrompt.includes('write') || lowerPrompt.includes('opening')) {
-      return `Here are some heartfelt suggestions for your letter:
-
-"My dearest [name], as I sit down to write this, I'm filled with so many feelings I want to share with you..."
-
-"There are moments in life that shape who we become, and you have been central to so many of mine..."
-
-"I want you to know how much you mean to me, not just today, but always. When you read these words..."
-
-Would you like me to help with a specific feeling or memory you'd like to express?`;
-    }
-    
-    if (lowerPrompt.includes('caption') || lowerPrompt.includes('photo') || lowerPrompt.includes('memory')) {
-      return `Here are some meaningful caption ideas:
-
-"Some moments are too precious for words, but I'll try anyway..."
-"This is what love looks like in our family."
-"A moment I never want to forget."
-"The little things that become the big memories."
-"Frozen in time, forever in my heart."
-
-Which style resonates with you? I can help customize it further.`;
-    }
-    
-    if (lowerPrompt.includes('voice') || lowerPrompt.includes('story') || lowerPrompt.includes('prompt') || lowerPrompt.includes('recording')) {
-      return `Here are some voice recording prompts to inspire you:
-
-"Tell me about a time when you felt truly proud of yourself..."
-"What's a family tradition you hope continues for generations?"
-"Describe your favorite childhood memory in detail..."
-"What advice would you give to your younger self?"
-"Share the story of how you met someone special..."
-
-Would you like more prompts around a specific theme?`;
-    }
-    
-    if (lowerPrompt.includes('gratitude') || lowerPrompt.includes('thank')) {
-      return `Here are ways to express gratitude:
-
-"I've been thinking about all the ways you've touched my life, and I wanted to take a moment to say thank you..."
-
-"Your kindness has meant more to me than words can express. You've been there through..."
-
-"Looking back, I realize how much you've shaped who I am today. Thank you for..."
-
-Would you like help expressing gratitude for something specific?`;
-    }
-    
-    return `I'd love to help you with that! Here are some ideas:
-
-For letters: Start with what you feel most strongly about. The best letters come from the heart.
-
-For captions: Think about what makes this moment special. What would you want to remember years from now?
-
-For voice recordings: Speak as if you're talking to your loved one directly. Share stories, wisdom, or simply how you feel.
-
-What would you like to explore today?`;
   }
 
   async streamGenerate(
     prompt: string,
     onToken: (token: string) => void,
-    systemPrompt?: string
+    context?: { type?: string; existingContent?: string; recipientNames?: string }
   ): Promise<void> {
-    // If not configured, stream the fallback response
-    if (!this.isConfigured) {
-      const fallbackResponse = this.getSmartFallbackResponse(prompt);
-      for (const char of fallbackResponse) {
-        onToken(char);
-        await new Promise(resolve => setTimeout(resolve, 15));
-      }
-      return;
+    // Get the full response first, then stream it character by character for UX
+    const response = await this.generateSuggestion(prompt, context);
+    
+    // Stream the response character by character for a typing effect
+    for (const char of response) {
+      onToken(char);
+      await new Promise(resolve => setTimeout(resolve, 15));
     }
-
-    try {
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.model,
-          prompt: prompt,
-          system: systemPrompt || this.getDefaultSystemPrompt(),
-          stream: true,
-        }),
-      });
-
-      if (!response.ok) {
-        // Stream fallback response on error
-        const fallbackResponse = this.getSmartFallbackResponse(prompt);
-        for (const char of fallbackResponse) {
-          onToken(char);
-          await new Promise(resolve => setTimeout(resolve, 15));
-        }
-        return;
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) return;
-
-      const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter(Boolean);
-        
-        for (const line of lines) {
-          try {
-            const data = JSON.parse(line);
-            if (data.response) {
-              onToken(data.response);
-            }
-          } catch (e) {
-            // Skip invalid JSON
-          }
-        }
-      }
-    } catch (error) {
-      // Stream fallback response on error
-      const fallbackResponse = this.getSmartFallbackResponse(prompt);
-      for (const char of fallbackResponse) {
-        onToken(char);
-        await new Promise(resolve => setTimeout(resolve, 15));
-      }
-    }
-  }
-
-  private getDefaultSystemPrompt(): string {
-    return `You are a warm, empathetic AI assistant for Heirloom, a digital legacy platform. 
-Your role is to help users:
-1. Write heartfelt letters to loved ones (including time-capsule letters for the future)
-2. Create meaningful captions for photos and memories
-3. Generate voice recording prompts and story ideas
-4. Analyze and classify emotions in their content
-
-Be gentle, supportive, and help users express their deepest feelings. 
-Focus on legacy, family connections, gratitude, and preserving meaningful moments.
-Keep responses concise but meaningful. Use warm, personal language.`;
   }
 
   async analyzeEmotion(text: string): Promise<EmotionAnalysis> {
-    const prompt = `Analyze the emotional content of this text and respond in JSON format:
-"${text}"
-
-Respond with ONLY valid JSON in this exact format:
-{"primary": "emotion", "secondary": "emotion", "confidence": 0.85, "sentiment": "positive", "suggestedTags": ["tag1", "tag2"]}`;
-
     try {
-      const response = await this.generate(prompt, 'You are an emotion analysis AI. Respond only with valid JSON.');
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+      // Use the letters AI suggest endpoint which includes emotion analysis
+      const { data } = await lettersApi.aiSuggest({ body: text });
+      
+      if (data.emotion) {
+        return {
+          primary: data.emotion,
+          secondary: 'Reflective',
+          confidence: data.confidence || 0.8,
+          sentiment: this.getSentimentFromEmotion(data.emotion),
+          suggestedTags: this.getTagsFromEmotion(data.emotion),
+        };
       }
-    } catch (e) {
-      console.error('Emotion analysis error:', e);
+    } catch (error) {
+      // Emotion analysis unavailable
     }
 
-    // Fallback emotion analysis
+    // Return neutral analysis when unavailable
     return {
-      primary: 'Joy',
-      secondary: 'Nostalgia',
-      confidence: 0.75,
-      sentiment: 'positive',
-      suggestedTags: ['family', 'love', 'memories'],
+      primary: 'Reflective',
+      secondary: 'Thoughtful',
+      confidence: 0.5,
+      sentiment: 'neutral',
+      suggestedTags: ['memory', 'reflection'],
     };
+  }
+
+  private getSentimentFromEmotion(emotion: string): 'positive' | 'neutral' | 'negative' {
+    const positiveEmotions = ['joyful', 'grateful', 'loving', 'proud', 'hopeful', 'peaceful'];
+    const negativeEmotions = ['sad', 'bittersweet'];
+    
+    if (positiveEmotions.includes(emotion.toLowerCase())) return 'positive';
+    if (negativeEmotions.includes(emotion.toLowerCase())) return 'negative';
+    return 'neutral';
+  }
+
+  private getTagsFromEmotion(emotion: string): string[] {
+    const emotionTags: Record<string, string[]> = {
+      joyful: ['happiness', 'celebration', 'joy'],
+      nostalgic: ['memories', 'past', 'reflection'],
+      grateful: ['gratitude', 'appreciation', 'thankful'],
+      loving: ['love', 'family', 'connection'],
+      bittersweet: ['memories', 'change', 'growth'],
+      sad: ['comfort', 'support', 'healing'],
+      reflective: ['wisdom', 'insight', 'growth'],
+      proud: ['achievement', 'growth', 'success'],
+      peaceful: ['calm', 'serenity', 'contentment'],
+      hopeful: ['future', 'dreams', 'optimism'],
+    };
+    
+    return emotionTags[emotion.toLowerCase()] || ['memory', 'reflection'];
   }
 
   async generateWritingSuggestions(
     type: 'letter' | 'caption' | 'voice_prompt',
     context?: string
   ): Promise<WritingSuggestion> {
-    const prompts = {
-      letter: `Generate 3 heartfelt letter opening lines for someone writing to a loved one. ${context ? `Context: ${context}` : ''} Respond with just the suggestions, numbered 1-3.`,
-      caption: `Generate 3 meaningful photo captions that evoke emotion and memory. ${context ? `Context: ${context}` : ''} Respond with just the suggestions, numbered 1-3.`,
-      voice_prompt: `Generate 3 thoughtful voice recording prompts that help someone share their life story. ${context ? `Context: ${context}` : ''} Respond with just the prompts, numbered 1-3.`,
-    };
-
-    const response = await this.generate(prompts[type]);
-    const suggestions = response
-      .split(/\d+[\.\)]\s*/)
-      .filter(Boolean)
-      .map(s => s.trim())
-      .slice(0, 3);
-
-    return {
-      type,
-      suggestions: suggestions.length ? suggestions : this.getDefaultSuggestions(type),
-      tone: 'warm and personal',
-    };
-  }
-
-  private getDefaultSuggestions(type: 'letter' | 'caption' | 'voice_prompt'): string[] {
-    const defaults = {
-      letter: [
-        "My dearest, as I write these words, I'm thinking of all the moments we've shared...",
-        "There are some things I've always wanted to tell you, and today feels like the right time...",
-        "When you read this letter, I hope you feel how much you mean to me...",
-      ],
-      caption: [
-        "Some moments are too precious for words, but I'll try anyway.",
-        "This is what love looks like in our family.",
-        "A moment I want to remember forever.",
-      ],
-      voice_prompt: [
-        "Tell me about a time when you felt truly proud of yourself.",
-        "What's a family tradition you hope continues for generations?",
-        "Describe your favorite childhood memory in detail.",
-      ],
-    };
-    return defaults[type];
+    try {
+      if (type === 'letter') {
+        const { data } = await lettersApi.aiSuggest({ body: context });
+        if (data.suggestion) {
+          return {
+            type,
+            suggestions: [data.suggestion],
+            tone: 'warm and personal',
+          };
+        }
+      }
+      
+      if (type === 'voice_prompt') {
+        const { data } = await aiApi.getPrompts(3);
+        if (data.prompts && data.prompts.length > 0) {
+          return {
+            type,
+            suggestions: data.prompts.map((p: { prompt: string }) => p.prompt),
+            tone: 'warm and personal',
+          };
+        }
+      }
+      
+      // For captions, use a single AI prompt
+      const { data } = await aiApi.getPrompt();
+      return {
+        type,
+        suggestions: data.prompt ? [data.prompt] : [],
+        tone: 'warm and personal',
+      };
+    } catch (error) {
+      return {
+        type,
+        suggestions: [],
+        tone: 'warm and personal',
+      };
+    }
   }
 }
 
@@ -304,7 +190,7 @@ const AIAssistant: React.FC<{
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const ollamaService = useRef(new OllamaService());
+  const aiService = useRef(new AIService());
 
   // Initialize with context-aware greeting
   useEffect(() => {
@@ -399,10 +285,10 @@ What would you like to create today?`;
 
     // Stream response
     let fullResponse = '';
-    await ollamaService.current.streamGenerate(fullPrompt, (token) => {
+    await aiService.current.streamGenerate(fullPrompt, (token: string) => {
       fullResponse += token;
       setStreamingContent(fullResponse);
-    });
+    }, { type: context?.type, existingContent: context?.existingContent });
 
     const assistantMessage: Message = {
       id: (Date.now() + 1).toString(),
@@ -498,7 +384,7 @@ What would you like to create today?`;
                 </div>
                 <div>
                   <h3 className="text-paper font-display text-lg">Writing Assistant</h3>
-                  <p className="text-paper/40 text-xs">Powered by local AI</p>
+                  <p className="text-paper/40 text-xs">Powered by Heirloom AI</p>
                 </div>
               </div>
               <button
@@ -606,9 +492,9 @@ What would you like to create today?`;
                   ↑
                 </button>
               </div>
-              <p className="text-xs text-paper/30 mt-2 text-center">
-                AI runs locally on your device • Your data stays private
-              </p>
+                            <p className="text-xs text-paper/30 mt-2 text-center">
+                              Powered by Heirloom AI • Your data is encrypted
+                            </p>
             </div>
           </motion.div>
         </>
@@ -653,7 +539,7 @@ export const useAIAssistant = () => {
 
 // Emotion classifier utility
 export const classifyEmotion = async (text: string): Promise<EmotionAnalysis> => {
-  const service = new OllamaService();
+  const service = new AIService();
   return service.analyzeEmotion(text);
 };
 
@@ -662,7 +548,7 @@ export const getWritingSuggestions = async (
   type: 'letter' | 'caption' | 'voice_prompt',
   context?: string
 ): Promise<WritingSuggestion> => {
-  const service = new OllamaService();
+  const service = new AIService();
   return service.generateWritingSuggestions(type, context);
 };
 

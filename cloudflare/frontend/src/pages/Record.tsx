@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus, FileText } from '../components/Icons';
 import { Mp3Encoder } from 'lamejs';
-import { voiceApi, familyApi, transcriptionApi } from '../services/api';
+import { voiceApi, familyApi, transcriptionApi, aiApi } from '../services/api';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 import { Navigation } from '../components/Navigation';
 
@@ -427,34 +427,53 @@ export function Record() {
     }));
   };
 
-  // All available prompts
-  const allPrompts = [
-    { id: '1', text: 'Tell me about the happiest day of your life', category: 'Memories' },
-    { id: '2', text: 'What advice would you give your younger self?', category: 'Wisdom' },
-    { id: '3', text: 'Describe your favorite family tradition', category: 'Family' },
-    { id: '4', text: 'What do you want your children to know about you?', category: 'Legacy' },
-    { id: '5', text: 'Share a story about how you met your partner', category: 'Love' },
-    { id: '6', text: 'What are you most grateful for in life?', category: 'Gratitude' },
-    { id: '7', text: 'What was your childhood dream?', category: 'Memories' },
-    { id: '8', text: 'Describe a moment that changed your life', category: 'Legacy' },
-    { id: '9', text: 'What lesson took you the longest to learn?', category: 'Wisdom' },
-    { id: '10', text: 'Tell a funny story from your past', category: 'Memories' },
-    { id: '11', text: 'What do you hope your grandchildren will remember about you?', category: 'Legacy' },
-    { id: '12', text: 'Describe your perfect day', category: 'Gratitude' },
-  ];
+  // State for AI-generated prompts
+  const [allPrompts, setAllPrompts] = useState<{ id: string; text: string; category: string }[]>([]);
+  const [visiblePrompts, setVisiblePrompts] = useState<{ id: string; text: string; category: string }[]>([]);
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(false);
 
-  // Helper to get random prompts
+  // Fetch prompts from AI API
+  const fetchPrompts = async () => {
+    setIsLoadingPrompts(true);
+    try {
+      const { data } = await aiApi.getPrompts(12);
+      if (data.prompts && data.prompts.length > 0) {
+        const formattedPrompts = data.prompts.map((p: { id: string; prompt: string; category: string }) => ({
+          id: p.id,
+          text: p.prompt,
+          category: p.category || 'General',
+        }));
+        setAllPrompts(formattedPrompts);
+        // Show first 4 prompts
+        setVisiblePrompts(formattedPrompts.slice(0, 4));
+      }
+    } catch {
+      // Prompts are optional, fail silently
+    } finally {
+      setIsLoadingPrompts(false);
+    }
+  };
+
+  // Fetch prompts on mount
+  useEffect(() => {
+    fetchPrompts();
+  }, []);
+
+  // Helper to get random prompts from loaded prompts
   const getRandomPrompts = (count: number) => {
+    if (allPrompts.length === 0) return [];
     const shuffled = [...allPrompts].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   };
 
-  // State for visible prompts (randomized on mount)
-  const [visiblePrompts, setVisiblePrompts] = useState(() => getRandomPrompts(4));
-
   // Shuffle prompts
   const shufflePrompts = () => {
-    setVisiblePrompts(getRandomPrompts(4));
+    if (allPrompts.length > 0) {
+      setVisiblePrompts(getRandomPrompts(4));
+    } else {
+      // If no prompts loaded, try fetching again
+      fetchPrompts();
+    }
   };
 
   return (
@@ -845,25 +864,34 @@ export function Record() {
                 </p>
                 
                 <div className="space-y-1.5">
-                  {visiblePrompts.map((prompt) => (
-                    <motion.button
-                      key={prompt.id}
-                      onClick={() => {
-                        setSelectedPrompt(prompt.id);
-                        setForm(prev => ({ ...prev, promptId: prompt.id, title: prompt.text.slice(0, 50) }));
-                      }}
-                      className={`w-full text-left p-3 rounded-lg transition-all ${
-                        selectedPrompt === prompt.id
-                          ? 'glass bg-gold/20 border border-gold/30'
-                          : 'glass hover:bg-white/5'
-                      }`}
-                      whileHover={{ x: 2 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <span className="text-xs text-gold/60 tracking-wider">{prompt.category}</span>
-                      <p className="text-xs mt-0.5 leading-relaxed">{prompt.text}</p>
-                    </motion.button>
-                  ))}
+                  {isLoadingPrompts ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 size={20} className="text-gold animate-spin" />
+                      <span className="ml-2 text-sm text-paper/50">Loading prompts...</span>
+                    </div>
+                  ) : visiblePrompts.length === 0 ? (
+                    <p className="text-sm text-paper/40 text-center py-4">No prompts available. Click refresh to try again.</p>
+                  ) : (
+                    visiblePrompts.map((prompt) => (
+                      <motion.button
+                        key={prompt.id}
+                        onClick={() => {
+                          setSelectedPrompt(prompt.id);
+                          setForm(prev => ({ ...prev, promptId: prompt.id, title: prompt.text.slice(0, 50) }));
+                        }}
+                        className={`w-full text-left p-3 rounded-lg transition-all ${
+                          selectedPrompt === prompt.id
+                            ? 'glass bg-gold/20 border border-gold/30'
+                            : 'glass hover:bg-white/5'
+                        }`}
+                        whileHover={{ x: 2 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <span className="text-xs text-gold/60 tracking-wider">{prompt.category}</span>
+                        <p className="text-xs mt-0.5 leading-relaxed">{prompt.text}</p>
+                      </motion.button>
+                    ))
+                  )}
                 </div>
               </div>
 
