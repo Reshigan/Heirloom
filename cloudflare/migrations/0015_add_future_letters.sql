@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS ai_future_letters (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   current_age INTEGER NOT NULL,
-  values TEXT,
+  user_values TEXT,
   hopes TEXT,
   fears TEXT,
   loved_ones TEXT,

@@ -241,7 +241,7 @@ ${lovedOnes ? `People they love: ${lovedOnes}` : ''}`;
     // Store the letter
     const letterId = crypto.randomUUID();
     await c.env.DB.prepare(`
-      INSERT INTO ai_future_letters (id, user_id, current_age, values, hopes, fears, loved_ones, letter_content, share_text)
+      INSERT INTO ai_future_letters (id, user_id, current_age, user_values, hopes, fears, loved_ones, letter_content, share_text)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(letterId, userId, currentAge, values || null, hopes || null, fears || null, lovedOnes || null, letterContent, shareText).run();
     
