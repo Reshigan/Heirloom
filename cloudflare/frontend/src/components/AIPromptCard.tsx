@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, RefreshCw, Share2, Check, Loader2 } from 'lucide-react';
+import { Sparkles, RefreshCw, Share2, Check, Loader2 } from './Icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
 

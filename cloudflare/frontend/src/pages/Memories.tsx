@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Search } from 'lucide-react';
+import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Search } from '../components/Icons';
 import { memoriesApi, familyApi, getAuthHeaders, searchApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 

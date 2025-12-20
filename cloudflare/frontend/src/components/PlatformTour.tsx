@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ElementType } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Image, Mic, Mail, Users, Shield, Check } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Image, Mic, Mail, Users, Shield, Check } from './Icons';
 
 interface TourStep {
   id: string;

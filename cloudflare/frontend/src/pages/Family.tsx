@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, X, Pen, Trash2, Mail, Phone, Heart, Users, Check, AlertCircle, Camera } from 'lucide-react';
+import { ArrowLeft, Plus, X, Pen, Trash2, Mail, Phone, Heart, Users, Check, AlertCircle, Camera } from '../components/Icons';
 import { familyApi, settingsApi } from '../services/api';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
 import { Navigation } from '../components/Navigation';

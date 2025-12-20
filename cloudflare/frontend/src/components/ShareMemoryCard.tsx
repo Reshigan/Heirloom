@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Check, Loader2 } from 'lucide-react';
+import { X, Download, Share2, Check, Loader2 } from './Icons';
 import { memoryCardsApi } from '../services/api';
 
 interface ShareMemoryCardProps {

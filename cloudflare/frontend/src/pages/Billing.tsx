@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   ArrowLeft, Check, Crown, Sparkles, Shield, Clock, 
   CreditCard, Loader2, AlertTriangle, X, Zap
-} from 'lucide-react';
+} from '../components/Icons';
 import { billingApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 

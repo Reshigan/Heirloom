@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { wrappedApi } from '../services/api';
-import { ChevronLeft, ChevronRight, Calendar, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Play, Pause, Volume2, VolumeX } from '../components/Icons';
 
 // Types for wrapped data
 interface WrappedStats {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Users, Mail, Loader2 } from 'lucide-react';
+import { X, User, Users, Mail, Loader2 } from './Icons';
 import { familyApi } from '../services/api';
 
 const RELATIONSHIPS = ['Spouse', 'Partner', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Grandparent', 'Friend', 'Other'];

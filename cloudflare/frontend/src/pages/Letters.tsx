@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, Search, Mail, Clock, CheckCircle, AlertCircle,
-  Edit2, Trash2, Send, Calendar, Users, X
-} from 'lucide-react';
+  Edit, Trash2, Send, Calendar, Users, X
+} from '../components/Icons';
 import { lettersApi } from '../services/api';
 import { Logo } from '../components/Logo';
 
@@ -234,7 +234,7 @@ export function Letters() {
                           </span>
                         ) : (
                           <span className="badge flex items-center gap-1">
-                            <Edit2 size={12} />
+                            <Edit size={12} />
                             Draft
                           </span>
                         )}
@@ -288,7 +288,7 @@ export function Letters() {
                           }}
                           className="p-2 rounded-lg glass hover:bg-gold/20 transition-colors"
                         >
-                          <Edit2 size={14} className="text-paper/70" />
+                          <Edit size={14} className="text-paper/70" />
                         </button>
                         <button
                           onClick={(e) => {
@@ -364,7 +364,7 @@ export function Letters() {
                   }}
                   className="btn btn-secondary"
                 >
-                  <Edit2 size={16} />
+                  <Edit size={16} />
                   Edit
                 </button>
                 {!selectedLetter.sealedAt && (
