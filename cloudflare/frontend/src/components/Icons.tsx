@@ -111,6 +111,14 @@ export const Plus = createIcon(<path d="M12 5v14M5 12h14" />);
 
 export const X = createIcon(<path d="M18 6L6 18M6 6l12 12" />);
 
+export const Menu = createIcon(
+  <>
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </>
+);
+
 export const Check = createIcon(<path d="M20 6L9 17l-5-5" strokeWidth={2} />);
 
 export const ChevronRight = createIcon(<path d="M9 18l6-6-6-6" />);
@@ -432,6 +440,7 @@ export const Icons = {
   Settings,
   Plus,
   X,
+  Menu,
   Check,
   ChevronRight,
   ChevronLeft,

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X } from 'lucide-react';
 import clsx from 'clsx';
 import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
+import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X } from './Icons';
 
 const navItems = [
   { path: '/dashboard', icon: Home, label: 'Vault' },
