@@ -450,3 +450,19 @@ export const testEmail = () => ({
     <p>If you received this email, your notification settings are configured correctly.</p>
   `),
 });
+
+// ============================================
+// UPCOMING CHECK-IN REMINDER
+// ============================================
+
+export const upcomingCheckInReminderEmail = (name: string, hoursUntil: number) => ({
+  subject: `Check-in due in ${hoursUntil} hours`,
+  html: baseTemplate(`
+    <h2>Check-in Reminder</h2>
+    <p>Hi ${name},</p>
+    <p>Your Heirloom check-in is due in <span class="gold">${hoursUntil} hours</span>.</p>
+    <p>Taking a moment to check in ensures your legacy contacts won't be notified unnecessarily.</p>
+    <a href="${APP_URL}/settings?tab=deadman" class="button">CHECK IN NOW</a>
+    <p>Thank you for keeping your legacy secure.</p>
+  `),
+});

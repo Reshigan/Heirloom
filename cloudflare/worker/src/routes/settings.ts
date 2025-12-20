@@ -527,3 +527,161 @@ settingsRoutes.delete('/account', async (c) => {
     message: 'Account deleted successfully',
   });
 });
+
+// ============================================
+// DATA EXPORT (GDPR Compliance)
+// ============================================
+
+settingsRoutes.get('/export', async (c) => {
+  const userId = c.get('userId');
+  
+  try {
+    // Gather all user data
+    const [user, memories, voiceRecordings, letters, familyMembers, legacyContacts, deadManSwitch, subscription] = await Promise.all([
+      c.env.DB.prepare(`
+        SELECT id, email, first_name, last_name, avatar_url, preferred_currency, 
+               email_verified, two_factor_enabled, created_at, updated_at
+        FROM users WHERE id = ?
+      `).bind(userId).first(),
+      c.env.DB.prepare(`SELECT * FROM memories WHERE user_id = ?`).bind(userId).all(),
+      c.env.DB.prepare(`SELECT * FROM voice_recordings WHERE user_id = ?`).bind(userId).all(),
+      c.env.DB.prepare(`SELECT * FROM letters WHERE user_id = ?`).bind(userId).all(),
+      c.env.DB.prepare(`SELECT * FROM family_members WHERE user_id = ?`).bind(userId).all(),
+      c.env.DB.prepare(`SELECT * FROM legacy_contacts WHERE user_id = ?`).bind(userId).all(),
+      c.env.DB.prepare(`SELECT * FROM dead_man_switches WHERE user_id = ?`).bind(userId).first(),
+      c.env.DB.prepare(`SELECT * FROM subscriptions WHERE user_id = ?`).bind(userId).first(),
+    ]);
+    
+    // Build file manifest with R2 URLs
+    const fileManifest: { type: string; key: string; url: string }[] = [];
+    
+    // Add memory files
+    for (const memory of memories.results) {
+      if (memory.file_key) {
+        fileManifest.push({
+          type: 'memory',
+          key: memory.file_key as string,
+          url: `${c.env.API_URL}/api/memories/file/${encodeURIComponent(memory.file_key as string)}`,
+        });
+      }
+    }
+    
+    // Add voice recording files
+    for (const voice of voiceRecordings.results) {
+      if (voice.file_key) {
+        fileManifest.push({
+          type: 'voice',
+          key: voice.file_key as string,
+          url: `${c.env.API_URL}/api/voice/file/${encodeURIComponent(voice.file_key as string)}`,
+        });
+      }
+    }
+    
+    // Build export data
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      user: user ? {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        avatarUrl: user.avatar_url,
+        preferredCurrency: user.preferred_currency,
+        emailVerified: !!user.email_verified,
+        twoFactorEnabled: !!user.two_factor_enabled,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at,
+      } : null,
+      memories: memories.results.map((m: any) => ({
+        id: m.id,
+        type: m.type,
+        title: m.title,
+        description: m.description,
+        fileKey: m.file_key,
+        metadata: m.metadata ? JSON.parse(m.metadata) : null,
+        createdAt: m.created_at,
+        updatedAt: m.updated_at,
+      })),
+      voiceRecordings: voiceRecordings.results.map((v: any) => ({
+        id: v.id,
+        title: v.title,
+        description: v.description,
+        fileKey: v.file_key,
+        duration: v.duration,
+        transcript: v.transcript,
+        createdAt: v.created_at,
+        updatedAt: v.updated_at,
+      })),
+      letters: letters.results.map((l: any) => ({
+        id: l.id,
+        title: l.title,
+        salutation: l.salutation,
+        body: l.body,
+        signature: l.signature,
+        deliveryTrigger: l.delivery_trigger,
+        scheduledDate: l.scheduled_date,
+        sealedAt: l.sealed_at,
+        createdAt: l.created_at,
+        updatedAt: l.updated_at,
+      })),
+      familyMembers: familyMembers.results.map((f: any) => ({
+        id: f.id,
+        name: f.name,
+        relationship: f.relationship,
+        email: f.email,
+        phone: f.phone,
+        birthDate: f.birth_date,
+        notes: f.notes,
+        createdAt: f.created_at,
+      })),
+      legacyContacts: legacyContacts.results.map((lc: any) => ({
+        id: lc.id,
+        name: lc.name,
+        email: lc.email,
+        phone: lc.phone,
+        relationship: lc.relationship,
+        verificationStatus: lc.verification_status,
+        createdAt: lc.created_at,
+      })),
+      deadManSwitch: deadManSwitch ? {
+        enabled: !!deadManSwitch.enabled,
+        status: deadManSwitch.status,
+        checkInIntervalDays: deadManSwitch.check_in_interval_days,
+        gracePeriodDays: deadManSwitch.grace_period_days,
+        lastCheckIn: deadManSwitch.last_check_in,
+        nextCheckInDue: deadManSwitch.next_check_in_due,
+        createdAt: deadManSwitch.created_at,
+      } : null,
+      subscription: subscription ? {
+        tier: subscription.tier,
+        status: subscription.status,
+        currentPeriodStart: subscription.current_period_start,
+        currentPeriodEnd: subscription.current_period_end,
+        trialEndsAt: subscription.trial_ends_at,
+        createdAt: subscription.created_at,
+      } : null,
+      fileManifest,
+    };
+    
+    // Log to audit_logs for compliance (if table exists)
+    try {
+      await c.env.DB.prepare(`
+        INSERT INTO audit_logs (id, user_id, action, details, created_at)
+        VALUES (?, ?, 'DATA_EXPORT', ?, ?)
+      `).bind(crypto.randomUUID(), userId, JSON.stringify({ exportedAt: exportData.exportedAt }), new Date().toISOString()).run();
+    } catch {
+      // audit_logs table may not exist, continue without logging
+    }
+    
+    // Return as JSON with download headers
+    return new Response(JSON.stringify(exportData, null, 2), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Disposition': `attachment; filename="heirloom-export-${new Date().toISOString().split('T')[0]}.json"`,
+      },
+    });
+  } catch (error: any) {
+    console.error('Data export error:', error);
+    return c.json({ error: 'Failed to export data' }, 500);
+  }
+});

@@ -195,6 +195,57 @@ export const wrappedApi = {
   getYears: () => api.get('/wrapped'),
 };
 
+// AI API (new viral features)
+export const aiApi = {
+  // Memory prompts
+  getPrompt: () => api.get('/ai/prompt'),
+  getPrompts: (limit?: number) => api.get('/ai/prompts', { params: { limit } }),
+  markPromptUsed: (id: string) => api.post(`/ai/prompt/${id}/used`),
+  markPromptShared: (id: string) => api.post(`/ai/prompt/${id}/shared`),
+  
+  // Future letter
+  generateFutureLetter: (data: { currentAge: number; values: string; hopes: string; fears: string; lovedOnes: string }) =>
+    api.post('/ai/future-letter', data),
+  getFutureLetters: () => api.get('/ai/future-letters'),
+  markFutureLetterShared: (id: string) => api.post(`/ai/future-letter/${id}/shared`),
+  
+  // Legacy score
+  getLegacyScore: () => api.get('/ai/legacy-score'),
+};
+
+// Search API
+export const searchApi = {
+  search: (query: string, type?: 'all' | 'memories' | 'voice' | 'letters', limit?: number) =>
+    api.get('/memories/search', { params: { q: query, type, limit } }),
+};
+
+// Voice transcription API extension
+export const transcriptionApi = {
+  transcribe: (id: string) => api.post(`/voice/${id}/transcribe`),
+  transcribeAll: () => api.post('/voice/transcribe-all'),
+};
+
+// Memory cards API extension
+export const memoryCardsApi = {
+  getCard: (id: string, style?: 'classic' | 'modern' | 'vintage') =>
+    api.get(`/memories/${id}/card`, { params: { style }, responseType: 'blob' }),
+  getCardUrl: (id: string, style?: 'classic' | 'modern' | 'vintage') => {
+    const API_URL = import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api';
+    return `${API_URL}/memories/${id}/card?style=${style || 'classic'}`;
+  },
+};
+
+// Data export API extension
+export const exportApi = {
+  exportData: () => api.get('/settings/export'),
+};
+
+// Email verification API extension
+export const emailVerificationApi = {
+  verifyEmail: (token: string) => api.get('/auth/verify-email', { params: { token } }),
+  resendVerification: () => api.post('/auth/resend-verification'),
+};
+
 // Admin API (uses separate admin token)
 const adminAxios = axios.create({
   baseURL: API_URL,

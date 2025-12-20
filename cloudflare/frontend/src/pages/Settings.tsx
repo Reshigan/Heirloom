@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, ArrowUp, ArrowDown, Camera } from 'lucide-react';
-import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, ArrowUp, ArrowDown, Camera, Download, Loader2 } from 'lucide-react';
+import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi, exportApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
 import { Navigation } from '../components/Navigation';
@@ -80,9 +80,12 @@ export function Settings() {
         // Status messages for user feedback
         const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
         
-        // Delete account modal state
-        const [showDeleteModal, setShowDeleteModal] = useState(false);
-        const [deletePassword, setDeletePassword] = useState('');
+                // Delete account modal state
+                const [showDeleteModal, setShowDeleteModal] = useState(false);
+                const [deletePassword, setDeletePassword] = useState('');
+        
+                // Data export state
+                const [isExporting, setIsExporting] = useState(false);
   
         // Avatar upload state
         const [showAvatarCropper, setShowAvatarCropper] = useState(false);
@@ -322,12 +325,35 @@ export function Settings() {
       },
     });
 
-    // Helper to update a single notification preference
-    const handleNotificationToggle = (key: keyof typeof notificationPrefs, value: boolean) => {
-      const updated = { ...notificationPrefs, [key]: value };
-      setNotificationPrefs(updated);
-      updateNotificationsMutation.mutate(updated);
-    };
+        // Helper to update a single notification preference
+        const handleNotificationToggle = (key: keyof typeof notificationPrefs, value: boolean) => {
+          const updated = { ...notificationPrefs, [key]: value };
+          setNotificationPrefs(updated);
+          updateNotificationsMutation.mutate(updated);
+        };
+
+        // Data export handler
+        const handleExportData = async () => {
+          setIsExporting(true);
+          try {
+            const response = await exportApi.exportData();
+            const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `heirloom-export-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            setStatusMessage({ type: 'success', text: 'Data exported successfully' });
+          } catch (error) {
+            console.error('Export failed:', error);
+            setStatusMessage({ type: 'error', text: 'Failed to export data' });
+          } finally {
+            setIsExporting(false);
+          }
+        };
 
     const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
 
@@ -824,22 +850,46 @@ export function Settings() {
                     >
                       {changePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
                     </button>
-                  </div>
-                </div>
+                              </div>
+                            </div>
 
-                <div className="card border-blood/30 bg-blood/5">
-                  <h3 className="text-lg text-blood mb-2">Danger Zone</h3>
-                  <p className="text-paper/50 text-sm mb-4">Once you delete your account, there is no going back.</p>
-                  <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="btn border border-blood text-blood hover:bg-blood/10 flex items-center gap-2"
-                  >
-                    <Trash2 size={16} />
-                    Delete Account
-                  </button>
-                </div>
-              </div>
-            )}
+                            <div className="card">
+                              <h3 className="text-lg mb-2">Export Your Data</h3>
+                              <p className="text-paper/50 text-sm mb-4">
+                                Download all your data in JSON format. This includes your profile, memories, voice recordings, letters, and family members.
+                              </p>
+                              <button
+                                onClick={handleExportData}
+                                disabled={isExporting}
+                                className="btn btn-secondary flex items-center gap-2"
+                              >
+                                {isExporting ? (
+                                  <>
+                                    <Loader2 size={16} className="animate-spin" />
+                                    Exporting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Download size={16} />
+                                    Export Data
+                                  </>
+                                )}
+                              </button>
+                            </div>
+
+                            <div className="card border-blood/30 bg-blood/5">
+                              <h3 className="text-lg text-blood mb-2">Danger Zone</h3>
+                              <p className="text-paper/50 text-sm mb-4">Once you delete your account, there is no going back.</p>
+                              <button
+                                onClick={() => setShowDeleteModal(true)}
+                                className="btn border border-blood text-blood hover:bg-blood/10 flex items-center gap-2"
+                              >
+                                <Trash2 size={16} />
+                                Delete Account
+                              </button>
+                            </div>
+                          </div>
+                        )}
           </div>
         </div>
       </div>

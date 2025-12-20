@@ -456,3 +456,117 @@ voiceRoutes.delete('/:id', async (c) => {
   
   return c.body(null, 204);
 });
+
+// ============================================
+// VOICE TRANSCRIPTION (Whisper)
+// ============================================
+
+// Transcribe a single voice recording
+voiceRoutes.post('/:id/transcribe', async (c) => {
+  const userId = c.get('userId');
+  const recordingId = c.req.param('id');
+  
+  // Verify ownership
+  const recording = await c.env.DB.prepare(`
+    SELECT * FROM voice_recordings WHERE id = ? AND user_id = ?
+  `).bind(recordingId, userId).first();
+  
+  if (!recording) {
+    return c.json({ error: 'Voice recording not found' }, 404);
+  }
+  
+  // Check if already transcribed
+  if (recording.transcript) {
+    return c.json({
+      id: recording.id,
+      transcript: recording.transcript,
+      alreadyTranscribed: true,
+    });
+  }
+  
+  // Get audio from R2
+  const fileKey = recording.file_key as string;
+  if (!fileKey) {
+    return c.json({ error: 'No audio file associated with this recording' }, 400);
+  }
+  
+  try {
+    const object = await c.env.STORAGE.get(fileKey);
+    if (!object) {
+      return c.json({ error: 'Audio file not found in storage' }, 404);
+    }
+    
+    // Get audio as ArrayBuffer
+    const audioBuffer = await object.arrayBuffer();
+    
+    // Call Whisper model for transcription
+    const result = await c.env.AI.run('@cf/openai/whisper', {
+      audio: [...new Uint8Array(audioBuffer)],
+    });
+    
+    const transcript = (result as any).text || '';
+    
+    // Save transcript to database
+    await c.env.DB.prepare(`
+      UPDATE voice_recordings SET transcript = ?, updated_at = ? WHERE id = ?
+    `).bind(transcript, new Date().toISOString(), recordingId).run();
+    
+    return c.json({
+      id: recording.id,
+      transcript,
+      alreadyTranscribed: false,
+    });
+  } catch (error: any) {
+    console.error('Transcription error:', error);
+    return c.json({ error: 'Failed to transcribe audio', details: error.message }, 500);
+  }
+});
+
+// Batch transcribe multiple voice recordings (up to 10)
+voiceRoutes.post('/transcribe-all', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json();
+  const limit = Math.min(body.limit || 10, 10);
+  
+  // Get recordings without transcripts
+  const recordings = await c.env.DB.prepare(`
+    SELECT id, file_key FROM voice_recordings 
+    WHERE user_id = ? AND transcript IS NULL AND file_key IS NOT NULL
+    ORDER BY created_at DESC
+    LIMIT ?
+  `).bind(userId, limit).all();
+  
+  const results: { id: string; success: boolean; transcript?: string; error?: string }[] = [];
+  
+  for (const recording of recordings.results) {
+    try {
+      const object = await c.env.STORAGE.get(recording.file_key as string);
+      if (!object) {
+        results.push({ id: recording.id as string, success: false, error: 'File not found' });
+        continue;
+      }
+      
+      const audioBuffer = await object.arrayBuffer();
+      
+      const result = await c.env.AI.run('@cf/openai/whisper', {
+        audio: [...new Uint8Array(audioBuffer)],
+      });
+      
+      const transcript = (result as any).text || '';
+      
+      await c.env.DB.prepare(`
+        UPDATE voice_recordings SET transcript = ?, updated_at = ? WHERE id = ?
+      `).bind(transcript, new Date().toISOString(), recording.id).run();
+      
+      results.push({ id: recording.id as string, success: true, transcript });
+    } catch (error: any) {
+      console.error(`Transcription error for ${recording.id}:`, error);
+      results.push({ id: recording.id as string, success: false, error: error.message });
+    }
+  }
+  
+  return c.json({
+    processed: results.length,
+    results,
+  });
+});
