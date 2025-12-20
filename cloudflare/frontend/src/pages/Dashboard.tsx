@@ -142,7 +142,8 @@ export function Dashboard() {
 
   // Calculate legacy score percentage
   const scorePercent = legacyScore?.score || 0;
-  const scoreTier = legacyScore?.tier || 'Just Started';
+  const scoreTier = typeof legacyScore?.tier === 'object' ? legacyScore.tier.name : (legacyScore?.tier || 'Just Started');
+  const scoreTierDescription = typeof legacyScore?.tier === 'object' ? legacyScore.tier.description : legacyScore?.description;
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -454,7 +455,7 @@ export function Dashboard() {
                 <span className="legacy-tier-name">{scoreTier}</span>
               </div>
               <p className="legacy-desc">
-                {legacyScore?.description || 'Continue preserving memories to build your legacy and unlock new tiers.'}
+                {scoreTierDescription || 'Continue preserving memories to build your legacy and unlock new tiers.'}
               </p>
             </div>
           </div>
