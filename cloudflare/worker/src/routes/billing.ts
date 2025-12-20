@@ -231,6 +231,24 @@ const LEGACY_MAP: Record<string, string> = {
   'FREE': 'STARTER', 'ESSENTIAL': 'STARTER', 'PREMIUM': 'FAMILY', 'LEGACY': 'FOREVER', 'PLUS': 'FAMILY'
 };
 
+// =============================================================================
+// STRIPE PRICE IDS (USD - created via Stripe API)
+// =============================================================================
+const STRIPE_PRICE_IDS: Record<string, Record<string, string>> = {
+  STARTER: {
+    monthly: 'price_1SgNcE0wv1f1SxUqmVW3Glsh',
+    yearly: 'price_1SgNcE0wv1f1SxUqD1OZ5JQ0',
+  },
+  FAMILY: {
+    monthly: 'price_1SgNcE0wv1f1SxUqCYYS5l6f',
+    yearly: 'price_1SgNcF0wv1f1SxUqS0csfMww',
+  },
+  FOREVER: {
+    monthly: 'price_1SgNcF0wv1f1SxUqvRdvElr4',
+    yearly: 'price_1SgNcF0wv1f1SxUqMTL4YDLk',
+  },
+};
+
 function normalizeTier(tier: string): keyof typeof TIER_LIMITS {
   const upper = (tier || 'STARTER').toUpperCase();
   return (TIER_LIMITS[upper as keyof typeof TIER_LIMITS] ? upper : LEGACY_MAP[upper] || 'STARTER') as keyof typeof TIER_LIMITS;
@@ -456,8 +474,40 @@ billingRoutes.post('/checkout', async (c) => {
   
   // Create Stripe checkout session
   try {
-    // Convert price to cents (Stripe uses smallest currency unit)
-    const priceInCents = Math.round(finalPrice * 100);
+    const billingInterval = isYearly ? 'yearly' : 'monthly';
+    
+    // Use pre-created Stripe Price IDs for USD, fallback to dynamic pricing for other currencies
+    const stripePriceId = currency === 'USD' ? STRIPE_PRICE_IDS[normalizedTier]?.[billingInterval] : null;
+    
+    // Build checkout session params
+    const params: Record<string, string> = {
+      'mode': 'subscription',
+      'customer_email': user.email as string,
+      'success_url': `${c.env.APP_URL}/settings?tab=subscription&success=true`,
+      'cancel_url': `${c.env.APP_URL}/settings?tab=subscription&canceled=true`,
+      'metadata[user_id]': userId,
+      'metadata[tier]': normalizedTier,
+      'metadata[billing_cycle]': billingInterval,
+      // Pass metadata to subscription so webhooks can identify user
+      'subscription_data[metadata][user_id]': userId,
+      'subscription_data[metadata][tier]': normalizedTier,
+      'subscription_data[metadata][billing_cycle]': billingInterval,
+    };
+    
+    if (stripePriceId) {
+      // Use pre-created Stripe Price ID
+      params['line_items[0][price]'] = stripePriceId;
+      params['line_items[0][quantity]'] = '1';
+    } else {
+      // Fallback to dynamic pricing for non-USD currencies
+      const priceInCents = Math.round(finalPrice * 100);
+      params['line_items[0][price_data][currency]'] = currency.toLowerCase();
+      params['line_items[0][price_data][product_data][name]'] = `Heirloom ${normalizedTier} Plan`;
+      params['line_items[0][price_data][product_data][description]'] = `${TIER_LIMITS[normalizedTier].maxStorageLabel} storage with all features`;
+      params['line_items[0][price_data][unit_amount]'] = priceInCents.toString();
+      params['line_items[0][price_data][recurring][interval]'] = isYearly ? 'year' : 'month';
+      params['line_items[0][quantity]'] = '1';
+    }
     
     const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
@@ -465,22 +515,7 @@ billingRoutes.post('/checkout', async (c) => {
         'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        'mode': 'subscription',
-        'customer_email': user.email as string,
-        'success_url': `${c.env.APP_URL}/settings?tab=subscription&success=true`,
-        'cancel_url': `${c.env.APP_URL}/settings?tab=subscription&canceled=true`,
-        'line_items[0][price_data][currency]': currency.toLowerCase(),
-        'line_items[0][price_data][product_data][name]': `Heirloom ${normalizedTier} Plan`,
-        'line_items[0][price_data][product_data][description]': `${TIER_LIMITS[normalizedTier].maxStorageLabel} storage with all features`,
-        'line_items[0][price_data][unit_amount]': priceInCents.toString(),
-        'line_items[0][price_data][recurring][interval]': isYearly ? 'year' : 'month',
-        'line_items[0][quantity]': '1',
-        'metadata[user_id]': userId,
-        'metadata[tier]': normalizedTier,
-        'metadata[billing_cycle]': billingCycle || 'monthly',
-        ...(couponCode ? { 'discounts[0][coupon]': couponCode.toUpperCase() } : {}),
-      }).toString(),
+      body: new URLSearchParams(params).toString(),
     });
     
     if (!stripeResponse.ok) {
