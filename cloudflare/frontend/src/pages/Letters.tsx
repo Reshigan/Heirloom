@@ -42,7 +42,12 @@ export function Letters() {
 
   const { data: letters, isLoading } = useQuery({
     queryKey: ['letters'],
-    queryFn: () => lettersApi.getAll().then(r => r.data),
+    queryFn: async () => {
+      const response = await lettersApi.getAll();
+      // API returns {data: [...], pagination: {...}}, extract the array
+      const result = response.data;
+      return Array.isArray(result) ? result : (result?.data || []);
+    },
   });
 
   const deleteMutation = useMutation({
