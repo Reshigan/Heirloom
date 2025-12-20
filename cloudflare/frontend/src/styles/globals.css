@@ -1,43 +1,74 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Caveat:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cinzel:wght@400;500;600&family=Caveat:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* Sanctuary color palette */
-  --void: #0a0c10;
-  --void-deep: #050608;
-  --void-light: #12151c;
+  /* THE VOID - Deep blacks (Eternal Premium) */
+  --void-abyss: #030305;
+  --void-deep: #050508;
+  --void: #08080c;
+  --void-surface: #0c0c12;
+  --void-elevated: #101018;
+  --void-hover: #14141e;
   
-  --paper: #f5f3ee;
-  --paper-warm: #faf8f3;
-  --paper-aged: #e8e4db;
+  /* PAPER - Aged warm whites */
+  --paper: #ebe6dc;
+  --paper-bright: #f5f2eb;
+  --paper-dim: #d4cfc4;
+  --paper-muted: #a8a49c;
   
-  --gold: #c9a959;
-  --gold-bright: #e8d5a3;
-  --gold-dim: #8b7355;
-  --gold-glow: rgba(201, 169, 89, 0.4);
+  /* Paper opacity scales */
+  --paper-90: rgba(235, 230, 220, 0.9);
+  --paper-70: rgba(235, 230, 220, 0.7);
+  --paper-50: rgba(235, 230, 220, 0.5);
+  --paper-30: rgba(235, 230, 220, 0.3);
+  --paper-15: rgba(235, 230, 220, 0.15);
+  --paper-08: rgba(235, 230, 220, 0.08);
+  --paper-04: rgba(235, 230, 220, 0.04);
+  --paper-02: rgba(235, 230, 220, 0.02);
   
-  --blood: #8b2942;
-  --blood-light: #a83250;
-  --blood-glow: rgba(139, 41, 66, 0.3);
+  /* GOLD - Legacy, permanence */
+  --gold: #d4a853;
+  --gold-light: #e8c878;
+  --gold-bright: #f4dda0;
+  --gold-dim: #9c7a3c;
+  --gold-deep: #6b5228;
   
-  --sanctuary-blue: #1a2a3a;
-  --sanctuary-teal: #1a3a3a;
-  --mist: rgba(255, 255, 255, 0.03);
-  --frost: rgba(255, 255, 255, 0.08);
+  /* Gold opacity scales */
+  --gold-40: rgba(212, 168, 83, 0.4);
+  --gold-20: rgba(212, 168, 83, 0.2);
+  --gold-10: rgba(212, 168, 83, 0.1);
+  --gold-05: rgba(212, 168, 83, 0.05);
+  
+  /* BLOOD - Life, passion, sacrifice */
+  --blood: #8c2f3d;
+  --blood-light: #a84455;
+  --blood-glow: rgba(140, 47, 61, 0.4);
+  
+  /* STATUS COLORS */
+  --emerald: #5ab88a;
+  --sapphire: #64a0dc;
   
   /* Glass effects */
-  --glass-bg: rgba(18, 21, 28, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-highlight: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(12, 12, 18, 0.7);
+  --glass-border: rgba(235, 230, 220, 0.08);
+  --glass-highlight: rgba(235, 230, 220, 0.12);
   --glass-shadow: rgba(0, 0, 0, 0.5);
   
   /* Typography */
-  --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  --font-display: 'Playfair Display', Georgia, serif;
+  --font-display: 'Cinzel', serif;
+  --font-body: 'Cormorant', Georgia, serif;
   --font-hand: 'Caveat', cursive;
+  
+  /* Timing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 0.2s;
+  --duration-normal: 0.4s;
+  --duration-slow: 0.8s;
+  --duration-glacial: 1.6s;
 }
 
 * {
@@ -51,15 +82,133 @@ html {
 }
 
 body {
-  font-family: var(--font-serif);
-  background: var(--void-deep);
+  font-family: var(--font-body);
+  background: var(--void-abyss);
   color: var(--paper);
   min-height: 100vh;
   overflow-x: hidden;
-  line-height: 1.6;
+  line-height: 1.7;
   font-size: 16px;
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection */
+::selection {
+  background: var(--gold-20);
+  color: var(--paper-bright);
+}
+
+/* Scrollbar - Barely visible, precious */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { 
+  background: var(--paper-15); 
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--paper-30); }
+
+/*
+══════════════════════════════════════════════════════════════════════════════
+THE ETERNAL BACKGROUND - A living, breathing void
+══════════════════════════════════════════════════════════════════════════════
+*/
+
+.eternal-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Base gradient - Deep space */
+.eternal-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(20, 25, 40, 0.8) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 60% at 0% 100%, rgba(25, 15, 20, 0.6) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 100% 80%, rgba(15, 20, 30, 0.5) 0%, transparent 50%),
+    linear-gradient(180deg, var(--void-abyss) 0%, #0a0a12 50%, var(--void-abyss) 100%);
+}
+
+/* The Aura - Sacred light from above */
+.eternal-aura {
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140%;
+  height: 80%;
+  background: radial-gradient(ellipse 50% 40% at 50% 30%, var(--gold-10) 0%, var(--gold-05) 30%, transparent 70%);
+  animation: aura-breathe 12s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes aura-breathe {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+}
+
+/* Constellation - Subtle star field */
+.eternal-stars {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(1px 1px at 10% 20%, var(--paper-30), transparent),
+    radial-gradient(1px 1px at 25% 45%, var(--gold-40), transparent),
+    radial-gradient(1px 1px at 40% 15%, var(--paper-15), transparent),
+    radial-gradient(1px 1px at 55% 70%, var(--paper-30), transparent),
+    radial-gradient(1.5px 1.5px at 70% 35%, var(--gold-40), transparent),
+    radial-gradient(1px 1px at 85% 55%, var(--paper-15), transparent),
+    radial-gradient(1px 1px at 95% 80%, var(--paper-30), transparent),
+    radial-gradient(1px 1px at 15% 75%, var(--gold-20), transparent),
+    radial-gradient(1px 1px at 60% 90%, var(--paper-15), transparent);
+  background-size: 100% 100%;
+  animation: stars-drift 120s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes stars-drift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-5%); }
+}
+
+/* Mist - Ethereal atmosphere */
+.eternal-mist {
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.018;
+  pointer-events: none;
+}
+
+/* Floating Particles - Ascending memories */
+.eternal-particle {
+  position: absolute;
+  width: var(--size, 2px);
+  height: var(--size, 2px);
+  background: var(--gold);
+  border-radius: 50%;
+  opacity: 0;
+  filter: blur(0.5px);
+  animation: particle-ascend var(--dur, 20s) var(--ease-in-out) infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes particle-ascend {
+  0% { 
+    opacity: 0; 
+    transform: translateY(100vh) scale(0.5); 
+  }
+  10% { opacity: var(--opacity, 0.6); }
+  90% { opacity: var(--opacity, 0.6); }
+  100% { 
+    opacity: 0; 
+    transform: translateY(-10vh) scale(1); 
+  }
 }
 
 /* ===== SANCTUARY BACKGROUND ===== */
