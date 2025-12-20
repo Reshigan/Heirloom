@@ -379,29 +379,37 @@ authRoutes.post('/forgot-password', async (c) => {
   `).bind(crypto.randomUUID(), user.id, tokenHash, expiresAt).run();
   
   // Send password reset email
+  const resendApiKey = c.env.RESEND_API_KEY;
+  if (!resendApiKey) {
+    console.error('RESEND_API_KEY not configured');
+    // Still return success message to not reveal if account exists
+    return c.json({ message: 'If an account exists with this email, you will receive a password reset link.' });
+  }
+  
   try {
     const { passwordResetEmail } = await import('../email-templates');
     const emailContent = passwordResetEmail(user.first_name as string, token);
     
-    const resendApiKey = c.env.RESEND_API_KEY;
-    if (resendApiKey) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: email.toLowerCase(),
-          subject: emailContent.subject,
-          html: emailContent.html,
-        }),
-      });
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: email.toLowerCase(),
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('Resend API error for password reset:', response.status, errorBody);
     }
   } catch (err) {
     console.error('Failed to send password reset email:', err);
-    // Don't fail the request if email fails
   }
   
   return c.json({ message: 'If an account exists with this email, you will receive a password reset link.' });
@@ -558,41 +566,51 @@ authRoutes.post('/resend-verification', async (c) => {
     // Send verification email
     const verifyUrl = `${c.env.APP_URL}/verify-email?token=${verifyToken}`;
     
-    try {
-      const resendApiKey = c.env.RESEND_API_KEY;
-      if (resendApiKey) {
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${resendApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Heirloom <noreply@heirloom.blue>',
-            to: user.email,
-            subject: 'Verify your Heirloom email',
-            html: `
-              <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-                <h1 style="color: #1a1a2e; font-size: 28px; margin-bottom: 20px;">Verify Your Email</h1>
-                <p style="color: #333; font-size: 16px; line-height: 1.6;">Hi ${user.first_name},</p>
-                <p style="color: #333; font-size: 16px; line-height: 1.6;">Please click the button below to verify your email address:</p>
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="${verifyUrl}" style="background: linear-gradient(135deg, #d4af37, #f4d03f); color: #1a1a2e; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Verify Email</a>
-                </div>
-                <p style="color: #666; font-size: 14px;">This link expires in 24 hours.</p>
-                <p style="color: #666; font-size: 14px;">If you didn't create an account, you can safely ignore this email.</p>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-                <p style="color: #999; font-size: 12px; text-align: center;">Heirloom - Preserve Your Legacy</p>
-              </div>
-            `,
-          }),
-        });
-      }
-    } catch (err) {
-      console.error('Failed to send verification email:', err);
+    const resendApiKey = c.env.RESEND_API_KEY;
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY not configured');
+      return c.json({ error: 'Email service not configured. Please contact support.' }, 500);
     }
     
-    return c.json({ message: 'Verification email sent' });
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: user.email,
+          subject: 'Verify your Heirloom email',
+          html: `
+            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+              <h1 style="color: #1a1a2e; font-size: 28px; margin-bottom: 20px;">Verify Your Email</h1>
+              <p style="color: #333; font-size: 16px; line-height: 1.6;">Hi ${user.first_name},</p>
+              <p style="color: #333; font-size: 16px; line-height: 1.6;">Please click the button below to verify your email address:</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${verifyUrl}" style="background: linear-gradient(135deg, #d4af37, #f4d03f); color: #1a1a2e; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Verify Email</a>
+              </div>
+              <p style="color: #666; font-size: 14px;">This link expires in 24 hours.</p>
+              <p style="color: #666; font-size: 14px;">If you didn't create an account, you can safely ignore this email.</p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+              <p style="color: #999; font-size: 12px; text-align: center;">Heirloom - Preserve Your Legacy</p>
+            </div>
+          `,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Resend API error:', response.status, errorBody);
+        return c.json({ error: 'Failed to send verification email. Please try again.' }, 500);
+      }
+      
+      return c.json({ message: 'Verification email sent' });
+    } catch (err) {
+      console.error('Failed to send verification email:', err);
+      return c.json({ error: 'Failed to send verification email. Please try again.' }, 500);
+    }
   } catch {
     return c.json({ error: 'Invalid token' }, 401);
   }
