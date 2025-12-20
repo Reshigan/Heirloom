@@ -350,67 +350,112 @@ THE ETERNAL BACKGROUND - A living, breathing void
   -webkit-backdrop-filter: blur(12px) saturate(150%);
 }
 
-/* Polished glass card */
+/* Polished glass card (Eternal Premium) */
 .card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 28px;
+  background: var(--void-surface);
+  border: 1px solid var(--paper-08);
+  border-radius: 16px;
+  padding: 24px;
   position: relative;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: 
-    0 4px 24px -4px var(--glass-shadow),
-    inset 0 1px 0 0 var(--glass-highlight);
+  transition: all var(--duration-normal) var(--ease-out);
 }
 
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 10%, var(--glass-highlight) 50%, transparent 90%);
-}
-
+/* Decorative corner accents */
+.card::before,
 .card::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 40%);
+  width: 24px;
+  height: 24px;
+  border-color: var(--gold-20);
+  border-style: solid;
   pointer-events: none;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.card::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+  border-radius: 16px 0 0 0;
+}
+
+.card::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1px 1px 0;
+  border-radius: 0 0 16px 0;
 }
 
 .card:hover {
-  border-color: rgba(201, 169, 89, 0.2);
+  border-color: var(--paper-15);
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 32px -4px var(--glass-shadow),
-    0 0 0 1px rgba(201, 169, 89, 0.1),
-    inset 0 1px 0 0 var(--glass-highlight);
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
 }
 
-/* ===== BUTTONS ===== */
+.card:hover::before,
+.card:hover::after {
+  border-color: var(--gold-40);
+  width: 32px;
+  height: 32px;
+}
+
+/* Card variants */
+.card-elevated {
+  background: var(--void-elevated);
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+.card-interactive {
+  cursor: pointer;
+}
+
+.card-interactive:active {
+  transform: translateY(0);
+}
+
+/* Card header */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--paper-08);
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: var(--paper-50);
+  margin-top: 4px;
+}
+
+/* ===== BUTTONS (Eternal Premium) ===== */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   padding: 14px 28px;
-  font-family: var(--font-serif);
-  font-size: 15px;
+  font-family: var(--font-display);
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all var(--duration-normal) var(--ease-out);
   position: relative;
   overflow: hidden;
   text-decoration: none;
@@ -423,104 +468,192 @@ THE ETERNAL BACKGROUND - A living, breathing void
   left: 0;
   right: 0;
   height: 50%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
   pointer-events: none;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
-  color: var(--void-deep);
+  color: var(--void-abyss);
   box-shadow: 
-    0 4px 16px -2px rgba(201, 169, 89, 0.4),
-    inset 0 1px 0 0 rgba(255,255,255,0.2);
+    0 4px 20px -4px var(--gold-40),
+    inset 0 1px 0 0 var(--gold-light);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 8px 24px -4px rgba(201, 169, 89, 0.5),
-    0 0 30px -5px var(--gold-glow),
-    inset 0 1px 0 0 rgba(255,255,255,0.3);
+    0 8px 32px -4px var(--gold-40),
+    0 0 40px -8px var(--gold-40),
+    inset 0 1px 0 0 var(--gold-bright);
 }
 
 .btn-primary:active {
   transform: translateY(0);
+  box-shadow: 
+    0 2px 12px -2px var(--gold-40),
+    inset 0 1px 0 0 var(--gold-light);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .btn-secondary {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
+  background: var(--paper-04);
+  backdrop-filter: blur(12px);
   color: var(--paper);
-  border: 1px solid var(--glass-border);
-  box-shadow: 
-    0 2px 8px -2px var(--glass-shadow),
-    inset 0 1px 0 0 var(--glass-highlight);
+  border: 1px solid var(--paper-15);
+  box-shadow: inset 0 1px 0 0 var(--paper-08);
 }
 
 .btn-secondary:hover {
-  background: rgba(201, 169, 89, 0.1);
-  border-color: rgba(201, 169, 89, 0.3);
+  background: var(--gold-10);
+  border-color: var(--gold-20);
   color: var(--gold);
+}
+
+.btn-secondary:active {
+  background: var(--gold-05);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--paper);
+  color: var(--paper-70);
   padding: 10px 20px;
 }
 
 .btn-ghost:hover {
-  background: var(--frost);
-  color: var(--gold);
+  background: var(--paper-04);
+  color: var(--paper);
 }
 
 .btn-danger {
   background: linear-gradient(135deg, var(--blood) 0%, var(--blood-light) 100%);
   color: var(--paper);
-  box-shadow: 0 4px 16px -2px var(--blood-glow);
+  box-shadow: 0 4px 20px -4px var(--blood-glow);
 }
 
 .btn-danger:hover {
-  box-shadow: 0 8px 24px -4px var(--blood-glow);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px -4px var(--blood-glow);
 }
 
-/* ===== INPUTS ===== */
+.btn-danger:active {
+  transform: translateY(0);
+}
+
+/* Record button - special pulsing style */
+.btn-record {
+  background: var(--blood);
+  color: var(--paper);
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  box-shadow: 
+    0 0 0 0 var(--blood-glow),
+    0 4px 20px -4px var(--blood-glow);
+}
+
+.btn-record:hover {
+  box-shadow: 
+    0 0 0 8px var(--blood-glow),
+    0 8px 32px -4px var(--blood-glow);
+}
+
+.btn-record.recording {
+  animation: record-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes record-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--blood-glow), 0 4px 20px -4px var(--blood-glow); }
+  50% { box-shadow: 0 0 0 12px transparent, 0 8px 32px -4px var(--blood-glow); }
+}
+
+/* ===== INPUTS (Eternal Premium) ===== */
 .input {
   width: 100%;
-  padding: 16px 20px;
-  font-family: var(--font-serif);
+  padding: 14px 18px;
+  font-family: var(--font-body);
   font-size: 16px;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  line-height: 1.5;
+  background: var(--void-surface);
+  border: 1px solid var(--paper-08);
+  border-radius: 8px;
   color: var(--paper);
   outline: none;
-  transition: all 0.3s ease;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .input::placeholder {
-  color: rgba(245, 243, 238, 0.3);
+  color: var(--paper-30);
+}
+
+.input:hover:not(:focus) {
+  border-color: var(--paper-15);
 }
 
 .input:focus {
   border-color: var(--gold);
-  box-shadow: 
-    0 0 0 3px rgba(201, 169, 89, 0.15),
-    inset 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 0 0 3px var(--gold-10);
 }
 
-.input:hover:not(:focus) {
-  border-color: rgba(255, 255, 255, 0.15);
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
+/* Textarea specific */
+textarea.input {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Select specific */
 select.input {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c9a959' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4a853' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 44px;
+  cursor: pointer;
+}
+
+/* Input with label */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-50);
+}
+
+.input-error {
+  border-color: var(--blood);
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px var(--blood-glow);
+}
+
+.input-helper {
+  font-size: 13px;
+  color: var(--paper-50);
+}
+
+.input-error-text {
+  font-size: 13px;
+  color: var(--blood-light);
 }
 
 /* ===== TYPOGRAPHY ===== */
