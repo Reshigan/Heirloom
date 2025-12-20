@@ -232,20 +232,28 @@ const LEGACY_MAP: Record<string, string> = {
 };
 
 // =============================================================================
-// STRIPE PRICE IDS (USD - created via Stripe API)
+// STRIPE PRICE IDS (Multi-currency - created via Stripe API)
 // =============================================================================
-const STRIPE_PRICE_IDS: Record<string, Record<string, string>> = {
-  STARTER: {
-    monthly: 'price_1SgNcE0wv1f1SxUqmVW3Glsh',
-    yearly: 'price_1SgNcE0wv1f1SxUqD1OZ5JQ0',
+const STRIPE_PRICE_IDS: Record<string, Record<string, Record<string, string>>> = {
+  USD: {
+    STARTER: { monthly: 'price_1SgNcE0wv1f1SxUqmVW3Glsh', yearly: 'price_1SgNcE0wv1f1SxUqD1OZ5JQ0' },
+    FAMILY: { monthly: 'price_1SgNcE0wv1f1SxUqCYYS5l6f', yearly: 'price_1SgNcF0wv1f1SxUqS0csfMww' },
+    FOREVER: { monthly: 'price_1SgNcF0wv1f1SxUqvRdvElr4', yearly: 'price_1SgNcF0wv1f1SxUqMTL4YDLk' },
   },
-  FAMILY: {
-    monthly: 'price_1SgNcE0wv1f1SxUqCYYS5l6f',
-    yearly: 'price_1SgNcF0wv1f1SxUqS0csfMww',
+  ZAR: {
+    STARTER: { monthly: 'price_1SgNuW0wv1f1SxUqQLy4gGPT', yearly: 'price_1SgNuW0wv1f1SxUqeMBSLH1N' },
+    FAMILY: { monthly: 'price_1SgNuX0wv1f1SxUqLT2Jxuq5', yearly: 'price_1SgNuX0wv1f1SxUqbYfuZVgP' },
+    FOREVER: { monthly: 'price_1SgNuX0wv1f1SxUqqoWkbkcS', yearly: 'price_1SgNuX0wv1f1SxUqYBsJihtg' },
   },
-  FOREVER: {
-    monthly: 'price_1SgNcF0wv1f1SxUqvRdvElr4',
-    yearly: 'price_1SgNcF0wv1f1SxUqMTL4YDLk',
+  EUR: {
+    STARTER: { monthly: 'price_1SgNup0wv1f1SxUqhABE43BL', yearly: 'price_1SgNup0wv1f1SxUq1wX5KQhf' },
+    FAMILY: { monthly: 'price_1SgNup0wv1f1SxUqFpyH6eO0', yearly: 'price_1SgNuq0wv1f1SxUqPyRfJ0Qm' },
+    FOREVER: { monthly: 'price_1SgNuq0wv1f1SxUqADWRwe3G', yearly: 'price_1SgNuq0wv1f1SxUquIKDuqvO' },
+  },
+  GBP: {
+    STARTER: { monthly: 'price_1SgNuq0wv1f1SxUqgr8MaqoJ', yearly: 'price_1SgNur0wv1f1SxUqADOdnFpX' },
+    FAMILY: { monthly: 'price_1SgNur0wv1f1SxUqApwsDTvU', yearly: 'price_1SgNur0wv1f1SxUqo33Al5AR' },
+    FOREVER: { monthly: 'price_1SgNur0wv1f1SxUqL1EXhKNn', yearly: 'price_1SgNus0wv1f1SxUqtytNLBvc' },
   },
 };
 
@@ -476,8 +484,8 @@ billingRoutes.post('/checkout', async (c) => {
   try {
     const billingInterval = isYearly ? 'yearly' : 'monthly';
     
-    // Use pre-created Stripe Price IDs for USD, fallback to dynamic pricing for other currencies
-    const stripePriceId = currency === 'USD' ? STRIPE_PRICE_IDS[normalizedTier]?.[billingInterval] : null;
+    // Use pre-created Stripe Price IDs for supported currencies (USD, ZAR, EUR, GBP)
+    const stripePriceId = STRIPE_PRICE_IDS[currency]?.[normalizedTier]?.[billingInterval] || null;
     
     // Build checkout session params
     const params: Record<string, string> = {
@@ -540,32 +548,136 @@ billingRoutes.post('/checkout', async (c) => {
   }
 });
 
-// Change plan
+// Change plan - redirects to new checkout (for plan upgrades/downgrades)
 billingRoutes.post('/change-plan', async (c) => {
   const userId = c.get('userId');
   const { tier, billingCycle } = await c.req.json();
   const normalizedTier = normalizeTier(tier);
-  const now = new Date().toISOString();
   
-  const existing = await c.env.DB.prepare('SELECT id FROM subscriptions WHERE user_id = ?').bind(userId).first();
+  // Get current subscription
+  const sub = await c.env.DB.prepare('SELECT stripe_subscription_id FROM subscriptions WHERE user_id = ?').bind(userId).first();
   
-  if (existing) {
-    await c.env.DB.prepare('UPDATE subscriptions SET tier = ?, billing_cycle = ?, updated_at = ? WHERE user_id = ?')
-      .bind(normalizedTier, billingCycle || 'monthly', now, userId).run();
-  } else {
-    await c.env.DB.prepare('INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
-      .bind(crypto.randomUUID(), userId, normalizedTier, 'ACTIVE', billingCycle || 'monthly', now, now).run();
+  // If user has an active Stripe subscription, cancel it first and create new checkout
+  if (sub?.stripe_subscription_id && c.env.STRIPE_SECRET_KEY) {
+    try {
+      // Cancel the existing subscription at period end
+      await fetch(`https://api.stripe.com/v1/subscriptions/${sub.stripe_subscription_id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'cancel_at_period_end=true',
+      });
+    } catch (error) {
+      console.error('Failed to cancel existing subscription:', error);
+    }
   }
   
-  return c.json({ success: true, tier: normalizedTier, storage: TIER_LIMITS[normalizedTier].maxStorageLabel });
+  // Redirect user to checkout for the new plan
+  return c.json({ 
+    success: true, 
+    message: 'Please complete checkout for your new plan',
+    redirectToCheckout: true,
+    tier: normalizedTier,
+    billingCycle: billingCycle || 'monthly',
+  });
 });
 
-// Cancel
+// Cancel subscription - updates both Stripe and local DB
 billingRoutes.post('/cancel', async (c) => {
   const userId = c.get('userId');
+  const now = new Date().toISOString();
+  
+  // Get the Stripe subscription ID
+  const sub = await c.env.DB.prepare('SELECT stripe_subscription_id FROM subscriptions WHERE user_id = ?').bind(userId).first();
+  
+  if (sub?.stripe_subscription_id && c.env.STRIPE_SECRET_KEY) {
+    try {
+      // Cancel the subscription in Stripe at period end (so user keeps access until paid period ends)
+      const response = await fetch(`https://api.stripe.com/v1/subscriptions/${sub.stripe_subscription_id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'cancel_at_period_end=true',
+      });
+      
+      if (!response.ok) {
+        const error = await response.json() as { error?: { message?: string } };
+        console.error('Stripe cancel error:', error);
+        return c.json({ error: error.error?.message || 'Failed to cancel subscription' }, 500);
+      }
+    } catch (error) {
+      console.error('Failed to cancel Stripe subscription:', error);
+      return c.json({ error: 'Failed to cancel subscription' }, 500);
+    }
+  }
+  
+  // Update local DB
   await c.env.DB.prepare('UPDATE subscriptions SET cancel_at_period_end = 1, updated_at = ? WHERE user_id = ?')
-    .bind(new Date().toISOString(), userId).run();
-  return c.json({ success: true });
+    .bind(now, userId).run();
+  
+  return c.json({ success: true, message: 'Subscription will be canceled at the end of the billing period' });
+});
+
+// Stripe Customer Portal - for users to manage their subscription
+billingRoutes.post('/portal', async (c) => {
+  const userId = c.get('userId');
+  
+  if (!c.env.STRIPE_SECRET_KEY) {
+    return c.json({ error: 'Stripe not configured' }, 500);
+  }
+  
+  // Get user's Stripe customer ID or email
+  const user = await c.env.DB.prepare('SELECT email FROM users WHERE id = ?').bind(userId).first();
+  const sub = await c.env.DB.prepare('SELECT stripe_customer_id FROM subscriptions WHERE user_id = ?').bind(userId).first();
+  
+  if (!user) {
+    return c.json({ error: 'User not found' }, 404);
+  }
+  
+  try {
+    let customerId = sub?.stripe_customer_id as string | null;
+    
+    // If no customer ID stored, search by email
+    if (!customerId) {
+      const searchResponse = await fetch(`https://api.stripe.com/v1/customers?email=${encodeURIComponent(user.email as string)}&limit=1`, {
+        headers: { 'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}` },
+      });
+      const searchData = await searchResponse.json() as { data?: Array<{ id: string }> };
+      customerId = searchData.data?.[0]?.id || null;
+    }
+    
+    if (!customerId) {
+      return c.json({ error: 'No billing history found. Please subscribe to a plan first.' }, 404);
+    }
+    
+    // Create portal session
+    const portalResponse = await fetch('https://api.stripe.com/v1/billing_portal/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        'customer': customerId,
+        'return_url': `${c.env.APP_URL}/settings?tab=subscription`,
+      }).toString(),
+    });
+    
+    if (!portalResponse.ok) {
+      const error = await portalResponse.json() as { error?: { message?: string } };
+      return c.json({ error: error.error?.message || 'Failed to create portal session' }, 500);
+    }
+    
+    const portal = await portalResponse.json() as { url: string };
+    return c.json({ portalUrl: portal.url });
+  } catch (error) {
+    console.error('Portal error:', error);
+    return c.json({ error: 'Failed to create portal session' }, 500);
+  }
 });
 
 // Usage stats
@@ -695,8 +807,19 @@ billingRoutes.post('/webhook', async (c) => {
       
       case 'invoice.payment_succeeded': {
         // Subscription renewed successfully
-        const invoice = event.data.object;
-        const userId = invoice.metadata?.user_id;
+        const invoice = event.data.object as {
+          id: string;
+          subscription?: string;
+          metadata?: { user_id?: string };
+        };
+        
+        // Try to get user_id from invoice metadata first, then lookup by subscription ID
+        let userId = invoice.metadata?.user_id;
+        if (!userId && invoice.subscription) {
+          const sub = await c.env.DB.prepare('SELECT user_id FROM subscriptions WHERE stripe_subscription_id = ?')
+            .bind(invoice.subscription).first();
+          userId = sub?.user_id as string | undefined;
+        }
         
         if (userId) {
           await c.env.DB.prepare(`
@@ -708,8 +831,19 @@ billingRoutes.post('/webhook', async (c) => {
       
       case 'invoice.payment_failed': {
         // Payment failed - mark subscription as past due
-        const invoice = event.data.object;
-        const userId = invoice.metadata?.user_id;
+        const invoice = event.data.object as {
+          id: string;
+          subscription?: string;
+          metadata?: { user_id?: string };
+        };
+        
+        // Try to get user_id from invoice metadata first, then lookup by subscription ID
+        let userId = invoice.metadata?.user_id;
+        if (!userId && invoice.subscription) {
+          const sub = await c.env.DB.prepare('SELECT user_id FROM subscriptions WHERE stripe_subscription_id = ?')
+            .bind(invoice.subscription).first();
+          userId = sub?.user_id as string | undefined;
+        }
         
         if (userId) {
           await c.env.DB.prepare(`
@@ -725,14 +859,48 @@ billingRoutes.post('/webhook', async (c) => {
         break;
       }
       
-      case 'customer.subscription.deleted': {
-        // Subscription canceled
-        const subscription = event.data.object;
-        const userId = subscription.metadata?.user_id;
+      case 'customer.subscription.updated': {
+        // Subscription updated (e.g., plan change, renewal)
+        const subscription = event.data.object as {
+          id: string;
+          metadata?: { user_id?: string; tier?: string; billing_cycle?: string };
+          cancel_at_period_end?: boolean;
+        };
+        
+        // Try to get user_id from subscription metadata first, then lookup by subscription ID
+        let userId = subscription.metadata?.user_id;
+        if (!userId) {
+          const sub = await c.env.DB.prepare('SELECT user_id FROM subscriptions WHERE stripe_subscription_id = ?')
+            .bind(subscription.id).first();
+          userId = sub?.user_id as string | undefined;
+        }
         
         if (userId) {
           await c.env.DB.prepare(`
-            UPDATE subscriptions SET status = 'CANCELED', tier = 'STARTER', updated_at = ? WHERE user_id = ?
+            UPDATE subscriptions SET cancel_at_period_end = ?, updated_at = ? WHERE user_id = ?
+          `).bind(subscription.cancel_at_period_end ? 1 : 0, now, userId).run();
+        }
+        break;
+      }
+      
+      case 'customer.subscription.deleted': {
+        // Subscription canceled
+        const subscription = event.data.object as {
+          id: string;
+          metadata?: { user_id?: string };
+        };
+        
+        // Try to get user_id from subscription metadata first, then lookup by subscription ID
+        let userId = subscription.metadata?.user_id;
+        if (!userId) {
+          const sub = await c.env.DB.prepare('SELECT user_id FROM subscriptions WHERE stripe_subscription_id = ?')
+            .bind(subscription.id).first();
+          userId = sub?.user_id as string | undefined;
+        }
+        
+        if (userId) {
+          await c.env.DB.prepare(`
+            UPDATE subscriptions SET status = 'CANCELED', tier = 'STARTER', stripe_subscription_id = NULL, updated_at = ? WHERE user_id = ?
           `).bind(now, userId).run();
         }
         break;
