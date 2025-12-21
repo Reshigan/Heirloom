@@ -227,6 +227,7 @@ export function Compose() {
   };
 
   const fetchLetters = async () => {
+    setIsLoading(true);
     try {
       const response = await lettersApi.getAll();
       // Backend returns { data: [...], pagination: {...} }
@@ -235,22 +236,25 @@ export function Compose() {
       if (!Array.isArray(lettersData)) {
         console.warn('Letters data is not an array:', lettersData);
         setLetters([]);
+        setIsLoading(false);
         return;
       }
       setLetters(lettersData.map((letter: any) => ({
         id: letter.id,
         title: letter.title,
-        body: letter.body || letter.content || '',
+        body: letter.body || letter.bodyPreview || letter.content || '',
         salutation: letter.salutation || 'Dear',
         signature: letter.signature || 'With love',
         recipients: letter.recipients?.map((r: any) => r.familyMemberId || r.id) || [],
         deliveryTrigger: letter.deliveryTrigger || 'POSTHUMOUS',
         scheduledDate: letter.scheduledDate,
+        sealedAt: letter.sealedAt,
         createdAt: letter.createdAt,
         updatedAt: letter.updatedAt,
       })));
     } catch (error) {
       console.error('Failed to fetch letters:', error);
+      setLetters([]);
     } finally {
       setIsLoading(false);
     }
