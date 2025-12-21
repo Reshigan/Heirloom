@@ -368,9 +368,9 @@ export function Family() {
                       >
                         <span className="text-xl md:text-2xl text-gold">{member.name[0]}</span>
                       </div>
-                      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-center w-24">
-                        <div className="text-paper text-xs md:text-sm font-medium truncate">{member.name}</div>
-                        <div className="text-paper/40 text-xs truncate">{member.relationship}</div>
+                      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-center w-32 md:w-36">
+                        <div className="text-paper text-xs md:text-sm font-medium truncate" title={member.name}>{member.name}</div>
+                        <div className="text-paper/40 text-xs truncate" title={member.relationship}>{member.relationship}</div>
                       </div>
                     </motion.button>
                   </motion.div>
