@@ -126,7 +126,7 @@ export function AdminDashboard() {
       queryKey: ['admin-gift-vouchers'],
       queryFn: async () => {
         const token = localStorage.getItem('adminToken');
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/all`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         return res.json();
@@ -138,7 +138,7 @@ export function AdminDashboard() {
       queryKey: ['admin-voucher-stats'],
       queryFn: async () => {
         const token = localStorage.getItem('adminToken');
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/stats`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/stats`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         return res.json();
@@ -485,7 +485,7 @@ export function AdminDashboard() {
                               <button
                                 onClick={async () => {
                                   const token = localStorage.getItem('adminToken');
-                                  await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/${voucher.id}/resend`, {
+                                  await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/${voucher.id}/resend`, {
                                     method: 'POST',
                                     headers: { Authorization: `Bearer ${token}` },
                                   });
@@ -1100,14 +1100,14 @@ export function AdminDashboard() {
               <h3 className="text-lg mb-4">Export Data</h3>
               <div className="flex gap-4">
                 <button
-                  onClick={() => window.open(`${import.meta.env.VITE_API_URL}/admin/reports/export/users?format=csv`, '_blank')}
+                  onClick={() => window.open(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=csv`, '_blank')}
                   className="btn btn-secondary flex items-center gap-2"
                 >
                   <Download size={18} />
                   Export Users (CSV)
                 </button>
                 <button
-                  onClick={() => window.open(`${import.meta.env.VITE_API_URL}/admin/reports/export/users?format=json`, '_blank')}
+                  onClick={() => window.open(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=json`, '_blank')}
                   className="btn btn-secondary flex items-center gap-2"
                 >
                   <Download size={18} />
@@ -1702,7 +1702,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
       const quantity = mode === 'bulk' ? formData.quantity : 1;
       
       for (let i = 0; i < quantity; i++) {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/create`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/create`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

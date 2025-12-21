@@ -33,7 +33,7 @@ export function GiftPurchase() {
   });
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/pricing`)
+    fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/pricing`)
       .then(res => res.json())
       .then(data => setPricing(data))
       .catch(console.error);
@@ -47,7 +47,7 @@ export function GiftPurchase() {
 
     setIsLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/checkout`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -42,7 +42,7 @@ export function GiftRedeem() {
     setVoucherInfo(null);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/validate/${voucherCode.toUpperCase()}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/validate/${voucherCode.toUpperCase()}`);
       const data = await res.json();
       
       if (data.valid) {
@@ -68,7 +68,7 @@ export function GiftRedeem() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/redeem`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/redeem`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
