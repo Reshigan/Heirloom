@@ -28,6 +28,9 @@ import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
 import { VerifyEmail } from './pages/VerifyEmail';
 import { FutureLetter } from './pages/FutureLetter';
+import { GiftPurchase } from './pages/GiftPurchase';
+import { GiftRedeem } from './pages/GiftRedeem';
+import { GiftSuccess } from './pages/GiftSuccess';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,11 +60,14 @@ export default function App() {
           <CustomCursor />
           <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Landing />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/inherit/:token" element={<Inherit />} />
-                    <Route path="/verify-email" element={<VerifyEmail />} />
+                    <Route path="/" element={<Landing />} />
+                              <Route path="/privacy" element={<Privacy />} />
+                              <Route path="/terms" element={<Terms />} />
+                              <Route path="/inherit/:token" element={<Inherit />} />
+                              <Route path="/verify-email" element={<VerifyEmail />} />
+                              <Route path="/gift" element={<GiftPurchase />} />
+                              <Route path="/gift/redeem" element={<GiftRedeem />} />
+                              <Route path="/gift/success" element={<GiftSuccess />} />
           <Route
             path="/login"
             element={

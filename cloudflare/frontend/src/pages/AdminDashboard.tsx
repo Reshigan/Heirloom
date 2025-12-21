@@ -5,7 +5,7 @@ import {
   Users, CreditCard, BarChart3, Tag, LogOut, Plus, Trash2, 
   DollarSign, Activity, Search, X, MessageSquare, Shield,
   FileText, Mail, Download, Clock, AlertTriangle, CheckCircle,
-  UserPlus, Send, Eye
+  UserPlus, Send, Eye, Gift, RefreshCw, Copy
 } from '../components/Icons';
 import { adminApi } from '../services/api';
 
@@ -116,13 +116,39 @@ export function AdminDashboard() {
     enabled: activeTab === 'reports',
   });
 
-  const { data: userGrowth } = useQuery({
-    queryKey: ['admin-user-growth'],
-    queryFn: () => adminApi.getUserGrowthReport().then(r => r.data),
-    enabled: activeTab === 'reports',
-  });
+    const { data: userGrowth } = useQuery({
+      queryKey: ['admin-user-growth'],
+      queryFn: () => adminApi.getUserGrowthReport().then(r => r.data),
+      enabled: activeTab === 'reports',
+    });
 
-  const handleLogout = () => {
+    const { data: giftVouchers, refetch: refetchVouchers } = useQuery({
+      queryKey: ['admin-gift-vouchers'],
+      queryFn: async () => {
+        const token = localStorage.getItem('adminToken');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.json();
+      },
+      enabled: activeTab === 'vouchers',
+    });
+
+    const { data: voucherStats } = useQuery({
+      queryKey: ['admin-voucher-stats'],
+      queryFn: async () => {
+        const token = localStorage.getItem('adminToken');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/stats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.json();
+      },
+      enabled: activeTab === 'vouchers',
+    });
+
+    const [showVoucherModal, setShowVoucherModal] = useState(false);
+
+    const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     navigate('/admin/login');
@@ -130,18 +156,19 @@ export function AdminDashboard() {
 
   if (!admin) return null;
 
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'users', label: 'Users', icon: Users },
-    { id: 'coupons', label: 'Coupons', icon: Tag },
-    { id: 'billing', label: 'Billing', icon: CreditCard },
-    { id: 'support', label: 'Support', icon: MessageSquare },
-    { id: 'system', label: 'System', icon: Shield },
-    { id: 'audit', label: 'Audit Logs', icon: FileText },
-    { id: 'admins', label: 'Admins', icon: UserPlus },
-    { id: 'emails', label: 'Emails', icon: Mail },
-    { id: 'reports', label: 'Reports', icon: Download },
-  ];
+    const tabs = [
+      { id: 'overview', label: 'Overview', icon: BarChart3 },
+      { id: 'users', label: 'Users', icon: Users },
+      { id: 'coupons', label: 'Coupons', icon: Tag },
+      { id: 'vouchers', label: 'Gift Vouchers', icon: Gift },
+      { id: 'billing', label: 'Billing', icon: CreditCard },
+      { id: 'support', label: 'Support', icon: MessageSquare },
+      { id: 'system', label: 'System', icon: Shield },
+      { id: 'audit', label: 'Audit Logs', icon: FileText },
+      { id: 'admins', label: 'Admins', icon: UserPlus },
+      { id: 'emails', label: 'Emails', icon: Mail },
+      { id: 'reports', label: 'Reports', icon: Download },
+    ];
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -323,6 +350,178 @@ export function AdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* Gift Vouchers Tab */}
+        {activeTab === 'vouchers' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl">Gift Voucher Management</h2>
+              <button
+                onClick={() => setShowVoucherModal(true)}
+                className="btn btn-primary flex items-center gap-2"
+              >
+                <Plus size={18} />
+                Create Voucher
+              </button>
+            </div>
+
+            {/* Voucher Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gold/20 rounded">
+                    <Gift className="w-5 h-5 text-gold" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-gold">{voucherStats?.stats?.total || 0}</div>
+                    <div className="text-paper/50 text-sm">Total Vouchers</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/20 rounded">
+                    <Send className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-blue-400">{voucherStats?.stats?.sent || 0}</div>
+                    <div className="text-paper/50 text-sm">Sent</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/20 rounded">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-green-400">{voucherStats?.stats?.redeemed || 0}</div>
+                    <div className="text-paper/50 text-sm">Redeemed</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/20 rounded">
+                    <DollarSign className="w-5 h-5 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-green-400">${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}</div>
+                    <div className="text-paper/50 text-sm">Total Revenue</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Vouchers Table */}
+            <div className="card">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg">All Vouchers</h3>
+                <button onClick={() => refetchVouchers()} className="text-paper/50 hover:text-gold">
+                  <RefreshCw size={18} />
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Code</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Tier</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Purchaser</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Recipient</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Created</th>
+                      <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {giftVouchers?.vouchers?.map((voucher: any) => (
+                      <tr key={voucher.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-gold">{voucher.code}</span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(voucher.code);
+                                alert('Code copied!');
+                              }}
+                              className="text-paper/30 hover:text-gold"
+                            >
+                              <Copy size={14} />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-1 text-xs rounded ${
+                            voucher.tier === 'FOREVER' ? 'bg-gold/20 text-gold' :
+                            voucher.tier === 'FAMILY' ? 'bg-blue-500/20 text-blue-400' :
+                            'bg-white/10 text-paper/70'
+                          }`}>
+                            {voucher.tier}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-paper/70 text-sm">{voucher.purchaser_email}</td>
+                        <td className="py-3 px-4 text-paper/70 text-sm">{voucher.recipient_email || '-'}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-1 text-xs rounded ${
+                            voucher.status === 'REDEEMED' ? 'bg-green-500/20 text-green-400' :
+                            voucher.status === 'SENT' ? 'bg-blue-500/20 text-blue-400' :
+                            voucher.status === 'PAID' ? 'bg-gold/20 text-gold' :
+                            voucher.status === 'EXPIRED' ? 'bg-red-500/20 text-red-400' :
+                            'bg-white/10 text-paper/50'
+                          }`}>
+                            {voucher.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-paper/50 text-sm">
+                          {new Date(voucher.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {voucher.status === 'PAID' && voucher.recipient_email && (
+                              <button
+                                onClick={async () => {
+                                  const token = localStorage.getItem('adminToken');
+                                  await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/${voucher.id}/resend`, {
+                                    method: 'POST',
+                                    headers: { Authorization: `Bearer ${token}` },
+                                  });
+                                  alert('Email resent!');
+                                }}
+                                className="text-paper/30 hover:text-blue-400"
+                                title="Resend email"
+                              >
+                                <Send size={16} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => {
+                                const url = `${window.location.origin}/gift/redeem?code=${voucher.code}`;
+                                navigator.clipboard.writeText(url);
+                                alert('Redemption link copied!');
+                              }}
+                              className="text-paper/30 hover:text-gold"
+                              title="Copy redemption link"
+                            >
+                              <Eye size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {(!giftVouchers?.vouchers || giftVouchers.vouchers.length === 0) && (
+                      <tr>
+                        <td colSpan={7} className="text-center py-8 text-paper/50">
+                          No gift vouchers created yet
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
@@ -921,10 +1120,13 @@ export function AdminDashboard() {
       </div>
 
       {/* Modals */}
-      {showCouponModal && (
-        <CreateCouponModal onClose={() => setShowCouponModal(false)} />
-      )}
-      {showAdminModal && (
+            {showCouponModal && (
+              <CreateCouponModal onClose={() => setShowCouponModal(false)} />
+            )}
+            {showVoucherModal && (
+              <CreateVoucherModal onClose={() => { setShowVoucherModal(false); refetchVouchers(); }} />
+            )}
+            {showAdminModal && (
         <CreateAdminModal onClose={() => setShowAdminModal(false)} />
       )}
       {selectedUser && (
@@ -1454,6 +1656,171 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
             )}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Create Voucher Modal
+function CreateVoucherModal({ onClose }: { onClose: () => void }) {
+  const [formData, setFormData] = useState({
+    tier: 'FAMILY',
+    billingCycle: 'yearly',
+    durationMonths: 12,
+    recipientEmail: '',
+    recipientName: '',
+    notes: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [createdCode, setCreatedCode] = useState<string | null>(null);
+
+  const handleCreate = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.voucher?.code) {
+        setCreatedCode(data.voucher.code);
+      } else {
+        alert('Failed to create voucher');
+      }
+    } catch {
+      alert('Error creating voucher');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="card max-w-md w-full">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl">Create Gift Voucher</h3>
+          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+            <X size={20} />
+          </button>
+        </div>
+
+        {createdCode ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-400" />
+            </div>
+            <h4 className="text-lg mb-2">Voucher Created!</h4>
+            <div className="bg-white/5 p-4 rounded mb-4">
+              <p className="font-mono text-2xl text-gold tracking-wider">{createdCode}</p>
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(createdCode);
+                alert('Code copied!');
+              }}
+              className="btn btn-secondary mr-2"
+            >
+              Copy Code
+            </button>
+            <button onClick={onClose} className="btn btn-primary">
+              Done
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-paper/50 text-sm mb-1">Tier</label>
+              <select
+                value={formData.tier}
+                onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+              >
+                <option value="STARTER">Starter</option>
+                <option value="FAMILY">Family</option>
+                <option value="FOREVER">Forever</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-paper/50 text-sm mb-1">Billing Cycle</label>
+              <select
+                value={formData.billingCycle}
+                onChange={(e) => setFormData({ 
+                  ...formData, 
+                  billingCycle: e.target.value,
+                  durationMonths: e.target.value === 'yearly' ? 12 : 1
+                })}
+                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+              >
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-paper/50 text-sm mb-1">Duration (months)</label>
+              <input
+                type="number"
+                value={formData.durationMonths}
+                onChange={(e) => setFormData({ ...formData, durationMonths: parseInt(e.target.value) || 1 })}
+                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                min="1"
+                max="24"
+              />
+            </div>
+
+            <div>
+              <label className="block text-paper/50 text-sm mb-1">Recipient Email (optional)</label>
+              <input
+                type="email"
+                value={formData.recipientEmail}
+                onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                placeholder="recipient@example.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-paper/50 text-sm mb-1">Recipient Name (optional)</label>
+              <input
+                type="text"
+                value={formData.recipientName}
+                onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                placeholder="John Doe"
+              />
+            </div>
+
+            <div>
+              <label className="block text-paper/50 text-sm mb-1">Admin Notes (optional)</label>
+              <textarea
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                rows={2}
+                placeholder="Internal notes..."
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button onClick={onClose} className="btn btn-secondary flex-1">
+                Cancel
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={isLoading}
+                className="btn btn-primary flex-1"
+              >
+                {isLoading ? 'Creating...' : 'Create Voucher'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
