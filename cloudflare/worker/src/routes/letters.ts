@@ -226,10 +226,6 @@ lettersRoutes.post('/', async (c) => {
     return c.json({ error: 'Letter body is required' }, 400);
   }
   
-  if (!recipientIds || recipientIds.length === 0) {
-    return c.json({ error: 'At least one recipient is required' }, 400);
-  }
-  
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   
@@ -238,12 +234,14 @@ lettersRoutes.post('/', async (c) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, deliveryTrigger || 'IMMEDIATE', scheduledDate || null, now, now).run();
   
-  // Add recipients
-  for (const recipientId of recipientIds) {
-    await c.env.DB.prepare(`
-      INSERT INTO letter_recipients (id, letter_id, family_member_id, created_at)
-      VALUES (?, ?, ?, ?)
-    `).bind(crypto.randomUUID(), id, recipientId, now).run();
+  // Add recipients if provided
+  if (recipientIds && recipientIds.length > 0) {
+    for (const recipientId of recipientIds) {
+      await c.env.DB.prepare(`
+        INSERT INTO letter_recipients (id, letter_id, family_member_id, created_at)
+        VALUES (?, ?, ?, ?)
+      `).bind(crypto.randomUUID(), id, recipientId, now).run();
+    }
   }
   
   const letter = await c.env.DB.prepare(`
