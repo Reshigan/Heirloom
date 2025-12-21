@@ -104,53 +104,141 @@ ${existingContent ? `\nThe user has already captured memories about: ${existingC
   }
 });
 
+// Cached prompts endpoint - serves from KV cache to minimize AI token costs
 aiRoutes.get('/prompts', async (c) => {
   const userId = c.get('userId');
-  const count = Math.min(parseInt(c.req.query('count') || '5'), 10);
+  const count = Math.min(parseInt(c.req.query('count') || '5'), 12);
   
   if (!userId) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   
   try {
-    const prompts = [];
+    // Try to get cached prompts from KV
+    const cachedData = await c.env.KV.get('ai_prompts_cache', 'json') as { prompts: Array<{ id: string; prompt: string; category: string }>; generatedAt: string } | null;
     
-    for (let i = 0; i < count; i++) {
-      const category = PROMPT_CATEGORIES[i % PROMPT_CATEGORIES.length];
+    if (cachedData && cachedData.prompts && cachedData.prompts.length >= count) {
+      // Serve random prompts from cache
+      const shuffled = [...cachedData.prompts].sort(() => 0.5 - Math.random());
+      const selectedPrompts = shuffled.slice(0, count);
       
-      const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
-        messages: [
-          { 
-            role: 'system', 
-            content: `Generate ONE specific memory prompt about ${category.replace(/_/g, ' ')}. Under 20 words. No quotes. Evoke sensory details.` 
-          },
-          { role: 'user', content: 'Generate prompt.' }
-        ],
-        max_tokens: 50,
-        temperature: 0.9
-      });
-      
-      const promptText = (response as any).response?.trim() || `Share a memory about ${category.replace(/_/g, ' ')}.`;
-      const promptId = crypto.randomUUID();
-      
-      await c.env.DB.prepare(`
-        INSERT INTO ai_prompts (id, user_id, prompt, category)
-        VALUES (?, ?, ?, ?)
-      `).bind(promptId, userId, promptText, category).run();
-      
-      prompts.push({
-        id: promptId,
-        prompt: promptText,
-        category
+      return c.json({ 
+        prompts: selectedPrompts,
+        cached: true,
+        cacheAge: cachedData.generatedAt
       });
     }
     
-    return c.json({ prompts });
+    // Cache miss or insufficient prompts - generate fresh batch and cache
+    console.log('AI prompts cache miss - generating fresh batch');
+    const prompts = await generateAndCachePrompts(c.env, 50);
+    
+    // Return requested count
+    const shuffled = [...prompts].sort(() => 0.5 - Math.random());
+    return c.json({ 
+      prompts: shuffled.slice(0, count),
+      cached: false
+    });
   } catch (error) {
-    console.error('AI prompts generation error:', error);
-    return c.json({ error: 'Failed to generate prompts' }, 500);
+    console.error('AI prompts error:', error);
+    // Fallback to static prompts if everything fails
+    const fallbackPrompts = FALLBACK_PROMPTS.slice(0, count).map(p => ({
+      id: crypto.randomUUID(),
+      prompt: p,
+      category: 'general'
+    }));
+    return c.json({ prompts: fallbackPrompts, fallback: true });
   }
 });
+
+// Fallback prompts for when AI/cache is unavailable
+const FALLBACK_PROMPTS = [
+  'What smell instantly takes you back to childhood?',
+  'Describe a meal that felt like love.',
+  'What sound reminds you of home?',
+  'Tell me about a moment you felt truly proud.',
+  'What advice would you give your younger self?',
+  'Describe the view from your childhood bedroom window.',
+  'What song always makes you think of someone special?',
+  'Tell me about a tradition your family had.',
+  'What was the best gift you ever received?',
+  'Describe a moment when you felt completely at peace.',
+  'What lesson did you learn the hard way?',
+  'Tell me about someone who changed your life.',
+];
+
+// Generate prompts and cache them in KV
+async function generateAndCachePrompts(env: Env, count: number = 50): Promise<Array<{ id: string; prompt: string; category: string }>> {
+  const prompts: Array<{ id: string; prompt: string; category: string }> = [];
+  
+  // Generate prompts in batches to avoid timeout
+  const batchSize = 10;
+  const batches = Math.ceil(count / batchSize);
+  
+  for (let batch = 0; batch < batches; batch++) {
+    const batchPrompts = [];
+    const currentBatchSize = Math.min(batchSize, count - (batch * batchSize));
+    
+    for (let i = 0; i < currentBatchSize; i++) {
+      const categoryIndex = (batch * batchSize + i) % PROMPT_CATEGORIES.length;
+      const category = PROMPT_CATEGORIES[categoryIndex];
+      
+      try {
+        const response = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
+          messages: [
+            { 
+              role: 'system', 
+              content: `Generate ONE specific memory prompt about ${category.replace(/_/g, ' ')}. Under 20 words. No quotes. Evoke sensory details and emotions.` 
+            },
+            { role: 'user', content: 'Generate prompt.' }
+          ],
+          max_tokens: 50,
+          temperature: 0.9
+        });
+        
+        const promptText = (response as any).response?.trim();
+        if (promptText && promptText.length > 10) {
+          batchPrompts.push({
+            id: crypto.randomUUID(),
+            prompt: promptText,
+            category
+          });
+        }
+      } catch (err) {
+        console.error(`Failed to generate prompt for ${category}:`, err);
+      }
+    }
+    
+    prompts.push(...batchPrompts);
+  }
+  
+  // Add fallback prompts if we didn't generate enough
+  if (prompts.length < 20) {
+    FALLBACK_PROMPTS.forEach((p, i) => {
+      prompts.push({
+        id: crypto.randomUUID(),
+        prompt: p,
+        category: PROMPT_CATEGORIES[i % PROMPT_CATEGORIES.length]
+      });
+    });
+  }
+  
+  // Cache in KV with 12-hour TTL
+  const cacheData = {
+    prompts,
+    generatedAt: new Date().toISOString()
+  };
+  
+  await env.KV.put('ai_prompts_cache', JSON.stringify(cacheData), {
+    expirationTtl: 12 * 60 * 60 // 12 hours
+  });
+  
+  console.log(`Cached ${prompts.length} AI prompts`);
+  return prompts;
+}
+
+// Export for use in cron job
+export { generateAndCachePrompts };
 
 aiRoutes.post('/prompt/:id/used', async (c) => {
   const userId = c.get('userId');

@@ -24,7 +24,7 @@ import { settingsRoutes } from './routes/settings';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
 import { inheritRoutes } from './routes/inherit';
-import { aiRoutes } from './routes/ai';
+import { aiRoutes, generateAndCachePrompts } from './routes/ai';
 import { giftVoucherRoutes } from './routes/gift-vouchers';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 
@@ -561,6 +561,11 @@ export default {
       await sendReminderEmails(env);
       // Weekly post reminder emails (engagement nudges)
       await sendPostReminderEmails(env);
+    } else if (cronType === '0 */12 * * *') {
+      // Regenerate AI prompts cache every 12 hours to minimize token costs
+      console.log('Regenerating AI prompts cache...');
+      await generateAndCachePrompts(env, 50);
+      console.log('AI prompts cache regenerated');
     }
   },
 };
