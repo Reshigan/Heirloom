@@ -831,7 +831,7 @@ async function sendPostReminderEmails(env: Env) {
       (SELECT COUNT(*) FROM voice_recordings WHERE user_id = u.id) as recordings_count,
       (SELECT COALESCE(SUM(duration), 0) FROM voice_recordings WHERE user_id = u.id) as total_voice_seconds,
       (SELECT COUNT(*) FROM letters WHERE user_id = u.id) as letters_count,
-      (SELECT COUNT(*) FROM letters WHERE user_id = u.id AND status = 'SEALED') as sealed_letters_count,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id AND sealed_at IS NOT NULL) as sealed_letters_count,
       (SELECT COUNT(*) FROM family_members WHERE user_id = u.id) as family_count
     FROM users u
     WHERE u.email_verified = 1
@@ -946,7 +946,7 @@ async function sendSinglePostReminderEmail(env: Env, email: string, reminderType
       (SELECT COUNT(*) FROM voice_recordings WHERE user_id = u.id) as recordings_count,
       (SELECT COALESCE(SUM(duration), 0) FROM voice_recordings WHERE user_id = u.id) as total_voice_seconds,
       (SELECT COUNT(*) FROM letters WHERE user_id = u.id) as letters_count,
-      (SELECT COUNT(*) FROM letters WHERE user_id = u.id AND status = 'SEALED') as sealed_letters_count,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id AND sealed_at IS NOT NULL) as sealed_letters_count,
       (SELECT COUNT(*) FROM family_members WHERE user_id = u.id) as family_count
     FROM users u
     WHERE u.email = ?
