@@ -48,7 +48,9 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
     const newErrors: Record<string, string> = {};
     if (!name.trim()) newErrors.name = 'Name is required';
     if (!relationship) newErrors.relationship = 'Please select a relationship';
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = 'Please enter a valid email address';
     }
     setErrors(newErrors);
@@ -159,10 +161,10 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                   {errors.relationship && <p className="text-red-400 text-sm mt-1">{errors.relationship}</p>}
                 </div>
 
-                {/* Email (optional) */}
+                {/* Email (required) */}
                 <div>
                   <label className="block text-sm text-paper/60 mb-2">
-                    Email <span className="text-paper/30">(optional)</span>
+                    Email <span className="text-gold">*</span>
                   </label>
                   <div className="relative">
                     <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-paper/30" />
