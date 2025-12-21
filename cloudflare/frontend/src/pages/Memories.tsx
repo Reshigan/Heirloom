@@ -513,7 +513,7 @@ export function Memories() {
             <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
               <button
                 onClick={() => setSelectedMonth(null)}
-                className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 ${
+                className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 flex-shrink-0 ${
                   selectedMonth === null
                     ? 'bg-gold text-void font-medium'
                     : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
@@ -525,7 +525,7 @@ export function Memories() {
                 <button
                   key={month}
                   onClick={() => setSelectedMonth(selectedMonth === idx ? null : idx)}
-                  className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 ${
+                  className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 flex-shrink-0 ${
                     selectedMonth === idx
                       ? 'bg-gold text-void font-medium'
                       : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
@@ -538,10 +538,10 @@ export function Memories() {
 
             {/* Emotion Filter - Horizontal scroll on mobile for better touch targets */}
             <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              <span className="text-paper/40 text-sm mr-2 whitespace-nowrap">Filter by emotion:</span>
+              <span className="text-paper/40 text-sm mr-2 whitespace-nowrap flex-shrink-0">Filter by emotion:</span>
               <button
                 onClick={() => setSelectedEmotion(null)}
-                className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 ${
+                className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 flex-shrink-0 ${
                   selectedEmotion === null
                     ? 'bg-white/20 text-paper font-medium'
                     : 'glass text-paper/50 hover:text-paper'
@@ -556,7 +556,7 @@ export function Memories() {
                   <button
                     key={emotion.value}
                     onClick={() => setSelectedEmotion(selectedEmotion === emotion.value ? null : emotion.value)}
-                    className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 whitespace-nowrap min-h-[44px] md:min-h-0 ${
+                    className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 whitespace-nowrap min-h-[44px] md:min-h-0 flex-shrink-0 ${
                       selectedEmotion === emotion.value
                         ? emotion.color + ' font-medium'
                         : 'glass text-paper/50 hover:text-paper'
