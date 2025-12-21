@@ -55,6 +55,28 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: '$', ZAR: 'R', GBP: '£', EUR: '€', CAD: 'C$', AUD: 'A$', INR: '₹',
 };
 
+// Admin authentication middleware for gift voucher admin routes
+const adminAuth = async (c: any, next: any) => {
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Admin authentication required' }, 401);
+  }
+  
+  const token = authHeader.substring(7);
+  
+  // Verify admin token from KV
+  const adminSession = await c.env.KV.get(`admin:session:${token}`);
+  if (!adminSession) {
+    return c.json({ error: 'Invalid or expired admin session' }, 401);
+  }
+  
+  const session = JSON.parse(adminSession);
+  c.set('adminId', session.adminId);
+  c.set('adminRole', session.role);
+  
+  await next();
+};
+
 // =============================================================================
 // PUBLIC ROUTES (No auth required for purchasing)
 // =============================================================================
@@ -461,11 +483,8 @@ giftVoucherRoutes.post('/:id/send', async (c) => {
 // =============================================================================
 
 // Get all vouchers (admin)
-giftVoucherRoutes.get('/admin/all', async (c) => {
+giftVoucherRoutes.get('/admin/all', adminAuth, async (c) => {
   const adminId = c.get('adminId');
-  if (!adminId) {
-    return c.json({ error: 'Admin access required' }, 403);
-  }
   
   const status = c.req.query('status');
   const search = c.req.query('search');
@@ -513,12 +532,8 @@ giftVoucherRoutes.get('/admin/all', async (c) => {
 });
 
 // Get voucher details (admin)
-giftVoucherRoutes.get('/admin/:id', async (c) => {
+giftVoucherRoutes.get('/admin/:id', adminAuth, async (c) => {
   const adminId = c.get('adminId');
-  if (!adminId) {
-    return c.json({ error: 'Admin access required' }, 403);
-  }
-  
   const voucherId = c.req.param('id');
   
   const voucher = await c.env.DB.prepare(`
@@ -547,12 +562,8 @@ giftVoucherRoutes.get('/admin/:id', async (c) => {
 });
 
 // Create voucher manually (admin)
-giftVoucherRoutes.post('/admin/create', async (c) => {
+giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
   const adminId = c.get('adminId');
-  if (!adminId) {
-    return c.json({ error: 'Admin access required' }, 403);
-  }
-  
   const body = await c.req.json();
   const { tier, billingCycle, durationMonths, recipientEmail, recipientName, notes } = body;
   
@@ -597,12 +608,8 @@ giftVoucherRoutes.post('/admin/create', async (c) => {
 });
 
 // Update voucher (admin)
-giftVoucherRoutes.patch('/admin/:id', async (c) => {
+giftVoucherRoutes.patch('/admin/:id', adminAuth, async (c) => {
   const adminId = c.get('adminId');
-  if (!adminId) {
-    return c.json({ error: 'Admin access required' }, 403);
-  }
-  
   const voucherId = c.req.param('id');
   const body = await c.req.json();
   const { status, expiresAt, adminNotes } = body;
@@ -640,12 +647,8 @@ giftVoucherRoutes.patch('/admin/:id', async (c) => {
 });
 
 // Resend voucher email (admin)
-giftVoucherRoutes.post('/admin/:id/resend', async (c) => {
+giftVoucherRoutes.post('/admin/:id/resend', adminAuth, async (c) => {
   const adminId = c.get('adminId');
-  if (!adminId) {
-    return c.json({ error: 'Admin access required' }, 403);
-  }
-  
   const voucherId = c.req.param('id');
   
   const voucher = await c.env.DB.prepare(`
@@ -695,12 +698,8 @@ giftVoucherRoutes.post('/admin/:id/resend', async (c) => {
 });
 
 // Get voucher stats (admin)
-giftVoucherRoutes.get('/admin/stats', async (c) => {
+giftVoucherRoutes.get('/admin/stats', adminAuth, async (c) => {
   const adminId = c.get('adminId');
-  if (!adminId) {
-    return c.json({ error: 'Admin access required' }, 403);
-  }
-  
   const stats = await c.env.DB.prepare(`
     SELECT 
       COUNT(*) as total,
