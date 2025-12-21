@@ -233,7 +233,7 @@ giftVoucherRoutes.get('/validate/:code', async (c) => {
   
   const voucher = await c.env.DB.prepare(`
     SELECT id, code, tier, billing_cycle, duration_months, status, expires_at,
-           recipient_name, recipient_message, purchaser_name
+           recipient_name, recipient_message, purchaser_name, voucher_type, gold_member_number
     FROM gift_vouchers WHERE code = ?
   `).bind(code).first();
   
@@ -253,17 +253,21 @@ giftVoucherRoutes.get('/validate/:code', async (c) => {
     return c.json({ valid: false, error: 'This voucher is not yet active' }, 400);
   }
   
+  const isGoldLegacy = voucher.voucher_type === 'GOLD_LEGACY';
+  
   return c.json({
     valid: true,
     voucher: {
       code: voucher.code,
-      tier: voucher.tier,
-      billingCycle: voucher.billing_cycle,
-      durationMonths: voucher.duration_months,
+      tier: isGoldLegacy ? 'GOLD_LEGACY' : voucher.tier,
+      billingCycle: isGoldLegacy ? 'lifetime' : voucher.billing_cycle,
+      durationMonths: isGoldLegacy ? 'lifetime' : voucher.duration_months,
       recipientName: voucher.recipient_name,
       recipientMessage: voucher.recipient_message,
       fromName: voucher.purchaser_name,
       expiresAt: voucher.expires_at,
+      isGoldLegacy,
+      memberNumber: isGoldLegacy ? voucher.gold_member_number : null,
     },
   });
 });
@@ -306,6 +310,9 @@ giftVoucherRoutes.post('/redeem', async (c) => {
     return c.json({ error: 'This voucher is not yet active' }, 400);
   }
   
+  // Check if this is a Gold Legacy voucher (lifetime access)
+  const isGoldLegacy = voucher.voucher_type === 'GOLD_LEGACY';
+  
   // Check if user already has an active subscription
   const existingSub = await c.env.DB.prepare(`
     SELECT * FROM subscriptions WHERE user_id = ? AND status IN ('ACTIVE', 'TRIALING')
@@ -314,32 +321,61 @@ giftVoucherRoutes.post('/redeem', async (c) => {
   // Calculate subscription period
   const now = new Date();
   const periodEnd = new Date(now);
-  periodEnd.setMonth(periodEnd.getMonth() + (voucher.duration_months as number));
+  
+  if (isGoldLegacy) {
+    // Gold Legacy = lifetime access (100 years)
+    periodEnd.setFullYear(periodEnd.getFullYear() + 100);
+  } else {
+    periodEnd.setMonth(periodEnd.getMonth() + (voucher.duration_months as number));
+  }
   
   try {
-    // Start transaction
-    if (existingSub) {
-      // Extend existing subscription
-      const newPeriodEnd = new Date(existingSub.current_period_end as string);
-      newPeriodEnd.setMonth(newPeriodEnd.getMonth() + (voucher.duration_months as number));
-      
-      // Upgrade tier if gift is higher
-      const tierOrder = { STARTER: 1, FAMILY: 2, FOREVER: 3 };
-      const currentTier = (existingSub.tier as string).toUpperCase();
-      const giftTier = (voucher.tier as string).toUpperCase();
-      const newTier = tierOrder[giftTier as keyof typeof tierOrder] > tierOrder[currentTier as keyof typeof tierOrder] ? giftTier : currentTier;
-      
+    if (isGoldLegacy) {
+      // Gold Legacy: Set lifetime access flag on user and create/update subscription
       await c.env.DB.prepare(`
-        UPDATE subscriptions 
-        SET tier = ?, current_period_end = ?, status = 'ACTIVE', updated_at = datetime('now')
-        WHERE user_id = ?
-      `).bind(newTier, newPeriodEnd.toISOString(), userId).run();
+        UPDATE users SET gold_legacy_member = 1, gold_member_number = ?, updated_at = datetime('now')
+        WHERE id = ?
+      `).bind(voucher.gold_member_number || null, userId).run();
+      
+      if (existingSub) {
+        // Upgrade to Gold Legacy
+        await c.env.DB.prepare(`
+          UPDATE subscriptions 
+          SET tier = 'FOREVER', billing_cycle = 'lifetime', current_period_end = ?, status = 'ACTIVE', updated_at = datetime('now')
+          WHERE user_id = ?
+        `).bind(periodEnd.toISOString(), userId).run();
+      } else {
+        // Create Gold Legacy subscription
+        await c.env.DB.prepare(`
+          INSERT INTO subscriptions (user_id, tier, status, billing_cycle, current_period_start, current_period_end)
+          VALUES (?, 'FOREVER', 'ACTIVE', 'lifetime', ?, ?)
+        `).bind(userId, now.toISOString(), periodEnd.toISOString()).run();
+      }
     } else {
-      // Create new subscription
-      await c.env.DB.prepare(`
-        INSERT INTO subscriptions (user_id, tier, status, billing_cycle, current_period_start, current_period_end)
-        VALUES (?, ?, 'ACTIVE', ?, ?, ?)
-      `).bind(userId, voucher.tier, voucher.billing_cycle, now.toISOString(), periodEnd.toISOString()).run();
+      // Regular voucher redemption
+      if (existingSub) {
+        // Extend existing subscription
+        const newPeriodEnd = new Date(existingSub.current_period_end as string);
+        newPeriodEnd.setMonth(newPeriodEnd.getMonth() + (voucher.duration_months as number));
+        
+        // Upgrade tier if gift is higher
+        const tierOrder = { STARTER: 1, FAMILY: 2, FOREVER: 3 };
+        const currentTier = (existingSub.tier as string).toUpperCase();
+        const giftTier = (voucher.tier as string).toUpperCase();
+        const newTier = tierOrder[giftTier as keyof typeof tierOrder] > tierOrder[currentTier as keyof typeof tierOrder] ? giftTier : currentTier;
+        
+        await c.env.DB.prepare(`
+          UPDATE subscriptions 
+          SET tier = ?, current_period_end = ?, status = 'ACTIVE', updated_at = datetime('now')
+          WHERE user_id = ?
+        `).bind(newTier, newPeriodEnd.toISOString(), userId).run();
+      } else {
+        // Create new subscription
+        await c.env.DB.prepare(`
+          INSERT INTO subscriptions (user_id, tier, status, billing_cycle, current_period_start, current_period_end)
+          VALUES (?, ?, 'ACTIVE', ?, ?, ?)
+        `).bind(userId, voucher.tier, voucher.billing_cycle, now.toISOString(), periodEnd.toISOString()).run();
+      }
     }
     
     // Mark voucher as redeemed
@@ -354,34 +390,100 @@ giftVoucherRoutes.post('/redeem', async (c) => {
     
     // Send redemption confirmation email
     if (user?.email && c.env.RESEND_API_KEY) {
-      const emailContent = giftVoucherRedeemedEmail(
-        user.first_name as string || 'there',
-        voucher.tier as string,
-        voucher.duration_months as number
-      );
-      
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: user.email,
-          subject: emailContent.subject,
-          html: emailContent.html,
-        }),
-      });
+      if (isGoldLegacy) {
+        // Special Gold Legacy welcome email
+        const goldWelcomeHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0a0f; font-family: 'Georgia', serif;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
+      <div style="font-size: 48px; color: #D4AF37; margin-bottom: 10px;">∞</div>
+      <h1 style="color: #D4AF37; font-size: 28px; font-weight: 300; letter-spacing: 4px; margin: 0;">
+        WELCOME TO GOLD LEGACY
+      </h1>
+    </div>
+    
+    <div style="padding: 40px 0; text-align: center;">
+      <h2 style="color: #f5f5f0; font-size: 24px; font-weight: 300; margin-bottom: 20px;">
+        ${user.first_name ? `Dear ${user.first_name},` : 'Dear Member,'}
+      </h2>
+      <p style="color: rgba(245, 245, 240, 0.8); font-size: 16px; line-height: 1.8;">
+        Your Gold Legacy membership is now active. You have lifetime access to all Heirloom features.
+      </p>
+      ${voucher.gold_member_number ? `
+      <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 12px; padding: 20px; margin: 30px 0; display: inline-block;">
+        <p style="color: rgba(245, 245, 240, 0.6); font-size: 12px; margin: 0 0 5px 0;">MEMBER NUMBER</p>
+        <p style="color: #D4AF37; font-size: 20px; font-family: monospace; margin: 0;">${voucher.gold_member_number}</p>
+      </div>
+      ` : ''}
+    </div>
+    
+    <div style="text-align: center; padding: 20px 0;">
+      <a href="https://heirloom.blue/dashboard" 
+         style="display: inline-block; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: #0a0a0f; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 14px; font-weight: 600; letter-spacing: 1px;">
+        START YOUR LEGACY
+      </a>
+    </div>
+    
+    <div style="text-align: center; padding-top: 40px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 40px;">
+      <p style="color: #D4AF37; font-size: 11px; letter-spacing: 2px;">
+        HEIRLOOM GOLD LEGACY — YOUR MEMORIES, FOREVER
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+        
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Heirloom Gold Legacy <noreply@heirloom.blue>',
+            to: user.email,
+            subject: 'Welcome to Heirloom Gold Legacy',
+            html: goldWelcomeHtml,
+          }),
+        });
+      } else {
+        const emailContent = giftVoucherRedeemedEmail(
+          user.first_name as string || 'there',
+          voucher.tier as string,
+          voucher.duration_months as number
+        );
+        
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Heirloom <noreply@heirloom.blue>',
+            to: user.email,
+            subject: emailContent.subject,
+            html: emailContent.html,
+          }),
+        });
+      }
     }
     
     return c.json({
       success: true,
-      message: 'Gift voucher redeemed successfully!',
+      message: isGoldLegacy ? 'Welcome to Gold Legacy! Your lifetime access is now active.' : 'Gift voucher redeemed successfully!',
       subscription: {
-        tier: voucher.tier,
-        durationMonths: voucher.duration_months,
+        tier: isGoldLegacy ? 'GOLD_LEGACY' : voucher.tier,
+        durationMonths: isGoldLegacy ? 'lifetime' : voucher.duration_months,
         periodEnd: periodEnd.toISOString(),
+        isGoldLegacy,
+        memberNumber: isGoldLegacy ? voucher.gold_member_number : null,
       },
     });
   } catch (err: any) {
@@ -731,6 +833,212 @@ giftVoucherRoutes.post('/admin/:id/resend', adminAuth, async (c) => {
   }
   
   return c.json({ success: true, message: 'Email resent to recipient' });
+});
+
+// =============================================================================
+// GOLD LEGACY VOUCHER - EXCLUSIVE LIFETIME ACCESS
+// =============================================================================
+
+// Generate special Gold Legacy voucher code
+function generateGoldLegacyCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'GOLD-';
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 4; j++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    if (i < 2) code += '-';
+  }
+  return code;
+}
+
+// Create Gold Legacy Voucher (admin only - exclusive lifetime access)
+giftVoucherRoutes.post('/admin/gold-legacy/create', adminAuth, async (c) => {
+  const adminId = c.get('adminId');
+  const body = await c.req.json();
+  const { recipientEmail, recipientName, personalMessage, memberNumber, sendEmail } = body;
+  
+  // Generate unique Gold Legacy code
+  const voucherCode = generateGoldLegacyCode();
+  
+  // Gold Legacy vouchers never expire
+  const expiresAt = new Date();
+  expiresAt.setFullYear(expiresAt.getFullYear() + 100); // 100 years = effectively never
+  
+  // Generate member number if not provided
+  const goldMemberNumber = memberNumber || `G-${String(Date.now()).slice(-6)}`;
+  
+  // Default personal message from Heirloom
+  const defaultMessage = `Welcome to the Heirloom Gold Legacy Circle.
+
+You have been personally selected to join an exclusive group of individuals who understand the profound importance of preserving memories for generations to come.
+
+As a Gold Legacy member, you receive lifetime access to all Heirloom features, forever. Your stories, your voice, your memories will be preserved for eternity.
+
+This is more than a subscription—it is an invitation to be part of something timeless.
+
+With deepest gratitude,
+The Heirloom Team`;
+
+  const finalMessage = personalMessage || defaultMessage;
+  const status = sendEmail && recipientEmail ? 'SENT' : 'PAID';
+  
+  await c.env.DB.prepare(`
+    INSERT INTO gift_vouchers (
+      code, purchaser_email, purchaser_name, tier, billing_cycle, duration_months,
+      amount, currency, status, expires_at, recipient_email, recipient_name,
+      recipient_message, admin_notes, created_by_admin_id, sent_at, voucher_type, gold_member_number
+    ) VALUES (?, 'admin@heirloom.blue', 'Heirloom', 'FOREVER', 'lifetime', 9999, 0, 'USD', ?, ?, ?, ?, ?, ?, ?, ?, 'GOLD_LEGACY', ?)
+  `).bind(
+    voucherCode,
+    status,
+    expiresAt.toISOString(),
+    recipientEmail || null,
+    recipientName || null,
+    finalMessage,
+    `Gold Legacy Voucher - Member #${goldMemberNumber}`,
+    adminId,
+    sendEmail && recipientEmail ? new Date().toISOString() : null,
+    goldMemberNumber
+  ).run();
+  
+  // Send special Gold Legacy invitation email if requested
+  if (sendEmail && recipientEmail && c.env.RESEND_API_KEY) {
+    const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0a0f; font-family: 'Georgia', serif;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <!-- Gold Header -->
+    <div style="text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
+      <div style="font-size: 48px; color: #D4AF37; margin-bottom: 10px;">∞</div>
+      <h1 style="color: #D4AF37; font-size: 28px; font-weight: 300; letter-spacing: 4px; margin: 0;">
+        HEIRLOOM
+      </h1>
+      <p style="color: rgba(212, 175, 55, 0.7); font-size: 12px; letter-spacing: 3px; margin-top: 8px;">
+        GOLD LEGACY CIRCLE
+      </p>
+    </div>
+    
+    <!-- Invitation -->
+    <div style="padding: 40px 0; text-align: center;">
+      <h2 style="color: #f5f5f0; font-size: 24px; font-weight: 300; margin-bottom: 20px;">
+        ${recipientName ? `Dear ${recipientName},` : 'Dear Friend,'}
+      </h2>
+      <p style="color: rgba(245, 245, 240, 0.8); font-size: 16px; line-height: 1.8; margin-bottom: 30px;">
+        You have been invited to join the exclusive
+      </p>
+      <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 12px; padding: 30px; margin: 30px 0;">
+        <h3 style="color: #D4AF37; font-size: 20px; font-weight: 400; letter-spacing: 2px; margin: 0 0 15px 0;">
+          GOLD LEGACY MEMBERSHIP
+        </h3>
+        <p style="color: rgba(245, 245, 240, 0.6); font-size: 14px; margin: 0;">
+          Member Number: <span style="color: #D4AF37; font-family: monospace;">${goldMemberNumber}</span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Personal Message -->
+    <div style="background: rgba(255, 255, 255, 0.02); border-left: 2px solid #D4AF37; padding: 25px; margin: 30px 0;">
+      <p style="color: rgba(245, 245, 240, 0.9); font-size: 15px; line-height: 1.9; white-space: pre-line; margin: 0; font-style: italic;">
+${finalMessage}
+      </p>
+    </div>
+    
+    <!-- Voucher Code -->
+    <div style="text-align: center; padding: 30px 0;">
+      <p style="color: rgba(245, 245, 240, 0.6); font-size: 12px; letter-spacing: 2px; margin-bottom: 15px;">
+        YOUR EXCLUSIVE ACCESS CODE
+      </p>
+      <div style="background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); border-radius: 8px; padding: 20px 30px; display: inline-block;">
+        <span style="color: #0a0a0f; font-size: 24px; font-family: monospace; letter-spacing: 3px; font-weight: bold;">
+          ${voucherCode}
+        </span>
+      </div>
+    </div>
+    
+    <!-- CTA Button -->
+    <div style="text-align: center; padding: 20px 0;">
+      <a href="https://heirloom.blue/gold/redeem?code=${voucherCode}" 
+         style="display: inline-block; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: #0a0a0f; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 14px; font-weight: 600; letter-spacing: 1px;">
+        ACCEPT INVITATION
+      </a>
+    </div>
+    
+    <!-- Benefits -->
+    <div style="border-top: 1px solid rgba(212, 175, 55, 0.2); padding-top: 30px; margin-top: 30px;">
+      <h4 style="color: #D4AF37; font-size: 14px; letter-spacing: 2px; text-align: center; margin-bottom: 20px;">
+        GOLD LEGACY BENEFITS
+      </h4>
+      <ul style="color: rgba(245, 245, 240, 0.7); font-size: 14px; line-height: 2; padding-left: 20px;">
+        <li>Lifetime access to all Heirloom features</li>
+        <li>Unlimited memory storage</li>
+        <li>Priority support</li>
+        <li>Exclusive Gold Legacy badge</li>
+        <li>Early access to new features</li>
+      </ul>
+    </div>
+    
+    <!-- Footer -->
+    <div style="text-align: center; padding-top: 40px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 40px;">
+      <p style="color: rgba(245, 245, 240, 0.4); font-size: 12px;">
+        This invitation is exclusively for you and cannot be transferred.
+      </p>
+      <p style="color: #D4AF37; font-size: 11px; letter-spacing: 2px; margin-top: 20px;">
+        HEIRLOOM — YOUR MEMORIES, FOREVER
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+    
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom Gold Legacy <noreply@heirloom.blue>',
+        to: recipientEmail,
+        subject: `You've Been Invited to the Heirloom Gold Legacy Circle`,
+        html: emailHtml,
+      }),
+    });
+  }
+  
+  return c.json({
+    success: true,
+    voucher: {
+      code: voucherCode,
+      type: 'GOLD_LEGACY',
+      memberNumber: goldMemberNumber,
+      recipientEmail,
+      recipientName,
+      personalMessage: finalMessage,
+      emailSent: sendEmail && recipientEmail,
+    },
+  });
+});
+
+// Get all Gold Legacy vouchers (admin)
+giftVoucherRoutes.get('/admin/gold-legacy/all', adminAuth, async (c) => {
+  const vouchers = await c.env.DB.prepare(`
+    SELECT gv.*, u.email as redeemer_email, u.first_name as redeemer_name
+    FROM gift_vouchers gv
+    LEFT JOIN users u ON gv.redeemed_by_user_id = u.id
+    WHERE gv.voucher_type = 'GOLD_LEGACY'
+    ORDER BY gv.created_at DESC
+  `).all();
+  
+  return c.json({
+    vouchers: vouchers.results || [],
+    total: vouchers.results?.length || 0,
+  });
 });
 
 // Get voucher stats (admin)
