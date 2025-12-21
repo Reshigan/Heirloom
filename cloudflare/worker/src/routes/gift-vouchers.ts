@@ -854,6 +854,7 @@ function generateGoldLegacyCode(): string {
 
 // Create Gold Legacy Voucher (admin only - exclusive lifetime access)
 giftVoucherRoutes.post('/admin/gold-legacy/create', adminAuth, async (c) => {
+  try {
   const adminId = c.get('adminId');
   const body = await c.req.json();
   const { recipientEmail, recipientName, personalMessage, memberNumber, sendEmail } = body;
@@ -888,7 +889,7 @@ The Heirloom Team`;
       code, purchaser_email, purchaser_name, tier, billing_cycle, duration_months,
       amount, currency, status, expires_at, recipient_email, recipient_name,
       recipient_message, admin_notes, created_by_admin_id, sent_at, voucher_type, gold_member_number
-    ) VALUES (?, 'admin@heirloom.blue', 'Heirloom', 'FOREVER', 'lifetime', 9999, 0, 'USD', ?, ?, ?, ?, ?, ?, ?, ?, 'GOLD_LEGACY', ?)
+    ) VALUES (?, 'admin@heirloom.blue', 'Heirloom', 'FOREVER', 'yearly', 9999, 0, 'USD', ?, ?, ?, ?, ?, ?, ?, ?, 'GOLD_LEGACY', ?)
   `).bind(
     voucherCode,
     status,
@@ -1023,6 +1024,10 @@ ${finalMessage}
       emailSent: sendEmail && recipientEmail,
     },
   });
+  } catch (error) {
+    console.error('Gold Legacy create error:', error);
+    return c.json({ error: 'Failed to create Gold Legacy voucher', details: String(error) }, 500);
+  }
 });
 
 // Get all Gold Legacy vouchers (admin)
