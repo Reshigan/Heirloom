@@ -672,7 +672,7 @@ export function Record() {
                     {/* Idle state message */}
                     {!isRecording && !audioBlob && (
                       <div className="absolute inset-0 flex items-center justify-center bg-void/80 backdrop-blur-sm">
-                        <span className="text-gold/60 text-sm tracking-wider font-medium">READY TO RECORD</span>
+                        <span className="text-gold/60 text-xs sm:text-sm tracking-wider font-medium">READY TO RECORD</span>
                       </div>
                     )}
                     
