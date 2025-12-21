@@ -584,3 +584,162 @@ export const giftVoucherRedeemedEmail = (
     <a href="${APP_URL}/dashboard" class="button">ENTER YOUR VAULT</a>
   `),
 });
+
+// ============================================
+// POST REMINDER EMAILS - Engagement Nudges
+// ============================================
+
+// Prompts for different content types
+const memoryPrompts = [
+  "What's a photo that always makes you smile?",
+  "Share a moment from your childhood that shaped who you are today.",
+  "What's a family tradition you want to preserve for future generations?",
+  "Capture a recent moment that brought you joy.",
+  "What place holds special memories for you?",
+];
+
+const voicePrompts = [
+  "Record a message sharing your favorite family recipe and the story behind it.",
+  "What advice would you give to your younger self?",
+  "Share a story about someone who influenced your life.",
+  "Record a message for a loved one on their next birthday.",
+  "What's a lesson life has taught you that you want to pass on?",
+];
+
+const letterPrompts = [
+  "Write a letter to your future self, to be opened in 5 years.",
+  "Pen a note of gratitude to someone who made a difference in your life.",
+  "Write a letter to a loved one for a future milestone.",
+  "Share your hopes and dreams for the next generation.",
+  "Write about a moment you never want to forget.",
+];
+
+const getRandomPrompt = (prompts: string[]) => prompts[Math.floor(Math.random() * prompts.length)];
+
+export const postReminderMemoryEmail = (
+  userName: string,
+  memoriesCount: number,
+  daysSinceLastPost: number | null
+) => {
+  const prompt = getRandomPrompt(memoryPrompts);
+  const hasPosted = memoriesCount > 0;
+  
+  return {
+    subject: hasPosted 
+      ? `${userName}, your memories are waiting` 
+      : `${userName}, start your legacy today`,
+    html: baseTemplate(`
+      <h2>${hasPosted ? 'Continue Your Story' : 'Begin Your Legacy'}</h2>
+      <p>Dear ${userName},</p>
+      ${hasPosted 
+        ? `<p>You've preserved <span class="gold">${memoriesCount} ${memoriesCount === 1 ? 'memory' : 'memories'}</span> so far—each one a treasure for future generations.${daysSinceLastPost ? ` It's been ${daysSinceLastPost} days since your last upload.` : ''}</p>`
+        : `<p>Your vault is ready and waiting. Every photo, every moment you capture becomes a gift to those who come after you.</p>`
+      }
+      <div class="letter-box">
+        <p style="font-style: italic; color: #c9a959;">"${prompt}"</p>
+      </div>
+      <p>Take a moment today to preserve something meaningful. It only takes a few seconds to upload a photo or share a story.</p>
+      <a href="${APP_URL}/memories" class="button">ADD A MEMORY</a>
+      <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">Your memories are encrypted and protected. Only you and those you choose can access them.</p>
+    `),
+  };
+};
+
+export const postReminderVoiceEmail = (
+  userName: string,
+  recordingsCount: number,
+  totalMinutes: number
+) => {
+  const prompt = getRandomPrompt(voicePrompts);
+  const hasRecorded = recordingsCount > 0;
+  
+  return {
+    subject: hasRecorded 
+      ? `${userName}, your voice matters` 
+      : `${userName}, let them hear your voice`,
+    html: baseTemplate(`
+      <h2>${hasRecorded ? 'Your Voice Lives On' : 'Capture Your Voice'}</h2>
+      <p>Dear ${userName},</p>
+      ${hasRecorded 
+        ? `<p>You've recorded <span class="gold">${totalMinutes} ${totalMinutes === 1 ? 'minute' : 'minutes'}</span> of voice messages—your laugh, your wisdom, your love, preserved forever.</p>`
+        : `<p>There's something irreplaceable about hearing a loved one's voice. Your voice carries warmth, emotion, and personality that words on a page simply can't capture.</p>`
+      }
+      <div class="letter-box">
+        <p style="font-style: italic; color: #c9a959;">"${prompt}"</p>
+      </div>
+      <p>Recording takes just a few minutes, but the impact lasts generations. Share a story, offer advice, or simply say "I love you."</p>
+      <a href="${APP_URL}/record" class="button">RECORD A MESSAGE</a>
+      <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">Your recordings are securely stored and can be shared with specific family members.</p>
+    `),
+  };
+};
+
+export const postReminderLetterEmail = (
+  userName: string,
+  lettersCount: number,
+  hasSealedLetters: boolean
+) => {
+  const prompt = getRandomPrompt(letterPrompts);
+  const hasWritten = lettersCount > 0;
+  
+  return {
+    subject: hasWritten 
+      ? `${userName}, words that transcend time` 
+      : `${userName}, write a letter to the future`,
+    html: baseTemplate(`
+      <h2>${hasWritten ? 'Continue Writing' : 'Letters That Last Forever'}</h2>
+      <p>Dear ${userName},</p>
+      ${hasWritten 
+        ? `<p>You've written <span class="gold">${lettersCount} ${lettersCount === 1 ? 'letter' : 'letters'}</span>${hasSealedLetters ? ', some sealed for future delivery' : ''}. Each one is a gift waiting to be opened.</p>`
+        : `<p>Imagine the joy of receiving a letter from someone you love—on a birthday, a wedding day, or a moment when they need it most. You can give that gift.</p>`
+      }
+      <div class="letter-box">
+        <p style="font-style: italic; color: #c9a959;">"${prompt}"</p>
+      </div>
+      <p>Write from the heart. Your words will be treasured long after they're read.</p>
+      <a href="${APP_URL}/compose" class="button">WRITE A LETTER</a>
+      <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">Letters can be scheduled for future delivery or sealed until a specific date.</p>
+    `),
+  };
+};
+
+export const postReminderWeeklyDigestEmail = (
+  userName: string,
+  stats: {
+    memoriesCount: number;
+    voiceMinutes: number;
+    lettersCount: number;
+    familyCount: number;
+  },
+  suggestedAction: 'memory' | 'voice' | 'letter' | 'family'
+) => {
+  const actionMap = {
+    memory: { text: 'Upload a Memory', url: `${APP_URL}/memories`, prompt: getRandomPrompt(memoryPrompts) },
+    voice: { text: 'Record a Message', url: `${APP_URL}/record`, prompt: getRandomPrompt(voicePrompts) },
+    letter: { text: 'Write a Letter', url: `${APP_URL}/compose`, prompt: getRandomPrompt(letterPrompts) },
+    family: { text: 'Add Family Member', url: `${APP_URL}/family`, prompt: 'Connect with someone you want to share your legacy with.' },
+  };
+  
+  const action = actionMap[suggestedAction];
+  
+  return {
+    subject: `${userName}, your weekly Heirloom update`,
+    html: baseTemplate(`
+      <h2>Your Legacy This Week</h2>
+      <p>Dear ${userName},</p>
+      <p>Here's a snapshot of your Heirloom sanctuary:</p>
+      <div class="info-box">
+        <p><strong>Memories:</strong> <span class="gold">${stats.memoriesCount}</span> preserved</p>
+        <p><strong>Voice:</strong> <span class="gold">${stats.voiceMinutes}</span> minutes recorded</p>
+        <p><strong>Letters:</strong> <span class="gold">${stats.lettersCount}</span> written</p>
+        <p><strong>Family:</strong> <span class="gold">${stats.familyCount}</span> connected</p>
+      </div>
+      <p>This week's inspiration:</p>
+      <div class="letter-box">
+        <p style="font-style: italic; color: #c9a959;">"${action.prompt}"</p>
+      </div>
+      <a href="${action.url}" class="button">${action.text.toUpperCase()}</a>
+      <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">Every moment you preserve is a gift to future generations.</p>
+    `),
+  };
+};

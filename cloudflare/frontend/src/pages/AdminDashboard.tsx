@@ -1662,7 +1662,8 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
 }
 
 // Create Voucher Modal
-function CreateVoucherModal({ onClose }: { onClose: () => void }) {
+function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCreated?: () => void }) {
+  const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [formData, setFormData] = useState({
     tier: 'FAMILY',
     billingCycle: 'yearly',
@@ -1670,30 +1671,62 @@ function CreateVoucherModal({ onClose }: { onClose: () => void }) {
     recipientEmail: '',
     recipientName: '',
     notes: '',
+    sendEmail: false,
+    quantity: 1,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [createdCode, setCreatedCode] = useState<string | null>(null);
+  const [createdCodes, setCreatedCodes] = useState<string[]>([]);
+
+  const PROMO_PRESETS = [
+    { name: '1 Month Trial', tier: 'STARTER', billingCycle: 'monthly', durationMonths: 1 },
+    { name: '3 Month Starter', tier: 'STARTER', billingCycle: 'monthly', durationMonths: 3 },
+    { name: '1 Year Family', tier: 'FAMILY', billingCycle: 'yearly', durationMonths: 12 },
+    { name: '1 Year Forever', tier: 'FOREVER', billingCycle: 'yearly', durationMonths: 12 },
+    { name: 'Lifetime Forever', tier: 'FOREVER', billingCycle: 'yearly', durationMonths: 120 },
+  ];
+
+  const applyPreset = (preset: typeof PROMO_PRESETS[0]) => {
+    setFormData({
+      ...formData,
+      tier: preset.tier,
+      billingCycle: preset.billingCycle,
+      durationMonths: preset.durationMonths,
+    });
+  };
 
   const handleCreate = async () => {
     setIsLoading(true);
+    const codes: string[] = [];
     try {
       const token = localStorage.getItem('adminToken');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/create`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.voucher?.code) {
-        setCreatedCode(data.voucher.code);
+      const quantity = mode === 'bulk' ? formData.quantity : 1;
+      
+      for (let i = 0; i < quantity; i++) {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/gift-vouchers/admin/create`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...formData,
+            sendEmail: formData.sendEmail && formData.recipientEmail,
+          }),
+        });
+        const data = await res.json();
+        if (data.voucher?.code) {
+          codes.push(data.voucher.code);
+        }
+      }
+      
+      if (codes.length > 0) {
+        setCreatedCodes(codes);
+        onCreated?.();
       } else {
-        alert('Failed to create voucher');
+        alert('Failed to create voucher(s)');
       }
     } catch {
-      alert('Error creating voucher');
+      alert('Error creating voucher(s)');
     } finally {
       setIsLoading(false);
     }
@@ -1701,7 +1734,7 @@ function CreateVoucherModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="card max-w-md w-full">
+      <div className="card max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">Create Gift Voucher</h3>
           <button onClick={onClose} className="text-paper/50 hover:text-paper">
@@ -1709,92 +1742,171 @@ function CreateVoucherModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        {createdCode ? (
-          <div className="text-center py-8">
+        {createdCodes.length > 0 ? (
+          <div className="text-center py-6">
             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-400" />
             </div>
-            <h4 className="text-lg mb-2">Voucher Created!</h4>
-            <div className="bg-white/5 p-4 rounded mb-4">
-              <p className="font-mono text-2xl text-gold tracking-wider">{createdCode}</p>
+            <h4 className="text-lg mb-2">{createdCodes.length} Voucher{createdCodes.length > 1 ? 's' : ''} Created!</h4>
+            <div className="bg-white/5 p-4 rounded mb-4 max-h-48 overflow-y-auto">
+              {createdCodes.map((code, i) => (
+                <p key={i} className="font-mono text-lg text-gold tracking-wider mb-1">{code}</p>
+              ))}
             </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(createdCode);
-                alert('Code copied!');
-              }}
-              className="btn btn-secondary mr-2"
-            >
-              Copy Code
-            </button>
-            <button onClick={onClose} className="btn btn-primary">
-              Done
-            </button>
+            <div className="flex gap-2 justify-center flex-wrap">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(createdCodes.join('\n'));
+                  alert('All codes copied!');
+                }}
+                className="btn btn-secondary"
+              >
+                Copy All Codes
+              </button>
+              <button
+                onClick={() => {
+                  const urls = createdCodes.map(code => `https://heirloom.blue/gift/redeem?code=${code}`);
+                  navigator.clipboard.writeText(urls.join('\n'));
+                  alert('All redemption links copied!');
+                }}
+                className="btn btn-secondary"
+              >
+                Copy All Links
+              </button>
+              <button onClick={onClose} className="btn btn-primary">
+                Done
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
-            <div>
-              <label className="block text-paper/50 text-sm mb-1">Tier</label>
-              <select
-                value={formData.tier}
-                onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => setMode('single')}
+                className={`flex-1 py-2 px-4 rounded text-sm ${mode === 'single' ? 'bg-gold/20 text-gold' : 'bg-white/5 text-paper/50'}`}
               >
-                <option value="STARTER">Starter</option>
-                <option value="FAMILY">Family</option>
-                <option value="FOREVER">Forever</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-paper/50 text-sm mb-1">Billing Cycle</label>
-              <select
-                value={formData.billingCycle}
-                onChange={(e) => setFormData({ 
-                  ...formData, 
-                  billingCycle: e.target.value,
-                  durationMonths: e.target.value === 'yearly' ? 12 : 1
-                })}
-                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                Single Voucher
+              </button>
+              <button
+                onClick={() => setMode('bulk')}
+                className={`flex-1 py-2 px-4 rounded text-sm ${mode === 'bulk' ? 'bg-gold/20 text-gold' : 'bg-white/5 text-paper/50'}`}
               >
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
-              </select>
+                Bulk Create
+              </button>
             </div>
 
             <div>
-              <label className="block text-paper/50 text-sm mb-1">Duration (months)</label>
-              <input
-                type="number"
-                value={formData.durationMonths}
-                onChange={(e) => setFormData({ ...formData, durationMonths: parseInt(e.target.value) || 1 })}
-                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
-                min="1"
-                max="24"
-              />
+              <label className="block text-paper/50 text-sm mb-2">Quick Presets</label>
+              <div className="flex flex-wrap gap-2">
+                {PROMO_PRESETS.map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => applyPreset(preset)}
+                    className="px-3 py-1 text-xs bg-white/5 hover:bg-gold/20 hover:text-gold rounded transition-colors"
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div>
-              <label className="block text-paper/50 text-sm mb-1">Recipient Email (optional)</label>
-              <input
-                type="email"
-                value={formData.recipientEmail}
-                onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
-                placeholder="recipient@example.com"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-paper/50 text-sm mb-1">Tier</label>
+                <select
+                  value={formData.tier}
+                  onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                >
+                  <option value="STARTER">Starter</option>
+                  <option value="FAMILY">Family</option>
+                  <option value="FOREVER">Forever</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-paper/50 text-sm mb-1">Billing Cycle</label>
+                <select
+                  value={formData.billingCycle}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    billingCycle: e.target.value,
+                    durationMonths: e.target.value === 'yearly' ? 12 : 1
+                  })}
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                >
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-paper/50 text-sm mb-1">Recipient Name (optional)</label>
-              <input
-                type="text"
-                value={formData.recipientName}
-                onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
-                placeholder="John Doe"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-paper/50 text-sm mb-1">Duration (months)</label>
+                <input
+                  type="number"
+                  value={formData.durationMonths}
+                  onChange={(e) => setFormData({ ...formData, durationMonths: parseInt(e.target.value) || 1 })}
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                  min="1"
+                  max="120"
+                />
+              </div>
+
+              {mode === 'bulk' && (
+                <div>
+                  <label className="block text-paper/50 text-sm mb-1">Quantity</label>
+                  <input
+                    type="number"
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({ ...formData, quantity: Math.min(50, Math.max(1, parseInt(e.target.value) || 1)) })}
+                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                    min="1"
+                    max="50"
+                  />
+                  <p className="text-paper/30 text-xs mt-1">Max 50 at a time</p>
+                </div>
+              )}
             </div>
+
+            {mode === 'single' && (
+              <>
+                <div>
+                  <label className="block text-paper/50 text-sm mb-1">Recipient Email (optional)</label>
+                  <input
+                    type="email"
+                    value={formData.recipientEmail}
+                    onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                    placeholder="recipient@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-paper/50 text-sm mb-1">Recipient Name (optional)</label>
+                  <input
+                    type="text"
+                    value={formData.recipientName}
+                    onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                    placeholder="John Doe"
+                  />
+                </div>
+
+                {formData.recipientEmail && (
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.sendEmail}
+                      onChange={(e) => setFormData({ ...formData, sendEmail: e.target.checked })}
+                      className="w-4 h-4 rounded border-white/20 bg-white/5"
+                    />
+                    <span className="text-paper/70 text-sm">Send gift email to recipient immediately</span>
+                  </label>
+                )}
+              </>
+            )}
 
             <div>
               <label className="block text-paper/50 text-sm mb-1">Admin Notes (optional)</label>
@@ -1803,7 +1915,7 @@ function CreateVoucherModal({ onClose }: { onClose: () => void }) {
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
                 rows={2}
-                placeholder="Internal notes..."
+                placeholder="e.g., Promotional campaign, influencer gift, etc."
               />
             </div>
 
@@ -1816,7 +1928,7 @@ function CreateVoucherModal({ onClose }: { onClose: () => void }) {
                 disabled={isLoading}
                 className="btn btn-primary flex-1"
               >
-                {isLoading ? 'Creating...' : 'Create Voucher'}
+                {isLoading ? 'Creating...' : mode === 'bulk' ? `Create ${formData.quantity} Vouchers` : 'Create Voucher'}
               </button>
             </div>
           </div>

@@ -24,9 +24,9 @@ import { settingsRoutes } from './routes/settings';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
 import { inheritRoutes } from './routes/inherit';
-import { aiRoutes } from './routes/ai';
+import { aiRoutes, generateAndCachePrompts } from './routes/ai';
 import { giftVoucherRoutes } from './routes/gift-vouchers';
-import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail } from './email-templates';
+import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 
 // Types
 export interface Env {
@@ -168,6 +168,34 @@ app.post('/api/test-email', async (c) => {
     return c.json({ success: true, message: 'Test email sent successfully' });
   } catch (err: any) {
     return c.json({ error: 'Failed to send email', details: err.message }, 500);
+  }
+});
+
+// Test post reminder email endpoint
+app.post('/api/test-post-reminder', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email, type } = body;
+    
+    if (!email) {
+      return c.json({ error: 'Email is required' }, 400);
+    }
+    
+    const reminderType = type || 'weekly';
+    if (!['memory', 'voice', 'letter', 'weekly'].includes(reminderType)) {
+      return c.json({ error: 'Invalid type. Must be: memory, voice, letter, or weekly' }, 400);
+    }
+    
+    const result = await sendSinglePostReminderEmail(c.env, email, reminderType as 'memory' | 'voice' | 'letter' | 'weekly');
+    
+    if (result.success) {
+      return c.json(result);
+    } else {
+      return c.json(result, 500);
+    }
+  } catch (err: any) {
+    console.error('Error in test-post-reminder:', err);
+    return c.json({ error: 'Failed to send post reminder', details: err.message }, 500);
   }
 });
 
@@ -529,8 +557,15 @@ export default {
       // Send upcoming check-in reminders (24 hours before due)
       await sendUpcomingCheckInReminders(env);
     } else if (cronType === '0 0 * * 0') {
-      // Weekly reminder emails
+      // Weekly reminder emails (dead man's switch)
       await sendReminderEmails(env);
+      // Weekly post reminder emails (engagement nudges)
+      await sendPostReminderEmails(env);
+    } else if (cronType === '0 */12 * * *') {
+      // Regenerate AI prompts cache every 12 hours to minimize token costs
+      console.log('Regenerating AI prompts cache...');
+      await generateAndCachePrompts(env, 50);
+      console.log('AI prompts cache regenerated');
     }
   },
 };
@@ -780,6 +815,212 @@ async function sendTriggerNotifications(env: Env, userId: string) {
     } catch (error) {
       console.error(`Error sending verification email to ${contact.email}:`, error);
     }
+  }
+}
+
+// ============================================
+// POST REMINDER EMAILS (Engagement Nudges)
+// ============================================
+
+async function sendPostReminderEmails(env: Env) {
+  // Find active users who haven't posted in a while (7+ days) or have never posted
+  // Only send to users with verified emails and active subscriptions
+  const result = await env.DB.prepare(`
+    SELECT 
+      u.id as user_id,
+      u.email,
+      u.first_name,
+      u.created_at as user_created_at,
+      (SELECT COUNT(*) FROM memories WHERE user_id = u.id) as memories_count,
+      (SELECT MAX(created_at) FROM memories WHERE user_id = u.id) as last_memory_at,
+      (SELECT COUNT(*) FROM voice_recordings WHERE user_id = u.id) as recordings_count,
+      (SELECT COALESCE(SUM(duration), 0) FROM voice_recordings WHERE user_id = u.id) as total_voice_seconds,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id) as letters_count,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id AND sealed_at IS NOT NULL) as sealed_letters_count,
+      (SELECT COUNT(*) FROM family_members WHERE user_id = u.id) as family_count
+    FROM users u
+    WHERE u.email_verified = 1
+    AND (
+      SELECT COUNT(*) FROM subscriptions s 
+      WHERE s.user_id = u.id AND s.status IN ('ACTIVE', 'TRIALING')
+    ) > 0
+    AND u.id NOT IN (
+      SELECT DISTINCT user_id FROM post_reminder_emails 
+      WHERE sent_at > datetime('now', '-7 days')
+    )
+    LIMIT 50
+  `).all();
+  
+  for (const row of result.results) {
+    const userName = row.first_name as string;
+    const email = row.email as string;
+    const memoriesCount = row.memories_count as number;
+    const recordingsCount = row.recordings_count as number;
+    const lettersCount = row.letters_count as number;
+    const familyCount = row.family_count as number;
+    const totalVoiceMinutes = Math.round((row.total_voice_seconds as number) / 60);
+    const hasSealedLetters = (row.sealed_letters_count as number) > 0;
+    
+    // Calculate days since last memory
+    let daysSinceLastPost: number | null = null;
+    if (row.last_memory_at) {
+      const lastMemoryDate = new Date(row.last_memory_at as string);
+      daysSinceLastPost = Math.floor((Date.now() - lastMemoryDate.getTime()) / (1000 * 60 * 60 * 24));
+    }
+    
+    // Determine which type of reminder to send based on user activity
+    // Prioritize the area where user has least engagement
+    let emailContent;
+    let reminderType: 'memory' | 'voice' | 'letter' | 'weekly';
+    
+    if (memoriesCount === 0 && recordingsCount === 0 && lettersCount === 0) {
+      // New user with no content - send weekly digest with memory focus
+      emailContent = postReminderWeeklyDigestEmail(userName, {
+        memoriesCount,
+        voiceMinutes: totalVoiceMinutes,
+        lettersCount,
+        familyCount,
+      }, 'memory');
+      reminderType = 'weekly';
+    } else if (recordingsCount === 0) {
+      // No voice recordings - encourage voice
+      emailContent = postReminderVoiceEmail(userName, recordingsCount, totalVoiceMinutes);
+      reminderType = 'voice';
+    } else if (lettersCount === 0) {
+      // No letters - encourage writing
+      emailContent = postReminderLetterEmail(userName, lettersCount, hasSealedLetters);
+      reminderType = 'letter';
+    } else if (daysSinceLastPost && daysSinceLastPost > 14) {
+      // Haven't posted in 2+ weeks - encourage memories
+      emailContent = postReminderMemoryEmail(userName, memoriesCount, daysSinceLastPost);
+      reminderType = 'memory';
+    } else {
+      // Active user - send weekly digest
+      const suggestedAction = memoriesCount <= recordingsCount && memoriesCount <= lettersCount ? 'memory' :
+                              recordingsCount <= lettersCount ? 'voice' : 'letter';
+      emailContent = postReminderWeeklyDigestEmail(userName, {
+        memoriesCount,
+        voiceMinutes: totalVoiceMinutes,
+        lettersCount,
+        familyCount,
+      }, suggestedAction);
+      reminderType = 'weekly';
+    }
+    
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: email,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+      
+      if (response.ok) {
+        // Record that we sent a reminder to this user
+        await env.DB.prepare(`
+          INSERT INTO post_reminder_emails (user_id, reminder_type, sent_at)
+          VALUES (?, ?, ?)
+        `).bind(row.user_id, reminderType, new Date().toISOString()).run();
+      } else {
+        const errorBody = await response.text();
+        console.error(`Failed to send post reminder to ${email}: ${response.status} - ${errorBody}`);
+      }
+    } catch (error) {
+      console.error(`Error sending post reminder to ${email}:`, error);
+    }
+  }
+}
+
+// Send a single post reminder email to a specific user (for testing)
+async function sendSinglePostReminderEmail(env: Env, email: string, reminderType: 'memory' | 'voice' | 'letter' | 'weekly') {
+  // Get user stats
+  const user = await env.DB.prepare(`
+    SELECT 
+      u.id as user_id,
+      u.email,
+      u.first_name,
+      (SELECT COUNT(*) FROM memories WHERE user_id = u.id) as memories_count,
+      (SELECT MAX(created_at) FROM memories WHERE user_id = u.id) as last_memory_at,
+      (SELECT COUNT(*) FROM voice_recordings WHERE user_id = u.id) as recordings_count,
+      (SELECT COALESCE(SUM(duration), 0) FROM voice_recordings WHERE user_id = u.id) as total_voice_seconds,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id) as letters_count,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id AND sealed_at IS NOT NULL) as sealed_letters_count,
+      (SELECT COUNT(*) FROM family_members WHERE user_id = u.id) as family_count
+    FROM users u
+    WHERE u.email = ?
+  `).bind(email).first();
+  
+  if (!user) {
+    return { success: false, error: 'User not found' };
+  }
+  
+  const userName = user.first_name as string;
+  const memoriesCount = user.memories_count as number;
+  const recordingsCount = user.recordings_count as number;
+  const lettersCount = user.letters_count as number;
+  const familyCount = user.family_count as number;
+  const totalVoiceMinutes = Math.round((user.total_voice_seconds as number) / 60);
+  const hasSealedLetters = (user.sealed_letters_count as number) > 0;
+  
+  let daysSinceLastPost: number | null = null;
+  if (user.last_memory_at) {
+    const lastMemoryDate = new Date(user.last_memory_at as string);
+    daysSinceLastPost = Math.floor((Date.now() - lastMemoryDate.getTime()) / (1000 * 60 * 60 * 24));
+  }
+  
+  let emailContent;
+  switch (reminderType) {
+    case 'memory':
+      emailContent = postReminderMemoryEmail(userName, memoriesCount, daysSinceLastPost);
+      break;
+    case 'voice':
+      emailContent = postReminderVoiceEmail(userName, recordingsCount, totalVoiceMinutes);
+      break;
+    case 'letter':
+      emailContent = postReminderLetterEmail(userName, lettersCount, hasSealedLetters);
+      break;
+    case 'weekly':
+      const suggestedAction = memoriesCount <= recordingsCount && memoriesCount <= lettersCount ? 'memory' :
+                              recordingsCount <= lettersCount ? 'voice' : 'letter';
+      emailContent = postReminderWeeklyDigestEmail(userName, {
+        memoriesCount,
+        voiceMinutes: totalVoiceMinutes,
+        lettersCount,
+        familyCount,
+      }, suggestedAction);
+      break;
+  }
+  
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: email,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }),
+    });
+    
+    if (response.ok) {
+      return { success: true, message: `${reminderType} reminder sent to ${email}` };
+    } else {
+      const errorBody = await response.text();
+      return { success: false, error: `Failed to send: ${response.status} - ${errorBody}` };
+    }
+  } catch (error) {
+    return { success: false, error: `Error: ${error}` };
   }
 }
 

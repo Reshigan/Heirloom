@@ -565,7 +565,7 @@ giftVoucherRoutes.get('/admin/:id', adminAuth, async (c) => {
 giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
   const adminId = c.get('adminId');
   const body = await c.req.json();
-  const { tier, billingCycle, durationMonths, recipientEmail, recipientName, notes } = body;
+  const { tier, billingCycle, durationMonths, recipientEmail, recipientName, notes, sendEmail } = body;
   
   if (!tier || !billingCycle) {
     return c.json({ error: 'Tier and billing cycle required' }, 400);
@@ -576,24 +576,59 @@ giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
   expiresAt.setFullYear(expiresAt.getFullYear() + 1);
   
   const duration = durationMonths || (billingCycle === 'yearly' ? 12 : 1);
+  const status = sendEmail && recipientEmail ? 'SENT' : 'PAID';
   
-  await c.env.DB.prepare(`
+  const result = await c.env.DB.prepare(`
     INSERT INTO gift_vouchers (
-      code, purchaser_email, tier, billing_cycle, duration_months,
+      code, purchaser_email, purchaser_name, tier, billing_cycle, duration_months,
       amount, currency, status, expires_at, recipient_email, recipient_name,
-      admin_notes, created_by_admin_id
-    ) VALUES (?, 'admin@heirloom.blue', ?, ?, ?, 0, 'USD', 'PAID', ?, ?, ?, ?, ?)
+      admin_notes, created_by_admin_id, sent_at
+    ) VALUES (?, 'admin@heirloom.blue', 'Heirloom Team', ?, ?, ?, 0, 'USD', ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     voucherCode,
     tier.toUpperCase(),
     billingCycle.toLowerCase(),
     duration,
+    status,
     expiresAt.toISOString(),
     recipientEmail || null,
     recipientName || null,
     notes || null,
-    adminId
+    adminId,
+    sendEmail && recipientEmail ? new Date().toISOString() : null
   ).run();
+  
+  // Send email if requested
+  if (sendEmail && recipientEmail && c.env.RESEND_API_KEY) {
+    const emailContent = giftVoucherReceivedEmail(
+      recipientName || 'Friend',
+      'Heirloom Team',
+      voucherCode,
+      tier.toUpperCase(),
+      duration,
+      null
+    );
+    
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: recipientEmail,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }),
+    });
+    
+    // Log email
+    await c.env.DB.prepare(`
+      INSERT INTO gift_voucher_emails (voucher_id, email_type, recipient_email)
+      VALUES ((SELECT id FROM gift_vouchers WHERE code = ?), 'GIFT_SENT', ?)
+    `).bind(voucherCode, recipientEmail).run();
+  }
   
   return c.json({
     success: true,
@@ -603,6 +638,7 @@ giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
       billingCycle: billingCycle.toLowerCase(),
       durationMonths: duration,
       expiresAt: expiresAt.toISOString(),
+      emailSent: sendEmail && recipientEmail,
     },
   });
 });
