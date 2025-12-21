@@ -723,31 +723,41 @@ export function Settings() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={newLegacyContact.name}
-                      onChange={(e) => setNewLegacyContact({ ...newLegacyContact, name: e.target.value })}
-                      className="input"
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      value={newLegacyContact.email}
-                      onChange={(e) => setNewLegacyContact({ ...newLegacyContact, email: e.target.value })}
-                      className="input"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Relationship"
-                      value={newLegacyContact.relationship}
-                      onChange={(e) => setNewLegacyContact({ ...newLegacyContact, relationship: e.target.value })}
-                      className="input"
-                    />
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Name *"
+                        value={newLegacyContact.name}
+                        onChange={(e) => setNewLegacyContact({ ...newLegacyContact, name: e.target.value })}
+                        className="input"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="email"
+                        placeholder="Email *"
+                        value={newLegacyContact.email}
+                        onChange={(e) => setNewLegacyContact({ ...newLegacyContact, email: e.target.value })}
+                        className="input"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Relationship *"
+                        value={newLegacyContact.relationship}
+                        onChange={(e) => setNewLegacyContact({ ...newLegacyContact, relationship: e.target.value })}
+                        className="input"
+                        required
+                      />
+                    </div>
                   </div>
+                  <p className="text-paper/40 text-xs mt-2">* All fields are required</p>
                   <button
                     onClick={() => addLegacyContactMutation.mutate()}
-                    disabled={!newLegacyContact.name || !newLegacyContact.email}
+                    disabled={!newLegacyContact.name || !newLegacyContact.email || !newLegacyContact.relationship}
                     className="btn btn-secondary mt-3"
                   >
                     Add Legacy Contact
