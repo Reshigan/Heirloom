@@ -507,3 +507,80 @@ export const adminLetterSentNotificationEmail = (
     <a href="${APP_URL}/admin" class="button">VIEW ADMIN DASHBOARD</a>
   `),
 });
+
+// ============================================
+// GIFT VOUCHER EMAILS
+// ============================================
+
+export const giftVoucherPurchaseEmail = (
+  purchaserName: string,
+  voucherCode: string,
+  tier: string,
+  durationMonths: number
+) => ({
+  subject: 'Your Heirloom Gift Voucher',
+  html: baseTemplate(`
+    <h2>Thank You for Your Gift</h2>
+    <p>Dear ${purchaserName},</p>
+    <p>Your Heirloom gift voucher has been created successfully.</p>
+    <div class="info-box">
+      <p><strong>Voucher Code:</strong></p>
+      <p style="font-size: 24px; font-family: monospace; color: #c9a959; letter-spacing: 2px;">${voucherCode}</p>
+      <p><strong>Plan:</strong> ${tier}</p>
+      <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
+    </div>
+    <p>You can send this code to your recipient, or use the link below to send it directly:</p>
+    <a href="${APP_URL}/gift/send?code=${voucherCode}" class="button">SEND TO RECIPIENT</a>
+    <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">This voucher expires in 1 year if not redeemed.</p>
+  `),
+});
+
+export const giftVoucherReceivedEmail = (
+  recipientName: string,
+  senderName: string,
+  voucherCode: string,
+  tier: string,
+  durationMonths: number,
+  personalMessage: string | null
+) => ({
+  subject: `${senderName} sent you a gift!`,
+  html: baseTemplate(`
+    <h2>You've Received a Gift</h2>
+    <p>Dear ${recipientName},</p>
+    <p><span class="gold">${senderName}</span> has gifted you a Heirloom subscription!</p>
+    ${personalMessage ? `
+    <div class="letter-box">
+      <p style="white-space: pre-wrap;">${personalMessage}</p>
+      <p class="signature">— ${senderName}</p>
+    </div>
+    ` : ''}
+    <div class="info-box">
+      <p><strong>Your Gift:</strong> ${tier} Plan</p>
+      <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
+      <p><strong>Voucher Code:</strong></p>
+      <p style="font-size: 20px; font-family: monospace; color: #c9a959; letter-spacing: 2px;">${voucherCode}</p>
+    </div>
+    <p>Heirloom is a sanctuary for preserving your most precious memories—photos, voice recordings, and letters—for generations to come.</p>
+    <a href="${APP_URL}/gift/redeem?code=${voucherCode}" class="button">REDEEM YOUR GIFT</a>
+    <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">This voucher expires in 1 year if not redeemed.</p>
+  `),
+});
+
+export const giftVoucherRedeemedEmail = (
+  userName: string,
+  tier: string,
+  durationMonths: number
+) => ({
+  subject: 'Gift Voucher Redeemed Successfully',
+  html: baseTemplate(`
+    <h2>Welcome to Heirloom</h2>
+    <p>Dear ${userName},</p>
+    <p>Your gift voucher has been redeemed successfully!</p>
+    <div class="info-box">
+      <p><strong>Plan:</strong> <span class="gold">${tier}</span></p>
+      <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
+    </div>
+    <p>Your sanctuary is ready. Start preserving your most precious memories today.</p>
+    <a href="${APP_URL}/dashboard" class="button">ENTER YOUR VAULT</a>
+  `),
+});

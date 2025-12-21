@@ -780,30 +780,109 @@ billingRoutes.post('/webhook', async (c) => {
     const now = new Date().toISOString();
     
     switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object;
-        const userId = session.metadata?.user_id;
-        const tier = session.metadata?.tier || 'STARTER';
-        const billingCycle = session.metadata?.billing_cycle || 'monthly';
+            case 'checkout.session.completed': {
+              const session = event.data.object;
+              const metadataType = session.metadata?.type;
         
-        if (userId) {
-          const existing = await c.env.DB.prepare('SELECT id FROM subscriptions WHERE user_id = ?').bind(userId).first();
+              // Handle gift voucher checkout
+              if (metadataType === 'gift_voucher') {
+                const voucherCode = session.metadata?.voucher_code;
+                if (voucherCode) {
+                  // Update voucher status to PAID
+                  await c.env.DB.prepare(`
+                    UPDATE gift_vouchers 
+                    SET status = 'PAID', stripe_payment_intent_id = ?, updated_at = ?
+                    WHERE code = ? AND status = 'PENDING'
+                  `).bind(session.payment_intent || session.id, now, voucherCode).run();
+            
+                  // Get voucher details for email
+                  const voucher = await c.env.DB.prepare(`
+                    SELECT id, purchaser_email, purchaser_name, recipient_email, recipient_name, 
+                           recipient_message, tier, duration_months, code
+                    FROM gift_vouchers WHERE code = ?
+                  `).bind(voucherCode).first();
+            
+                  if (voucher) {
+                    // Send email to purchaser
+                    if (voucher.purchaser_email && c.env.RESEND_API_KEY) {
+                      try {
+                        await fetch('https://api.resend.com/emails', {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            from: 'Heirloom <noreply@heirloom.blue>',
+                            to: voucher.purchaser_email,
+                            subject: 'Your Heirloom Gift Voucher is Ready',
+                            html: `<p>Thank you for purchasing a Heirloom gift voucher!</p>
+                                   <p>Your voucher code is: <strong>${voucher.code}</strong></p>
+                                   <p>This voucher is for a ${voucher.tier} subscription (${voucher.duration_months} month${(voucher.duration_months as number) > 1 ? 's' : ''}).</p>
+                                   <p>Share this code with your recipient or send them this link: ${c.env.APP_URL}/gift/redeem?code=${voucher.code}</p>`,
+                          }),
+                        });
+                      } catch (e) {
+                        console.error('Failed to send purchaser email:', e);
+                      }
+                    }
+              
+                    // If recipient email provided, send gift notification
+                    if (voucher.recipient_email && c.env.RESEND_API_KEY) {
+                      try {
+                        await fetch('https://api.resend.com/emails', {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            from: 'Heirloom <noreply@heirloom.blue>',
+                            to: voucher.recipient_email,
+                            subject: `${voucher.purchaser_name || 'Someone'} sent you a Heirloom gift!`,
+                            html: `<p>You've received a gift from ${voucher.purchaser_name || 'a friend'}!</p>
+                                   ${voucher.recipient_message ? `<p><em>"${voucher.recipient_message}"</em></p>` : ''}
+                                   <p>Your gift voucher code is: <strong>${voucher.code}</strong></p>
+                                   <p>Redeem it here: <a href="${c.env.APP_URL}/gift/redeem?code=${voucher.code}">${c.env.APP_URL}/gift/redeem</a></p>`,
+                          }),
+                        });
+                  
+                        // Update status to SENT
+                        await c.env.DB.prepare(`
+                          UPDATE gift_vouchers SET status = 'SENT', updated_at = ? WHERE code = ?
+                        `).bind(now, voucherCode).run();
+                      } catch (e) {
+                        console.error('Failed to send recipient email:', e);
+                      }
+                    }
+                  }
+                }
+                break;
+              }
+        
+              // Handle regular subscription checkout
+              const userId = session.metadata?.user_id;
+              const tier = session.metadata?.tier || 'STARTER';
+              const billingCycle = session.metadata?.billing_cycle || 'monthly';
+        
+              if (userId) {
+                const existing = await c.env.DB.prepare('SELECT id FROM subscriptions WHERE user_id = ?').bind(userId).first();
           
-          if (existing) {
-            await c.env.DB.prepare(`
-              UPDATE subscriptions 
-              SET tier = ?, status = 'ACTIVE', billing_cycle = ?, stripe_subscription_id = ?, updated_at = ?
-              WHERE user_id = ?
-            `).bind(tier, billingCycle, session.subscription || null, now, userId).run();
-          } else {
-            await c.env.DB.prepare(`
-              INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, stripe_subscription_id, created_at, updated_at)
-              VALUES (?, ?, ?, 'ACTIVE', ?, ?, ?, ?)
-            `).bind(crypto.randomUUID(), userId, tier, billingCycle, session.subscription || null, now, now).run();
-          }
-        }
-        break;
-      }
+                if (existing) {
+                  await c.env.DB.prepare(`
+                    UPDATE subscriptions 
+                    SET tier = ?, status = 'ACTIVE', billing_cycle = ?, stripe_subscription_id = ?, updated_at = ?
+                    WHERE user_id = ?
+                  `).bind(tier, billingCycle, session.subscription || null, now, userId).run();
+                } else {
+                  await c.env.DB.prepare(`
+                    INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, stripe_subscription_id, created_at, updated_at)
+                    VALUES (?, ?, ?, 'ACTIVE', ?, ?, ?, ?)
+                  `).bind(crypto.randomUUID(), userId, tier, billingCycle, session.subscription || null, now, now).run();
+                }
+              }
+              break;
+            }
       
       case 'invoice.payment_succeeded': {
         // Subscription renewed successfully

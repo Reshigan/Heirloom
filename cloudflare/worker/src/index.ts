@@ -25,6 +25,7 @@ import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
 import { inheritRoutes } from './routes/inherit';
 import { aiRoutes } from './routes/ai';
+import { giftVoucherRoutes } from './routes/gift-vouchers';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail } from './email-templates';
 
 // Types
@@ -226,6 +227,7 @@ app.use('/api/auth/*', async (c, next) => {
 app.route('/api/auth', authRoutes);
 app.route('/api/billing/webhook', billingRoutes);
 app.route('/api/inherit', inheritRoutes);
+app.route('/api/gift-vouchers', giftVoucherRoutes);
 
 // Public billing routes (pricing and detect don't require auth)
 app.get('/api/billing/pricing', async (c) => {
