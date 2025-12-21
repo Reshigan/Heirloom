@@ -357,6 +357,14 @@ export const Info = createIcon(
   </>
 );
 
+export const HelpCircle = createIcon(
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+    <circle cx="12" cy="17" r="1" fill="currentColor" stroke="none" />
+  </>
+);
+
 export const Loader2 = createIcon(
   <path d="M21 12a9 9 0 11-6.219-8.56" />
 );

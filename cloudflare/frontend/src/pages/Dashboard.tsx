@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2
+  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle
 } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
+import { PlatformTour, usePlatformTour } from '../components/PlatformTour';
 
 // Sanctuary Object Icons as SVG components
 const MemoriesIcon = () => (
@@ -59,13 +60,25 @@ export function Dashboard() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   
-  const [showTrialWarning, setShowTrialWarning] = useState(true);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [aiPrompt, setAiPrompt] = useState<string | null>(null);
-  const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
+    const [showTrialWarning, setShowTrialWarning] = useState(true);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const [aiPrompt, setAiPrompt] = useState<string | null>(null);
+    const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
 
-  // Queries
+    // Platform Tour
+    const { isOpen: isTourOpen, hasCompletedTour, openTour, closeTour, completeTour } = usePlatformTour();
+
+    // Show tour automatically on first visit
+    useEffect(() => {
+      if (!hasCompletedTour) {
+        // Small delay to let the page load first
+        const timer = setTimeout(() => openTour(), 1000);
+        return () => clearTimeout(timer);
+      }
+    }, [hasCompletedTour, openTour]);
+
+    // Queries
   const { data: subscription } = useQuery({
     queryKey: ['subscription'],
     queryFn: () => billingApi.getSubscription().then(r => r.data),
@@ -528,6 +541,24 @@ export function Dashboard() {
         </motion.section>
 
       </main>
+
+      {/* Help/Tour Button - Fixed position */}
+      <motion.button
+        onClick={openTour}
+        className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full glass flex items-center justify-center text-gold hover:text-gold/80 transition-colors border border-gold/30 hover:border-gold/50"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        title="Take a tour"
+      >
+        <HelpCircle size={24} />
+      </motion.button>
+
+      {/* Platform Tour Modal */}
+      <PlatformTour
+        isOpen={isTourOpen}
+        onClose={closeTour}
+        onComplete={completeTour}
+      />
     </div>
   );
 }
