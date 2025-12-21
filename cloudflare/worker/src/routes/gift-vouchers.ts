@@ -904,6 +904,8 @@ The Heirloom Team`;
   ).run();
   
   // Send special Gold Legacy invitation email if requested
+  let emailSentSuccess = false;
+  let resendResponse: { id?: string; error?: string } = {};
   if (sendEmail && recipientEmail && c.env.RESEND_API_KEY) {
     const emailHtml = `
 <!DOCTYPE html>
@@ -997,7 +999,7 @@ ${finalMessage}
 </body>
 </html>`;
     
-    await fetch('https://api.resend.com/emails', {
+    const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
@@ -1010,6 +1012,9 @@ ${finalMessage}
         html: emailHtml,
       }),
     });
+    resendResponse = await emailResponse.json() as { id?: string; error?: string };
+    emailSentSuccess = emailResponse.ok;
+    console.log('Resend API response:', emailResponse.status, JSON.stringify(resendResponse));
   }
   
   return c.json({
@@ -1021,7 +1026,10 @@ ${finalMessage}
       recipientEmail,
       recipientName,
       personalMessage: finalMessage,
-      emailSent: sendEmail && recipientEmail,
+      emailSent: emailSentSuccess,
+      emailAttempted: sendEmail && !!recipientEmail,
+      resendId: resendResponse.id,
+      resendError: resendResponse.error,
     },
   });
   } catch (error) {
