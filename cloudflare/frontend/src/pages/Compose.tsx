@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
+import { InspirationPrompt } from '../components/InspirationPrompt';
 import { lettersApi, familyApi, aiApi } from '../services/api';
 
 
@@ -424,6 +425,14 @@ export function Compose() {
               </button>
             </div>
           </div>
+
+          {/* Inspiration Prompt - Top of page */}
+          <InspirationPrompt
+            prompts={letterPrompts}
+            storageKey="compose_inspiration"
+            onUsePrompt={insertPrompt}
+            className="mb-6"
+          />
 
           {/* Composer */}
           <div className="space-y-6">

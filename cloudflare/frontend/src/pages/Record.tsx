@@ -7,6 +7,7 @@ import { Mp3Encoder } from 'lamejs';
 import { voiceApi, familyApi, transcriptionApi, aiApi } from '../services/api';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 import { Navigation } from '../components/Navigation';
+import { InspirationPrompt } from '../components/InspirationPrompt';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
 
@@ -537,7 +538,7 @@ export function Record() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            className="text-center mb-8"
           >
             <h1 className="text-4xl md:text-5xl font-light mb-2">Record Your <em>Voice</em></h1>
             <p className="text-paper/50">Let your loved ones hear your voice forever</p>
@@ -547,6 +548,14 @@ export function Record() {
               </div>
             )}
           </motion.div>
+
+          {/* Inspiration Prompt - Top of page */}
+          <InspirationPrompt
+            prompts={visiblePrompts.map(p => p.text)}
+            storageKey="record_inspiration"
+            onUsePrompt={(prompt) => setSelectedPrompt(prompt)}
+            className="mb-8"
+          />
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Recording Area */}
