@@ -55,13 +55,14 @@ export function Memories() {
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
     const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
   
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    type: 'PHOTO' as 'PHOTO' | 'VIDEO',
-    file: null as File | null,
-    recipientIds: [] as string[],
-  });
+    const [form, setForm] = useState({
+      title: '',
+      description: '',
+      type: 'PHOTO' as 'PHOTO' | 'VIDEO',
+      file: null as File | null,
+      recipientIds: [] as string[],
+      memoryDate: '', // For historic memories - empty means use current date
+    });
 
   const { data: memories, isLoading } = useQuery({
     queryKey: ['memories', filterType],
@@ -111,26 +112,27 @@ export function Memories() {
       
       setUploadProgress(70);
       
-      // Create memory record with correct field names (fileKey, fileUrl instead of mediaKey)
-      // Include fileSize and mimeType so storage stats update correctly
-      return memoriesApi.create({
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        fileKey: uploadData.key,
-        fileUrl: fileUrl,
-        fileSize: data.file.size,
-        mimeType: data.file.type,
-        recipientIds: data.recipientIds,
-      });
+            // Create memory record with correct field names (fileKey, fileUrl instead of mediaKey)
+            // Include fileSize and mimeType so storage stats update correctly
+            return memoriesApi.create({
+              title: data.title,
+              description: data.description,
+              type: data.type,
+              fileKey: uploadData.key,
+              fileUrl: fileUrl,
+              fileSize: data.file.size,
+              mimeType: data.file.type,
+              recipientIds: data.recipientIds,
+              memoryDate: data.memoryDate || undefined, // For historic memories
+            });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['memories'] });
-      setShowUploadModal(false);
-      setForm({ title: '', description: '', type: 'PHOTO', file: null, recipientIds: [] });
-      setUploadProgress(0);
-      showToast('success', 'Memory uploaded successfully');
-    },
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['memories'] });
+          setShowUploadModal(false);
+          setForm({ title: '', description: '', type: 'PHOTO', file: null, recipientIds: [], memoryDate: '' });
+          setUploadProgress(0);
+          showToast('success', 'Memory uploaded successfully');
+        },
     onError: (error: any) => {
       setUploadProgress(0);
       showToast('error', error.message || 'Failed to upload memory');
@@ -411,7 +413,8 @@ export function Memories() {
                       )}
                     </motion.div>
 
-                    {/* Timeline Slider */}
+                    {/* Timeline Slider - Only show when there are memories */}
+                    {memoriesList.length > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -513,6 +516,7 @@ export function Memories() {
               })}
             </div>
           </motion.div>
+                    )}
 
           {/* Memory Grid/List */}
           {isLoading ? (
@@ -818,6 +822,19 @@ export function Memories() {
                     className="input min-h-[100px] resize-none"
                     placeholder="Tell the story behind this moment..."
                   />
+                </div>
+
+                {/* Memory Date - for historic memories */}
+                <div>
+                  <label className="block text-sm text-paper/50 mb-2">When was this memory from? (optional)</label>
+                  <input
+                    type="date"
+                    value={form.memoryDate}
+                    onChange={(e) => setForm({ ...form, memoryDate: e.target.value })}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="input"
+                  />
+                  <p className="text-xs text-paper/40 mt-1">Leave empty to use today's date</p>
                 </div>
 
                 {/* Recipients */}

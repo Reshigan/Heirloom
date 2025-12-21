@@ -338,19 +338,21 @@ voiceRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-  const { title, description, fileUrl, fileKey, duration, fileSize, transcript, emotion, recipientIds } = body;
+    const { title, description, fileUrl, fileKey, duration, fileSize, transcript, emotion, recipientIds, recordingDate } = body;
   
-  if (!title) {
-    return c.json({ error: 'Title is required' }, 400);
-  }
+    if (!title) {
+      return c.json({ error: 'Title is required' }, 400);
+    }
   
-  const id = crypto.randomUUID();
-  const now = new Date().toISOString();
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    // Use recordingDate if provided (for historic recordings), otherwise use current date
+    const createdAt = recordingDate ? new Date(recordingDate).toISOString() : now;
   
-  await c.env.DB.prepare(`
-    INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, title, description || null, fileUrl || null, fileKey || null, duration || null, fileSize || null, transcript || null, emotion || null, now, now).run();
+    await c.env.DB.prepare(`
+      INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, userId, title, description || null, fileUrl || null, fileKey || null, duration || null, fileSize || null, transcript || null, emotion || null, createdAt, now).run();
   
   // Add recipients
   if (recipientIds && recipientIds.length > 0) {

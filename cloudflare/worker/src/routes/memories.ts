@@ -295,14 +295,16 @@ memoriesRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-  const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds } = body;
+    const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds, memoryDate } = body;
   
-  if (!type || !title) {
-    return c.json({ error: 'Type and title are required' }, 400);
-  }
+    if (!type || !title) {
+      return c.json({ error: 'Type and title are required' }, 400);
+    }
   
-  const id = crypto.randomUUID();
-  const now = new Date().toISOString();
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    // Use memoryDate if provided (for historic memories), otherwise use current date
+    const createdAt = memoryDate ? new Date(memoryDate).toISOString() : now;
   
   // Classify emotion using Cloudflare Workers AI (falls back to keyword-based)
   const textToClassify = `${title} ${description || ''}`.trim();
@@ -315,10 +317,10 @@ memoriesRoutes.post('/', async (c) => {
     emotionConfidence: emotionResult.confidence,
   };
   
-  await c.env.DB.prepare(`
-    INSERT INTO memories (id, user_id, type, title, description, file_url, file_key, file_size, mime_type, metadata, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), now, now).run();
+    await c.env.DB.prepare(`
+      INSERT INTO memories (id, user_id, type, title, description, file_url, file_key, file_size, mime_type, metadata, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), createdAt, now).run();
   
   // Add recipients
   if (recipientIds && recipientIds.length > 0) {

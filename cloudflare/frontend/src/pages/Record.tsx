@@ -48,11 +48,12 @@ export function Record() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [waveformData, setWaveformData] = useState<number[]>(new Array(40).fill(0));
   
-  const [form, setForm] = useState({
-    title: '',
-    promptId: null as string | null,
-    recipientIds: [] as string[],
-  });
+    const [form, setForm] = useState({
+      title: '',
+      promptId: null as string | null,
+      recipientIds: [] as string[],
+      recordingDate: '', // For historic recordings - empty means use current date
+    });
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -166,15 +167,16 @@ export function Record() {
         // Response might not be JSON, use default URL
       }
       
-      return voiceApi.create({
-        title: data.form.title || 'Untitled Recording',
-        fileKey: urlData.key,
-        fileUrl,
-        mimeType: file.type,
-        duration: Math.floor(recordingTime),
-        fileSize: file.size,
-        recipientIds: data.form.recipientIds,
-      });
+            return voiceApi.create({
+              title: data.form.title || 'Untitled Recording',
+              fileKey: urlData.key,
+              fileUrl,
+              mimeType: file.type,
+              duration: Math.floor(recordingTime),
+              fileSize: file.size,
+              recipientIds: data.form.recipientIds,
+              recordingDate: data.form.recordingDate || undefined, // For historic recordings
+            });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['voice'] });
@@ -388,14 +390,14 @@ export function Record() {
     }
   };
 
-  const resetRecording = () => {
-    setAudioBlob(null);
-    setAudioUrl(null);
-    setRecordingTime(0);
-    setIsPlaying(false);
-    setForm({ title: '', promptId: null, recipientIds: [] });
-    setSelectedPrompt(null);
-  };
+    const resetRecording = () => {
+      setAudioBlob(null);
+      setAudioUrl(null);
+      setRecordingTime(0);
+      setIsPlaying(false);
+      setForm({ title: '', promptId: null, recipientIds: [], recordingDate: '' });
+      setSelectedPrompt(null);
+    };
 
   const togglePlayback = () => {
     if (!audioRef.current || !audioUrl) return;
@@ -781,19 +783,32 @@ export function Record() {
                     </h3>
                     
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm text-paper/50 mb-2">Title</label>
-                        <input
-                          type="text"
-                          value={form.title}
-                          onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
-                          placeholder="Give this recording a name"
-                          className="input"
-                        />
-                      </div>
-
                                             <div>
-                                              <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
+                                              <label className="block text-sm text-paper/50 mb-2">Title</label>
+                                              <input
+                                                type="text"
+                                                value={form.title}
+                                                onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
+                                                placeholder="Give this recording a name"
+                                                className="input"
+                                              />
+                                            </div>
+
+                                            {/* Recording Date - for historic recordings */}
+                                            <div>
+                                              <label className="block text-sm text-paper/50 mb-2">When was this recorded? (optional)</label>
+                                              <input
+                                                type="date"
+                                                value={form.recordingDate}
+                                                onChange={(e) => setForm(prev => ({ ...prev, recordingDate: e.target.value }))}
+                                                max={new Date().toISOString().split('T')[0]}
+                                                className="input"
+                                              />
+                                              <p className="text-xs text-paper/40 mt-1">Leave empty to use today's date</p>
+                                            </div>
+
+                                                                  <div>
+                                                                    <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
                                               <div className="flex flex-wrap gap-2">
                                                 {family?.map((member: any) => (
                                                   <button
