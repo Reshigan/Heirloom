@@ -854,30 +854,49 @@ export function AdminDashboard() {
                   <tr className="border-b border-white/10">
                     <th className="text-left py-3 px-4 text-paper/50 font-normal">User</th>
                     <th className="text-left py-3 px-4 text-paper/50 font-normal">Subscription</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Content</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Email Status</th>
                     <th className="text-left py-3 px-4 text-paper/50 font-normal">Joined</th>
                     <th className="text-left py-3 px-4 text-paper/50 font-normal">Last Active</th>
+                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users?.users?.map((user: any) => (
+                  {users?.data?.map((user: any) => (
                     <tr key={user.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
-                        <div className="text-paper">{user.firstName} {user.lastName}</div>
-                        <div className="text-paper/50 text-sm">{user.email}</div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-sm">
+                            {user.firstName?.[0]}{user.lastName?.[0]}
+                          </div>
+                          <div>
+                            <div className="text-paper">{user.firstName} {user.lastName}</div>
+                            <div className="text-paper/50 text-sm">{user.email}</div>
+                          </div>
+                        </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs ${
-                          user.subscription?.tier === 'FOREVER' ? 'bg-purple-500/20 text-purple-400' :
-                          user.subscription?.tier === 'FAMILY' ? 'bg-gold/20 text-gold' :
-                          user.subscription?.tier === 'STARTER' ? 'bg-blue-500/20 text-blue-400' :
-                          'bg-white/10 text-paper/50'
-                        }`}>
-                          {user.subscription?.tier || 'STARTER'}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className={`px-2 py-1 text-xs inline-block w-fit rounded ${
+                            user.tier === 'FOREVER' ? 'bg-purple-500/20 text-purple-400' :
+                            user.tier === 'FAMILY' ? 'bg-gold/20 text-gold' :
+                            user.tier === 'STARTER' ? 'bg-blue-500/20 text-blue-400' :
+                            'bg-white/10 text-paper/50'
+                          }`}>
+                            {user.tier || 'FREE'}
+                          </span>
+                          <span className={`text-xs ${
+                            user.subscriptionStatus === 'ACTIVE' ? 'text-green-400' :
+                            user.subscriptionStatus === 'TRIALING' ? 'text-yellow-400' :
+                            'text-paper/30'
+                          }`}>
+                            {user.subscriptionStatus || 'None'}
+                          </span>
+                        </div>
                       </td>
-                      <td className="py-3 px-4 text-paper/70">
-                        {user.contentCount?.memories || 0} memories, {user.contentCount?.letters || 0} letters
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 text-xs rounded ${user.emailVerified ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                          {user.emailVerified ? 'Verified' : 'Unverified'}
+                        </span>
                       </td>
                       <td className="py-3 px-4 text-paper/50 text-sm">
                         {new Date(user.createdAt).toLocaleDateString()}
@@ -885,12 +904,21 @@ export function AdminDashboard() {
                       <td className="py-3 px-4 text-paper/50 text-sm">
                         {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
                       </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => setSelectedUser(user)}
+                          className="text-paper/50 hover:text-gold transition-colors"
+                          title="Manage user"
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </td>
                     </tr>
                   ))}
-                  {(!users?.users || users.users.length === 0) && (
+                  {(!users?.data || users.data.length === 0) && (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-paper/50">
-                        No users found
+                      <td colSpan={6} className="text-center py-8 text-paper/50">
+                        {userSearch ? `No users found matching "${userSearch}"` : 'No users found'}
                       </td>
                     </tr>
                   )}
@@ -899,7 +927,7 @@ export function AdminDashboard() {
               {users?.pagination && (
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
                   <span className="text-paper/50 text-sm">
-                    Showing {users.users?.length || 0} of {users.pagination.total} users
+                    Showing {users.data?.length || 0} of {users.pagination.total} users (Page {users.pagination.page} of {users.pagination.totalPages})
                   </span>
                 </div>
               )}
@@ -1258,16 +1286,64 @@ export function AdminDashboard() {
             {/* Export Button */}
             <div className="card">
               <h3 className="text-lg mb-4">Export Data</h3>
-              <div className="flex gap-4">
+              <p className="text-paper/50 text-sm mb-4">Download user data for reporting and analysis. Only available to Super Admins.</p>
+              <div className="flex gap-4 flex-wrap">
                 <button
-                  onClick={() => window.open(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=csv`, '_blank')}
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem('adminToken');
+                      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=csv`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      if (!res.ok) {
+                        const error = await res.json();
+                        alert(error.error || 'Export failed');
+                        return;
+                      }
+                      const blob = await res.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+                      document.body.appendChild(a);
+                      a.click();
+                      window.URL.revokeObjectURL(url);
+                      document.body.removeChild(a);
+                    } catch (err) {
+                      alert('Export failed. Please try again.');
+                    }
+                  }}
                   className="btn btn-secondary flex items-center gap-2"
                 >
                   <Download size={18} />
                   Export Users (CSV)
                 </button>
                 <button
-                  onClick={() => window.open(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=json`, '_blank')}
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem('adminToken');
+                      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=json`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      if (!res.ok) {
+                        const error = await res.json();
+                        alert(error.error || 'Export failed');
+                        return;
+                      }
+                      const data = await res.json();
+                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `users-export-${new Date().toISOString().split('T')[0]}.json`;
+                      document.body.appendChild(a);
+                      a.click();
+                      window.URL.revokeObjectURL(url);
+                      document.body.removeChild(a);
+                    } catch (err) {
+                      alert('Export failed. Please try again.');
+                    }
+                  }}
                   className="btn btn-secondary flex items-center gap-2"
                 >
                   <Download size={18} />
@@ -1612,6 +1688,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
   const queryClient = useQueryClient();
   const [trialDays, setTrialDays] = useState(7);
   const [couponCode, setCouponCode] = useState('');
+  const [selectedTier, setSelectedTier] = useState(user.tier || 'FREE');
 
   const extendTrialMutation = useMutation({
     mutationFn: () => adminApi.extendTrial(user.id, trialDays),
@@ -1619,6 +1696,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       alert('Trial extended successfully');
     },
+    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to extend trial'),
   });
 
   const applyCouponMutation = useMutation({
@@ -1628,6 +1706,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
       alert('Coupon applied successfully');
       setCouponCode('');
     },
+    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to apply coupon'),
   });
 
   const cancelSubscriptionMutation = useMutation({
@@ -1637,32 +1716,124 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
       alert('Subscription cancelled');
       onClose();
     },
+    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to cancel subscription'),
+  });
+
+  const updateTierMutation = useMutation({
+    mutationFn: () => adminApi.updateUser(user.id, { tier: selectedTier }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      alert('Tier updated successfully');
+    },
+    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to update tier'),
+  });
+
+  const verifyEmailMutation = useMutation({
+    mutationFn: () => adminApi.updateUser(user.id, { emailVerified: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      alert('Email marked as verified');
+    },
+    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to verify email'),
   });
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-md p-6">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-void border border-white/10 rounded-lg w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">User Actions</h3>
+          <h3 className="text-xl">Manage User</h3>
           <button onClick={onClose} className="text-paper/50 hover:text-paper">
             <X size={20} />
           </button>
         </div>
 
-        <div className="mb-4 p-4 bg-white/[0.02] rounded">
-          <div className="text-paper">{user.firstName} {user.lastName}</div>
-          <div className="text-paper/50 text-sm">{user.email}</div>
+        {/* User Info Card */}
+        <div className="mb-6 p-4 bg-white/[0.02] rounded border border-white/10">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center text-gold text-lg">
+              {user.firstName?.[0]}{user.lastName?.[0]}
+            </div>
+            <div>
+              <div className="text-paper text-lg">{user.firstName} {user.lastName}</div>
+              <div className="text-paper/50 text-sm">{user.email}</div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-paper/50">User ID:</span>
+              <div className="text-paper font-mono text-xs truncate">{user.id}</div>
+            </div>
+            <div>
+              <span className="text-paper/50">Joined:</span>
+              <div className="text-paper">{new Date(user.createdAt).toLocaleDateString()}</div>
+            </div>
+            <div>
+              <span className="text-paper/50">Current Tier:</span>
+              <div className={`inline-block px-2 py-0.5 text-xs rounded mt-1 ${
+                user.tier === 'FOREVER' ? 'bg-purple-500/20 text-purple-400' :
+                user.tier === 'FAMILY' ? 'bg-gold/20 text-gold' :
+                user.tier === 'STARTER' ? 'bg-blue-500/20 text-blue-400' :
+                'bg-white/10 text-paper/50'
+              }`}>
+                {user.tier || 'FREE'}
+              </div>
+            </div>
+            <div>
+              <span className="text-paper/50">Email Status:</span>
+              <div className={`inline-block px-2 py-0.5 text-xs rounded mt-1 ${user.emailVerified ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                {user.emailVerified ? 'Verified' : 'Unverified'}
+              </div>
+            </div>
+            <div>
+              <span className="text-paper/50">Subscription:</span>
+              <div className={`text-xs mt-1 ${
+                user.subscriptionStatus === 'ACTIVE' ? 'text-green-400' :
+                user.subscriptionStatus === 'TRIALING' ? 'text-yellow-400' :
+                'text-paper/30'
+              }`}>
+                {user.subscriptionStatus || 'None'}
+              </div>
+            </div>
+            <div>
+              <span className="text-paper/50">Last Active:</span>
+              <div className="text-paper text-xs">{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}</div>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
+          {/* Change Tier */}
+          <div>
+            <label className="block text-sm text-paper/50 mb-2">Change Subscription Tier</label>
+            <div className="flex gap-2">
+              <select
+                value={selectedTier}
+                onChange={(e) => setSelectedTier(e.target.value)}
+                className="input flex-1"
+              >
+                <option value="FREE">Free</option>
+                <option value="STARTER">Starter ($1/mo)</option>
+                <option value="FAMILY">Family ($2/mo)</option>
+                <option value="FOREVER">Forever ($5/mo)</option>
+              </select>
+              <button
+                onClick={() => updateTierMutation.mutate()}
+                disabled={updateTierMutation.isPending || selectedTier === user.tier}
+                className="btn btn-secondary"
+              >
+                {updateTierMutation.isPending ? '...' : 'Update'}
+              </button>
+            </div>
+          </div>
+
           {/* Extend Trial */}
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Extend Trial</label>
+            <label className="block text-sm text-paper/50 mb-2">Extend Trial Period</label>
             <div className="flex gap-2">
               <input
                 type="number"
                 value={trialDays}
-                onChange={(e) => setTrialDays(parseInt(e.target.value))}
+                onChange={(e) => setTrialDays(parseInt(e.target.value) || 7)}
                 className="input flex-1"
                 min={1}
                 max={365}
@@ -1679,7 +1850,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
 
           {/* Apply Coupon */}
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Apply Coupon</label>
+            <label className="block text-sm text-paper/50 mb-2">Apply Coupon Code</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -1693,23 +1864,38 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
                 disabled={!couponCode || applyCouponMutation.isPending}
                 className="btn btn-secondary"
               >
-                Apply
+                {applyCouponMutation.isPending ? '...' : 'Apply'}
               </button>
             </div>
           </div>
 
-          {/* Cancel Subscription */}
+          {/* Verify Email */}
+          {!user.emailVerified && (
+            <div>
+              <label className="block text-sm text-paper/50 mb-2">Email Verification</label>
+              <button
+                onClick={() => verifyEmailMutation.mutate()}
+                disabled={verifyEmailMutation.isPending}
+                className="btn btn-secondary w-full"
+              >
+                {verifyEmailMutation.isPending ? '...' : 'Mark Email as Verified'}
+              </button>
+            </div>
+          )}
+
+          {/* Danger Zone */}
           <div className="pt-4 border-t border-white/10">
+            <div className="text-sm text-blood mb-2">Danger Zone</div>
             <button
               onClick={() => {
-                if (confirm('Are you sure you want to cancel this subscription?')) {
+                if (confirm('Are you sure you want to cancel this subscription? This action cannot be undone.')) {
                   cancelSubscriptionMutation.mutate();
                 }
               }}
-              disabled={cancelSubscriptionMutation.isPending}
-              className="btn bg-blood/20 text-blood hover:bg-blood/30 w-full"
+              disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
+              className="btn bg-blood/20 text-blood hover:bg-blood/30 w-full disabled:opacity-50"
             >
-              Cancel Subscription
+              {cancelSubscriptionMutation.isPending ? 'Cancelling...' : 'Cancel Subscription'}
             </button>
           </div>
         </div>
