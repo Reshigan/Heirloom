@@ -63,9 +63,16 @@ export function Memories() {
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
         const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
-        const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
+                const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
+                const [showEditModal, setShowEditModal] = useState(false);
+                const [editingMemory, setEditingMemory] = useState<Memory | null>(null);
+                const [editForm, setEditForm] = useState({
+                  title: '',
+                  description: '',
+                });
+                const [isUpdating, setIsUpdating] = useState(false);
   
-        const [form, setForm] = useState({
+                const [form, setForm] = useState({
       title: '',
       description: '',
       type: 'PHOTO' as 'PHOTO' | 'VIDEO',
@@ -181,13 +188,44 @@ export function Memories() {
     uploadMutation.mutate(form);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this memory?')) {
-      deleteMutation.mutate(id);
-    }
-  };
+    const handleDelete = (id: string) => {
+      if (confirm('Are you sure you want to delete this memory?')) {
+        deleteMutation.mutate(id);
+      }
+    };
 
-    const toggleRecipient = (id: string) => {
+    const handleEditMemory = (memory: Memory) => {
+      setEditingMemory(memory);
+      setEditForm({
+        title: memory.title,
+        description: memory.description || '',
+      });
+      setShowEditModal(true);
+      setSelectedMemory(null);
+    };
+
+    const handleUpdateMemory = async () => {
+      if (!editingMemory || !editForm.title.trim()) return;
+    
+      setIsUpdating(true);
+      try {
+        await memoriesApi.update(editingMemory.id, {
+          title: editForm.title,
+          description: editForm.description,
+        });
+        queryClient.invalidateQueries({ queryKey: ['memories'] });
+        setShowEditModal(false);
+        setEditingMemory(null);
+        showToast('success', 'Memory updated successfully');
+      } catch (error) {
+        console.error('Failed to update memory:', error);
+        showToast('error', 'Failed to update memory');
+      } finally {
+        setIsUpdating(false);
+      }
+    };
+
+      const toggleRecipient = (id: string) => {
       setForm(prev => ({
         ...prev,
         recipientIds: prev.recipientIds.includes(id)
@@ -728,13 +766,16 @@ export function Memories() {
                 </div>
               )}
 
-              <div className="flex gap-3">
-                <button className="btn btn-secondary flex-1">
-                  <Pen size={16} />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(selectedMemory.id)}
+                            <div className="flex gap-3">
+                              <button 
+                                onClick={() => handleEditMemory(selectedMemory)}
+                                className="btn btn-secondary flex-1"
+                              >
+                                <Pen size={16} />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(selectedMemory.id)}
                   className="btn btn-ghost text-blood hover:bg-blood/10"
                   disabled={deleteMutation.isPending}
                 >
@@ -919,11 +960,92 @@ export function Memories() {
               </form>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+              )}
+            </AnimatePresence>
 
-            {/* Add Family Member Modal */}
-            <AddFamilyMemberModal
+            {/* Edit Memory Modal */}
+            <AnimatePresence>
+              {showEditModal && editingMemory && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="modal-backdrop"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    className="modal max-w-lg mx-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-xl font-light">Edit Memory</h2>
+                      <button
+                        onClick={() => setShowEditModal(false)}
+                        className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <div className="space-y-5">
+                      <div>
+                        <label className="block text-sm text-paper/50 mb-2">Title *</label>
+                        <input
+                          type="text"
+                          value={editForm.title}
+                          onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                          className="input"
+                          placeholder="Give this memory a name"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-paper/50 mb-2">Description (optional)</label>
+                        <textarea
+                          value={editForm.description}
+                          onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                          className="input min-h-[100px] resize-none"
+                          placeholder="Tell the story behind this moment..."
+                        />
+                      </div>
+
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          type="button"
+                          onClick={() => setShowEditModal(false)}
+                          className="btn btn-secondary flex-1"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleUpdateMemory}
+                          disabled={!editForm.title.trim() || isUpdating}
+                          className="btn btn-primary flex-1"
+                        >
+                          {isUpdating ? (
+                            <>
+                              <div className="spinner w-4 h-4" />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Check size={16} />
+                              Save Changes
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+                  {/* Add Family Member Modal */}
+                  <AddFamilyMemberModal
               isOpen={showAddFamilyModal}
               onClose={() => setShowAddFamilyModal(false)}
               onCreated={() => {

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus, FileText } from '../components/Icons';
+import { ArrowLeft, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Lightbulb, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus, FileText, Pen } from '../components/Icons';
 import { Mp3Encoder } from 'lamejs';
 import { voiceApi, familyApi, transcriptionApi, aiApi } from '../services/api';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
@@ -91,8 +91,12 @@ export function Record() {
         const [showRecordingsList, setShowRecordingsList] = useState(false);
                 const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
                 const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
-                const [transcribingId, setTranscribingId] = useState<string | null>(null);
-                const [expandedTranscriptId, setExpandedTranscriptId] = useState<string | null>(null);
+                                const [transcribingId, setTranscribingId] = useState<string | null>(null);
+                                const [expandedTranscriptId, setExpandedTranscriptId] = useState<string | null>(null);
+                                const [showEditModal, setShowEditModal] = useState(false);
+                                const [editingRecording, setEditingRecording] = useState<VoiceRecording | null>(null);
+                                const [editForm, setEditForm] = useState({ title: '' });
+                                const [isUpdating, setIsUpdating] = useState(false);
 
     // Get available years from recordings
     // Note: API returns { data: [...], pagination: {...} }
@@ -423,16 +427,40 @@ export function Record() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const toggleRecipient = (id: string) => {
-    setForm(prev => ({
-      ...prev,
-      recipientIds: prev.recipientIds.includes(id)
-        ? prev.recipientIds.filter(r => r !== id)
-        : [...prev.recipientIds, id],
-    }));
-  };
+    const toggleRecipient = (id: string) => {
+      setForm(prev => ({
+        ...prev,
+        recipientIds: prev.recipientIds.includes(id)
+          ? prev.recipientIds.filter(r => r !== id)
+          : [...prev.recipientIds, id],
+      }));
+    };
 
-  // State for AI-generated prompts
+    const handleEditRecording = (recording: VoiceRecording) => {
+      setEditingRecording(recording);
+      setEditForm({ title: recording.title });
+      setShowEditModal(true);
+    };
+
+    const handleUpdateRecording = async () => {
+      if (!editingRecording || !editForm.title.trim()) return;
+    
+      setIsUpdating(true);
+      try {
+        await voiceApi.update(editingRecording.id, { title: editForm.title });
+        queryClient.invalidateQueries({ queryKey: ['voice'] });
+        setShowEditModal(false);
+        setEditingRecording(null);
+        showToast('Recording updated successfully', 'success');
+      } catch (error) {
+        console.error('Failed to update recording:', error);
+        showToast('Failed to update recording', 'error');
+      } finally {
+        setIsUpdating(false);
+      }
+    };
+
+    // State for AI-generated prompts
   const [allPrompts, setAllPrompts] = useState<{ id: string; text: string; category: string }[]>([]);
   const [visiblePrompts, setVisiblePrompts] = useState<{ id: string; text: string; category: string }[]>([]);
   const [isLoadingPrompts, setIsLoadingPrompts] = useState(false);
@@ -1138,31 +1166,38 @@ export function Record() {
                                                             {emotionData.label}
                                                           </span>
                                                         )}
-                                                        {recording.transcript ? (
-                                                          <button
-                                                            onClick={() => setExpandedTranscriptId(
-                                                              expandedTranscriptId === recording.id ? null : recording.id
-                                                            )}
-                                                            className="p-2 glass rounded-lg hover:bg-white/10 transition-colors"
-                                                            title="View transcript"
-                                                          >
-                                                            <FileText size={16} className="text-gold" />
-                                                          </button>
-                                                        ) : (
-                                                          <button
-                                                            onClick={() => transcribeMutation.mutate(recording.id)}
-                                                            disabled={transcribingId === recording.id}
-                                                            className="p-2 glass rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50"
-                                                            title="Transcribe recording"
-                                                          >
-                                                            {transcribingId === recording.id ? (
-                                                              <Loader2 size={16} className="animate-spin text-gold" />
-                                                            ) : (
-                                                              <FileText size={16} className="text-paper/50" />
-                                                            )}
-                                                          </button>
-                                                        )}
-                                                                            </div>
+                                                                                                                {recording.transcript ? (
+                                                                                                                  <button
+                                                                                                                    onClick={() => setExpandedTranscriptId(
+                                                                                                                      expandedTranscriptId === recording.id ? null : recording.id
+                                                                                                                    )}
+                                                                                                                    className="p-2 glass rounded-lg hover:bg-white/10 transition-colors"
+                                                                                                                    title="View transcript"
+                                                                                                                  >
+                                                                                                                    <FileText size={16} className="text-gold" />
+                                                                                                                  </button>
+                                                                                                                ) : (
+                                                                                                                  <button
+                                                                                                                    onClick={() => transcribeMutation.mutate(recording.id)}
+                                                                                                                    disabled={transcribingId === recording.id}
+                                                                                                                    className="p-2 glass rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50"
+                                                                                                                    title="Transcribe recording"
+                                                                                                                  >
+                                                                                                                    {transcribingId === recording.id ? (
+                                                                                                                      <Loader2 size={16} className="animate-spin text-gold" />
+                                                                                                                    ) : (
+                                                                                                                      <FileText size={16} className="text-paper/50" />
+                                                                                                                    )}
+                                                                                                                  </button>
+                                                                                                                )}
+                                                                                                                <button
+                                                                                                                  onClick={() => handleEditRecording(recording)}
+                                                                                                                  className="p-2 glass rounded-lg hover:bg-white/10 transition-colors"
+                                                                                                                  title="Edit recording"
+                                                                                                                >
+                                                                                                                  <Pen size={16} className="text-paper/50" />
+                                                                                                                </button>
+                                                                                                                                    </div>
                                                   </motion.div>
                                                   {expandedTranscriptId === recording.id && recording.transcript && (
                                                     <motion.div
@@ -1229,6 +1264,77 @@ export function Record() {
           }));
         }}
       />
+
+      {/* Edit Recording Modal */}
+      <AnimatePresence>
+        {showEditModal && editingRecording && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="modal-backdrop"
+            onClick={() => setShowEditModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="modal max-w-lg mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-light">Edit Recording</h2>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm text-paper/50 mb-2">Title *</label>
+                  <input
+                    type="text"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    className="input"
+                    placeholder="Give this recording a name"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="btn btn-secondary flex-1"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdateRecording}
+                    disabled={!editForm.title.trim() || isUpdating}
+                    className="btn btn-primary flex-1"
+                  >
+                    {isUpdating ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} />
+                        Save Changes
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
