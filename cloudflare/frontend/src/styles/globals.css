@@ -622,6 +622,27 @@ select.input {
   cursor: pointer;
 }
 
+/* Date input specific - ensure dark theme on all browsers */
+input[type="date"].input,
+input[type="date"] {
+  color-scheme: dark;
+  background: var(--void-surface);
+  color: var(--paper);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(10deg);
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-datetime-edit {
+  color: var(--paper);
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  color: var(--paper);
+}
+
 /* Input with label */
 .input-group {
   display: flex;

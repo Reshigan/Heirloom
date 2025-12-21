@@ -325,35 +325,41 @@ What would you like to create today?`;
     }
   };
 
-  // Quick action buttons based on context
-  const getQuickActions = () => {
-    switch (context?.type) {
-      case 'letter':
-        return [
-          { label: 'Opening lines', prompt: 'Suggest 3 heartfelt opening lines for my letter' },
-          { label: 'Express gratitude', prompt: 'Help me express gratitude to someone I love' },
-          { label: 'Share a memory', prompt: 'Help me describe a cherished memory' },
-        ];
-      case 'caption':
-        return [
-          { label: 'Emotional caption', prompt: 'Create an emotional caption for a family photo' },
-          { label: 'Funny caption', prompt: 'Suggest a lighthearted, warm caption' },
-          { label: 'Poetic caption', prompt: 'Write a poetic caption about love and time' },
-        ];
-      case 'voice':
-        return [
-          { label: 'Childhood stories', prompt: 'Give me prompts about childhood memories' },
-          { label: 'Life lessons', prompt: 'Suggest prompts about wisdom and life lessons' },
-          { label: 'Family traditions', prompt: 'Give me prompts about family traditions' },
-        ];
-      default:
-        return [
-          { label: 'Write a letter', prompt: 'Help me write a letter to my child' },
-          { label: 'Photo caption', prompt: 'Create a caption for a precious memory' },
-          { label: 'Voice ideas', prompt: 'Suggest topics for my voice recording' },
-        ];
-    }
-  };
+    // Quick action buttons based on context - expanded with more options
+    const getQuickActions = () => {
+      switch (context?.type) {
+        case 'letter':
+          return [
+            { label: 'Opening lines', prompt: 'Suggest 3 heartfelt opening lines for my letter' },
+            { label: 'Express gratitude', prompt: 'Help me express gratitude to someone I love' },
+            { label: 'Share a memory', prompt: 'Help me describe a cherished memory' },
+            { label: 'Life advice', prompt: 'Help me share important life advice' },
+            { label: 'Closing thoughts', prompt: 'Suggest 3 meaningful ways to close my letter' },
+          ];
+        case 'caption':
+          return [
+            { label: 'Emotional caption', prompt: 'Create 3 emotional captions for a family photo' },
+            { label: 'Funny caption', prompt: 'Suggest 3 lighthearted, warm captions' },
+            { label: 'Poetic caption', prompt: 'Write 3 poetic captions about love and time' },
+            { label: 'Short & sweet', prompt: 'Give me 3 short but meaningful captions' },
+          ];
+        case 'voice':
+          return [
+            { label: 'Childhood stories', prompt: 'Give me 3 prompts about childhood memories' },
+            { label: 'Life lessons', prompt: 'Suggest 3 prompts about wisdom and life lessons' },
+            { label: 'Family traditions', prompt: 'Give me 3 prompts about family traditions' },
+            { label: 'Future hopes', prompt: 'Suggest 3 prompts about hopes for the future' },
+            { label: 'Favorite moments', prompt: 'Give me 3 prompts about favorite family moments' },
+          ];
+        default:
+          return [
+            { label: 'Write a letter', prompt: 'Help me write a letter to my child' },
+            { label: 'Photo caption', prompt: 'Create 3 captions for a precious memory' },
+            { label: 'Voice ideas', prompt: 'Suggest 3 topics for my voice recording' },
+            { label: 'Express love', prompt: 'Help me express my love in 3 different ways' },
+          ];
+      }
+    };
 
   return (
     <AnimatePresence>
@@ -374,7 +380,7 @@ What would you like to create today?`;
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25 }}
-            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-void-light border-l border-gold/20 z-50 flex flex-col"
+            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-void-elevated border-l border-gold/20 z-50 flex flex-col"
           >
             {/* Header */}
             <div className="p-4 border-b border-gold/20 flex items-center justify-between">
@@ -395,18 +401,21 @@ What would you like to create today?`;
               </button>
             </div>
 
-            {/* Quick Actions */}
-            <div className="p-3 border-b border-gold/10 flex gap-2 overflow-x-auto">
-              {getQuickActions().map((action, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleQuickAction(action.prompt)}
-                  className="px-3 py-1.5 text-xs bg-gold/10 text-gold rounded-full whitespace-nowrap hover:bg-gold/20 transition-colors"
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
+                        {/* Quick Actions - Try different suggestions */}
+                        <div className="p-3 border-b border-gold/10">
+                          <p className="text-xs text-paper/40 mb-2">Try a suggestion:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {getQuickActions().map((action, i) => (
+                              <button
+                                key={i}
+                                onClick={() => handleQuickAction(action.prompt)}
+                                className="px-3 py-1.5 text-xs bg-gold/10 text-gold rounded-full whitespace-nowrap hover:bg-gold/20 transition-colors"
+                              >
+                                {action.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">

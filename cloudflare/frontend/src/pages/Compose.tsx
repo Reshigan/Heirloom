@@ -65,12 +65,28 @@ const Icons = {
       <path d="M12 5v14M5 12h14" />
     </svg>
   ),
-  waxSeal: (
-    <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="0.5" strokeLinecap="round">
-      <circle cx="12" cy="12" r="9" />
-      <text x="12" y="16" textAnchor="middle" fontSize="10" fill="white" stroke="none">∞</text>
-    </svg>
-  ),
+    waxSeal: (
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="0.5" strokeLinecap="round">
+        <circle cx="12" cy="12" r="9" />
+        <text x="12" y="16" textAnchor="middle" fontSize="10" fill="white" stroke="none">∞</text>
+      </svg>
+    ),
+    goldenSeal: (
+      <svg viewBox="0 0 24 24" fill="none">
+        <defs>
+          <radialGradient id="goldenSealGradient" cx="30%" cy="30%">
+            <stop offset="0%" stopColor="#f4dda0" />
+            <stop offset="50%" stopColor="#d4a853" />
+            <stop offset="100%" stopColor="#9c7a3c" />
+          </radialGradient>
+        </defs>
+        <circle cx="12" cy="12" r="10" fill="url(#goldenSealGradient)" />
+        <circle cx="12" cy="12" r="8" fill="none" stroke="#6b5228" strokeWidth="0.5" />
+        <path d="M16.5 9c2.5 0 2.5 6 0 6-2.5 0-3.5-6-6.5-6-2.5 0-2.5 6 0 6 3 0 4-6 6.5-6z" 
+              fill="none" stroke="#6b5228" strokeWidth="1.2" strokeLinecap="round" 
+              transform="translate(-1, 0)" />
+      </svg>
+    ),
   infinity: (
     <svg viewBox="0 0 24 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18.178 2c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.873 0-4.873 8 0 8 5.606 0 7.644-8 12.74-8z" />
@@ -160,13 +176,16 @@ export function Compose() {
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [deliveryTrigger, setDeliveryTrigger] = useState<'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS'>('POSTHUMOUS');
   const [scheduledDate, setScheduledDate] = useState('');
-        const [isSaving, setIsSaving] = useState(false);
-        const [showSealConfirm, setShowSealConfirm] = useState(false);
-        const [isSealing, setIsSealing] = useState(false);
-        const [isAiAssisting, setIsAiAssisting] = useState(false);
-        const [aiSuggestion, setAiSuggestion] = useState('');
-        const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
-        const [sealError, setSealError] = useState<string | null>(null);
+                const [isSaving, setIsSaving] = useState(false);
+                const [saveSuccess, setSaveSuccess] = useState(false);
+                const [saveError, setSaveError] = useState<string | null>(null);
+                const [showSealConfirm, setShowSealConfirm] = useState(false);
+                const [isSealing, setIsSealing] = useState(false);
+                const [sealSuccess, setSealSuccess] = useState(false);
+                const [isAiAssisting, setIsAiAssisting] = useState(false);
+                const [aiSuggestion, setAiSuggestion] = useState('');
+                const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
+                const [sealError, setSealError] = useState<string | null>(null);
 
     // AI Assist function - uses Cloudflare Workers AI backend
     const handleAiAssist = async () => {
@@ -308,40 +327,9 @@ export function Compose() {
     setShowComposer(true);
   };
 
-  const handleSaveDraft = async () => {
-    setIsSaving(true);
-    try {
-      const letterData = {
-        title,
-        salutation,
-        body,
-        signature,
-        recipientIds: selectedRecipients,
-        deliveryTrigger,
-        scheduledDate: scheduledDate || undefined,
-      };
-      
-      if (selectedLetter) {
-        await lettersApi.update(selectedLetter.id, letterData);
-      } else {
-        await lettersApi.create(letterData);
-      }
-      setShowComposer(false);
-      fetchLetters();
-    } catch (error) {
-      console.error('Failed to save draft:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleSealLetter = async () => {
-    setIsSealing(true);
-    setSealError(null);
-    try {
-      if (selectedLetter) {
-        await lettersApi.seal(selectedLetter.id);
-      } else {
+    const handleSaveDraft = async () => {
+      setIsSaving(true);
+      try {
         const letterData = {
           title,
           salutation,
@@ -351,20 +339,66 @@ export function Compose() {
           deliveryTrigger,
           scheduledDate: scheduledDate || undefined,
         };
-        const response = await lettersApi.create(letterData);
-        await lettersApi.seal(response.data.id);
+      
+        if (selectedLetter) {
+          await lettersApi.update(selectedLetter.id, letterData);
+        } else {
+          const response = await lettersApi.create(letterData);
+          // Set the selected letter so subsequent saves update instead of create
+          if (response.data?.id) {
+            setSelectedLetter({
+              ...letterData,
+              id: response.data.id,
+              recipients: selectedRecipients,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            } as Letter);
+          }
+        }
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+        fetchLetters();
+      } catch (error) {
+        console.error('Failed to save draft:', error);
+        setSaveError('Failed to save draft. Please try again.');
+        setTimeout(() => setSaveError(null), 3000);
+      } finally {
+        setIsSaving(false);
       }
-      setShowSealConfirm(false);
-      setShowComposer(false);
-      fetchLetters();
-    } catch (error: any) {
-      console.error('Failed to seal letter:', error);
-      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to seal letter. Please try again.';
-      setSealError(errorMessage);
-    } finally {
-      setIsSealing(false);
-    }
-  };
+    };
+
+    const handleSealLetter = async () => {
+      setIsSealing(true);
+      setSealError(null);
+      try {
+        if (selectedLetter) {
+          await lettersApi.seal(selectedLetter.id);
+        } else {
+          const letterData = {
+            title,
+            salutation,
+            body,
+            signature,
+            recipientIds: selectedRecipients,
+            deliveryTrigger,
+            scheduledDate: scheduledDate || undefined,
+          };
+          const response = await lettersApi.create(letterData);
+          await lettersApi.seal(response.data.id);
+        }
+        setShowSealConfirm(false);
+        setShowComposer(false);
+        setSealSuccess(true);
+        setTimeout(() => setSealSuccess(false), 5000);
+        fetchLetters();
+      } catch (error: any) {
+        console.error('Failed to seal letter:', error);
+        const errorMessage = error?.response?.data?.error || error?.message || 'Failed to seal letter. Please try again.';
+        setSealError(errorMessage);
+      } finally {
+        setIsSealing(false);
+      }
+    };
 
   const toggleRecipient = (id: string) => {
     setSelectedRecipients(prev =>
@@ -401,27 +435,37 @@ export function Compose() {
               </button>
             </div>
             
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleSaveDraft}
-                disabled={isSaving}
-                className="flex items-center gap-2 px-4 py-2 bg-void-light border border-gold/20 rounded-lg text-paper/80 hover:border-gold/40 transition-colors"
-              >
-                <span className="w-4 h-4">{Icons.save}</span>
-                <span>{isSaving ? 'Saving...' : 'Save Draft'}</span>
-              </button>
+                        <div className="flex items-center gap-3">
+                          {/* Save Success/Error Feedback */}
+                          {saveSuccess && (
+                            <span className="text-sm text-green-400 flex items-center gap-1">
+                              <span>✓</span> Draft saved
+                            </span>
+                          )}
+                          {saveError && (
+                            <span className="text-sm text-red-400">{saveError}</span>
+                          )}
+              
+                          <button
+                            onClick={handleSaveDraft}
+                            disabled={isSaving}
+                            className="flex items-center gap-2 px-4 py-2 bg-void-elevated border border-gold/20 rounded-lg text-paper/80 hover:border-gold/40 transition-colors"
+                          >
+                            <span className="w-4 h-4">{Icons.save}</span>
+                            <span>{isSaving ? 'Saving...' : 'Save Draft'}</span>
+                          </button>
               
               <button
                 onClick={() => setShowSealConfirm(true)}
                 disabled={!body.trim() || selectedRecipients.length === 0}
                 className={`flex items-center gap-2 px-5 py-2 font-semibold rounded-lg transition-all ${
                   !body.trim() || selectedRecipients.length === 0
-                    ? 'bg-void-light border border-paper/20 text-paper/40 cursor-not-allowed'
+                    ? 'bg-void-elevated border border-paper/20 text-paper/40 cursor-not-allowed'
                     : 'bg-gradient-to-r from-blood to-red-800 text-paper hover:shadow-lg hover:shadow-blood/30'
                 }`}
               >
-                <span className="w-4 h-4 text-paper">{Icons.waxSeal}</span>
-                <span>Seal Letter</span>
+                                <span className="w-5 h-5">{Icons.goldenSeal}</span>
+                                <span>Seal Letter</span>
               </button>
             </div>
           </div>
@@ -444,7 +488,7 @@ export function Compose() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., To My Children on Their Wedding Days"
-                className="w-full px-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                className="w-full px-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
               />
             </div>
 
@@ -459,7 +503,7 @@ export function Compose() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
                       selectedRecipients.includes(member.id)
                         ? 'bg-gold/20 border-gold text-gold'
-                        : 'bg-void-light border-gold/20 text-paper/60 hover:border-gold/40'
+                        : 'bg-void-elevated border-gold/20 text-paper/60 hover:border-gold/40'
                     }`}
                   >
                     <span className="w-4 h-4">{Icons.user}</span>
@@ -593,7 +637,7 @@ export function Compose() {
                     <button
                       key={index}
                       onClick={() => insertPrompt(prompt)}
-                      className="px-3 py-1.5 text-sm bg-void-light border border-gold/10 rounded-lg text-paper/50 hover:text-paper/80 hover:border-gold/30 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-void-elevated border border-gold/10 rounded-lg text-paper/50 hover:text-paper/80 hover:border-gold/30 transition-colors"
                     >
                       {prompt.substring(0, 40)}...
                     </button>
@@ -613,7 +657,7 @@ export function Compose() {
                     className={`p-4 rounded-xl border text-left transition-all ${
                       deliveryTrigger === option.id
                         ? 'bg-gold/10 border-gold'
-                        : 'bg-void-light border-gold/20 hover:border-gold/40'
+                        : 'bg-void-elevated border-gold/20 hover:border-gold/40'
                     }`}
                   >
                     <div className={`w-8 h-8 mb-3 ${deliveryTrigger === option.id ? 'text-gold' : 'text-paper/50'}`}>
@@ -636,7 +680,7 @@ export function Compose() {
                     value={scheduledDate}
                     onChange={(e) => setScheduledDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="px-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50"
+                    className="px-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50"
                   />
                 </div>
               )}
@@ -647,7 +691,7 @@ export function Compose() {
         {/* Seal Confirmation Modal */}
         {showSealConfirm && (
           <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
-            <div className="bg-void-light border border-gold/30 rounded-2xl p-8 max-w-md w-full text-center">
+            <div className="bg-void-elevated border border-gold/30 rounded-2xl p-8 max-w-md w-full text-center">
               {/* Wax Seal with Heirloom Infinity Symbol */}
               <div className="w-24 h-24 mx-auto mb-6">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -720,12 +764,25 @@ export function Compose() {
       <Navigation />
       
       <main className="relative z-10 pt-24 pb-16 px-4 max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-serif text-paper mb-2">Letters</h1>
-            <p className="text-paper/60">Write messages to be delivered across time</p>
-          </div>
+                {/* Seal Success Notification */}
+                {sealSuccess && (
+                  <div className="mb-6 p-4 bg-gradient-to-r from-gold/20 to-gold/10 border border-gold/30 rounded-xl flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                      <span className="text-gold text-xl">∞</span>
+                    </div>
+                    <div>
+                      <p className="text-gold font-medium">Letter Sealed Successfully</p>
+                      <p className="text-paper/60 text-sm">Your letter has been encrypted and stored securely for delivery.</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Header */}
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h1 className="text-3xl font-serif text-paper mb-2">Letters</h1>
+                    <p className="text-paper/60">Write messages to be delivered across time</p>
+                  </div>
           
           <button
             onClick={handleNewLetter}
@@ -764,7 +821,7 @@ export function Compose() {
               <div
                 key={letter.id}
                 onClick={() => handleEditLetter(letter)}
-                className="group bg-void-light border border-gold/20 rounded-2xl p-6 cursor-pointer hover:border-gold/40 transition-all"
+                className="group bg-void-elevated border border-gold/20 rounded-2xl p-6 cursor-pointer hover:border-gold/40 transition-all"
               >
                 {/* Sealed Status */}
                 {letter.sealedAt ? (

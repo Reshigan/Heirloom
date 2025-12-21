@@ -281,3 +281,167 @@ inheritRoutes.get('/content/voice/:id', validateRecipientSession, async (c) => {
     createdAt: voice.created_at,
   });
 });
+
+// AI-powered semantic search across all inherited content
+inheritRoutes.post('/search', validateRecipientSession, async (c) => {
+  const ownerId = c.get('ownerId');
+  const body = await c.req.json();
+  const { query } = body;
+  
+  if (!query || typeof query !== 'string' || query.trim().length < 3) {
+    return c.json({ error: 'Please provide a search query (at least 3 characters)' }, 400);
+  }
+  
+  try {
+    // Fetch all content for this owner
+    const [letters, memories, voiceRecordings] = await Promise.all([
+      c.env.DB.prepare(`
+        SELECT id, title, salutation, body, signature, emotion, sealed_at, created_at
+        FROM letters WHERE user_id = ? AND sealed_at IS NOT NULL
+        ORDER BY created_at DESC
+      `).bind(ownerId).all(),
+      c.env.DB.prepare(`
+        SELECT id, title, description, file_url, file_type, emotion, created_at
+        FROM memories WHERE user_id = ?
+        ORDER BY created_at DESC
+      `).bind(ownerId).all(),
+      c.env.DB.prepare(`
+        SELECT id, title, description, file_url, duration, emotion, transcript, created_at
+        FROM voice_recordings WHERE user_id = ?
+        ORDER BY created_at DESC
+      `).bind(ownerId).all()
+    ]);
+    
+    // Build searchable content with context
+    const searchableItems: Array<{
+      type: 'letter' | 'memory' | 'voice';
+      id: string;
+      title: string;
+      content: string;
+      date: string;
+      emotion?: string;
+      metadata?: any;
+    }> = [];
+    
+    // Add letters
+    letters.results.forEach((l: any) => {
+      searchableItems.push({
+        type: 'letter',
+        id: l.id,
+        title: l.title || 'Untitled Letter',
+        content: `${l.salutation || ''} ${l.body || ''} ${l.signature || ''}`.trim(),
+        date: l.created_at,
+        emotion: l.emotion,
+        metadata: { sealedAt: l.sealed_at }
+      });
+    });
+    
+    // Add memories
+    memories.results.forEach((m: any) => {
+      searchableItems.push({
+        type: 'memory',
+        id: m.id,
+        title: m.title || 'Untitled Memory',
+        content: m.description || m.title || '',
+        date: m.created_at,
+        emotion: m.emotion,
+        metadata: { fileUrl: m.file_url, fileType: m.file_type }
+      });
+    });
+    
+    // Add voice recordings (with transcripts)
+    voiceRecordings.results.forEach((v: any) => {
+      searchableItems.push({
+        type: 'voice',
+        id: v.id,
+        title: v.title || 'Untitled Recording',
+        content: v.transcript || v.description || v.title || '',
+        date: v.created_at,
+        emotion: v.emotion,
+        metadata: { fileUrl: v.file_url, duration: v.duration }
+      });
+    });
+    
+    if (searchableItems.length === 0) {
+      return c.json({
+        answer: "There are no memories to search through yet.",
+        results: [],
+        query
+      });
+    }
+    
+    // Build context for AI
+    const contentContext = searchableItems.map((item, idx) => {
+      const dateStr = new Date(item.date).toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric' 
+      });
+      return `[${idx + 1}] ${item.type.toUpperCase()} - "${item.title}" (${dateStr})${item.emotion ? ` [${item.emotion}]` : ''}: ${item.content.slice(0, 500)}`;
+    }).join('\n\n');
+    
+    // Use AI to find relevant content and generate an answer
+    const systemPrompt = `You are a helpful assistant helping someone search through their loved one's memories, letters, and voice recordings. The person who created these memories has passed away or activated their legacy vault.
+
+Your job is to:
+1. Find the most relevant memories based on the user's question
+2. Provide a warm, empathetic answer that references specific memories
+3. Include dates and context when relevant
+4. If the question asks about a specific event (like "when did dad buy his first car"), look for mentions of that event in the content
+
+Here are all the available memories:
+
+${contentContext}
+
+Important:
+- Be warm and compassionate - these are precious memories
+- Reference specific items by their number [1], [2], etc.
+- If you can't find relevant information, say so gently
+- Keep your answer concise but meaningful (2-4 sentences)`;
+
+    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: query }
+      ],
+      max_tokens: 300,
+      temperature: 0.3
+    });
+    
+    const aiAnswer = (response as any).response?.trim() || "I couldn't find specific information about that in the memories.";
+    
+    // Extract referenced item numbers from the AI response
+    const referencedNumbers = (aiAnswer.match(/\[(\d+)\]/g) || [])
+      .map((match: string) => parseInt(match.replace(/[\[\]]/g, '')) - 1)
+      .filter((idx: number) => idx >= 0 && idx < searchableItems.length);
+    
+    // Get the referenced items or do a simple text search as fallback
+    let relevantItems = referencedNumbers.map((idx: number) => searchableItems[idx]);
+    
+    // If AI didn't reference specific items, do a simple text search
+    if (relevantItems.length === 0) {
+      const queryLower = query.toLowerCase();
+      relevantItems = searchableItems.filter(item => 
+        item.title.toLowerCase().includes(queryLower) ||
+        item.content.toLowerCase().includes(queryLower)
+      ).slice(0, 5);
+    }
+    
+    return c.json({
+      answer: aiAnswer,
+      results: relevantItems.map(item => ({
+        type: item.type,
+        id: item.id,
+        title: item.title,
+        snippet: item.content.slice(0, 200) + (item.content.length > 200 ? '...' : ''),
+        date: item.date,
+        emotion: item.emotion,
+        ...(item.type === 'memory' && { fileUrl: item.metadata?.fileUrl }),
+        ...(item.type === 'voice' && { fileUrl: item.metadata?.fileUrl, duration: item.metadata?.duration })
+      })),
+      query,
+      totalItems: searchableItems.length
+    });
+  } catch (error) {
+    console.error('AI search error:', error);
+    return c.json({ error: 'Failed to search memories' }, 500);
+  }
+});

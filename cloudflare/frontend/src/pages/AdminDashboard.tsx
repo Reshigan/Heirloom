@@ -146,7 +146,20 @@ export function AdminDashboard() {
       enabled: activeTab === 'vouchers',
     });
 
+    const { data: goldLegacyVouchers, refetch: refetchGoldLegacy } = useQuery({
+      queryKey: ['admin-gold-legacy-vouchers'],
+      queryFn: async () => {
+        const token = localStorage.getItem('adminToken');
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/gold-legacy/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.json();
+      },
+      enabled: activeTab === 'gold-legacy',
+    });
+
     const [showVoucherModal, setShowVoucherModal] = useState(false);
+    const [showGoldLegacyModal, setShowGoldLegacyModal] = useState(false);
 
     const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -161,6 +174,7 @@ export function AdminDashboard() {
       { id: 'users', label: 'Users', icon: Users },
       { id: 'coupons', label: 'Coupons', icon: Tag },
       { id: 'vouchers', label: 'Gift Vouchers', icon: Gift },
+      { id: 'gold-legacy', label: 'Gold Legacy', icon: Gift },
       { id: 'billing', label: 'Billing', icon: CreditCard },
       { id: 'support', label: 'Support', icon: MessageSquare },
       { id: 'system', label: 'System', icon: Shield },
@@ -516,6 +530,152 @@ export function AdminDashboard() {
                       <tr>
                         <td colSpan={7} className="text-center py-8 text-paper/50">
                           No gift vouchers created yet
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Gold Legacy Tab */}
+        {activeTab === 'gold-legacy' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl text-gold">Gold Legacy Circle</h2>
+                <p className="text-paper/50 text-sm mt-1">Exclusive lifetime access vouchers for VIP members</p>
+              </div>
+              <button
+                onClick={() => setShowGoldLegacyModal(true)}
+                className="btn flex items-center gap-2"
+                style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', color: '#0a0a0f' }}
+              >
+                <Plus size={18} />
+                Create Gold Legacy Voucher
+              </button>
+            </div>
+
+            {/* Gold Legacy Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="card p-4" style={{ borderColor: 'rgba(212, 175, 55, 0.3)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded" style={{ background: 'rgba(212, 175, 55, 0.2)' }}>
+                    <Gift className="w-5 h-5 text-gold" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-gold">{goldLegacyVouchers?.total || 0}</div>
+                    <div className="text-paper/50 text-sm">Total Gold Legacy</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-4" style={{ borderColor: 'rgba(212, 175, 55, 0.3)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/20 rounded">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-green-400">
+                      {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'REDEEMED').length || 0}
+                    </div>
+                    <div className="text-paper/50 text-sm">Redeemed</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card p-4" style={{ borderColor: 'rgba(212, 175, 55, 0.3)' }}>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/20 rounded">
+                    <Send className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-2xl text-blue-400">
+                      {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'SENT' || v.status === 'PAID').length || 0}
+                    </div>
+                    <div className="text-paper/50 text-sm">Pending</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Gold Legacy Vouchers Table */}
+            <div className="card" style={{ borderColor: 'rgba(212, 175, 55, 0.2)' }}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg text-gold">Gold Legacy Members</h3>
+                <button onClick={() => refetchGoldLegacy()} className="text-paper/50 hover:text-gold">
+                  <RefreshCw size={18} />
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gold/20">
+                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Member #</th>
+                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Code</th>
+                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Recipient</th>
+                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Status</th>
+                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Created</th>
+                      <th className="text-right py-3 px-4 text-gold/70 font-normal">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {goldLegacyVouchers?.vouchers?.map((voucher: any) => (
+                      <tr key={voucher.id} className="border-b border-gold/10 hover:bg-gold/5">
+                        <td className="py-3 px-4">
+                          <span className="font-mono text-gold">{voucher.gold_member_number || '-'}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-paper/70">{voucher.code}</span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(voucher.code);
+                                alert('Code copied!');
+                              }}
+                              className="text-paper/30 hover:text-gold"
+                            >
+                              <Copy size={14} />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="text-paper">{voucher.recipient_name || '-'}</div>
+                          <div className="text-paper/50 text-sm">{voucher.recipient_email || '-'}</div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-1 text-xs rounded ${
+                            voucher.status === 'REDEEMED' ? 'bg-green-500/20 text-green-400' :
+                            voucher.status === 'SENT' ? 'bg-blue-500/20 text-blue-400' :
+                            'bg-gold/20 text-gold'
+                          }`}>
+                            {voucher.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-paper/50 text-sm">
+                          {new Date(voucher.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                const url = `${window.location.origin}/gold/redeem?code=${voucher.code}`;
+                                navigator.clipboard.writeText(url);
+                                alert('Gold Legacy redemption link copied!');
+                              }}
+                              className="text-paper/30 hover:text-gold"
+                              title="Copy redemption link"
+                            >
+                              <Eye size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {(!goldLegacyVouchers?.vouchers || goldLegacyVouchers.vouchers.length === 0) && (
+                      <tr>
+                        <td colSpan={6} className="text-center py-8 text-paper/50">
+                          No Gold Legacy vouchers created yet
                         </td>
                       </tr>
                     )}
@@ -1125,6 +1285,9 @@ export function AdminDashboard() {
             )}
             {showVoucherModal && (
               <CreateVoucherModal onClose={() => { setShowVoucherModal(false); refetchVouchers(); }} />
+            )}
+            {showGoldLegacyModal && (
+              <CreateGoldLegacyModal onClose={() => { setShowGoldLegacyModal(false); refetchGoldLegacy(); }} />
             )}
             {showAdminModal && (
         <CreateAdminModal onClose={() => setShowAdminModal(false)} />
@@ -1933,6 +2096,198 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function CreateGoldLegacyModal({ onClose }: { onClose: () => void }) {
+  const [formData, setFormData] = useState({
+    recipientEmail: '',
+    recipientName: '',
+    personalMessage: '',
+    memberNumber: '',
+    sendEmail: false,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [createdVoucher, setCreatedVoucher] = useState<any>(null);
+
+  const DEFAULT_MESSAGE = `Welcome to the Heirloom Gold Legacy Circle.
+
+You have been personally selected to join an exclusive group of individuals who understand the profound importance of preserving memories for generations to come.
+
+As a Gold Legacy member, you receive lifetime access to all Heirloom features, forever. Your stories, your voice, your memories will be preserved for eternity.
+
+This is more than a subscription—it is an invitation to be part of something timeless.
+
+With deepest gratitude,
+The Heirloom Team`;
+
+  const handleCreate = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/gold-legacy/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          personalMessage: formData.personalMessage || DEFAULT_MESSAGE,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCreatedVoucher(data.voucher);
+      } else {
+        alert(data.error || 'Failed to create Gold Legacy voucher');
+      }
+    } catch {
+      alert('Error creating Gold Legacy voucher');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+      <div className="max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-lg" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #1a1a1f 100%)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-xl text-gold">Create Gold Legacy Voucher</h3>
+              <p className="text-paper/50 text-sm mt-1">Exclusive lifetime access invitation</p>
+            </div>
+            <button onClick={onClose} className="text-paper/50 hover:text-gold">
+              <X size={20} />
+            </button>
+          </div>
+
+          {createdVoucher ? (
+            <div className="text-center py-6">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%)', border: '2px solid rgba(212, 175, 55, 0.5)' }}>
+                <span className="text-4xl text-gold">∞</span>
+              </div>
+              <h4 className="text-lg text-gold mb-2">Gold Legacy Voucher Created!</h4>
+              <p className="text-paper/60 text-sm mb-4">Member #{createdVoucher.memberNumber}</p>
+              
+              <div className="p-4 rounded mb-4" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' }}>
+                <p className="font-mono text-lg tracking-wider" style={{ color: '#0a0a0f' }}>{createdVoucher.code}</p>
+              </div>
+              
+              {createdVoucher.emailSent && (
+                <p className="text-green-400 text-sm mb-4">Invitation email sent to {createdVoucher.recipientEmail}</p>
+              )}
+              
+              <div className="flex gap-2 justify-center flex-wrap">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(createdVoucher.code);
+                    alert('Code copied!');
+                  }}
+                  className="btn btn-secondary"
+                >
+                  Copy Code
+                </button>
+                <button
+                  onClick={() => {
+                    const url = `https://heirloom.blue/gold/redeem?code=${createdVoucher.code}`;
+                    navigator.clipboard.writeText(url);
+                    alert('Redemption link copied!');
+                  }}
+                  className="btn"
+                  style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', color: '#0a0a0f' }}
+                >
+                  Copy Invitation Link
+                </button>
+                <button onClick={onClose} className="btn btn-secondary">
+                  Done
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 rounded" style={{ background: 'rgba(212, 175, 55, 0.1)', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                <p className="text-gold/80 text-sm">
+                  Gold Legacy vouchers grant lifetime access to all Heirloom features. This is the highest tier of membership and should be reserved for special individuals.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-gold/70 text-sm mb-1">Recipient Name</label>
+                <input
+                  type="text"
+                  value={formData.recipientName}
+                  onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                  className="w-full bg-white/5 border border-gold/20 rounded px-3 py-2 text-paper focus:border-gold/50 focus:outline-none"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gold/70 text-sm mb-1">Recipient Email</label>
+                <input
+                  type="email"
+                  value={formData.recipientEmail}
+                  onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
+                  className="w-full bg-white/5 border border-gold/20 rounded px-3 py-2 text-paper focus:border-gold/50 focus:outline-none"
+                  placeholder="recipient@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gold/70 text-sm mb-1">Member Number (optional)</label>
+                <input
+                  type="text"
+                  value={formData.memberNumber}
+                  onChange={(e) => setFormData({ ...formData, memberNumber: e.target.value })}
+                  className="w-full bg-white/5 border border-gold/20 rounded px-3 py-2 text-paper focus:border-gold/50 focus:outline-none"
+                  placeholder="G-000001 (auto-generated if empty)"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gold/70 text-sm mb-1">Personal Message from Heirloom</label>
+                <textarea
+                  value={formData.personalMessage}
+                  onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
+                  className="w-full bg-white/5 border border-gold/20 rounded px-3 py-2 text-paper focus:border-gold/50 focus:outline-none"
+                  rows={8}
+                  placeholder={DEFAULT_MESSAGE}
+                />
+                <p className="text-paper/30 text-xs mt-1">Leave empty to use the default message</p>
+              </div>
+
+              {formData.recipientEmail && (
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.sendEmail}
+                    onChange={(e) => setFormData({ ...formData, sendEmail: e.target.checked })}
+                    className="w-4 h-4 rounded border-gold/20 bg-white/5"
+                  />
+                  <span className="text-paper/70 text-sm">Send Gold Legacy invitation email immediately</span>
+                </label>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button onClick={onClose} className="btn btn-secondary flex-1">
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreate}
+                  disabled={isLoading}
+                  className="flex-1 py-2 px-4 rounded font-medium transition-all"
+                  style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', color: '#0a0a0f' }}
+                >
+                  {isLoading ? 'Creating...' : 'Create Gold Legacy Voucher'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

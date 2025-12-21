@@ -310,7 +310,7 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => {
               <span className="text-paper font-medium">{emotion.emotion}</span>
               <span className="text-paper/60">{emotion.percentage}%</span>
             </div>
-            <div className="h-3 bg-void-light rounded-full overflow-hidden">
+            <div className="h-3 bg-void-elevated rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${emotion.percentage}%` }}

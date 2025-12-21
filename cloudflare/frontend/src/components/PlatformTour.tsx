@@ -208,7 +208,7 @@ export function PlatformTour({ isOpen, onClose, onComplete }: PlatformTourProps)
                 <X size={20} />
               </button>
 
-              <div className="absolute top-0 left-0 right-0 h-1 bg-void-light rounded-t-3xl overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-void-elevated rounded-t-3xl overflow-hidden">
                 <motion.div
                   className="h-full"
                   style={{ background: 'linear-gradient(90deg, #c9a959 0%, #e8d5a3 100%)' }}

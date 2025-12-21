@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Search } from '../components/Icons';
 import { memoriesApi, familyApi, getAuthHeaders, searchApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
+import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
 
@@ -38,8 +39,16 @@ export function Memories() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-    const [showUploadModal, setShowUploadModal] = useState(false);
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+        const [showUploadModal, setShowUploadModal] = useState(false);
+        const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+          // Persist view mode preference in localStorage
+          try {
+            const saved = localStorage.getItem('memories_view_mode');
+            return (saved === 'list' || saved === 'grid') ? saved : 'grid';
+          } catch {
+            return 'grid';
+          }
+        });
     const [filterType, setFilterType] = useState<string>('all');
     const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -53,15 +62,24 @@ export function Memories() {
         // Timeline filter state
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-    const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+        const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+                const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
+                const [showEditModal, setShowEditModal] = useState(false);
+                const [editingMemory, setEditingMemory] = useState<Memory | null>(null);
+                const [editForm, setEditForm] = useState({
+                  title: '',
+                  description: '',
+                });
+                const [isUpdating, setIsUpdating] = useState(false);
   
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    type: 'PHOTO' as 'PHOTO' | 'VIDEO',
-    file: null as File | null,
-    recipientIds: [] as string[],
-  });
+                const [form, setForm] = useState({
+      title: '',
+      description: '',
+      type: 'PHOTO' as 'PHOTO' | 'VIDEO',
+      file: null as File | null,
+      recipientIds: [] as string[],
+      memoryDate: '', // For historic memories - empty means use current date
+    });
 
   const { data: memories, isLoading } = useQuery({
     queryKey: ['memories', filterType],
@@ -111,26 +129,27 @@ export function Memories() {
       
       setUploadProgress(70);
       
-      // Create memory record with correct field names (fileKey, fileUrl instead of mediaKey)
-      // Include fileSize and mimeType so storage stats update correctly
-      return memoriesApi.create({
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        fileKey: uploadData.key,
-        fileUrl: fileUrl,
-        fileSize: data.file.size,
-        mimeType: data.file.type,
-        recipientIds: data.recipientIds,
-      });
+            // Create memory record with correct field names (fileKey, fileUrl instead of mediaKey)
+            // Include fileSize and mimeType so storage stats update correctly
+            return memoriesApi.create({
+              title: data.title,
+              description: data.description,
+              type: data.type,
+              fileKey: uploadData.key,
+              fileUrl: fileUrl,
+              fileSize: data.file.size,
+              mimeType: data.file.type,
+              recipientIds: data.recipientIds,
+              memoryDate: data.memoryDate || undefined, // For historic memories
+            });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['memories'] });
-      setShowUploadModal(false);
-      setForm({ title: '', description: '', type: 'PHOTO', file: null, recipientIds: [] });
-      setUploadProgress(0);
-      showToast('success', 'Memory uploaded successfully');
-    },
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['memories'] });
+          setShowUploadModal(false);
+          setForm({ title: '', description: '', type: 'PHOTO', file: null, recipientIds: [], memoryDate: '' });
+          setUploadProgress(0);
+          showToast('success', 'Memory uploaded successfully');
+        },
     onError: (error: any) => {
       setUploadProgress(0);
       showToast('error', error.message || 'Failed to upload memory');
@@ -169,13 +188,44 @@ export function Memories() {
     uploadMutation.mutate(form);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this memory?')) {
-      deleteMutation.mutate(id);
-    }
-  };
+    const handleDelete = (id: string) => {
+      if (confirm('Are you sure you want to delete this memory?')) {
+        deleteMutation.mutate(id);
+      }
+    };
 
-    const toggleRecipient = (id: string) => {
+    const handleEditMemory = (memory: Memory) => {
+      setEditingMemory(memory);
+      setEditForm({
+        title: memory.title,
+        description: memory.description || '',
+      });
+      setShowEditModal(true);
+      setSelectedMemory(null);
+    };
+
+    const handleUpdateMemory = async () => {
+      if (!editingMemory || !editForm.title.trim()) return;
+    
+      setIsUpdating(true);
+      try {
+        await memoriesApi.update(editingMemory.id, {
+          title: editForm.title,
+          description: editForm.description,
+        });
+        queryClient.invalidateQueries({ queryKey: ['memories'] });
+        setShowEditModal(false);
+        setEditingMemory(null);
+        showToast('success', 'Memory updated successfully');
+      } catch (error) {
+        console.error('Failed to update memory:', error);
+        showToast('error', 'Failed to update memory');
+      } finally {
+        setIsUpdating(false);
+      }
+    };
+
+      const toggleRecipient = (id: string) => {
       setForm(prev => ({
         ...prev,
         recipientIds: prev.recipientIds.includes(id)
@@ -325,21 +375,27 @@ export function Memories() {
                         transition={{ delay: 0.1 }}
                         className="flex items-center gap-4"
                       >
-              {/* View toggle */}
-              <div className="flex items-center gap-1 glass rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
-                >
-                  <Grid size={18} />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
-                >
-                  <List size={18} />
-                </button>
-              </div>
+                            {/* View toggle */}
+                            <div className="flex items-center gap-1 glass rounded-lg p-1">
+                              <button
+                                onClick={() => {
+                                  setViewMode('grid');
+                                  try { localStorage.setItem('memories_view_mode', 'grid'); } catch {}
+                                }}
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
+                              >
+                                <Grid size={18} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setViewMode('list');
+                                  try { localStorage.setItem('memories_view_mode', 'list'); } catch {}
+                                }}
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
+                              >
+                                <List size={18} />
+                              </button>
+                            </div>
 
               {/* Filter */}
               <div className="flex items-center gap-2 glass rounded-lg px-3 py-2">
@@ -411,7 +467,8 @@ export function Memories() {
                       )}
                     </motion.div>
 
-                    {/* Timeline Slider */}
+                    {/* Timeline Slider - Only show when there are memories */}
+                    {memoriesList.length > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -513,6 +570,7 @@ export function Memories() {
               })}
             </div>
           </motion.div>
+                    )}
 
           {/* Memory Grid/List */}
           {isLoading ? (
@@ -671,7 +729,7 @@ export function Memories() {
                 <X size={20} />
               </button>
 
-              <div className="aspect-video rounded-xl overflow-hidden mb-6 bg-void-light">
+              <div className="aspect-video rounded-xl overflow-hidden mb-6 bg-void-elevated">
                 {selectedMemory.fileUrl ? (
                   selectedMemory.type === 'VIDEO' ? (
                     <video src={selectedMemory.fileUrl} controls className="w-full h-full object-contain" />
@@ -708,13 +766,16 @@ export function Memories() {
                 </div>
               )}
 
-              <div className="flex gap-3">
-                <button className="btn btn-secondary flex-1">
-                  <Pen size={16} />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(selectedMemory.id)}
+                            <div className="flex gap-3">
+                              <button 
+                                onClick={() => handleEditMemory(selectedMemory)}
+                                className="btn btn-secondary flex-1"
+                              >
+                                <Pen size={16} />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(selectedMemory.id)}
                   className="btn btn-ghost text-blood hover:bg-blood/10"
                   disabled={deleteMutation.isPending}
                 >
@@ -820,29 +881,48 @@ export function Memories() {
                   />
                 </div>
 
-                {/* Recipients */}
-                {family?.length > 0 && (
-                  <div>
-                    <label className="block text-sm text-paper/50 mb-2">Share with family</label>
-                    <div className="flex flex-wrap gap-2">
-                      {family.map((member: any) => (
-                        <button
-                          key={member.id}
-                          type="button"
-                          onClick={() => toggleRecipient(member.id)}
-                          className={`badge cursor-pointer transition-all ${
-                            form.recipientIds.includes(member.id)
-                              ? 'badge-gold'
-                              : 'hover:border-gold/50'
-                          }`}
-                        >
-                          {form.recipientIds.includes(member.id) && <Check size={12} />}
-                          {member.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Memory Date - for historic memories */}
+                <div>
+                  <label className="block text-sm text-paper/50 mb-2">When was this memory from? (optional)</label>
+                  <input
+                    type="date"
+                    value={form.memoryDate}
+                    onChange={(e) => setForm({ ...form, memoryDate: e.target.value })}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="input"
+                  />
+                  <p className="text-xs text-paper/40 mt-1">Leave empty to use today's date</p>
+                </div>
+
+                                {/* Recipients */}
+                                <div>
+                                  <label className="block text-sm text-paper/50 mb-2">Share with family</label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {family?.map((member: any) => (
+                                      <button
+                                        key={member.id}
+                                        type="button"
+                                        onClick={() => toggleRecipient(member.id)}
+                                        className={`badge cursor-pointer transition-all ${
+                                          form.recipientIds.includes(member.id)
+                                            ? 'badge-gold'
+                                            : 'hover:border-gold/50'
+                                        }`}
+                                      >
+                                        {form.recipientIds.includes(member.id) && <Check size={12} />}
+                                        {member.name}
+                                      </button>
+                                    ))}
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowAddFamilyModal(true)}
+                                      className="badge cursor-pointer transition-all border-dashed hover:border-gold/50 text-paper/50 hover:text-paper"
+                                    >
+                                      <Plus size={12} />
+                                      Add Family Member
+                                    </button>
+                                  </div>
+                                </div>
 
                 {/* Progress bar */}
                 {uploadProgress > 0 && (
@@ -880,8 +960,98 @@ export function Memories() {
               </form>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+              )}
+            </AnimatePresence>
+
+            {/* Edit Memory Modal */}
+            <AnimatePresence>
+              {showEditModal && editingMemory && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="modal-backdrop"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    className="modal max-w-lg mx-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-xl font-light">Edit Memory</h2>
+                      <button
+                        onClick={() => setShowEditModal(false)}
+                        className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <div className="space-y-5">
+                      <div>
+                        <label className="block text-sm text-paper/50 mb-2">Title *</label>
+                        <input
+                          type="text"
+                          value={editForm.title}
+                          onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                          className="input"
+                          placeholder="Give this memory a name"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-paper/50 mb-2">Description (optional)</label>
+                        <textarea
+                          value={editForm.description}
+                          onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                          className="input min-h-[100px] resize-none"
+                          placeholder="Tell the story behind this moment..."
+                        />
+                      </div>
+
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          type="button"
+                          onClick={() => setShowEditModal(false)}
+                          className="btn btn-secondary flex-1"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleUpdateMemory}
+                          disabled={!editForm.title.trim() || isUpdating}
+                          className="btn btn-primary flex-1"
+                        >
+                          {isUpdating ? (
+                            <>
+                              <div className="spinner w-4 h-4" />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Check size={16} />
+                              Save Changes
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+                  {/* Add Family Member Modal */}
+                  <AddFamilyMemberModal
+              isOpen={showAddFamilyModal}
+              onClose={() => setShowAddFamilyModal(false)}
+              onCreated={() => {
+                queryClient.invalidateQueries({ queryKey: ['family'] });
+              }}
+            />
     </div>
   );
 }

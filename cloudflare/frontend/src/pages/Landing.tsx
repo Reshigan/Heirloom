@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { ArrowRight, Pen, Mic, Image, Shield, Clock, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey, Heart } from '../components/Icons';
+import { ArrowRight, Pen, Mic, Image, Shield, Clock, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey, Heart, Gift } from '../components/Icons';
 
 export function Landing() {
   const heroRef = useRef(null);
@@ -78,14 +78,19 @@ export function Landing() {
             <span className="text-lg tracking-[0.2em] text-paper/80">Heirloom</span>
           </Link>
           
-          <div className="flex items-center gap-4 md:gap-6">
-            <Link to="/login" className="text-paper/80 hover:text-gold transition-colors font-medium text-sm md:text-base">
-              Sign In
-            </Link>
-            <Link to="/signup" className="btn btn-primary text-sm md:text-base">
-              Start Free Trial
-            </Link>
-          </div>
+                    <div className="flex items-center gap-4 md:gap-6">
+                      <Link to="/gift/purchase" className="flex items-center gap-1.5 text-paper/80 hover:text-gold transition-colors font-medium text-sm md:text-base">
+                        <Gift size={16} />
+                        <span className="hidden sm:inline">Gift a Subscription</span>
+                        <span className="sm:hidden">Gift</span>
+                      </Link>
+                      <Link to="/login" className="text-paper/80 hover:text-gold transition-colors font-medium text-sm md:text-base">
+                        Sign In
+                      </Link>
+                      <Link to="/signup" className="btn btn-primary text-sm md:text-base">
+                        Start Free Trial
+                      </Link>
+                    </div>
         </div>
       </nav>
       
@@ -264,7 +269,7 @@ export function Landing() {
       
       {/* Pricing */}
       <section ref={pricingRef} id="pricing" className="py-32 px-6 md:px-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-light/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/50 to-transparent" />
         
         <div className="max-w-6xl mx-auto relative">
           <motion.div
@@ -325,7 +330,7 @@ export function Landing() {
       
       {/* Military-Grade Security */}
       <section className="py-32 px-6 md:px-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-light/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/30 to-transparent" />
         
         <div className="max-w-6xl mx-auto relative">
           <motion.div
@@ -425,11 +430,12 @@ export function Landing() {
             <span className="text-xl text-gold">∞</span>
             <span className="tracking-[0.15em] text-paper/60">HEIRLOOM</span>
           </div>
-          <div className="flex gap-8 text-sm text-paper/40">
-            <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
-            <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
-            <Link to="/contact" className="hover:text-gold transition-colors">Contact</Link>
-          </div>
+                    <div className="flex gap-8 text-sm text-paper/40">
+                      <Link to="/gift/purchase" className="hover:text-gold transition-colors">Gift Cards</Link>
+                      <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
+                      <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
+                      <Link to="/contact" className="hover:text-gold transition-colors">Contact</Link>
+                    </div>
           <div className="text-sm text-paper/30">
             © {new Date().getFullYear()} Heirloom. All rights reserved.
           </div>

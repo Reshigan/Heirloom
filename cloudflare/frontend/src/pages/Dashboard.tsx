@@ -149,9 +149,10 @@ export function Dashboard() {
     setIsLoadingPrompt(false);
   };
 
-  const isTrialing = subscription?.status === 'TRIALING';
-  const trialDaysLeft = subscription?.trialDaysRemaining || 0;
-  const familyCount = Array.isArray(family) ? family.length : (family?.data?.length || 0);
+    const isTrialing = subscription?.status === 'TRIALING';
+    const trialDaysLeft = subscription?.trialDaysRemaining || 0;
+    const familyCount = Array.isArray(family) ? family.length : (family?.data?.length || 0);
+    const isGoldLegacy = subscription?.tier === 'FOREVER' || subscription?.billingCycle === 'lifetime';
 
   // Calculate legacy score percentage
   const scorePercent = legacyScore?.score || 0;
@@ -258,9 +259,9 @@ export function Dashboard() {
         </div>
       </motion.header>
 
-      {/* Trial Warning Banner */}
-      <AnimatePresence>
-        {isTrialing && showTrialWarning && (
+            {/* Trial Warning Banner - Don't show for Gold Legacy members */}
+            <AnimatePresence>
+              {isTrialing && showTrialWarning && !isGoldLegacy && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -312,9 +313,18 @@ export function Dashboard() {
           className="text-center mb-16 md:mb-20"
         >
           <p className="text-sm tracking-[0.2em] text-paper/50 uppercase mb-4">Your Sanctuary Awaits</p>
-          <h1 className="font-display text-4xl md:text-5xl font-normal tracking-wide mb-5">
-            Welcome back, <em className="font-body italic text-gold">{user?.firstName || 'Friend'}</em>
-          </h1>
+                    <h1 className="font-display text-4xl md:text-5xl font-normal tracking-wide mb-5">
+                      Welcome back, <em className="font-body italic text-gold">{user?.firstName || 'Friend'}</em>
+                    </h1>
+                    {isGoldLegacy && (
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4" style={{
+                        background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(184, 134, 11, 0.1) 100%)',
+                        border: '1px solid rgba(212, 175, 55, 0.4)',
+                      }}>
+                        <span className="text-lg" style={{ color: '#D4AF37' }}>∞</span>
+                        <span className="text-sm font-medium tracking-wider" style={{ color: '#D4AF37' }}>GOLD LEGACY MEMBER</span>
+                      </div>
+                    )}
           <p className="text-paper/50 text-lg font-light max-w-lg mx-auto">
             Every moment you preserve becomes eternal. What will you create today?
           </p>

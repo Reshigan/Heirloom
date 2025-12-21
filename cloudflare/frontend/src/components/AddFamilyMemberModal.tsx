@@ -3,7 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Users, Mail, Loader2 } from './Icons';
 import { familyApi } from '../services/api';
 
-const RELATIONSHIPS = ['Spouse', 'Partner', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Grandparent', 'Friend', 'Other'];
+const RELATIONSHIPS = [
+  'Spouse', 'Partner', 'Son', 'Daughter', 'Child', 'Parent', 'Mother', 'Father',
+  'Sibling', 'Brother', 'Sister', 'Grandchild', 'Grandson', 'Granddaughter',
+  'Grandparent', 'Grandmother', 'Grandfather', 'Mother-in-law', 'Father-in-law',
+  'Son-in-law', 'Daughter-in-law', 'Brother-in-law', 'Sister-in-law',
+  'Aunt', 'Uncle', 'Cousin', 'Niece', 'Nephew', 'Stepchild', 'Stepparent',
+  'Godchild', 'Godparent', 'Friend', 'Mentor', 'Other'
+];
 
 interface FamilyMember {
   id: string;
@@ -81,23 +88,27 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-void/80 backdrop-blur-sm z-50"
-            onClick={handleClose}
-          />
+                    {/* Backdrop */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="fixed inset-0 bg-void/80 backdrop-blur-sm z-50"
+                      onClick={handleClose}
+                    />
           
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50"
-          >
-            <div className="glass-strong rounded-2xl border border-gold/20 p-6 mx-4">
+                    {/* Modal Container - Full screen flex for mobile-friendly positioning */}
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+                      onClick={handleClose}
+                    >
+                      <div 
+                        className="glass-strong rounded-2xl border border-gold/20 p-6 w-full max-w-md max-h-[90vh] overflow-y-auto my-auto"
+                        onClick={(e) => e.stopPropagation()}
+                      >
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -126,7 +137,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Enter their name"
-                      className="w-full pl-10 pr-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                      className="w-full pl-10 pr-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
                     />
                   </div>
                   {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
@@ -138,7 +149,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                   <select
                     value={relationship}
                     onChange={(e) => setRelationship(e.target.value)}
-                    className="w-full px-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50 appearance-none cursor-pointer"
+                    className="w-full px-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50 appearance-none cursor-pointer"
                   >
                     <option value="" className="bg-void">Select relationship</option>
                     {RELATIONSHIPS.map((rel) => (
@@ -160,7 +171,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="For letter delivery"
-                      className="w-full pl-10 pr-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                      className="w-full pl-10 pr-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
                     />
                   </div>
                   {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}

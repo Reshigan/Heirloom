@@ -76,7 +76,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="4"
-                className="text-void-light"
+                className="text-void-elevated"
               />
               <circle
                 cx="32"
@@ -119,7 +119,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
               fill="none"
               stroke="currentColor"
               strokeWidth="8"
-              className="text-void-light"
+              className="text-void-elevated"
             />
             <motion.circle
               cx="64"

@@ -663,7 +663,7 @@ const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
         className={`max-w-[80%] rounded-2xl px-4 py-3 ${
           isUser
             ? 'bg-gold text-void-deep rounded-br-sm'
-            : 'bg-void-light border border-gold/20 text-paper rounded-bl-sm'
+            : 'bg-void-elevated border border-gold/20 text-paper rounded-bl-sm'
         }`}
       >
         <div className="whitespace-pre-wrap text-sm leading-relaxed">
@@ -699,7 +699,7 @@ const QuickActions: React.FC<{ onSelect: (query: string) => void }> = ({ onSelec
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => onSelect(action.query)}
-        className="flex items-center gap-1.5 px-3 py-1.5 bg-void-light border border-gold/20 rounded-full text-sm text-paper/80 hover:border-gold/40 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 bg-void-elevated border border-gold/20 rounded-full text-sm text-paper/80 hover:border-gold/40 transition-colors"
       >
         <span>{action.icon}</span>
         <span>{action.label}</span>
@@ -872,7 +872,7 @@ What can I help you with today?`,
             className="fixed bottom-4 right-4 w-full max-w-md h-[600px] max-h-[80vh] bg-void border border-gold/20 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="p-4 border-b border-gold/10 flex items-center justify-between bg-void-light">
+            <div className="p-4 border-b border-gold/10 flex items-center justify-between bg-void-elevated">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center">
                   <span className="text-void-deep font-bold">∞</span>
@@ -925,7 +925,7 @@ What can I help you with today?`,
             )}
             
             {/* Input */}
-            <div className="p-4 border-t border-gold/10 bg-void-light">
+            <div className="p-4 border-t border-gold/10 bg-void-elevated">
               <div className="flex gap-2">
                 <input
                   ref={inputRef}
