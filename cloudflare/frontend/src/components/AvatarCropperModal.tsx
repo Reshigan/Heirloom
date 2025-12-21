@@ -176,7 +176,7 @@ export function AvatarCropperModal({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-void-light border border-gold/20 rounded-xl p-6 max-w-md w-full mx-4 my-auto"
+          className="bg-void-elevated border border-gold/20 rounded-xl p-6 max-w-md w-full mx-4 my-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

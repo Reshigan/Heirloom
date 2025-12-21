@@ -405,7 +405,7 @@ export function Compose() {
               <button
                 onClick={handleSaveDraft}
                 disabled={isSaving}
-                className="flex items-center gap-2 px-4 py-2 bg-void-light border border-gold/20 rounded-lg text-paper/80 hover:border-gold/40 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-void-elevated border border-gold/20 rounded-lg text-paper/80 hover:border-gold/40 transition-colors"
               >
                 <span className="w-4 h-4">{Icons.save}</span>
                 <span>{isSaving ? 'Saving...' : 'Save Draft'}</span>
@@ -416,7 +416,7 @@ export function Compose() {
                 disabled={!body.trim() || selectedRecipients.length === 0}
                 className={`flex items-center gap-2 px-5 py-2 font-semibold rounded-lg transition-all ${
                   !body.trim() || selectedRecipients.length === 0
-                    ? 'bg-void-light border border-paper/20 text-paper/40 cursor-not-allowed'
+                    ? 'bg-void-elevated border border-paper/20 text-paper/40 cursor-not-allowed'
                     : 'bg-gradient-to-r from-blood to-red-800 text-paper hover:shadow-lg hover:shadow-blood/30'
                 }`}
               >
@@ -444,7 +444,7 @@ export function Compose() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., To My Children on Their Wedding Days"
-                className="w-full px-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                className="w-full px-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
               />
             </div>
 
@@ -459,7 +459,7 @@ export function Compose() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
                       selectedRecipients.includes(member.id)
                         ? 'bg-gold/20 border-gold text-gold'
-                        : 'bg-void-light border-gold/20 text-paper/60 hover:border-gold/40'
+                        : 'bg-void-elevated border-gold/20 text-paper/60 hover:border-gold/40'
                     }`}
                   >
                     <span className="w-4 h-4">{Icons.user}</span>
@@ -593,7 +593,7 @@ export function Compose() {
                     <button
                       key={index}
                       onClick={() => insertPrompt(prompt)}
-                      className="px-3 py-1.5 text-sm bg-void-light border border-gold/10 rounded-lg text-paper/50 hover:text-paper/80 hover:border-gold/30 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-void-elevated border border-gold/10 rounded-lg text-paper/50 hover:text-paper/80 hover:border-gold/30 transition-colors"
                     >
                       {prompt.substring(0, 40)}...
                     </button>
@@ -613,7 +613,7 @@ export function Compose() {
                     className={`p-4 rounded-xl border text-left transition-all ${
                       deliveryTrigger === option.id
                         ? 'bg-gold/10 border-gold'
-                        : 'bg-void-light border-gold/20 hover:border-gold/40'
+                        : 'bg-void-elevated border-gold/20 hover:border-gold/40'
                     }`}
                   >
                     <div className={`w-8 h-8 mb-3 ${deliveryTrigger === option.id ? 'text-gold' : 'text-paper/50'}`}>
@@ -636,7 +636,7 @@ export function Compose() {
                     value={scheduledDate}
                     onChange={(e) => setScheduledDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="px-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50"
+                    className="px-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50"
                   />
                 </div>
               )}
@@ -647,7 +647,7 @@ export function Compose() {
         {/* Seal Confirmation Modal */}
         {showSealConfirm && (
           <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
-            <div className="bg-void-light border border-gold/30 rounded-2xl p-8 max-w-md w-full text-center">
+            <div className="bg-void-elevated border border-gold/30 rounded-2xl p-8 max-w-md w-full text-center">
               {/* Wax Seal with Heirloom Infinity Symbol */}
               <div className="w-24 h-24 mx-auto mb-6">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -764,7 +764,7 @@ export function Compose() {
               <div
                 key={letter.id}
                 onClick={() => handleEditLetter(letter)}
-                className="group bg-void-light border border-gold/20 rounded-2xl p-6 cursor-pointer hover:border-gold/40 transition-all"
+                className="group bg-void-elevated border border-gold/20 rounded-2xl p-6 cursor-pointer hover:border-gold/40 transition-all"
               >
                 {/* Sealed Status */}
                 {letter.sealedAt ? (

@@ -126,7 +126,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Enter their name"
-                      className="w-full pl-10 pr-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                      className="w-full pl-10 pr-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
                     />
                   </div>
                   {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
@@ -138,7 +138,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                   <select
                     value={relationship}
                     onChange={(e) => setRelationship(e.target.value)}
-                    className="w-full px-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50 appearance-none cursor-pointer"
+                    className="w-full px-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper focus:outline-none focus:border-gold/50 appearance-none cursor-pointer"
                   >
                     <option value="" className="bg-void">Select relationship</option>
                     {RELATIONSHIPS.map((rel) => (
@@ -160,7 +160,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="For letter delivery"
-                      className="w-full pl-10 pr-4 py-3 bg-void-light border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                      className="w-full pl-10 pr-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
                     />
                   </div>
                   {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}

@@ -187,7 +187,7 @@ const NotificationCard: React.FC<{
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ type: 'spring', damping: 25 }}
-      className="relative bg-void-light border border-gold/20 rounded-2xl p-5 mb-4 overflow-hidden"
+      className="relative bg-void-elevated border border-gold/20 rounded-2xl p-5 mb-4 overflow-hidden"
     >
       {/* Ambient glow */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -251,7 +251,7 @@ const NotificationToast: React.FC<{
       exit={{ opacity: 0, y: -100, x: '-50%' }}
       className="fixed top-6 left-1/2 z-50 w-full max-w-md"
     >
-      <div className="bg-void-light border border-gold/30 rounded-2xl p-4 shadow-2xl shadow-void/50 mx-4">
+      <div className="bg-void-elevated border border-gold/30 rounded-2xl p-4 shadow-2xl shadow-void/50 mx-4">
         <div className="flex items-start gap-3">
           <span className="text-2xl flex-shrink-0">{notification.icon}</span>
           <div className="flex-1 min-w-0">
@@ -575,7 +575,7 @@ export const NotificationSettings: React.FC<{
         ].map(item => (
           <div
             key={item.key}
-            className="flex items-center justify-between p-4 bg-void-light rounded-xl border border-gold/10"
+            className="flex items-center justify-between p-4 bg-void-elevated rounded-xl border border-gold/10"
           >
             <div>
               <h4 className="text-paper font-medium">{item.label}</h4>

@@ -910,7 +910,7 @@ export function Settings() {
       {/* Delete Account Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
-          <div className="bg-void-light border border-blood/30 rounded-2xl p-8 max-w-md w-full">
+          <div className="bg-void-elevated border border-blood/30 rounded-2xl p-8 max-w-md w-full">
             <div className="text-center mb-6">
               <div className="w-16 h-16 rounded-full bg-blood/20 flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={32} className="text-blood" />

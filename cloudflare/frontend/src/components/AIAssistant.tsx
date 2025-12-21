@@ -374,7 +374,7 @@ What would you like to create today?`;
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25 }}
-            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-void-light border-l border-gold/20 z-50 flex flex-col"
+            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-void-elevated border-l border-gold/20 z-50 flex flex-col"
           >
             {/* Header */}
             <div className="p-4 border-b border-gold/20 flex items-center justify-between">

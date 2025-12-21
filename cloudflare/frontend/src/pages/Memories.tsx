@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Search } from '../components/Icons';
 import { memoriesApi, familyApi, getAuthHeaders, searchApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
+import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
 
@@ -53,9 +54,10 @@ export function Memories() {
         // Timeline filter state
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-    const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+        const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(null);
+        const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
   
-    const [form, setForm] = useState({
+        const [form, setForm] = useState({
       title: '',
       description: '',
       type: 'PHOTO' as 'PHOTO' | 'VIDEO',
@@ -675,7 +677,7 @@ export function Memories() {
                 <X size={20} />
               </button>
 
-              <div className="aspect-video rounded-xl overflow-hidden mb-6 bg-void-light">
+              <div className="aspect-video rounded-xl overflow-hidden mb-6 bg-void-elevated">
                 {selectedMemory.fileUrl ? (
                   selectedMemory.type === 'VIDEO' ? (
                     <video src={selectedMemory.fileUrl} controls className="w-full h-full object-contain" />
@@ -837,29 +839,35 @@ export function Memories() {
                   <p className="text-xs text-paper/40 mt-1">Leave empty to use today's date</p>
                 </div>
 
-                {/* Recipients */}
-                {family?.length > 0 && (
-                  <div>
-                    <label className="block text-sm text-paper/50 mb-2">Share with family</label>
-                    <div className="flex flex-wrap gap-2">
-                      {family.map((member: any) => (
-                        <button
-                          key={member.id}
-                          type="button"
-                          onClick={() => toggleRecipient(member.id)}
-                          className={`badge cursor-pointer transition-all ${
-                            form.recipientIds.includes(member.id)
-                              ? 'badge-gold'
-                              : 'hover:border-gold/50'
-                          }`}
-                        >
-                          {form.recipientIds.includes(member.id) && <Check size={12} />}
-                          {member.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                                {/* Recipients */}
+                                <div>
+                                  <label className="block text-sm text-paper/50 mb-2">Share with family</label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {family?.map((member: any) => (
+                                      <button
+                                        key={member.id}
+                                        type="button"
+                                        onClick={() => toggleRecipient(member.id)}
+                                        className={`badge cursor-pointer transition-all ${
+                                          form.recipientIds.includes(member.id)
+                                            ? 'badge-gold'
+                                            : 'hover:border-gold/50'
+                                        }`}
+                                      >
+                                        {form.recipientIds.includes(member.id) && <Check size={12} />}
+                                        {member.name}
+                                      </button>
+                                    ))}
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowAddFamilyModal(true)}
+                                      className="badge cursor-pointer transition-all border-dashed hover:border-gold/50 text-paper/50 hover:text-paper"
+                                    >
+                                      <Plus size={12} />
+                                      Add Family Member
+                                    </button>
+                                  </div>
+                                </div>
 
                 {/* Progress bar */}
                 {uploadProgress > 0 && (
@@ -899,6 +907,15 @@ export function Memories() {
           </motion.div>
         )}
       </AnimatePresence>
+
+            {/* Add Family Member Modal */}
+            <AddFamilyMemberModal
+              isOpen={showAddFamilyModal}
+              onClose={() => setShowAddFamilyModal(false)}
+              onCreated={() => {
+                queryClient.invalidateQueries({ queryKey: ['family'] });
+              }}
+            />
     </div>
   );
 }

@@ -269,7 +269,7 @@ export function Landing() {
       
       {/* Pricing */}
       <section ref={pricingRef} id="pricing" className="py-32 px-6 md:px-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-light/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/50 to-transparent" />
         
         <div className="max-w-6xl mx-auto relative">
           <motion.div
@@ -330,7 +330,7 @@ export function Landing() {
       
       {/* Military-Grade Security */}
       <section className="py-32 px-6 md:px-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-light/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/30 to-transparent" />
         
         <div className="max-w-6xl mx-auto relative">
           <motion.div

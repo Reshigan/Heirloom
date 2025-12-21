@@ -920,7 +920,7 @@ export function Record() {
               </div>
 
               {/* Tips */}
-              <div className="card bg-void-light/50">
+              <div className="card bg-void-elevated/50">
                 <h4 className="text-sm text-gold mb-3">Recording Tips</h4>
                 <ul className="space-y-2 text-sm text-paper/50">
                   <li className="flex items-start gap-2">
