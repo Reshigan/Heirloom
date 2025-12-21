@@ -39,8 +39,16 @@ export function Memories() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-    const [showUploadModal, setShowUploadModal] = useState(false);
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+        const [showUploadModal, setShowUploadModal] = useState(false);
+        const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+          // Persist view mode preference in localStorage
+          try {
+            const saved = localStorage.getItem('memories_view_mode');
+            return (saved === 'list' || saved === 'grid') ? saved : 'grid';
+          } catch {
+            return 'grid';
+          }
+        });
     const [filterType, setFilterType] = useState<string>('all');
     const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -329,21 +337,27 @@ export function Memories() {
                         transition={{ delay: 0.1 }}
                         className="flex items-center gap-4"
                       >
-              {/* View toggle */}
-              <div className="flex items-center gap-1 glass rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
-                >
-                  <Grid size={18} />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
-                >
-                  <List size={18} />
-                </button>
-              </div>
+                            {/* View toggle */}
+                            <div className="flex items-center gap-1 glass rounded-lg p-1">
+                              <button
+                                onClick={() => {
+                                  setViewMode('grid');
+                                  try { localStorage.setItem('memories_view_mode', 'grid'); } catch {}
+                                }}
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
+                              >
+                                <Grid size={18} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setViewMode('list');
+                                  try { localStorage.setItem('memories_view_mode', 'list'); } catch {}
+                                }}
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
+                              >
+                                <List size={18} />
+                              </button>
+                            </div>
 
               {/* Filter */}
               <div className="flex items-center gap-2 glass rounded-lg px-3 py-2">

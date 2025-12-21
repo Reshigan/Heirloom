@@ -178,12 +178,14 @@ export function Record() {
               recordingDate: data.form.recordingDate || undefined, // For historic recordings
             });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['voice'] });
-      queryClient.invalidateQueries({ queryKey: ['voice-stats'] });
-      showToast('Recording saved successfully', 'success');
-      resetRecording();
-    },
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['voice'] });
+          queryClient.invalidateQueries({ queryKey: ['voice-stats'] });
+          showToast('Recording saved successfully', 'success');
+          resetRecording();
+          // Auto-show the recordings list so user can see their new recording
+          setShowRecordingsList(true);
+        },
       onError: () => {
         showToast('Failed to save recording', 'error');
       },
