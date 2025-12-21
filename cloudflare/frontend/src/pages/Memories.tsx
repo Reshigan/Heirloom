@@ -606,24 +606,26 @@ export function Memories() {
                       {/* Thumbnail */}
                       <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-blood/10">
                         {memory.fileUrl ? (
-                          <img
-                            src={memory.fileUrl}
-                            alt={memory.title || 'Memory'}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              // Hide broken image and show placeholder
-                              e.currentTarget.style.display = 'none';
-                              const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
-                              if (placeholder) placeholder.style.display = 'flex';
-                            }}
-                          />
-                          <div className="w-full h-full items-center justify-center hidden">
-                            {memory.type === 'VIDEO' ? (
-                              <Video size={40} className="text-paper/30" />
-                            ) : (
-                              <Image size={40} className="text-paper/30" />
-                            )}
-                          </div>
+                          <>
+                            <img
+                              src={memory.fileUrl}
+                              alt={memory.title || 'Memory'}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                // Hide broken image and show placeholder
+                                e.currentTarget.style.display = 'none';
+                                const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                                if (placeholder) placeholder.style.display = 'flex';
+                              }}
+                            />
+                            <div className="w-full h-full items-center justify-center hidden">
+                              {memory.type === 'VIDEO' ? (
+                                <Video size={40} className="text-paper/30" />
+                              ) : (
+                                <Image size={40} className="text-paper/30" />
+                              )}
+                            </div>
+                          </>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             {memory.type === 'VIDEO' ? (

@@ -88,20 +88,23 @@ export function AvatarCropperModal({
     handleDragEnd();
   };
 
-  // Touch event handlers
+  // Touch event handlers - with preventDefault to stop browser scroll/zoom
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent browser default touch behaviors
     if (e.touches.length === 1) {
       handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent browser scroll while dragging
     if (e.touches.length === 1) {
       handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
     }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
     handleDragEnd();
   };
 
@@ -195,6 +198,7 @@ export function AvatarCropperModal({
             <div
               ref={containerRef}
               className="relative w-[200px] h-[200px] mx-auto rounded-full overflow-hidden border-2 border-gold/50 cursor-move"
+              style={{ touchAction: 'none' }} // Prevent browser default touch behaviors on mobile
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
