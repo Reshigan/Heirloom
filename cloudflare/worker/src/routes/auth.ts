@@ -107,37 +107,42 @@ authRoutes.post('/register', async (c) => {
     // Don't fail registration if verification email fails
   }
   
-  // Send admin notification for new user signup
-  try {
-    const adminNotificationEmail = c.env.ADMIN_NOTIFICATION_EMAIL;
-    const resendApiKey = c.env.RESEND_API_KEY;
+    // Send admin notification for new user signup
+    try {
+      const adminNotificationEmail = c.env.ADMIN_NOTIFICATION_EMAIL;
+      const resendApiKey = c.env.RESEND_API_KEY;
     
-    if (adminNotificationEmail && resendApiKey) {
-      const { adminNewUserNotificationEmail } = await import('../email-templates');
-      const emailContent = adminNewUserNotificationEmail(
-        email.toLowerCase(),
-        `${firstName} ${lastName}`,
-        new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })
-      );
+      if (adminNotificationEmail && resendApiKey) {
+        const { adminNewUserNotificationEmail } = await import('../email-templates');
+        const emailContent = adminNewUserNotificationEmail(
+          email.toLowerCase(),
+          `${firstName} ${lastName}`,
+          new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })
+        );
       
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: adminNotificationEmail,
-          subject: emailContent.subject,
-          html: emailContent.html,
-        }),
-      });
+        const adminResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Heirloom <noreply@heirloom.blue>',
+            to: adminNotificationEmail,
+            subject: emailContent.subject,
+            html: emailContent.html,
+          }),
+        });
+      
+        if (!adminResponse.ok) {
+          const errorBody = await adminResponse.text();
+          console.error('Failed to send admin notification email:', adminResponse.status, errorBody);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to send admin notification:', err);
+      // Don't fail registration if admin notification fails
     }
-  } catch (err) {
-    console.error('Failed to send admin notification:', err);
-    // Don't fail registration if admin notification fails
-  }
   
   return c.json({
     user: {
@@ -563,7 +568,7 @@ authRoutes.get('/verify-email', async (c) => {
     'UPDATE email_verification_tokens SET used_at = ? WHERE id = ?'
   ).bind(new Date().toISOString(), verifyRecord.id).run();
   
-  return c.json({ message: 'Email verified successfully!' });
+  return c.json({ success: true, message: 'Email verified successfully!' });
 });
 
 authRoutes.post('/resend-verification', async (c) => {

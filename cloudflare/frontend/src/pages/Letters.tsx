@@ -119,21 +119,24 @@ export function Letters() {
       </div>
 
       {/* Header */}
-      <header className="relative z-20 px-6 md:px-12 py-6">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <Logo size="md" />
+            <header className="relative z-20 px-6 md:px-12 py-6">
+              <div className="flex items-center justify-between max-w-7xl mx-auto">
+                <Logo size="md" />
 
-          <motion.button
-            onClick={() => navigate('/compose')}
-            className="btn btn-primary flex items-center gap-2"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Plus size={18} />
-            Write Letter
-          </motion.button>
-        </div>
-      </header>
+                {/* Only show Write Letter button if user has existing letters */}
+                {letters && letters.length > 0 && (
+                  <motion.button
+                    onClick={() => navigate('/compose')}
+                    className="btn btn-primary flex items-center gap-2"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Plus size={18} />
+                    Write Letter
+                  </motion.button>
+                )}
+              </div>
+            </header>
 
       <main className="relative z-10 px-6 md:px-12 py-8 max-w-7xl mx-auto">
         {/* Page Header */}
@@ -192,26 +195,66 @@ export function Letters() {
               </div>
             ))}
           </div>
-        ) : filteredLetters.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <div className="w-20 h-20 rounded-full bg-paper/5 flex items-center justify-center mx-auto mb-6">
-              <Mail className="text-paper/30" size={40} />
-            </div>
-            <h3 className="text-xl mb-2">No letters yet</h3>
-            <p className="text-paper/50 mb-6">Start preserving your thoughts for loved ones</p>
-            <button
-              onClick={() => navigate('/compose')}
-              className="btn btn-primary"
-            >
-              <Plus size={18} />
-              Write Your First Letter
-            </button>
-          </motion.div>
-        ) : (
+                ) : filteredLetters.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-2xl mx-auto"
+                  >
+                    {/* First Letter Guide */}
+                    <div className="card glass-strong">
+                      <div className="text-center mb-8">
+                        <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-6">
+                          <Mail className="text-gold" size={40} />
+                        </div>
+                        <h2 className="text-2xl font-light mb-2">Write Your First Letter</h2>
+                        <p className="text-paper/60">
+                          A letter is a timeless gift. Here's how to get started.
+                        </p>
+                      </div>
+
+                      <div className="space-y-6 mb-8">
+                        <div className="flex gap-4">
+                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">1</div>
+                          <div>
+                            <h4 className="font-medium mb-1">Choose Your Recipient</h4>
+                            <p className="text-paper/60 text-sm">Who do you want to receive this letter? A child, partner, friend, or future self?</p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">2</div>
+                          <div>
+                            <h4 className="font-medium mb-1">Share What Matters</h4>
+                            <p className="text-paper/60 text-sm">Write about memories, life lessons, hopes for them, or simply say what you've always wanted to say.</p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">3</div>
+                          <div>
+                            <h4 className="font-medium mb-1">Choose When to Deliver</h4>
+                            <p className="text-paper/60 text-sm">Send it now, schedule for a special date, or have it delivered after you're gone.</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-paper/5 rounded-xl p-4 mb-8">
+                        <p className="text-paper/70 text-sm italic">
+                          "The best letters come from the heart. Don't worry about being perfect — just be yourself."
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => navigate('/compose')}
+                        className="btn btn-primary w-full"
+                      >
+                        <Edit size={18} />
+                        Start Writing
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence>
               {filteredLetters.map((letter: Letter, index: number) => {
