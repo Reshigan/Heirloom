@@ -173,24 +173,29 @@ app.post('/api/test-email', async (c) => {
 
 // Test post reminder email endpoint
 app.post('/api/test-post-reminder', async (c) => {
-  const body = await c.req.json();
-  const { email, type } = body;
-  
-  if (!email) {
-    return c.json({ error: 'Email is required' }, 400);
-  }
-  
-  const reminderType = type || 'weekly';
-  if (!['memory', 'voice', 'letter', 'weekly'].includes(reminderType)) {
-    return c.json({ error: 'Invalid type. Must be: memory, voice, letter, or weekly' }, 400);
-  }
-  
-  const result = await sendSinglePostReminderEmail(c.env, email, reminderType as 'memory' | 'voice' | 'letter' | 'weekly');
-  
-  if (result.success) {
-    return c.json(result);
-  } else {
-    return c.json(result, 500);
+  try {
+    const body = await c.req.json();
+    const { email, type } = body;
+    
+    if (!email) {
+      return c.json({ error: 'Email is required' }, 400);
+    }
+    
+    const reminderType = type || 'weekly';
+    if (!['memory', 'voice', 'letter', 'weekly'].includes(reminderType)) {
+      return c.json({ error: 'Invalid type. Must be: memory, voice, letter, or weekly' }, 400);
+    }
+    
+    const result = await sendSinglePostReminderEmail(c.env, email, reminderType as 'memory' | 'voice' | 'letter' | 'weekly');
+    
+    if (result.success) {
+      return c.json(result);
+    } else {
+      return c.json(result, 500);
+    }
+  } catch (err: any) {
+    console.error('Error in test-post-reminder:', err);
+    return c.json({ error: 'Failed to send post reminder', details: err.message }, 500);
   }
 });
 
