@@ -1054,6 +1054,106 @@ adminRoutes.post('/emails/bulk', adminAuth, async (c) => {
   return c.json({ success: true, message: `${recipientEmails.length} emails queued` });
 });
 
+// Send product update email to users who opted in for marketing
+adminRoutes.post('/emails/product-update', adminAuth, async (c) => {
+  const adminId = c.get('adminId');
+  const adminRole = c.get('adminRole');
+  const body = await c.req.json();
+  
+  if (adminRole !== 'SUPER_ADMIN') {
+    return c.json({ error: 'Only super admins can send product update emails' }, 403);
+  }
+  
+  const { subject, body: emailBody, previewText } = body;
+  
+  if (!subject || !emailBody) {
+    return c.json({ error: 'Subject and body are required' }, 400);
+  }
+  
+  // Get users who opted in for marketing emails
+  const users = await c.env.DB.prepare(`
+    SELECT email, first_name, last_name 
+    FROM users 
+    WHERE marketing_consent = 1 OR marketing_consent = true
+  `).all();
+  
+  if (users.results.length === 0) {
+    return c.json({ error: 'No users have opted in for marketing emails' }, 400);
+  }
+  
+  const now = new Date().toISOString();
+  let sentCount = 0;
+  let failedCount = 0;
+  
+  // Send emails to opted-in users
+  for (const user of users.results as any[]) {
+    try {
+      if (c.env.RESEND_API_KEY) {
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Heirloom <updates@heirloom.blue>',
+            to: [user.email],
+            subject: subject,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                  <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
+                  <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
+                </div>
+                <p>Hi ${user.first_name || 'there'},</p>
+                ${emailBody}
+                <hr style="border: 1px solid #333; margin: 24px 0;" />
+                <p style="color: #888; font-size: 12px;">
+                  You're receiving this email because you opted in to receive product updates from Heirloom.
+                  <br /><br />
+                  <a href="https://heirloom.blue/settings?tab=notifications" style="color: #D4AF37;">Manage your email preferences</a>
+                </p>
+              </div>
+            `,
+          }),
+        });
+        
+        if (response.ok) {
+          sentCount++;
+        } else {
+          failedCount++;
+          console.error('Failed to send product update email to', user.email);
+        }
+      }
+      
+      // Log the email
+      await c.env.DB.prepare(`
+        INSERT INTO email_logs (id, to_email, subject, body, status, created_at)
+        VALUES (?, ?, ?, ?, 'SENT', ?)
+      `).bind(crypto.randomUUID(), user.email, subject, emailBody, now).run();
+      
+    } catch (err) {
+      failedCount++;
+      console.error('Error sending product update email:', err);
+    }
+  }
+  
+  await logAuditAction(c.env, adminId, 'SEND_PRODUCT_UPDATE_EMAIL', { 
+    subject, 
+    sentCount, 
+    failedCount,
+    totalOptedIn: users.results.length 
+  });
+  
+  return c.json({ 
+    success: true, 
+    message: `Product update sent to ${sentCount} users (${failedCount} failed)`,
+    sentCount,
+    failedCount,
+    totalOptedIn: users.results.length
+  });
+});
+
 // ============================================
 // BILLING ANALYSIS & ERROR MANAGEMENT
 // ============================================

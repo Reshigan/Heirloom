@@ -425,19 +425,31 @@ export function Landing() {
       
       {/* Footer */}
       <footer className="py-12 px-6 md:px-12 border-t border-white/[0.04]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <span className="text-xl text-gold">∞</span>
-            <span className="tracking-[0.15em] text-paper/60">HEIRLOOM</span>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+            <div className="flex items-center gap-3">
+              <span className="text-xl text-gold">∞</span>
+              <span className="tracking-[0.15em] text-paper/60">HEIRLOOM</span>
+            </div>
+            <div className="flex gap-8 text-sm text-paper/40">
+              <Link to="/gift" className="hover:text-gold transition-colors">Gift Cards</Link>
+              <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
+              <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
+              <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">Contact</a>
+            </div>
           </div>
-                    <div className="flex gap-8 text-sm text-paper/40">
-                      <Link to="/gift" className="hover:text-gold transition-colors">Gift Cards</Link>
-                      <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
-                      <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
-                      <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">Contact</a>
-                    </div>
-          <div className="text-sm text-paper/30">
-            © {new Date().getFullYear()} Heirloom. All rights reserved.
+          
+          {/* Contact Details */}
+          <div className="border-t border-white/[0.04] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-paper/40 text-center md:text-left">
+              <p className="mb-1">
+                <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">support@heirloom.blue</a>
+              </p>
+              <p>131 Continental Dr Suite 305, Newark, DE 19713, US</p>
+            </div>
+            <div className="text-sm text-paper/30">
+              © {new Date().getFullYear()} Heirloom. All rights reserved.
+            </div>
           </div>
         </div>
       </footer>

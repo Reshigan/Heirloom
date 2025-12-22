@@ -14,6 +14,8 @@ export function Signup() {
     email: '',
     password: '',
     confirmPassword: '',
+    acceptedTerms: false,
+    marketingConsent: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +35,7 @@ export function Signup() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = 'Invalid email';
     if (form.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
     if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    if (!form.acceptedTerms) newErrors.acceptedTerms = 'You must accept the Terms of Service';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -45,7 +48,13 @@ export function Signup() {
     setErrors({});
 
     try {
-      await register(form.email, form.password, form.firstName, form.lastName);
+      // Pass consent data with registration
+      await register(form.email, form.password, form.firstName, form.lastName, {
+        acceptedTerms: form.acceptedTerms,
+        acceptedTermsAt: new Date().toISOString(),
+        marketingConsent: form.marketingConsent,
+        marketingConsentAt: form.marketingConsent ? new Date().toISOString() : null,
+      });
       navigate('/dashboard');
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
@@ -234,6 +243,67 @@ export function Signup() {
                 {errors.confirmPassword && <p className="text-blood text-xs mt-1">{errors.confirmPassword}</p>}
               </div>
 
+              {/* GDPR Consent Section */}
+              <div className="space-y-3 pt-2">
+                {/* Terms of Service - Required */}
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={form.acceptedTerms}
+                      onChange={(e) => setForm({ ...form, acceptedTerms: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${
+                      form.acceptedTerms 
+                        ? 'bg-gold border-gold' 
+                        : errors.acceptedTerms 
+                          ? 'border-blood' 
+                          : 'border-paper/30 group-hover:border-paper/50'
+                    }`}>
+                      {form.acceptedTerms && <Check size={12} className="text-void" />}
+                    </div>
+                  </div>
+                  <span className="text-sm text-paper/70">
+                    I agree to the{' '}
+                    <Link to="/terms" className="text-gold hover:text-gold-bright underline" onClick={(e) => e.stopPropagation()}>
+                      Terms of Service
+                    </Link>
+                    {' '}<span className="text-gold">*</span>
+                  </span>
+                </label>
+                {errors.acceptedTerms && <p className="text-blood text-xs ml-8">{errors.acceptedTerms}</p>}
+
+                {/* Privacy Policy Acknowledgement */}
+                <p className="text-xs text-paper/50 ml-8">
+                  By creating an account, you acknowledge our{' '}
+                  <Link to="/privacy" className="text-gold/70 hover:text-gold underline">Privacy Policy</Link>
+                  {' '}which explains how we collect, use, and protect your data.
+                </p>
+
+                {/* Marketing Consent - Optional */}
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={form.marketingConsent}
+                      onChange={(e) => setForm({ ...form, marketingConsent: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${
+                      form.marketingConsent 
+                        ? 'bg-gold border-gold' 
+                        : 'border-paper/30 group-hover:border-paper/50'
+                    }`}>
+                      {form.marketingConsent && <Check size={12} className="text-void" />}
+                    </div>
+                  </div>
+                  <span className="text-sm text-paper/50">
+                    Send me product updates, tips, and special offers (optional)
+                  </span>
+                </label>
+              </div>
+
               <motion.button
                 type="submit"
                 disabled={isLoading}
@@ -250,13 +320,6 @@ export function Signup() {
                   </>
                 )}
               </motion.button>
-
-              <p className="text-xs text-paper/40 text-center">
-                By creating an account, you agree to our{' '}
-                <Link to="/terms" className="text-gold/70 hover:text-gold">Terms</Link>
-                {' '}and{' '}
-                <Link to="/privacy" className="text-gold/70 hover:text-gold">Privacy Policy</Link>
-              </p>
             </form>
 
             <div className="mt-8 text-center">
