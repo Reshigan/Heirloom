@@ -28,26 +28,27 @@ function generateVoucherCode(): string {
 }
 
 // Pricing by tier and cycle (in cents for Stripe)
+// Note: quarterly = 3 months at regular price (no discount)
 const GIFT_PRICING: Record<string, Record<string, Record<string, number>>> = {
   USD: {
-    STARTER: { monthly: 100, yearly: 1000 },
-    FAMILY: { monthly: 500, yearly: 5000 },
-    FOREVER: { monthly: 1500, yearly: 15000 },
+    STARTER: { quarterly: 300, yearly: 1000 },
+    FAMILY: { quarterly: 1500, yearly: 5000 },
+    FOREVER: { quarterly: 4500, yearly: 15000 },
   },
   ZAR: {
-    STARTER: { monthly: 1800, yearly: 18000 },
-    FAMILY: { monthly: 9000, yearly: 90000 },
-    FOREVER: { monthly: 27000, yearly: 270000 },
+    STARTER: { quarterly: 5400, yearly: 18000 },
+    FAMILY: { quarterly: 27000, yearly: 90000 },
+    FOREVER: { quarterly: 81000, yearly: 270000 },
   },
   GBP: {
-    STARTER: { monthly: 79, yearly: 790 },
-    FAMILY: { monthly: 399, yearly: 3990 },
-    FOREVER: { monthly: 1199, yearly: 11990 },
+    STARTER: { quarterly: 237, yearly: 790 },
+    FAMILY: { quarterly: 1197, yearly: 3990 },
+    FOREVER: { quarterly: 3597, yearly: 11990 },
   },
   EUR: {
-    STARTER: { monthly: 99, yearly: 990 },
-    FAMILY: { monthly: 499, yearly: 4990 },
-    FOREVER: { monthly: 1499, yearly: 14990 },
+    STARTER: { quarterly: 297, yearly: 990 },
+    FAMILY: { quarterly: 1497, yearly: 4990 },
+    FOREVER: { quarterly: 4497, yearly: 14990 },
   },
 };
 
@@ -96,7 +97,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
         name: 'Starter',
         description: 'Perfect for getting started with digital legacy',
         storage: '500 MB',
-        monthly: { amount: prices.STARTER.monthly / 100, display: `${symbol}${(prices.STARTER.monthly / 100).toFixed(2)}` },
+        quarterly: { amount: prices.STARTER.quarterly / 100, display: `${symbol}${(prices.STARTER.quarterly / 100).toFixed(2)}` },
         yearly: { amount: prices.STARTER.yearly / 100, display: `${symbol}${(prices.STARTER.yearly / 100).toFixed(2)}`, savings: '2 months free' },
       },
       {
@@ -105,7 +106,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
         description: 'Most popular - ideal for families',
         storage: '5 GB',
         popular: true,
-        monthly: { amount: prices.FAMILY.monthly / 100, display: `${symbol}${(prices.FAMILY.monthly / 100).toFixed(2)}` },
+        quarterly: { amount: prices.FAMILY.quarterly / 100, display: `${symbol}${(prices.FAMILY.quarterly / 100).toFixed(2)}` },
         yearly: { amount: prices.FAMILY.yearly / 100, display: `${symbol}${(prices.FAMILY.yearly / 100).toFixed(2)}`, savings: '2 months free' },
       },
       {
@@ -113,7 +114,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
         name: 'Forever',
         description: 'The ultimate legacy package',
         storage: '50 GB',
-        monthly: { amount: prices.FOREVER.monthly / 100, display: `${symbol}${(prices.FOREVER.monthly / 100).toFixed(2)}` },
+        quarterly: { amount: prices.FOREVER.quarterly / 100, display: `${symbol}${(prices.FOREVER.quarterly / 100).toFixed(2)}` },
         yearly: { amount: prices.FOREVER.yearly / 100, display: `${symbol}${(prices.FOREVER.yearly / 100).toFixed(2)}`, savings: '2 months free' },
       },
     ],
@@ -130,7 +131,7 @@ giftVoucherRoutes.post('/checkout', async (c) => {
   }
   
   const validTiers = ['STARTER', 'FAMILY', 'FOREVER'];
-  const validCycles = ['monthly', 'yearly'];
+  const validCycles = ['quarterly', 'yearly'];
   
   if (!validTiers.includes(tier.toUpperCase())) {
     return c.json({ error: 'Invalid tier' }, 400);
@@ -142,7 +143,7 @@ giftVoucherRoutes.post('/checkout', async (c) => {
   
   const prices = GIFT_PRICING[currency.toUpperCase()] || GIFT_PRICING.USD;
   const amount = prices[tier.toUpperCase()][billingCycle.toLowerCase()];
-  const durationMonths = billingCycle.toLowerCase() === 'yearly' ? 12 : 1;
+  const durationMonths = billingCycle.toLowerCase() === 'yearly' ? 12 : 3; // quarterly = 3 months
   
   // Generate voucher code
   const voucherCode = generateVoucherCode();

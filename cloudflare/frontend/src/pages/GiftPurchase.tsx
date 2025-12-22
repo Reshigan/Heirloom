@@ -8,7 +8,7 @@ interface PricingTier {
   description: string;
   storage: string;
   popular?: boolean;
-  monthly: { amount: number; display: string };
+  quarterly: { amount: number; display: string };
   yearly: { amount: number; display: string; savings?: string };
 }
 
@@ -21,7 +21,7 @@ interface PricingData {
 export function GiftPurchase() {
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [selectedTier, setSelectedTier] = useState<string>('FAMILY');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+  const [billingCycle, setBillingCycle] = useState<'quarterly' | 'yearly'>('yearly');
   const [isLoading, setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -116,14 +116,14 @@ export function GiftPurchase() {
               {/* Billing Toggle */}
               <div className="flex items-center justify-center gap-4 mb-6 p-1 bg-white/5 rounded-lg">
                 <button
-                  onClick={() => setBillingCycle('monthly')}
+                  onClick={() => setBillingCycle('quarterly')}
                   className={`flex-1 py-2 px-4 rounded transition-all ${
-                    billingCycle === 'monthly' 
+                    billingCycle === 'quarterly' 
                       ? 'bg-gold/20 text-gold' 
                       : 'text-paper/50 hover:text-paper'
                   }`}
                 >
-                  Monthly
+                  3 Months
                 </button>
                 <button
                   onClick={() => setBillingCycle('yearly')}
@@ -133,7 +133,7 @@ export function GiftPurchase() {
                       : 'text-paper/50 hover:text-paper'
                   }`}
                 >
-                  Yearly
+                  Annual
                   <span className="ml-2 text-xs text-green-400">Save 2 months</span>
                 </button>
               </div>
@@ -168,7 +168,7 @@ export function GiftPurchase() {
                           {tier[billingCycle].display}
                         </div>
                         <div className="text-paper/40 text-xs">
-                          {billingCycle === 'yearly' ? '/year' : '/month'}
+                          {billingCycle === 'yearly' ? '/year' : '/3 months'}
                         </div>
                       </div>
                     </div>
@@ -281,7 +281,7 @@ export function GiftPurchase() {
               <div className="flex items-center justify-between mb-4">
                 <span className="text-paper/70">Gift Summary</span>
                 <span className="text-gold font-medium">
-                  {selectedPricing?.name} - {billingCycle === 'yearly' ? '1 Year' : '1 Month'}
+                  {selectedPricing?.name} - {billingCycle === 'yearly' ? '1 Year' : '3 Months'}
                 </span>
               </div>
               
