@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '../utils/storage';
 import { authApi } from '../services/api';
 import { User, AuthState } from '../types';
 
@@ -24,18 +24,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkAuth();
   }, []);
 
-  const checkAuth = async () => {
-    try {
-      const token = await SecureStore.getItemAsync('authToken');
-      if (token) {
-        const user = await authApi.getProfile();
-        setState({
-          user,
-          token,
-          isLoading: false,
-          isAuthenticated: true,
-        });
-      } else {
+    const checkAuth = async () => {
+      try {
+        const token = await storage.getItem('authToken');
+        if (token) {
+          const user = await authApi.getProfile();
+          setState({
+            user,
+            token,
+            isLoading: false,
+            isAuthenticated: true,
+          });
+        } else {
+          setState({
+            user: null,
+            token: null,
+            isLoading: false,
+            isAuthenticated: false,
+          });
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        await storage.deleteItem('authToken');
         setState({
           user: null,
           token: null,
@@ -43,47 +53,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           isAuthenticated: false,
         });
       }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      await SecureStore.deleteItemAsync('authToken');
-      setState({
-        user: null,
-        token: null,
-        isLoading: false,
-        isAuthenticated: false,
-      });
-    }
-  };
+    };
 
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await authApi.login(email, password);
-      await SecureStore.setItemAsync('authToken', response.token);
-      setState({
-        user: response.user,
-        token: response.token,
-        isLoading: false,
-        isAuthenticated: true,
-      });
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Login failed');
-    }
-  };
+    const login = async (email: string, password: string) => {
+      try {
+        const response = await authApi.login(email, password);
+        await storage.setItem('authToken', response.token);
+        setState({
+          user: response.user,
+          token: response.token,
+          isLoading: false,
+          isAuthenticated: true,
+        });
+      } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Login failed');
+      }
+    };
 
-  const signup = async (data: { email: string; password: string; firstName: string; lastName: string }) => {
-    try {
-      const response = await authApi.signup(data);
-      await SecureStore.setItemAsync('authToken', response.token);
-      setState({
-        user: response.user,
-        token: response.token,
-        isLoading: false,
-        isAuthenticated: true,
-      });
-    } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Signup failed');
-    }
-  };
+    const signup = async (data: { email: string; password: string; firstName: string; lastName: string }) => {
+      try {
+        const response = await authApi.signup(data);
+        await storage.setItem('authToken', response.token);
+        setState({
+          user: response.user,
+          token: response.token,
+          isLoading: false,
+          isAuthenticated: true,
+        });
+      } catch (error: any) {
+        throw new Error(error.response?.data?.error || 'Signup failed');
+      }
+    };
 
   const logout = async () => {
     await authApi.logout();

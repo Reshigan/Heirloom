@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '../utils/storage';
 
 const API_URL = 'https://api.heirloom.blue/api';
 
@@ -12,7 +12,7 @@ const api = axios.create({
 
 // Add auth token to requests
 api.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync('authToken');
+  const token = await storage.getItem('authToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -50,9 +50,9 @@ export const authApi = {
     return response.data;
   },
   
-  logout: async () => {
-    await SecureStore.deleteItemAsync('authToken');
-  },
+    logout: async () => {
+      await storage.deleteItem('authToken');
+    },
 };
 
 // Memories API
