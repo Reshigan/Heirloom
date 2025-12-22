@@ -35,7 +35,8 @@
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ]
     },
     "web": {
@@ -43,7 +44,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "heirloom-mobile"
+        "projectId": "e968bdf3-213e-4666-9c57-2303cb4bf421"
       }
     },
     "plugins": [
@@ -61,6 +62,7 @@
           "microphonePermission": "Heirloom needs microphone access to record voice messages."
         }
       ]
-    ]
+    ],
+    "owner": "reshigan"
   }
 }
