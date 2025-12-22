@@ -68,29 +68,47 @@ export function CustomCursor() {
 
   return (
     <>
-      {/* Main cursor dot */}
+      {/* Main cursor - Gold Arrow */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 pointer-events-none z-[9999]"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
         }}
       >
         <motion.div
-          className="relative -translate-x-1/2 -translate-y-1/2"
+          className="relative"
+          style={{ marginLeft: '-2px', marginTop: '-2px' }}
           animate={{
-            scale: isClicking ? 0.8 : isHovering ? 1.5 : 1,
+            scale: isClicking ? 0.85 : isHovering ? 1.1 : 1,
           }}
           transition={{ duration: 0.15 }}
         >
-          {/* Core */}
-          <div 
-            className="w-3 h-3 rounded-full"
+          {/* Gold Arrow Cursor */}
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none"
             style={{
-              background: 'linear-gradient(135deg, #c9a959 0%, #f8f5ef 100%)',
-              boxShadow: '0 0 10px rgba(201,169,89,0.5)',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
             }}
-          />
+          >
+            <defs>
+              <linearGradient id="goldArrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#f4dda0" />
+                <stop offset="50%" stopColor="#d4a853" />
+                <stop offset="100%" stopColor="#9c7a3c" />
+              </linearGradient>
+            </defs>
+            <path 
+              d="M4 2L20 12L12 12L8 20L4 2Z" 
+              fill="url(#goldArrowGradient)"
+              stroke="#6b5228"
+              strokeWidth="1"
+              strokeLinejoin="round"
+            />
+          </svg>
         </motion.div>
       </motion.div>
 

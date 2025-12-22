@@ -79,7 +79,7 @@ export function Landing() {
           </Link>
           
                     <div className="flex items-center gap-4 md:gap-6">
-                      <Link to="/gift/purchase" className="flex items-center gap-1.5 text-paper/80 hover:text-gold transition-colors font-medium text-sm md:text-base">
+                      <Link to="/gift" className="flex items-center gap-1.5 text-paper/80 hover:text-gold transition-colors font-medium text-sm md:text-base">
                         <Gift size={16} />
                         <span className="hidden sm:inline">Gift a Subscription</span>
                         <span className="sm:hidden">Gift</span>
@@ -431,10 +431,10 @@ export function Landing() {
             <span className="tracking-[0.15em] text-paper/60">HEIRLOOM</span>
           </div>
                     <div className="flex gap-8 text-sm text-paper/40">
-                      <Link to="/gift/purchase" className="hover:text-gold transition-colors">Gift Cards</Link>
+                      <Link to="/gift" className="hover:text-gold transition-colors">Gift Cards</Link>
                       <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
                       <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
-                      <Link to="/contact" className="hover:text-gold transition-colors">Contact</Link>
+                      <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">Contact</a>
                     </div>
           <div className="text-sm text-paper/30">
             © {new Date().getFullYear()} Heirloom. All rights reserved.

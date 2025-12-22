@@ -177,7 +177,7 @@ export function Terms() {
           <div className="flex gap-8 text-sm text-paper/40">
             <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
             <Link to="/terms" className="hover:text-gold transition-colors text-gold">Terms</Link>
-            <Link to="/contact" className="hover:text-gold transition-colors">Contact</Link>
+            <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">Contact</a>
           </div>
           <div className="text-sm text-paper/30">
             © {new Date().getFullYear()} Heirloom. All rights reserved.
