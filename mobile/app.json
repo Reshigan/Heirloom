@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "Heirloom",
+    "slug": "heirloom",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0c10"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.heirloom.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Heirloom needs camera access to capture photos for your memories.",
+        "NSPhotoLibraryUsageDescription": "Heirloom needs photo library access to save and upload your memories.",
+        "NSMicrophoneUsageDescription": "Heirloom needs microphone access to record voice messages for your legacy.",
+        "NSPhotoLibraryAddUsageDescription": "Heirloom needs permission to save photos to your library."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0c10"
+      },
+      "package": "com.heirloom.app",
+      "versionCode": 1,
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "heirloom-mobile"
+      }
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Heirloom needs access to your photos to preserve your memories.",
+          "cameraPermission": "Heirloom needs camera access to capture new memories."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Heirloom needs microphone access to record voice messages."
+        }
+      ]
+    ]
+  }
+}
