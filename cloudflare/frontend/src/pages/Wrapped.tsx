@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { wrappedApi } from '../services/api';
-import { ChevronLeft, ChevronRight, Calendar, Play, Pause, Volume2, VolumeX } from '../components/Icons';
+import { ChevronLeft, ChevronRight, Calendar, Play, Pause, Volume2, VolumeX, Share2, Download } from '../components/Icons';
+
+// Royalty-free ambient music URL (using a simple tone generator as placeholder)
+const THEME_MUSIC_URL = 'https://assets.mixkit.co/music/preview/mixkit-serene-view-443.mp3';
 
 // Types for wrapped data
 interface WrappedStats {
@@ -646,11 +649,83 @@ const Wrapped: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => {
+    // Default to muted, respect user preference
+    const saved = localStorage.getItem('wrapped-muted');
+    return saved !== null ? saved === 'true' : true;
+  });
+  const [showShareMenu, setShowShareMenu] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
+
+  // Initialize audio on mount
+  useEffect(() => {
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    audioRef.current = new Audio(THEME_MUSIC_URL);
+    audioRef.current.loop = true;
+    audioRef.current.volume = 0.3; // Low default volume
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Handle mute state changes
+  useEffect(() => {
+    localStorage.setItem('wrapped-muted', String(isMuted));
+    if (audioRef.current) {
+      if (isMuted) {
+        audioRef.current.pause();
+      } else if (isAutoPlaying) {
+        audioRef.current.play().catch(() => {
+          // Autoplay blocked, keep muted
+          setIsMuted(true);
+        });
+      }
+    }
+  }, [isMuted, isAutoPlaying]);
+
+  // Share functionality
+  const handleShare = async (platform: 'twitter' | 'facebook' | 'copy' | 'native') => {
+    const shareText = `Check out my ${selectedYear} Heirloom Wrapped! I created ${stats.totalMemories} memories and ${stats.totalVoiceStories} voice stories this year. #HeirloomWrapped #FamilyLegacy`;
+    const shareUrl = window.location.href;
+
+    switch (platform) {
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`, '_blank');
+        break;
+      case 'copy':
+        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+        alert('Copied to clipboard!');
+        break;
+      case 'native':
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: `My ${selectedYear} Heirloom Wrapped`,
+              text: shareText,
+              url: shareUrl,
+            });
+          } catch {
+            // User cancelled or error
+          }
+        }
+        break;
+    }
+    setShowShareMenu(false);
+  };
 
   // Fetch available years from API
   const { data: yearsData } = useQuery({
@@ -953,13 +1028,59 @@ const Wrapped: React.FC = () => {
         </button>
       </div>
 
-      {/* Close button */}
+      {/* Back to Vault breadcrumb */}
       <button
-        onClick={() => window.history.back()}
-        className="absolute top-8 right-8 p-2 text-paper/60 hover:text-paper transition-colors z-50"
+        onClick={() => window.location.href = '/dashboard'}
+        className="absolute top-8 right-4 sm:right-8 flex items-center gap-2 px-3 py-2 text-paper/60 hover:text-gold transition-colors z-50 rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50 backdrop-blur-sm"
       >
-        ✕
+        <ChevronLeft size={16} />
+        <span className="text-sm font-medium">Back to Vault</span>
       </button>
+
+      {/* Share button */}
+      <div className="absolute top-20 sm:top-8 right-4 sm:right-48 z-50">
+        <button
+          onClick={() => setShowShareMenu(!showShareMenu)}
+          className="flex items-center gap-2 px-3 py-2 text-paper/60 hover:text-gold transition-colors rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50 backdrop-blur-sm"
+        >
+          <Share2 size={16} />
+          <span className="text-sm font-medium hidden sm:inline">Share</span>
+        </button>
+        
+        {/* Share menu dropdown */}
+        {showShareMenu && (
+          <div className="absolute top-12 right-0 bg-void-deep/95 backdrop-blur-md border border-paper/20 rounded-xl p-2 min-w-[160px] shadow-xl">
+            <button
+              onClick={() => handleShare('native')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"
+            >
+              <Share2 size={16} />
+              <span className="text-sm">Share...</span>
+            </button>
+            <button
+              onClick={() => handleShare('twitter')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"
+            >
+              <span className="text-base">𝕏</span>
+              <span className="text-sm">Post on X</span>
+            </button>
+            <button
+              onClick={() => handleShare('facebook')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"
+            >
+              <span className="text-base">f</span>
+              <span className="text-sm">Share on Facebook</span>
+            </button>
+            <button
+              onClick={() => handleShare('copy')}
+              className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"
+            >
+              <Download size={16} />
+              <span className="text-sm">Copy Link</span>
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

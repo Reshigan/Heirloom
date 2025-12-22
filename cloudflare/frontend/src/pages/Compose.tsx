@@ -562,6 +562,31 @@ export function Compose() {
                               </button>
                             </div>
 
+                            {/* AI Suggestion Box - Above textarea for visibility */}
+                            {aiSuggestion && (
+                              <div className="mb-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 text-purple-400 text-sm mb-2">
+                                      <span className="w-4 h-4">{Icons.sparkles}</span>
+                                      <span>AI Suggestion</span>
+                                    </div>
+                                    <p className="text-paper/80 italic text-base" style={{ fontFamily: "'Caveat', 'Dancing Script', cursive, serif" }}>
+                                      {aiSuggestion}
+                                    </p>
+                                  </div>
+                                  {!aiSuggestion.includes('unavailable') && !aiSuggestion.includes('Could not') && (
+                                    <button
+                                      onClick={insertAiSuggestion}
+                                      className="px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 rounded-lg text-purple-300 hover:bg-purple-500/30 transition-colors text-sm flex-shrink-0"
+                                    >
+                                      Insert
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Salutation */}
                             <input
                               type="text"
@@ -581,31 +606,6 @@ export function Compose() {
                               className="w-full bg-transparent border-none text-paper text-xl leading-loose focus:outline-none resize-none placeholder:text-paper/30"
                               style={{ fontFamily: "'Caveat', 'Dancing Script', cursive, serif" }}
                             />
-
-                            {/* AI Suggestion Box */}
-                            {aiSuggestion && (
-                              <div className="mt-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
-                                <div className="flex items-start justify-between gap-4">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 text-purple-400 text-sm mb-2">
-                                      <span className="w-4 h-4">{Icons.sparkles}</span>
-                                      <span>AI Suggestion</span>
-                                    </div>
-                                    <p className="text-paper/80 italic" style={{ fontFamily: "'Caveat', 'Dancing Script', cursive, serif" }}>
-                                      {aiSuggestion}
-                                    </p>
-                                  </div>
-                                  {!aiSuggestion.includes('unavailable') && !aiSuggestion.includes('Could not') && (
-                                    <button
-                                      onClick={insertAiSuggestion}
-                                      className="px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 rounded-lg text-purple-300 hover:bg-purple-500/30 transition-colors text-sm"
-                                    >
-                                      Insert
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            )}
                 
                             {/* Signature */}
                             <div className="mt-8 pt-6 border-t border-gold/20">

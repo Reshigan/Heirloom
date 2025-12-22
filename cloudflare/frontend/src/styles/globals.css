@@ -585,7 +585,10 @@ THE ETERNAL BACKGROUND - A living, breathing void
 /* ===== INPUTS (Eternal Premium) ===== */
 .input {
   width: 100%;
-  padding: 14px 18px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  padding-left: 18px;
+  padding-right: 18px;
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;

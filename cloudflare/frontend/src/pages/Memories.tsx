@@ -430,13 +430,14 @@ export function Memories() {
                       className="mb-8"
                     >
                       <div className="relative max-w-xl mx-auto">
-                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/40" />
+                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/40 pointer-events-none" />
                         <input
                           type="text"
                           value={searchQuery}
                           onChange={handleSearchInput}
                           placeholder="Search memories by title, description..."
-                          className="input pl-12 pr-4 w-full"
+                          className="input w-full"
+                          style={{ paddingLeft: '48px' }}
                         />
                         {isSearching && (
                           <div className="absolute right-4 top-1/2 -translate-y-1/2">
