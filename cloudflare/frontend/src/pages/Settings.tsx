@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, ArrowUp, ArrowDown, Camera, Download, Loader2 } from '../components/Icons';
+import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, ArrowUp, ArrowDown, Camera, Download, Loader2, MessageSquare, Send } from '../components/Icons';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi, exportApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
@@ -51,7 +51,7 @@ export function Settings() {
   const { user, updateUser, logout } = useAuthStore();
 
   // Valid tab IDs
-  const validTabs = ['profile', 'subscription', 'deadman', 'encryption', 'notifications', 'security'];
+  const validTabs = ['profile', 'subscription', 'deadman', 'encryption', 'notifications', 'security', 'support'];
   
   // Initialize activeTab from URL parameter or default to 'profile'
   const tabFromUrl = searchParams.get('tab');
@@ -86,6 +86,15 @@ export function Settings() {
         
                 // Data export state
                 const [isExporting, setIsExporting] = useState(false);
+                
+                // Support ticket state
+                const [ticketForm, setTicketForm] = useState({
+                  subject: '',
+                  category: 'general',
+                  description: '',
+                });
+                const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
+                const [ticketSubmitted, setTicketSubmitted] = useState(false);
   
         // Avatar upload state
         const [showAvatarCropper, setShowAvatarCropper] = useState(false);
@@ -357,6 +366,34 @@ export function Settings() {
 
     const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
 
+        // Handle support ticket submission
+        const handleSubmitTicket = async (e: React.FormEvent) => {
+          e.preventDefault();
+          if (!ticketForm.subject.trim() || !ticketForm.description.trim()) {
+            setStatusMessage({ type: 'error', text: 'Please fill in all required fields' });
+            return;
+          }
+          
+          setIsSubmittingTicket(true);
+          try {
+            await settingsApi.submitTicket({
+              subject: ticketForm.subject,
+              category: ticketForm.category,
+              description: ticketForm.description,
+              userEmail: user?.email,
+              userName: `${user?.firstName} ${user?.lastName}`,
+            });
+            setTicketSubmitted(true);
+            setTicketForm({ subject: '', category: 'general', description: '' });
+            setStatusMessage({ type: 'success', text: 'Support ticket submitted successfully. We\'ll get back to you soon!' });
+          } catch (error) {
+            console.error('Ticket submission failed:', error);
+            setStatusMessage({ type: 'error', text: 'Failed to submit ticket. Please try again.' });
+          } finally {
+            setIsSubmittingTicket(false);
+          }
+        };
+
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'subscription', label: 'Subscription', icon: CreditCard },
@@ -364,6 +401,7 @@ export function Settings() {
     { id: 'encryption', label: 'Encryption', icon: Lock },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
+    { id: 'support', label: 'Support', icon: MessageSquare },
   ];
 
   return (
@@ -900,6 +938,107 @@ export function Settings() {
                             </div>
                           </div>
                         )}
+
+            {/* Support Tab */}
+            {activeTab === 'support' && (
+              <div className="space-y-6">
+                <div className="card">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                      <MessageSquare size={20} className="text-gold" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg">Contact Support</h3>
+                      <p className="text-paper/50 text-sm">We're here to help with any questions or issues</p>
+                    </div>
+                  </div>
+
+                  {ticketSubmitted ? (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                        <Check size={32} className="text-green-400" />
+                      </div>
+                      <h4 className="text-xl mb-2">Ticket Submitted!</h4>
+                      <p className="text-paper/60 mb-6">We'll get back to you as soon as possible.</p>
+                      <button
+                        onClick={() => setTicketSubmitted(false)}
+                        className="btn btn-secondary"
+                      >
+                        Submit Another Ticket
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmitTicket} className="space-y-4">
+                      <div>
+                        <label className="block text-sm text-paper/60 mb-2">Category</label>
+                        <select
+                          value={ticketForm.category}
+                          onChange={(e) => setTicketForm({ ...ticketForm, category: e.target.value })}
+                          className="input w-full"
+                        >
+                          <option value="general">General Inquiry</option>
+                          <option value="technical">Technical Issue</option>
+                          <option value="billing">Billing Question</option>
+                          <option value="feature">Feature Request</option>
+                          <option value="bug">Bug Report</option>
+                          <option value="account">Account Issue</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-paper/60 mb-2">Subject <span className="text-gold">*</span></label>
+                        <input
+                          type="text"
+                          value={ticketForm.subject}
+                          onChange={(e) => setTicketForm({ ...ticketForm, subject: e.target.value })}
+                          placeholder="Brief description of your issue"
+                          className="input w-full"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-paper/60 mb-2">Description <span className="text-gold">*</span></label>
+                        <textarea
+                          value={ticketForm.description}
+                          onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
+                          placeholder="Please provide as much detail as possible..."
+                          rows={6}
+                          className="input w-full resize-none"
+                          required
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSubmittingTicket}
+                        className="btn btn-primary w-full flex items-center justify-center gap-2"
+                      >
+                        {isSubmittingTicket ? (
+                          <>
+                            <Loader2 size={18} className="animate-spin" />
+                            Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <Send size={18} />
+                            Submit Ticket
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                <div className="card bg-gold/5 border-gold/20">
+                  <h4 className="text-sm font-medium text-gold mb-2">Need immediate help?</h4>
+                  <p className="text-paper/60 text-sm">
+                    Check our <a href="/help" className="text-gold hover:underline">Help Center</a> for answers to common questions, 
+                    or email us directly at <a href="mailto:support@heirloom.blue" className="text-gold hover:underline">support@heirloom.blue</a>
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

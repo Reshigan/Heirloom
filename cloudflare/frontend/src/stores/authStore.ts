@@ -13,6 +13,13 @@ export interface User {
   preferredCurrency?: string;
 }
 
+interface ConsentData {
+  acceptedTerms: boolean;
+  acceptedTermsAt: string;
+  marketingConsent: boolean;
+  marketingConsentAt: string | null;
+}
+
 interface AuthState {
   user: User | null;
   isLoading: boolean;
@@ -20,7 +27,7 @@ interface AuthState {
   
   // Actions
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  register: (email: string, password: string, firstName: string, lastName: string, consent?: ConsentData) => Promise<void>;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
   updateUser: (updates: Partial<User>) => void;
@@ -77,10 +84,16 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      register: async (email, password, firstName, lastName) => {
+      register: async (email, password, firstName, lastName, consent) => {
         set({ isLoading: true });
         try {
-          const { data } = await authApi.register({ email, password, firstName, lastName });
+          const { data } = await authApi.register({ 
+            email, 
+            password, 
+            firstName, 
+            lastName,
+            ...consent,
+          });
           setTokens(data.token ?? data.accessToken, data.refreshToken);
           set({ user: data.user, isAuthenticated: true, isLoading: false });
         } catch (error) {

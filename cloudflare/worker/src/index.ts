@@ -26,6 +26,7 @@ import { wrappedRoutes } from './routes/wrapped';
 import { inheritRoutes } from './routes/inherit';
 import { aiRoutes, generateAndCachePrompts } from './routes/ai';
 import { giftVoucherRoutes } from './routes/gift-vouchers';
+import { supportRoutes } from './routes/support';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 
 // Types
@@ -509,6 +510,7 @@ protectedApp.route('/deadman', deadmanRoutes);
 protectedApp.route('/encryption', encryptionRoutes);
 protectedApp.route('/wrapped', wrappedRoutes);
 protectedApp.route('/ai', aiRoutes);
+protectedApp.route('/support', supportRoutes);
 
 app.route('/api', protectedApp);
 
