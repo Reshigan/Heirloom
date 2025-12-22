@@ -583,29 +583,28 @@ THE ETERNAL BACKGROUND - A living, breathing void
 }
 
 /* ===== INPUTS (Eternal Premium) ===== */
-.input {
-  width: 100%;
-  padding-top: 14px;
-  padding-bottom: 14px;
-  padding-left: 18px;
-  padding-right: 18px;
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.5;
-  background: var(--void-surface);
-  border: 1px solid var(--paper-08);
-  border-radius: 8px;
-  color: var(--paper);
-  outline: none;
-  transition: all var(--duration-fast) var(--ease-out);
-}
+@layer components {
+  .input {
+    width: 100%;
+    padding: 14px 18px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    background: var(--void-surface);
+    border: 1px solid var(--paper-08);
+    border-radius: 8px;
+    color: var(--paper);
+    outline: none;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
 
-.input::placeholder {
-  color: var(--paper-30);
-}
+  .input::placeholder {
+    color: var(--paper-30);
+  }
 
-.input:hover:not(:focus) {
-  border-color: var(--paper-15);
+  .input:hover:not(:focus) {
+    border-color: var(--paper-15);
+  }
 }
 
 .input:focus {

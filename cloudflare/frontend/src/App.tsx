@@ -32,6 +32,7 @@ import { GiftPurchase } from './pages/GiftPurchase';
 import { GiftRedeem } from './pages/GiftRedeem';
 import { GiftSuccess } from './pages/GiftSuccess';
 import { GoldLegacyRedeem } from './pages/GoldLegacyRedeem';
+import { Contact } from './pages/Contact';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,6 +65,7 @@ export default function App() {
                     <Route path="/" element={<Landing />} />
                               <Route path="/privacy" element={<Privacy />} />
                               <Route path="/terms" element={<Terms />} />
+                              <Route path="/contact" element={<Contact />} />
                               <Route path="/inherit/:token" element={<Inherit />} />
                               <Route path="/verify-email" element={<VerifyEmail />} />
                                                             <Route path="/gift" element={<GiftPurchase />} />
