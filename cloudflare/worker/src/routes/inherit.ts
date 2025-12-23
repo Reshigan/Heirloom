@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const inheritRoutes = new Hono<{ Bindings: Env }>();
+export const inheritRoutes = new Hono<AppEnv>();
 
 // Validate access token and get recipient info
 inheritRoutes.get('/:token', async (c) => {

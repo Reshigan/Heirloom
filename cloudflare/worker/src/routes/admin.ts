@@ -4,10 +4,10 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 import { supportTicketReplyEmail, supportTicketResolvedEmail } from '../email-templates';
 
-export const adminRoutes = new Hono<{ Bindings: Env }>();
+export const adminRoutes = new Hono<AppEnv>();
 
 // Admin authentication middleware
 const adminAuth = async (c: any, next: any) => {

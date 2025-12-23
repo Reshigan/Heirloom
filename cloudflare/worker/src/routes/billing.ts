@@ -11,9 +11,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const billingRoutes = new Hono<{ Bindings: Env }>();
+export const billingRoutes = new Hono<AppEnv>();
 
 // =============================================================================
 // COUNTRY → CURRENCY MAPPING

@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const voiceRoutes = new Hono<{ Bindings: Env }>();
+export const voiceRoutes = new Hono<AppEnv>();
 
 // Get all voice recordings with pagination
 voiceRoutes.get('/', async (c) => {

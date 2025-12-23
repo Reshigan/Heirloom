@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const wrappedRoutes = new Hono<{ Bindings: Env }>();
+export const wrappedRoutes = new Hono<AppEnv>();
 
 // Get wrapped data for current year (must be before /:year to avoid matching "current" as a year)
 wrappedRoutes.get('/current', async (c) => {

@@ -5,7 +5,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
 // =============================================================================
 // SHAMIR SECRET SHARING IMPLEMENTATION
@@ -132,7 +132,7 @@ function stringToShare(str: string): { x: number; y: Uint8Array } {
   };
 }
 
-export const encryptionRoutes = new Hono<{ Bindings: Env }>();
+export const encryptionRoutes = new Hono<AppEnv>();
 
 // Get encryption parameters (for client-side key derivation)
 encryptionRoutes.get('/params', async (c) => {

@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const supportRoutes = new Hono<{ Bindings: Env }>();
+export const supportRoutes = new Hono<AppEnv>();
 
 // Submit a support ticket
 supportRoutes.post('/ticket', async (c) => {

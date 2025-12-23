@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const settingsRoutes = new Hono<{ Bindings: Env }>();
+export const settingsRoutes = new Hono<AppEnv>();
 
 // Get user profile
 settingsRoutes.get('/profile', async (c) => {

@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const authRoutes = new Hono<{ Bindings: Env }>();
+export const authRoutes = new Hono<AppEnv>();
 
 // ============================================
 // REGISTER

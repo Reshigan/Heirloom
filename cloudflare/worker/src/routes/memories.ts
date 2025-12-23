@@ -4,10 +4,10 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 import { classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 
-export const memoriesRoutes = new Hono<{ Bindings: Env }>();
+export const memoriesRoutes = new Hono<AppEnv>();
 
 // Get all memories with pagination and filtering
 memoriesRoutes.get('/', async (c) => {
