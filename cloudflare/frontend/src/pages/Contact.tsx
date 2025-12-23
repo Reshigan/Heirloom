@@ -26,7 +26,7 @@ export function Contact() {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/support/tickets`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -34,7 +34,6 @@ export function Contact() {
           email: form.email,
           subject: form.subject,
           message: form.message,
-          category: 'general',
         }),
       });
 
