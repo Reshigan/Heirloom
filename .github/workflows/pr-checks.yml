@@ -27,7 +27,7 @@ jobs:
         run: npm run build
 
   check-worker:
-    name: Check Worker (Install)
+    name: Check Worker (TypeScript)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -46,3 +46,6 @@ jobs:
 
       - name: Generate types
         run: npx wrangler types 2>/dev/null || true
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
