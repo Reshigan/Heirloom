@@ -5,6 +5,46 @@ on:
     branches: [main]
 
 jobs:
+  check-migrations:
+    name: Validate SQL Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install SQLite
+        run: sudo apt-get update && sudo apt-get install -y sqlite3
+
+      - name: Validate migrations
+        run: |
+          echo "Validating SQL migrations..."
+          DB_FILE=$(mktemp)
+          
+          # Apply all migrations in order
+          for migration in $(ls -1 cloudflare/migrations/*.sql | sort); do
+            echo "Applying: $migration"
+            if ! sqlite3 "$DB_FILE" < "$migration" 2>&1; then
+              echo "ERROR: Migration failed: $migration"
+              exit 1
+            fi
+          done
+          
+          # Verify tables were created
+          echo "Verifying database schema..."
+          TABLES=$(sqlite3 "$DB_FILE" ".tables")
+          echo "Created tables: $TABLES"
+          
+          # Check for required tables
+          for table in users subscriptions memories voice_recordings letters family_members legacy_contacts; do
+            if ! echo "$TABLES" | grep -q "$table"; then
+              echo "ERROR: Required table '$table' not found"
+              exit 1
+            fi
+          done
+          
+          echo "All migrations validated successfully!"
+          rm -f "$DB_FILE"
+
   check-frontend:
     name: Check Frontend (Build)
     runs-on: ubuntu-latest
