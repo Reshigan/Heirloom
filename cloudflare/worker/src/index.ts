@@ -258,6 +258,132 @@ app.route('/api/billing/webhook', billingRoutes);
 app.route('/api/inherit', inheritRoutes);
 app.route('/api/gift-vouchers', giftVoucherRoutes);
 
+// Public contact form endpoint (rate limited to prevent abuse)
+app.post('/api/contact', async (c) => {
+  // Rate limit: 5 requests per IP per hour
+  const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown';
+  try {
+    const id = c.env.RATE_LIMITER.idFromName(`contact:${ip}`);
+    const limiter = c.env.RATE_LIMITER.get(id);
+    const response = await limiter.fetch(
+      new Request(`http://internal/check?ip=${ip}&limit=5&window=3600000`)
+    );
+    const result = await response.json() as { allowed: boolean };
+    if (!result.allowed) {
+      return c.json({ error: 'Too many requests. Please try again later.' }, 429);
+    }
+  } catch (error) {
+    console.error('Rate limiter error:', error);
+  }
+
+  const body = await c.req.json();
+  const now = new Date().toISOString();
+  
+  // Validate required fields
+  if (!body.name || !body.email || !body.subject || !body.message) {
+    return c.json({ error: 'All fields are required' }, 400);
+  }
+
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(body.email)) {
+    return c.json({ error: 'Invalid email address' }, 400);
+  }
+
+  const ticketId = crypto.randomUUID();
+  const ticketNumber = `HLM-${Date.now().toString(36).toUpperCase()}`;
+  
+  // Store ticket in database (optional - may fail if table doesn't exist)
+  try {
+    await c.env.DB.prepare(`
+      INSERT INTO support_tickets (id, ticket_number, user_id, subject, category, description, status, created_at, updated_at)
+      VALUES (?, ?, NULL, ?, ?, ?, 'OPEN', ?, ?)
+    `).bind(ticketId, ticketNumber, body.subject, body.category || 'general', body.message, now, now).run();
+  } catch (dbError) {
+    console.error('Failed to store contact form in database:', dbError);
+  }
+  
+  // Send notification email to admin
+  if (c.env.RESEND_API_KEY) {
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom Contact <support@heirloom.blue>',
+          to: ['admin@heirloom.blue', 'reshigan@gonxt.tech'],
+          subject: `[${ticketNumber}] Contact Form: ${body.subject}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #D4AF37;">New Contact Form Submission</h2>
+              <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
+              <p><strong>From:</strong> ${body.name} (${body.email})</p>
+              <p><strong>Subject:</strong> ${body.subject}</p>
+              <hr style="border: 1px solid #333;" />
+              <h3>Message:</h3>
+              <p style="white-space: pre-wrap;">${body.message}</p>
+              <hr style="border: 1px solid #333;" />
+              <p style="color: #666; font-size: 12px;">
+                Reply directly to ${body.email} to respond.
+              </p>
+            </div>
+          `,
+          reply_to: body.email,
+        }),
+      });
+    } catch (emailError) {
+      console.error('Failed to send admin notification email:', emailError);
+    }
+  }
+  
+  // Send confirmation email to user
+  if (c.env.RESEND_API_KEY) {
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <support@heirloom.blue>',
+          to: [body.email],
+          subject: `[${ticketNumber}] We received your message`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
+              <div style="text-align: center; margin-bottom: 24px;">
+                <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
+                <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
+              </div>
+              <h2>Thank you for reaching out</h2>
+              <p>Hi ${body.name},</p>
+              <p>We've received your message and will get back to you within 24-48 hours.</p>
+              <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
+                <p><strong>Reference:</strong> ${ticketNumber}</p>
+                <p><strong>Subject:</strong> ${body.subject}</p>
+              </div>
+              <p style="color: #888; font-size: 12px; margin-top: 32px;">
+                - The Heirloom Team
+              </p>
+            </div>
+          `,
+        }),
+      });
+    } catch (emailError) {
+      console.error('Failed to send user confirmation email:', emailError);
+    }
+  }
+  
+  return c.json({ 
+    success: true, 
+    ticketNumber,
+    message: 'Message sent successfully' 
+  }, 201);
+});
+
 // Public billing routes (pricing and detect don't require auth)
 app.get('/api/billing/pricing', async (c) => {
   // Import the billing logic inline to avoid circular dependencies
