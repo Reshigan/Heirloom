@@ -4,10 +4,10 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 import { supportTicketReplyEmail, supportTicketResolvedEmail } from '../email-templates';
 
-export const adminRoutes = new Hono<{ Bindings: Env }>();
+export const adminRoutes = new Hono<AppEnv>();
 
 // Admin authentication middleware
 const adminAuth = async (c: any, next: any) => {
@@ -592,7 +592,7 @@ adminRoutes.patch('/support/tickets/:id', adminAuth, async (c) => {
   // Send email notification when ticket is resolved
   if (status === 'RESOLVED' && currentTicket && currentTicket.status !== 'RESOLVED' && currentTicket.email && c.env.RESEND_API_KEY) {
     try {
-      const userName = currentTicket.first_name || 'there';
+      const userName = (currentTicket.first_name as string) || 'there';
       const emailContent = supportTicketResolvedEmail(
         userName,
         currentTicket.ticket_number as string,
@@ -702,12 +702,12 @@ adminRoutes.post('/support/tickets/:id/reply', adminAuth, async (c) => {
   const admin = await c.env.DB.prepare(`
     SELECT first_name, last_name FROM admin_users WHERE id = ?
   `).bind(adminId).first();
-  const adminName = admin ? `${admin.first_name} ${admin.last_name}`.trim() || 'Heirloom Support' : 'Heirloom Support';
+  const adminName = admin ? `${(admin.first_name as string) || ''} ${(admin.last_name as string) || ''}`.trim() || 'Heirloom Support' : 'Heirloom Support';
   
   // Send email notification to user
   if (ticket && ticket.email && c.env.RESEND_API_KEY) {
     try {
-      const userName = ticket.first_name || 'there';
+      const userName = (ticket.first_name as string) || 'there';
       const emailContent = supportTicketReplyEmail(
         userName,
         ticket.ticket_number as string,
@@ -1693,7 +1693,11 @@ adminRoutes.get('/analytics/users', adminAuth, async (c) => {
 // HELPER FUNCTIONS
 // ============================================
 
-async function logAuditAction(env: any, adminId: string, action: string, details: any) {
+async function logAuditAction(env: any, adminId: string | undefined, action: string, details: any) {
+  if (!adminId) {
+    console.error('Cannot log audit action: adminId is undefined');
+    return;
+  }
   try {
     await env.DB.prepare(`
       INSERT INTO audit_logs (id, admin_id, action, details, created_at)

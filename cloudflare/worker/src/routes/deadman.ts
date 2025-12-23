@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const deadmanRoutes = new Hono<{ Bindings: Env }>();
+export const deadmanRoutes = new Hono<AppEnv>();
 
 // Get dead man's switch status
 deadmanRoutes.get('/status', async (c) => {

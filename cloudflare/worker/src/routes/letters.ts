@@ -4,10 +4,10 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 import { generateLetterSuggestion, classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 
-export const lettersRoutes = new Hono<{ Bindings: Env }>();
+export const lettersRoutes = new Hono<AppEnv>();
 
 // AI-powered letter suggestion using TinyLLM with Cloudflare Workers AI
 lettersRoutes.post('/ai-suggest', async (c) => {

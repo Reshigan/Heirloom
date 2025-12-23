@@ -4,13 +4,13 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
 // ============================================
 // FAMILY ROUTES
 // ============================================
 
-export const familyRoutes = new Hono<{ Bindings: Env }>();
+export const familyRoutes = new Hono<AppEnv>();
 
 familyRoutes.get('/', async (c) => {
   const userId = c.get('userId');
@@ -83,7 +83,7 @@ familyRoutes.delete('/:id', async (c) => {
 // MEMORIES ROUTES
 // ============================================
 
-export const memoriesRoutes = new Hono<{ Bindings: Env }>();
+export const memoriesRoutes = new Hono<AppEnv>();
 
 memoriesRoutes.get('/', async (c) => {
   const userId = c.get('userId');
@@ -189,7 +189,7 @@ memoriesRoutes.delete('/:id', async (c) => {
 // LETTERS ROUTES
 // ============================================
 
-export const lettersRoutes = new Hono<{ Bindings: Env }>();
+export const lettersRoutes = new Hono<AppEnv>();
 
 lettersRoutes.get('/', async (c) => {
   const userId = c.get('userId');
@@ -269,7 +269,7 @@ lettersRoutes.delete('/:id', async (c) => {
 // VOICE ROUTES
 // ============================================
 
-export const voiceRoutes = new Hono<{ Bindings: Env }>();
+export const voiceRoutes = new Hono<AppEnv>();
 
 voiceRoutes.get('/', async (c) => {
   const userId = c.get('userId');
@@ -331,7 +331,7 @@ voiceRoutes.post('/', async (c) => {
 // BILLING ROUTES
 // ============================================
 
-export const billingRoutes = new Hono<{ Bindings: Env }>();
+export const billingRoutes = new Hono<AppEnv>();
 
 billingRoutes.get('/subscription', async (c) => {
   const userId = c.get('userId');
@@ -407,7 +407,7 @@ billingRoutes.post('/checkout', async (c) => {
 // SETTINGS ROUTES
 // ============================================
 
-export const settingsRoutes = new Hono<{ Bindings: Env }>();
+export const settingsRoutes = new Hono<AppEnv>();
 
 settingsRoutes.get('/profile', async (c) => {
   const userId = c.get('userId');
@@ -439,7 +439,7 @@ settingsRoutes.patch('/profile', async (c) => {
 // DEADMAN ROUTES
 // ============================================
 
-export const deadmanRoutes = new Hono<{ Bindings: Env }>();
+export const deadmanRoutes = new Hono<AppEnv>();
 
 deadmanRoutes.get('/status', async (c) => {
   const userId = c.get('userId');
@@ -516,7 +516,7 @@ deadmanRoutes.post('/checkin', async (c) => {
 // ENCRYPTION ROUTES
 // ============================================
 
-export const encryptionRoutes = new Hono<{ Bindings: Env }>();
+export const encryptionRoutes = new Hono<AppEnv>();
 
 encryptionRoutes.get('/params', async (c) => {
   const userId = c.get('userId');

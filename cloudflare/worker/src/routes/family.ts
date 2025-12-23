@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const familyRoutes = new Hono<{ Bindings: Env }>();
+export const familyRoutes = new Hono<AppEnv>();
 
 // Get all family members
 familyRoutes.get('/', async (c) => {

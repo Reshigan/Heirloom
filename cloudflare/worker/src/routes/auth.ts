@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const authRoutes = new Hono<{ Bindings: Env }>();
+export const authRoutes = new Hono<AppEnv>();
 
 // ============================================
 // REGISTER
@@ -62,6 +62,10 @@ authRoutes.post('/register', async (c) => {
     SELECT id, email, first_name, last_name, avatar_url, email_verified, two_factor_enabled
     FROM users WHERE id = ?
   `).bind(userId).first();
+  
+  if (!user) {
+    return c.json({ error: 'Failed to create user' }, 500);
+  }
   
   // Send verification email to new user
   try {

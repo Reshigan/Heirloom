@@ -4,9 +4,9 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
-export const inheritRoutes = new Hono<{ Bindings: Env }>();
+export const inheritRoutes = new Hono<AppEnv>();
 
 // Validate access token and get recipient info
 inheritRoutes.get('/:token', async (c) => {
@@ -414,12 +414,13 @@ Important:
       .filter((idx: number) => idx >= 0 && idx < searchableItems.length);
     
     // Get the referenced items or do a simple text search as fallback
-    let relevantItems = referencedNumbers.map((idx: number) => searchableItems[idx]);
+    type SearchableItem = typeof searchableItems[number];
+    let relevantItems: SearchableItem[] = referencedNumbers.map((idx: number) => searchableItems[idx]);
     
     // If AI didn't reference specific items, do a simple text search
     if (relevantItems.length === 0) {
       const queryLower = query.toLowerCase();
-      relevantItems = searchableItems.filter(item => 
+      relevantItems = searchableItems.filter((item: SearchableItem) => 
         item.title.toLowerCase().includes(queryLower) ||
         item.content.toLowerCase().includes(queryLower)
       ).slice(0, 5);

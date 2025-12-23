@@ -4,10 +4,10 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 import { classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 
-export const memoriesRoutes = new Hono<{ Bindings: Env }>();
+export const memoriesRoutes = new Hono<AppEnv>();
 
 // Get all memories with pagination and filtering
 memoriesRoutes.get('/', async (c) => {
@@ -465,9 +465,9 @@ memoriesRoutes.get('/search', async (c) => {
       `).bind(sanitizedQuery, userId, limit).all();
       
       for (const r of memoriesResults.results) {
-        let fileUrl = r.file_url;
-        if ((!fileUrl || fileUrl.includes('undefined')) && r.file_key) {
-          fileUrl = `${c.env.API_URL}/api/memories/file/${encodeURIComponent(r.file_key)}`;
+        let fileUrl = r.file_url as string | null;
+        if ((!fileUrl || (typeof fileUrl === 'string' && fileUrl.includes('undefined'))) && r.file_key) {
+          fileUrl = `${c.env.API_URL}/api/memories/file/${encodeURIComponent(r.file_key as string)}`;
         }
         results.push({
           id: r.id,
@@ -495,9 +495,9 @@ memoriesRoutes.get('/search', async (c) => {
       `).bind(sanitizedQuery, userId, limit).all();
       
       for (const r of voiceResults.results) {
-        let fileUrl = r.file_url;
-        if ((!fileUrl || fileUrl.includes('undefined')) && r.file_key) {
-          fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(r.file_key)}`;
+        let fileUrl = r.file_url as string | null;
+        if ((!fileUrl || (typeof fileUrl === 'string' && fileUrl.includes('undefined'))) && r.file_key) {
+          fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(r.file_key as string)}`;
         }
         results.push({
           id: r.id,

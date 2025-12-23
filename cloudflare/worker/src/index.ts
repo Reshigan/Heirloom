@@ -76,6 +76,9 @@ export interface Variables {
   userId?: string;
   adminId?: string;
   adminRole?: string;
+  // Used by inherit routes for recipient portal
+  ownerId?: string;
+  legacyContactId?: string;
 }
 
 // Shared app type for routes

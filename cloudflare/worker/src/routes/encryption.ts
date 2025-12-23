@@ -5,7 +5,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env } from '../index';
+import type { Env, AppEnv } from '../index';
 
 // =============================================================================
 // SHAMIR SECRET SHARING IMPLEMENTATION
@@ -132,7 +132,7 @@ function stringToShare(str: string): { x: number; y: Uint8Array } {
   };
 }
 
-export const encryptionRoutes = new Hono<{ Bindings: Env }>();
+export const encryptionRoutes = new Hono<AppEnv>();
 
 // Get encryption parameters (for client-side key derivation)
 encryptionRoutes.get('/params', async (c) => {
@@ -524,10 +524,10 @@ encryptionRoutes.get('/shamir/status', async (c) => {
     threshold: firstShare.threshold,
     totalShares: firstShare.total_shares,
     createdAt: firstShare.created_at,
-    contacts: shares.results.map((s: { share_index: number; contact_name: string; contact_email: string }) => ({
-      shareIndex: s.share_index,
-      name: s.contact_name,
-      email: s.contact_email,
+    contacts: shares.results.map((s) => ({
+      shareIndex: (s as { share_index: number }).share_index,
+      name: (s as { contact_name: string }).contact_name,
+      email: (s as { contact_email: string }).contact_email,
     })),
   });
 });
