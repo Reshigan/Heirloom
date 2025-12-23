@@ -101,6 +101,24 @@ authRoutes.post('/register', async (c) => {
         const errorBody = await response.text();
         console.error('Failed to send verification email:', response.status, errorBody);
       }
+      
+      // Also send welcome email with trial info
+      const { welcomeEmail } = await import('../email-templates');
+      const welcomeContent = welcomeEmail(firstName);
+      
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: email.toLowerCase(),
+          subject: welcomeContent.subject,
+          html: welcomeContent.html,
+        }),
+      });
     }
   } catch (err) {
     console.error('Failed to send verification email:', err);

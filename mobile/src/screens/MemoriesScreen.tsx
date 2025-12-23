@@ -10,10 +10,11 @@ import {
   RefreshControl,
   Alert,
   Modal,
+  ScrollView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { memoriesApi } from '../services/api';
-import { Memory } from '../types';
+import { memoriesApi, familyApi } from '../services/api';
+import { Memory, FamilyMember } from '../types';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { colors, spacing, borderRadius } from '../utils/theme';
@@ -26,9 +27,13 @@ export const MemoriesScreen: React.FC = () => {
   const [newMemory, setNewMemory] = useState({ title: '', description: '', emotion: '' });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
+  const [selectedFamilyMember, setSelectedFamilyMember] = useState<string | null>(null);
+  const [showFamilyPicker, setShowFamilyPicker] = useState(false);
 
   useEffect(() => {
     loadMemories();
+    loadFamilyMembers();
   }, []);
 
   const loadMemories = async () => {
@@ -39,6 +44,15 @@ export const MemoriesScreen: React.FC = () => {
       console.error('Failed to load memories:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadFamilyMembers = async () => {
+    try {
+      const response = await familyApi.getAll();
+      setFamilyMembers(response.members || []);
+    } catch (error) {
+      console.error('Failed to load family members:', error);
     }
   };
 
@@ -289,6 +303,53 @@ export const MemoriesScreen: React.FC = () => {
               ))}
             </View>
 
+            {/* Family Member Picker */}
+            <Text style={styles.emotionLabel}>Share with family member (optional)</Text>
+            <TouchableOpacity
+              style={styles.familyPickerButton}
+              onPress={() => setShowFamilyPicker(!showFamilyPicker)}
+            >
+              <Text style={styles.familyPickerText}>
+                {selectedFamilyMember 
+                  ? familyMembers.find(m => m.id === selectedFamilyMember)?.name || 'Select family member'
+                  : 'Select family member'}
+              </Text>
+              <Text style={styles.familyPickerArrow}>{showFamilyPicker ? '▲' : '▼'}</Text>
+            </TouchableOpacity>
+            
+            {showFamilyPicker && (
+              <View style={styles.familyPickerDropdown}>
+                <TouchableOpacity
+                  style={[styles.familyPickerOption, !selectedFamilyMember && styles.familyPickerOptionSelected]}
+                  onPress={() => {
+                    setSelectedFamilyMember(null);
+                    setShowFamilyPicker(false);
+                  }}
+                >
+                  <Text style={styles.familyPickerOptionText}>None (Private)</Text>
+                </TouchableOpacity>
+                {familyMembers.map((member) => (
+                  <TouchableOpacity
+                    key={member.id}
+                    style={[
+                      styles.familyPickerOption,
+                      selectedFamilyMember === member.id && styles.familyPickerOptionSelected,
+                    ]}
+                    onPress={() => {
+                      setSelectedFamilyMember(member.id);
+                      setShowFamilyPicker(false);
+                    }}
+                  >
+                    <Text style={styles.familyPickerOptionText}>{member.name}</Text>
+                    <Text style={styles.familyPickerRelationship}>{member.relationship}</Text>
+                  </TouchableOpacity>
+                ))}
+                {familyMembers.length === 0 && (
+                  <Text style={styles.familyPickerEmpty}>No family members added yet</Text>
+                )}
+              </View>
+            )}
+
             <Button
               title="Save Memory"
               onPress={saveMemory}
@@ -501,5 +562,58 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: spacing.md,
+  },
+  familyPickerButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.voidElevated,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  familyPickerText: {
+    fontSize: 14,
+    color: colors.paperDim,
+  },
+  familyPickerArrow: {
+    fontSize: 12,
+    color: colors.gold,
+  },
+  familyPickerDropdown: {
+    backgroundColor: colors.voidElevated,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.lg,
+    overflow: 'hidden',
+  },
+  familyPickerOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  familyPickerOptionSelected: {
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+  },
+  familyPickerOptionText: {
+    fontSize: 14,
+    color: colors.paper,
+  },
+  familyPickerRelationship: {
+    fontSize: 12,
+    color: colors.paperMuted,
+  },
+  familyPickerEmpty: {
+    padding: spacing.md,
+    fontSize: 14,
+    color: colors.paperMuted,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });

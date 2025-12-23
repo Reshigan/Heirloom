@@ -969,7 +969,7 @@ export function AdminDashboard() {
                         <div className="text-paper">{ticket.subject}</div>
                         <div className="text-paper/50 text-sm">{ticket.category}</div>
                       </td>
-                      <td className="py-3 px-4 text-paper/70">{ticket.email}</td>
+                      <td className="py-3 px-4 text-paper/70">{ticket.user?.email || ticket.email}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 text-xs ${
                           ticket.priority === 'HIGH' ? 'bg-blood/20 text-blood' :

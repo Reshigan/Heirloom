@@ -743,3 +743,57 @@ export const postReminderWeeklyDigestEmail = (
     `),
   };
 };
+
+// ============================================
+// ADMIN DAILY SUMMARY EMAIL
+// ============================================
+
+export const adminDailySummaryEmail = (
+  stats: {
+    totalUsers: number;
+    newUsersToday: number;
+    newUsersWeek: number;
+    activeSubscriptions: number;
+    trialingUsers: number;
+    totalMemories: number;
+    totalLetters: number;
+    totalVoiceMinutes: number;
+    openTickets: number;
+    newTicketsToday: number;
+  },
+  date: string
+) => ({
+  subject: `Heirloom Daily Summary - ${date}`,
+  html: baseTemplate(`
+    <h2>Daily Admin Summary</h2>
+    <p>Here's your Heirloom platform overview for <span class="gold">${date}</span>:</p>
+    
+    <div class="info-box">
+      <p style="font-size: 18px; margin-bottom: 12px;"><strong>Users</strong></p>
+      <p><strong>Total Users:</strong> <span class="gold">${stats.totalUsers}</span></p>
+      <p><strong>New Today:</strong> <span class="gold">${stats.newUsersToday}</span></p>
+      <p><strong>New This Week:</strong> <span class="gold">${stats.newUsersWeek}</span></p>
+    </div>
+    
+    <div class="info-box">
+      <p style="font-size: 18px; margin-bottom: 12px;"><strong>Subscriptions</strong></p>
+      <p><strong>Active Subscriptions:</strong> <span class="gold">${stats.activeSubscriptions}</span></p>
+      <p><strong>Trialing Users:</strong> <span class="gold">${stats.trialingUsers}</span></p>
+    </div>
+    
+    <div class="info-box">
+      <p style="font-size: 18px; margin-bottom: 12px;"><strong>Content</strong></p>
+      <p><strong>Total Memories:</strong> <span class="gold">${stats.totalMemories}</span></p>
+      <p><strong>Total Letters:</strong> <span class="gold">${stats.totalLetters}</span></p>
+      <p><strong>Voice Minutes:</strong> <span class="gold">${stats.totalVoiceMinutes}</span></p>
+    </div>
+    
+    <div class="info-box">
+      <p style="font-size: 18px; margin-bottom: 12px;"><strong>Support</strong></p>
+      <p><strong>Open Tickets:</strong> <span class="gold">${stats.openTickets}</span></p>
+      <p><strong>New Today:</strong> <span class="gold">${stats.newTicketsToday}</span></p>
+    </div>
+    
+    <a href="${APP_URL}/admin" class="button">VIEW ADMIN DASHBOARD</a>
+  `),
+});
