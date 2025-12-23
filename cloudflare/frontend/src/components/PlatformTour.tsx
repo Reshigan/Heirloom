@@ -385,13 +385,21 @@ export function usePlatformTour() {
   });
 
   const openTour = useCallback(() => setIsOpen(true), []);
-  const closeTour = useCallback(() => setIsOpen(false), []);
-
-  const completeTour = useCallback(() => {
+  
+  const markTourSeen = useCallback(() => {
     localStorage.setItem(TOUR_STORAGE_KEY, 'true');
     setHasCompletedTour(true);
-    setIsOpen(false);
   }, []);
+
+  const closeTour = useCallback(() => {
+    markTourSeen();
+    setIsOpen(false);
+  }, [markTourSeen]);
+
+  const completeTour = useCallback(() => {
+    markTourSeen();
+    setIsOpen(false);
+  }, [markTourSeen]);
 
   const resetTour = useCallback(() => {
     localStorage.removeItem(TOUR_STORAGE_KEY);
