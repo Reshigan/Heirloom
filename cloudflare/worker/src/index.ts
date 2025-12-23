@@ -684,6 +684,8 @@ export default {
       await checkMissedCheckIns(env);
       // Send upcoming check-in reminders (24 hours before due)
       await sendUpcomingCheckInReminders(env);
+      // Send daily admin summary email
+      await sendDailyAdminSummary(env);
     } else if (cronType === '0 0 * * 0') {
       // Weekly reminder emails (dead man's switch)
       await sendReminderEmails(env);
@@ -1149,6 +1151,100 @@ async function sendSinglePostReminderEmail(env: Env, email: string, reminderType
     }
   } catch (error) {
     return { success: false, error: `Error: ${error}` };
+  }
+}
+
+// ============================================
+// DAILY ADMIN SUMMARY EMAIL
+// ============================================
+
+async function sendDailyAdminSummary(env: Env) {
+  const adminEmail = env.ADMIN_NOTIFICATION_EMAIL;
+  const resendApiKey = env.RESEND_API_KEY;
+  
+  if (!adminEmail || !resendApiKey) {
+    console.log('Admin email or Resend API key not configured, skipping daily summary');
+    return;
+  }
+  
+  try {
+    // Get user stats
+    const userStats = await env.DB.prepare(`
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN created_at > datetime('now', '-1 day') THEN 1 ELSE 0 END) as new_today,
+        SUM(CASE WHEN created_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) as new_week
+      FROM users
+    `).first();
+    
+    // Get subscription stats
+    const subStats = await env.DB.prepare(`
+      SELECT 
+        COUNT(CASE WHEN status = 'ACTIVE' THEN 1 END) as active,
+        COUNT(CASE WHEN status = 'TRIALING' THEN 1 END) as trialing
+      FROM subscriptions
+    `).first();
+    
+    // Get content stats
+    const contentStats = await env.DB.prepare(`
+      SELECT 
+        (SELECT COUNT(*) FROM memories) as memories,
+        (SELECT COUNT(*) FROM letters) as letters,
+        (SELECT COALESCE(SUM(duration_seconds), 0) / 60 FROM voice_recordings) as voice_minutes
+    `).first();
+    
+    // Get support ticket stats
+    const ticketStats = await env.DB.prepare(`
+      SELECT 
+        COUNT(CASE WHEN status IN ('OPEN', 'IN_PROGRESS') THEN 1 END) as open_tickets,
+        COUNT(CASE WHEN created_at > datetime('now', '-1 day') THEN 1 END) as new_today
+      FROM support_tickets
+    `).first();
+    
+    const stats = {
+      totalUsers: Number(userStats?.total) || 0,
+      newUsersToday: Number(userStats?.new_today) || 0,
+      newUsersWeek: Number(userStats?.new_week) || 0,
+      activeSubscriptions: Number(subStats?.active) || 0,
+      trialingUsers: Number(subStats?.trialing) || 0,
+      totalMemories: Number(contentStats?.memories) || 0,
+      totalLetters: Number(contentStats?.letters) || 0,
+      totalVoiceMinutes: Number(contentStats?.voice_minutes) || 0,
+      openTickets: Number(ticketStats?.open_tickets) || 0,
+      newTicketsToday: Number(ticketStats?.new_today) || 0,
+    };
+    
+    const { adminDailySummaryEmail } = await import('./email-templates');
+    const date = new Date().toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    const emailContent = adminDailySummaryEmail(stats, date);
+    
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: adminEmail,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('Failed to send daily admin summary:', response.status, errorBody);
+    } else {
+      console.log('Daily admin summary sent successfully');
+    }
+  } catch (error) {
+    console.error('Error sending daily admin summary:', error);
   }
 }
 
