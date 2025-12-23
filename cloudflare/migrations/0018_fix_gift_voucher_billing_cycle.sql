@@ -56,8 +56,27 @@ CREATE TABLE IF NOT EXISTS gift_vouchers_new (
   gold_member_number TEXT
 );
 
--- Step 2: Copy data from old table to new table
-INSERT INTO gift_vouchers_new SELECT * FROM gift_vouchers;
+-- Step 2: Copy data from old table to new table (explicitly list columns since new table has additional columns)
+INSERT INTO gift_vouchers_new (
+  id, code, purchaser_user_id, purchaser_email, purchaser_name,
+  recipient_email, recipient_name, recipient_message,
+  tier, billing_cycle, duration_months,
+  amount, currency,
+  stripe_payment_intent_id, stripe_checkout_session_id,
+  status, redeemed_by_user_id, redeemed_at,
+  expires_at, admin_notes, created_by_admin_id,
+  created_at, updated_at, paid_at, sent_at
+)
+SELECT 
+  id, code, purchaser_user_id, purchaser_email, purchaser_name,
+  recipient_email, recipient_name, recipient_message,
+  tier, billing_cycle, duration_months,
+  amount, currency,
+  stripe_payment_intent_id, stripe_checkout_session_id,
+  status, redeemed_by_user_id, redeemed_at,
+  expires_at, admin_notes, created_by_admin_id,
+  created_at, updated_at, paid_at, sent_at
+FROM gift_vouchers;
 
 -- Step 3: Drop old table
 DROP TABLE gift_vouchers;

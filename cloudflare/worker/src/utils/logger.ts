@@ -171,7 +171,6 @@ export function errorHandler() {
         // Don't expose internal errors to clients
         return c.json({
           error: 'Internal server error',
-          requestId: logger.debug ? undefined : undefined, // requestId is in context
         }, 500);
       }
       
