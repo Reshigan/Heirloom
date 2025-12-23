@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env } from '../index';
+import { supportTicketReplyEmail, supportTicketResolvedEmail } from '../email-templates';
 
 export const adminRoutes = new Hono<{ Bindings: Env }>();
 
@@ -567,8 +568,16 @@ adminRoutes.patch('/support/tickets/:id', adminAuth, async (c) => {
   const adminId = c.get('adminId');
   const body = await c.req.json();
   
-  const { status, assignedTo, priority } = body;
+  const { status, assignedTo, priority, resolutionNote } = body;
   const now = new Date().toISOString();
+  
+  // Get current ticket status before update
+  const currentTicket = await c.env.DB.prepare(`
+    SELECT t.status, t.ticket_number, t.subject, u.email, u.first_name
+    FROM support_tickets t
+    JOIN users u ON t.user_id = u.id
+    WHERE t.id = ?
+  `).bind(ticketId).first();
   
   await c.env.DB.prepare(`
     UPDATE support_tickets 
@@ -579,6 +588,35 @@ adminRoutes.patch('/support/tickets/:id', adminAuth, async (c) => {
         resolved_at = CASE WHEN ? = 'RESOLVED' THEN ? ELSE resolved_at END
     WHERE id = ?
   `).bind(status, assignedTo || adminId, priority, now, status, now, ticketId).run();
+  
+  // Send email notification when ticket is resolved
+  if (status === 'RESOLVED' && currentTicket && currentTicket.status !== 'RESOLVED' && currentTicket.email && c.env.RESEND_API_KEY) {
+    try {
+      const userName = currentTicket.first_name || 'there';
+      const emailContent = supportTicketResolvedEmail(
+        userName,
+        currentTicket.ticket_number as string,
+        currentTicket.subject as string,
+        resolutionNote
+      );
+      
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom Support <support@heirloom.blue>',
+          to: [currentTicket.email],
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+    } catch (emailError) {
+      console.error('Failed to send ticket resolved email:', emailError);
+    }
+  }
   
   // Log audit action
   await logAuditAction(c.env, adminId, 'UPDATE_TICKET', { ticketId, status, priority });
@@ -651,6 +689,50 @@ adminRoutes.post('/support/tickets/:id/reply', adminAuth, async (c) => {
   await c.env.DB.prepare(`
     UPDATE support_tickets SET status = 'IN_PROGRESS', updated_at = ? WHERE id = ? AND status = 'OPEN'
   `).bind(now, ticketId).run();
+  
+  // Get ticket details and user info for email
+  const ticket = await c.env.DB.prepare(`
+    SELECT t.ticket_number, t.subject, u.email, u.first_name, u.last_name
+    FROM support_tickets t
+    JOIN users u ON t.user_id = u.id
+    WHERE t.id = ?
+  `).bind(ticketId).first();
+  
+  // Get admin name for email
+  const admin = await c.env.DB.prepare(`
+    SELECT first_name, last_name FROM admin_users WHERE id = ?
+  `).bind(adminId).first();
+  const adminName = admin ? `${admin.first_name} ${admin.last_name}`.trim() || 'Heirloom Support' : 'Heirloom Support';
+  
+  // Send email notification to user
+  if (ticket && ticket.email && c.env.RESEND_API_KEY) {
+    try {
+      const userName = ticket.first_name || 'there';
+      const emailContent = supportTicketReplyEmail(
+        userName,
+        ticket.ticket_number as string,
+        ticket.subject as string,
+        message,
+        adminName
+      );
+      
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Heirloom Support <support@heirloom.blue>',
+          to: [ticket.email],
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }),
+      });
+    } catch (emailError) {
+      console.error('Failed to send ticket reply email:', emailError);
+    }
+  }
   
   // Log audit action
   await logAuditAction(c.env, adminId, 'REPLY_TICKET', { ticketId });
