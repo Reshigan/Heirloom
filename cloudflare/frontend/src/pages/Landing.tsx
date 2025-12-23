@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { ArrowRight, Pen, Mic, Image, Shield, Clock, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey, Heart, Gift } from '../components/Icons';
+import { InfinityMark } from '../components/Logo';
 
 export function Landing() {
   const heroRef = useRef(null);
@@ -68,13 +69,13 @@ export function Landing() {
         <div className="absolute inset-0 glass-subtle border-b border-white/[0.04]" />
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <motion.span 
-              className="text-2xl text-gold"
+            <motion.div
+              className="text-gold"
               animate={{ rotate: [0, 360] }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
             >
-              ∞
-            </motion.span>
+              <InfinityMark size={28} />
+            </motion.div>
             <span className="text-lg tracking-[0.2em] text-paper/80">Heirloom</span>
           </Link>
           
