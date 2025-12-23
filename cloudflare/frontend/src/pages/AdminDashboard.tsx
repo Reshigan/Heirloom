@@ -1908,6 +1908,8 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
 function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: () => void }) {
   const queryClient = useQueryClient();
   const [reply, setReply] = useState('');
+  const [resolutionNote, setResolutionNote] = useState('');
+  const [showResolveForm, setShowResolveForm] = useState(false);
 
   const { data: ticket } = useQuery({
     queryKey: ['admin-ticket', ticketId],
@@ -1924,10 +1926,13 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: (status: string) => adminApi.updateTicket(ticketId, { status }),
+    mutationFn: ({ status, resolutionNote }: { status: string; resolutionNote?: string }) => 
+      adminApi.updateTicket(ticketId, { status, resolutionNote }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-ticket', ticketId] });
       queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
+      setShowResolveForm(false);
+      setResolutionNote('');
     },
   });
 
@@ -1995,9 +2000,9 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
               <Send size={16} />
               Send Reply
             </button>
-            {ticket?.status !== 'RESOLVED' && (
+            {ticket?.status !== 'RESOLVED' && !showResolveForm && (
               <button
-                onClick={() => updateStatusMutation.mutate('RESOLVED')}
+                onClick={() => setShowResolveForm(true)}
                 className="btn btn-secondary"
               >
                 Mark Resolved
@@ -2005,6 +2010,37 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
             )}
           </div>
         </div>
+
+        {/* Resolution Form */}
+        {showResolveForm && ticket?.status !== 'RESOLVED' && (
+          <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg space-y-3">
+            <div className="text-green-400 font-medium">Resolve Ticket</div>
+            <textarea
+              value={resolutionNote}
+              onChange={(e) => setResolutionNote(e.target.value)}
+              className="input w-full h-20"
+              placeholder="Optional: Add a resolution note that will be included in the email to the user..."
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => updateStatusMutation.mutate({ status: 'RESOLVED', resolutionNote: resolutionNote || undefined })}
+                disabled={updateStatusMutation.isPending}
+                className="btn btn-primary bg-green-600 hover:bg-green-700"
+              >
+                {updateStatusMutation.isPending ? 'Resolving...' : 'Confirm Resolution'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowResolveForm(false);
+                  setResolutionNote('');
+                }}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
