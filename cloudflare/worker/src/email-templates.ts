@@ -797,3 +797,67 @@ export const adminDailySummaryEmail = (
     <a href="${APP_URL}/admin" class="button">VIEW ADMIN DASHBOARD</a>
   `),
 });
+
+// ============================================
+// SUPPORT TICKET USER EMAILS
+// ============================================
+
+export const supportTicketReplyEmail = (
+  userName: string,
+  ticketNumber: string,
+  ticketSubject: string,
+  replyContent: string,
+  adminName: string
+) => ({
+  subject: `[${ticketNumber}] Reply to your support request`,
+  html: baseTemplate(`
+    <h2>We've responded to your request</h2>
+    <p>Hi ${userName},</p>
+    <p>Our support team has replied to your ticket <span class="gold">${ticketNumber}</span>.</p>
+    
+    <div class="info-box">
+      <p><strong>Subject:</strong> ${ticketSubject}</p>
+    </div>
+    
+    <div class="letter-box">
+      <p class="salutation">Response from ${adminName}:</p>
+      <p style="white-space: pre-wrap;">${replyContent}</p>
+    </div>
+    
+    <p>If you have any follow-up questions, simply reply to this email or submit a new support request.</p>
+    
+    <a href="${APP_URL}/dashboard" class="button">GO TO DASHBOARD</a>
+  `),
+});
+
+export const supportTicketResolvedEmail = (
+  userName: string,
+  ticketNumber: string,
+  ticketSubject: string,
+  resolutionNote?: string
+) => ({
+  subject: `[${ticketNumber}] Your support request has been resolved`,
+  html: baseTemplate(`
+    <h2>Your request has been resolved</h2>
+    <p>Hi ${userName},</p>
+    <p>Your support ticket <span class="gold">${ticketNumber}</span> has been marked as resolved.</p>
+    
+    <div class="info-box">
+      <p><strong>Subject:</strong> ${ticketSubject}</p>
+      <p><strong>Status:</strong> <span class="gold">Resolved</span></p>
+    </div>
+    
+    ${resolutionNote ? `
+    <div class="letter-box">
+      <p class="salutation">Resolution note:</p>
+      <p style="white-space: pre-wrap;">${resolutionNote}</p>
+    </div>
+    ` : ''}
+    
+    <p>If you feel this issue hasn't been fully addressed or you have additional questions, please don't hesitate to open a new support request.</p>
+    
+    <p>Thank you for using Heirloom.</p>
+    
+    <a href="${APP_URL}/dashboard" class="button">GO TO DASHBOARD</a>
+  `),
+});
