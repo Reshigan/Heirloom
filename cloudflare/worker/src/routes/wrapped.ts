@@ -11,6 +11,9 @@ export const wrappedRoutes = new Hono<AppEnv>();
 // Get wrapped data for current year (must be before /:year to avoid matching "current" as a year)
 wrappedRoutes.get('/current', async (c) => {
   const userId = c.get('userId');
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
   const currentYear = new Date().getFullYear();
   
   // Check if wrapped data exists for current year
@@ -43,6 +46,9 @@ wrappedRoutes.get('/current', async (c) => {
 // Get wrapped data for a specific year
 wrappedRoutes.get('/:year', async (c) => {
   const userId = c.get('userId');
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
   const year = parseInt(c.req.param('year'));
   
   if (isNaN(year) || year < 2020 || year > new Date().getFullYear()) {
@@ -121,6 +127,9 @@ wrappedRoutes.get('/', async (c) => {
 // Regenerate wrapped data for a year
 wrappedRoutes.post('/:year/regenerate', async (c) => {
   const userId = c.get('userId');
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
   const year = parseInt(c.req.param('year'));
   
   if (isNaN(year) || year < 2020 || year > new Date().getFullYear()) {

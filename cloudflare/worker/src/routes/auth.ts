@@ -63,6 +63,10 @@ authRoutes.post('/register', async (c) => {
     FROM users WHERE id = ?
   `).bind(userId).first();
   
+  if (!user) {
+    return c.json({ error: 'Failed to create user' }, 500);
+  }
+  
   // Send verification email to new user
   try {
     const resendApiKey = c.env.RESEND_API_KEY;

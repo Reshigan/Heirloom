@@ -407,10 +407,10 @@ billingRoutes.post('/calculate', async (c) => {
   const country = getCountryFromRequest(c);
   const currency = getCurrencyForCountry(country);
   const prices = PRICING[currency];
-  const normalizedTier = normalizeTier(tier);
-  const tierPrices = prices[normalizedTier as keyof typeof prices.STARTER];
+  const normalizedTier = normalizeTier(tier) as 'STARTER' | 'FAMILY' | 'FOREVER';
+  const tierPrices = prices[normalizedTier];
   
-  if (!tierPrices || typeof tierPrices === 'string') return c.json({ error: 'Invalid tier' }, 400);
+  if (!tierPrices) return c.json({ error: 'Invalid tier' }, 400);
   
   const isYearly = billingCycle === 'yearly';
   let basePrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
@@ -439,10 +439,10 @@ billingRoutes.post('/checkout', async (c) => {
   const country = getCountryFromRequest(c);
   const currency = getCurrencyForCountry(country);
   const prices = PRICING[currency];
-  const normalizedTier = normalizeTier(tier);
-  const tierPrices = prices[normalizedTier as keyof typeof prices.STARTER];
+  const normalizedTier = normalizeTier(tier) as 'STARTER' | 'FAMILY' | 'FOREVER';
+  const tierPrices = prices[normalizedTier];
   
-  if (!tierPrices || typeof tierPrices === 'string') return c.json({ error: 'Invalid tier' }, 400);
+  if (!tierPrices) return c.json({ error: 'Invalid tier' }, 400);
   
   const isYearly = billingCycle === 'yearly';
   let finalPrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
@@ -488,16 +488,17 @@ billingRoutes.post('/checkout', async (c) => {
     const stripePriceId = STRIPE_PRICE_IDS[currency]?.[normalizedTier]?.[billingInterval] || null;
     
     // Build checkout session params
+    const userIdStr = userId || '';
     const params: Record<string, string> = {
       'mode': 'subscription',
       'customer_email': user.email as string,
       'success_url': `${c.env.APP_URL}/settings?tab=subscription&success=true`,
       'cancel_url': `${c.env.APP_URL}/settings?tab=subscription&canceled=true`,
-      'metadata[user_id]': userId,
+      'metadata[user_id]': userIdStr,
       'metadata[tier]': normalizedTier,
       'metadata[billing_cycle]': billingInterval,
       // Pass metadata to subscription so webhooks can identify user
-      'subscription_data[metadata][user_id]': userId,
+      'subscription_data[metadata][user_id]': userIdStr,
       'subscription_data[metadata][tier]': normalizedTier,
       'subscription_data[metadata][billing_cycle]': billingInterval,
     };
@@ -771,8 +772,9 @@ billingRoutes.post('/webhook', async (c) => {
         object: {
           id: string;
           customer_email?: string;
-          metadata?: { user_id?: string; tier?: string; billing_cycle?: string };
+          metadata?: { user_id?: string; tier?: string; billing_cycle?: string; type?: string; voucher_code?: string };
           subscription?: string;
+          payment_intent?: string;
         };
       };
     };
