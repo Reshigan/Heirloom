@@ -49,7 +49,11 @@ CREATE TABLE IF NOT EXISTS gift_vouchers_new (
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now')),
   paid_at TEXT,
-  sent_at TEXT
+  sent_at TEXT,
+  
+  -- Gold Legacy voucher fields
+  voucher_type TEXT DEFAULT 'GIFT' CHECK (voucher_type IN ('GIFT', 'GOLD_LEGACY')),
+  gold_member_number TEXT
 );
 
 -- Step 2: Copy data from old table to new table
