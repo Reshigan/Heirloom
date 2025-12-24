@@ -33,6 +33,10 @@ import { GiftRedeem } from './pages/GiftRedeem';
 import { GiftSuccess } from './pages/GiftSuccess';
 import { GoldLegacyRedeem } from './pages/GoldLegacyRedeem';
 import { Contact } from './pages/Contact';
+import { LegacyPlan } from './pages/LegacyPlan';
+import { StoryArtifact } from './pages/StoryArtifact';
+import { LifeEvents } from './pages/LifeEvents';
+import { RecipientExperience } from './pages/RecipientExperience';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -186,16 +190,48 @@ export default function App() {
                                             </ProtectedRoute>
                                           }
                                         />
-                                        <Route
-                                          path="/future-letter"
-                                          element={
-                                            <ProtectedRoute>
-                                              <FutureLetter />
-                                            </ProtectedRoute>
-                                          }
-                                        />
+                                                                                <Route
+                                                                                  path="/future-letter"
+                                                                                  element={
+                                                                                    <ProtectedRoute>
+                                                                                      <FutureLetter />
+                                                                                    </ProtectedRoute>
+                                                                                  }
+                                                                                />
+                                                                                <Route
+                                                                                  path="/legacy-plan"
+                                                                                  element={
+                                                                                    <ProtectedRoute>
+                                                                                      <LegacyPlan />
+                                                                                    </ProtectedRoute>
+                                                                                  }
+                                                                                />
+                                                                                <Route
+                                                                                  path="/story-artifacts"
+                                                                                  element={
+                                                                                    <ProtectedRoute>
+                                                                                      <StoryArtifact />
+                                                                                    </ProtectedRoute>
+                                                                                  }
+                                                                                />
+                                                                                <Route
+                                                                                  path="/life-events"
+                                                                                  element={
+                                                                                    <ProtectedRoute>
+                                                                                      <LifeEvents />
+                                                                                    </ProtectedRoute>
+                                                                                  }
+                                                                                />
+                                                                                <Route
+                                                                                  path="/recipient-experience"
+                                                                                  element={
+                                                                                    <ProtectedRoute>
+                                                                                      <RecipientExperience />
+                                                                                    </ProtectedRoute>
+                                                                                  }
+                                                                                />
 
-                                        {/* Admin routes */}
+                                                                                {/* Admin routes */}
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
