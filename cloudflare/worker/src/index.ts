@@ -148,25 +148,18 @@ app.post('/api/test-email', async (c) => {
   
   try {
     const { testEmail } = await import('./email-templates');
+    const { sendEmail } = await import('./utils/email');
     const emailContent = testEmail();
     
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: email,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }),
+    const result = await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: email,
+      subject: emailContent.subject,
+      html: emailContent.html,
     });
     
-    if (!response.ok) {
-      const error = await response.text();
-      return c.json({ error: 'Failed to send email', details: error }, 500);
+    if (!result.success) {
+      return c.json({ error: 'Failed to send email', details: result.error }, 500);
     }
     
     return c.json({ success: true, message: 'Test email sent successfully' });
@@ -1218,6 +1211,7 @@ async function sendDailyAdminSummary(env: Env) {
     };
     
     const { adminDailySummaryEmail } = await import('./email-templates');
+    const { sendEmail } = await import('./utils/email');
     const date = new Date().toLocaleDateString('en-US', { 
       weekday: 'long', 
       year: 'numeric', 
@@ -1226,23 +1220,15 @@ async function sendDailyAdminSummary(env: Env) {
     });
     const emailContent = adminDailySummaryEmail(stats, date);
     
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: adminEmail,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }),
+    const result = await sendEmail(env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: adminEmail,
+      subject: emailContent.subject,
+      html: emailContent.html,
     });
     
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('Failed to send daily admin summary:', response.status, errorBody);
+    if (!result.success) {
+      console.error('Failed to send daily admin summary:', result.error);
     } else {
       console.log('Daily admin summary sent successfully');
     }

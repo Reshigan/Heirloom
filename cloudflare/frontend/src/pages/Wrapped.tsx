@@ -4,8 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { wrappedApi } from '../services/api';
 import { ChevronLeft, ChevronRight, Calendar, Play, Pause, Volume2, VolumeX, Share2, Download } from '../components/Icons';
 
-// Royalty-free ambient music URL (using a simple tone generator as placeholder)
-const THEME_MUSIC_URL = 'https://assets.mixkit.co/music/preview/mixkit-serene-view-443.mp3';
+// Royalty-free ambient music URL - using SoundJay's free sounds (no hotlink protection)
+// This is a gentle rain ambience suitable for the Wrapped experience
+const THEME_MUSIC_URL = 'https://www.soundjay.com/nature/sounds/rain-01.mp3';
 
 // Types for wrapped data
 interface WrappedStats {
