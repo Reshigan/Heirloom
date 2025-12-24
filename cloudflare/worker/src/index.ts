@@ -27,6 +27,10 @@ import { inheritRoutes } from './routes/inherit';
 import { aiRoutes, generateAndCachePrompts } from './routes/ai';
 import { giftVoucherRoutes } from './routes/gift-vouchers';
 import { supportRoutes } from './routes/support';
+import { legacyPlanRoutes } from './routes/legacy-plan';
+import { recipientExperienceRoutes } from './routes/recipient-experience';
+import { storyArtifactsRoutes } from './routes/story-artifacts';
+import { lifeEventsRoutes } from './routes/life-events';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 
 // Types
@@ -633,6 +637,10 @@ protectedApp.route('/encryption', encryptionRoutes);
 protectedApp.route('/wrapped', wrappedRoutes);
 protectedApp.route('/ai', aiRoutes);
 protectedApp.route('/support', supportRoutes);
+protectedApp.route('/legacy-plan', legacyPlanRoutes);
+protectedApp.route('/recipient-experience', recipientExperienceRoutes);
+protectedApp.route('/story-artifacts', storyArtifactsRoutes);
+protectedApp.route('/life-events', lifeEventsRoutes);
 
 app.route('/api', protectedApp);
 
