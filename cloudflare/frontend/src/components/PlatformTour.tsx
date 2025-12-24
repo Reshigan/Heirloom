@@ -375,21 +375,31 @@ export function PlatformTour({ isOpen, onClose, onComplete }: PlatformTourProps)
   );
 }
 
-const TOUR_STORAGE_KEY = 'heirloom_tour_completed';
+const TOUR_STORAGE_KEY_PREFIX = 'heirloom_tour_completed';
 
-export function usePlatformTour() {
+export function usePlatformTour(userId?: string) {
+  // Use user-scoped key if userId is provided, otherwise fall back to generic key
+  const storageKey = userId ? `${TOUR_STORAGE_KEY_PREFIX}_${userId}` : TOUR_STORAGE_KEY_PREFIX;
+  
   const [isOpen, setIsOpen] = useState(false);
   const [hasCompletedTour, setHasCompletedTour] = useState(() => {
     if (typeof window === 'undefined') return false;
-    return localStorage.getItem(TOUR_STORAGE_KEY) === 'true';
+    return localStorage.getItem(storageKey) === 'true';
   });
+
+  // Re-check localStorage when userId changes (e.g., after login)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const completed = localStorage.getItem(storageKey) === 'true';
+    setHasCompletedTour(completed);
+  }, [storageKey]);
 
   const openTour = useCallback(() => setIsOpen(true), []);
   
   const markTourSeen = useCallback(() => {
-    localStorage.setItem(TOUR_STORAGE_KEY, 'true');
+    localStorage.setItem(storageKey, 'true');
     setHasCompletedTour(true);
-  }, []);
+  }, [storageKey]);
 
   const closeTour = useCallback(() => {
     markTourSeen();
@@ -402,9 +412,9 @@ export function usePlatformTour() {
   }, [markTourSeen]);
 
   const resetTour = useCallback(() => {
-    localStorage.removeItem(TOUR_STORAGE_KEY);
+    localStorage.removeItem(storageKey);
     setHasCompletedTour(false);
-  }, []);
+  }, [storageKey]);
 
   return {
     isOpen,
