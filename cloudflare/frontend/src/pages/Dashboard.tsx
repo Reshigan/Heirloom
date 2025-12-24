@@ -66,8 +66,8 @@ export function Dashboard() {
     const [aiPrompt, setAiPrompt] = useState<string | null>(null);
     const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
 
-    // Platform Tour
-    const { isOpen: isTourOpen, hasCompletedTour, openTour, closeTour, completeTour } = usePlatformTour();
+    // Platform Tour - use user-scoped key so tour only shows once per user
+    const { isOpen: isTourOpen, hasCompletedTour, openTour, closeTour, completeTour } = usePlatformTour(user?.id);
 
     // Show tour automatically on first visit
     useEffect(() => {
