@@ -1,0 +1,687 @@
+openapi: 3.0.3
+info:
+  title: Heirloom API
+  description: |
+    Heirloom is a digital legacy platform for preserving memories, voice recordings, 
+    letters, and family connections. This API powers the web and mobile applications.
+    
+    ## Authentication
+    Most endpoints require a JWT token in the Authorization header:
+    ```
+    Authorization: Bearer <token>
+    ```
+    
+    ## Rate Limiting
+    Authentication endpoints are rate limited to 10 requests per minute per IP.
+    Contact form is limited to 5 requests per hour per IP.
+  version: 1.0.0
+  contact:
+    name: Heirloom Support
+    email: support@heirloom.blue
+    url: https://heirloom.blue
+servers:
+  - url: https://api.heirloom.blue
+    description: Production
+  - url: http://localhost:8787
+    description: Local development
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Auth
+    description: Authentication and user management
+  - name: Memories
+    description: Photo and video memory management
+  - name: Voice
+    description: Voice recording management
+  - name: Letters
+    description: Letter composition and management
+  - name: Family
+    description: Family member management
+  - name: Billing
+    description: Subscription and payment management
+  - name: Settings
+    description: User settings and preferences
+
+paths:
+  /:
+    get:
+      tags: [Health]
+      summary: API info
+      description: Returns basic API information and health status
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: Heirloom API
+                  version:
+                    type: string
+                    example: 1.0.0
+                  status:
+                    type: string
+                    example: healthy
+                  environment:
+                    type: string
+                    example: production
+                  timestamp:
+                    type: string
+                    format: date-time
+                  edge:
+                    type: string
+                    description: Cloudflare edge location
+                    example: JNB
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, firstName, lastName]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                gdprConsent:
+                  type: boolean
+                  description: GDPR consent for EU users
+                marketingConsent:
+                  type: boolean
+                  description: Consent for marketing emails
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid input or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: New token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  /api/memories:
+    get:
+      tags: [Memories]
+      summary: List all memories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [photo, video]
+      responses:
+        '200':
+          description: List of memories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Memory'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+    post:
+      tags: [Memories]
+      summary: Upload a new memory
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                description:
+                  type: string
+                emotion:
+                  type: string
+                familyMemberIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Memory created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Memory'
+
+  /api/voice:
+    get:
+      tags: [Voice]
+      summary: List all voice recordings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of voice recordings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recordings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VoiceRecording'
+
+    post:
+      tags: [Voice]
+      summary: Upload a new voice recording
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                description:
+                  type: string
+                emotion:
+                  type: string
+      responses:
+        '201':
+          description: Recording created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceRecording'
+
+  /api/letters:
+    get:
+      tags: [Letters]
+      summary: List all letters
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of letters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  letters:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Letter'
+
+    post:
+      tags: [Letters]
+      summary: Create a new letter
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                salutation:
+                  type: string
+                body:
+                  type: string
+                signature:
+                  type: string
+                recipientId:
+                  type: string
+                emotion:
+                  type: string
+      responses:
+        '201':
+          description: Letter created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Letter'
+
+  /api/family:
+    get:
+      tags: [Family]
+      summary: List family members
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of family members
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FamilyMember'
+
+    post:
+      tags: [Family]
+      summary: Add a family member
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, relationship, email]
+              properties:
+                name:
+                  type: string
+                relationship:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                avatarUrl:
+                  type: string
+      responses:
+        '201':
+          description: Family member added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyMember'
+
+  /api/billing/pricing:
+    get:
+      tags: [Billing]
+      summary: Get pricing for user's region
+      description: Returns pricing in the user's local currency based on their location
+      responses:
+        '200':
+          description: Pricing information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  country:
+                    type: string
+                  currency:
+                    type: string
+                  symbol:
+                    type: string
+                  tiers:
+                    type: object
+                    properties:
+                      STARTER:
+                        $ref: '#/components/schemas/TierPricing'
+                      FAMILY:
+                        $ref: '#/components/schemas/TierPricing'
+                      FOREVER:
+                        $ref: '#/components/schemas/TierPricing'
+
+  /api/billing/subscription:
+    get:
+      tags: [Billing]
+      summary: Get current subscription
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Subscription details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+
+  /api/contact:
+    post:
+      tags: [Support]
+      summary: Submit contact form
+      description: Rate limited to 5 requests per hour per IP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, subject, message]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                subject:
+                  type: string
+                message:
+                  type: string
+                category:
+                  type: string
+      responses:
+        '201':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  ticketNumber:
+                    type: string
+                  message:
+                    type: string
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatarUrl:
+          type: string
+        emailVerified:
+          type: boolean
+        twoFactorEnabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    Memory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        fileUrl:
+          type: string
+        fileType:
+          type: string
+          enum: [photo, video]
+        emotion:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    VoiceRecording:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        fileUrl:
+          type: string
+        duration:
+          type: integer
+          description: Duration in seconds
+        transcript:
+          type: string
+        emotion:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Letter:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        salutation:
+          type: string
+        body:
+          type: string
+        signature:
+          type: string
+        recipientId:
+          type: string
+        emotion:
+          type: string
+        sealedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    FamilyMember:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        relationship:
+          type: string
+        email:
+          type: string
+          format: email
+        avatarUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    TierPricing:
+      type: object
+      properties:
+        monthly:
+          type: number
+        yearly:
+          type: number
+
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tier:
+          type: string
+          enum: [STARTER, FAMILY, FOREVER]
+        status:
+          type: string
+          enum: [ACTIVE, PAST_DUE, CANCELED]
+        billingCycle:
+          type: string
+          enum: [monthly, yearly]
+        currentPeriodEnd:
+          type: string
+          format: date-time
