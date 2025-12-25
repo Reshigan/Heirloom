@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
-import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X } from './Icons';
+import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X, ChevronDown, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger } from './Icons';
 
 const navItems = [
   { path: '/dashboard', icon: Home, label: 'Vault' },
@@ -15,10 +15,33 @@ const navItems = [
   { path: '/wrapped', icon: Sparkles, label: 'Wrapped' },
 ];
 
+const advancedFeatures = [
+  { path: '/legacy-plan', icon: LegacyPlaybook, label: 'Legacy Playbook', description: 'Guided checklist for your legacy' },
+  { path: '/recipient-experience', icon: RecipientJourney, label: 'Recipient Experience', description: 'Staged releases & memory room' },
+  { path: '/story-artifacts', icon: StoryArtifact, label: 'Story Artifacts', description: 'Create micro-documentaries' },
+  { path: '/life-events', icon: LifeEventTrigger, label: 'Life Events', description: 'Milestone-based triggers' },
+];
+
 export function Navigation() {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [advancedDropdownOpen, setAdvancedDropdownOpen] = useState(false);
+  const advancedDropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Check if current path is an advanced feature
+  const isAdvancedFeatureActive = advancedFeatures.some(f => location.pathname === f.path);
+  
+  // Close advanced dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (advancedDropdownRef.current && !advancedDropdownRef.current.contains(event.target as Node)) {
+        setAdvancedDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   // Close mobile menu on route change
   useEffect(() => {
@@ -79,6 +102,74 @@ export function Navigation() {
               </Link>
             );
           })}
+          
+          {/* Advanced Features Dropdown */}
+          <div className="relative" ref={advancedDropdownRef}>
+            <button
+              onClick={() => setAdvancedDropdownOpen(!advancedDropdownOpen)}
+              className={clsx(
+                'relative flex items-center gap-2 py-2 font-display text-xs tracking-[0.15em] uppercase transition-all duration-300',
+                isAdvancedFeatureActive 
+                  ? 'text-gold' 
+                  : 'text-paper-50 hover:text-paper-90'
+              )}
+            >
+              <Sparkles size={16} strokeWidth={1.5} />
+              <span>Advanced</span>
+              <ChevronDown 
+                size={14} 
+                className={clsx('transition-transform duration-200', advancedDropdownOpen && 'rotate-180')} 
+              />
+              
+              {isAdvancedFeatureActive && (
+                <motion.div
+                  className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent"
+                  layoutId="nav-underline-advanced"
+                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                />
+              )}
+            </button>
+            
+            <AnimatePresence>
+              {advancedDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute top-full left-0 mt-2 w-64 bg-void-deep/95 backdrop-blur-xl border border-gold-20 rounded-xl shadow-2xl shadow-void-abyss/50 overflow-hidden z-50"
+                >
+                  {advancedFeatures.map(({ path, icon: Icon, label, description }) => {
+                    const isActive = location.pathname === path;
+                    return (
+                      <Link
+                        key={path}
+                        to={path}
+                        onClick={() => setAdvancedDropdownOpen(false)}
+                        className={clsx(
+                          'flex items-start gap-3 px-4 py-3 transition-all duration-200',
+                          isActive 
+                            ? 'bg-gold-10 text-gold' 
+                            : 'text-paper-70 hover:bg-paper-04 hover:text-paper'
+                        )}
+                      >
+                        <div className={clsx(
+                          'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5',
+                          isActive ? 'bg-gold/20 text-gold' : 'bg-paper-08 text-paper-50'
+                        )}>
+                          <Icon size={18} strokeWidth={1.5} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-display text-xs tracking-[0.1em] uppercase">{label}</div>
+                          <div className="text-xs text-paper-40 mt-0.5">{description}</div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
         
         {/* User menu - desktop */}
@@ -188,7 +279,33 @@ export function Navigation() {
                   );
                 })}
                 
+                {/* Advanced Features Section */}
+                <div className="px-6 py-3 mt-2 border-t border-paper-08">
+                  <p className="text-xs tracking-[0.15em] text-paper-40 uppercase mb-2">Advanced Features</p>
+                </div>
+                {advancedFeatures.map(({ path, icon: Icon, label }) => {
+                  const isActive = location.pathname === path;
+                  return (
+                    <Link
+                      key={path}
+                      to={path}
+                      className={clsx(
+                        'flex items-center gap-4 px-6 py-4 font-display text-sm tracking-[0.1em] uppercase transition-all duration-300',
+                        isActive 
+                          ? 'text-gold bg-gold-10 border-r-2 border-gold' 
+                          : 'text-paper-70 hover:text-paper hover:bg-paper-04'
+                      )}
+                    >
+                      <Icon size={20} strokeWidth={1.5} />
+                      <span>{label}</span>
+                    </Link>
+                  );
+                })}
+                
                 {/* Settings link */}
+                <div className="px-6 py-3 mt-2 border-t border-paper-08">
+                  <p className="text-xs tracking-[0.15em] text-paper-40 uppercase mb-2">Account</p>
+                </div>
                 <Link
                   to="/settings"
                   className={clsx(
