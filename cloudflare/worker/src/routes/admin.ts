@@ -602,7 +602,7 @@ adminRoutes.patch('/support/tickets/:id', adminAuth, async (c) => {
       );
       
       await sendEmail(c.env, {
-        from: 'Heirloom Support <support@heirloom.blue>',
+        from: 'Heirloom <noreply@heirloom.blue>',
         to: currentTicket.email as string,
         subject: emailContent.subject,
         html: emailContent.html,
@@ -711,7 +711,7 @@ adminRoutes.post('/support/tickets/:id/reply', adminAuth, async (c) => {
       );
       
       await sendEmail(c.env, {
-        from: 'Heirloom Support <support@heirloom.blue>',
+        from: 'Heirloom <noreply@heirloom.blue>',
         to: ticket.email as string,
         subject: emailContent.subject,
         html: emailContent.html,
