@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle
+  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles
 } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
-import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi } from '../services/api';
+import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 import { PlatformTour, usePlatformTour } from '../components/PlatformTour';
 
@@ -105,12 +105,33 @@ export function Dashboard() {
     queryFn: () => deadmanApi.getStatus().then(r => r.data),
   });
 
-  const { data: legacyScore } = useQuery({
-    queryKey: ['legacy-score'],
-    queryFn: () => aiApi.getLegacyScore().then(r => r.data),
-  });
+    const { data: legacyScore } = useQuery({
+      queryKey: ['legacy-score'],
+      queryFn: () => aiApi.getLegacyScore().then(r => r.data),
+    });
 
-  const checkInMutation = useMutation({
+    const { data: notificationsData } = useQuery({
+      queryKey: ['notifications'],
+      queryFn: () => settingsApi.getNotifications().then(r => r.data),
+    });
+
+    const [showNewFeaturesNotification, setShowNewFeaturesNotification] = useState(true);
+
+    const newFeaturesNotification = notificationsData?.recentNotifications?.find(
+      (n: { type: string; read: boolean }) => n.type === 'NEW_FEATURES_DEC_2024' && !n.read
+    );
+
+    const dismissNewFeaturesNotification = async (notificationId: string) => {
+      try {
+        await settingsApi.markNotificationRead(notificationId);
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        setShowNewFeaturesNotification(false);
+      } catch {
+        setShowNewFeaturesNotification(false);
+      }
+    };
+
+    const checkInMutation = useMutation({
     mutationFn: () => deadmanApi.checkIn(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
@@ -299,13 +320,56 @@ export function Dashboard() {
               </div>
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+              )}
+            </AnimatePresence>
 
-      {/* Main Content */}
-      <main className="relative z-10 px-6 md:px-12 py-8 md:py-16 max-w-[1400px] mx-auto">
+            {/* New Features Notification Banner */}
+            <AnimatePresence>
+              {newFeaturesNotification && showNewFeaturesNotification && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="relative z-10 px-6 md:px-12 mt-4"
+                >
+                  <div className="max-w-7xl mx-auto">
+                    <div className="glass border border-gold/30 rounded-xl p-4 flex items-center justify-between bg-gradient-to-r from-gold/10 to-transparent">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                          <Sparkles size={20} className="text-gold" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gold">New Features Available!</p>
+                          <p className="text-sm text-paper/60">Legacy Playbook, Story Artifacts, Life Events & more</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <motion.button
+                          onClick={() => openTour()}
+                          className="btn btn-primary btn-sm"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <HelpCircle size={16} />
+                          Take Tour
+                        </motion.button>
+                        <button
+                          onClick={() => dismissNewFeaturesNotification(newFeaturesNotification.id)}
+                          className="text-paper/40 hover:text-paper transition-colors"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Main Content */}
+            <main className="relative z-10 px-6 md:px-12 py-8 md:py-16 max-w-[1400px] mx-auto">
         
-        {/* Hero Section */}
+              {/* Hero Section */}
         <motion.section
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

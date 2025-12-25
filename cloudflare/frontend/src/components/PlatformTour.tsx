@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ElementType } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Image, Mic, Mail, Users, Shield, Check } from './Icons';
+import { X, ChevronLeft, ChevronRight, Image, Mic, Mail, Users, Shield, Check, FileText, Calendar, Video, Gift } from './Icons';
 
 interface TourStep {
   id: string;
@@ -88,6 +88,58 @@ const tourSteps: TourStep[] = [
       'Multi-contact verification before release',
       'Gradual notification system',
       'Emergency bypass options',
+    ],
+  },
+  {
+    id: 'legacy-playbook',
+    title: 'Legacy Playbook',
+    description: 'A guided checklist to help you build a complete legacy. Organized into categories—People, Stories, Gratitude, Practical, and Wisdom—so nothing important is forgotten.',
+    icon: FileText,
+    highlight: 'legacy-plan',
+    features: [
+      'Five thoughtful categories to guide you',
+      'Track your progress with visual indicators',
+      'Add custom items to any category',
+      'Share your progress with family',
+    ],
+  },
+  {
+    id: 'recipient-experience',
+    title: 'Recipient Experience',
+    description: 'Control how and when your loved ones receive your legacy. Set up staged releases and create a Family Memory Room where recipients can contribute their own memories.',
+    icon: Gift,
+    highlight: 'recipient-experience',
+    features: [
+      'Staged content release over time',
+      'Family Memory Room for contributions',
+      'Moderation controls for submissions',
+      'Personalized recipient journeys',
+    ],
+  },
+  {
+    id: 'story-artifacts',
+    title: 'Story Artifacts',
+    description: 'Transform your memories into beautiful micro-documentaries. Combine photos, voice recordings, and music into 60-120 second films that tell your story.',
+    icon: Video,
+    highlight: 'story-artifacts',
+    features: [
+      'AI-powered story generation',
+      'Multiple visual themes to choose from',
+      'Background music options',
+      'Shareable video artifacts',
+    ],
+  },
+  {
+    id: 'life-events',
+    title: 'Life Event Triggers',
+    description: 'Schedule content delivery for life\'s milestones—graduations, weddings, first child, and more. Your words arrive exactly when they\'re needed most.',
+    icon: Calendar,
+    highlight: 'life-events',
+    features: [
+      'Six milestone event types',
+      'Manual or automatic triggers',
+      'Attach memories, letters, or recordings',
+      'Recipient confirmation options',
     ],
   },
   {
