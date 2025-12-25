@@ -601,19 +601,12 @@ adminRoutes.patch('/support/tickets/:id', adminAuth, async (c) => {
         resolutionNote
       );
       
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom Support <support@heirloom.blue>',
-          to: [currentTicket.email],
-          subject: emailContent.subject,
-          html: emailContent.html,
-        }),
-      });
+      await sendEmail(c.env, {
+        from: 'Heirloom Support <support@heirloom.blue>',
+        to: currentTicket.email as string,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }, 'SUPPORT_TICKET_RESOLVED');
     } catch (emailError) {
       console.error('Failed to send ticket resolved email:', emailError);
     }
@@ -717,19 +710,12 @@ adminRoutes.post('/support/tickets/:id/reply', adminAuth, async (c) => {
         adminName
       );
       
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom Support <support@heirloom.blue>',
-          to: [ticket.email],
-          subject: emailContent.subject,
-          html: emailContent.html,
-        }),
-      });
+      await sendEmail(c.env, {
+        from: 'Heirloom Support <support@heirloom.blue>',
+        to: ticket.email as string,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }, 'SUPPORT_TICKET_REPLY');
     } catch (emailError) {
       console.error('Failed to send ticket reply email:', emailError);
     }
@@ -1099,6 +1085,47 @@ adminRoutes.get('/emails', adminAuth, async (c) => {
   });
 });
 
+// Resend a failed email
+adminRoutes.post('/emails/:id/resend', adminAuth, async (c) => {
+  const adminId = c.get('adminId');
+  const emailId = c.req.param('id');
+  
+  const email = await c.env.DB.prepare(`
+    SELECT * FROM email_logs WHERE id = ?
+  `).bind(emailId).first();
+  
+  if (!email) {
+    return c.json({ error: 'Email not found' }, 404);
+  }
+  
+  if (email.status === 'SENT') {
+    return c.json({ error: 'Email was already sent successfully' }, 400);
+  }
+  
+  try {
+    const result = await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: email.to_email as string,
+      subject: email.subject as string,
+      html: email.body as string,
+    }, 'RESEND_FAILED_EMAIL');
+    
+    if (result.success) {
+      await c.env.DB.prepare(`
+        UPDATE email_logs SET status = 'SENT', sent_at = ?, error_message = NULL WHERE id = ?
+      `).bind(new Date().toISOString(), emailId).run();
+      
+      await logAuditAction(c.env, adminId, 'RESEND_EMAIL', { emailId, to: email.to_email });
+      
+      return c.json({ success: true, message: 'Email resent successfully' });
+    } else {
+      return c.json({ error: `Failed to resend: ${result.error}` }, 500);
+    }
+  } catch (err: any) {
+    return c.json({ error: `Failed to resend email: ${err.message}` }, 500);
+  }
+});
+
 adminRoutes.post('/emails/bulk', adminAuth, async (c) => {
   const adminId = c.get('adminId');
   const adminRole = c.get('adminRole');
@@ -1171,50 +1198,34 @@ adminRoutes.post('/emails/product-update', adminAuth, async (c) => {
   // Send emails to opted-in users
   for (const user of users.results as any[]) {
     try {
-      if (c.env.RESEND_API_KEY) {
-        const response = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Heirloom <updates@heirloom.blue>',
-            to: [user.email],
-            subject: subject,
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
-                <div style="text-align: center; margin-bottom: 24px;">
-                  <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
-                  <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
-                </div>
-                <p>Hi ${user.first_name || 'there'},</p>
-                ${emailBody}
-                <hr style="border: 1px solid #333; margin: 24px 0;" />
-                <p style="color: #888; font-size: 12px;">
-                  You're receiving this email because you opted in to receive product updates from Heirloom.
-                  <br /><br />
-                  <a href="https://heirloom.blue/settings?tab=notifications" style="color: #D4AF37;">Manage your email preferences</a>
-                </p>
-              </div>
-            `,
-          }),
-        });
-        
-        if (response.ok) {
-          sentCount++;
-        } else {
-          failedCount++;
-          console.error('Failed to send product update email to', user.email);
-        }
+      const result = await sendEmail(c.env, {
+        from: 'Heirloom <updates@heirloom.blue>',
+        to: user.email,
+        subject: subject,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
+              <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
+            </div>
+            <p>Hi ${user.first_name || 'there'},</p>
+            ${emailBody}
+            <hr style="border: 1px solid #333; margin: 24px 0;" />
+            <p style="color: #888; font-size: 12px;">
+              You're receiving this email because you opted in to receive product updates from Heirloom.
+              <br /><br />
+              <a href="https://heirloom.blue/settings?tab=notifications" style="color: #D4AF37;">Manage your email preferences</a>
+            </p>
+          </div>
+        `,
+      }, 'PRODUCT_UPDATE');
+      
+      if (result.success) {
+        sentCount++;
+      } else {
+        failedCount++;
+        console.error('Failed to send product update email to', user.email);
       }
-      
-      // Log the email
-      await c.env.DB.prepare(`
-        INSERT INTO email_logs (id, to_email, subject, body, status, created_at)
-        VALUES (?, ?, ?, ?, 'SENT', ?)
-      `).bind(crypto.randomUUID(), user.email, subject, emailBody, now).run();
-      
     } catch (err) {
       failedCount++;
       console.error('Error sending product update email:', err);
@@ -1356,19 +1367,12 @@ adminRoutes.post('/billing/errors/:id/notify', adminAuth, async (c) => {
       <p>If you have any questions, please contact our support team.</p>
     `);
     
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: error.email,
-        subject: 'Action Required: Payment Issue with Your Heirloom Subscription',
-        html: emailContent,
-      }),
-    });
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: error.email as string,
+      subject: 'Action Required: Payment Issue with Your Heirloom Subscription',
+      html: emailContent,
+    }, 'BILLING_ERROR_NOTIFICATION');
     
     // Update notification timestamp
     await c.env.DB.prepare(`
@@ -1475,19 +1479,12 @@ adminRoutes.post('/billing/notify-all-failed', adminAuth, async (c) => {
         </div>
       `);
       
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: error.email,
-          subject: 'Action Required: Payment Issue with Your Heirloom Subscription',
-          html: emailContent,
-        }),
-      });
+      await sendEmail(c.env, {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: error.email as string,
+        subject: 'Action Required: Payment Issue with Your Heirloom Subscription',
+        html: emailContent,
+      }, 'BILLING_ERROR_BULK_NOTIFICATION');
       
       await c.env.DB.prepare(`
         UPDATE billing_errors SET notified_at = ? WHERE id = ?

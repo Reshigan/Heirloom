@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { sendEmail } from '../utils/email';
 
 export const authRoutes = new Hono<AppEnv>();
 
@@ -69,102 +70,66 @@ authRoutes.post('/register', async (c) => {
   
   // Send verification email to new user
   try {
-    const resendApiKey = c.env.RESEND_API_KEY;
+    // Generate verification token
+    const verifyToken = crypto.randomUUID() + '-' + crypto.randomUUID();
+    const tokenHash = await hashToken(verifyToken);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 hours
     
-    if (resendApiKey) {
-      // Generate verification token
-      const verifyToken = crypto.randomUUID() + '-' + crypto.randomUUID();
-      const tokenHash = await hashToken(verifyToken);
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 hours
-      
-      // Store token
-      await c.env.DB.prepare(`
-        INSERT INTO email_verification_tokens (id, user_id, token_hash, expires_at)
-        VALUES (?, ?, ?, ?)
-      `).bind(crypto.randomUUID(), userId, tokenHash, expiresAt).run();
-      
-      // Send verification email
-      const { verificationEmail } = await import('../email-templates');
-      const emailContent = verificationEmail(firstName, verifyToken);
-      
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: email.toLowerCase(),
-          subject: emailContent.subject,
-          html: emailContent.html,
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('Failed to send verification email:', response.status, errorBody);
-      }
-      
-      // Also send welcome email with trial info
-      const { welcomeEmail } = await import('../email-templates');
-      const welcomeContent = welcomeEmail(firstName);
-      
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: email.toLowerCase(),
-          subject: welcomeContent.subject,
-          html: welcomeContent.html,
-        }),
-      });
-    }
+    // Store token
+    await c.env.DB.prepare(`
+      INSERT INTO email_verification_tokens (id, user_id, token_hash, expires_at)
+      VALUES (?, ?, ?, ?)
+    `).bind(crypto.randomUUID(), userId, tokenHash, expiresAt).run();
+    
+    // Send verification email
+    const { verificationEmail } = await import('../email-templates');
+    const emailContent = verificationEmail(firstName, verifyToken);
+    
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: email.toLowerCase(),
+      subject: emailContent.subject,
+      html: emailContent.html,
+    }, 'EMAIL_VERIFICATION');
+    
+    // Also send welcome email with trial info
+    const { welcomeEmail } = await import('../email-templates');
+    const welcomeContent = welcomeEmail(firstName);
+    
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: email.toLowerCase(),
+      subject: welcomeContent.subject,
+      html: welcomeContent.html,
+    }, 'WELCOME');
   } catch (err) {
     console.error('Failed to send verification email:', err);
     // Don't fail registration if verification email fails
   }
   
-    // Send admin notification for new user signup
-    try {
-      const adminNotificationEmail = c.env.ADMIN_NOTIFICATION_EMAIL;
-      const resendApiKey = c.env.RESEND_API_KEY;
+  // Send admin notification for new user signup
+  try {
+    const adminNotificationEmail = c.env.ADMIN_NOTIFICATION_EMAIL;
     
-      if (adminNotificationEmail && resendApiKey) {
-        const { adminNewUserNotificationEmail } = await import('../email-templates');
-        const emailContent = adminNewUserNotificationEmail(
-          email.toLowerCase(),
-          `${firstName} ${lastName}`,
-          new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })
-        );
-      
-        const adminResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${resendApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Heirloom <noreply@heirloom.blue>',
-            to: adminNotificationEmail,
-            subject: emailContent.subject,
-            html: emailContent.html,
-          }),
-        });
-      
-        if (!adminResponse.ok) {
-          const errorBody = await adminResponse.text();
-          console.error('Failed to send admin notification email:', adminResponse.status, errorBody);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to send admin notification:', err);
-      // Don't fail registration if admin notification fails
+    if (adminNotificationEmail) {
+      const { adminNewUserNotificationEmail } = await import('../email-templates');
+      const emailContent = adminNewUserNotificationEmail(
+        email.toLowerCase(),
+        `${firstName} ${lastName}`,
+        new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })
+      );
+    
+      await sendEmail(c.env, {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: adminNotificationEmail,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }, 'ADMIN_NEW_USER_NOTIFICATION');
     }
+  } catch (err) {
+    console.error('Failed to send admin notification:', err);
+    // Don't fail registration if admin notification fails
+  }
   
   return c.json({
     user: {
@@ -450,35 +415,16 @@ authRoutes.post('/forgot-password', async (c) => {
   `).bind(crypto.randomUUID(), user.id, tokenHash, expiresAt).run();
   
   // Send password reset email
-  const resendApiKey = c.env.RESEND_API_KEY;
-  if (!resendApiKey) {
-    console.error('RESEND_API_KEY not configured');
-    // Still return success message to not reveal if account exists
-    return c.json({ message: 'If an account exists with this email, you will receive a password reset link.' });
-  }
-  
   try {
     const { passwordResetEmail } = await import('../email-templates');
     const emailContent = passwordResetEmail(user.first_name as string, token);
     
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: email.toLowerCase(),
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }),
-    });
-    
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('Resend API error for password reset:', response.status, errorBody);
-    }
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: email.toLowerCase(),
+      subject: emailContent.subject,
+      html: emailContent.html,
+    }, 'PASSWORD_RESET');
   } catch (err) {
     console.error('Failed to send password reset email:', err);
   }
@@ -635,33 +581,18 @@ authRoutes.post('/resend-verification', async (c) => {
     `).bind(crypto.randomUUID(), user.id, tokenHash, expiresAt).run();
     
     // Send verification email using proper template
-    const resendApiKey = c.env.RESEND_API_KEY;
-    if (!resendApiKey) {
-      console.error('RESEND_API_KEY not configured');
-      return c.json({ error: 'Email service not configured. Please contact support.' }, 500);
-    }
-    
     try {
       const { verificationEmail } = await import('../email-templates');
       const emailContent = verificationEmail(user.first_name as string, verifyToken);
       
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: user.email,
-          subject: emailContent.subject,
-          html: emailContent.html,
-        }),
-      });
+      const result = await sendEmail(c.env, {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: user.email as string,
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }, 'EMAIL_VERIFICATION_RESEND');
       
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('Resend API error:', response.status, errorBody);
+      if (!result.success) {
         return c.json({ error: 'Failed to send verification email. Please try again.' }, 500);
       }
       

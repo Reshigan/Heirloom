@@ -8,6 +8,7 @@
 import { Hono } from 'hono';
 import type { Env, Variables } from '../index';
 import { giftVoucherPurchaseEmail, giftVoucherReceivedEmail, giftVoucherRedeemedEmail } from '../email-templates';
+import { sendEmail } from '../utils/email';
 
 export const giftVoucherRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -440,19 +441,12 @@ giftVoucherRoutes.post('/redeem', async (c) => {
 </body>
 </html>`;
         
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Heirloom Gold Legacy <noreply@heirloom.blue>',
-            to: user.email,
-            subject: 'Welcome to Heirloom Gold Legacy',
-            html: goldWelcomeHtml,
-          }),
-        });
+        await sendEmail(c.env, {
+          from: 'Heirloom Gold Legacy <noreply@heirloom.blue>',
+          to: user.email as string,
+          subject: 'Welcome to Heirloom Gold Legacy',
+          html: goldWelcomeHtml,
+        }, 'GOLD_LEGACY_WELCOME');
       } else {
         const emailContent = giftVoucherRedeemedEmail(
           user.first_name as string || 'there',
@@ -460,19 +454,12 @@ giftVoucherRoutes.post('/redeem', async (c) => {
           voucher.duration_months as number
         );
         
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Heirloom <noreply@heirloom.blue>',
-            to: user.email,
-            subject: emailContent.subject,
-            html: emailContent.html,
-          }),
-        });
+        await sendEmail(c.env, {
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: user.email as string,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }, 'VOUCHER_REDEEMED');
       }
     }
     
@@ -547,36 +534,27 @@ giftVoucherRoutes.post('/:id/send', async (c) => {
   `).bind(recipientEmail, recipientName || null, recipientMessage || null, voucherId).run();
   
   // Send gift email to recipient
-  if (c.env.RESEND_API_KEY) {
-    const emailContent = giftVoucherReceivedEmail(
-      recipientName || 'Friend',
-      voucher.purchaser_name as string || 'Someone special',
-      voucher.code as string,
-      voucher.tier as string,
-      voucher.duration_months as number,
-      recipientMessage || null
-    );
-    
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: recipientEmail,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }),
-    });
-    
-    // Log email
-    await c.env.DB.prepare(`
-      INSERT INTO gift_voucher_emails (voucher_id, email_type, recipient_email)
-      VALUES (?, 'GIFT_SENT', ?)
-    `).bind(voucherId, recipientEmail).run();
-  }
+  const emailContent = giftVoucherReceivedEmail(
+    recipientName || 'Friend',
+    voucher.purchaser_name as string || 'Someone special',
+    voucher.code as string,
+    voucher.tier as string,
+    voucher.duration_months as number,
+    recipientMessage || null
+  );
+  
+  await sendEmail(c.env, {
+    from: 'Heirloom <noreply@heirloom.blue>',
+    to: recipientEmail,
+    subject: emailContent.subject,
+    html: emailContent.html,
+  }, 'VOUCHER_GIFT_SENT');
+  
+  // Log to voucher-specific email table as well
+  await c.env.DB.prepare(`
+    INSERT INTO gift_voucher_emails (voucher_id, email_type, recipient_email)
+    VALUES (?, 'GIFT_SENT', ?)
+  `).bind(voucherId, recipientEmail).run();
   
   return c.json({ success: true, message: 'Gift voucher sent to recipient!' });
 });
@@ -668,7 +646,7 @@ giftVoucherRoutes.get('/admin/:id', adminAuth, async (c) => {
 giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
   const adminId = c.get('adminId');
   const body = await c.req.json();
-  const { tier, billingCycle, durationMonths, recipientEmail, recipientName, notes, sendEmail } = body;
+  const { tier, billingCycle, durationMonths, recipientEmail, recipientName, notes, sendEmail: shouldSendEmail } = body;
   
   if (!tier || !billingCycle) {
     return c.json({ error: 'Tier and billing cycle required' }, 400);
@@ -679,7 +657,7 @@ giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
   expiresAt.setFullYear(expiresAt.getFullYear() + 1);
   
   const duration = durationMonths || (billingCycle === 'yearly' ? 12 : 1);
-  const status = sendEmail && recipientEmail ? 'SENT' : 'PAID';
+  const status = shouldSendEmail && recipientEmail ? 'SENT' : 'PAID';
   
   const result = await c.env.DB.prepare(`
     INSERT INTO gift_vouchers (
@@ -698,11 +676,11 @@ giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
     recipientName || null,
     notes || null,
     adminId,
-    sendEmail && recipientEmail ? new Date().toISOString() : null
+    shouldSendEmail && recipientEmail ? new Date().toISOString() : null
   ).run();
   
   // Send email if requested
-  if (sendEmail && recipientEmail && c.env.RESEND_API_KEY) {
+  if (shouldSendEmail && recipientEmail) {
     const emailContent = giftVoucherReceivedEmail(
       recipientName || 'Friend',
       'Heirloom Team',
@@ -712,21 +690,14 @@ giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
       null
     );
     
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: recipientEmail,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }),
-    });
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: recipientEmail,
+      subject: emailContent.subject,
+      html: emailContent.html,
+    }, 'ADMIN_VOUCHER_CREATED');
     
-    // Log email
+    // Log to voucher-specific email table as well
     await c.env.DB.prepare(`
       INSERT INTO gift_voucher_emails (voucher_id, email_type, recipient_email)
       VALUES ((SELECT id FROM gift_vouchers WHERE code = ?), 'GIFT_SENT', ?)
@@ -741,7 +712,7 @@ giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
       billingCycle: billingCycle.toLowerCase(),
       durationMonths: duration,
       expiresAt: expiresAt.toISOString(),
-      emailSent: sendEmail && recipientEmail,
+      emailSent: shouldSendEmail && recipientEmail,
     },
   });
 });
@@ -802,36 +773,27 @@ giftVoucherRoutes.post('/admin/:id/resend', adminAuth, async (c) => {
     return c.json({ error: 'No recipient email set' }, 400);
   }
   
-  if (c.env.RESEND_API_KEY) {
-    const emailContent = giftVoucherReceivedEmail(
-      voucher.recipient_name as string || 'Friend',
-      voucher.purchaser_name as string || 'Someone special',
-      voucher.code as string,
-      voucher.tier as string,
-      voucher.duration_months as number,
-      voucher.recipient_message as string || null
-    );
-    
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: voucher.recipient_email,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }),
-    });
-    
-    // Log email
-    await c.env.DB.prepare(`
-      INSERT INTO gift_voucher_emails (voucher_id, email_type, recipient_email)
-      VALUES (?, 'GIFT_SENT', ?)
-    `).bind(voucherId, voucher.recipient_email).run();
-  }
+  const emailContent = giftVoucherReceivedEmail(
+    voucher.recipient_name as string || 'Friend',
+    voucher.purchaser_name as string || 'Someone special',
+    voucher.code as string,
+    voucher.tier as string,
+    voucher.duration_months as number,
+    voucher.recipient_message as string || null
+  );
+  
+  await sendEmail(c.env, {
+    from: 'Heirloom <noreply@heirloom.blue>',
+    to: voucher.recipient_email as string,
+    subject: emailContent.subject,
+    html: emailContent.html,
+  }, 'VOUCHER_RESENT');
+  
+  // Log to voucher-specific email table as well
+  await c.env.DB.prepare(`
+    INSERT INTO gift_voucher_emails (voucher_id, email_type, recipient_email)
+    VALUES (?, 'GIFT_SENT', ?)
+  `).bind(voucherId, voucher.recipient_email).run();
   
   return c.json({ success: true, message: 'Email resent to recipient' });
 });
@@ -858,7 +820,7 @@ giftVoucherRoutes.post('/admin/gold-legacy/create', adminAuth, async (c) => {
   try {
   const adminId = c.get('adminId');
   const body = await c.req.json();
-  const { recipientEmail, recipientName, personalMessage, memberNumber, sendEmail } = body;
+  const { recipientEmail, recipientName, personalMessage, memberNumber, sendEmail: shouldSendGoldEmail } = body;
   
   // Generate unique Gold Legacy code
   const voucherCode = generateGoldLegacyCode();
@@ -883,7 +845,7 @@ With deepest gratitude,
 The Heirloom Team`;
 
   const finalMessage = personalMessage || defaultMessage;
-  const status = sendEmail && recipientEmail ? 'SENT' : 'PAID';
+  const status = shouldSendGoldEmail && recipientEmail ? 'SENT' : 'PAID';
   
   await c.env.DB.prepare(`
     INSERT INTO gift_vouchers (
@@ -900,14 +862,13 @@ The Heirloom Team`;
     finalMessage,
     `Gold Legacy Voucher - Member #${goldMemberNumber}`,
     adminId,
-    sendEmail && recipientEmail ? new Date().toISOString() : null,
+    shouldSendGoldEmail && recipientEmail ? new Date().toISOString() : null,
     goldMemberNumber
   ).run();
   
   // Send special Gold Legacy invitation email if requested
   let emailSentSuccess = false;
-  let resendResponse: { id?: string; error?: string } = {};
-  if (sendEmail && recipientEmail && c.env.RESEND_API_KEY) {
+  if (shouldSendGoldEmail && recipientEmail) {
     const emailHtml = `
 <!DOCTYPE html>
 <html>
@@ -1000,22 +961,13 @@ ${finalMessage}
 </body>
 </html>`;
     
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Heirloom Gold Legacy <noreply@heirloom.blue>',
-        to: recipientEmail,
-        subject: `You've Been Invited to the Heirloom Gold Legacy Circle`,
-        html: emailHtml,
-      }),
-    });
-    resendResponse = await emailResponse.json() as { id?: string; error?: string };
-    emailSentSuccess = emailResponse.ok;
-    console.log('Resend API response:', emailResponse.status, JSON.stringify(resendResponse));
+    const emailResult = await sendEmail(c.env, {
+      from: 'Heirloom Gold Legacy <noreply@heirloom.blue>',
+      to: recipientEmail,
+      subject: `You've Been Invited to the Heirloom Gold Legacy Circle`,
+      html: emailHtml,
+    }, 'GOLD_LEGACY_INVITATION');
+    emailSentSuccess = emailResult.success;
   }
   
   return c.json({
@@ -1028,9 +980,7 @@ ${finalMessage}
       recipientName,
       personalMessage: finalMessage,
       emailSent: emailSentSuccess,
-      emailAttempted: sendEmail && !!recipientEmail,
-      resendId: resendResponse.id,
-      resendError: resendResponse.error,
+      emailAttempted: shouldSendGoldEmail && !!recipientEmail,
     },
   });
   } catch (error) {
