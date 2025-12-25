@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { sendEmail } from '../utils/email';
 
 export const settingsRoutes = new Hono<AppEnv>();
 
@@ -350,31 +351,15 @@ settingsRoutes.post('/legacy-contacts', async (c) => {
   
   // Send verification email to the legacy contact
   try {
-    const resendApiKey = c.env.RESEND_API_KEY;
+    const { legacyContactVerificationEmail } = await import('../email-templates');
+    const emailContent = legacyContactVerificationEmail(name, userName, verifyToken);
     
-    if (resendApiKey) {
-      const { legacyContactVerificationEmail } = await import('../email-templates');
-      const emailContent = legacyContactVerificationEmail(name, userName, verifyToken);
-      
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: email,
-          subject: emailContent.subject,
-          html: emailContent.html,
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('Failed to send legacy contact verification email:', response.status, errorBody);
-      }
-    }
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: email,
+      subject: emailContent.subject,
+      html: emailContent.html,
+    }, 'LEGACY_CONTACT_VERIFICATION');
   } catch (err) {
     console.error('Failed to send legacy contact verification email:', err);
     // Don't fail the request if email fails

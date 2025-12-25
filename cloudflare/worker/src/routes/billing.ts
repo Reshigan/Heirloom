@@ -12,6 +12,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { sendEmail } from '../utils/email';
 
 export const billingRoutes = new Hono<AppEnv>();
 
@@ -806,48 +807,34 @@ billingRoutes.post('/webhook', async (c) => {
             
                   if (voucher) {
                     // Send email to purchaser
-                    if (voucher.purchaser_email && c.env.RESEND_API_KEY) {
+                    if (voucher.purchaser_email) {
                       try {
-                        await fetch('https://api.resend.com/emails', {
-                          method: 'POST',
-                          headers: {
-                            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            from: 'Heirloom <noreply@heirloom.blue>',
-                            to: voucher.purchaser_email,
-                            subject: 'Your Heirloom Gift Voucher is Ready',
-                            html: `<p>Thank you for purchasing a Heirloom gift voucher!</p>
-                                   <p>Your voucher code is: <strong>${voucher.code}</strong></p>
-                                   <p>This voucher is for a ${voucher.tier} subscription (${voucher.duration_months} month${(voucher.duration_months as number) > 1 ? 's' : ''}).</p>
-                                   <p>Share this code with your recipient or send them this link: ${c.env.APP_URL}/gift/redeem?code=${voucher.code}</p>`,
-                          }),
-                        });
+                        await sendEmail(c.env, {
+                          from: 'Heirloom <noreply@heirloom.blue>',
+                          to: voucher.purchaser_email as string,
+                          subject: 'Your Heirloom Gift Voucher is Ready',
+                          html: `<p>Thank you for purchasing a Heirloom gift voucher!</p>
+                                 <p>Your voucher code is: <strong>${voucher.code}</strong></p>
+                                 <p>This voucher is for a ${voucher.tier} subscription (${voucher.duration_months} month${(voucher.duration_months as number) > 1 ? 's' : ''}).</p>
+                                 <p>Share this code with your recipient or send them this link: ${c.env.APP_URL}/gift/redeem?code=${voucher.code}</p>`,
+                        }, 'GIFT_VOUCHER_PURCHASER_CONFIRMATION');
                       } catch (e) {
                         console.error('Failed to send purchaser email:', e);
                       }
                     }
               
                     // If recipient email provided, send gift notification
-                    if (voucher.recipient_email && c.env.RESEND_API_KEY) {
+                    if (voucher.recipient_email) {
                       try {
-                        await fetch('https://api.resend.com/emails', {
-                          method: 'POST',
-                          headers: {
-                            'Authorization': `Bearer ${c.env.RESEND_API_KEY}`,
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            from: 'Heirloom <noreply@heirloom.blue>',
-                            to: voucher.recipient_email,
-                            subject: `${voucher.purchaser_name || 'Someone'} sent you a Heirloom gift!`,
-                            html: `<p>You've received a gift from ${voucher.purchaser_name || 'a friend'}!</p>
-                                   ${voucher.recipient_message ? `<p><em>"${voucher.recipient_message}"</em></p>` : ''}
-                                   <p>Your gift voucher code is: <strong>${voucher.code}</strong></p>
-                                   <p>Redeem it here: <a href="${c.env.APP_URL}/gift/redeem?code=${voucher.code}">${c.env.APP_URL}/gift/redeem</a></p>`,
-                          }),
-                        });
+                        await sendEmail(c.env, {
+                          from: 'Heirloom <noreply@heirloom.blue>',
+                          to: voucher.recipient_email as string,
+                          subject: `${voucher.purchaser_name || 'Someone'} sent you a Heirloom gift!`,
+                          html: `<p>You've received a gift from ${voucher.purchaser_name || 'a friend'}!</p>
+                                 ${voucher.recipient_message ? `<p><em>"${voucher.recipient_message}"</em></p>` : ''}
+                                 <p>Your gift voucher code is: <strong>${voucher.code}</strong></p>
+                                 <p>Redeem it here: <a href="${c.env.APP_URL}/gift/redeem?code=${voucher.code}">${c.env.APP_URL}/gift/redeem</a></p>`,
+                        }, 'GIFT_VOUCHER_RECIPIENT_NOTIFICATION');
                   
                         // Update status to SENT
                         await c.env.DB.prepare(`
