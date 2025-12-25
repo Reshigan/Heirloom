@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { EternalBackground } from './components/EternalBackground';
+import { ComfortSettings, ComfortSettingsButton, getComfortPreferences, applyComfortPreferences } from './components/ComfortSettings';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -58,12 +60,27 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [showComfortSettings, setShowComfortSettings] = useState(false);
+  
+  // Apply saved comfort preferences on app load
+  useEffect(() => {
+    const prefs = getComfortPreferences();
+    applyComfortPreferences(prefs);
+  }, []);
+  
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <EternalBackground />
           <CustomCursor />
+          
+          {/* Comfort Settings - accessible from any page */}
+          <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
+          <ComfortSettings 
+            isOpen={showComfortSettings} 
+            onClose={() => setShowComfortSettings(false)} 
+          />
           <Routes>
           {/* Public routes */}
                     <Route path="/" element={<Landing />} />
