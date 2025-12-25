@@ -1624,6 +1624,176 @@ REFLECTION CARD - AI Prompt (Eternal Premium)
   }
 }
 
+/*
+══════════════════════════════════════════════════════════════════════════════
+COMFORT SETTINGS - Accessibility & User Preferences
+══════════════════════════════════════════════════════════════════════════════
+*/
+
+/* Touch targets - minimum 44px for accessibility */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Text Size Preferences */
+.text-size-normal {
+  --text-scale: 1;
+}
+
+.text-size-large {
+  --text-scale: 1.15;
+}
+
+.text-size-extra-large {
+  --text-scale: 1.3;
+}
+
+/* Apply text scaling to body text */
+.text-size-large body,
+.text-size-large .card,
+.text-size-large p,
+.text-size-large span:not(.text-xs):not(.text-sm),
+.text-size-large label,
+.text-size-large input,
+.text-size-large textarea,
+.text-size-large select,
+.text-size-large button {
+  font-size: calc(1em * 1.15);
+}
+
+.text-size-extra-large body,
+.text-size-extra-large .card,
+.text-size-extra-large p,
+.text-size-extra-large span:not(.text-xs):not(.text-sm),
+.text-size-extra-large label,
+.text-size-extra-large input,
+.text-size-extra-large textarea,
+.text-size-extra-large select,
+.text-size-extra-large button {
+  font-size: calc(1em * 1.3);
+}
+
+/* Ensure form elements scale properly */
+.text-size-large input,
+.text-size-large textarea,
+.text-size-large select {
+  padding: 14px 18px;
+}
+
+.text-size-extra-large input,
+.text-size-extra-large textarea,
+.text-size-extra-large select {
+  padding: 16px 20px;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --paper: #ffffff;
+  --paper-bright: #ffffff;
+  --paper-dim: #e0e0e0;
+  --paper-muted: #c0c0c0;
+  --paper-90: rgba(255, 255, 255, 0.95);
+  --paper-70: rgba(255, 255, 255, 0.85);
+  --paper-50: rgba(255, 255, 255, 0.75);
+  --paper-30: rgba(255, 255, 255, 0.5);
+  --paper-15: rgba(255, 255, 255, 0.3);
+  --paper-08: rgba(255, 255, 255, 0.15);
+  --gold: #ffc107;
+  --gold-light: #ffd54f;
+  --gold-bright: #ffecb3;
+}
+
+.high-contrast .card,
+.high-contrast .glass,
+.high-contrast .glass-subtle,
+.high-contrast .glass-strong {
+  background: rgba(20, 20, 30, 0.95);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.high-contrast .text-paper\/50,
+.high-contrast .text-paper\/60 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.high-contrast .text-paper\/40,
+.high-contrast .text-paper\/30 {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Reduced Motion */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduced-motion .sanctuary-orb,
+.reduced-motion .sanctuary-stars,
+.reduced-motion .eternal-aura,
+.reduced-motion .eternal-stars,
+.reduced-motion .eternal-particle {
+  animation: none !important;
+  opacity: 0.5;
+}
+
+/* Also respect system preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .sanctuary-orb,
+  .sanctuary-stars,
+  .eternal-aura,
+  .eternal-stars,
+  .eternal-particle {
+    animation: none !important;
+    opacity: 0.5;
+  }
+}
+
+/* Focus states for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.2);
+}
+
+/* Skip to content link for screen readers */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--gold);
+  color: var(--void);
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
 /* Print styles for letters and memories */
 @media print {
   /* Hide non-essential elements */
