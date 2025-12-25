@@ -5,7 +5,6 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
-import { sendEmail } from '../utils/email';
 
 export const supportRoutes = new Hono<AppEnv>();
 
@@ -29,10 +28,15 @@ supportRoutes.post('/ticket', async (c) => {
     console.error('Failed to store ticket in database (table may not exist):', dbError);
   }
   
-  // Send notification email to admin
-  const adminEmail = c.env.ADMIN_NOTIFICATION_EMAIL || 'admin@heirloom.blue';
-  try {
-    await sendEmail(c.env, {
+  // Use dynamic import for sendEmail to ensure we get the correct module
+  const { sendEmail: sendEmailUtil } = await import('../utils/email');
+  
+  // Send notification email to admin (no fallback - require proper configuration)
+  const adminEmail = c.env.ADMIN_NOTIFICATION_EMAIL;
+  if (!adminEmail) {
+    console.error('ADMIN_NOTIFICATION_EMAIL not configured');
+  } else {
+    const adminResult = await sendEmailUtil(c.env, {
       from: 'Heirloom Support <support@heirloom.blue>',
       to: adminEmail,
       subject: `[${ticketNumber}] New Support Ticket: ${body.subject}`,
@@ -53,40 +57,40 @@ supportRoutes.post('/ticket', async (c) => {
         </div>
       `,
     }, 'SUPPORT_TICKET_ADMIN_NOTIFICATION');
-  } catch (emailError) {
-    console.error('Failed to send admin notification email:', emailError);
+    if (!adminResult.success) {
+      console.error('Failed to send admin notification email:', adminResult.error);
+    }
   }
   
   // Send confirmation email to user
   if (body.userEmail) {
-    try {
-      await sendEmail(c.env, {
-        from: 'Heirloom Support <support@heirloom.blue>',
-        to: body.userEmail,
-        subject: `[${ticketNumber}] We received your support request`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
-              <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
-            </div>
-            <h2>We've received your support request</h2>
-            <p>Hi ${body.userName || 'there'},</p>
-            <p>Thank you for contacting Heirloom support. We've received your ticket and will get back to you as soon as possible.</p>
-            <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
-              <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
-              <p><strong>Subject:</strong> ${body.subject}</p>
-              <p><strong>Category:</strong> ${body.category}</p>
-            </div>
-            <p>You can reply to this email if you need to add more information to your request.</p>
-            <p style="color: #888; font-size: 12px; margin-top: 32px;">
-              - The Heirloom Team
-            </p>
+    const userResult = await sendEmailUtil(c.env, {
+      from: 'Heirloom Support <support@heirloom.blue>',
+      to: body.userEmail,
+      subject: `[${ticketNumber}] We received your support request`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
+            <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
           </div>
-        `,
-      }, 'SUPPORT_TICKET_USER_CONFIRMATION');
-    } catch (emailError) {
-      console.error('Failed to send user confirmation email:', emailError);
+          <h2>We've received your support request</h2>
+          <p>Hi ${body.userName || 'there'},</p>
+          <p>Thank you for contacting Heirloom support. We've received your ticket and will get back to you as soon as possible.</p>
+          <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
+            <p><strong>Subject:</strong> ${body.subject}</p>
+            <p><strong>Category:</strong> ${body.category}</p>
+          </div>
+          <p>You can reply to this email if you need to add more information to your request.</p>
+          <p style="color: #888; font-size: 12px; margin-top: 32px;">
+            - The Heirloom Team
+          </p>
+        </div>
+      `,
+    }, 'SUPPORT_TICKET_USER_CONFIRMATION');
+    if (!userResult.success) {
+      console.error('Failed to send user confirmation email:', userResult.error);
     }
   }
   

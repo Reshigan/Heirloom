@@ -304,10 +304,15 @@ app.post('/api/contact', async (c) => {
     console.error('Failed to store contact form in database:', dbError);
   }
   
-  // Send notification email to admin
-  const adminEmail = c.env.ADMIN_NOTIFICATION_EMAIL || 'admin@heirloom.blue';
-  try {
-    await sendEmail(c.env, {
+  // Use dynamic import for sendEmail to ensure we get the correct module
+  const { sendEmail: sendEmailUtil } = await import('./utils/email');
+  
+  // Send notification email to admin (no fallback - require proper configuration)
+  const adminEmail = c.env.ADMIN_NOTIFICATION_EMAIL;
+  if (!adminEmail) {
+    console.error('ADMIN_NOTIFICATION_EMAIL not configured');
+  } else {
+    const adminResult = await sendEmailUtil(c.env, {
       from: 'Heirloom Contact <support@heirloom.blue>',
       to: adminEmail,
       subject: `[${ticketNumber}] Contact Form: ${body.subject}`,
@@ -328,37 +333,37 @@ app.post('/api/contact', async (c) => {
       `,
       replyTo: body.email,
     }, 'CONTACT_FORM_ADMIN');
-  } catch (emailError) {
-    console.error('Failed to send admin notification email:', emailError);
+    if (!adminResult.success) {
+      console.error('Failed to send admin notification email:', adminResult.error);
+    }
   }
   
   // Send confirmation email to user
-  try {
-    await sendEmail(c.env, {
-      from: 'Heirloom <support@heirloom.blue>',
-      to: body.email,
-      subject: `[${ticketNumber}] We received your message`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
-            <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
-          </div>
-          <h2>Thank you for reaching out</h2>
-          <p>Hi ${body.name},</p>
-          <p>We've received your message and will get back to you within 24-48 hours.</p>
-          <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
-            <p><strong>Reference:</strong> ${ticketNumber}</p>
-            <p><strong>Subject:</strong> ${body.subject}</p>
-          </div>
-          <p style="color: #888; font-size: 12px; margin-top: 32px;">
-            - The Heirloom Team
-          </p>
+  const userResult = await sendEmailUtil(c.env, {
+    from: 'Heirloom <support@heirloom.blue>',
+    to: body.email,
+    subject: `[${ticketNumber}] We received your message`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
+          <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
         </div>
-      `,
-    }, 'CONTACT_FORM_CONFIRMATION');
-  } catch (emailError) {
-    console.error('Failed to send user confirmation email:', emailError);
+        <h2>Thank you for reaching out</h2>
+        <p>Hi ${body.name},</p>
+        <p>We've received your message and will get back to you within 24-48 hours.</p>
+        <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
+          <p><strong>Reference:</strong> ${ticketNumber}</p>
+          <p><strong>Subject:</strong> ${body.subject}</p>
+        </div>
+        <p style="color: #888; font-size: 12px; margin-top: 32px;">
+          - The Heirloom Team
+        </p>
+      </div>
+    `,
+  }, 'CONTACT_FORM_CONFIRMATION');
+  if (!userResult.success) {
+    console.error('Failed to send user confirmation email:', userResult.error);
   }
   
   return c.json({ 
@@ -674,8 +679,8 @@ export default {
       await sendUpcomingCheckInReminders(env);
       // Send daily admin summary email
       await sendDailyAdminSummary(env);
-    } else if (cronType === '0 0 * * 0') {
-      // Weekly reminder emails (dead man's switch)
+    } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
+      // Weekly reminder emails (dead man's switch) - accepts both numeric (0) and named (SUN) day formats
       await sendReminderEmails(env);
       // Weekly post reminder emails (engagement nudges)
       await sendPostReminderEmails(env);
