@@ -307,69 +307,89 @@ app.post('/api/contact', async (c) => {
   // Use dynamic import for sendEmail to ensure we get the correct module
   const { sendEmail: sendEmailUtil } = await import('./utils/email');
   
+  // Track email results for debugging
+  let adminEmailResult: { success: boolean; error?: string } = { success: false, error: 'ADMIN_NOTIFICATION_EMAIL not configured' };
+  let userEmailResult: { success: boolean; error?: string } = { success: false, error: 'Not attempted' };
+  
   // Send notification email to admin (no fallback - require proper configuration)
   const adminEmail = c.env.ADMIN_NOTIFICATION_EMAIL;
   if (!adminEmail) {
     console.error('ADMIN_NOTIFICATION_EMAIL not configured');
   } else {
-    const adminResult = await sendEmailUtil(c.env, {
-      from: 'Heirloom <noreply@heirloom.blue>',
-      to: adminEmail,
-      subject: `[${ticketNumber}] Contact Form: ${body.subject}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #D4AF37;">New Contact Form Submission</h2>
-          <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
-          <p><strong>From:</strong> ${body.name} (${body.email})</p>
-          <p><strong>Subject:</strong> ${body.subject}</p>
-          <hr style="border: 1px solid #333;" />
-          <h3>Message:</h3>
-          <p style="white-space: pre-wrap;">${body.message}</p>
-          <hr style="border: 1px solid #333;" />
-          <p style="color: #666; font-size: 12px;">
-            Reply directly to ${body.email} to respond.
-          </p>
-        </div>
-      `,
-      replyTo: body.email,
-    }, 'CONTACT_FORM_ADMIN');
-    if (!adminResult.success) {
-      console.error('Failed to send admin notification email:', adminResult.error);
+    try {
+      const adminResult = await sendEmailUtil(c.env, {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: adminEmail,
+        subject: `[${ticketNumber}] Contact Form: ${body.subject}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #D4AF37;">New Contact Form Submission</h2>
+            <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
+            <p><strong>From:</strong> ${body.name} (${body.email})</p>
+            <p><strong>Subject:</strong> ${body.subject}</p>
+            <hr style="border: 1px solid #333;" />
+            <h3>Message:</h3>
+            <p style="white-space: pre-wrap;">${body.message}</p>
+            <hr style="border: 1px solid #333;" />
+            <p style="color: #666; font-size: 12px;">
+              Reply directly to ${body.email} to respond.
+            </p>
+          </div>
+        `,
+        replyTo: body.email,
+      }, 'CONTACT_FORM_ADMIN');
+      adminEmailResult = adminResult;
+      if (!adminResult.success) {
+        console.error('Failed to send admin notification email:', adminResult.error);
+      }
+    } catch (err: any) {
+      adminEmailResult = { success: false, error: `Exception: ${err.message}` };
+      console.error('Exception sending admin email:', err);
     }
   }
   
   // Send confirmation email to user
-  const userResult = await sendEmailUtil(c.env, {
-    from: 'Heirloom <noreply@heirloom.blue>',
-    to: body.email,
-    subject: `[${ticketNumber}] We received your message`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
-        <div style="text-align: center; margin-bottom: 24px;">
-          <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
-          <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
+  try {
+    const userResult = await sendEmailUtil(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: body.email,
+      subject: `[${ticketNumber}] We received your message`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
+            <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
+          </div>
+          <h2>Thank you for reaching out</h2>
+          <p>Hi ${body.name},</p>
+          <p>We've received your message and will get back to you within 24-48 hours.</p>
+          <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <p><strong>Reference:</strong> ${ticketNumber}</p>
+            <p><strong>Subject:</strong> ${body.subject}</p>
+          </div>
+          <p style="color: #888; font-size: 12px; margin-top: 32px;">
+            - The Heirloom Team
+          </p>
         </div>
-        <h2>Thank you for reaching out</h2>
-        <p>Hi ${body.name},</p>
-        <p>We've received your message and will get back to you within 24-48 hours.</p>
-        <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
-          <p><strong>Reference:</strong> ${ticketNumber}</p>
-          <p><strong>Subject:</strong> ${body.subject}</p>
-        </div>
-        <p style="color: #888; font-size: 12px; margin-top: 32px;">
-          - The Heirloom Team
-        </p>
-      </div>
-    `,
-  }, 'CONTACT_FORM_CONFIRMATION');
-  if (!userResult.success) {
-    console.error('Failed to send user confirmation email:', userResult.error);
+      `,
+    }, 'CONTACT_FORM_CONFIRMATION');
+    userEmailResult = userResult;
+    if (!userResult.success) {
+      console.error('Failed to send user confirmation email:', userResult.error);
+    }
+  } catch (err: any) {
+    userEmailResult = { success: false, error: `Exception: ${err.message}` };
+    console.error('Exception sending user email:', err);
   }
   
   return c.json({ 
     success: true, 
     ticketNumber,
-    message: 'Message sent successfully' 
+    message: 'Message sent successfully',
+    emailStatus: {
+      adminEmail: adminEmailResult,
+      userEmail: userEmailResult
+    }
   }, 201);
 });
 
