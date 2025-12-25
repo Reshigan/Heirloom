@@ -305,10 +305,11 @@ app.post('/api/contact', async (c) => {
   }
   
   // Send notification email to admin
+  const adminEmail = c.env.ADMIN_NOTIFICATION_EMAIL || 'admin@heirloom.blue';
   try {
     await sendEmail(c.env, {
       from: 'Heirloom Contact <support@heirloom.blue>',
-      to: 'admin@heirloom.blue',
+      to: adminEmail,
       subject: `[${ticketNumber}] Contact Form: ${body.subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
