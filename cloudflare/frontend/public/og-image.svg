@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0d78c"/>
+      <stop offset="50%" stop-color="#c9a959"/>
+      <stop offset="100%" stop-color="#a08335"/>
+    </linearGradient>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050505"/>
+      <stop offset="50%" stop-color="#0a0c10"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Dark background -->
+  <rect width="1200" height="630" fill="url(#bg-gradient)"/>
+  
+  <!-- Subtle decorative elements -->
+  <circle cx="100" cy="100" r="200" fill="rgba(201,169,89,0.03)"/>
+  <circle cx="1100" cy="530" r="250" fill="rgba(201,169,89,0.03)"/>
+  
+  <!-- Infinity symbol (logo) -->
+  <g filter="url(#glow)" transform="translate(450, 180)">
+    <path 
+      d="M50 135 
+         C50 85 90 45 150 45 
+         C190 45 220 65 240 95 
+         C260 65 290 45 330 45 
+         C390 45 430 85 430 135 
+         C430 185 390 225 330 225 
+         C290 225 260 205 240 175 
+         C220 205 190 225 150 225 
+         C90 225 50 185 50 135 Z"
+      fill="none"
+      stroke="url(#gold)"
+      stroke-width="24"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      transform="translate(-90, 0)"
+    />
+  </g>
+  
+  <!-- Brand name -->
+  <text x="600" y="420" text-anchor="middle" font-family="Georgia, serif" font-size="72" fill="url(#gold)" letter-spacing="12">
+    Heirloom
+  </text>
+  
+  <!-- Tagline -->
+  <text x="600" y="480" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="rgba(245,241,231,0.6)" letter-spacing="4">
+    Your Memories, Forever
+  </text>
+  
+  <!-- Subtle border -->
+  <rect x="40" y="40" width="1120" height="550" fill="none" stroke="rgba(201,169,89,0.15)" stroke-width="1" rx="8"/>
+</svg>
