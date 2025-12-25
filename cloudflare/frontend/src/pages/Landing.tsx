@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { ArrowRight, Pen, Mic, Image, Shield, Clock, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey, Heart, Gift } from '../components/Icons';
+import { ArrowRight, Pen, Mic, Image, Shield, Clock, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey, Heart, Gift, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger } from '../components/Icons';
 import { InfinityMark } from '../components/Logo';
 
 export function Landing() {
@@ -226,6 +226,83 @@ export function Landing() {
                 </div>
                 <h3 className="text-xl font-medium mb-3">{feature.title}</h3>
                 <p className="text-paper/50 leading-relaxed">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Advanced Features */}
+      <section className="py-32 px-6 md:px-12 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent" />
+        
+        <div className="max-w-7xl mx-auto relative">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
+          >
+            <span className="text-gold tracking-[0.3em] text-sm">ADVANCED</span>
+            <h2 className="text-4xl md:text-5xl font-light mt-4">
+              Powerful tools for your legacy
+            </h2>
+            <p className="text-paper/50 mt-4 max-w-2xl mx-auto">
+              Go beyond simple storage with intelligent features designed to make your legacy meaningful and impactful.
+            </p>
+          </motion.div>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            {[
+              { 
+                icon: LegacyPlaybook, 
+                title: 'Legacy Playbook', 
+                desc: 'A guided checklist organized into five categories—People, Stories, Gratitude, Practical, and Wisdom—to help you build a complete and meaningful legacy.',
+                link: '/legacy-plan'
+              },
+              { 
+                icon: RecipientJourney, 
+                title: 'Recipient Experience', 
+                desc: 'Control how your loved ones receive your legacy with staged content releases and a Family Memory Room where they can contribute their own memories.',
+                link: '/recipient-experience'
+              },
+              { 
+                icon: StoryArtifact, 
+                title: 'Story Artifacts', 
+                desc: 'Transform your photos and voice recordings into beautiful 60-120 second micro-documentaries with AI-powered story generation and cinematic themes.',
+                link: '/story-artifacts'
+              },
+              { 
+                icon: LifeEventTrigger, 
+                title: 'Life Event Triggers', 
+                desc: 'Schedule content delivery for life\'s milestones—graduations, weddings, first child, and more. Your words arrive exactly when they\'re needed most.',
+                link: '/life-events'
+              },
+            ].map((feature, i) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="card group hover:border-gold/30 transition-all"
+              >
+                <div className="flex items-start gap-5">
+                  <div className="w-16 h-16 glass rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-gold/10 transition-colors">
+                    <feature.icon size={28} className="text-gold/70 group-hover:text-gold transition-colors" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-medium mb-2">{feature.title}</h3>
+                    <p className="text-paper/50 leading-relaxed mb-4">{feature.desc}</p>
+                    <Link 
+                      to={feature.link} 
+                      className="inline-flex items-center gap-2 text-gold/70 hover:text-gold transition-colors text-sm"
+                    >
+                      Learn more <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>

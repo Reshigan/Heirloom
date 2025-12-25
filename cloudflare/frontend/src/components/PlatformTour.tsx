@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ElementType } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Image, Mic, Mail, Users, Shield, Check, FileText, Calendar, Video, Gift } from './Icons';
+import { X, ChevronLeft, ChevronRight, Image, Mic, Mail, Users, Shield, Check, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger } from './Icons';
 
 interface TourStep {
   id: string;
@@ -94,7 +94,7 @@ const tourSteps: TourStep[] = [
     id: 'legacy-playbook',
     title: 'Legacy Playbook',
     description: 'A guided checklist to help you build a complete legacy. Organized into categories—People, Stories, Gratitude, Practical, and Wisdom—so nothing important is forgotten.',
-    icon: FileText,
+    icon: LegacyPlaybook,
     highlight: 'legacy-plan',
     features: [
       'Five thoughtful categories to guide you',
@@ -107,7 +107,7 @@ const tourSteps: TourStep[] = [
     id: 'recipient-experience',
     title: 'Recipient Experience',
     description: 'Control how and when your loved ones receive your legacy. Set up staged releases and create a Family Memory Room where recipients can contribute their own memories.',
-    icon: Gift,
+    icon: RecipientJourney,
     highlight: 'recipient-experience',
     features: [
       'Staged content release over time',
@@ -120,7 +120,7 @@ const tourSteps: TourStep[] = [
     id: 'story-artifacts',
     title: 'Story Artifacts',
     description: 'Transform your memories into beautiful micro-documentaries. Combine photos, voice recordings, and music into 60-120 second films that tell your story.',
-    icon: Video,
+    icon: StoryArtifact,
     highlight: 'story-artifacts',
     features: [
       'AI-powered story generation',
@@ -133,7 +133,7 @@ const tourSteps: TourStep[] = [
     id: 'life-events',
     title: 'Life Event Triggers',
     description: 'Schedule content delivery for life\'s milestones—graduations, weddings, first child, and more. Your words arrive exactly when they\'re needed most.',
-    icon: Calendar,
+    icon: LifeEventTrigger,
     highlight: 'life-events',
     features: [
       'Six milestone event types',

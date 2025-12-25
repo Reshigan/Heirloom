@@ -692,6 +692,56 @@ export const Edit3 = createIcon(
   </>
 );
 
+// Advanced Feature Icons
+export const LegacyPlaybook = createIcon(
+  <>
+    <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+    <path d="M8 7h8" />
+    <path d="M8 11h6" />
+    <path d="M8 15l2 2 4-4" />
+  </>
+);
+
+export const RecipientJourney = createIcon(
+  <>
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <path d="M3 9h18" />
+    <circle cx="7" cy="6" r="1" fill="currentColor" stroke="none" />
+    <circle cx="11" cy="6" r="1" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="6" r="1" fill="currentColor" stroke="none" />
+    <path d="M8 14l2 2 4-4" />
+    <circle cx="12" cy="17" r="1.5" />
+    <path d="M9 17h-2" />
+    <path d="M17 17h-2" />
+  </>
+);
+
+export const StoryArtifact = createIcon(
+  <>
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+    <circle cx="8" cy="8" r="1" fill="currentColor" stroke="none" />
+    <circle cx="8" cy="12" r="1" fill="currentColor" stroke="none" />
+    <circle cx="8" cy="16" r="1" fill="currentColor" stroke="none" />
+    <polygon points="14 9 18 12 14 15" fill="currentColor" stroke="none" />
+    <path d="M19 2l2 2-2 2" />
+    <path d="M21 4h-3" />
+  </>
+);
+
+export const LifeEventTrigger = createIcon(
+  <>
+    <path d="M12 2v4" />
+    <path d="M12 18v4" />
+    <circle cx="12" cy="12" r="6" />
+    <path d="M12 9v3l2 2" />
+    <path d="M4.93 4.93l2.83 2.83" />
+    <path d="M16.24 16.24l2.83 2.83" />
+    <path d="M2 12h4" />
+    <path d="M18 12h4" />
+  </>
+);
+
 // Export all icons as named exports
 export const Icons = {
   Infinity,
@@ -794,6 +844,10 @@ export const Icons = {
   UserPlus,
   Zap,
   Edit3,
+  LegacyPlaybook,
+  RecipientJourney,
+  StoryArtifact,
+  LifeEventTrigger,
 };
 
 export default Icons;
