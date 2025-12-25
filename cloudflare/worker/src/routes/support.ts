@@ -37,7 +37,7 @@ supportRoutes.post('/ticket', async (c) => {
     console.error('ADMIN_NOTIFICATION_EMAIL not configured');
   } else {
     const adminResult = await sendEmailUtil(c.env, {
-      from: 'Heirloom Support <support@heirloom.blue>',
+      from: 'Heirloom <noreply@heirloom.blue>',
       to: adminEmail,
       subject: `[${ticketNumber}] New Support Ticket: ${body.subject}`,
       html: `
@@ -65,7 +65,7 @@ supportRoutes.post('/ticket', async (c) => {
   // Send confirmation email to user
   if (body.userEmail) {
     const userResult = await sendEmailUtil(c.env, {
-      from: 'Heirloom Support <support@heirloom.blue>',
+      from: 'Heirloom <noreply@heirloom.blue>',
       to: body.userEmail,
       subject: `[${ticketNumber}] We received your support request`,
       html: `

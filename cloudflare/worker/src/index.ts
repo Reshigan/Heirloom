@@ -313,7 +313,7 @@ app.post('/api/contact', async (c) => {
     console.error('ADMIN_NOTIFICATION_EMAIL not configured');
   } else {
     const adminResult = await sendEmailUtil(c.env, {
-      from: 'Heirloom Contact <support@heirloom.blue>',
+      from: 'Heirloom <noreply@heirloom.blue>',
       to: adminEmail,
       subject: `[${ticketNumber}] Contact Form: ${body.subject}`,
       html: `
@@ -340,7 +340,7 @@ app.post('/api/contact', async (c) => {
   
   // Send confirmation email to user
   const userResult = await sendEmailUtil(c.env, {
-    from: 'Heirloom <support@heirloom.blue>',
+    from: 'Heirloom <noreply@heirloom.blue>',
     to: body.email,
     subject: `[${ticketNumber}] We received your message`,
     html: `
