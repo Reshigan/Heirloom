@@ -674,8 +674,8 @@ export default {
       await sendUpcomingCheckInReminders(env);
       // Send daily admin summary email
       await sendDailyAdminSummary(env);
-    } else if (cronType === '0 0 * * 0') {
-      // Weekly reminder emails (dead man's switch)
+    } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
+      // Weekly reminder emails (dead man's switch) - accepts both numeric (0) and named (SUN) day formats
       await sendReminderEmails(env);
       // Weekly post reminder emails (engagement nudges)
       await sendPostReminderEmails(env);
