@@ -150,6 +150,8 @@ export const settingsApi = {
   getNotifications: () => api.get('/settings/notifications'),
   updateNotifications: (data: { emailNotifications?: boolean; pushNotifications?: boolean; reminderEmails?: boolean; marketingEmails?: boolean; weeklyDigest?: boolean }) =>
     api.patch('/settings/notifications', data),
+  markNotificationRead: (id: string) => api.patch(`/settings/notifications/${id}/read`),
+  markAllNotificationsRead: () => api.post('/settings/notifications/read-all'),
   submitTicket: (data: { subject: string; category: string; description: string; userEmail?: string; userName?: string }) =>
     api.post('/support/ticket', data),
 };

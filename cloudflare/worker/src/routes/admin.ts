@@ -5,7 +5,8 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
-import { supportTicketReplyEmail, supportTicketResolvedEmail } from '../email-templates';
+import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnouncementEmail } from '../email-templates';
+import { sendEmail } from '../utils/email';
 
 export const adminRoutes = new Hono<AppEnv>();
 
@@ -1687,6 +1688,114 @@ adminRoutes.get('/analytics/users', adminAuth, async (c) => {
     activeUsersLast7Days: stats?.active_7d || 0,
     usersWithContent: withContent?.count || 0,
   });
+});
+
+// ============================================
+// NEW FEATURES NOTIFICATIONS
+// ============================================
+
+adminRoutes.post('/notifications/new-features', adminAuth, async (c) => {
+  const adminRole = c.get('adminRole');
+  const adminId = c.get('adminId');
+  
+  if (adminRole !== 'SUPER_ADMIN') {
+    return c.json({ error: 'Only super admins can send feature announcements' }, 403);
+  }
+  
+  const body = await c.req.json().catch(() => ({}));
+  const { sendEmail: shouldSendEmail = true, createInAppNotification = true } = body;
+  
+  const users = await c.env.DB.prepare(`
+    SELECT id, email, first_name FROM users WHERE email_verified = 1
+  `).all();
+  
+  const now = new Date().toISOString();
+  let emailsSent = 0;
+  let emailsFailed = 0;
+  let notificationsCreated = 0;
+  
+  for (const user of users.results as any[]) {
+    if (createInAppNotification) {
+      try {
+        const existingNotification = await c.env.DB.prepare(`
+          SELECT id FROM notifications 
+          WHERE user_id = ? AND type = 'NEW_FEATURES_DEC_2024'
+        `).bind(user.id).first();
+        
+        if (!existingNotification) {
+          await c.env.DB.prepare(`
+            INSERT INTO notifications (id, user_id, type, title, message, data, created_at)
+            VALUES (?, ?, 'NEW_FEATURES_DEC_2024', 'New Features Available!', 'We''ve added 4 exciting new features: Legacy Playbook, Recipient Experience, Story Artifacts, and Life Event Triggers. Take the tour to learn more!', '{"features": ["legacy-playbook", "recipient-experience", "story-artifacts", "life-events"]}', ?)
+          `).bind(crypto.randomUUID(), user.id, now).run();
+          notificationsCreated++;
+        }
+      } catch (err) {
+        console.error('Failed to create notification for user:', user.email, err);
+      }
+    }
+    
+    if (shouldSendEmail) {
+      try {
+        const emailData = newFeaturesAnnouncementEmail(user.first_name || 'there');
+        const result = await sendEmail(c.env, {
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: user.email,
+          subject: emailData.subject,
+          html: emailData.html,
+        }, 'NEW_FEATURES_ANNOUNCEMENT');
+        
+        if (result.success) {
+          emailsSent++;
+        } else {
+          emailsFailed++;
+        }
+      } catch (err) {
+        console.error('Failed to send email to user:', user.email, err);
+        emailsFailed++;
+      }
+    }
+  }
+  
+  await logAuditAction(c.env, adminId, 'SEND_NEW_FEATURES_NOTIFICATION', {
+    totalUsers: users.results.length,
+    emailsSent,
+    emailsFailed,
+    notificationsCreated,
+  });
+  
+  return c.json({
+    success: true,
+    totalUsers: users.results.length,
+    emailsSent,
+    emailsFailed,
+    notificationsCreated,
+  });
+});
+
+adminRoutes.post('/notifications/new-user-features', adminAuth, async (c) => {
+  const userId = c.req.query('userId');
+  
+  if (!userId) {
+    return c.json({ error: 'userId is required' }, 400);
+  }
+  
+  const now = new Date().toISOString();
+  
+  const existingNotification = await c.env.DB.prepare(`
+    SELECT id FROM notifications 
+    WHERE user_id = ? AND type = 'NEW_FEATURES_DEC_2024'
+  `).bind(userId).first();
+  
+  if (existingNotification) {
+    return c.json({ success: true, message: 'Notification already exists' });
+  }
+  
+  await c.env.DB.prepare(`
+    INSERT INTO notifications (id, user_id, type, title, message, data, created_at)
+    VALUES (?, ?, 'NEW_FEATURES_DEC_2024', 'New Features Available!', 'We''ve added 4 exciting new features: Legacy Playbook, Recipient Experience, Story Artifacts, and Life Event Triggers. Take the tour to learn more!', '{"features": ["legacy-playbook", "recipient-experience", "story-artifacts", "life-events"]}', ?)
+  `).bind(crypto.randomUUID(), userId, now).run();
+  
+  return c.json({ success: true, message: 'Notification created' });
 });
 
 // ============================================

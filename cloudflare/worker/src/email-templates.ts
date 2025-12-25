@@ -861,3 +861,40 @@ export const supportTicketResolvedEmail = (
     <a href="${APP_URL}/dashboard" class="button">GO TO DASHBOARD</a>
   `),
 });
+
+// ============================================
+// NEW FEATURES ANNOUNCEMENT EMAIL
+// ============================================
+
+export const newFeaturesAnnouncementEmail = (userName: string) => ({
+  subject: 'New Features: Legacy Playbook, Story Artifacts & More',
+  html: baseTemplate(`
+    <h2>Exciting New Features Are Here!</h2>
+    <p>Hi ${userName},</p>
+    <p>We've been working hard to make Heirloom even more powerful for preserving your legacy. Here's what's new:</p>
+    
+    <div class="divider"></div>
+    
+    <h3 style="color: #c9a959; margin-top: 24px;">Legacy Playbook</h3>
+    <p>A guided checklist organized into five categories—People, Stories, Gratitude, Practical, and Wisdom—to help you build a complete legacy. Track your progress and share it with family.</p>
+    
+    <h3 style="color: #c9a959; margin-top: 24px;">Recipient Experience</h3>
+    <p>Control how and when your loved ones receive your legacy with staged releases. Plus, create a Family Memory Room where recipients can contribute their own memories.</p>
+    
+    <h3 style="color: #c9a959; margin-top: 24px;">Story Artifacts</h3>
+    <p>Transform your memories into beautiful 60-120 second micro-documentaries. Combine photos, voice recordings, and music into shareable video stories.</p>
+    
+    <h3 style="color: #c9a959; margin-top: 24px;">Life Event Triggers</h3>
+    <p>Schedule content delivery for life's milestones—graduations, weddings, first child, and more. Your words arrive exactly when they're needed most.</p>
+    
+    <div class="divider"></div>
+    
+    <p>Log in to explore these new features and take the platform tour to learn more!</p>
+    
+    <a href="${APP_URL}/dashboard" class="button">EXPLORE NEW FEATURES</a>
+    
+    <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">
+      <a href="${APP_URL}/settings?tab=notifications" style="color: #c9a959;">Manage your email preferences</a>
+    </p>
+  `),
+});
