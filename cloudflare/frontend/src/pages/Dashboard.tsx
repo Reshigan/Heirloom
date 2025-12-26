@@ -388,7 +388,7 @@ export function Dashboard() {
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-16 md:mb-20"
         >
-          <p className="text-sm tracking-[0.2em] text-paper/50 uppercase mb-4">Your Sanctuary Awaits</p>
+          <p className="text-sm tracking-[0.2em] text-paper/70 uppercase mb-4">Your Sanctuary Awaits</p>
                     <h1 className="font-display text-4xl md:text-5xl font-normal tracking-wide mb-5">
                       Welcome back, <em className="font-body italic text-gold">{user?.firstName || 'Friend'}</em>
                     </h1>
@@ -401,7 +401,7 @@ export function Dashboard() {
                         <span className="text-sm font-medium tracking-wider" style={{ color: '#D4AF37' }}>GOLD LEGACY MEMBER</span>
                       </div>
                     )}
-          <p className="text-paper/50 text-lg font-light max-w-lg mx-auto mb-6">
+          <p className="text-paper/70 text-lg font-light max-w-lg mx-auto mb-6">
             Every moment you preserve becomes eternal. What will you create today?
           </p>
           
@@ -879,10 +879,10 @@ export function Dashboard() {
 
       </main>
 
-      {/* Help/Tour Button - Fixed position */}
+      {/* Help/Tour Button - Fixed position with safe area for mobile */}
       <motion.button
         onClick={openTour}
-        className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full glass flex items-center justify-center text-gold hover:text-gold/80 transition-colors border border-gold/30 hover:border-gold/50"
+        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 w-12 h-12 rounded-full glass flex items-center justify-center text-gold hover:text-gold/80 transition-colors border border-gold/30 hover:border-gold/50"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         title="Take a tour"
