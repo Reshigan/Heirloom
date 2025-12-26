@@ -17,8 +17,8 @@ interface StoryData {
   memories: Array<{
     id: string;
     title: string;
-    file_url: string;
-    thumbnail_url: string | null;
+    fileUrl: string;
+    thumbnailUrl: string | null;
   }>;
 }
 
@@ -140,7 +140,7 @@ export function StoryView() {
                   className="absolute inset-0"
                 >
                   <img
-                    src={currentMemory?.file_url}
+                    src={currentMemory?.fileUrl}
                     alt={currentMemory?.title || 'Memory'}
                     className="w-full h-full object-contain bg-black"
                   />

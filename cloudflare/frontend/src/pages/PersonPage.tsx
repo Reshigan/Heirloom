@@ -74,7 +74,7 @@ export function PersonPage() {
       setAudioElement(null);
     } else {
       audioElement?.pause();
-      const audio = new Audio(recording.file_url);
+      const audio = new Audio(recording.fileUrl);
       audio.onended = () => {
         setPlayingVoiceId(null);
         setAudioElement(null);
@@ -407,9 +407,9 @@ export function PersonPage() {
                         to={`/memories/${memory.id}`}
                         className="aspect-square rounded-xl overflow-hidden relative group"
                       >
-                        {memory.file_url ? (
+                        {memory.fileUrl ? (
                           <img 
-                            src={memory.file_url} 
+                            src={memory.fileUrl} 
                             alt={memory.title} 
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
