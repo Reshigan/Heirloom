@@ -48,7 +48,7 @@ interface Memory {
   id: string;
   title: string;
   description: string;
-  file_url: string;
+  fileUrl: string;
   type: string;
 }
 
@@ -56,7 +56,7 @@ interface VoiceRecording {
   id: string;
   title: string;
   description: string;
-  file_url: string;
+  fileUrl: string;
   duration: number;
 }
 
@@ -590,7 +590,7 @@ export function StoryArtifact() {
                           }`}
                         >
                           <img
-                            src={memory.file_url}
+                            src={memory.fileUrl}
                             alt={memory.title}
                             className="w-full h-full object-cover"
                           />
