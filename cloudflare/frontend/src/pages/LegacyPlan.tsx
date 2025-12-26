@@ -5,6 +5,8 @@ import {
   Check, Plus, Trash2, Share2, Users, BookOpen, Heart, FileText, Lightbulb, ChevronDown, ChevronUp, Link2
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
+import { Mic, Mail, Image, Family } from '../components/Icons';
+import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api from '../services/api';
 
 const CATEGORY_CONFIG: Record<string, { icon: React.ElementType; label: string; color: string }> = {
@@ -46,6 +48,9 @@ export function LegacyPlan() {
   const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemDescription, setNewItemDescription] = useState('');
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+
+  // Feature onboarding
+  const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('legacy-plan');
 
     const { data, isLoading } = useQuery<LegacyPlan>({
       queryKey: ['legacy-plan'],
@@ -351,25 +356,44 @@ export function LegacyPlan() {
         >
           <h3 className="font-medium mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <a href="/record" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center">
-              <div className="text-2xl mb-2">🎙️</div>
+            <a href="/record" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center group">
+              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                <Mic size={20} />
+              </div>
               <p className="text-sm">Record a Story</p>
             </a>
-            <a href="/compose" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center">
-              <div className="text-2xl mb-2">✉️</div>
+            <a href="/compose" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center group">
+              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                <Mail size={20} />
+              </div>
               <p className="text-sm">Write a Letter</p>
             </a>
-            <a href="/memories" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center">
-              <div className="text-2xl mb-2">📸</div>
+            <a href="/memories" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center group">
+              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400 group-hover:scale-110 transition-transform">
+                <Image size={20} />
+              </div>
               <p className="text-sm">Add Photos</p>
             </a>
-            <a href="/family" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center">
-              <div className="text-2xl mb-2">👨‍👩‍👧</div>
+            <a href="/family" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center group">
+              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400 group-hover:scale-110 transition-transform">
+                <Family size={20} />
+              </div>
               <p className="text-sm">Add Family</p>
             </a>
           </div>
         </motion.div>
       </main>
+
+      {/* Help Button */}
+      <OnboardingHelpButton onClick={openOnboarding} />
+
+      {/* Feature Onboarding */}
+      <FeatureOnboarding
+        featureKey="legacy-plan"
+        isOpen={isOnboardingOpen}
+        onComplete={completeOnboarding}
+        onDismiss={dismissOnboarding}
+      />
     </div>
   );
 }

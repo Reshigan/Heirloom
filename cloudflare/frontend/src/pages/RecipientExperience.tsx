@@ -5,6 +5,7 @@ import {
   Users, Clock, Check, X, Image, Mic, FileText, Copy, Shield
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
+import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api from '../services/api';
 
 interface ReleaseSchedule {
@@ -44,6 +45,9 @@ export function RecipientExperience() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'schedules' | 'room'>('schedules');
   const [copiedUrl, setCopiedUrl] = useState(false);
+
+  // Feature onboarding
+  const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('recipient-experience');
 
     const { data: schedulesData, isLoading: schedulesLoading } = useQuery<{ schedules: ReleaseSchedule[] }>({
       queryKey: ['release-schedules'],
@@ -428,6 +432,17 @@ export function RecipientExperience() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Help Button */}
+      <OnboardingHelpButton onClick={openOnboarding} />
+
+      {/* Feature Onboarding */}
+      <FeatureOnboarding
+        featureKey="recipient-experience"
+        isOpen={isOnboardingOpen}
+        onComplete={completeOnboarding}
+        onDismiss={dismissOnboarding}
+      />
     </div>
   );
 }
