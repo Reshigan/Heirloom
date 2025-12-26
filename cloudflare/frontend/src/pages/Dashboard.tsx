@@ -548,18 +548,21 @@ export function Dashboard() {
           </div>
         </motion.section>
 
-        {/* New Features Section */}
+        {/* Grow Your Legacy Section - Viral Driver Features */}
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
           className="mb-16 md:mb-20"
         >
-          <p className="text-sm tracking-[0.15em] text-paper/40 uppercase mb-6 text-center">Advanced Features</p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="text-center mb-8">
+            <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold mb-2">Grow Your Legacy</h2>
+            <p className="text-sm text-paper/50">Share your story with the people who matter most</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <motion.button
               onClick={() => navigate('/legacy-plan')}
-              className="glass rounded-xl p-4 md:p-6 text-left hover:bg-paper/5 transition-all group"
+              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-blue-500/20 hover:border-blue-500/40"
               whileHover={{ y: -4 }}
             >
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 mb-3 group-hover:scale-110 transition-transform">
@@ -567,27 +570,14 @@ export function Dashboard() {
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                 </svg>
               </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Legacy Playbook</h3>
-              <p className="text-xs text-paper/40 hidden md:block">Guided checklist for your legacy</p>
-            </motion.button>
-
-            <motion.button
-              onClick={() => navigate('/recipient-experience')}
-              className="glass rounded-xl p-4 md:p-6 text-left hover:bg-paper/5 transition-all group"
-              whileHover={{ y: -4 }}
-            >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-110 transition-transform">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
-                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-                </svg>
-              </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Recipient Experience</h3>
-              <p className="text-xs text-paper/40 hidden md:block">Staged releases & memory room</p>
+              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Plan Your Legacy</h3>
+              <p className="text-xs text-paper/50 mb-2">Complete in 10 minutes</p>
+              <p className="text-xs text-paper/40">A guided checklist to ensure nothing important is forgotten. Track your progress and share it with family.</p>
             </motion.button>
 
             <motion.button
               onClick={() => navigate('/story-artifacts')}
-              className="glass rounded-xl p-4 md:p-6 text-left hover:bg-paper/5 transition-all group"
+              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-pink-500/20 hover:border-pink-500/40"
               whileHover={{ y: -4 }}
             >
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400 mb-3 group-hover:scale-110 transition-transform">
@@ -596,13 +586,14 @@ export function Dashboard() {
                   <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>
                 </svg>
               </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Story Artifacts</h3>
-              <p className="text-xs text-paper/40 hidden md:block">Create micro-documentaries</p>
+              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Create a Tribute Video</h3>
+              <p className="text-xs text-paper/50 mb-2">Turn memories into stories</p>
+              <p className="text-xs text-paper/40">Combine your photos and recordings into beautiful micro-documentaries to share with loved ones.</p>
             </motion.button>
 
             <motion.button
               onClick={() => navigate('/life-events')}
-              className="glass rounded-xl p-4 md:p-6 text-left hover:bg-paper/5 transition-all group"
+              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-yellow-500/20 hover:border-yellow-500/40"
               whileHover={{ y: -4 }}
             >
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-400 mb-3 group-hover:scale-110 transition-transform">
@@ -612,8 +603,24 @@ export function Dashboard() {
                   <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
                 </svg>
               </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Life Events</h3>
-              <p className="text-xs text-paper/40 hidden md:block">Milestone-based triggers</p>
+              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Messages for Milestones</h3>
+              <p className="text-xs text-paper/50 mb-2">Graduations, weddings & more</p>
+              <p className="text-xs text-paper/40">Schedule heartfelt messages to arrive at life's biggest moments - even if you can't be there.</p>
+            </motion.button>
+
+            <motion.button
+              onClick={() => navigate('/recipient-experience')}
+              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-purple-500/20 hover:border-purple-500/40"
+              whileHover={{ y: -4 }}
+            >
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-110 transition-transform">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                </svg>
+              </div>
+              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Invite Family to Contribute</h3>
+              <p className="text-xs text-paper/50 mb-2">Build memories together</p>
+              <p className="text-xs text-paper/40">Create a shared memory room where family can add their own stories and photos to your legacy.</p>
             </motion.button>
           </div>
         </motion.section>

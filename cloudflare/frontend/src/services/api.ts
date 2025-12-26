@@ -311,6 +311,8 @@ export const adminApi = {
   // Email Management
   getEmailLogs: (params?: { status?: string; page?: number; limit?: number }) => 
     adminAxios.get('/admin/emails', { params }),
+  getEmailDetail: (id: string) => adminAxios.get(`/admin/emails/${id}`),
+  resendEmail: (id: string) => adminAxios.post(`/admin/emails/${id}/resend`),
   sendBulkEmail: (data: { subject: string; body: string; recipients: string[] | 'all' }) => 
     adminAxios.post('/admin/emails/bulk', data),
   

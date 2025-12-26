@@ -1085,6 +1085,31 @@ adminRoutes.get('/emails', adminAuth, async (c) => {
   });
 });
 
+// Get single email details (for viewing full body, error messages, etc.)
+adminRoutes.get('/emails/:id', adminAuth, async (c) => {
+  const emailId = c.req.param('id');
+  
+  const email = await c.env.DB.prepare(`
+    SELECT * FROM email_logs WHERE id = ?
+  `).bind(emailId).first();
+  
+  if (!email) {
+    return c.json({ error: 'Email not found' }, 404);
+  }
+  
+  return c.json({
+    id: email.id,
+    to: email.to_email,
+    subject: email.subject,
+    body: email.body,
+    status: email.status,
+    errorMessage: email.error_message,
+    emailType: email.email_type,
+    sentAt: email.sent_at,
+    createdAt: email.created_at,
+  });
+});
+
 // Resend a failed email
 adminRoutes.post('/emails/:id/resend', adminAuth, async (c) => {
   const adminId = c.get('adminId');
