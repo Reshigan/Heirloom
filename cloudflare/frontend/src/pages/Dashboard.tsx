@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles, Gift, Copy
+  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles, Gift, Copy, Heart
 } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi, referralApi } from '../services/api';
@@ -118,6 +118,12 @@ export function Dashboard() {
         const { data: referralData } = useQuery({
           queryKey: ['my-referral'],
           queryFn: () => referralApi.getMyReferral().then(r => r.data),
+        });
+
+        // Family Echo Inbox - messages from recipients
+        const { data: inboxData } = useQuery({
+          queryKey: ['inbox'],
+          queryFn: () => settingsApi.getInbox().then(r => r.data),
         });
 
     const [showNewFeaturesNotification, setShowNewFeaturesNotification] = useState(true);
@@ -394,9 +400,19 @@ export function Dashboard() {
                         <span className="text-sm font-medium tracking-wider" style={{ color: '#D4AF37' }}>GOLD LEGACY MEMBER</span>
                       </div>
                     )}
-          <p className="text-paper/50 text-lg font-light max-w-lg mx-auto">
+          <p className="text-paper/50 text-lg font-light max-w-lg mx-auto mb-6">
             Every moment you preserve becomes eternal. What will you create today?
           </p>
+          
+          <motion.button
+            onClick={() => navigate('/quick')}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gold text-void font-medium hover:bg-gold/90 transition-all"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Sparkles size={18} />
+            Leave a 60-Second Message
+          </motion.button>
         </motion.section>
 
         {/* Sanctuary Grid - Four Sacred Objects */}
@@ -633,6 +649,87 @@ export function Dashboard() {
             </motion.button>
           </div>
         </motion.section>
+
+        {/* Family Echo Inbox - Messages from Recipients */}
+        {inboxData && inboxData.messages && inboxData.messages.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.48 }}
+            className="mb-16 md:mb-20"
+          >
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/20 border border-pink-500/30 mb-3">
+                <Heart size={16} className="text-pink-400" />
+                <span className="text-sm text-pink-300">
+                  {inboxData.unreadCount > 0 ? `${inboxData.unreadCount} new` : ''} Notes from Family
+                </span>
+              </div>
+              <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold">Your Family Responded</h2>
+              <p className="text-sm text-paper/50 max-w-lg mx-auto mt-2">
+                The people you love have sent you notes about the memories you've shared.
+              </p>
+            </div>
+            <div className="space-y-4 max-w-2xl mx-auto">
+              {inboxData.messages.slice(0, 3).map((msg: any) => (
+                <motion.div
+                  key={msg.id}
+                  className={`glass rounded-xl p-5 border transition-all ${
+                    !msg.read_at ? 'border-pink-500/30 bg-pink-500/5' : 'border-paper/10'
+                  }`}
+                  whileHover={{ scale: 1.01 }}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500/30 to-purple-500/30 flex items-center justify-center text-lg font-medium flex-shrink-0">
+                      {msg.sender_name?.[0] || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium">{msg.sender_name}</span>
+                        {msg.sender_relationship && (
+                          <span className="text-xs text-paper/40">({msg.sender_relationship})</span>
+                        )}
+                        {!msg.read_at && (
+                          <span className="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-xs">New</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        {msg.reaction_type === 'THANK_YOU' && (
+                          <span className="text-sm text-gold">Thank You</span>
+                        )}
+                        {msg.reaction_type === 'LOVE_THIS' && (
+                          <span className="text-sm text-pink-400">I Love This</span>
+                        )}
+                        {msg.reaction_type === 'REMEMBER_THIS' && (
+                          <span className="text-sm text-purple-400">I Remember This Too</span>
+                        )}
+                        {msg.reaction_type === 'CUSTOM' && (
+                          <span className="text-sm text-paper/50">Sent a note</span>
+                        )}
+                      </div>
+                      {msg.message && (
+                        <p className="text-paper/70 text-sm italic">"{msg.message}"</p>
+                      )}
+                      <p className="text-xs text-paper/30 mt-2">
+                        {new Date(msg.created_at).toLocaleDateString('en-US', { 
+                          month: 'short', day: 'numeric', year: 'numeric' 
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+              {inboxData.messages.length > 3 && (
+                <button
+                  onClick={() => navigate('/settings?tab=inbox')}
+                  className="w-full py-3 glass rounded-xl text-center text-paper/60 hover:text-gold transition-colors"
+                >
+                  View all {inboxData.messages.length} messages
+                </button>
+              )}
+            </div>
+          </motion.section>
+        )}
 
         {/* Share & Earn Section - Referral Widget */}
         {referralData && (

@@ -446,3 +446,55 @@ Important:
     return c.json({ error: 'Failed to search memories' }, 500);
   }
 });
+
+// ============================================
+// RECIPIENT MESSAGES (Family Echo)
+// ============================================
+
+// Send a message back to the creator
+inheritRoutes.post('/reply', validateRecipientSession, async (c) => {
+  const ownerId = c.get('ownerId');
+  const legacyContactId = c.get('legacyContactId');
+  
+  const body = await c.req.json();
+  const { reactionType, message, contentType, contentId } = body;
+  
+  if (!reactionType && !message) {
+    return c.json({ error: 'Please provide a reaction or message' }, 400);
+  }
+  
+  // Get the legacy contact info for sender details
+  const legacyContact = await c.env.DB.prepare(`
+    SELECT name, email, relationship FROM legacy_contacts WHERE id = ?
+  `).bind(legacyContactId).first();
+  
+  if (!legacyContact) {
+    return c.json({ error: 'Sender not found' }, 404);
+  }
+  
+  const messageId = crypto.randomUUID();
+  
+  await c.env.DB.prepare(`
+    INSERT INTO recipient_messages (
+      id, sender_name, sender_email, sender_relationship, creator_user_id,
+      content_type, content_id, reaction_type, message, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    messageId,
+    legacyContact.name,
+    legacyContact.email,
+    legacyContact.relationship,
+    ownerId,
+    contentType || 'GENERAL',
+    contentId || null,
+    reactionType || 'CUSTOM',
+    message || null,
+    new Date().toISOString()
+  ).run();
+  
+  return c.json({ 
+    success: true, 
+    message: 'Your message has been sent',
+    id: messageId
+  });
+});

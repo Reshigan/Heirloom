@@ -42,6 +42,8 @@ import { RecipientExperience } from './pages/RecipientExperience';
 import { CreatorSignup } from './pages/CreatorSignup';
 import { MemoryRoom } from './pages/MemoryRoom';
 import { StoryView } from './pages/StoryView';
+import { PersonPage } from './pages/PersonPage';
+import { QuickWizard } from './pages/QuickWizard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -173,14 +175,30 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/family/:id"
-            element={
-              <ProtectedRoute>
-                <Family />
-              </ProtectedRoute>
-            }
-          />
+                    <Route
+                      path="/family/:id"
+                      element={
+                        <ProtectedRoute>
+                          <Family />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/person/:id"
+                      element={
+                        <ProtectedRoute>
+                          <PersonPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/quick"
+                      element={
+                        <ProtectedRoute>
+                          <QuickWizard />
+                        </ProtectedRoute>
+                      }
+                    />
           <Route
             path="/settings"
             element={

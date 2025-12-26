@@ -465,3 +465,161 @@ aiRoutes.get('/legacy-score', async (c) => {
     return c.json({ error: 'Failed to calculate legacy score' }, 500);
   }
 });
+
+// ============================================
+// PERSON-SPECIFIC AI PROMPTS
+// ============================================
+
+aiRoutes.get('/person-prompts/:familyMemberId', async (c) => {
+  const userId = c.get('userId');
+  const familyMemberId = c.req.param('familyMemberId');
+  
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  
+  try {
+    const familyMember = await c.env.DB.prepare(`
+      SELECT * FROM family_members WHERE id = ? AND user_id = ?
+    `).bind(familyMemberId, userId).first();
+    
+    if (!familyMember) {
+      return c.json({ error: 'Family member not found' }, 404);
+    }
+    
+    const name = familyMember.name as string;
+    const relationship = (familyMember.relationship as string).toLowerCase();
+    
+    const existingLetters = await c.env.DB.prepare(`
+      SELECT l.title, l.body FROM letters l
+      JOIN letter_recipients lr ON l.id = lr.letter_id
+      WHERE lr.family_member_id = ?
+      ORDER BY l.created_at DESC LIMIT 5
+    `).bind(familyMemberId).all();
+    
+    const existingVoice = await c.env.DB.prepare(`
+      SELECT v.title, v.prompt FROM voice_recordings v
+      JOIN voice_recipients vr ON v.id = vr.voice_recording_id
+      WHERE vr.family_member_id = ?
+      ORDER BY v.created_at DESC LIMIT 5
+    `).bind(familyMemberId).all();
+    
+    const existingContent = [
+      ...existingLetters.results.map((l: any) => l.title || ''),
+      ...existingVoice.results.map((v: any) => v.title || v.prompt || '')
+    ].filter(Boolean).join(', ');
+    
+    const relationshipPromptMap: Record<string, string[]> = {
+      'child': [
+        `Tell ${name} about the first time you felt proud of them`,
+        `Share with ${name} a lesson you learned from being their parent`,
+        `Describe to ${name} what you hope their future looks like`,
+        `Tell ${name} about the day they were born`,
+        `Share a funny story about ${name} when they were little`,
+      ],
+      'spouse': [
+        `Tell ${name} what you first noticed about them`,
+        `Share with ${name} your favorite memory together`,
+        `Describe to ${name} what makes them irreplaceable`,
+        `Tell ${name} about a moment when you fell in love all over again`,
+        `Share what you admire most about ${name}`,
+      ],
+      'partner': [
+        `Tell ${name} what you first noticed about them`,
+        `Share with ${name} your favorite memory together`,
+        `Describe to ${name} what makes them irreplaceable`,
+        `Tell ${name} about a moment when you fell in love all over again`,
+        `Share what you admire most about ${name}`,
+      ],
+      'parent': [
+        `Thank ${name} for something they did that shaped who you are`,
+        `Tell ${name} about a lesson they taught you that you still carry`,
+        `Share with ${name} a memory from childhood you treasure`,
+        `Describe to ${name} what you hope they know about your love for them`,
+        `Tell ${name} about a time they made you feel safe`,
+      ],
+      'sibling': [
+        `Tell ${name} about your favorite childhood memory together`,
+        `Share with ${name} what you admire about them`,
+        `Describe to ${name} a time they were there for you`,
+        `Tell ${name} about something you've never told them`,
+        `Share what makes your bond with ${name} special`,
+      ],
+      'grandchild': [
+        `Tell ${name} about what the world was like when you were their age`,
+        `Share with ${name} a story about their parent when they were young`,
+        `Describe to ${name} what you hope they remember about you`,
+        `Tell ${name} about a family tradition and why it matters`,
+        `Share advice with ${name} that you wish someone had told you`,
+      ],
+      'grandparent': [
+        `Thank ${name} for the wisdom they've shared`,
+        `Tell ${name} about a memory with them you treasure`,
+        `Share with ${name} what you've learned from their life`,
+        `Describe to ${name} what their love has meant to you`,
+        `Tell ${name} about a tradition you want to continue`,
+      ],
+      'friend': [
+        `Tell ${name} what their friendship has meant to you`,
+        `Share with ${name} your favorite memory together`,
+        `Describe to ${name} a time they showed up for you`,
+        `Tell ${name} something you've always wanted to say`,
+        `Share what makes ${name} irreplaceable in your life`,
+      ],
+    };
+    
+    let basePrompts = relationshipPromptMap[relationship] || relationshipPromptMap['friend'] || [];
+    
+    if (basePrompts.length === 0 || existingContent) {
+      const systemPrompt = `You are generating deeply personal memory prompts for someone to record messages for their ${relationship} named ${name}.
+
+Rules:
+- Generate 3 specific, emotionally compelling prompts
+- Each prompt should be personal to the ${relationship} relationship
+- Use ${name}'s name in each prompt
+- Focus on specific moments, feelings, or stories - not generic advice
+- Keep each prompt under 20 words
+- No quotation marks in output
+- Return prompts as a JSON array of strings
+${existingContent ? `\nThey have already recorded content about: ${existingContent.slice(0, 300)}. Generate DIFFERENT prompts.` : ''}`;
+
+      try {
+        const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: `Generate 3 prompts for messages to ${name} (${relationship}).` }
+          ],
+          max_tokens: 200,
+          temperature: 0.8
+        });
+        
+        const responseText = (response as any).response?.trim() || '';
+        const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          try {
+            const aiPrompts = JSON.parse(jsonMatch[0]);
+            if (Array.isArray(aiPrompts) && aiPrompts.length > 0) {
+              basePrompts = aiPrompts.slice(0, 5);
+            }
+          } catch {
+            // Use fallback prompts
+          }
+        }
+      } catch (err) {
+        console.error('AI prompt generation error:', err);
+      }
+    }
+    
+    const shuffled = [...basePrompts].sort(() => 0.5 - Math.random());
+    const prompts = shuffled.slice(0, 3).map(prompt => ({
+      id: crypto.randomUUID(),
+      prompt,
+      category: relationship
+    }));
+    
+    return c.json({ prompts });
+  } catch (error) {
+    console.error('Person prompts error:', error);
+    return c.json({ error: 'Failed to generate prompts' }, 500);
+  }
+});

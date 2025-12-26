@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Image, Mic, Play, Pause, Clock, Calendar, AlertCircle, Loader2, ChevronRight, Lock, Search, MessageCircle, Send, X } from '../components/Icons';
+import { FileText, Image, Mic, Play, Pause, Clock, Calendar, AlertCircle, Loader2, ChevronRight, Lock, Search, MessageCircle, Send, X, Heart, Sparkles } from '../components/Icons';
 
 // @ts-ignore - Vite env types
 const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue';
+
+type ReactionType = 'THANK_YOU' | 'REMEMBER_THIS' | 'LOVE_THIS' | 'CUSTOM';
+
+interface ReactionOption {
+  type: ReactionType;
+  label: string;
+  description: string;
+}
 
 interface Letter {
   id: string;
@@ -83,6 +91,20 @@ export function Inherit() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+  
+  // Reaction state (Family Echo)
+  const [showReactionModal, setShowReactionModal] = useState(false);
+  const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(null);
+  const [reactionMessage, setReactionMessage] = useState('');
+  const [sendingReaction, setSendingReaction] = useState(false);
+  const [reactionSent, setReactionSent] = useState(false);
+  
+  const reactionOptions: ReactionOption[] = [
+    { type: 'THANK_YOU', label: 'Thank You', description: 'Let them know this meant something to you' },
+    { type: 'LOVE_THIS', label: 'I Love This', description: 'Share how much this touched your heart' },
+    { type: 'REMEMBER_THIS', label: 'I Remember This Too', description: 'You have your own memory of this moment' },
+    { type: 'CUSTOM', label: 'Write a Note', description: 'Share your own thoughts and feelings' },
+  ];
 
   useEffect(() => {
     validateToken();
@@ -219,6 +241,43 @@ export function Inherit() {
       setSearchResponse(null);
       setSearchError(null);
       setActiveTab('letters');
+    };
+    
+    const sendReaction = async () => {
+      if (!sessionToken || (!selectedReaction && !reactionMessage.trim())) return;
+      
+      setSendingReaction(true);
+      
+      try {
+        const response = await fetch(`${API_URL}/api/inherit/reply`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: JSON.stringify({
+            reactionType: selectedReaction || 'CUSTOM',
+            message: reactionMessage.trim() || null,
+            contentType: 'GENERAL',
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to send message');
+        }
+        
+        setReactionSent(true);
+        setTimeout(() => {
+          setShowReactionModal(false);
+          setSelectedReaction(null);
+          setReactionMessage('');
+          setReactionSent(false);
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to send reaction:', err);
+      } finally {
+        setSendingReaction(false);
+      }
     };
 
     if (loading) {
@@ -697,6 +756,128 @@ export function Inherit() {
                 </AnimatePresence>
               </div>
             </main>
+
+            {/* Floating "Send a Note" Button */}
+            <motion.button
+              onClick={() => setShowReactionModal(true)}
+              className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-gold text-void font-medium shadow-lg hover:shadow-xl transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+            >
+              <Heart size={20} />
+              <span>Send a Note to {ownerName.split(' ')[0]}</span>
+            </motion.button>
+            
+            {/* Reaction Modal */}
+            <AnimatePresence>
+              {showReactionModal && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-void/80 backdrop-blur-sm"
+                  onClick={() => !sendingReaction && setShowReactionModal(false)}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    className="w-full max-w-md card"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {reactionSent ? (
+                      <div className="text-center py-8">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4"
+                        >
+                          <Sparkles size={32} className="text-green-400" />
+                        </motion.div>
+                        <h3 className="text-xl font-medium mb-2">Message Sent!</h3>
+                        <p className="text-paper/60">{ownerName} will receive your note</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between mb-6">
+                          <h3 className="text-xl font-medium">Send a Note to {ownerName.split(' ')[0]}</h3>
+                          <button
+                            onClick={() => setShowReactionModal(false)}
+                            className="p-2 rounded-lg hover:bg-paper/10 transition-colors"
+                          >
+                            <X size={20} />
+                          </button>
+                        </div>
+                        
+                        <p className="text-paper/60 mb-6">
+                          Let {ownerName.split(' ')[0]} know these memories mean something to you.
+                        </p>
+                        
+                        {/* Reaction Options */}
+                        <div className="space-y-3 mb-6">
+                          {reactionOptions.map((option) => (
+                            <button
+                              key={option.type}
+                              onClick={() => setSelectedReaction(selectedReaction === option.type ? null : option.type)}
+                              className={`w-full p-4 rounded-xl text-left transition-all ${
+                                selectedReaction === option.type
+                                  ? 'bg-gold/20 border-2 border-gold'
+                                  : 'glass border-2 border-transparent hover:border-paper/20'
+                              }`}
+                            >
+                              <div className="font-medium">{option.label}</div>
+                              <div className="text-sm text-paper/50">{option.description}</div>
+                            </button>
+                          ))}
+                        </div>
+                        
+                        {/* Custom Message */}
+                        {(selectedReaction === 'CUSTOM' || selectedReaction === 'REMEMBER_THIS') && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="mb-6"
+                          >
+                            <textarea
+                              value={reactionMessage}
+                              onChange={(e) => setReactionMessage(e.target.value)}
+                              placeholder={selectedReaction === 'REMEMBER_THIS' 
+                                ? "Share your own memory of this moment..."
+                                : "Write your message..."
+                              }
+                              className="w-full p-4 rounded-xl glass border border-paper/10 focus:border-gold/50 focus:outline-none resize-none"
+                              rows={4}
+                            />
+                          </motion.div>
+                        )}
+                        
+                        {/* Send Button */}
+                        <button
+                          onClick={sendReaction}
+                          disabled={sendingReaction || (!selectedReaction && !reactionMessage.trim())}
+                          className="w-full py-3 rounded-xl bg-gold text-void font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:bg-gold/90 flex items-center justify-center gap-2"
+                        >
+                          {sendingReaction ? (
+                            <>
+                              <Loader2 size={20} className="animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <Send size={20} />
+                              Send Note
+                            </>
+                          )}
+                        </button>
+                      </>
+                    )}
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Footer */}
       <footer className="relative z-10 py-8 text-center text-paper/40 text-sm">
