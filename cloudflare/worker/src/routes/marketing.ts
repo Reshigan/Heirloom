@@ -1,19 +1,8 @@
 import { Hono } from 'hono';
+import type { Env, AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 
-type AppEnv = {
-  DB: D1Database;
-  STORAGE: R2Bucket;
-  KV: KVNamespace;
-  AI: any;
-  RESEND_API_KEY: string;
-  JWT_SECRET: string;
-  STRIPE_SECRET_KEY: string;
-  STRIPE_WEBHOOK_SECRET: string;
-  FRONTEND_URL: string;
-};
-
-const marketingRoutes = new Hono<{ Bindings: AppEnv }>();
+const marketingRoutes = new Hono<AppEnv>();
 
 const adminAuth = async (c: any, next: any) => {
   const authHeader = c.req.header('Authorization');
@@ -302,7 +291,7 @@ marketingRoutes.post('/campaigns/:id/send', adminAuth, async (c) => {
       const personalizedSubject = (campaign.subject_line as string).replace(/\[Name\]/g, (recipient as any).name || 'there');
       const personalizedBody = (body.bodyHtml || '').replace(/\[Name\]/g, (recipient as any).name || 'there');
       
-      const unsubscribeUrl = `${c.env.FRONTEND_URL || 'https://heirloom.blue'}/unsubscribe?email=${encodeURIComponent((recipient as any).email)}&tracking=${trackingId}`;
+      const unsubscribeUrl = `${c.env.APP_URL || 'https://heirloom.blue'}/unsubscribe?email=${encodeURIComponent((recipient as any).email)}&tracking=${trackingId}`;
       const bodyWithUnsubscribe = personalizedBody + `
         <br><br>
         <p style="font-size: 12px; color: #666; text-align: center;">
@@ -526,7 +515,7 @@ marketingRoutes.get('/referral/code', async (c) => {
     referral = { id, code, uses_count: 0 };
   }
   
-  const referralUrl = `${c.env.FRONTEND_URL || 'https://heirloom.blue'}/signup?ref=${referral.code}`;
+  const referralUrl = `${c.env.APP_URL || 'https://heirloom.blue'}/signup?ref=${referral.code}`;
   
   return c.json({
     code: referral.code,
