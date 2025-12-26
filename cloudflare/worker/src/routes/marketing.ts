@@ -243,13 +243,18 @@ marketingRoutes.post('/campaigns', adminAuth, async (c) => {
   const body = await c.req.json();
   const id = crypto.randomUUID().replace(/-/g, '');
   
+  // Coerce optional fields to null to avoid D1 undefined binding errors
+  const description = body.description ?? null;
+  const targetSegment = body.targetSegment ?? null;
+  const rateLimit = Number.isFinite(body.rateLimitPerHour) ? body.rateLimitPerHour : 20;
+  
   await c.env.DB.prepare(`
     INSERT INTO marketing_campaigns (id, name, description, campaign_type, subject_line, from_name, from_email, target_segment, rate_limit_per_hour)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
-    id, body.name, body.description, body.campaignType, body.subjectLine,
+    id, body.name, description, body.campaignType, body.subjectLine,
     body.fromName || 'The Heirloom Team', body.fromEmail || 'admin@heirloom.blue',
-    body.targetSegment, body.rateLimitPerHour || 20
+    targetSegment, rateLimit
   ).run();
   
   return c.json({ success: true, id });
