@@ -83,14 +83,9 @@ async function sendViaMsGraph(
 ): Promise<SendEmailResult> {
   const { to, subject, html, replyTo } = payload;
   
-  // Extract sender email from "Name <email>" format or use default
-  let senderEmail = env.MS_DEFAULT_SENDER || 'admin@heirloom.blue';
-  const fromMatch = payload.from.match(/<(.+)>/);
-  if (fromMatch) {
-    senderEmail = fromMatch[1];
-  } else if (payload.from.includes('@')) {
-    senderEmail = payload.from;
-  }
+  // Always use a known-good sender mailbox that exists in O365
+  // Don't derive from payload.from as it may reference non-existent mailboxes like noreply@
+  const senderEmail = env.MS_DEFAULT_SENDER || 'admin@heirloom.blue';
 
   // Build the message payload
   const message: Record<string, unknown> = {
@@ -231,9 +226,10 @@ export async function sendEmail(
   if (msToken) {
     result = await sendViaMsGraph(env, payload, msToken);
     
-    // If MS Graph fails with auth/permission error, fall back to Resend
-    if (!result.success && result.error?.includes('403')) {
-      console.warn('MS Graph permission denied, falling back to Resend');
+    // If MS Graph fails, fall back to Resend
+    // This includes: 400 (bad request), 401 (unauthorized), 403 (forbidden), 404 (mailbox not found), 5xx (server errors)
+    if (!result.success) {
+      console.warn(`MS Graph failed (${result.error}), falling back to Resend`);
       result = await sendViaResend(env, payload);
     }
   } else {
@@ -242,17 +238,20 @@ export async function sendEmail(
   }
 
   // Log the email result to database
+  // Note: email_type column doesn't exist in production DB yet, so we omit it
+  // The emailType parameter is kept for future use when the column is added
+  void emailType; // Suppress unused variable warning
   try {
     if (result.success) {
       await env.DB.prepare(`
-        INSERT INTO email_logs (id, to_email, subject, body, status, sent_at, email_type, created_at)
-        VALUES (?, ?, ?, ?, 'SENT', ?, ?, ?)
-      `).bind(logId, toEmail, subject, html?.substring(0, 50000), now, emailType || null, now).run();
+        INSERT INTO email_logs (id, to_email, subject, body, status, sent_at, created_at)
+        VALUES (?, ?, ?, ?, 'SENT', ?, ?)
+      `).bind(logId, toEmail, subject, html?.substring(0, 50000), now, now).run();
     } else {
       await env.DB.prepare(`
-        INSERT INTO email_logs (id, to_email, subject, body, status, error_message, email_type, created_at)
-        VALUES (?, ?, ?, ?, 'FAILED', ?, ?, ?)
-      `).bind(logId, toEmail, subject, html?.substring(0, 50000), result.error, emailType || null, now).run();
+        INSERT INTO email_logs (id, to_email, subject, body, status, error_message, created_at)
+        VALUES (?, ?, ?, ?, 'FAILED', ?, ?)
+      `).bind(logId, toEmail, subject, html?.substring(0, 50000), result.error, now).run();
     }
   } catch (dbError) {
     console.error('Failed to log email:', dbError);
