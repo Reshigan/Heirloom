@@ -5,6 +5,7 @@ import {
   Plus, Trash2, Send, X, GraduationCap, Heart, Baby, Cake, Sunset, Star, Calendar, User, Mail, Clock, CheckCircle, XCircle
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
+import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 interface FamilyMember {
@@ -59,6 +60,9 @@ export function LifeEvents() {
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   const [showContentPicker, setShowContentPicker] = useState(false);
+
+  // Feature onboarding
+  const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('life-events');
 
   // Form state
   const [eventType, setEventType] = useState('GRADUATION');
@@ -602,6 +606,17 @@ export function LifeEvents() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Help Button */}
+      <OnboardingHelpButton onClick={openOnboarding} />
+
+      {/* Feature Onboarding */}
+      <FeatureOnboarding
+        featureKey="life-events"
+        isOpen={isOnboardingOpen}
+        onComplete={completeOnboarding}
+        onDismiss={dismissOnboarding}
+      />
     </div>
   );
 }

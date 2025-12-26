@@ -5,6 +5,7 @@ import {
   Plus, Play, Trash2, Share2, Film, Image, Mic, Check, X, Eye
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
+import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api, { memoriesApi, voiceApi } from '../services/api';
 
 interface Memory {
@@ -56,6 +57,9 @@ export function StoryArtifact() {
   const queryClient = useQueryClient();
     const [showCreate, setShowCreate] = useState(false);
     const [shareUrl, setShareUrl] = useState<string | null>(null);
+
+  // Feature onboarding
+  const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('story-artifacts');
 
   // Form state
   const [title, setTitle] = useState('');
@@ -504,6 +508,17 @@ export function StoryArtifact() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Help Button */}
+      <OnboardingHelpButton onClick={openOnboarding} />
+
+      {/* Feature Onboarding */}
+      <FeatureOnboarding
+        featureKey="story-artifacts"
+        isOpen={isOnboardingOpen}
+        onComplete={completeOnboarding}
+        onDismiss={dismissOnboarding}
+      />
     </div>
   );
 }
