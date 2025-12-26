@@ -2252,10 +2252,11 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="card max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">Create Gift Voucher</h3>
+    <div className="fixed inset-0 bg-black/80 z-50 overflow-y-auto">
+      <div className="min-h-full flex items-start justify-center p-4 py-8">
+        <div className="bg-void border border-white/10 rounded-lg max-w-lg w-full p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl">Create Gift Voucher</h3>
           <button onClick={onClose} className="text-paper/50 hover:text-paper">
             <X size={20} />
           </button>
@@ -2452,6 +2453,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
@@ -2508,12 +2510,13 @@ The Heirloom Team`;
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
-      <div className="max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-lg" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #1a1a1f 100%)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h3 className="text-xl text-gold">Create Gold Legacy Voucher</h3>
+    <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto">
+      <div className="min-h-full flex items-start justify-center p-4 py-8">
+        <div className="max-w-lg w-full rounded-lg" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #1a1a1f 100%)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-xl text-gold">Create Gold Legacy Voucher</h3>
               <p className="text-paper/50 text-sm mt-1">Exclusive lifetime access invitation</p>
             </div>
             <button onClick={onClose} className="text-paper/50 hover:text-gold">
@@ -2643,6 +2646,7 @@ The Heirloom Team`;
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>
