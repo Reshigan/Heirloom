@@ -64,6 +64,12 @@ export interface Env {
   RESEND_API_KEY: string;
   ENCRYPTION_MASTER_KEY: string;
   
+  // Microsoft 365 / Azure AD (for email sending via Graph API)
+  MS_TENANT_ID?: string;
+  MS_CLIENT_ID?: string;
+  MS_CLIENT_SECRET?: string;
+  MS_DEFAULT_SENDER?: string; // Default sender mailbox (e.g., admin@heirloom.blue)
+  
   // Admin notifications
   ADMIN_NOTIFICATION_EMAIL?: string;
   
