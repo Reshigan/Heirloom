@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Check, ArrowLeft, AlertCircle } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 
@@ -19,6 +20,7 @@ interface GoldLegacyVoucherInfo {
 export function GoldLegacyRedeem() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
   
   const [code, setCode] = useState(searchParams.get('code') || '');
@@ -87,12 +89,14 @@ export function GoldLegacyRedeem() {
 
       const data = await res.json();
       
-      if (data.success) {
-        setRedeemSuccess(true);
-        if (data.subscription?.memberNumber) {
-          setMemberNumber(data.subscription.memberNumber);
-        }
-      } else {
+            if (data.success) {
+              queryClient.invalidateQueries({ queryKey: ['subscription'] });
+              queryClient.invalidateQueries({ queryKey: ['limits'] });
+              setRedeemSuccess(true);
+              if (data.subscription?.memberNumber) {
+                setMemberNumber(data.subscription.memberNumber);
+              }
+            } else {
         setError(data.error || 'Failed to redeem voucher');
       }
     } catch {

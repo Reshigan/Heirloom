@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Gift, Check, ArrowLeft, Sparkles, AlertCircle } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 
@@ -17,6 +18,7 @@ interface VoucherInfo {
 export function GiftRedeem() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
   
   const [code, setCode] = useState(searchParams.get('code') || '');
@@ -79,9 +81,11 @@ export function GiftRedeem() {
 
       const data = await res.json();
       
-      if (data.success) {
-        setRedeemSuccess(true);
-      } else {
+            if (data.success) {
+              queryClient.invalidateQueries({ queryKey: ['subscription'] });
+              queryClient.invalidateQueries({ queryKey: ['limits'] });
+              setRedeemSuccess(true);
+            } else {
         setError(data.error || 'Failed to redeem voucher');
       }
     } catch (err) {
