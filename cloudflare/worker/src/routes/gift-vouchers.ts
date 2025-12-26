@@ -914,16 +914,20 @@ ${finalMessage}
       </p>
     </div>
     
-    <!-- Voucher Code -->
+    <!-- Voucher Code - Using table for email client compatibility -->
     <div style="text-align: center; padding: 30px 0;">
       <p style="color: rgba(245, 245, 240, 0.6); font-size: 12px; letter-spacing: 2px; margin-bottom: 15px;">
         YOUR EXCLUSIVE ACCESS CODE
       </p>
-      <div style="background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); border-radius: 8px; padding: 20px 30px; display: inline-block;">
-        <span style="color: #0a0a0f; font-size: 24px; font-family: monospace; letter-spacing: 3px; font-weight: bold;">
-          ${voucherCode}
-        </span>
-      </div>
+      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
+        <tr>
+          <td bgcolor="#D4AF37" style="background-color: #D4AF37; border-radius: 8px; padding: 20px 30px;">
+            <span style="color: #0a0a0f; font-size: 24px; font-family: 'Courier New', Courier, monospace; letter-spacing: 3px; font-weight: bold; display: block;">
+              ${voucherCode}
+            </span>
+          </td>
+        </tr>
+      </table>
     </div>
     
     <!-- CTA Button -->
