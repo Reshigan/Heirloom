@@ -40,6 +40,8 @@ import { StoryArtifact } from './pages/StoryArtifact';
 import { LifeEvents } from './pages/LifeEvents';
 import { RecipientExperience } from './pages/RecipientExperience';
 import { CreatorSignup } from './pages/CreatorSignup';
+import { MemoryRoom } from './pages/MemoryRoom';
+import { StoryView } from './pages/StoryView';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,8 +90,10 @@ export default function App() {
                               <Route path="/privacy" element={<Privacy />} />
                               <Route path="/terms" element={<Terms />} />
                               <Route path="/contact" element={<Contact />} />
-                              <Route path="/creators" element={<CreatorSignup />} />
-                              <Route path="/inherit/:token" element={<Inherit />} />
+                                                            <Route path="/creators" element={<CreatorSignup />} />
+                                                            <Route path="/memory-room/:token" element={<MemoryRoom />} />
+                                                            <Route path="/story/:token" element={<StoryView />} />
+                                                            <Route path="/inherit/:token" element={<Inherit />} />
                               <Route path="/verify-email" element={<VerifyEmail />} />
                                                             <Route path="/gift" element={<GiftPurchase />} />
                                                             <Route path="/gift/redeem" element={<GiftRedeem />} />

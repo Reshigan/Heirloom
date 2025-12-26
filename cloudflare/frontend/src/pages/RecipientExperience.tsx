@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Users, Clock, Check, X, Image, Mic, FileText, Copy, Shield
+  Users, Clock, Check, X, Image, Mic, FileText, Copy, Shield, Send, ExternalLink, Mail, CheckCircle
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
@@ -45,6 +45,10 @@ export function RecipientExperience() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'schedules' | 'room'>('schedules');
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteName, setInviteName] = useState('');
+  const [inviteSent, setInviteSent] = useState(false);
 
   // Feature onboarding
   const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('recipient-experience');
@@ -77,22 +81,50 @@ export function RecipientExperience() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['memory-room'] }),
   });
 
-  const moderateContributionMutation = useMutation({
-    mutationFn: ({ contributionId, status }: { contributionId: string; status: string }) =>
-      api.patch(`/api/recipient-experience/memory-room/contributions/${contributionId}`, { status }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['room-contributions'] }),
-  });
+    const moderateContributionMutation = useMutation({
+      mutationFn: ({ contributionId, status }: { contributionId: string; status: string }) =>
+        api.patch(`/api/recipient-experience/memory-room/contributions/${contributionId}`, { status }),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['room-contributions'] }),
+    });
 
-  const copyRoomUrl = () => {
-    if (roomData?.room?.access_token) {
-      const url = `${window.location.origin}/memory-room/${roomData.room.access_token}`;
-      navigator.clipboard.writeText(url);
-      setCopiedUrl(true);
-      setTimeout(() => setCopiedUrl(false), 2000);
-    }
-  };
+    const sendInviteMutation = useMutation({
+      mutationFn: (data: { email: string; name: string }) =>
+        api.post('/api/recipient-experience/memory-room/invite', data),
+      onSuccess: () => {
+        setInviteSent(true);
+        setInviteEmail('');
+        setInviteName('');
+        setTimeout(() => {
+          setShowInviteModal(false);
+          setInviteSent(false);
+        }, 2000);
+      },
+    });
 
-  const isLoading = schedulesLoading || roomLoading;
+      const copyRoomUrl = () => {
+      if (roomData?.room?.access_token) {
+        const url = `${window.location.origin}/memory-room/${roomData.room.access_token}`;
+        navigator.clipboard.writeText(url);
+        setCopiedUrl(true);
+        setTimeout(() => setCopiedUrl(false), 2000);
+      }
+    };
+
+    const previewRoom = () => {
+      if (roomData?.room?.access_token) {
+        window.open(`/memory-room/${roomData.room.access_token}`, '_blank');
+      }
+    };
+
+    const handleSendInvite = () => {
+      if (!inviteEmail.trim()) return;
+      sendInviteMutation.mutate({
+        email: inviteEmail.trim(),
+        name: inviteName.trim() || 'Friend',
+      });
+    };
+
+    const isLoading = schedulesLoading || roomLoading;
 
   if (isLoading) {
     return (
@@ -284,27 +316,47 @@ export function RecipientExperience() {
                   </button>
                 </div>
 
-                {/* Share Link */}
-                {room.is_active === 1 && (
-                  <div className="mb-6 p-4 bg-void/30 rounded-xl">
-                    <p className="text-sm text-paper/60 mb-2">Share this link with family members:</p>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={`${window.location.origin}/memory-room/${room.access_token}`}
-                        readOnly
-                        className="flex-1 bg-void/50 border border-paper/10 rounded-lg px-4 py-2 text-sm"
-                      />
-                      <button
-                        onClick={copyRoomUrl}
-                        className="btn btn-primary btn-sm flex items-center gap-2"
-                      >
-                        {copiedUrl ? <Check size={16} /> : <Copy size={16} />}
-                        {copiedUrl ? 'Copied!' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                                {/* Quick Actions */}
+                                {room.is_active === 1 && (
+                                  <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <button
+                                      onClick={() => setShowInviteModal(true)}
+                                      className="p-4 bg-gold/10 border border-gold/30 rounded-xl hover:bg-gold/20 transition-all flex items-center gap-3"
+                                    >
+                                      <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-gold">
+                                        <Mail size={20} />
+                                      </div>
+                                      <div className="text-left">
+                                        <p className="font-medium text-gold">Invite Family</p>
+                                        <p className="text-xs text-paper/50">Send email invitations</p>
+                                      </div>
+                                    </button>
+                                    <button
+                                      onClick={previewRoom}
+                                      className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl hover:bg-purple-500/20 transition-all flex items-center gap-3"
+                                    >
+                                      <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                                        <ExternalLink size={20} />
+                                      </div>
+                                      <div className="text-left">
+                                        <p className="font-medium text-purple-400">Preview Room</p>
+                                        <p className="text-xs text-paper/50">See what family sees</p>
+                                      </div>
+                                    </button>
+                                    <button
+                                      onClick={copyRoomUrl}
+                                      className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl hover:bg-blue-500/20 transition-all flex items-center gap-3"
+                                    >
+                                      <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                        {copiedUrl ? <Check size={20} /> : <Copy size={20} />}
+                                      </div>
+                                      <div className="text-left">
+                                        <p className="font-medium text-blue-400">{copiedUrl ? 'Copied!' : 'Copy Link'}</p>
+                                        <p className="text-xs text-paper/50">Share manually</p>
+                                      </div>
+                                    </button>
+                                  </div>
+                                )}
 
                 {/* Room Settings */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -443,6 +495,89 @@ export function RecipientExperience() {
         onComplete={completeOnboarding}
         onDismiss={dismissOnboarding}
       />
+
+      {/* Invite Modal */}
+      <AnimatePresence>
+        {showInviteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowInviteModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass rounded-2xl p-6 max-w-md w-full"
+              onClick={e => e.stopPropagation()}
+            >
+              {inviteSent ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <CheckCircle size={32} className="text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">Invitation Sent!</h3>
+                  <p className="text-paper/60">They will receive an email with the link to your memory room.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-medium">Invite Family Member</h3>
+                    <button onClick={() => setShowInviteModal(false)} className="text-paper/50 hover:text-paper">
+                      <X size={24} />
+                    </button>
+                  </div>
+
+                  <p className="text-paper/60 text-sm mb-6">
+                    Send an email invitation to a family member or friend to contribute memories and stories.
+                  </p>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-paper/70 mb-2">Their Name</label>
+                      <input
+                        type="text"
+                        value={inviteName}
+                        onChange={(e) => setInviteName(e.target.value)}
+                        placeholder="e.g., Mom, Uncle John"
+                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-paper/70 mb-2">Their Email *</label>
+                      <input
+                        type="email"
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        placeholder="email@example.com"
+                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                      />
+                    </div>
+
+                    <button
+                      onClick={handleSendInvite}
+                      disabled={!inviteEmail.trim() || sendInviteMutation.isPending}
+                      className="w-full py-3 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {sendInviteMutation.isPending ? (
+                        <div className="animate-spin w-5 h-5 border-2 border-void border-t-transparent rounded-full" />
+                      ) : (
+                        <>
+                          <Send size={18} />
+                          Send Invitation
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

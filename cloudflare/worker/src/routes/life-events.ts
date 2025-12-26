@@ -245,43 +245,40 @@ lifeEventsRoutes.post('/:triggerId/trigger', async (c) => {
       UPDATE life_event_triggers SET status = 'TRIGGERED', triggered_at = datetime('now'), updated_at = datetime('now') WHERE id = ?
     `).bind(triggerId).run();
 
-    // Send email notification
-    const resendApiKey = c.env.RESEND_API_KEY;
-    if (resendApiKey) {
-      const user = await c.env.DB.prepare(
-        'SELECT first_name, last_name FROM users WHERE id = ?'
-      ).bind(userId).first();
+        // Send email notification
+        const user = await c.env.DB.prepare(
+          'SELECT first_name, last_name FROM users WHERE id = ?'
+        ).bind(userId).first();
 
-      const recipientName = trigger.recipient_name || trigger.family_member_name || 'Friend';
-      const senderName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Someone special';
+        const recipientName = trigger.recipient_name || trigger.family_member_name || 'Friend';
+        const senderName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Someone special';
 
-      try {
-        await sendEmail(c.env, {
-          from: 'Heirloom <noreply@heirloom.blue>',
-          to: recipientEmail as string,
-          subject: `${senderName} has a special message for your ${trigger.event_name}`,
-          html: `
-            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: linear-gradient(135deg, #0a0c10 0%, #12151c 100%); color: #f5f0e8;">
-              <h1 style="color: #c9a959; text-align: center; font-weight: normal;">A Message for Your ${trigger.event_name}</h1>
-              <p style="text-align: center; color: #f5f0e8cc;">Dear ${recipientName},</p>
-              <p style="text-align: center; color: #f5f0e8cc;">${senderName} prepared something special for this moment in your life.</p>
-              ${trigger.event_description ? `<p style="text-align: center; color: #f5f0e8cc; font-style: italic;">"${trigger.event_description}"</p>` : ''}
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${c.env.APP_URL || 'https://heirloom.blue'}/inherit" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #c9a959 0%, #a08335 100%); color: #0a0c10; text-decoration: none; border-radius: 8px; font-weight: bold;">View Your Message</a>
+        try {
+          await sendEmail(c.env, {
+            from: 'Heirloom <admin@heirloom.blue>',
+            to: recipientEmail as string,
+            subject: `${senderName} has a special message for your ${trigger.event_name}`,
+            html: `
+              <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: linear-gradient(135deg, #0a0c10 0%, #12151c 100%); color: #f5f0e8;">
+                <h1 style="color: #c9a959; text-align: center; font-weight: normal;">A Message for Your ${trigger.event_name}</h1>
+                <p style="text-align: center; color: #f5f0e8cc;">Dear ${recipientName},</p>
+                <p style="text-align: center; color: #f5f0e8cc;">${senderName} prepared something special for this moment in your life.</p>
+                ${trigger.event_description ? `<p style="text-align: center; color: #f5f0e8cc; font-style: italic;">"${trigger.event_description}"</p>` : ''}
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${c.env.APP_URL || 'https://heirloom.blue'}/inherit" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #c9a959 0%, #a08335 100%); color: #0a0c10; text-decoration: none; border-radius: 8px; font-weight: bold;">View Your Message</a>
+                </div>
+                <p style="text-align: center; color: #f5f0e899; font-size: 14px;">This message was prepared with love through Heirloom.</p>
               </div>
-              <p style="text-align: center; color: #f5f0e899; font-size: 14px;">This message was prepared with love through Heirloom.</p>
-            </div>
-          `,
-        }, 'LIFE_EVENT_NOTIFICATION');
+            `,
+          }, 'LIFE_EVENT_NOTIFICATION');
 
-        // Update to delivered
-        await c.env.DB.prepare(`
-          UPDATE life_event_triggers SET status = 'DELIVERED', delivered_at = datetime('now'), updated_at = datetime('now') WHERE id = ?
-        `).bind(triggerId).run();
-      } catch (err) {
-        console.error('Failed to send life event email:', err);
-      }
-    }
+          // Update to delivered
+          await c.env.DB.prepare(`
+            UPDATE life_event_triggers SET status = 'DELIVERED', delivered_at = datetime('now'), updated_at = datetime('now') WHERE id = ?
+          `).bind(triggerId).run();
+        } catch (err) {
+          console.error('Failed to send life event email:', err);
+        }
 
     const updated = await c.env.DB.prepare(
       'SELECT * FROM life_event_triggers WHERE id = ?'

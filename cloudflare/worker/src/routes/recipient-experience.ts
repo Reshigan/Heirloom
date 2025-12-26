@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
+import { sendEmail } from '../utils/email';
 
 export const recipientExperienceRoutes = new Hono<AppEnv>();
 
@@ -181,6 +182,70 @@ recipientExperienceRoutes.patch('/memory-room', async (c) => {
   ).bind(userId).first();
 
   return c.json({ room });
+});
+
+// Send invite email for memory room
+recipientExperienceRoutes.post('/memory-room/invite', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json();
+  const { email, name } = body;
+
+  if (!email) {
+    return c.json({ error: 'Email is required' }, 400);
+  }
+
+  const room = await c.env.DB.prepare(
+    'SELECT * FROM family_memory_rooms WHERE user_id = ?'
+  ).bind(userId).first();
+
+  if (!room) {
+    return c.json({ error: 'Memory room not found' }, 404);
+  }
+
+  if (room.is_active !== 1) {
+    return c.json({ error: 'Memory room is not active' }, 400);
+  }
+
+  const user = await c.env.DB.prepare(
+    'SELECT first_name, last_name FROM users WHERE id = ?'
+  ).bind(userId).first();
+
+  const senderName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Someone special';
+  const recipientName = name || 'Friend';
+  const roomUrl = `${c.env.APP_URL || 'https://heirloom.blue'}/memory-room/${room.access_token}`;
+
+  try {
+    await sendEmail(c.env, {
+      from: 'Heirloom <admin@heirloom.blue>',
+      to: email,
+      subject: `${senderName} invites you to share memories`,
+      html: `
+        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: linear-gradient(135deg, #0a0c10 0%, #12151c 100%); color: #f5f0e8;">
+          <h1 style="color: #c9a959; text-align: center; font-weight: normal; margin-bottom: 30px;">You're Invited to Share Memories</h1>
+          <p style="text-align: center; color: #f5f0e8cc; font-size: 18px;">Dear ${recipientName},</p>
+          <p style="text-align: center; color: #f5f0e8cc; line-height: 1.8;">
+            ${senderName} has created a special space to collect memories and stories from the people who matter most. 
+            Your memories, photos, and stories would mean the world.
+          </p>
+          <div style="text-align: center; margin: 40px 0;">
+            <a href="${roomUrl}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #c9a959 0%, #a08335 100%); color: #0a0c10; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Share Your Memories</a>
+          </div>
+          <p style="text-align: center; color: #f5f0e899; font-size: 14px;">
+            Every story you share becomes part of a lasting legacy.
+          </p>
+          <hr style="border: none; border-top: 1px solid #f5f0e820; margin: 30px 0;" />
+          <p style="text-align: center; color: #f5f0e860; font-size: 12px;">
+            Sent with love through <a href="https://heirloom.blue" style="color: #c9a959;">Heirloom</a>
+          </p>
+        </div>
+      `,
+    }, 'MEMORY_ROOM_INVITE');
+
+    return c.json({ success: true, message: 'Invitation sent' });
+  } catch (error) {
+    console.error('Failed to send invite email:', error);
+    return c.json({ error: 'Failed to send invitation' }, 500);
+  }
 });
 
 // Get contributions (for room owner)
