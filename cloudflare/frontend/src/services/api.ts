@@ -334,4 +334,34 @@ export const adminApi = {
   notifyAllFailedBilling: () => adminAxios.post('/admin/billing/notify-all-failed'),
 };
 
+export const marketingApi = {
+  getContent: (params?: { platform?: string; status?: string; theme?: string }) =>
+    adminAxios.get('/marketing/content', { params }),
+  createContent: (data: any) => adminAxios.post('/marketing/content', data),
+  updateContent: (id: string, data: any) => adminAxios.put(`/marketing/content/${id}`, data),
+  deleteContent: (id: string) => adminAxios.delete(`/marketing/content/${id}`),
+  
+  getInfluencers: (params?: { segment?: string; status?: string; platform?: string }) =>
+    adminAxios.get('/marketing/influencers', { params }),
+  createInfluencer: (data: any) => adminAxios.post('/marketing/influencers', data),
+  importInfluencers: (influencers: any[]) => adminAxios.post('/marketing/influencers/import', { influencers }),
+  updateInfluencer: (id: string, data: any) => adminAxios.put(`/marketing/influencers/${id}`, data),
+  
+  getCampaigns: () => adminAxios.get('/marketing/campaigns'),
+  createCampaign: (data: any) => adminAxios.post('/marketing/campaigns', data),
+  sendCampaign: (id: string, data: { segment?: string; influencerIds?: string[]; bodyHtml: string }) =>
+    adminAxios.post(`/marketing/campaigns/${id}/send`, data),
+  
+  getCreatorSignups: () => adminAxios.get('/marketing/creator-signups'),
+  approveCreatorSignup: (id: string) => adminAxios.post(`/marketing/creator-signups/${id}/approve`),
+  
+  getSuppression: () => adminAxios.get('/marketing/suppression'),
+  getAuditLog: () => adminAxios.get('/marketing/audit-log'),
+  
+  getTestimonials: (featured?: boolean) => adminAxios.get('/marketing/testimonials', { params: { featured } }),
+  createTestimonial: (data: any) => adminAxios.post('/marketing/testimonials', data),
+  
+  refreshStats: () => adminAxios.post('/marketing/stats/refresh'),
+};
+
 export default api;

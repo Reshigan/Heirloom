@@ -685,6 +685,14 @@ export const Zap = createIcon(
   <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
 );
 
+export const Target = createIcon(
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </>
+);
+
 export const Edit3 = createIcon(
   <>
     <path d="M12 20h9" />
@@ -843,6 +851,7 @@ export const Icons = {
   MessageSquare,
   UserPlus,
   Zap,
+  Target,
   Edit3,
   LegacyPlaybook,
   RecipientJourney,

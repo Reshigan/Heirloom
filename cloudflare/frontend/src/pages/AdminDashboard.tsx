@@ -5,9 +5,10 @@ import {
   Users, CreditCard, BarChart3, Tag, LogOut, Plus, Trash2, 
   DollarSign, Activity, Search, X, MessageSquare, Shield,
   FileText, Mail, Download, Clock, AlertTriangle, CheckCircle,
-  UserPlus, Send, Eye, Gift, RefreshCw, Copy
+  UserPlus, Send, Eye, Gift, RefreshCw, Copy, Target
 } from '../components/Icons';
 import { adminApi } from '../services/api';
+import { MarketingTab } from './MarketingTab';
 
 // Admin auth check
 const useAdminAuth = () => {
@@ -172,6 +173,7 @@ export function AdminDashboard() {
 
     const tabs = [
       { id: 'overview', label: 'Overview', icon: BarChart3 },
+      { id: 'marketing', label: 'Marketing', icon: Target },
       { id: 'users', label: 'Users', icon: Users },
       { id: 'coupons', label: 'Coupons', icon: Tag },
       { id: 'vouchers', label: 'Gift Vouchers', icon: Gift },
@@ -325,6 +327,9 @@ export function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* Marketing Tab */}
+        {activeTab === 'marketing' && <MarketingTab />}
 
         {/* Coupons Tab */}
         {activeTab === 'coupons' && (
