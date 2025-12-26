@@ -79,7 +79,7 @@ export const familyApi = {
   getOne: (id: string) => api.get(`/family/${id}`),
   create: (data: { name: string; relationship: string; email?: string; phone?: string; avatarUrl?: string }) =>
     api.post('/family', data),
-  update: (id: string, data: Partial<{ name: string; relationship: string; email: string; avatarUrl: string }>) =>
+  update: (id: string, data: Partial<{ name: string; relationship: string; email: string; avatarUrl: string; notes: string }>) =>
     api.patch(`/family/${id}`, data),
   delete: (id: string) => api.delete(`/family/${id}`),
 };
@@ -154,6 +154,10 @@ export const settingsApi = {
   markAllNotificationsRead: () => api.post('/settings/notifications/read-all'),
   submitTicket: (data: { subject: string; category: string; description: string; userEmail?: string; userName?: string }) =>
     api.post('/support/ticket', data),
+  // Family Echo Inbox
+  getInbox: () => api.get('/settings/inbox'),
+  markInboxMessageRead: (id: string) => api.patch(`/settings/inbox/${id}/read`),
+  markAllInboxRead: () => api.post('/settings/inbox/mark-all-read'),
 };
 
 // Dead Man's Switch API

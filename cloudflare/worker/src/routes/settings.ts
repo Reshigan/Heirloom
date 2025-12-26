@@ -712,3 +712,60 @@ settingsRoutes.get('/export', async (c) => {
     return c.json({ error: 'Failed to export data' }, 500);
   }
 });
+
+// ============================================
+// RECIPIENT MESSAGES INBOX (Family Echo)
+// ============================================
+
+// Get all messages from recipients
+settingsRoutes.get('/inbox', async (c) => {
+  const userId = c.get('userId');
+  
+  const messages = await c.env.DB.prepare(`
+    SELECT id, sender_name, sender_email, sender_relationship,
+           content_type, content_id, reaction_type, message,
+           voice_url, voice_duration, read_at, created_at
+    FROM recipient_messages
+    WHERE creator_user_id = ?
+    ORDER BY created_at DESC
+    LIMIT 50
+  `).bind(userId).all();
+  
+  // Get unread count
+  const unreadCount = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM recipient_messages
+    WHERE creator_user_id = ? AND read_at IS NULL
+  `).bind(userId).first();
+  
+  return c.json({
+    messages: messages.results || [],
+    unreadCount: unreadCount?.count || 0
+  });
+});
+
+// Mark message as read
+settingsRoutes.patch('/inbox/:messageId/read', async (c) => {
+  const userId = c.get('userId');
+  const messageId = c.req.param('messageId');
+  
+  await c.env.DB.prepare(`
+    UPDATE recipient_messages
+    SET read_at = ?
+    WHERE id = ? AND creator_user_id = ?
+  `).bind(new Date().toISOString(), messageId, userId).run();
+  
+  return c.json({ success: true });
+});
+
+// Mark all messages as read
+settingsRoutes.post('/inbox/mark-all-read', async (c) => {
+  const userId = c.get('userId');
+  
+  await c.env.DB.prepare(`
+    UPDATE recipient_messages
+    SET read_at = ?
+    WHERE creator_user_id = ? AND read_at IS NULL
+  `).bind(new Date().toISOString(), userId).run();
+  
+  return c.json({ success: true });
+});
