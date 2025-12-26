@@ -18,8 +18,9 @@ account_id = "08596e523c096f04b56d7ae43f7821f4"
 binding = "DB"
 database_name = "heirloom-db"
 database_id = "4a228f5e-5ab9-4337-80d7-ebdb4eca0b7d"
+migrations_dir = "migrations"
 
-# R2 Storage (S3-compatible, zero egress)
+# R2 Storage(S3-compatible, zero egress)
 [[r2_buckets]]
 binding = "STORAGE"
 bucket_name = "heirloom-uploads"
