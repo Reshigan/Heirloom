@@ -31,6 +31,7 @@ import { legacyPlanRoutes } from './routes/legacy-plan';
 import { recipientExperienceRoutes } from './routes/recipient-experience';
 import { storyArtifactsRoutes } from './routes/story-artifacts';
 import { lifeEventsRoutes } from './routes/life-events';
+import marketingRoutes from './routes/marketing';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 
@@ -600,6 +601,9 @@ app.get('/api/voice/file/*', async (c) => {
 
 // Admin routes (separate auth - must be before protected routes)
 app.route('/api/admin', adminRoutes);
+
+// Marketing routes (mix of public and admin-protected endpoints)
+app.route('/api/marketing', marketingRoutes);
 
 // Protected routes (auth required)
 const protectedApp = new Hono<AppEnv>();
