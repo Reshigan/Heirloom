@@ -11,17 +11,31 @@ const adminAuth = async (c: any, next: any) => {
   }
   const token = authHeader.slice(7);
   try {
+    // First try KV session (same as admin.ts)
+    const adminSession = await c.env.KV.get(`admin:session:${token}`);
+    if (adminSession) {
+      const session = JSON.parse(adminSession);
+      c.set('adminId', session.adminId);
+      c.set('adminRole', session.role);
+      await next();
+      return;
+    }
+    
+    // Fallback: try direct admin ID lookup
     const admin = await c.env.DB.prepare('SELECT * FROM admin_users WHERE id = ?').bind(token).first();
-    if (!admin) {
-      const decoded = JSON.parse(atob(token.split('.')[1]));
-      const adminUser = await c.env.DB.prepare('SELECT * FROM admin_users WHERE id = ?').bind(decoded.adminId).first();
-      if (!adminUser) return c.json({ error: 'Unauthorized' }, 401);
-      c.set('adminId', adminUser.id);
-      c.set('adminRole', adminUser.role);
-    } else {
+    if (admin) {
       c.set('adminId', admin.id);
       c.set('adminRole', admin.role);
+      await next();
+      return;
     }
+    
+    // Fallback: try JWT decode
+    const decoded = JSON.parse(atob(token.split('.')[1]));
+    const adminUser = await c.env.DB.prepare('SELECT * FROM admin_users WHERE id = ?').bind(decoded.adminId).first();
+    if (!adminUser) return c.json({ error: 'Unauthorized' }, 401);
+    c.set('adminId', adminUser.id);
+    c.set('adminRole', adminUser.role);
     await next();
   } catch {
     return c.json({ error: 'Invalid token' }, 401);
