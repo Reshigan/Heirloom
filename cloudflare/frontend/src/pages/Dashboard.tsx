@@ -440,7 +440,7 @@ export function Dashboard() {
                   <MemoriesIcon />
                 </div>
                 <h3 className="sanctuary-title group-hover:text-gold transition-colors">Memories</h3>
-                <p className="sanctuary-count">{stats?.totalMemories || 0} preserved</p>
+                <p className="sanctuary-count">{stats?.totalMemories ? `${stats.totalMemories} preserved` : 'Add your first memory'}</p>
               </div>
             </motion.button>
 
@@ -460,7 +460,7 @@ export function Dashboard() {
                   <LettersIcon />
                 </div>
                 <h3 className="sanctuary-title group-hover:text-gold transition-colors">Letters</h3>
-                <p className="sanctuary-count">{stats?.totalLetters || 0} written</p>
+                <p className="sanctuary-count">{stats?.totalLetters ? `${stats.totalLetters} written` : 'Write your first letter'}</p>
               </div>
             </motion.button>
 
@@ -480,7 +480,7 @@ export function Dashboard() {
                   <VoiceIcon />
                 </div>
                 <h3 className="sanctuary-title group-hover:text-gold transition-colors">Voice</h3>
-                <p className="sanctuary-count">{stats?.totalVoiceMinutes || 0} minutes</p>
+                <p className="sanctuary-count">{stats?.totalVoiceMinutes ? `${stats.totalVoiceMinutes} minutes` : 'Record your voice'}</p>
               </div>
             </motion.button>
 
@@ -500,7 +500,7 @@ export function Dashboard() {
                   <FamilyIcon />
                 </div>
                 <h3 className="sanctuary-title group-hover:text-gold transition-colors">Family</h3>
-                <p className="sanctuary-count">{familyCount} connected</p>
+                <p className="sanctuary-count">{familyCount ? `${familyCount} connected` : 'Add family members'}</p>
               </div>
             </motion.button>
           </div>
@@ -579,48 +579,46 @@ export function Dashboard() {
         >
           <div className="text-center mb-8">
             <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold mb-2">For the People You Love Most</h2>
-            <p className="text-sm text-paper/50 max-w-lg mx-auto">These tools help you leave something real behind—stories, voice, and presence for the moments that matter.</p>
+            <p className="text-sm text-paper/60 max-w-lg mx-auto">These tools help you leave something real behind—stories, voice, and presence for the moments that matter.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <motion.button
               onClick={() => navigate('/legacy-plan')}
-              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-blue-500/20 hover:border-blue-500/40"
+              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-gold/20 hover:border-gold/40"
               whileHover={{ y: -4 }}
             >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gold/20 flex items-center justify-center text-gold mb-3 group-hover:scale-110 transition-transform">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                 </svg>
               </div>
               <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Make Sure They Don't Lose Your Stories</h3>
-              <p className="text-xs text-paper/50 mb-2 italic">A simple plan for the memories your family will one day wish they had.</p>
-              <p className="text-xs text-paper/40">In 10 minutes, choose the people and moments that matter most. Start by picking one person you love, then add 3 stories they should know.</p>
-              <span className="inline-block mt-3 text-xs text-blue-400 group-hover:text-blue-300">Start my plan →</span>
+              <p className="text-xs text-paper/60 mb-3">A simple plan for the memories your family will one day wish they had.</p>
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Start my plan <span className="text-gold/70">→</span></span>
             </motion.button>
 
             <motion.button
               onClick={() => navigate('/story-artifacts')}
-              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-pink-500/20 hover:border-pink-500/40"
+              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-gold/20 hover:border-gold/40"
               whileHover={{ y: -4 }}
             >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400 mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gold/20 flex items-center justify-center text-gold mb-3 group-hover:scale-110 transition-transform">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
                   <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
                   <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>
                 </svg>
               </div>
               <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Turn Memories Into Something They Can Rewatch</h3>
-              <p className="text-xs text-paper/50 mb-2 italic">A tribute they can keep—your voice, your photos, your meaning.</p>
-              <p className="text-xs text-paper/40">Choose a theme (Childhood, Love, Lessons) and we'll help you weave memories into a short film. Start with 5 photos and one voice note.</p>
-              <span className="inline-block mt-3 text-xs text-pink-400 group-hover:text-pink-300">Create a tribute →</span>
+              <p className="text-xs text-paper/60 mb-3">A tribute they can keep—your voice, your photos, your meaning.</p>
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Create a tribute <span className="text-gold/70">→</span></span>
             </motion.button>
 
             <motion.button
               onClick={() => navigate('/life-events')}
-              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-yellow-500/20 hover:border-yellow-500/40"
+              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-gold/20 hover:border-gold/40"
               whileHover={{ y: -4 }}
             >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-400 mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gold/20 flex items-center justify-center text-gold mb-3 group-hover:scale-110 transition-transform">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                   <path d="M16 2v4M8 2v4M3 10h18"/>
@@ -628,25 +626,23 @@ export function Dashboard() {
                 </svg>
               </div>
               <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Be Present for Milestones—Even Years From Now</h3>
-              <p className="text-xs text-paper/50 mb-2 italic">For the days you can't predict, but your love should still arrive.</p>
-              <p className="text-xs text-paper/40">Record messages for graduations, weddings, first jobs, hard days. Start with one milestone and write a 2–3 sentence note.</p>
-              <span className="inline-block mt-3 text-xs text-yellow-400 group-hover:text-yellow-300">Set a milestone message →</span>
+              <p className="text-xs text-paper/60 mb-3">For the days you can't predict, but your love should still arrive.</p>
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Set a milestone <span className="text-gold/70">→</span></span>
             </motion.button>
 
             <motion.button
               onClick={() => navigate('/recipient-experience')}
-              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-purple-500/20 hover:border-purple-500/40"
+              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-gold/20 hover:border-gold/40"
               whileHover={{ y: -4 }}
             >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gold/20 flex items-center justify-center text-gold mb-3 group-hover:scale-110 transition-transform">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
                   <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
                 </svg>
               </div>
               <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Invite Family to Help You Remember</h3>
-              <p className="text-xs text-paper/50 mb-2 italic">Because the people you love carry pieces of your story too.</p>
-              <p className="text-xs text-paper/40">Create a shared space where family can add photos, stories, and voice notes. Start by inviting one person who would love to contribute.</p>
-              <span className="inline-block mt-3 text-xs text-purple-400 group-hover:text-purple-300">Invite someone →</span>
+              <p className="text-xs text-paper/60 mb-3">Because the people you love carry pieces of your story too.</p>
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Invite someone <span className="text-gold/70">→</span></span>
             </motion.button>
           </div>
         </motion.section>
