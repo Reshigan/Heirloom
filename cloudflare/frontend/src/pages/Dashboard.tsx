@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles
+  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles, Gift, Copy
 } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
-import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi } from '../services/api';
+import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi, referralApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 import { PlatformTour, usePlatformTour } from '../components/PlatformTour';
 
@@ -110,10 +110,15 @@ export function Dashboard() {
       queryFn: () => aiApi.getLegacyScore().then(r => r.data),
     });
 
-    const { data: notificationsData } = useQuery({
-      queryKey: ['notifications'],
-      queryFn: () => settingsApi.getNotifications().then(r => r.data),
-    });
+        const { data: notificationsData } = useQuery({
+          queryKey: ['notifications'],
+          queryFn: () => settingsApi.getNotifications().then(r => r.data),
+        });
+
+        const { data: referralData } = useQuery({
+          queryKey: ['my-referral'],
+          queryFn: () => referralApi.getMyReferral().then(r => r.data),
+        });
 
     const [showNewFeaturesNotification, setShowNewFeaturesNotification] = useState(true);
 
@@ -628,6 +633,85 @@ export function Dashboard() {
             </motion.button>
           </div>
         </motion.section>
+
+        {/* Share & Earn Section - Referral Widget */}
+        {referralData && (
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+            className="mb-16 md:mb-20"
+          >
+            <div className="glass rounded-xl p-6 md:p-8 border border-gold/20">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                  <Gift size={32} className="text-gold" />
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-xl font-medium mb-2">Share Heirloom, Get Rewarded</h3>
+                  <p className="text-paper/50 text-sm mb-4">
+                    For every friend who joins using your link, you both get an extra month free. 
+                    Help families preserve their memories while extending your own subscription.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-void-elevated rounded-lg border border-paper/10">
+                      <span className="text-gold font-mono text-sm">{referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`);
+                          showToast('Link copied!', 'success');
+                        }}
+                        className="text-paper/50 hover:text-gold transition-colors"
+                      >
+                        <Copy size={16} />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          const url = referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`;
+                          const text = "I've been using Heirloom to preserve my family's memories. Join me and we both get an extra month free!";
+                          window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+                          referralApi.trackShare('twitter');
+                        }}
+                        className="px-3 py-2 rounded-lg bg-[#1DA1F2]/20 text-[#1DA1F2] hover:bg-[#1DA1F2]/30 transition-colors text-sm"
+                      >
+                        Twitter
+                      </button>
+                      <button
+                        onClick={() => {
+                          const url = referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`;
+                          window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                          referralApi.trackShare('facebook');
+                        }}
+                        className="px-3 py-2 rounded-lg bg-[#4267B2]/20 text-[#4267B2] hover:bg-[#4267B2]/30 transition-colors text-sm"
+                      >
+                        Facebook
+                      </button>
+                      <button
+                        onClick={() => {
+                          const url = referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`;
+                          const text = "I've been using Heirloom to preserve my family's memories. Join me and we both get an extra month free!";
+                          window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+                          referralApi.trackShare('whatsapp');
+                        }}
+                        className="px-3 py-2 rounded-lg bg-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/30 transition-colors text-sm"
+                      >
+                        WhatsApp
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {referralData.conversions > 0 && (
+                  <div className="text-center px-6 py-4 bg-gold/10 rounded-lg">
+                    <div className="text-3xl font-light text-gold">{referralData.conversions}</div>
+                    <div className="text-xs text-paper/50">Friends joined</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.section>
+        )}
 
         {/* Reflection Card - AI Prompt */}
         <motion.section

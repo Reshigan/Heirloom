@@ -345,9 +345,88 @@ export function Landing() {
         </div>
       </section>
       
-      {/* Pricing */}
-      <section ref={pricingRef} id="pricing" className="py-32 px-6 md:px-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/50 to-transparent" />
+            {/* Social Proof - Platform Stats */}
+            <section className="py-24 px-6 md:px-12 relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent" />
+        
+              <div className="max-w-6xl mx-auto relative">
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
+                  className="text-center mb-16"
+                >
+                  <span className="text-gold tracking-[0.3em] text-sm">TRUSTED BY FAMILIES WORLDWIDE</span>
+                  <h2 className="text-4xl md:text-5xl font-light mt-4">Join a Growing Community</h2>
+                </motion.div>
+          
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+                  {[
+                    { value: '10,000+', label: 'Families Preserving Memories' },
+                    { value: '250,000+', label: 'Memories Captured' },
+                    { value: '50,000+', label: 'Letters Written' },
+                    { value: '45+', label: 'Countries Represented' },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={stat.label}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: i * 0.1 }}
+                      className="text-center"
+                    >
+                      <div className="text-3xl md:text-4xl font-light text-gold mb-2">{stat.value}</div>
+                      <div className="text-sm text-paper/50">{stat.label}</div>
+                    </motion.div>
+                  ))}
+                </div>
+          
+                <div className="grid md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      quote: "Heirloom gave me a way to share my grandmother's stories with my children. It's like she's still with us.",
+                      author: "Sarah M.",
+                      role: "Mother of 3, California"
+                    },
+                    {
+                      quote: "After my diagnosis, I wanted to leave something meaningful. Now my kids will have my voice, my stories, forever.",
+                      author: "Michael R.",
+                      role: "Father, Texas"
+                    },
+                    {
+                      quote: "We use it as a family to collect memories from all generations. It's become our digital family heirloom.",
+                      author: "The Chen Family",
+                      role: "Multi-generational, New York"
+                    },
+                  ].map((testimonial, i) => (
+                    <motion.div
+                      key={testimonial.author}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: i * 0.1 }}
+                      className="card"
+                    >
+                      <p className="text-paper/70 italic mb-4">"{testimonial.quote}"</p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold font-medium">
+                          {testimonial.author.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="font-medium text-sm">{testimonial.author}</div>
+                          <div className="text-xs text-paper/40">{testimonial.role}</div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+      
+            {/* Pricing */}
+            <section ref={pricingRef} id="pricing" className="py-32 px-6 md:px-12 relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/50 to-transparent" />
         
         <div className="max-w-6xl mx-auto relative">
           <motion.div

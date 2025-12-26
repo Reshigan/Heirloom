@@ -39,6 +39,7 @@ import { LegacyPlan } from './pages/LegacyPlan';
 import { StoryArtifact } from './pages/StoryArtifact';
 import { LifeEvents } from './pages/LifeEvents';
 import { RecipientExperience } from './pages/RecipientExperience';
+import { CreatorSignup } from './pages/CreatorSignup';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -87,6 +88,7 @@ export default function App() {
                               <Route path="/privacy" element={<Privacy />} />
                               <Route path="/terms" element={<Terms />} />
                               <Route path="/contact" element={<Contact />} />
+                              <Route path="/creators" element={<CreatorSignup />} />
                               <Route path="/inherit/:token" element={<Inherit />} />
                               <Route path="/verify-email" element={<VerifyEmail />} />
                                                             <Route path="/gift" element={<GiftPurchase />} />

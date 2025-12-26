@@ -334,6 +334,11 @@ export const adminApi = {
   notifyAllFailedBilling: () => adminAxios.post('/admin/billing/notify-all-failed'),
 };
 
+export const referralApi = {
+  getMyReferral: () => api.get('/marketing/referral/my-code'),
+  trackShare: (platform: string) => api.post('/marketing/share/track', { platform }),
+};
+
 export const marketingApi = {
   getContent: (params?: { platform?: string; status?: string; theme?: string }) =>
     adminAxios.get('/marketing/content', { params }),
