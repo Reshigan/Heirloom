@@ -43,24 +43,25 @@ export function CreatorSignup() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  const submitMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      const response = await axios.post(`${API_URL}/marketing/creator-signup`, {
-        name: data.name,
-        email: data.email,
-        platform: data.platform,
-        handle: data.handle,
-        follower_count: data.followerCount ? parseInt(data.followerCount) : null,
-        segment: data.segment,
-        website: data.website || null,
-        message: data.message || null,
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      setSubmitted(true);
-    },
-  });
+    const submitMutation = useMutation({
+      mutationFn: async (data: typeof formData) => {
+        const response = await axios.post(`${API_URL}/marketing/creator-signup`, {
+          name: data.name,
+          email: data.email,
+          platform: data.platform,
+          handle: data.handle,
+          followerCount: data.followerCount ? parseInt(data.followerCount) : null,
+          contentType: data.segment,
+          profileUrl: data.website || null,
+          whyInterested: data.message || null,
+          consentMarketing: true,
+        });
+        return response.data;
+      },
+      onSuccess: () => {
+        setSubmitted(true);
+      },
+    });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
