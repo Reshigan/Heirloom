@@ -9,6 +9,7 @@ import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi, referralApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 import { PlatformTour, usePlatformTour } from '../components/PlatformTour';
+import { WhatsNewNotification } from '../components/WhatsNewNotification';
 
 // Sanctuary Object Icons as SVG components
 const MemoriesIcon = () => (
@@ -895,6 +896,9 @@ export function Dashboard() {
         onClose={closeTour}
         onComplete={completeTour}
       />
+
+      {/* What's New Notification */}
+      <WhatsNewNotification />
     </div>
   );
 }

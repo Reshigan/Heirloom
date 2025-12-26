@@ -32,6 +32,7 @@ import { recipientExperienceRoutes } from './routes/recipient-experience';
 import { storyArtifactsRoutes } from './routes/story-artifacts';
 import { lifeEventsRoutes } from './routes/life-events';
 import marketingRoutes from './routes/marketing';
+import { announcementsRoutes } from './routes/announcements';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 
@@ -610,6 +611,9 @@ app.route('/api/admin', adminRoutes);
 
 // Marketing routes (mix of public and admin-protected endpoints)
 app.route('/api/marketing', marketingRoutes);
+
+// Announcements routes (mix of public and admin-protected endpoints)
+app.route('/api/announcements', announcementsRoutes);
 
 // Protected routes (auth required)
 const protectedApp = new Hono<AppEnv>();
