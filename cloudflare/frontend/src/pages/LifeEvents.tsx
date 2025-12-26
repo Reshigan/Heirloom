@@ -2,11 +2,55 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Plus, Trash2, Send, X, GraduationCap, Heart, Baby, Cake, Sunset, Star, Calendar, User, Mail, Clock, CheckCircle, XCircle, ArrowRight, Image, Mic, FileText
+  Plus, Trash2, Send, X, GraduationCap, Heart, Baby, Cake, Sunset, Star, Calendar, User, Mail, Clock, CheckCircle, XCircle, ArrowRight, Image, Mic, FileText, Sparkles, ChevronRight
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
+
+// Quick Create wizard templates
+const QUICK_TEMPLATES = [
+  { 
+    id: 'graduation', 
+    icon: GraduationCap, 
+    title: 'Graduation Day',
+    description: 'A message for when they graduate',
+    eventType: 'GRADUATION',
+    suggestedTitle: 'Congratulations on Your Graduation!',
+  },
+  { 
+    id: 'wedding', 
+    icon: Heart, 
+    title: 'Wedding Day',
+    description: 'Words of love for their special day',
+    eventType: 'WEDDING',
+    suggestedTitle: 'On Your Wedding Day',
+  },
+  { 
+    id: 'first-child', 
+    icon: Baby, 
+    title: 'First Child',
+    description: 'Welcome their new baby',
+    eventType: 'FIRST_CHILD',
+    suggestedTitle: 'Welcome to Parenthood',
+  },
+  { 
+    id: 'milestone-birthday', 
+    icon: Cake, 
+    title: 'Milestone Birthday',
+    description: 'For a special birthday (18, 21, 30...)',
+    eventType: 'BIRTHDAY',
+    suggestedTitle: 'Happy Milestone Birthday!',
+  },
+  { 
+    id: 'when-they-miss-me', 
+    icon: Sunset, 
+    title: 'When They Miss Me',
+    description: 'Comfort for difficult moments',
+    eventType: 'LOSS',
+    suggestedTitle: 'When You Need Me Most',
+  },
+];
 
 interface FamilyMember {
   id: string;
@@ -43,11 +87,13 @@ const EVENT_TYPES = [
   { value: 'CUSTOM', label: 'Custom Event', icon: Star, color: 'text-gold' },
 ];
 
-const TRIGGER_METHODS = [
+// Trigger methods available for advanced options (used in handleQuickCreate)
+const _TRIGGER_METHODS = [
   { value: 'MANUAL', label: 'Manual', description: 'You trigger it when ready' },
   { value: 'DATE', label: 'Scheduled Date', description: 'Auto-trigger on a date' },
   { value: 'RECIPIENT_CONFIRMS', label: 'Recipient Confirms', description: 'They confirm the event' },
 ];
+void _TRIGGER_METHODS; // Suppress unused warning - kept for future advanced options
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   PENDING: { label: 'Pending', color: 'text-yellow-400 bg-yellow-400/10', icon: Clock },
@@ -60,6 +106,10 @@ export function LifeEvents() {
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   const [showContentPicker, setShowContentPicker] = useState(false);
+  
+  // Wizard state - simplified 3-step flow
+  const [wizardStep, setWizardStep] = useState(1); // 1: Pick template, 2: Pick recipient, 3: Review & customize
+  const [selectedTemplate, setSelectedTemplate] = useState<typeof QUICK_TEMPLATES[0] | null>(null);
 
   // Feature onboarding
   const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('life-events');
@@ -104,10 +154,29 @@ export function LifeEvents() {
     enabled: showContentPicker,
   });
 
-  const family: FamilyMember[] = Array.isArray(familyData) ? familyData : familyData?.members || [];
-  const memories = Array.isArray(memoriesData) ? memoriesData : memoriesData?.memories || [];
-  const letters = Array.isArray(lettersData) ? lettersData : lettersData?.letters || [];
-  const voiceRecordings = Array.isArray(voiceData) ? voiceData : voiceData?.recordings || [];
+  // Normalize API responses - handle multiple response shapes
+  const family: FamilyMember[] = Array.isArray(familyData) ? familyData : (familyData?.members || familyData?.data || []);
+  const memories = (() => {
+    if (!memoriesData) return [];
+    if (Array.isArray(memoriesData)) return memoriesData;
+    if (memoriesData.data && Array.isArray(memoriesData.data)) return memoriesData.data;
+    if (memoriesData.memories && Array.isArray(memoriesData.memories)) return memoriesData.memories;
+    return [];
+  })();
+  const letters = (() => {
+    if (!lettersData) return [];
+    if (Array.isArray(lettersData)) return lettersData;
+    if (lettersData.data && Array.isArray(lettersData.data)) return lettersData.data;
+    if (lettersData.letters && Array.isArray(lettersData.letters)) return lettersData.letters;
+    return [];
+  })();
+  const voiceRecordings = (() => {
+    if (!voiceData) return [];
+    if (Array.isArray(voiceData)) return voiceData;
+    if (voiceData.data && Array.isArray(voiceData.data)) return voiceData.data;
+    if (voiceData.recordings && Array.isArray(voiceData.recordings)) return voiceData.recordings;
+    return [];
+  })();
 
   const createMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) => api.post('/api/life-events', data),
@@ -134,6 +203,8 @@ export function LifeEvents() {
 
   const resetForm = () => {
     setShowCreate(false);
+    setWizardStep(1);
+    setSelectedTemplate(null);
     setEventType('GRADUATION');
     setEventName('');
     setEventDescription('');
@@ -145,7 +216,40 @@ export function LifeEvents() {
     setSelectedContent([]);
   };
 
-  const handleCreate = () => {
+  const handleTemplateSelect = (template: typeof QUICK_TEMPLATES[0]) => {
+    setSelectedTemplate(template);
+    setEventType(template.eventType);
+    setEventName(template.suggestedTitle);
+    setWizardStep(2);
+  };
+
+  const handleRecipientSelect = (member: FamilyMember) => {
+    setFamilyMemberId(member.id);
+    setRecipientName(member.name);
+    setRecipientEmail(member.email || '');
+    // Auto-select recent content for this recipient
+    const recentMemories = memories.slice(0, 3).map((m: { id: string; title: string }) => ({ type: 'MEMORY', id: m.id, title: m.title }));
+    setSelectedContent(recentMemories);
+    setWizardStep(3);
+  };
+
+  const handleQuickCreate = () => {
+    if (!eventName.trim()) return;
+    createMutation.mutate({
+      eventType,
+      eventName: eventName.trim(),
+      eventDescription: eventDescription.trim() || undefined,
+      recipientName,
+      recipientEmail: recipientEmail || undefined,
+      familyMemberId: familyMemberId || undefined,
+      triggerMethod,
+      scheduledDate: triggerMethod === 'DATE' ? scheduledDate : undefined,
+      content: selectedContent,
+    });
+  };
+
+  // Legacy create handler - kept for advanced mode
+  const _handleCreate = () => {
     if (!eventName.trim()) return;
     
     createMutation.mutate({
@@ -160,8 +264,10 @@ export function LifeEvents() {
       contentItems: selectedContent.map(c => ({ type: c.type, id: c.id })),
     });
   };
+  void _handleCreate;
 
-  const handleFamilyMemberSelect = (memberId: string) => {
+  // Legacy family member select - kept for advanced mode
+  const _handleFamilyMemberSelect = (memberId: string) => {
     const member = family.find(m => m.id === memberId);
     if (member) {
       setFamilyMemberId(memberId);
@@ -169,6 +275,7 @@ export function LifeEvents() {
       setRecipientEmail(member.email || '');
     }
   };
+  void _handleFamilyMemberSelect;
 
   const addContent = (type: string, id: string, title: string) => {
     if (!selectedContent.find(c => c.type === type && c.id === id)) {
@@ -340,7 +447,7 @@ export function LifeEvents() {
           </motion.div>
         )}
 
-        {/* Create Modal */}
+        {/* Create Modal - Simplified Wizard */}
         <AnimatePresence>
           {showCreate && (
             <motion.div
@@ -357,171 +464,233 @@ export function LifeEvents() {
                 className="glass rounded-2xl p-6 max-w-xl w-full my-8"
                 onClick={e => e.stopPropagation()}
               >
+                {/* Wizard Header */}
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-medium">Create Life Event Trigger</h3>
+                  <div className="flex items-center gap-3">
+                    {wizardStep > 1 && (
+                      <button 
+                        onClick={() => setWizardStep(wizardStep - 1)} 
+                        className="text-paper/50 hover:text-paper"
+                      >
+                        <ArrowRight size={20} className="rotate-180" />
+                      </button>
+                    )}
+                    <div>
+                      <h3 className="text-xl font-medium">
+                        {wizardStep === 1 && 'What moment do you want to capture?'}
+                        {wizardStep === 2 && 'Who is this for?'}
+                        {wizardStep === 3 && 'Review & Create'}
+                      </h3>
+                      <p className="text-sm text-paper/50">Step {wizardStep} of 3</p>
+                    </div>
+                  </div>
                   <button onClick={() => resetForm()} className="text-paper/50 hover:text-paper">
                     <X size={24} />
                   </button>
                 </div>
 
-                <div className="space-y-5">
-                  {/* Event Type */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Event Type</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {EVENT_TYPES.map((type) => {
-                        const TypeIcon = type.icon;
-                        return (
+                {/* Step 1: Pick Template */}
+                {wizardStep === 1 && (
+                  <div className="space-y-3">
+                    {QUICK_TEMPLATES.map((template) => {
+                      const TemplateIcon = template.icon;
+                      return (
+                        <button
+                          key={template.id}
+                          onClick={() => handleTemplateSelect(template)}
+                          className="w-full p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
+                        >
+                          <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center text-gold">
+                            <TemplateIcon size={24} />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium">{template.title}</h4>
+                            <p className="text-sm text-paper/50">{template.description}</p>
+                          </div>
+                          <ChevronRight size={20} className="text-paper/30 group-hover:text-gold transition-colors" />
+                        </button>
+                      );
+                    })}
+                    <div className="pt-4 border-t border-paper/10">
+                      <button
+                        onClick={() => {
+                          setWizardStep(2);
+                          setSelectedTemplate(null);
+                        }}
+                        className="w-full p-3 text-center text-paper/50 hover:text-paper transition-colors"
+                      >
+                        Or create a custom event...
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Pick Recipient */}
+                {wizardStep === 2 && (
+                  <div className="space-y-4">
+                    {family.length > 0 ? (
+                      <div className="space-y-2">
+                        <p className="text-sm text-paper/60 mb-3">Select a family member:</p>
+                        {family.map((member) => (
                           <button
-                            key={type.value}
-                            onClick={() => setEventType(type.value)}
-                            className={`p-3 rounded-lg flex flex-col items-center gap-2 transition-all ${
-                              eventType === type.value 
+                            key={member.id}
+                            onClick={() => handleRecipientSelect(member)}
+                            className={`w-full p-4 rounded-xl transition-all flex items-center gap-4 text-left ${
+                              familyMemberId === member.id 
                                 ? 'bg-gold/20 border border-gold/30' 
-                                : 'bg-void/30 hover:bg-void/50'
+                                : 'bg-paper/5 hover:bg-paper/10'
                             }`}
                           >
-                            <TypeIcon size={20} className={type.color} />
-                            <span className="text-xs">{type.label}</span>
+                            <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold font-medium">
+                              {member.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium">{member.name}</h4>
+                              <p className="text-sm text-paper/50">{member.relationship}</p>
+                            </div>
+                            <ChevronRight size={20} className="text-paper/30" />
                           </button>
-                        );
-                      })}
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <User size={48} className="mx-auto text-paper/20 mb-4" />
+                        <h4 className="font-medium mb-2">No family members yet</h4>
+                        <p className="text-paper/50 text-sm mb-4">Add family members to easily select recipients</p>
+                        <a href="/family" className="btn btn-primary">
+                          Add Family Members
+                        </a>
+                      </div>
+                    )}
+                    <div className="pt-4 border-t border-paper/10">
+                      <p className="text-sm text-paper/50 mb-2">Or enter manually:</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={recipientName}
+                          onChange={(e) => setRecipientName(e.target.value)}
+                          placeholder="Recipient name"
+                          className="bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
+                        />
+                        <input
+                          type="email"
+                          value={recipientEmail}
+                          onChange={(e) => setRecipientEmail(e.target.value)}
+                          placeholder="Recipient email"
+                          className="bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
+                        />
+                      </div>
+                      {recipientName && (
+                        <button
+                          onClick={() => setWizardStep(3)}
+                          className="w-full mt-3 btn btn-primary"
+                        >
+                          Continue
+                        </button>
+                      )}
                     </div>
                   </div>
+                )}
 
-                  {/* Event Name */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Event Name</label>
-                    <input
-                      type="text"
-                      value={eventName}
-                      onChange={(e) => setEventName(e.target.value)}
-                      placeholder="Sarah's Wedding Day"
-                      className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
-                    />
-                  </div>
+                {/* Step 3: Review & Create */}
+                {wizardStep === 3 && (
+                  <div className="space-y-5">
+                    {/* Summary */}
+                    <div className="p-4 rounded-xl bg-gold/10 border border-gold/20">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Sparkles size={20} className="text-gold" />
+                        <span className="font-medium">Ready to create</span>
+                      </div>
+                      <p className="text-sm text-paper/70">
+                        {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom event'} for <strong>{recipientName}</strong>
+                      </p>
+                    </div>
 
-                  {/* Description */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Message (optional)</label>
-                    <textarea
-                      value={eventDescription}
-                      onChange={(e) => setEventDescription(e.target.value)}
-                      placeholder="A special message for this moment..."
-                      rows={2}
-                      className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50 resize-none"
-                    />
-                  </div>
-
-                  {/* Recipient */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Recipient</label>
-                    {family.length > 0 && (
-                      <select
-                        value={familyMemberId || ''}
-                        onChange={(e) => handleFamilyMemberSelect(e.target.value)}
-                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50 mb-2"
-                      >
-                        <option value="">Select from family...</option>
-                        {family.map((member) => (
-                          <option key={member.id} value={member.id}>
-                            {member.name} ({member.relationship})
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    <div className="grid grid-cols-2 gap-2">
+                    {/* Editable Title */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Event Title</label>
                       <input
                         type="text"
-                        value={recipientName}
-                        onChange={(e) => setRecipientName(e.target.value)}
-                        placeholder="Recipient name"
-                        className="bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
-                      />
-                      <input
-                        type="email"
-                        value={recipientEmail}
-                        onChange={(e) => setRecipientEmail(e.target.value)}
-                        placeholder="Recipient email"
-                        className="bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
+                        value={eventName}
+                        onChange={(e) => setEventName(e.target.value)}
+                        placeholder="Give this event a name..."
+                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
                       />
                     </div>
-                  </div>
 
-                  {/* Trigger Method */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">When to Trigger</label>
-                    <div className="space-y-2">
-                      {TRIGGER_METHODS.map((method) => (
-                        <button
-                          key={method.value}
-                          onClick={() => setTriggerMethod(method.value)}
-                          className={`w-full p-3 rounded-lg text-left transition-all ${
-                            triggerMethod === method.value 
-                              ? 'bg-gold/20 border border-gold/30' 
-                              : 'bg-void/30 hover:bg-void/50'
-                          }`}
-                        >
-                          <p className="font-medium">{method.label}</p>
-                          <p className="text-xs text-paper/50">{method.description}</p>
-                        </button>
-                      ))}
-                    </div>
-                    {triggerMethod === 'DATE' && (
-                      <input
-                        type="date"
-                        value={scheduledDate}
-                        onChange={(e) => setScheduledDate(e.target.value)}
-                        className="w-full mt-2 bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
+                    {/* Optional Message */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Personal Message (optional)</label>
+                      <textarea
+                        value={eventDescription}
+                        onChange={(e) => setEventDescription(e.target.value)}
+                        placeholder="Add a heartfelt message..."
+                        rows={3}
+                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50 resize-none"
                       />
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Content to Deliver */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Content to Deliver</label>
-                    <div className="space-y-2 mb-2">
-                      {selectedContent.map((content) => (
-                        <div key={`${content.type}-${content.id}`} className="flex items-center justify-between p-2 bg-void/30 rounded-lg">
-                          <span className="text-sm">{content.title} ({content.type})</span>
-                          <button
-                            onClick={() => removeContent(content.type, content.id)}
-                            className="text-red-400 hover:text-red-300"
-                          >
-                            <X size={16} />
-                          </button>
+                    {/* Auto-selected Content */}
+                    {selectedContent.length > 0 && (
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Included Content ({selectedContent.length} items)
+                        </label>
+                        <div className="space-y-1">
+                          {selectedContent.map((item) => (
+                            <div key={`${item.type}-${item.id}`} className="flex items-center justify-between p-2 bg-void/30 rounded-lg text-sm">
+                              <span>{item.title}</span>
+                              <button
+                                onClick={() => removeContent(item.type, item.id)}
+                                className="text-paper/50 hover:text-red-400"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                    <button
-                      onClick={() => setShowContentPicker(true)}
-                      className="w-full p-3 border border-dashed border-paper/20 rounded-lg text-paper/50 hover:text-paper hover:border-paper/40 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Plus size={16} />
-                      Add content
-                    </button>
-                  </div>
+                        <button
+                          onClick={() => setShowContentPicker(true)}
+                          className="mt-2 text-sm text-gold hover:underline"
+                        >
+                          + Add more content
+                        </button>
+                      </div>
+                    )}
 
-                  {/* Actions */}
-                  <div className="flex gap-3 pt-4">
+                    {selectedContent.length === 0 && (
+                      <button
+                        onClick={() => setShowContentPicker(true)}
+                        className="w-full p-3 border border-dashed border-paper/20 rounded-lg text-paper/50 hover:text-paper hover:border-paper/40 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Plus size={16} />
+                        Add photos, letters, or voice recordings
+                      </button>
+                    )}
+
+                    {/* Create Button */}
                     <button
-                      onClick={handleCreate}
+                      onClick={handleQuickCreate}
                       disabled={!eventName.trim() || createMutation.isPending}
-                      className="flex-1 btn btn-primary"
+                      className="w-full py-4 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      {createMutation.isPending ? 'Creating...' : 'Create Trigger'}
-                    </button>
-                    <button onClick={() => resetForm()} className="btn btn-ghost">
-                      Cancel
+                      {createMutation.isPending ? (
+                        <div className="animate-spin w-5 h-5 border-2 border-void border-t-transparent rounded-full" />
+                      ) : (
+                        <>
+                          <Sparkles size={18} />
+                          Create Life Event
+                        </>
+                      )}
                     </button>
                   </div>
-                </div>
+                )}
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Content Picker Modal */}
+        {/* Content Picker Modal - Keep existing but simplified */}
         <AnimatePresence>
           {showContentPicker && (
             <motion.div
@@ -538,17 +707,20 @@ export function LifeEvents() {
                 className="glass rounded-2xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
                 onClick={e => e.stopPropagation()}
               >
-                <h3 className="text-lg font-medium mb-4">Select Content</h3>
+                <h3 className="text-lg font-medium mb-4">Add Content</h3>
                 
                 {memories.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/60 mb-2">Memories</h4>
-                    <div className="space-y-1">
-                      {memories.slice(0, 5).map((m: { id: string; title: string }) => (
+                    <h4 className="text-sm font-medium text-paper/60 mb-2 flex items-center gap-2">
+                      <Image size={14} /> Photos & Memories ({memories.length})
+                    </h4>
+                    <div className="space-y-1 max-h-32 overflow-y-auto">
+                      {memories.slice(0, 10).map((m: { id: string; title: string }) => (
                         <button
                           key={m.id}
                           onClick={() => addContent('MEMORY', m.id, m.title)}
-                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors"
+                          disabled={selectedContent.some(c => c.id === m.id)}
+                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {m.title}
                         </button>
@@ -559,13 +731,16 @@ export function LifeEvents() {
 
                 {letters.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/60 mb-2">Letters</h4>
-                    <div className="space-y-1">
-                      {letters.slice(0, 5).map((l: { id: string; title: string }) => (
+                    <h4 className="text-sm font-medium text-paper/60 mb-2 flex items-center gap-2">
+                      <FileText size={14} /> Letters ({letters.length})
+                    </h4>
+                    <div className="space-y-1 max-h-32 overflow-y-auto">
+                      {letters.slice(0, 10).map((l: { id: string; title: string }) => (
                         <button
                           key={l.id}
                           onClick={() => addContent('LETTER', l.id, l.title || 'Untitled Letter')}
-                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors"
+                          disabled={selectedContent.some(c => c.id === l.id)}
+                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {l.title || 'Untitled Letter'}
                         </button>
@@ -576,13 +751,16 @@ export function LifeEvents() {
 
                 {voiceRecordings.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/60 mb-2">Voice Recordings</h4>
-                    <div className="space-y-1">
-                      {voiceRecordings.slice(0, 5).map((v: { id: string; title: string }) => (
+                    <h4 className="text-sm font-medium text-paper/60 mb-2 flex items-center gap-2">
+                      <Mic size={14} /> Voice Recordings ({voiceRecordings.length})
+                    </h4>
+                    <div className="space-y-1 max-h-32 overflow-y-auto">
+                      {voiceRecordings.slice(0, 10).map((v: { id: string; title: string }) => (
                         <button
                           key={v.id}
                           onClick={() => addContent('VOICE', v.id, v.title)}
-                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors"
+                          disabled={selectedContent.some(c => c.id === v.id)}
+                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {v.title}
                         </button>
@@ -631,7 +809,7 @@ export function LifeEvents() {
 
                 <button
                   onClick={() => setShowContentPicker(false)}
-                  className="w-full btn btn-ghost mt-4"
+                  className="w-full btn btn-primary mt-4"
                 >
                   Done
                 </button>

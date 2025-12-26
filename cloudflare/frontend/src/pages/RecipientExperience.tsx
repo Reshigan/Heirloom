@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Users, Clock, Check, X, Image, Mic, FileText, Copy, Shield, Send, ExternalLink, Mail, CheckCircle, Plus, Trash2, Edit2, UserPlus
+  Users, Clock, Check, X, Image, Mic, FileText, Copy, Shield, Send, ExternalLink, Mail, CheckCircle, Plus, Trash2, Edit2, UserPlus, Sparkles, ChevronRight, Heart
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
@@ -230,12 +230,74 @@ export function RecipientExperience() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
           <h1 className="font-display text-4xl md:text-5xl mb-4">Recipient Experience</h1>
           <p className="text-paper/60 max-w-xl mx-auto">
             Configure how your loved ones will receive and interact with your legacy
           </p>
+        </motion.div>
+
+        {/* Quick Setup Guide */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="glass rounded-2xl p-6 mb-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <Sparkles size={20} className="text-gold" />
+            <h2 className="font-medium">Quick Setup</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button
+              onClick={() => {
+                setActiveTab('family');
+                setShowAddFamilyModal(true);
+              }}
+              className="p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-gold">
+                <UserPlus size={20} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">Add Recipients</h3>
+                <p className="text-xs text-paper/50">Who should receive your legacy?</p>
+              </div>
+              <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+            </button>
+            <button
+              onClick={() => setActiveTab('schedules')}
+              className="p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                <Clock size={20} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">Set Release Schedule</h3>
+                <p className="text-xs text-paper/50">When should content be released?</p>
+              </div>
+              <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('room');
+                if (room && room.is_active !== 1) {
+                  updateRoomMutation.mutate({ is_active: true });
+                }
+              }}
+              className="p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                <Heart size={20} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">Enable Memory Room</h3>
+                <p className="text-xs text-paper/50">Let family share their memories</p>
+              </div>
+              <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+            </button>
+          </div>
         </motion.div>
 
         {/* Tabs */}
