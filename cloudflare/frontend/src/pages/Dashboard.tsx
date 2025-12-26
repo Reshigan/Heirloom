@@ -548,7 +548,7 @@ export function Dashboard() {
           </div>
         </motion.section>
 
-        {/* Grow Your Legacy Section - Viral Driver Features */}
+        {/* For The People You Love - Viral Driver Features with Emotional Appeal */}
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -556,8 +556,8 @@ export function Dashboard() {
           className="mb-16 md:mb-20"
         >
           <div className="text-center mb-8">
-            <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold mb-2">Grow Your Legacy</h2>
-            <p className="text-sm text-paper/50">Share your story with the people who matter most</p>
+            <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold mb-2">For the People You Love Most</h2>
+            <p className="text-sm text-paper/50 max-w-lg mx-auto">These tools help you leave something real behind—stories, voice, and presence for the moments that matter.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <motion.button
@@ -570,9 +570,10 @@ export function Dashboard() {
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                 </svg>
               </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Plan Your Legacy</h3>
-              <p className="text-xs text-paper/50 mb-2">Complete in 10 minutes</p>
-              <p className="text-xs text-paper/40">A guided checklist to ensure nothing important is forgotten. Track your progress and share it with family.</p>
+              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Make Sure They Don't Lose Your Stories</h3>
+              <p className="text-xs text-paper/50 mb-2 italic">A simple plan for the memories your family will one day wish they had.</p>
+              <p className="text-xs text-paper/40">In 10 minutes, choose the people and moments that matter most. Start by picking one person you love, then add 3 stories they should know.</p>
+              <span className="inline-block mt-3 text-xs text-blue-400 group-hover:text-blue-300">Start my plan →</span>
             </motion.button>
 
             <motion.button
@@ -586,9 +587,10 @@ export function Dashboard() {
                   <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>
                 </svg>
               </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Create a Tribute Video</h3>
-              <p className="text-xs text-paper/50 mb-2">Turn memories into stories</p>
-              <p className="text-xs text-paper/40">Combine your photos and recordings into beautiful micro-documentaries to share with loved ones.</p>
+              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Turn Memories Into Something They Can Rewatch</h3>
+              <p className="text-xs text-paper/50 mb-2 italic">A tribute they can keep—your voice, your photos, your meaning.</p>
+              <p className="text-xs text-paper/40">Choose a theme (Childhood, Love, Lessons) and we'll help you weave memories into a short film. Start with 5 photos and one voice note.</p>
+              <span className="inline-block mt-3 text-xs text-pink-400 group-hover:text-pink-300">Create a tribute →</span>
             </motion.button>
 
             <motion.button
@@ -603,9 +605,10 @@ export function Dashboard() {
                   <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
                 </svg>
               </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Messages for Milestones</h3>
-              <p className="text-xs text-paper/50 mb-2">Graduations, weddings & more</p>
-              <p className="text-xs text-paper/40">Schedule heartfelt messages to arrive at life's biggest moments - even if you can't be there.</p>
+              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Be Present for Milestones—Even Years From Now</h3>
+              <p className="text-xs text-paper/50 mb-2 italic">For the days you can't predict, but your love should still arrive.</p>
+              <p className="text-xs text-paper/40">Record messages for graduations, weddings, first jobs, hard days. Start with one milestone and write a 2–3 sentence note.</p>
+              <span className="inline-block mt-3 text-xs text-yellow-400 group-hover:text-yellow-300">Set a milestone message →</span>
             </motion.button>
 
             <motion.button
@@ -618,9 +621,10 @@ export function Dashboard() {
                   <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
                 </svg>
               </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Invite Family to Contribute</h3>
-              <p className="text-xs text-paper/50 mb-2">Build memories together</p>
-              <p className="text-xs text-paper/40">Create a shared memory room where family can add their own stories and photos to your legacy.</p>
+              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Invite Family to Help You Remember</h3>
+              <p className="text-xs text-paper/50 mb-2 italic">Because the people you love carry pieces of your story too.</p>
+              <p className="text-xs text-paper/40">Create a shared space where family can add photos, stories, and voice notes. Start by inviting one person who would love to contribute.</p>
+              <span className="inline-block mt-3 text-xs text-purple-400 group-hover:text-purple-300">Invite someone →</span>
             </motion.button>
           </div>
         </motion.section>
