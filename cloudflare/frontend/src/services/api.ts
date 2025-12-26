@@ -335,7 +335,7 @@ export const adminApi = {
 };
 
 export const referralApi = {
-  getMyReferral: () => api.get('/marketing/referral/my-code'),
+  getMyReferral: () => api.get('/marketing/referral/code'),
   trackShare: (platform: string) => api.post('/marketing/share/track', { platform }),
 };
 
