@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Plus, Trash2, Send, X, GraduationCap, Heart, Baby, Cake, Sunset, Star, Calendar, User, Mail, Clock, CheckCircle, XCircle
+  Plus, Trash2, Send, X, GraduationCap, Heart, Baby, Cake, Sunset, Star, Calendar, User, Mail, Clock, CheckCircle, XCircle, ArrowRight, Image, Mic, FileText
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
@@ -592,7 +592,41 @@ export function LifeEvents() {
                 )}
 
                 {memories.length === 0 && letters.length === 0 && voiceRecordings.length === 0 && (
-                  <p className="text-center text-paper/50 py-8">No content available. Create some memories, letters, or voice recordings first!</p>
+                  <div className="text-center py-6">
+                    <p className="text-paper/50 mb-4">No content available yet. Create some first:</p>
+                    <div className="space-y-2">
+                      <a
+                        href="/memories"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400 hover:bg-blue-500/20 transition-colors"
+                      >
+                        <Image size={18} />
+                        Add Photos & Memories
+                        <ArrowRight size={14} />
+                      </a>
+                      <a
+                        href="/compose"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 hover:bg-green-500/20 transition-colors"
+                      >
+                        <FileText size={18} />
+                        Write a Letter
+                        <ArrowRight size={14} />
+                      </a>
+                      <a
+                        href="/record"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg text-purple-400 hover:bg-purple-500/20 transition-colors"
+                      >
+                        <Mic size={18} />
+                        Record a Voice Message
+                        <ArrowRight size={14} />
+                      </a>
+                    </div>
+                  </div>
                 )}
 
                 <button

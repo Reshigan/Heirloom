@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Plus, Play, Trash2, Share2, Film, Image, Mic, Check, X, Eye
+  Plus, Play, Trash2, Share2, Film, Image, Mic, Check, X, Eye, Upload, ArrowRight
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
@@ -55,8 +55,10 @@ const MUSIC_TRACKS = [
 
 export function StoryArtifact() {
   const queryClient = useQueryClient();
-    const [showCreate, setShowCreate] = useState(false);
-    const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Feature onboarding
   const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('story-artifacts');
@@ -143,6 +145,45 @@ export function StoryArtifact() {
       setSelectedMemories(selectedMemories.filter(id => id !== memoryId));
     } else if (selectedMemories.length < 10) {
       setSelectedMemories([...selectedMemories, memoryId]);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        // Get presigned upload URL
+        const { data: uploadData } = await memoriesApi.getUploadUrl({
+          filename: file.name,
+          contentType: file.type,
+        });
+        
+        // Upload file to presigned URL
+        await fetch(uploadData.uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: { 'Content-Type': file.type },
+        });
+        
+        // Create memory record
+        await memoriesApi.create({
+          title: file.name.replace(/\.[^/.]+$/, ''),
+          type: 'PHOTO',
+          fileUrl: uploadData.fileUrl,
+          fileSize: file.size,
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['memories-for-artifact'] });
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -388,9 +429,28 @@ export function StoryArtifact() {
 
                   {/* Select Memories */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Select Photos ({selectedMemories.length}/10)
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium">
+                        Select Photos ({selectedMemories.length}/10)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="flex items-center gap-1 text-sm text-gold hover:text-gold/80 transition-colors"
+                      >
+                        <Upload size={14} />
+                        {isUploading ? 'Uploading...' : 'Upload Photos'}
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                    </div>
                     <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2 bg-void/30 rounded-lg">
                       {memories.filter(m => m.type === 'PHOTO').map((memory) => (
                         <button
@@ -413,16 +473,37 @@ export function StoryArtifact() {
                         </button>
                       ))}
                       {memories.filter(m => m.type === 'PHOTO').length === 0 && (
-                        <p className="col-span-4 text-center text-paper/50 py-8">
-                          No photos yet. Add some memories first!
-                        </p>
+                        <div className="col-span-4 text-center py-8">
+                          <Image size={32} className="mx-auto text-paper/30 mb-2" />
+                          <p className="text-paper/50 mb-3">No photos yet</p>
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="btn btn-primary btn-sm"
+                          >
+                            <Upload size={14} className="mr-1" />
+                            Upload Your First Photo
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
 
                   {/* Select Voice */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">Add Voice Recording (optional)</label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium">Add Voice Recording (optional)</label>
+                      <a
+                        href="/record"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-sm text-gold hover:text-gold/80 transition-colors"
+                      >
+                        <Mic size={14} />
+                        Record New
+                        <ArrowRight size={12} />
+                      </a>
+                    </div>
                     <div className="space-y-2 max-h-32 overflow-y-auto">
                       {voiceRecordings.map((recording) => (
                         <button
@@ -442,7 +523,19 @@ export function StoryArtifact() {
                         </button>
                       ))}
                       {voiceRecordings.length === 0 && (
-                        <p className="text-center text-paper/50 py-4">No voice recordings yet</p>
+                        <div className="text-center py-4 bg-void/30 rounded-lg">
+                          <Mic size={24} className="mx-auto text-paper/30 mb-2" />
+                          <p className="text-paper/50 text-sm mb-2">No voice recordings yet</p>
+                          <a
+                            href="/record"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gold text-sm hover:underline inline-flex items-center gap-1"
+                          >
+                            Record your first message
+                            <ArrowRight size={12} />
+                          </a>
+                        </div>
                       )}
                     </div>
                   </div>
