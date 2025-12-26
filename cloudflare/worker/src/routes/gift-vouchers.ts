@@ -968,6 +968,18 @@ ${finalMessage}
       html: emailHtml,
     }, 'GOLD_LEGACY_INVITATION');
     emailSentSuccess = emailResult.success;
+    
+    // Log to voucher-specific email table for tracking
+    if (emailSentSuccess) {
+      try {
+        await c.env.DB.prepare(`
+          INSERT INTO gift_voucher_emails (voucher_id, email_type, recipient_email, status)
+          VALUES ((SELECT id FROM gift_vouchers WHERE code = ?), 'GOLD_LEGACY_INVITATION', ?, 'SENT')
+        `).bind(voucherCode, recipientEmail).run();
+      } catch (logError) {
+        console.error('Failed to log Gold Legacy email:', logError);
+      }
+    }
   }
   
   return c.json({

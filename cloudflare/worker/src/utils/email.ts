@@ -39,9 +39,9 @@ export async function sendEmail(
     // Log the failed attempt
     try {
       await env.DB.prepare(`
-        INSERT INTO email_logs (id, to_email, subject, body, status, error_message, created_at)
-        VALUES (?, ?, ?, ?, 'FAILED', ?, ?)
-      `).bind(logId, toEmail, subject, html?.substring(0, 1000), 'RESEND_API_KEY not configured', now).run();
+        INSERT INTO email_logs (id, to_email, subject, body, status, error_message, email_type, created_at)
+        VALUES (?, ?, ?, ?, 'FAILED', ?, ?, ?)
+      `).bind(logId, toEmail, subject, html?.substring(0, 50000), 'RESEND_API_KEY not configured', emailType || null, now).run();
     } catch (dbError) {
       console.error('Failed to log email error:', dbError);
     }
@@ -80,9 +80,9 @@ export async function sendEmail(
       // Log the failed email
       try {
         await env.DB.prepare(`
-          INSERT INTO email_logs (id, to_email, subject, body, status, error_message, created_at)
-          VALUES (?, ?, ?, ?, 'FAILED', ?, ?)
-        `).bind(logId, toEmail, subject, html?.substring(0, 1000), errorMessage, now).run();
+          INSERT INTO email_logs (id, to_email, subject, body, status, error_message, email_type, created_at)
+          VALUES (?, ?, ?, ?, 'FAILED', ?, ?, ?)
+        `).bind(logId, toEmail, subject, html?.substring(0, 50000), errorMessage, emailType || null, now).run();
       } catch (dbError) {
         console.error('Failed to log email error:', dbError);
       }
@@ -93,9 +93,9 @@ export async function sendEmail(
     // Log the successful email
     try {
       await env.DB.prepare(`
-        INSERT INTO email_logs (id, to_email, subject, body, status, sent_at, created_at)
-        VALUES (?, ?, ?, ?, 'SENT', ?, ?)
-      `).bind(logId, toEmail, subject, html?.substring(0, 1000), now, now).run();
+        INSERT INTO email_logs (id, to_email, subject, body, status, sent_at, email_type, created_at)
+        VALUES (?, ?, ?, ?, 'SENT', ?, ?, ?)
+      `).bind(logId, toEmail, subject, html?.substring(0, 50000), now, emailType || null, now).run();
     } catch (dbError) {
       console.error('Failed to log sent email:', dbError);
     }
@@ -108,9 +108,9 @@ export async function sendEmail(
     // Log the failed email
     try {
       await env.DB.prepare(`
-        INSERT INTO email_logs (id, to_email, subject, body, status, error_message, created_at)
-        VALUES (?, ?, ?, ?, 'FAILED', ?, ?)
-      `).bind(logId, toEmail, subject, html?.substring(0, 1000), errorMessage, now).run();
+        INSERT INTO email_logs (id, to_email, subject, body, status, error_message, email_type, created_at)
+        VALUES (?, ?, ?, ?, 'FAILED', ?, ?, ?)
+      `).bind(logId, toEmail, subject, html?.substring(0, 50000), errorMessage, emailType || null, now).run();
     } catch (dbError) {
       console.error('Failed to log email error:', dbError);
     }

@@ -34,6 +34,7 @@ export function AdminDashboard() {
   const [userSearch, setUserSearch] = useState('');
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
 
   // Queries
   const { data: overview } = useQuery({
@@ -1199,6 +1200,7 @@ export function AdminDashboard() {
                     <th className="text-left py-3 px-4 text-paper/50 font-normal">Subject</th>
                     <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
                     <th className="text-left py-3 px-4 text-paper/50 font-normal">Sent</th>
+                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1218,11 +1220,20 @@ export function AdminDashboard() {
                       <td className="py-3 px-4 text-paper/50 text-sm">
                         {email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}
                       </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => setSelectedEmail(email.id)}
+                          className="text-paper/30 hover:text-gold"
+                          title="View email details"
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {(!emailLogs?.data || emailLogs.data.length === 0) && (
                     <tr>
-                      <td colSpan={4} className="text-center py-8 text-paper/50">
+                      <td colSpan={5} className="text-center py-8 text-paper/50">
                         No email logs
                       </td>
                     </tr>
@@ -1231,6 +1242,11 @@ export function AdminDashboard() {
               </table>
             </div>
           </div>
+        )}
+
+        {/* Email Detail Modal */}
+        {selectedEmail && (
+          <EmailDetailModal emailId={selectedEmail} onClose={() => setSelectedEmail(null)} />
         )}
 
         {/* Reports Tab */}
@@ -1899,6 +1915,119 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Email Detail Modal
+function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () => void }) {
+  const queryClient = useQueryClient();
+
+  const { data: email, isLoading } = useQuery({
+    queryKey: ['admin-email', emailId],
+    queryFn: () => adminApi.getEmailDetail(emailId).then(r => r.data),
+  });
+
+  const resendMutation = useMutation({
+    mutationFn: () => adminApi.resendEmail(emailId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-email', emailId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-emails'] });
+      alert('Email resent successfully!');
+    },
+    onError: (error: any) => {
+      alert(`Failed to resend: ${error.response?.data?.error || error.message}`);
+    },
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+      <div className="bg-void border border-white/10 rounded-lg w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl">Email Details</h3>
+          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+            <X size={20} />
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="text-center py-8 text-paper/50">Loading...</div>
+        ) : email ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-white/[0.02] rounded">
+                <div className="text-paper/50 text-xs mb-1">To</div>
+                <div className="text-paper">{email.to}</div>
+              </div>
+              <div className="p-3 bg-white/[0.02] rounded">
+                <div className="text-paper/50 text-xs mb-1">Status</div>
+                <span className={`px-2 py-1 text-xs ${
+                  email.status === 'SENT' ? 'bg-green-500/20 text-green-400' :
+                  email.status === 'FAILED' ? 'bg-blood/20 text-blood' :
+                  'bg-yellow-500/20 text-yellow-400'
+                }`}>
+                  {email.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white/[0.02] rounded">
+              <div className="text-paper/50 text-xs mb-1">Subject</div>
+              <div className="text-paper">{email.subject}</div>
+            </div>
+
+            {email.emailType && (
+              <div className="p-3 bg-white/[0.02] rounded">
+                <div className="text-paper/50 text-xs mb-1">Email Type</div>
+                <div className="text-paper font-mono text-sm">{email.emailType}</div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-white/[0.02] rounded">
+                <div className="text-paper/50 text-xs mb-1">Created</div>
+                <div className="text-paper text-sm">{email.createdAt ? new Date(email.createdAt).toLocaleString() : '-'}</div>
+              </div>
+              <div className="p-3 bg-white/[0.02] rounded">
+                <div className="text-paper/50 text-xs mb-1">Sent</div>
+                <div className="text-paper text-sm">{email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}</div>
+              </div>
+            </div>
+
+            {email.errorMessage && (
+              <div className="p-3 bg-blood/10 border border-blood/20 rounded">
+                <div className="text-blood text-xs mb-1">Error Message</div>
+                <div className="text-blood/80 text-sm">{email.errorMessage}</div>
+              </div>
+            )}
+
+            <div className="p-3 bg-white/[0.02] rounded">
+              <div className="text-paper/50 text-xs mb-2">Email Body (HTML Preview)</div>
+              <div className="bg-white rounded p-4 max-h-96 overflow-y-auto">
+                <div 
+                  className="text-black text-sm"
+                  dangerouslySetInnerHTML={{ __html: email.body || '<em>No body content</em>' }}
+                />
+              </div>
+            </div>
+
+            {email.status === 'FAILED' && (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => resendMutation.mutate()}
+                  disabled={resendMutation.isPending}
+                  className="btn btn-primary flex items-center gap-2"
+                >
+                  <Send size={16} />
+                  {resendMutation.isPending ? 'Resending...' : 'Resend Email'}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-paper/50">Email not found</div>
+        )}
       </div>
     </div>
   );
