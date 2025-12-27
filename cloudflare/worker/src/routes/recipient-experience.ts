@@ -382,4 +382,122 @@ recipientExperienceRoutes.post('/room/:token/contribute', async (c) => {
   }, 201);
 });
 
+// ============================================
+// TEST EMAIL TO SELF
+// ============================================
+
+// Send a test email to the user showing what recipients will receive
+recipientExperienceRoutes.post('/test-email', async (c) => {
+  const userId = c.get('userId');
+
+  // Get user's email
+  const user = await c.env.DB.prepare(
+    'SELECT email, name FROM users WHERE id = ?'
+  ).bind(userId).first<{ email: string; name: string }>();
+
+  if (!user) {
+    return c.json({ error: 'User not found' }, 404);
+  }
+
+  // Get content stats for the email
+  const memoriesCount = await c.env.DB.prepare(
+    'SELECT COUNT(*) as count FROM memories WHERE user_id = ?'
+  ).bind(userId).first<{ count: number }>();
+
+  const lettersCount = await c.env.DB.prepare(
+    'SELECT COUNT(*) as count FROM letters WHERE user_id = ?'
+  ).bind(userId).first<{ count: number }>();
+
+  const voiceCount = await c.env.DB.prepare(
+    'SELECT COUNT(*) as count FROM voice_recordings WHERE user_id = ?'
+  ).bind(userId).first<{ count: number }>();
+
+  const totalContent = (memoriesCount?.count || 0) + (lettersCount?.count || 0) + (voiceCount?.count || 0);
+
+  // Send test email
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>A Message From Someone Who Loves You</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #08080c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #08080c; padding: 40px 20px;">
+        <tr>
+          <td align="center">
+            <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background: linear-gradient(180deg, rgba(235, 230, 220, 0.08) 0%, rgba(235, 230, 220, 0.04) 100%); border-radius: 16px; border: 1px solid rgba(235, 230, 220, 0.1);">
+              <tr>
+                <td style="padding: 40px;">
+                  <!-- Logo -->
+                  <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="width: 64px; height: 64px; margin: 0 auto; background: linear-gradient(135deg, #d4a853 0%, #9c7a3c 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <span style="color: #08080c; font-size: 28px; font-weight: 600;">H</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Header -->
+                  <h1 style="color: #ebe6dc; font-size: 24px; font-weight: 400; text-align: center; margin: 0 0 16px 0;">
+                    A Message From Someone Who Loves You
+                  </h1>
+                  
+                  <!-- Subheader -->
+                  <p style="color: rgba(235, 230, 220, 0.6); font-size: 16px; text-align: center; margin: 0 0 32px 0;">
+                    From Heirloom
+                  </p>
+                  
+                  <!-- Content -->
+                  <div style="color: rgba(235, 230, 220, 0.8); font-size: 16px; line-height: 1.6;">
+                    <p style="margin: 0 0 16px 0;">Dear loved one,</p>
+                    <p style="margin: 0 0 16px 0;">Someone who cares deeply about you has left you messages, memories, and stories they wanted you to have.</p>
+                    <p style="margin: 0 0 24px 0;">When you're ready, click below to access your personal legacy portal.</p>
+                  </div>
+                  
+                  <!-- Stats -->
+                  <div style="background: rgba(212, 168, 83, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <p style="color: #d4a853; font-size: 14px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">What's waiting for you:</p>
+                    <p style="color: #ebe6dc; font-size: 18px; margin: 0;">${totalContent} memories, letters, and voice messages</p>
+                  </div>
+                  
+                  <!-- CTA Button -->
+                  <div style="text-align: center; margin-bottom: 32px;">
+                    <a href="https://heirloom.blue/inherit/preview" style="display: inline-block; background: linear-gradient(135deg, #d4a853 0%, #9c7a3c 100%); color: #08080c; font-size: 16px; font-weight: 600; text-decoration: none; padding: 16px 32px; border-radius: 8px;">
+                      Access Your Legacy
+                    </a>
+                  </div>
+                  
+                  <!-- Footer Note -->
+                  <p style="color: rgba(235, 230, 220, 0.4); font-size: 12px; text-align: center; margin: 0;">
+                    This is a preview of what your recipients will receive. The actual email will be personalized for each recipient.
+                  </p>
+                </td>
+              </tr>
+            </table>
+            
+            <!-- Footer -->
+            <p style="color: rgba(235, 230, 220, 0.3); font-size: 12px; text-align: center; margin-top: 24px;">
+              Heirloom - Preserve what matters most
+            </p>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  try {
+    await sendEmail(c.env, {
+      to: user.email,
+      subject: '[TEST] A Message From Someone Who Loves You - Preview',
+      html: emailHtml,
+    });
+
+    return c.json({ success: true, message: 'Test email sent to ' + user.email });
+  } catch (error) {
+    console.error('Failed to send test email:', error);
+    return c.json({ error: 'Failed to send test email' }, 500);
+  }
+});
+
 export default recipientExperienceRoutes;
