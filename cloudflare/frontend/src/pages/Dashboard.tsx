@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -66,6 +66,20 @@ export function Dashboard() {
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [aiPrompt, setAiPrompt] = useState<string | null>(null);
     const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
+
+    // Memoize floating particles to prevent re-randomization on every render
+    // This fixes the "flashing" issue where particles would jump to new positions
+    const floatingParticles = useMemo(() => 
+      [...Array(20)].map((_, i) => ({
+        id: i,
+        width: 2 + Math.random() * 2,
+        height: 2 + Math.random() * 2,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        duration: 15 + Math.random() * 10,
+        delay: Math.random() * 10,
+      })), 
+    []);
 
     // Platform Tour - use user-scoped key so tour only shows once per user
     const { isOpen: isTourOpen, hasCompletedTour, openTour, closeTour, completeTour } = usePlatformTour(user?.id);
@@ -201,26 +215,26 @@ export function Dashboard() {
         <div className="eternal-mist" />
       </div>
 
-      {/* Floating Particles */}
+      {/* Floating Particles - using memoized values to prevent flashing on re-render */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {[...Array(20)].map((_, i) => (
+        {floatingParticles.map((particle) => (
           <motion.div
-            key={i}
+            key={particle.id}
             className="absolute rounded-full bg-gold/30"
             style={{
-              width: 2 + Math.random() * 2,
-              height: 2 + Math.random() * 2,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              width: particle.width,
+              height: particle.height,
+              left: particle.left,
+              top: particle.top,
             }}
             animate={{
               y: [0, -100, 0],
               opacity: [0, 0.5, 0],
             }}
             transition={{
-              duration: 15 + Math.random() * 10,
+              duration: particle.duration,
               repeat: Infinity,
-              delay: Math.random() * 10,
+              delay: particle.delay,
               ease: 'easeInOut',
             }}
           />
