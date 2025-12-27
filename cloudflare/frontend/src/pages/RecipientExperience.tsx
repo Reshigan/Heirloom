@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Users, Clock, Check, X, Image, Mic, FileText, Copy, Shield, Send, ExternalLink, Mail, CheckCircle, Plus, Trash2, Edit2, UserPlus, Sparkles, ChevronRight, Heart
+  Users, Clock, Check, X, Image, Mic, FileText, Copy, Shield, Send, ExternalLink, Mail, CheckCircle, Plus, Trash2, Edit2, UserPlus, Sparkles, ChevronRight, Heart, Eye, Lock, Download, AlertCircle, Play, Calendar
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
-import api, { familyApi } from '../services/api';
+import api, { familyApi, memoriesApi } from '../services/api';
 
 interface ReleaseSchedule {
   id: string;
@@ -53,7 +53,7 @@ interface FamilyMember {
 
 export function RecipientExperience() {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'schedules' | 'room' | 'family'>('schedules');
+  const [activeTab, setActiveTab] = useState<'schedules' | 'room' | 'family' | 'preview'>('preview');
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -62,6 +62,10 @@ export function RecipientExperience() {
   const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
   const [familyForm, setFamilyForm] = useState({ name: '', relationship: '', email: '', phone: '', notes: '' });
+  const [showTestEmailModal, setShowTestEmailModal] = useState(false);
+  const [testEmailSent, setTestEmailSent] = useState(false);
+  const [_selectedPreviewMember, _setSelectedPreviewMember] = useState<FamilyMember | null>(null);
+  void _selectedPreviewMember; void _setSelectedPreviewMember; // Reserved for future per-recipient preview
 
   // Feature onboarding
   const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('recipient-experience');
@@ -85,7 +89,24 @@ export function RecipientExperience() {
     const { data: familyData } = useQuery<{ members: FamilyMember[] }>({
       queryKey: ['family-members'],
       queryFn: () => familyApi.getAll().then((r: { data: { members: FamilyMember[] } }) => r.data),
-      enabled: activeTab === 'family',
+    });
+
+    // Get memories stats for preview
+    const { data: memoriesStats } = useQuery({
+      queryKey: ['memories-stats'],
+      queryFn: () => memoriesApi.getStats().then((r: { data: { total: number; byType: { letters: number; voice: number; photos: number } } }) => r.data),
+    });
+
+    // Send test email to self
+    const sendTestEmailMutation = useMutation({
+      mutationFn: () => api.post('/api/recipient-experience/test-email'),
+      onSuccess: () => {
+        setTestEmailSent(true);
+        setTimeout(() => {
+          setShowTestEmailModal(false);
+          setTestEmailSent(false);
+        }, 3000);
+      },
     });
 
   const addFamilyMutation = useMutation({
@@ -301,28 +322,42 @@ export function RecipientExperience() {
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-4 mb-8 flex-wrap">
+        <div className="flex justify-center gap-2 md:gap-4 mb-8 flex-wrap">
+          <button
+            onClick={() => setActiveTab('preview')}
+            className={`px-4 md:px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
+              activeTab === 'preview' 
+                ? 'bg-gold/20 text-gold border border-gold/30' 
+                : 'glass hover:bg-paper/5'
+            }`}
+          >
+            <Eye size={18} />
+            <span className="hidden md:inline">Preview Experience</span>
+            <span className="md:hidden">Preview</span>
+          </button>
           <button
             onClick={() => setActiveTab('schedules')}
-            className={`px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
+            className={`px-4 md:px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
               activeTab === 'schedules' 
                 ? 'bg-gold/20 text-gold border border-gold/30' 
                 : 'glass hover:bg-paper/5'
             }`}
           >
             <Clock size={18} />
-            Staged Releases
+            <span className="hidden md:inline">Staged Releases</span>
+            <span className="md:hidden">Releases</span>
           </button>
           <button
             onClick={() => setActiveTab('room')}
-            className={`px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
+            className={`px-4 md:px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
               activeTab === 'room' 
                 ? 'bg-gold/20 text-gold border border-gold/30' 
                 : 'glass hover:bg-paper/5'
             }`}
           >
             <Users size={18} />
-            Memory Room
+            <span className="hidden md:inline">Memory Room</span>
+            <span className="md:hidden">Room</span>
             {pendingContributions.length > 0 && (
               <span className="w-5 h-5 rounded-full bg-gold text-void text-xs flex items-center justify-center">
                 {pendingContributions.length}
@@ -331,19 +366,188 @@ export function RecipientExperience() {
           </button>
           <button
             onClick={() => setActiveTab('family')}
-            className={`px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
+            className={`px-4 md:px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
               activeTab === 'family' 
                 ? 'bg-gold/20 text-gold border border-gold/30' 
                 : 'glass hover:bg-paper/5'
             }`}
           >
             <UserPlus size={18} />
-            Manage Recipients
+            <span className="hidden md:inline">Manage Recipients</span>
+            <span className="md:hidden">Recipients</span>
           </button>
         </div>
 
-        {/* Staged Releases Tab */}
+        {/* Tab Content */}
         <AnimatePresence mode="wait">
+          {/* Preview Experience Tab */}
+          {activeTab === 'preview' && (
+            <motion.div
+              key="preview"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              {/* What Recipients Will See */}
+              <div className="glass rounded-2xl p-6">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center text-gold">
+                    <Eye size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-medium mb-1">Preview What They'll Experience</h2>
+                    <p className="text-paper/50 text-sm">
+                      See exactly what your loved ones will receive when your legacy is activated.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Preview Card - Simulated Email */}
+                <div className="bg-void/50 rounded-xl border border-paper/10 overflow-hidden mb-6">
+                  <div className="bg-paper/5 px-4 py-3 border-b border-paper/10">
+                    <div className="flex items-center gap-2 text-sm text-paper/60">
+                      <Mail size={14} />
+                      <span>Preview: Email they'll receive</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold/60 flex items-center justify-center text-void font-medium text-lg">
+                        H
+                      </div>
+                      <div>
+                        <p className="font-medium">A Message From Someone Who Loves You</p>
+                        <p className="text-sm text-paper/50">From Heirloom</p>
+                      </div>
+                    </div>
+                    <div className="space-y-4 text-paper/70">
+                      <p>Dear loved one,</p>
+                      <p>Someone who cares deeply about you has left you messages, memories, and stories they wanted you to have.</p>
+                      <p>When you're ready, click below to access your personal legacy portal.</p>
+                    </div>
+                    <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                      <button className="px-6 py-3 bg-gold text-void rounded-lg font-medium flex items-center justify-center gap-2">
+                        <Play size={18} />
+                        Access Your Legacy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* What's Included Summary */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="p-4 bg-paper/5 rounded-xl text-center">
+                    <div className="text-2xl font-light text-gold mb-1">{memoriesStats?.total || 0}</div>
+                    <div className="text-xs text-paper/50">Total Memories</div>
+                  </div>
+                  <div className="p-4 bg-paper/5 rounded-xl text-center">
+                    <div className="text-2xl font-light text-blue-400 mb-1">{memoriesStats?.byType?.letters || 0}</div>
+                    <div className="text-xs text-paper/50">Letters</div>
+                  </div>
+                  <div className="p-4 bg-paper/5 rounded-xl text-center">
+                    <div className="text-2xl font-light text-purple-400 mb-1">{memoriesStats?.byType?.voice || 0}</div>
+                    <div className="text-xs text-paper/50">Voice Messages</div>
+                  </div>
+                  <div className="p-4 bg-paper/5 rounded-xl text-center">
+                    <div className="text-2xl font-light text-green-400 mb-1">{familyData?.members?.length || 0}</div>
+                    <div className="text-xs text-paper/50">Recipients</div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => setShowTestEmailModal(true)}
+                    className="flex-1 py-3 bg-gold/20 border border-gold/30 text-gold rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gold/30 transition-colors"
+                  >
+                    <Send size={18} />
+                    Send Test to Myself
+                  </button>
+                  <button
+                    onClick={() => window.open('/inherit/preview', '_blank')}
+                    className="flex-1 py-3 glass rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-paper/10 transition-colors"
+                  >
+                    <ExternalLink size={18} />
+                    Preview Full Portal
+                  </button>
+                </div>
+              </div>
+
+              {/* Delivery Timeline */}
+              <div className="glass rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Calendar size={20} className="text-gold" />
+                  <h3 className="font-medium">Delivery Timeline</h3>
+                </div>
+                <div className="space-y-3">
+                  {schedules.filter(s => s.enabled === 1).map((schedule, index) => (
+                    <div key={schedule.id} className="flex items-center gap-4 p-3 bg-paper/5 rounded-lg">
+                      <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-sm font-medium">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{schedule.stage_name}</p>
+                        <p className="text-xs text-paper/50">
+                          {schedule.delay_days === 0 ? 'Delivered immediately' : `Delivered after ${schedule.delay_days} days`}
+                        </p>
+                      </div>
+                      <Check size={16} className="text-green-400" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Trust & Privacy Section */}
+              <div className="glass rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Shield size={20} className="text-gold" />
+                  <h3 className="font-medium">Privacy & Control</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
+                    <Lock size={18} className="text-green-400 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">End-to-End Encrypted</p>
+                      <p className="text-xs text-paper/50">Your memories are protected with bank-level encryption</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
+                    <Users size={18} className="text-blue-400 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">You Control Access</p>
+                      <p className="text-xs text-paper/50">Only invited recipients can view your content</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
+                    <Download size={18} className="text-purple-400 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">Export Anytime</p>
+                      <p className="text-xs text-paper/50">Download all your content whenever you want</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
+                    <Trash2 size={18} className="text-red-400 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-sm">Delete Permanently</p>
+                      <p className="text-xs text-paper/50">Remove any content at any time, no questions asked</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* What Happens Next */}
+              <div className="glass rounded-xl p-4 flex items-start gap-3 text-sm">
+                <AlertCircle size={18} className="text-gold mt-0.5 flex-shrink-0" />
+                <div className="text-paper/60">
+                  <p className="font-medium text-paper mb-1">What happens when your legacy is activated?</p>
+                  <p>Your designated recipients will receive an email with a secure link to access the content you've prepared for them. Content is released in stages to help them process gradually. You can change these settings anytime.</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Staged Releases Tab */}
           {activeTab === 'schedules' && (
             <motion.div
               key="schedules"
@@ -921,6 +1125,70 @@ export function RecipientExperience() {
                       )}
                     </button>
                   </div>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Test Email Modal */}
+      <AnimatePresence>
+        {showTestEmailModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowTestEmailModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass rounded-2xl p-6 max-w-md w-full"
+              onClick={e => e.stopPropagation()}
+            >
+              {testEmailSent ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <CheckCircle size={32} className="text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">Test Email Sent!</h3>
+                  <p className="text-paper/60">Check your inbox to see exactly what your recipients will receive.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-medium">Send Test Email</h3>
+                    <button onClick={() => setShowTestEmailModal(false)} className="text-paper/50 hover:text-paper">
+                      <X size={24} />
+                    </button>
+                  </div>
+
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center">
+                      <Mail size={32} className="text-gold" />
+                    </div>
+                    <p className="text-paper/60 text-sm mb-6">
+                      We'll send you a sample of the email your recipients will receive when your legacy is activated. This helps you see exactly what they'll experience.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => sendTestEmailMutation.mutate()}
+                    disabled={sendTestEmailMutation.isPending}
+                    className="w-full py-3 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {sendTestEmailMutation.isPending ? (
+                      <div className="animate-spin w-5 h-5 border-2 border-void border-t-transparent rounded-full" />
+                    ) : (
+                      <>
+                        <Send size={18} />
+                        Send Test to My Email
+                      </>
+                    )}
+                  </button>
                 </>
               )}
             </motion.div>

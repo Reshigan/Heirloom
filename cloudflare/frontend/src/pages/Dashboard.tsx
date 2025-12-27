@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles, Gift, Copy, Heart
+  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles, Gift, Copy, Heart, Lock, Download, Users, Eye
 } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi, referralApi } from '../services/api';
@@ -806,6 +806,60 @@ export function Dashboard() {
             </div>
           </motion.section>
         )}
+
+        {/* Trust & Security Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
+          className="mb-16 md:mb-20"
+        >
+          <div className="glass rounded-xl p-6 border border-paper/10">
+            <div className="flex items-center gap-3 mb-4">
+              <Shield size={20} className="text-gold" />
+              <h3 className="font-medium">Your Legacy is Protected</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
+                <Lock size={16} className="text-green-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">Encrypted</p>
+                  <p className="text-xs text-paper/50">Bank-level security</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
+                <Users size={16} className="text-blue-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">You Control</p>
+                  <p className="text-xs text-paper/50">Who sees what</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
+                <Download size={16} className="text-purple-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">Export</p>
+                  <p className="text-xs text-paper/50">Download anytime</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
+                <Eye size={16} className="text-gold mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">Preview</p>
+                  <p className="text-xs text-paper/50">See what they'll see</p>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/recipient-experience')}
+              className="mt-4 text-sm text-gold hover:text-gold/80 transition-colors flex items-center gap-1"
+            >
+              Preview recipient experience
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </motion.section>
 
         {/* Reflection Card - AI Prompt */}
         <motion.section

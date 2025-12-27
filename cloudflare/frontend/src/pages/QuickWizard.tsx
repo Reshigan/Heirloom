@@ -4,10 +4,46 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { 
   ChevronLeft, Mic, Edit3, User, Sparkles, 
-  Play, Calendar, Loader2, Heart
+  Play, Calendar, Loader2, Heart, Clock, Gift, Star
 } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { familyApi } from '../services/api';
+
+// Template options for quick start
+const TEMPLATES = [
+  {
+    id: 'birthday',
+    name: 'Birthday Message',
+    icon: Gift,
+    color: 'pink',
+    description: 'A heartfelt message for their special day',
+    defaultPrompt: 'What I want you to know on your birthday...',
+  },
+  {
+    id: 'if-not-here',
+    name: 'If I\'m Not Here',
+    icon: Heart,
+    color: 'purple',
+    description: 'Words of comfort for when you\'re gone',
+    defaultPrompt: 'If I\'m not there to tell you this in person...',
+  },
+  {
+    id: 'story',
+    name: 'A Story You Should Know',
+    icon: Star,
+    color: 'gold',
+    description: 'Share a memory or life lesson',
+    defaultPrompt: 'There\'s a story I\'ve never told you...',
+  },
+  {
+    id: 'proud',
+    name: 'Why I\'m Proud of You',
+    icon: Sparkles,
+    color: 'blue',
+    description: 'Celebrate who they are',
+    defaultPrompt: 'I want you to know how proud I am of you because...',
+  },
+];
 
 // @ts-ignore - Vite env types
 const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue';
@@ -26,7 +62,7 @@ interface PersonPrompt {
   category: string;
 }
 
-type WizardStep = 'person' | 'type' | 'prompt' | 'create' | 'preview';
+type WizardStep = 'person' | 'template' | 'type' | 'prompt' | 'create' | 'preview';
 type ContentType = 'voice' | 'letter';
 
 export function QuickWizard() {
@@ -35,6 +71,8 @@ export function QuickWizard() {
   
   const [step, setStep] = useState<WizardStep>('person');
   const [selectedPerson, setSelectedPerson] = useState<FamilyMember | null>(null);
+  const [_selectedTemplate, setSelectedTemplate] = useState<typeof TEMPLATES[0] | null>(null);
+  void _selectedTemplate; // Used for future template display in preview
   const [contentType, setContentType] = useState<ContentType | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<PersonPrompt[]>([]);
@@ -90,6 +128,12 @@ export function QuickWizard() {
   
   const handlePersonSelect = (person: FamilyMember) => {
     setSelectedPerson(person);
+    setStep('template');
+  };
+
+  const handleTemplateSelect = (template: typeof TEMPLATES[0]) => {
+    setSelectedTemplate(template);
+    setSelectedPrompt(template.defaultPrompt);
     setStep('type');
   };
   
@@ -124,9 +168,13 @@ export function QuickWizard() {
   
   const goBack = () => {
     switch (step) {
-      case 'type':
+      case 'template':
         setStep('person');
         setSelectedPerson(null);
+        break;
+      case 'type':
+        setStep('template');
+        setSelectedTemplate(null);
         break;
       case 'prompt':
         setStep('type');
@@ -146,10 +194,11 @@ export function QuickWizard() {
   
   const stepNumber = {
     person: 1,
-    type: 2,
-    prompt: 3,
-    create: 4,
-    preview: 4,
+    template: 2,
+    type: 3,
+    prompt: 4,
+    create: 5,
+    preview: 5,
   };
   
   const familyMembers = Array.isArray(family) ? family : [];
@@ -168,14 +217,17 @@ export function QuickWizard() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-paper/50">Step {stepNumber[step]} of 4</span>
-            <span className="text-sm text-paper/50">60-Second Message</span>
+            <span className="text-sm text-paper/50">Step {stepNumber[step]} of 5</span>
+            <div className="flex items-center gap-2 text-sm text-paper/50">
+              <Clock size={14} />
+              <span>~3 minutes</span>
+            </div>
           </div>
           <div className="h-1 bg-paper/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gold"
               initial={{ width: 0 }}
-              animate={{ width: `${(stepNumber[step] / 4) * 100}%` }}
+              animate={{ width: `${(stepNumber[step] / 5) * 100}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -241,8 +293,81 @@ export function QuickWizard() {
               )}
             </motion.div>
           )}
+
+          {/* Step 2: Select Template */}
+          {step === 'template' && (
+            <motion.div
+              key="template"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 text-paper/50 hover:text-gold transition-colors mb-6"
+              >
+                <ChevronLeft size={20} />
+                Back
+              </button>
+              
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden">
+                  {selectedPerson?.avatarUrl ? (
+                    <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-xl font-medium">
+                      {selectedPerson?.name[0]}
+                    </div>
+                  )}
+                </div>
+                <h1 className="text-2xl md:text-3xl font-light mb-2">
+                  What would you like to tell <span className="text-gold">{selectedPerson?.name}</span>?
+                </h1>
+                <p className="text-paper/50">
+                  Pick a template to get started quickly
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                {TEMPLATES.map((template) => {
+                  const IconComponent = template.icon;
+                  const colorClasses = {
+                    pink: 'bg-pink-500/20 text-pink-400 border-pink-500/30 hover:border-pink-500/50',
+                    purple: 'bg-purple-500/20 text-purple-400 border-purple-500/30 hover:border-purple-500/50',
+                    gold: 'bg-gold/20 text-gold border-gold/30 hover:border-gold/50',
+                    blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30 hover:border-blue-500/50',
+                  };
+                  return (
+                    <motion.button
+                      key={template.id}
+                      onClick={() => handleTemplateSelect(template)}
+                      className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 text-left ${colorClasses[template.color as keyof typeof colorClasses]}`}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                    >
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorClasses[template.color as keyof typeof colorClasses].split(' ').slice(0, 2).join(' ')}`}>
+                        <IconComponent size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium mb-0.5">{template.name}</h3>
+                        <p className="text-sm text-paper/50">{template.description}</p>
+                      </div>
+                      <ChevronLeft size={20} className="rotate-180 text-paper/30" />
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 p-4 glass rounded-xl flex items-start gap-3 text-sm">
+                <Sparkles size={18} className="text-gold mt-0.5 flex-shrink-0" />
+                <p className="text-paper/60">
+                  Each template includes AI-suggested prompts to help you express what matters most. You can always customize or write your own.
+                </p>
+              </div>
+            </motion.div>
+          )}
           
-          {/* Step 2: Select Type */}
+          {/* Step 3: Select Type */}
           {step === 'type' && (
             <motion.div
               key="type"
