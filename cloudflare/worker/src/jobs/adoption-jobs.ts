@@ -389,7 +389,7 @@ export async function processInfluencerOutreach(env: Env) {
     SELECT i.*, 
            (SELECT COUNT(*) FROM marketing_outreach WHERE influencer_id = i.id) as outreach_count
     FROM influencers i
-    WHERE i.status = 'active'
+    WHERE i.status = 'NEW'
     AND i.email IS NOT NULL
     AND i.email != ''
     AND i.id NOT IN (
@@ -422,6 +422,11 @@ export async function processInfluencerOutreach(env: Env) {
         VALUES (?, ?, ?, ?, ?, 'SENT', ?)
       `).bind(crypto.randomUUID(), influencer.id, influencer.email, emailContent.subject, emailContent.html, nowISO).run();
       
+      // Update influencer status to CONTACTED
+      await env.DB.prepare(`
+        UPDATE influencers SET status = 'CONTACTED', updated_at = ? WHERE id = ?
+      `).bind(nowISO, influencer.id).run();
+      
       sent++;
     } catch (error) {
       console.error(`Error sending outreach to ${influencer.email}:`, error);
@@ -448,7 +453,7 @@ export async function processProspectOutreach(env: Env) {
     SELECT i.id, i.name, i.email, i.segment, i.follower_count,
            (SELECT COUNT(*) FROM marketing_outreach WHERE influencer_id = i.id) as outreach_count
     FROM influencers i
-    WHERE i.status = 'active'
+    WHERE i.status = 'NEW'
     AND i.email IS NOT NULL
     AND i.email != ''
     AND i.id NOT IN (
@@ -496,6 +501,11 @@ export async function processProspectOutreach(env: Env) {
         INSERT INTO marketing_outreach (id, influencer_id, email_to, subject, body, status, sent_at)
         VALUES (?, ?, ?, ?, ?, 'SENT', ?)
       `).bind(crypto.randomUUID(), prospect.id, prospect.email, emailContent.subject, emailContent.html, nowISO).run();
+      
+      // Update prospect status to CONTACTED
+      await env.DB.prepare(`
+        UPDATE influencers SET status = 'CONTACTED', updated_at = ? WHERE id = ?
+      `).bind(nowISO, prospect.id).run();
       
       sent++;
     } catch (error) {
