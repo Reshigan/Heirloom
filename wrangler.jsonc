@@ -16,7 +16,8 @@
     {
       "binding": "DB",
       "database_name": "heirloom-db",
-      "database_id": "4a228f5e-5ab9-4337-80d7-ebdb4eca0b7d"
+      "database_id": "4a228f5e-5ab9-4337-80d7-ebdb4eca0b7d",
+      "migrations_dir": "cloudflare/migrations"
     }
   ],
   
