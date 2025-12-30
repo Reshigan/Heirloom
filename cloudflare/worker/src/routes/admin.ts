@@ -2004,6 +2004,194 @@ adminRoutes.get('/analytics/usage', adminAuth, async (c) => {
 });
 
 // ============================================
+// MARKETING CONVERSION ANALYTICS
+// ============================================
+
+// Get marketing conversion analytics - automated vs direct channels
+adminRoutes.get('/analytics/marketing', adminAuth, async (c) => {
+  // Email campaign performance
+  const emailStats = await c.env.DB.prepare(`
+    SELECT 
+      email_type,
+      COUNT(*) as sent,
+      SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered,
+      SUM(CASE WHEN status = 'opened' THEN 1 ELSE 0 END) as opened,
+      SUM(CASE WHEN status = 'clicked' THEN 1 ELSE 0 END) as clicked,
+      SUM(CASE WHEN status = 'bounced' THEN 1 ELSE 0 END) as bounced
+    FROM email_logs
+    WHERE sent_at > datetime('now', '-30 days')
+    GROUP BY email_type
+    ORDER BY sent DESC
+  `).all();
+
+  // Voucher/gift card performance
+  const voucherStats = await c.env.DB.prepare(`
+    SELECT 
+      voucher_type,
+      plan_type,
+      COUNT(*) as total_created,
+      SUM(CASE WHEN status = 'REDEEMED' THEN 1 ELSE 0 END) as redeemed,
+      SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) as pending,
+      SUM(CASE WHEN status = 'EXPIRED' THEN 1 ELSE 0 END) as expired
+    FROM gift_vouchers
+    WHERE created_at > datetime('now', '-30 days')
+    GROUP BY voucher_type, plan_type
+  `).all();
+
+  // Influencer outreach performance
+  const influencerStats = await c.env.DB.prepare(`
+    SELECT 
+      outreach_type,
+      COUNT(*) as total_sent,
+      COUNT(DISTINCT influencer_id) as unique_influencers
+    FROM influencer_outreach
+    WHERE sent_at > datetime('now', '-30 days')
+    GROUP BY outreach_type
+  `).all();
+
+  // Drip campaign performance
+  const dripStats = await c.env.DB.prepare(`
+    SELECT 
+      campaign_type,
+      COUNT(*) as total_users,
+      SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+      SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+      SUM(CASE WHEN status = 'unsubscribed' THEN 1 ELSE 0 END) as unsubscribed,
+      AVG(emails_sent) as avg_emails_sent
+    FROM drip_campaigns
+    GROUP BY campaign_type
+  `).all();
+
+  // User acquisition by channel (based on how they signed up)
+  const acquisitionByChannel = await c.env.DB.prepare(`
+    SELECT 
+      CASE 
+        WHEN gv.id IS NOT NULL THEN 'voucher'
+        WHEN fi.id IS NOT NULL THEN 'family_invite'
+        ELSE 'direct'
+      END as channel,
+      COUNT(DISTINCT u.id) as users,
+      COUNT(DISTINCT CASE WHEN s.status = 'ACTIVE' AND s.tier != 'FREE' THEN u.id END) as paid_conversions
+    FROM users u
+    LEFT JOIN gift_vouchers gv ON u.email = gv.recipient_email AND gv.status = 'REDEEMED'
+    LEFT JOIN family_invites fi ON u.email = fi.invitee_email AND fi.status = 'accepted'
+    LEFT JOIN subscriptions s ON u.id = s.user_id
+    WHERE u.created_at > datetime('now', '-30 days')
+    GROUP BY channel
+  `).all();
+
+  // Conversion funnel by source
+  const conversionFunnel = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(*) as total_vouchers_sent,
+      SUM(CASE WHEN status = 'REDEEMED' THEN 1 ELSE 0 END) as vouchers_redeemed,
+      (SELECT COUNT(DISTINCT user_id) FROM memories m 
+       JOIN users u ON m.user_id = u.id 
+       JOIN gift_vouchers gv ON u.email = gv.recipient_email 
+       WHERE gv.status = 'REDEEMED') as created_content,
+      (SELECT COUNT(DISTINCT s.user_id) FROM subscriptions s 
+       JOIN users u ON s.user_id = u.id 
+       JOIN gift_vouchers gv ON u.email = gv.recipient_email 
+       WHERE gv.status = 'REDEEMED' AND s.tier != 'FREE' AND s.status = 'ACTIVE') as paid_subscribers
+    FROM gift_vouchers
+    WHERE created_at > datetime('now', '-90 days')
+  `).first();
+
+  // Daily marketing activity (last 30 days)
+  const dailyMarketingActivity = await c.env.DB.prepare(`
+    SELECT 
+      date(sent_at) as date,
+      COUNT(*) as emails_sent,
+      SUM(CASE WHEN email_type LIKE 'DRIP%' THEN 1 ELSE 0 END) as drip_emails,
+      SUM(CASE WHEN email_type LIKE 'PROSPECT%' THEN 1 ELSE 0 END) as prospect_emails,
+      SUM(CASE WHEN email_type LIKE 'VOUCHER%' THEN 1 ELSE 0 END) as voucher_emails
+    FROM email_logs
+    WHERE sent_at > datetime('now', '-30 days')
+    GROUP BY date
+    ORDER BY date
+  `).all();
+
+  // Automated vs manual comparison
+  const automatedVsManual = await c.env.DB.prepare(`
+    SELECT 
+      CASE 
+        WHEN email_type IN ('DRIP_WELCOME', 'DRIP_INACTIVE', 'DRIP_REACTIVATION', 'PROSPECT_OUTREACH', 'VOUCHER_FOLLOWUP_1', 'VOUCHER_FOLLOWUP_2', 'DATE_REMINDER', 'CONTENT_PROMPT', 'STREAK_REMINDER') THEN 'automated'
+        ELSE 'manual'
+      END as source,
+      COUNT(*) as total_sent,
+      COUNT(DISTINCT recipient_email) as unique_recipients
+    FROM email_logs
+    WHERE sent_at > datetime('now', '-30 days')
+    GROUP BY source
+  `).all();
+
+  // Calculate conversion rates
+  const totalVouchers = (conversionFunnel?.total_vouchers_sent as number) || 0;
+  const redeemedVouchers = (conversionFunnel?.vouchers_redeemed as number) || 0;
+  const contentCreators = (conversionFunnel?.created_content as number) || 0;
+  const paidSubscribers = (conversionFunnel?.paid_subscribers as number) || 0;
+
+  return c.json({
+    emailPerformance: emailStats.results.map((r: any) => ({
+      type: r.email_type,
+      sent: r.sent,
+      delivered: r.delivered || 0,
+      opened: r.opened || 0,
+      clicked: r.clicked || 0,
+      bounced: r.bounced || 0,
+      openRate: r.delivered > 0 ? ((r.opened || 0) / r.delivered * 100).toFixed(1) : '0',
+      clickRate: r.opened > 0 ? ((r.clicked || 0) / r.opened * 100).toFixed(1) : '0',
+    })),
+    voucherPerformance: voucherStats.results.map((r: any) => ({
+      type: r.voucher_type,
+      plan: r.plan_type,
+      created: r.total_created,
+      redeemed: r.redeemed || 0,
+      pending: r.pending || 0,
+      expired: r.expired || 0,
+      redemptionRate: r.total_created > 0 ? ((r.redeemed || 0) / r.total_created * 100).toFixed(1) : '0',
+    })),
+    influencerOutreach: influencerStats.results.map((r: any) => ({
+      type: r.outreach_type,
+      sent: r.total_sent,
+      uniqueInfluencers: r.unique_influencers,
+    })),
+    dripCampaigns: dripStats.results.map((r: any) => ({
+      type: r.campaign_type,
+      totalUsers: r.total_users,
+      active: r.active || 0,
+      completed: r.completed || 0,
+      unsubscribed: r.unsubscribed || 0,
+      avgEmailsSent: parseFloat(r.avg_emails_sent || 0).toFixed(1),
+      completionRate: r.total_users > 0 ? ((r.completed || 0) / r.total_users * 100).toFixed(1) : '0',
+    })),
+    acquisitionByChannel: acquisitionByChannel.results.map((r: any) => ({
+      channel: r.channel,
+      users: r.users,
+      paidConversions: r.paid_conversions || 0,
+      conversionRate: r.users > 0 ? ((r.paid_conversions || 0) / r.users * 100).toFixed(1) : '0',
+    })),
+    conversionFunnel: {
+      vouchersSent: totalVouchers,
+      vouchersRedeemed: redeemedVouchers,
+      redemptionRate: totalVouchers > 0 ? (redeemedVouchers / totalVouchers * 100).toFixed(1) : '0',
+      contentCreators: contentCreators,
+      contentRate: redeemedVouchers > 0 ? (contentCreators / redeemedVouchers * 100).toFixed(1) : '0',
+      paidSubscribers: paidSubscribers,
+      paidRate: contentCreators > 0 ? (paidSubscribers / contentCreators * 100).toFixed(1) : '0',
+    },
+    dailyActivity: dailyMarketingActivity.results,
+    automatedVsManual: automatedVsManual.results.reduce((acc: any, r: any) => {
+      acc[r.source] = {
+        totalSent: r.total_sent,
+        uniqueRecipients: r.unique_recipients,
+      };
+      return acc;
+    }, {}),
+  });
+});
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
