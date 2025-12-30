@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnouncementEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps } from '../jobs/adoption-jobs';
 
 export const adminRoutes = new Hono<AppEnv>();
 
@@ -2189,6 +2190,115 @@ adminRoutes.get('/analytics/marketing', adminAuth, async (c) => {
       return acc;
     }, {}),
   });
+});
+
+// ============================================
+// RUN ADOPTION JOBS MANUALLY
+// ============================================
+
+adminRoutes.post('/run-adoption-jobs', adminAuth, async (c) => {
+  const results: Record<string, any> = {};
+  const errors: string[] = [];
+  
+  try {
+    console.log('Running adoption jobs manually...');
+    
+    // 1. Process drip campaigns
+    try {
+      const dripResult = await processDripCampaigns(c.env);
+      results.dripCampaigns = dripResult;
+      console.log(`Drip campaigns processed: ${dripResult.processed}`);
+    } catch (e: any) {
+      errors.push(`Drip campaigns: ${e.message}`);
+    }
+    
+    // 2. Start welcome campaigns for new users
+    try {
+      const welcomeResult = await startWelcomeCampaigns(c.env);
+      results.welcomeCampaigns = welcomeResult;
+      console.log(`Welcome campaigns started: ${welcomeResult.started}`);
+    } catch (e: any) {
+      errors.push(`Welcome campaigns: ${e.message}`);
+    }
+    
+    // 3. Process inactive user re-engagement
+    try {
+      const inactiveResult = await processInactiveUsers(c.env);
+      results.inactiveUsers = inactiveResult;
+      console.log(`Inactive user campaigns started: ${inactiveResult.started}`);
+    } catch (e: any) {
+      errors.push(`Inactive users: ${e.message}`);
+    }
+    
+    // 4. Send date reminders (birthdays, anniversaries)
+    try {
+      const dateResult = await sendDateReminders(c.env);
+      results.dateReminders = dateResult;
+      console.log(`Date reminders processed: ${dateResult.processed}`);
+    } catch (e: any) {
+      errors.push(`Date reminders: ${e.message}`);
+    }
+    
+    // 5. Process streak maintenance
+    try {
+      const streakResult = await processStreakMaintenance(c.env);
+      results.streakMaintenance = streakResult;
+      console.log(`Streaks reset: ${streakResult.reset}`);
+    } catch (e: any) {
+      errors.push(`Streak maintenance: ${e.message}`);
+    }
+    
+    // 6. Process influencer outreach
+    try {
+      const influencerResult = await processInfluencerOutreach(c.env);
+      results.influencerOutreach = influencerResult;
+      console.log(`Influencer outreach sent: ${influencerResult.sent}`);
+    } catch (e: any) {
+      errors.push(`Influencer outreach: ${e.message}`);
+    }
+    
+    // 7. Process prospect outreach with trial vouchers
+    try {
+      const prospectResult = await processProspectOutreach(c.env);
+      results.prospectOutreach = prospectResult;
+      console.log(`Prospect outreach sent: ${prospectResult.sent}, vouchers created: ${prospectResult.vouchersCreated}`);
+    } catch (e: any) {
+      errors.push(`Prospect outreach: ${e.message}`);
+    }
+    
+    // 8. Send voucher follow-ups
+    try {
+      const voucherFollowUpResult = await sendVoucherFollowUps(c.env);
+      results.voucherFollowUps = voucherFollowUpResult;
+      console.log(`Voucher follow-ups sent: ${voucherFollowUpResult.sent}`);
+    } catch (e: any) {
+      errors.push(`Voucher follow-ups: ${e.message}`);
+    }
+    
+    // 9. Send content prompts
+    try {
+      const promptResult = await sendContentPrompts(c.env);
+      results.contentPrompts = promptResult;
+      console.log(`Content prompts sent: ${promptResult.sent}`);
+    } catch (e: any) {
+      errors.push(`Content prompts: ${e.message}`);
+    }
+    
+    console.log('Adoption jobs complete.');
+    
+    // Log audit action
+    await logAuditAction(c.env, c.get('adminId'), 'RUN_ADOPTION_JOBS', { results, errors });
+    
+    return c.json({
+      success: true,
+      message: 'Adoption jobs executed',
+      results,
+      errors: errors.length > 0 ? errors : undefined,
+    });
+  } catch (error: any) {
+    console.error('Error running adoption jobs:', error);
+    return c.json({ error: 'Failed to run adoption jobs', details: error.message }, 500);
+  }
 });
 
 // ============================================
