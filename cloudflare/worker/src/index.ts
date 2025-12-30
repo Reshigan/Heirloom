@@ -36,7 +36,7 @@ import { announcementsRoutes } from './routes/announcements';
 import engagementRoutes from './routes/engagement';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
-import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps } from './jobs/adoption-jobs';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects } from './jobs/adoption-jobs';
 
 // Types
 export interface Env {
@@ -769,6 +769,11 @@ export default {
       console.log('Sending weekly content prompts...');
       const promptResult = await sendContentPrompts(env);
       console.log(`Content prompts sent: ${promptResult.sent}`);
+      
+      // Discover new prospects from curated list
+      console.log('Discovering new prospects...');
+      const discoveryResult = await discoverNewProspects(env);
+      console.log(`Prospects discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
       
       console.log('Weekly jobs complete.');
       

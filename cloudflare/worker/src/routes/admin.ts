@@ -7,7 +7,7 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnouncementEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
-import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps } from '../jobs/adoption-jobs';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects } from '../jobs/adoption-jobs';
 
 export const adminRoutes = new Hono<AppEnv>();
 
@@ -2282,6 +2282,15 @@ adminRoutes.post('/run-adoption-jobs', adminAuth, async (c) => {
       console.log(`Content prompts sent: ${promptResult.sent}`);
     } catch (e: any) {
       errors.push(`Content prompts: ${e.message}`);
+    }
+    
+    // 10. Discover new prospects from curated list
+    try {
+      const discoveryResult = await discoverNewProspects(c.env);
+      results.prospectDiscovery = discoveryResult;
+      console.log(`Prospects discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
+    } catch (e: any) {
+      errors.push(`Prospect discovery: ${e.message}`);
     }
     
     console.log('Adoption jobs complete.');
