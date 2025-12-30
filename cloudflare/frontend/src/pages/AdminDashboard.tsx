@@ -160,6 +160,13 @@ export function AdminDashboard() {
       enabled: activeTab === 'gold-legacy',
     });
 
+    const { data: usageAnalytics } = useQuery({
+      queryKey: ['admin-usage-analytics'],
+      queryFn: () => adminApi.getUsageAnalytics().then(r => r.data),
+      enabled: activeTab === 'usage',
+      refetchInterval: 60000,
+    });
+
     const [showVoucherModal, setShowVoucherModal] = useState(false);
     const [showGoldLegacyModal, setShowGoldLegacyModal] = useState(false);
 
@@ -173,6 +180,7 @@ export function AdminDashboard() {
 
     const tabs = [
       { id: 'overview', label: 'Overview', icon: BarChart3 },
+      { id: 'usage', label: 'Usage', icon: Activity },
       { id: 'marketing', label: 'Marketing', icon: Target },
       { id: 'users', label: 'Users', icon: Users },
       { id: 'coupons', label: 'Coupons', icon: Tag },
@@ -323,6 +331,216 @@ export function AdminDashboard() {
                   </div>
                   <div className="text-paper/50 text-sm">Discounts Given (30d)</div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Usage Analytics Tab */}
+        {activeTab === 'usage' && (
+          <div className="space-y-8">
+            <h2 className="text-xl">Usage Analytics</h2>
+            
+            {/* Engagement Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="card p-4">
+                <div className="text-3xl text-gold mb-1">{usageAnalytics?.engagement?.totalUsers || 0}</div>
+                <div className="text-paper/50 text-sm">Total Users</div>
+              </div>
+              <div className="card p-4">
+                <div className="text-3xl text-green-400 mb-1">{usageAnalytics?.engagement?.activeToday || 0}</div>
+                <div className="text-paper/50 text-sm">Active Today</div>
+              </div>
+              <div className="card p-4">
+                <div className="text-3xl text-blue-400 mb-1">{usageAnalytics?.engagement?.active7d || 0}</div>
+                <div className="text-paper/50 text-sm">Active (7 days)</div>
+              </div>
+              <div className="card p-4">
+                <div className="text-3xl text-purple-400 mb-1">{usageAnalytics?.engagement?.active30d || 0}</div>
+                <div className="text-paper/50 text-sm">Active (30 days)</div>
+              </div>
+              <div className="card p-4">
+                <div className="text-3xl text-blood mb-1">{usageAnalytics?.engagement?.dormant || 0}</div>
+                <div className="text-paper/50 text-sm">Dormant</div>
+              </div>
+            </div>
+
+            {/* User Funnel */}
+            <div className="card">
+              <h3 className="text-lg mb-4">User Funnel</h3>
+              <div className="space-y-3">
+                {[
+                  { label: 'Registered', value: usageAnalytics?.funnel?.registered || 0, color: 'bg-gold' },
+                  { label: 'Email Verified', value: usageAnalytics?.funnel?.verified || 0, color: 'bg-blue-400' },
+                  { label: 'Subscribed', value: usageAnalytics?.funnel?.subscribed || 0, color: 'bg-green-400' },
+                  { label: 'Created Memory', value: usageAnalytics?.funnel?.createdMemory || 0, color: 'bg-purple-400' },
+                  { label: 'Added Family', value: usageAnalytics?.funnel?.addedFamily || 0, color: 'bg-pink-400' },
+                  { label: 'Added Legacy Contact', value: usageAnalytics?.funnel?.addedLegacyContact || 0, color: 'bg-orange-400' },
+                ].map((step, i) => {
+                  const maxValue = usageAnalytics?.funnel?.registered || 1;
+                  const percentage = Math.round((step.value / maxValue) * 100);
+                  return (
+                    <div key={i} className="flex items-center gap-4">
+                      <div className="w-40 text-paper/70 text-sm">{step.label}</div>
+                      <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
+                        <div 
+                          className={`h-full ${step.color} transition-all duration-500`}
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                      <div className="w-20 text-right">
+                        <span className="text-paper">{step.value}</span>
+                        <span className="text-paper/50 text-sm ml-1">({percentage}%)</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Content Engagement */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Content Engagement</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithContent || 0}</div>
+                  <div className="text-paper/50 text-sm">Users with Content</div>
+                  <div className="text-xs text-paper/30 mt-1">
+                    {Math.round(((usageAnalytics?.contentEngagement?.usersWithContent || 0) / (usageAnalytics?.contentEngagement?.totalUsers || 1)) * 100)}% of users
+                  </div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithMemories || 0}</div>
+                  <div className="text-paper/50 text-sm">With Memories</div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithLetters || 0}</div>
+                  <div className="text-paper/50 text-sm">With Letters</div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithVoice || 0}</div>
+                  <div className="text-paper/50 text-sm">With Voice</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Activity by Hour */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Activity by Hour of Day (Last 30 Days)</h3>
+              <div className="flex items-end gap-1 h-32">
+                {Array.from({ length: 24 }, (_, hour) => {
+                  const data = usageAnalytics?.activityByHour?.find((h: any) => h.hour === hour);
+                  const count = data?.logins || 0;
+                  const maxLogins = Math.max(...(usageAnalytics?.activityByHour?.map((h: any) => h.logins) || [1]));
+                  const height = maxLogins > 0 ? (count / maxLogins) * 100 : 0;
+                  return (
+                    <div key={hour} className="flex-1 flex flex-col items-center">
+                      <div 
+                        className="w-full bg-gold/60 hover:bg-gold transition-colors rounded-t"
+                        style={{ height: `${Math.max(height, 2)}%` }}
+                        title={`${hour}:00 - ${count} logins`}
+                      />
+                      {hour % 4 === 0 && (
+                        <div className="text-xs text-paper/30 mt-1">{hour}h</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="text-xs text-paper/50 mt-2 text-center">Hour of day (UTC)</div>
+            </div>
+
+            {/* Activity by Day of Week */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Activity by Day of Week (Last 30 Days)</h3>
+              <div className="flex items-end gap-2 h-32">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => {
+                  const data = usageAnalytics?.activityByDay?.find((d: any) => d.dayNum === i);
+                  const count = data?.logins || 0;
+                  const maxLogins = Math.max(...(usageAnalytics?.activityByDay?.map((d: any) => d.logins) || [1]));
+                  const height = maxLogins > 0 ? (count / maxLogins) * 100 : 0;
+                  return (
+                    <div key={day} className="flex-1 flex flex-col items-center">
+                      <div 
+                        className="w-full bg-blue-400/60 hover:bg-blue-400 transition-colors rounded-t"
+                        style={{ height: `${Math.max(height, 5)}%` }}
+                        title={`${day} - ${count} logins`}
+                      />
+                      <div className="text-xs text-paper/50 mt-2">{day}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Reminder/Dead Man Switch Status */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Dead Man's Switch Status</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-green-400 mb-1">{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
+                  <div className="text-paper/50 text-sm">Active Switches</div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-yellow-400 mb-1">{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
+                  <div className="text-paper/50 text-sm">Warning Status</div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="text-2xl text-blood mb-1">{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
+                  <div className="text-paper/50 text-sm">Triggered</div>
+                </div>
+              </div>
+              <p className="text-paper/50 text-sm mt-4">
+                Reminder emails are sent via scheduled cron jobs. Check that CRON_ENABLED=true is set in your worker environment.
+              </p>
+            </div>
+
+            {/* Recent Sessions */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Recent User Sessions</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">User</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Email</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Tier</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Memories</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Letters</th>
+                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Last Login</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usageAnalytics?.recentSessions?.map((session: any) => (
+                      <tr key={session.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                        <td className="py-3 px-4 text-paper">{session.name}</td>
+                        <td className="py-3 px-4 text-paper/70">{session.email}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            session.tier === 'FOREVER' ? 'bg-gold/20 text-gold' :
+                            session.tier === 'FAMILY' ? 'bg-blue-500/20 text-blue-400' :
+                            session.tier === 'STARTER' ? 'bg-green-500/20 text-green-400' :
+                            'bg-white/10 text-paper/50'
+                          }`}>
+                            {session.tier}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-paper/70">{session.memoryCount}</td>
+                        <td className="py-3 px-4 text-paper/70">{session.letterCount}</td>
+                        <td className="py-3 px-4 text-paper/50 text-sm">
+                          {session.lastLogin ? new Date(session.lastLogin).toLocaleString() : 'Never'}
+                        </td>
+                      </tr>
+                    ))}
+                    {(!usageAnalytics?.recentSessions || usageAnalytics.recentSessions.length === 0) && (
+                      <tr>
+                        <td colSpan={6} className="text-center py-8 text-paper/50">
+                          No recent sessions
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

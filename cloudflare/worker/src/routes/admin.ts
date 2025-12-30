@@ -1821,6 +1821,189 @@ adminRoutes.post('/notifications/new-user-features', adminAuth, async (c) => {
 });
 
 // ============================================
+// USAGE ANALYTICS
+// ============================================
+
+// Get detailed usage analytics - when users are active, what they're doing
+adminRoutes.get('/analytics/usage', adminAuth, async (c) => {
+  // Activity by hour of day (last 30 days)
+  const activityByHour = await c.env.DB.prepare(`
+    SELECT 
+      strftime('%H', last_login_at) as hour,
+      COUNT(*) as logins
+    FROM users
+    WHERE last_login_at > datetime('now', '-30 days')
+    GROUP BY hour
+    ORDER BY hour
+  `).all();
+
+  // Activity by day of week (last 30 days)
+  const activityByDay = await c.env.DB.prepare(`
+    SELECT 
+      strftime('%w', last_login_at) as day_of_week,
+      COUNT(*) as logins
+    FROM users
+    WHERE last_login_at > datetime('now', '-30 days')
+    GROUP BY day_of_week
+    ORDER BY day_of_week
+  `).all();
+
+  // Daily active users trend (last 30 days)
+  const dailyActiveUsers = await c.env.DB.prepare(`
+    SELECT 
+      date(last_login_at) as date,
+      COUNT(DISTINCT id) as active_users
+    FROM users
+    WHERE last_login_at > datetime('now', '-30 days')
+    GROUP BY date
+    ORDER BY date
+  `).all();
+
+  // Content creation activity (last 30 days)
+  const contentActivity = await c.env.DB.prepare(`
+    SELECT 
+      date(created_at) as date,
+      'memory' as type,
+      COUNT(*) as count
+    FROM memories
+    WHERE created_at > datetime('now', '-30 days')
+    GROUP BY date
+    UNION ALL
+    SELECT 
+      date(created_at) as date,
+      'letter' as type,
+      COUNT(*) as count
+    FROM letters
+    WHERE created_at > datetime('now', '-30 days')
+    GROUP BY date
+    UNION ALL
+    SELECT 
+      date(created_at) as date,
+      'voice' as type,
+      COUNT(*) as count
+    FROM voice_recordings
+    WHERE created_at > datetime('now', '-30 days')
+    GROUP BY date
+    ORDER BY date
+  `).all();
+
+  // User engagement metrics
+  const engagementMetrics = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(*) as total_users,
+      SUM(CASE WHEN last_login_at > datetime('now', '-1 days') THEN 1 ELSE 0 END) as active_today,
+      SUM(CASE WHEN last_login_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) as active_7d,
+      SUM(CASE WHEN last_login_at > datetime('now', '-30 days') THEN 1 ELSE 0 END) as active_30d,
+      SUM(CASE WHEN last_login_at IS NULL OR last_login_at < datetime('now', '-30 days') THEN 1 ELSE 0 END) as dormant
+    FROM users
+  `).first();
+
+  // Users with content vs without
+  const contentEngagement = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(DISTINCT u.id) as total_users,
+      COUNT(DISTINCT CASE WHEN m.user_id IS NOT NULL OR l.user_id IS NOT NULL OR v.user_id IS NOT NULL THEN u.id END) as users_with_content,
+      COUNT(DISTINCT m.user_id) as users_with_memories,
+      COUNT(DISTINCT l.user_id) as users_with_letters,
+      COUNT(DISTINCT v.user_id) as users_with_voice
+    FROM users u
+    LEFT JOIN memories m ON u.id = m.user_id
+    LEFT JOIN letters l ON u.id = l.user_id
+    LEFT JOIN voice_recordings v ON u.id = v.user_id
+  `).first();
+
+  // Recent user sessions (last 20 logins)
+  const recentSessions = await c.env.DB.prepare(`
+    SELECT 
+      u.id,
+      u.email,
+      u.first_name,
+      u.last_name,
+      u.last_login_at,
+      s.tier,
+      (SELECT COUNT(*) FROM memories WHERE user_id = u.id) as memory_count,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id) as letter_count
+    FROM users u
+    LEFT JOIN subscriptions s ON u.id = s.user_id
+    WHERE u.last_login_at IS NOT NULL
+    ORDER BY u.last_login_at DESC
+    LIMIT 20
+  `).all();
+
+  // Funnel metrics
+  const funnelMetrics = await c.env.DB.prepare(`
+    SELECT 
+      (SELECT COUNT(*) FROM users) as registered,
+      (SELECT COUNT(*) FROM users WHERE email_verified = 1) as verified,
+      (SELECT COUNT(DISTINCT user_id) FROM subscriptions WHERE status = 'ACTIVE') as subscribed,
+      (SELECT COUNT(DISTINCT user_id) FROM memories) as created_memory,
+      (SELECT COUNT(DISTINCT user_id) FROM family_members) as added_family,
+      (SELECT COUNT(DISTINCT user_id) FROM legacy_contacts) as added_legacy_contact
+  `).first();
+
+  // Cron/reminder email status
+  const reminderStatus = await c.env.DB.prepare(`
+    SELECT 
+      (SELECT COUNT(*) FROM dead_man_switches WHERE enabled = 1) as active_switches,
+      (SELECT COUNT(*) FROM dead_man_switches WHERE status = 'WARNING') as warning_switches,
+      (SELECT COUNT(*) FROM dead_man_switches WHERE status = 'TRIGGERED') as triggered_switches
+  `).first();
+
+  // Map day numbers to names
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  return c.json({
+    activityByHour: activityByHour.results.map((r: any) => ({
+      hour: parseInt(r.hour),
+      logins: r.logins,
+    })),
+    activityByDay: activityByDay.results.map((r: any) => ({
+      day: dayNames[parseInt(r.day_of_week)],
+      dayNum: parseInt(r.day_of_week),
+      logins: r.logins,
+    })),
+    dailyActiveUsers: dailyActiveUsers.results,
+    contentActivity: contentActivity.results,
+    engagement: {
+      totalUsers: engagementMetrics?.total_users || 0,
+      activeToday: engagementMetrics?.active_today || 0,
+      active7d: engagementMetrics?.active_7d || 0,
+      active30d: engagementMetrics?.active_30d || 0,
+      dormant: engagementMetrics?.dormant || 0,
+    },
+    contentEngagement: {
+      totalUsers: contentEngagement?.total_users || 0,
+      usersWithContent: contentEngagement?.users_with_content || 0,
+      usersWithMemories: contentEngagement?.users_with_memories || 0,
+      usersWithLetters: contentEngagement?.users_with_letters || 0,
+      usersWithVoice: contentEngagement?.users_with_voice || 0,
+    },
+    recentSessions: recentSessions.results.map((r: any) => ({
+      id: r.id,
+      email: r.email,
+      name: `${r.first_name || ''} ${r.last_name || ''}`.trim() || 'Unknown',
+      lastLogin: r.last_login_at,
+      tier: r.tier || 'FREE',
+      memoryCount: r.memory_count,
+      letterCount: r.letter_count,
+    })),
+    funnel: {
+      registered: funnelMetrics?.registered || 0,
+      verified: funnelMetrics?.verified || 0,
+      subscribed: funnelMetrics?.subscribed || 0,
+      createdMemory: funnelMetrics?.created_memory || 0,
+      addedFamily: funnelMetrics?.added_family || 0,
+      addedLegacyContact: funnelMetrics?.added_legacy_contact || 0,
+    },
+    reminderStatus: {
+      activeSwitches: reminderStatus?.active_switches || 0,
+      warningSwitches: reminderStatus?.warning_switches || 0,
+      triggeredSwitches: reminderStatus?.triggered_switches || 0,
+    },
+  });
+});
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
