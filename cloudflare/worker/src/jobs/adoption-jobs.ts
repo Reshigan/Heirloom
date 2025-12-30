@@ -258,7 +258,7 @@ export async function processInfluencerOutreach(env: Env) {
       SELECT influencer_id FROM marketing_outreach 
       WHERE sent_at > datetime('now', '-30 days')
     )
-    ORDER BY i.followers_count DESC
+    ORDER BY i.follower_count DESC
     LIMIT 10
   `).all();
   
@@ -268,7 +268,7 @@ export async function processInfluencerOutreach(env: Env) {
     try {
       const emailContent = getInfluencerOutreachEmail(
         influencer.name as string,
-        influencer.niche as string
+        influencer.segment as string
       );
       
       await sendEmail(env, {
@@ -307,7 +307,7 @@ export async function processProspectOutreach(env: Env) {
   
   // Get prospects from marketing system that haven't been contacted
   const prospects = await env.DB.prepare(`
-    SELECT i.id, i.name, i.email, i.niche, i.followers_count,
+    SELECT i.id, i.name, i.email, i.segment, i.follower_count,
            (SELECT COUNT(*) FROM marketing_outreach WHERE influencer_id = i.id) as outreach_count
     FROM influencers i
     WHERE i.status = 'active'
@@ -317,7 +317,7 @@ export async function processProspectOutreach(env: Env) {
       SELECT influencer_id FROM marketing_outreach 
       WHERE sent_at > datetime('now', '-14 days')
     )
-    ORDER BY i.followers_count DESC
+    ORDER BY i.follower_count DESC
     LIMIT 20
   `).all();
   
@@ -342,7 +342,7 @@ export async function processProspectOutreach(env: Env) {
       // Send outreach email with voucher
       const emailContent = getProspectOutreachEmail(
         prospect.name as string || 'there',
-        prospect.niche as string,
+        prospect.segment as string,
         voucherCode
       );
       
