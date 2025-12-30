@@ -336,6 +336,9 @@ export const adminApi = {
   resolveBillingError: (errorId: string, data: { resolution?: string }) => 
     adminAxios.post(`/admin/billing/errors/${errorId}/resolve`, data),
   notifyAllFailedBilling: () => adminAxios.post('/admin/billing/notify-all-failed'),
+  
+  // Usage Analytics
+  getUsageAnalytics: () => adminAxios.get('/admin/analytics/usage'),
 };
 
 export const referralApi = {

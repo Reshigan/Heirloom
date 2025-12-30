@@ -1821,6 +1821,377 @@ adminRoutes.post('/notifications/new-user-features', adminAuth, async (c) => {
 });
 
 // ============================================
+// USAGE ANALYTICS
+// ============================================
+
+// Get detailed usage analytics - when users are active, what they're doing
+adminRoutes.get('/analytics/usage', adminAuth, async (c) => {
+  // Activity by hour of day (last 30 days)
+  const activityByHour = await c.env.DB.prepare(`
+    SELECT 
+      strftime('%H', last_login_at) as hour,
+      COUNT(*) as logins
+    FROM users
+    WHERE last_login_at > datetime('now', '-30 days')
+    GROUP BY hour
+    ORDER BY hour
+  `).all();
+
+  // Activity by day of week (last 30 days)
+  const activityByDay = await c.env.DB.prepare(`
+    SELECT 
+      strftime('%w', last_login_at) as day_of_week,
+      COUNT(*) as logins
+    FROM users
+    WHERE last_login_at > datetime('now', '-30 days')
+    GROUP BY day_of_week
+    ORDER BY day_of_week
+  `).all();
+
+  // Daily active users trend (last 30 days)
+  const dailyActiveUsers = await c.env.DB.prepare(`
+    SELECT 
+      date(last_login_at) as date,
+      COUNT(DISTINCT id) as active_users
+    FROM users
+    WHERE last_login_at > datetime('now', '-30 days')
+    GROUP BY date
+    ORDER BY date
+  `).all();
+
+  // Content creation activity (last 30 days)
+  const contentActivity = await c.env.DB.prepare(`
+    SELECT 
+      date(created_at) as date,
+      'memory' as type,
+      COUNT(*) as count
+    FROM memories
+    WHERE created_at > datetime('now', '-30 days')
+    GROUP BY date
+    UNION ALL
+    SELECT 
+      date(created_at) as date,
+      'letter' as type,
+      COUNT(*) as count
+    FROM letters
+    WHERE created_at > datetime('now', '-30 days')
+    GROUP BY date
+    UNION ALL
+    SELECT 
+      date(created_at) as date,
+      'voice' as type,
+      COUNT(*) as count
+    FROM voice_recordings
+    WHERE created_at > datetime('now', '-30 days')
+    GROUP BY date
+    ORDER BY date
+  `).all();
+
+  // User engagement metrics
+  const engagementMetrics = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(*) as total_users,
+      SUM(CASE WHEN last_login_at > datetime('now', '-1 days') THEN 1 ELSE 0 END) as active_today,
+      SUM(CASE WHEN last_login_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) as active_7d,
+      SUM(CASE WHEN last_login_at > datetime('now', '-30 days') THEN 1 ELSE 0 END) as active_30d,
+      SUM(CASE WHEN last_login_at IS NULL OR last_login_at < datetime('now', '-30 days') THEN 1 ELSE 0 END) as dormant
+    FROM users
+  `).first();
+
+  // Users with content vs without
+  const contentEngagement = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(DISTINCT u.id) as total_users,
+      COUNT(DISTINCT CASE WHEN m.user_id IS NOT NULL OR l.user_id IS NOT NULL OR v.user_id IS NOT NULL THEN u.id END) as users_with_content,
+      COUNT(DISTINCT m.user_id) as users_with_memories,
+      COUNT(DISTINCT l.user_id) as users_with_letters,
+      COUNT(DISTINCT v.user_id) as users_with_voice
+    FROM users u
+    LEFT JOIN memories m ON u.id = m.user_id
+    LEFT JOIN letters l ON u.id = l.user_id
+    LEFT JOIN voice_recordings v ON u.id = v.user_id
+  `).first();
+
+  // Recent user sessions (last 20 logins)
+  const recentSessions = await c.env.DB.prepare(`
+    SELECT 
+      u.id,
+      u.email,
+      u.first_name,
+      u.last_name,
+      u.last_login_at,
+      s.tier,
+      (SELECT COUNT(*) FROM memories WHERE user_id = u.id) as memory_count,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id) as letter_count
+    FROM users u
+    LEFT JOIN subscriptions s ON u.id = s.user_id
+    WHERE u.last_login_at IS NOT NULL
+    ORDER BY u.last_login_at DESC
+    LIMIT 20
+  `).all();
+
+  // Funnel metrics
+  const funnelMetrics = await c.env.DB.prepare(`
+    SELECT 
+      (SELECT COUNT(*) FROM users) as registered,
+      (SELECT COUNT(*) FROM users WHERE email_verified = 1) as verified,
+      (SELECT COUNT(DISTINCT user_id) FROM subscriptions WHERE status = 'ACTIVE') as subscribed,
+      (SELECT COUNT(DISTINCT user_id) FROM memories) as created_memory,
+      (SELECT COUNT(DISTINCT user_id) FROM family_members) as added_family,
+      (SELECT COUNT(DISTINCT user_id) FROM legacy_contacts) as added_legacy_contact
+  `).first();
+
+  // Cron/reminder email status
+  const reminderStatus = await c.env.DB.prepare(`
+    SELECT 
+      (SELECT COUNT(*) FROM dead_man_switches WHERE enabled = 1) as active_switches,
+      (SELECT COUNT(*) FROM dead_man_switches WHERE status = 'WARNING') as warning_switches,
+      (SELECT COUNT(*) FROM dead_man_switches WHERE status = 'TRIGGERED') as triggered_switches
+  `).first();
+
+  // Map day numbers to names
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  return c.json({
+    activityByHour: activityByHour.results.map((r: any) => ({
+      hour: parseInt(r.hour),
+      logins: r.logins,
+    })),
+    activityByDay: activityByDay.results.map((r: any) => ({
+      day: dayNames[parseInt(r.day_of_week)],
+      dayNum: parseInt(r.day_of_week),
+      logins: r.logins,
+    })),
+    dailyActiveUsers: dailyActiveUsers.results,
+    contentActivity: contentActivity.results,
+    engagement: {
+      totalUsers: engagementMetrics?.total_users || 0,
+      activeToday: engagementMetrics?.active_today || 0,
+      active7d: engagementMetrics?.active_7d || 0,
+      active30d: engagementMetrics?.active_30d || 0,
+      dormant: engagementMetrics?.dormant || 0,
+    },
+    contentEngagement: {
+      totalUsers: contentEngagement?.total_users || 0,
+      usersWithContent: contentEngagement?.users_with_content || 0,
+      usersWithMemories: contentEngagement?.users_with_memories || 0,
+      usersWithLetters: contentEngagement?.users_with_letters || 0,
+      usersWithVoice: contentEngagement?.users_with_voice || 0,
+    },
+    recentSessions: recentSessions.results.map((r: any) => ({
+      id: r.id,
+      email: r.email,
+      name: `${r.first_name || ''} ${r.last_name || ''}`.trim() || 'Unknown',
+      lastLogin: r.last_login_at,
+      tier: r.tier || 'FREE',
+      memoryCount: r.memory_count,
+      letterCount: r.letter_count,
+    })),
+    funnel: {
+      registered: funnelMetrics?.registered || 0,
+      verified: funnelMetrics?.verified || 0,
+      subscribed: funnelMetrics?.subscribed || 0,
+      createdMemory: funnelMetrics?.created_memory || 0,
+      addedFamily: funnelMetrics?.added_family || 0,
+      addedLegacyContact: funnelMetrics?.added_legacy_contact || 0,
+    },
+    reminderStatus: {
+      activeSwitches: reminderStatus?.active_switches || 0,
+      warningSwitches: reminderStatus?.warning_switches || 0,
+      triggeredSwitches: reminderStatus?.triggered_switches || 0,
+    },
+  });
+});
+
+// ============================================
+// MARKETING CONVERSION ANALYTICS
+// ============================================
+
+// Get marketing conversion analytics - automated vs direct channels
+adminRoutes.get('/analytics/marketing', adminAuth, async (c) => {
+  // Email campaign performance
+  const emailStats = await c.env.DB.prepare(`
+    SELECT 
+      email_type,
+      COUNT(*) as sent,
+      SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) as delivered,
+      SUM(CASE WHEN status = 'opened' THEN 1 ELSE 0 END) as opened,
+      SUM(CASE WHEN status = 'clicked' THEN 1 ELSE 0 END) as clicked,
+      SUM(CASE WHEN status = 'bounced' THEN 1 ELSE 0 END) as bounced
+    FROM email_logs
+    WHERE sent_at > datetime('now', '-30 days')
+    GROUP BY email_type
+    ORDER BY sent DESC
+  `).all();
+
+  // Voucher/gift card performance
+  const voucherStats = await c.env.DB.prepare(`
+    SELECT 
+      voucher_type,
+      plan_type,
+      COUNT(*) as total_created,
+      SUM(CASE WHEN status = 'REDEEMED' THEN 1 ELSE 0 END) as redeemed,
+      SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) as pending,
+      SUM(CASE WHEN status = 'EXPIRED' THEN 1 ELSE 0 END) as expired
+    FROM gift_vouchers
+    WHERE created_at > datetime('now', '-30 days')
+    GROUP BY voucher_type, plan_type
+  `).all();
+
+  // Influencer outreach performance
+  const influencerStats = await c.env.DB.prepare(`
+    SELECT 
+      outreach_type,
+      COUNT(*) as total_sent,
+      COUNT(DISTINCT influencer_id) as unique_influencers
+    FROM influencer_outreach
+    WHERE sent_at > datetime('now', '-30 days')
+    GROUP BY outreach_type
+  `).all();
+
+  // Drip campaign performance
+  const dripStats = await c.env.DB.prepare(`
+    SELECT 
+      campaign_type,
+      COUNT(*) as total_users,
+      SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+      SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+      SUM(CASE WHEN status = 'unsubscribed' THEN 1 ELSE 0 END) as unsubscribed,
+      AVG(emails_sent) as avg_emails_sent
+    FROM drip_campaigns
+    GROUP BY campaign_type
+  `).all();
+
+  // User acquisition by channel (based on how they signed up)
+  const acquisitionByChannel = await c.env.DB.prepare(`
+    SELECT 
+      CASE 
+        WHEN gv.id IS NOT NULL THEN 'voucher'
+        WHEN fi.id IS NOT NULL THEN 'family_invite'
+        ELSE 'direct'
+      END as channel,
+      COUNT(DISTINCT u.id) as users,
+      COUNT(DISTINCT CASE WHEN s.status = 'ACTIVE' AND s.tier != 'FREE' THEN u.id END) as paid_conversions
+    FROM users u
+    LEFT JOIN gift_vouchers gv ON u.email = gv.recipient_email AND gv.status = 'REDEEMED'
+    LEFT JOIN family_invites fi ON u.email = fi.invitee_email AND fi.status = 'accepted'
+    LEFT JOIN subscriptions s ON u.id = s.user_id
+    WHERE u.created_at > datetime('now', '-30 days')
+    GROUP BY channel
+  `).all();
+
+  // Conversion funnel by source
+  const conversionFunnel = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(*) as total_vouchers_sent,
+      SUM(CASE WHEN status = 'REDEEMED' THEN 1 ELSE 0 END) as vouchers_redeemed,
+      (SELECT COUNT(DISTINCT user_id) FROM memories m 
+       JOIN users u ON m.user_id = u.id 
+       JOIN gift_vouchers gv ON u.email = gv.recipient_email 
+       WHERE gv.status = 'REDEEMED') as created_content,
+      (SELECT COUNT(DISTINCT s.user_id) FROM subscriptions s 
+       JOIN users u ON s.user_id = u.id 
+       JOIN gift_vouchers gv ON u.email = gv.recipient_email 
+       WHERE gv.status = 'REDEEMED' AND s.tier != 'FREE' AND s.status = 'ACTIVE') as paid_subscribers
+    FROM gift_vouchers
+    WHERE created_at > datetime('now', '-90 days')
+  `).first();
+
+  // Daily marketing activity (last 30 days)
+  const dailyMarketingActivity = await c.env.DB.prepare(`
+    SELECT 
+      date(sent_at) as date,
+      COUNT(*) as emails_sent,
+      SUM(CASE WHEN email_type LIKE 'DRIP%' THEN 1 ELSE 0 END) as drip_emails,
+      SUM(CASE WHEN email_type LIKE 'PROSPECT%' THEN 1 ELSE 0 END) as prospect_emails,
+      SUM(CASE WHEN email_type LIKE 'VOUCHER%' THEN 1 ELSE 0 END) as voucher_emails
+    FROM email_logs
+    WHERE sent_at > datetime('now', '-30 days')
+    GROUP BY date
+    ORDER BY date
+  `).all();
+
+  // Automated vs manual comparison
+  const automatedVsManual = await c.env.DB.prepare(`
+    SELECT 
+      CASE 
+        WHEN email_type IN ('DRIP_WELCOME', 'DRIP_INACTIVE', 'DRIP_REACTIVATION', 'PROSPECT_OUTREACH', 'VOUCHER_FOLLOWUP_1', 'VOUCHER_FOLLOWUP_2', 'DATE_REMINDER', 'CONTENT_PROMPT', 'STREAK_REMINDER') THEN 'automated'
+        ELSE 'manual'
+      END as source,
+      COUNT(*) as total_sent,
+      COUNT(DISTINCT recipient_email) as unique_recipients
+    FROM email_logs
+    WHERE sent_at > datetime('now', '-30 days')
+    GROUP BY source
+  `).all();
+
+  // Calculate conversion rates
+  const totalVouchers = (conversionFunnel?.total_vouchers_sent as number) || 0;
+  const redeemedVouchers = (conversionFunnel?.vouchers_redeemed as number) || 0;
+  const contentCreators = (conversionFunnel?.created_content as number) || 0;
+  const paidSubscribers = (conversionFunnel?.paid_subscribers as number) || 0;
+
+  return c.json({
+    emailPerformance: emailStats.results.map((r: any) => ({
+      type: r.email_type,
+      sent: r.sent,
+      delivered: r.delivered || 0,
+      opened: r.opened || 0,
+      clicked: r.clicked || 0,
+      bounced: r.bounced || 0,
+      openRate: r.delivered > 0 ? ((r.opened || 0) / r.delivered * 100).toFixed(1) : '0',
+      clickRate: r.opened > 0 ? ((r.clicked || 0) / r.opened * 100).toFixed(1) : '0',
+    })),
+    voucherPerformance: voucherStats.results.map((r: any) => ({
+      type: r.voucher_type,
+      plan: r.plan_type,
+      created: r.total_created,
+      redeemed: r.redeemed || 0,
+      pending: r.pending || 0,
+      expired: r.expired || 0,
+      redemptionRate: r.total_created > 0 ? ((r.redeemed || 0) / r.total_created * 100).toFixed(1) : '0',
+    })),
+    influencerOutreach: influencerStats.results.map((r: any) => ({
+      type: r.outreach_type,
+      sent: r.total_sent,
+      uniqueInfluencers: r.unique_influencers,
+    })),
+    dripCampaigns: dripStats.results.map((r: any) => ({
+      type: r.campaign_type,
+      totalUsers: r.total_users,
+      active: r.active || 0,
+      completed: r.completed || 0,
+      unsubscribed: r.unsubscribed || 0,
+      avgEmailsSent: parseFloat(r.avg_emails_sent || 0).toFixed(1),
+      completionRate: r.total_users > 0 ? ((r.completed || 0) / r.total_users * 100).toFixed(1) : '0',
+    })),
+    acquisitionByChannel: acquisitionByChannel.results.map((r: any) => ({
+      channel: r.channel,
+      users: r.users,
+      paidConversions: r.paid_conversions || 0,
+      conversionRate: r.users > 0 ? ((r.paid_conversions || 0) / r.users * 100).toFixed(1) : '0',
+    })),
+    conversionFunnel: {
+      vouchersSent: totalVouchers,
+      vouchersRedeemed: redeemedVouchers,
+      redemptionRate: totalVouchers > 0 ? (redeemedVouchers / totalVouchers * 100).toFixed(1) : '0',
+      contentCreators: contentCreators,
+      contentRate: redeemedVouchers > 0 ? (contentCreators / redeemedVouchers * 100).toFixed(1) : '0',
+      paidSubscribers: paidSubscribers,
+      paidRate: contentCreators > 0 ? (paidSubscribers / contentCreators * 100).toFixed(1) : '0',
+    },
+    dailyActivity: dailyMarketingActivity.results,
+    automatedVsManual: automatedVsManual.results.reduce((acc: any, r: any) => {
+      acc[r.source] = {
+        totalSent: r.total_sent,
+        uniqueRecipients: r.unique_recipients,
+      };
+      return acc;
+    }, {}),
+  });
+});
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
