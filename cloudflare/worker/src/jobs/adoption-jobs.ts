@@ -249,13 +249,13 @@ export async function processInfluencerOutreach(env: Env) {
   // Get pending influencer outreach from marketing system
   const pendingOutreach = await env.DB.prepare(`
     SELECT i.*, 
-           (SELECT COUNT(*) FROM influencer_outreach WHERE influencer_id = i.id) as outreach_count
+           (SELECT COUNT(*) FROM marketing_outreach WHERE influencer_id = i.id) as outreach_count
     FROM influencers i
     WHERE i.status = 'active'
     AND i.email IS NOT NULL
     AND i.email != ''
     AND i.id NOT IN (
-      SELECT influencer_id FROM influencer_outreach 
+      SELECT influencer_id FROM marketing_outreach 
       WHERE sent_at > datetime('now', '-30 days')
     )
     ORDER BY i.followers_count DESC
@@ -278,11 +278,11 @@ export async function processInfluencerOutreach(env: Env) {
         html: emailContent.html,
       }, 'INFLUENCER_OUTREACH');
       
-      // Record outreach
+      // Record outreach in marketing_outreach table
       await env.DB.prepare(`
-        INSERT INTO influencer_outreach (id, influencer_id, outreach_type, sent_at)
-        VALUES (?, ?, 'initial', ?)
-      `).bind(crypto.randomUUID(), influencer.id, nowISO).run();
+        INSERT INTO marketing_outreach (id, influencer_id, email_to, subject, body, status, sent_at)
+        VALUES (?, ?, ?, ?, ?, 'SENT', ?)
+      `).bind(crypto.randomUUID(), influencer.id, influencer.email, emailContent.subject, emailContent.html, nowISO).run();
       
       sent++;
     } catch (error) {
@@ -308,13 +308,13 @@ export async function processProspectOutreach(env: Env) {
   // Get prospects from marketing system that haven't been contacted
   const prospects = await env.DB.prepare(`
     SELECT i.id, i.name, i.email, i.niche, i.followers_count,
-           (SELECT COUNT(*) FROM influencer_outreach WHERE influencer_id = i.id) as outreach_count
+           (SELECT COUNT(*) FROM marketing_outreach WHERE influencer_id = i.id) as outreach_count
     FROM influencers i
     WHERE i.status = 'active'
     AND i.email IS NOT NULL
     AND i.email != ''
     AND i.id NOT IN (
-      SELECT influencer_id FROM influencer_outreach 
+      SELECT influencer_id FROM marketing_outreach 
       WHERE sent_at > datetime('now', '-14 days')
     )
     ORDER BY i.followers_count DESC
@@ -353,11 +353,11 @@ export async function processProspectOutreach(env: Env) {
         html: emailContent.html,
       }, 'PROSPECT_OUTREACH');
       
-      // Record outreach
+      // Record outreach in marketing_outreach table
       await env.DB.prepare(`
-        INSERT INTO influencer_outreach (id, influencer_id, outreach_type, sent_at)
-        VALUES (?, ?, 'prospect_voucher', ?)
-      `).bind(crypto.randomUUID(), prospect.id, nowISO).run();
+        INSERT INTO marketing_outreach (id, influencer_id, email_to, subject, body, status, sent_at)
+        VALUES (?, ?, ?, ?, ?, 'SENT', ?)
+      `).bind(crypto.randomUUID(), prospect.id, prospect.email, emailContent.subject, emailContent.html, nowISO).run();
       
       sent++;
     } catch (error) {
@@ -377,9 +377,10 @@ export async function sendVoucherFollowUps(env: Env) {
   const nowISO = now.toISOString();
   
   // Find unredeemed vouchers that are 7+ days old but not expired
+  // Use gift_voucher_emails table to track follow-ups instead of email_logs
   const unredeemedVouchers = await env.DB.prepare(`
     SELECT gv.*, 
-           (SELECT COUNT(*) FROM email_logs WHERE recipient_email = gv.recipient_email AND email_type LIKE 'VOUCHER_FOLLOWUP%') as followup_count
+           (SELECT COUNT(*) FROM gift_voucher_emails WHERE voucher_id = gv.id AND email_type LIKE 'GIFT_REMINDER%') as followup_count
     FROM gift_vouchers gv
     WHERE gv.status = 'PENDING'
     AND gv.expires_at > ?
