@@ -33,8 +33,10 @@ import { storyArtifactsRoutes } from './routes/story-artifacts';
 import { lifeEventsRoutes } from './routes/life-events';
 import marketingRoutes from './routes/marketing';
 import { announcementsRoutes } from './routes/announcements';
+import engagementRoutes from './routes/engagement';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps } from './jobs/adoption-jobs';
 
 // Types
 export interface Env {
@@ -615,6 +617,9 @@ app.route('/api/marketing', marketingRoutes);
 // Announcements routes (mix of public and admin-protected endpoints)
 app.route('/api/announcements', announcementsRoutes);
 
+// Engagement routes (mix of public and protected endpoints)
+app.route('/api/engagement', engagementRoutes);
+
 // Protected routes (auth required)
 const protectedApp = new Hono<AppEnv>();
 
@@ -696,7 +701,7 @@ app.notFound((c) => {
 export default {
   fetch: app.fetch,
   
-  // Cron trigger for dead man's switch
+  // Cron trigger for dead man's switch and adoption engine
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     // Safety guard: only run cron jobs if explicitly enabled
     if (env.CRON_ENABLED !== 'true') {
@@ -707,22 +712,81 @@ export default {
     const cronType = event.cron;
     
     if (cronType === '0 9 * * *') {
-      // Daily check for missed check-ins
+      // ========== DAILY JOBS (9 AM UTC) ==========
+      console.log('Running daily jobs...');
+      
+      // Dead Man's Switch jobs
       await checkMissedCheckIns(env);
-      // Send upcoming check-in reminders (24 hours before due)
       await sendUpcomingCheckInReminders(env);
-      // Send daily admin summary email
       await sendDailyAdminSummary(env);
+      
+      // Adoption Engine jobs
+      console.log('Processing drip campaigns...');
+      const dripResult = await processDripCampaigns(env);
+      console.log(`Drip campaigns processed: ${dripResult.processed}`);
+      
+      console.log('Starting welcome campaigns for new users...');
+      const welcomeResult = await startWelcomeCampaigns(env);
+      console.log(`Welcome campaigns started: ${welcomeResult.started}`);
+      
+      console.log('Processing inactive user re-engagement...');
+      const inactiveResult = await processInactiveUsers(env);
+      console.log(`Inactive user campaigns started: ${inactiveResult.started}`);
+      
+      console.log('Sending date reminders (birthdays, anniversaries)...');
+      const dateResult = await sendDateReminders(env);
+      console.log(`Date reminders processed: ${dateResult.processed}`);
+      
+      console.log('Processing streak maintenance...');
+      const streakResult = await processStreakMaintenance(env);
+      console.log(`Streaks reset: ${streakResult.reset}`);
+      
+      console.log('Processing influencer outreach...');
+      const influencerResult = await processInfluencerOutreach(env);
+      console.log(`Influencer outreach sent: ${influencerResult.sent}`);
+      
+      console.log('Processing prospect outreach with trial vouchers...');
+      const prospectResult = await processProspectOutreach(env);
+      console.log(`Prospect outreach sent: ${prospectResult.sent}, vouchers created: ${prospectResult.vouchersCreated}`);
+      
+      console.log('Sending voucher follow-ups...');
+      const voucherFollowUpResult = await sendVoucherFollowUps(env);
+      console.log(`Voucher follow-ups sent: ${voucherFollowUpResult.sent}`);
+      
+      console.log('Daily jobs complete.');
+      
     } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
-      // Weekly reminder emails (dead man's switch) - accepts both numeric (0) and named (SUN) day formats
+      // ========== WEEKLY JOBS (Sunday midnight UTC) ==========
+      console.log('Running weekly jobs...');
+      
+      // Dead Man's Switch weekly reminders
       await sendReminderEmails(env);
-      // Weekly post reminder emails (engagement nudges)
+      
+      // Weekly engagement nudges
       await sendPostReminderEmails(env);
+      
+      // Weekly content prompts for active users
+      console.log('Sending weekly content prompts...');
+      const promptResult = await sendContentPrompts(env);
+      console.log(`Content prompts sent: ${promptResult.sent}`);
+      
+      console.log('Weekly jobs complete.');
+      
     } else if (cronType === '0 */12 * * *') {
-      // Regenerate AI prompts cache every 12 hours to minimize token costs
+      // ========== TWICE DAILY JOBS (every 12 hours) ==========
+      console.log('Running twice-daily jobs...');
+      
+      // Regenerate AI prompts cache
       console.log('Regenerating AI prompts cache...');
       await generateAndCachePrompts(env, 50);
       console.log('AI prompts cache regenerated');
+      
+      // Process any pending drip campaigns (catch-up for missed daily run)
+      console.log('Processing drip campaigns (catch-up)...');
+      const dripResult = await processDripCampaigns(env);
+      console.log(`Drip campaigns processed: ${dripResult.processed}`);
+      
+      console.log('Twice-daily jobs complete.');
     }
   },
 };
