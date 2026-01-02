@@ -45,7 +45,8 @@ export function VerifyEmail() {
     try {
       await emailVerificationApi.resendVerification();
       setResendStatus('success');
-    } catch {
+    } catch (error) {
+      console.error('Failed to resend verification email:', error);
       setResendStatus('error');
     } finally {
       setIsResending(false);

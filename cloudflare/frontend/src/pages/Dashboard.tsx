@@ -152,7 +152,8 @@ export function Dashboard() {
         await settingsApi.markNotificationRead(notificationId);
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
         setShowNewFeaturesNotification(false);
-      } catch {
+      } catch (error) {
+        console.error('Failed to dismiss notification:', error);
         setShowNewFeaturesNotification(false);
       }
     };
@@ -177,7 +178,8 @@ export function Dashboard() {
       try {
         const response = await aiApi.getPrompt();
         setAiPrompt(response.data?.prompt || "What's a childhood memory that shaped who you are today?");
-      } catch {
+      } catch (error) {
+        console.error('Failed to load AI prompt:', error);
         setAiPrompt("What's a childhood memory that shaped who you are today?");
       }
       setIsLoadingPrompt(false);
@@ -190,7 +192,8 @@ export function Dashboard() {
     try {
       const response = await aiApi.getPrompt();
       setAiPrompt(response.data?.prompt || "What moment are you most grateful for this year?");
-    } catch {
+    } catch (error) {
+      console.error('Failed to refresh AI prompt:', error);
       setAiPrompt("What moment are you most grateful for this year?");
     }
     setIsLoadingPrompt(false);
@@ -243,22 +246,25 @@ export function Dashboard() {
 
       <Navigation />
 
-      {/* Toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-xl glass-strong flex items-center gap-3 ${
-              toast.type === 'success' ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'
-            }`}
-          >
-            {toast.type === 'success' ? <Check className="text-green-400" size={20} /> : <X className="text-red-400" size={20} />}
-            <span>{toast.message}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Toast - with aria-live for accessibility (BUG-021 fix) */}
+      <div aria-live="polite" aria-atomic="true" className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              role="alert"
+              className={`px-6 py-4 rounded-xl glass-strong flex items-center gap-3 ${
+                toast.type === 'success' ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'
+              }`}
+            >
+              {toast.type === 'success' ? <Check className="text-green-400" size={20} aria-hidden="true" /> : <X className="text-red-400" size={20} aria-hidden="true" />}
+              <span>{toast.message}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Header Controls */}
       <motion.header

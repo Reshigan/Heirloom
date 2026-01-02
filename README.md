@@ -100,9 +100,8 @@ npm run dev
 - Backend: http://localhost:3001
 - MinIO: http://localhost:9001
 
-### Demo Account
-- Email: `demo@heirloom.app`
-- Password: `demo123456`
+### Demo Mode
+Demo mode is available for testing. Contact support@heirloom.blue for demo access credentials.
 
 ## 📦 API Endpoints
 

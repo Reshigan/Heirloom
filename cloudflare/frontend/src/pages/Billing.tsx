@@ -1,72 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  ArrowLeft, Check, Crown, Sparkles, Shield, Clock, 
+  ArrowLeft, Check, Clock, 
   CreditCard, Loader2, AlertTriangle, X, Zap
 } from '../components/Icons';
 import { billingApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
-
-const PLANS = [
-  {
-    id: 'ESSENTIAL',
-    name: 'Essential',
-    price: 9.99,
-    yearlyPrice: 99,
-    description: 'Perfect for individuals starting their legacy',
-    features: [
-      '5 GB secure storage',
-      '10 voice recordings/month',
-      'Unlimited text letters',
-      'Email delivery',
-      '30-day check-in window',
-      'Basic encryption'
-    ],
-    icon: Sparkles,
-    popular: false,
-  },
-  {
-    id: 'FAMILY',
-    name: 'Family',
-    price: 19.99,
-    yearlyPrice: 199,
-    description: 'Share memories across generations',
-    features: [
-      '25 GB secure storage',
-      'Unlimited voice recordings',
-      'Unlimited letters',
-      'Video messages',
-      'Family tree (up to 50 members)',
-      '14-day check-in window',
-      'End-to-end encryption',
-      'Priority support'
-    ],
-    icon: Crown,
-    popular: true,
-  },
-  {
-    id: 'LEGACY',
-    name: 'Legacy',
-    price: 49.99,
-    yearlyPrice: 499,
-    description: 'The ultimate preservation package',
-    features: [
-      '100 GB secure storage',
-      'Everything in Family',
-      'Unlimited family members',
-      'Custom delivery schedules',
-      'Legal document storage',
-      '7-day check-in window',
-      'Dedicated account manager',
-      '100-year preservation guarantee',
-      'White-glove onboarding'
-    ],
-    icon: Shield,
-    popular: false,
-  },
-];
+import { PLANS } from '../config/pricing';
 
 export function Billing() {
   const navigate = useNavigate();
@@ -107,6 +49,17 @@ export function Billing() {
   const isTrialing = subscription?.status === 'TRIALING';
   const trialDaysLeft = subscription?.trialDaysRemaining || 0;
 
+  // Memoize floating particles to prevent re-randomization on every render (BUG-007 fix)
+  const floatingParticles = useMemo(() => 
+    [...Array(30)].map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      duration: 12 + Math.random() * 8,
+      delay: Math.random() * 8,
+    })), 
+  []);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Sanctuary Background */}
@@ -122,22 +75,22 @@ export function Billing() {
 
       {/* Floating particles */}
       <div className="fixed inset-0 pointer-events-none">
-        {[...Array(30)].map((_, i) => (
+        {floatingParticles.map((particle) => (
           <motion.div
-            key={i}
+            key={particle.id}
             className="absolute w-1 h-1 rounded-full bg-gold/30"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: particle.left,
+              top: particle.top,
             }}
             animate={{
               y: [0, -80, 0],
               opacity: [0, 0.6, 0],
             }}
             transition={{
-              duration: 12 + Math.random() * 8,
+              duration: particle.duration,
               repeat: Infinity,
-              delay: Math.random() * 8,
+              delay: particle.delay,
             }}
           />
         ))}

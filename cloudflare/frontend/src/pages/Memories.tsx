@@ -45,7 +45,8 @@ export function Memories() {
           try {
             const saved = localStorage.getItem('memories_view_mode');
             return (saved === 'list' || saved === 'grid') ? saved : 'grid';
-          } catch {
+          } catch (storageError) {
+            // localStorage not available, use default
             return 'grid';
           }
         });
@@ -612,6 +613,7 @@ export function Memories() {
                               src={memory.fileUrl}
                               alt={memory.title || 'Memory'}
                               className="w-full h-full object-cover"
+                              loading="lazy"
                               onError={(e) => {
                                 // Hide broken image and show placeholder
                                 e.currentTarget.style.display = 'none';
@@ -666,7 +668,7 @@ export function Memories() {
                     <>
                       <div className="w-20 h-20 rounded-lg glass flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {memory.fileUrl ? (
-                          <img src={memory.fileUrl} alt="" className="w-full h-full object-cover" />
+                          <img src={memory.fileUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
                         ) : memory.type === 'VIDEO' ? (
                           <Video size={24} className="text-paper/30" />
                         ) : (
@@ -759,7 +761,7 @@ export function Memories() {
                   selectedMemory.type === 'VIDEO' ? (
                     <video src={selectedMemory.fileUrl} controls className="w-full h-full object-contain" />
                   ) : (
-                    <img src={selectedMemory.fileUrl} alt={selectedMemory.title} className="w-full h-full object-contain" />
+                    <img src={selectedMemory.fileUrl} alt={selectedMemory.title} className="w-full h-full object-contain" loading="lazy" />
                   )
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

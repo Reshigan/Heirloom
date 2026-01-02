@@ -65,7 +65,16 @@ export function Navigation() {
     : '??';
   
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[1000] px-6 md:px-12 py-4 md:py-6">
+    <>
+      {/* Skip Navigation Link (BUG-019 fix) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[1001] focus:px-4 focus:py-2 focus:bg-gold focus:text-void focus:rounded-lg focus:outline-none"
+      >
+        Skip to main content
+      </a>
+      
+    <nav className="fixed top-0 left-0 right-0 z-[1000] px-6 md:px-12 py-4 md:py-6" role="navigation" aria-label="Main navigation">
       {/* Gradient background with glass effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-void-abyss/95 via-void-abyss/80 to-transparent backdrop-blur-sm pointer-events-none" />
       
@@ -182,8 +191,9 @@ export function Navigation() {
                 ? 'text-gold bg-gold-10' 
                 : 'text-paper-50 hover:text-paper-90 hover:bg-paper-04'
             )}
+            aria-label="Settings"
           >
-            <Settings size={18} strokeWidth={1.5} />
+            <Settings size={18} strokeWidth={1.5} aria-hidden="true" />
           </Link>
           
           {/* Avatar */}
@@ -197,9 +207,9 @@ export function Navigation() {
           <button
             onClick={logout}
             className="p-2 rounded-lg text-paper-50 hover:text-blood hover:bg-blood/10 transition-all duration-300"
-            title="Sign out"
+            aria-label="Sign out"
           >
-            <LogOut size={18} strokeWidth={1.5} />
+            <LogOut size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
         
@@ -335,5 +345,6 @@ export function Navigation() {
         )}
       </AnimatePresence>
     </nav>
+    </>
   );
 }

@@ -53,8 +53,8 @@ export function FutureLetter() {
         setCopied(true);
         shareMutation.mutate(generatedLetter.id);
         setTimeout(() => setCopied(false), 2000);
-      } catch {
-        // Fallback
+      } catch (clipboardError) {
+        // Clipboard API not available, use fallback
         const textArea = document.createElement('textarea');
         textArea.value = generatedLetter.shareText;
         document.body.appendChild(textArea);

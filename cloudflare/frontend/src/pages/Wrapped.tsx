@@ -719,8 +719,8 @@ const Wrapped: React.FC = () => {
               text: shareText,
               url: shareUrl,
             });
-          } catch {
-            // User cancelled or error
+          } catch (shareError) {
+            // User cancelled sharing or browser doesn't support it
           }
         }
         break;

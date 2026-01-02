@@ -212,7 +212,8 @@ export function Compose() {
         } else {
           setAiSuggestion('AI suggestion unavailable. Please try again.');
         }
-      } catch {
+      } catch (error) {
+        console.error('AI assist error:', error);
         setAiSuggestion('AI is temporarily unavailable. Please try again in a moment.');
       } finally {
         setIsAiAssisting(false);
@@ -239,8 +240,9 @@ export function Compose() {
       if (data.prompts && data.prompts.length > 0) {
         setLetterPrompts(data.prompts.map((p: { prompt: string }) => p.prompt));
       }
-    } catch {
-      // Prompts are optional, fail silently
+    } catch (error) {
+      console.error('Failed to fetch letter prompts:', error);
+      // Prompts are optional, continue without them
     } finally {
       setIsLoadingPrompts(false);
     }
