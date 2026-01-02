@@ -372,6 +372,96 @@ export const referralApi = {
   trackShare: (platform: string) => api.post('/marketing/share/track', { platform }),
 };
 
+// Q4 2025 Features APIs
+
+// Memory Streaks API
+export const streaksApi = {
+  getStatus: () => api.get('/streaks'),
+  recordActivity: () => api.post('/streaks/activity'),
+  freezeStreak: () => api.post('/streaks/freeze'),
+};
+
+// Weekly Challenges API
+export const challengesApi = {
+  getAll: () => api.get('/challenges'),
+  getCurrent: () => api.get('/challenges/current'),
+  getSubmissions: (challengeId: string) => api.get(`/challenges/${challengeId}/submissions`),
+  submit: (challengeId: string, data: { memoryId?: string; voiceId?: string; content?: string }) =>
+    api.post(`/challenges/${challengeId}/submit`, data),
+  recordShare: (submissionId: string, platform: string) =>
+    api.post(`/challenges/submissions/${submissionId}/share`, { platform }),
+};
+
+// Family Referrals API
+export const familyReferralsApi = {
+  getStats: () => api.get('/referrals'),
+  createInvite: (data: { email: string; branch?: string; relationship?: string }) =>
+    api.post('/referrals/invite', data),
+  acceptInvite: (inviteCode: string, userId: string, firstName?: string) =>
+    api.post('/referrals/accept', { inviteCode, userId, firstName }),
+};
+
+// Gift Subscriptions API
+export const giftSubscriptionsApi = {
+  getPricing: () => api.get('/gifts/pricing'),
+  purchase: (data: {
+    purchaserEmail: string;
+    purchaserName: string;
+    recipientEmail: string;
+    recipientName: string;
+    tier: string;
+    personalMessage?: string;
+    style?: string;
+    scheduledDeliveryDate?: string;
+  }) => api.post('/gifts/purchase', data),
+  redeem: (giftCode: string) => api.post('/gifts/redeem', { giftCode }),
+  getPurchased: () => api.get('/gifts/purchased'),
+};
+
+// QR Memorial Codes API
+export const memorialsApi = {
+  getAll: () => api.get('/memorials'),
+  create: (data: {
+    familyMemberId?: string;
+    name: string;
+    description?: string;
+    style?: string;
+    isPublic?: boolean;
+    birthDate?: string;
+    deathDate?: string;
+    location?: string;
+    epitaph?: string;
+  }) => api.post('/memorials', data),
+  getPage: (code: string) => api.get(`/memorials/page/${code}`),
+  addTribute: (code: string, data: { message: string; name?: string; email?: string }) =>
+    api.post(`/memorials/page/${code}/tribute`, data),
+};
+
+// Milestone Alerts API
+export const milestonesApi = {
+  getAll: () => api.get('/milestones'),
+  getUpcoming: () => api.get('/milestones/upcoming'),
+  create: (data: {
+    familyMemberId?: string;
+    type: string;
+    name: string;
+    date: string;
+    recurring?: boolean;
+    reminderDays?: number;
+    promptSuggestion?: string;
+  }) => api.post('/milestones', data),
+  autoDetect: () => api.post('/milestones/auto-detect'),
+  delete: (id: string) => api.delete(`/milestones/${id}`),
+};
+
+// User Notifications API
+export const userNotificationsApi = {
+  getAll: (params?: { limit?: number; unread?: boolean }) =>
+    api.get('/notifications', { params: { ...params, unread: params?.unread ? 'true' : undefined } }),
+  markRead: (id: string) => api.patch(`/notifications/${id}/read`),
+  markAllRead: () => api.post('/notifications/read-all'),
+};
+
 export const marketingApi = {
   getContent: (params?: { platform?: string; status?: string; theme?: string }) =>
     adminAxios.get('/marketing/content', { params }),

@@ -34,6 +34,7 @@ import { lifeEventsRoutes } from './routes/life-events';
 import marketingRoutes from './routes/marketing';
 import { announcementsRoutes } from './routes/announcements';
 import engagementRoutes from './routes/engagement';
+import { streaksRoutes, challengesRoutes, referralsRoutes, giftRoutes, memorialRoutes, milestonesRoutes, notificationsRoutes } from './routes/q4-features';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects } from './jobs/adoption-jobs';
@@ -669,6 +670,15 @@ protectedApp.route('/legacy-plan', legacyPlanRoutes);
 protectedApp.route('/recipient-experience', recipientExperienceRoutes);
 protectedApp.route('/story-artifacts', storyArtifactsRoutes);
 protectedApp.route('/life-events', lifeEventsRoutes);
+
+// Q4 2025 Features
+protectedApp.route('/streaks', streaksRoutes);
+protectedApp.route('/challenges', challengesRoutes);
+protectedApp.route('/referrals', referralsRoutes);
+protectedApp.route('/gifts', giftRoutes);
+protectedApp.route('/memorials', memorialRoutes);
+protectedApp.route('/milestones', milestonesRoutes);
+protectedApp.route('/notifications', notificationsRoutes);
 
 app.route('/api', protectedApp);
 

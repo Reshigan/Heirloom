@@ -45,6 +45,14 @@ import { StoryView } from './pages/StoryView';
 import { PersonPage } from './pages/PersonPage';
 import { QuickWizard } from './pages/QuickWizard';
 
+// Q4 2025 Features
+import { Streaks } from './pages/Streaks';
+import { Challenges } from './pages/Challenges';
+import { Referrals } from './pages/Referrals';
+import { GiftSubscriptions } from './pages/GiftSubscriptions';
+import { Memorials } from './pages/Memorials';
+import { Milestones } from './pages/Milestones';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -263,16 +271,66 @@ export default function App() {
                                                                                     </ProtectedRoute>
                                                                                   }
                                                                                 />
-                                                                                <Route
-                                                                                  path="/recipient-experience"
-                                                                                  element={
-                                                                                    <ProtectedRoute>
-                                                                                      <RecipientExperience />
-                                                                                    </ProtectedRoute>
-                                                                                  }
-                                                                                />
+                                                                                                                                                                <Route
+                                                                                                                                                                  path="/recipient-experience"
+                                                                                                                                                                  element={
+                                                                                                                                                                    <ProtectedRoute>
+                                                                                                                                                                      <RecipientExperience />
+                                                                                                                                                                    </ProtectedRoute>
+                                                                                                                                                                  }
+                                                                                                                                                                />
 
-                                                                                {/* Admin routes */}
+                                                                                                    {/* Q4 2025 Features */}
+                                                                                                    <Route
+                                                                                                      path="/streaks"
+                                                                                                      element={
+                                                                                                        <ProtectedRoute>
+                                                                                                          <Streaks />
+                                                                                                        </ProtectedRoute>
+                                                                                                      }
+                                                                                                    />
+                                                                                                    <Route
+                                                                                                      path="/challenges"
+                                                                                                      element={
+                                                                                                        <ProtectedRoute>
+                                                                                                          <Challenges />
+                                                                                                        </ProtectedRoute>
+                                                                                                      }
+                                                                                                    />
+                                                                                                    <Route
+                                                                                                      path="/referrals"
+                                                                                                      element={
+                                                                                                        <ProtectedRoute>
+                                                                                                          <Referrals />
+                                                                                                        </ProtectedRoute>
+                                                                                                      }
+                                                                                                    />
+                                                                                                    <Route
+                                                                                                      path="/gift-subscriptions"
+                                                                                                      element={
+                                                                                                        <ProtectedRoute>
+                                                                                                          <GiftSubscriptions />
+                                                                                                        </ProtectedRoute>
+                                                                                                      }
+                                                                                                    />
+                                                                                                    <Route
+                                                                                                      path="/memorials"
+                                                                                                      element={
+                                                                                                        <ProtectedRoute>
+                                                                                                          <Memorials />
+                                                                                                        </ProtectedRoute>
+                                                                                                      }
+                                                                                                    />
+                                                                                                    <Route
+                                                                                                      path="/milestones"
+                                                                                                      element={
+                                                                                                        <ProtectedRoute>
+                                                                                                          <Milestones />
+                                                                                                        </ProtectedRoute>
+                                                                                                      }
+                                                                                                    />
+
+                                                                                                                                                                {/* Admin routes */}
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
