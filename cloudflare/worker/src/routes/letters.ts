@@ -204,6 +204,7 @@ lettersRoutes.get('/:id', async (c) => {
     scheduledDate: letter.scheduled_date,
     sealedAt: letter.sealed_at,
     encrypted: !!letter.encrypted,
+    encryptionIv: letter.encryption_iv,
     recipients: recipients.results.map((r: any) => ({
       id: r.id,
       name: r.name,
@@ -220,7 +221,17 @@ lettersRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-  const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, recipientIds } = body;
+  const { 
+    title, 
+    salutation, 
+    body: letterBody, 
+    signature, 
+    deliveryTrigger, 
+    scheduledDate, 
+    recipientIds,
+    encrypted,
+    encryption_iv 
+  } = body;
   
   if (!letterBody) {
     return c.json({ error: 'Letter body is required' }, 400);
@@ -229,10 +240,11 @@ lettersRoutes.post('/', async (c) => {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   
+  // Store encrypted flag and IV if provided (E2E encryption)
   await c.env.DB.prepare(`
-    INSERT INTO letters (id, user_id, title, salutation, body, signature, delivery_trigger, scheduled_date, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, deliveryTrigger || 'IMMEDIATE', scheduledDate || null, now, now).run();
+    INSERT INTO letters (id, user_id, title, salutation, body, signature, delivery_trigger, scheduled_date, encrypted, encryption_iv, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, deliveryTrigger || 'IMMEDIATE', scheduledDate || null, encrypted ? 1 : 0, encryption_iv || null, now, now).run();
   
   // Add recipients if provided
   if (recipientIds && recipientIds.length > 0) {
@@ -255,6 +267,8 @@ lettersRoutes.post('/', async (c) => {
     body: letter?.body,
     signature: letter?.signature,
     deliveryTrigger: letter?.delivery_trigger,
+    encrypted: !!letter?.encrypted,
+    encryptionIv: letter?.encryption_iv,
     createdAt: letter?.created_at,
   }, 201);
 });
@@ -278,10 +292,11 @@ lettersRoutes.patch('/:id', async (c) => {
     return c.json({ error: 'Cannot edit a sealed letter' }, 403);
   }
   
-  const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, recipientIds } = body;
+  const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, recipientIds, encrypted, encryption_iv } = body;
   const now = new Date().toISOString();
   
   // Convert undefined to null for D1 compatibility
+  // Include encryption fields if provided (E2E encryption)
   await c.env.DB.prepare(`
     UPDATE letters 
     SET title = COALESCE(?, title),
@@ -290,6 +305,8 @@ lettersRoutes.patch('/:id', async (c) => {
         signature = COALESCE(?, signature),
         delivery_trigger = COALESCE(?, delivery_trigger),
         scheduled_date = COALESCE(?, scheduled_date),
+        encrypted = COALESCE(?, encrypted),
+        encryption_iv = COALESCE(?, encryption_iv),
         updated_at = ?
     WHERE id = ?
   `).bind(
@@ -299,6 +316,8 @@ lettersRoutes.patch('/:id', async (c) => {
     signature ?? null, 
     deliveryTrigger ?? null, 
     scheduledDate ?? null, 
+    encrypted !== undefined ? (encrypted ? 1 : 0) : null,
+    encryption_iv ?? null,
     now, 
     letterId
   ).run();
@@ -330,6 +349,8 @@ lettersRoutes.patch('/:id', async (c) => {
     body: letter?.body,
     signature: letter?.signature,
     deliveryTrigger: letter?.delivery_trigger,
+    encrypted: !!letter?.encrypted,
+    encryptionIv: letter?.encryption_iv,
     updatedAt: letter?.updated_at,
   });
 });

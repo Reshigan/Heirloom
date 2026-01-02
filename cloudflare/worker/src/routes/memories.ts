@@ -295,7 +295,7 @@ memoriesRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-    const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds, memoryDate } = body;
+    const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds, memoryDate, encrypted, encryption_iv } = body;
   
     if (!type || !title) {
       return c.json({ error: 'Type and title are required' }, 400);
@@ -318,9 +318,9 @@ memoriesRoutes.post('/', async (c) => {
   };
   
     await c.env.DB.prepare(`
-      INSERT INTO memories (id, user_id, type, title, description, file_url, file_key, file_size, mime_type, metadata, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), createdAt, now).run();
+      INSERT INTO memories (id, user_id, type, title, description, file_url, file_key, file_size, mime_type, metadata, encrypted, encryption_iv, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), encrypted ? 1 : 0, encryption_iv || null, createdAt, now).run();
   
   // Add recipients
   if (recipientIds && recipientIds.length > 0) {
