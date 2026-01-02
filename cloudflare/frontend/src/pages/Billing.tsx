@@ -196,7 +196,7 @@ export function Billing() {
           {PLANS.map((plan, index) => {
             const Icon = plan.icon;
             const isCurrent = isCurrentPlan(plan.id);
-            const price = billingCycle === 'yearly' ? plan.yearlyPrice : plan.price;
+            const price = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
             
             return (
               <motion.div
