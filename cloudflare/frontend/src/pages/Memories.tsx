@@ -623,18 +623,18 @@ export function Memories() {
                             />
                             <div className="w-full h-full items-center justify-center hidden">
                               {memory.type === 'VIDEO' ? (
-                                <Video size={40} className="text-paper/30" />
+                                <Video size={40} className="text-paper/60" />
                               ) : (
-                                <Image size={40} className="text-paper/30" />
+                                <Image size={40} className="text-paper/60" />
                               )}
                             </div>
                           </>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             {memory.type === 'VIDEO' ? (
-                              <Video size={40} className="text-paper/30" />
+                              <Video size={40} className="text-paper/60" />
                             ) : (
-                              <Image size={40} className="text-paper/30" />
+                              <Image size={40} className="text-paper/60" />
                             )}
                           </div>
                         )}
@@ -670,9 +670,9 @@ export function Memories() {
                         {memory.fileUrl ? (
                           <img src={memory.fileUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
                         ) : memory.type === 'VIDEO' ? (
-                          <Video size={24} className="text-paper/30" />
+                          <Video size={24} className="text-paper/60" />
                         ) : (
-                          <Image size={24} className="text-paper/30" />
+                          <Image size={24} className="text-paper/60" />
                         )}
                       </div>
                       <div className="flex-1 text-left">
@@ -684,7 +684,7 @@ export function Memories() {
                         {memory.description && (
                           <div className="text-paper/50 text-sm truncate">{memory.description}</div>
                         )}
-                        <div className="text-paper/30 text-xs mt-1">{new Date(memory.createdAt).toLocaleDateString()}</div>
+                        <div className="text-paper/60 text-xs mt-1">{new Date(memory.createdAt).toLocaleDateString()}</div>
                       </div>
                       <span className={`badge ${memory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
                         {memory.type}
@@ -701,7 +701,7 @@ export function Memories() {
               className="text-center py-20"
             >
               <div className="w-24 h-24 rounded-full glass flex items-center justify-center mx-auto mb-6">
-                <Image size={40} className="text-paper/30" />
+                <Image size={40} className="text-paper/60" />
               </div>
               {memories?.memories?.length > 0 ? (
                 <>
@@ -878,9 +878,9 @@ export function Memories() {
                     </div>
                   ) : (
                     <>
-                      <Upload size={32} className="text-paper/30 mx-auto mb-3" />
+                      <Upload size={32} className="text-paper/60 mx-auto mb-3" />
                       <p className="text-paper/50">Click to upload photo or video</p>
-                      <p className="text-paper/30 text-sm mt-1">Max 50MB</p>
+                      <p className="text-paper/60 text-sm mt-1">Max 50MB</p>
                     </>
                   )}
                 </div>
