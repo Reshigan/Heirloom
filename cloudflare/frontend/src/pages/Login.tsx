@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
+import { VaultModal } from '../components/VaultModal';
+import { encryptionService } from '../services/encryptionService';
 
 export function Login() {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ export function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showIntro, setShowIntro] = useState(true);
+  const [showVaultUnlock, setShowVaultUnlock] = useState(false);
 
   // Startup animation
   useEffect(() => {
@@ -28,7 +31,16 @@ export function Login() {
 
     try {
       await login(email, password);
-      navigate('/dashboard');
+      
+      // Check if user has encryption enabled
+      const encryptionStatus = await encryptionService.getStatus();
+      if (encryptionStatus.enabled && !encryptionStatus.unlocked) {
+        // Show vault unlock modal
+        setShowVaultUnlock(true);
+      } else {
+        // No encryption or already unlocked, go to dashboard
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password');
     } finally {
@@ -287,6 +299,16 @@ export function Login() {
           </div>
         </div>
       </motion.div>
+
+      {/* Vault Unlock Modal - shown after login if encryption is enabled */}
+      <VaultModal
+        isOpen={showVaultUnlock}
+        mode="unlock"
+        onComplete={() => {
+          setShowVaultUnlock(false);
+          navigate('/dashboard');
+        }}
+      />
     </div>
   );
 }
