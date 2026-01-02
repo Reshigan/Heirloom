@@ -207,6 +207,8 @@ export const encryptionApi = {
     api.post('/encryption/setup', data),
   getParams: () => api.get('/encryption/params'),
   getStatus: () => api.get('/encryption/status'),
+  getSalt: () => api.get('/encryption/salt'),
+  getMasterKey: () => api.get('/encryption/master-key'),
   setupEscrow: (data: { beneficiaryIds: string[]; encryptedKey: string }) =>
     api.post('/encryption/escrow', data),
   getEscrow: () => api.get('/encryption/escrow'),

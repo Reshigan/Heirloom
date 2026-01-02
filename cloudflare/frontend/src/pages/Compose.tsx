@@ -4,6 +4,7 @@ import { Navigation } from '../components/Navigation';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 import { InspirationPrompt } from '../components/InspirationPrompt';
 import { lettersApi, familyApi, aiApi } from '../services/api';
+import { encryptionService } from '../services/encryptionService';
 
 
 // Custom SVG Icons
@@ -127,6 +128,8 @@ interface Letter {
   sealedAt?: string;
   createdAt: string;
   updatedAt: string;
+  encrypted?: boolean;
+  encryptionIv?: string;
 }
 
 interface FamilyMember {
@@ -261,19 +264,53 @@ export function Compose() {
         setIsLoading(false);
         return;
       }
-      setLetters(lettersData.map((letter: any) => ({
-        id: letter.id,
-        title: letter.title,
-        body: letter.body || letter.bodyPreview || letter.content || '',
-        salutation: letter.salutation || 'Dear',
-        signature: letter.signature || 'With love',
-        recipients: letter.recipients?.map((r: any) => r.familyMemberId || r.id) || [],
-        deliveryTrigger: letter.deliveryTrigger || 'POSTHUMOUS',
-        scheduledDate: letter.scheduledDate,
-        sealedAt: letter.sealedAt,
-        createdAt: letter.createdAt,
-        updatedAt: letter.updatedAt,
-      })));
+      
+      // Process letters and decrypt if needed
+      const processedLetters = await Promise.all(lettersData.map(async (letter: any) => {
+        let processedLetter = {
+          id: letter.id,
+          title: letter.title,
+          body: letter.body || letter.bodyPreview || letter.content || '',
+          salutation: letter.salutation || 'Dear',
+          signature: letter.signature || 'With love',
+          recipients: letter.recipients?.map((r: any) => r.familyMemberId || r.id) || [],
+          deliveryTrigger: letter.deliveryTrigger || 'POSTHUMOUS',
+          scheduledDate: letter.scheduledDate,
+          sealedAt: letter.sealedAt,
+          createdAt: letter.createdAt,
+          updatedAt: letter.updatedAt,
+          encrypted: letter.encrypted,
+          encryptionIv: letter.encryptionIv,
+        };
+
+        // Decrypt letter content if encrypted and vault is unlocked
+        if (letter.encrypted && letter.encryptionIv && encryptionService.isVaultUnlocked()) {
+          try {
+            const decryptedData = await encryptionService.decryptLetterData({
+              title: letter.title,
+              salutation: letter.salutation,
+              body: letter.body,
+              signature: letter.signature,
+              encrypted: letter.encrypted,
+              encryption_iv: letter.encryptionIv,
+            });
+            processedLetter = {
+              ...processedLetter,
+              title: decryptedData.title || processedLetter.title,
+              salutation: decryptedData.salutation || processedLetter.salutation,
+              body: decryptedData.body,
+              signature: decryptedData.signature || processedLetter.signature,
+            };
+          } catch (decryptError) {
+            console.warn('Failed to decrypt letter:', decryptError);
+            // Keep encrypted content if decryption fails
+          }
+        }
+
+        return processedLetter;
+      }));
+
+      setLetters(processedLetters);
     } catch (error) {
       console.error('Failed to fetch letters:', error);
       setLetters([]);
@@ -332,7 +369,18 @@ export function Compose() {
     const handleSaveDraft = async () => {
       setIsSaving(true);
       try {
-        const letterData = {
+        // Check if encryption is available and encrypt the letter data
+        let letterData: {
+          title: string;
+          salutation: string;
+          body: string;
+          signature: string;
+          recipientIds: string[];
+          deliveryTrigger: string;
+          scheduledDate?: string;
+          encrypted?: boolean;
+          encryption_iv?: string;
+        } = {
           title,
           salutation,
           body,
@@ -341,6 +389,30 @@ export function Compose() {
           deliveryTrigger,
           scheduledDate: scheduledDate || undefined,
         };
+
+        // Encrypt letter content if vault is unlocked (E2E encryption)
+        if (encryptionService.isVaultUnlocked()) {
+          try {
+            const encryptedData = await encryptionService.encryptLetterData({
+              title,
+              salutation,
+              body,
+              signature,
+            });
+            letterData = {
+              ...letterData,
+              title: encryptedData.title || title,
+              salutation: encryptedData.salutation || salutation,
+              body: encryptedData.body,
+              signature: encryptedData.signature || signature,
+              encrypted: encryptedData.encrypted,
+              encryption_iv: encryptedData.encryption_iv,
+            };
+          } catch (encryptError) {
+            console.warn('Encryption failed, saving unencrypted:', encryptError);
+            // Continue with unencrypted data if encryption fails
+          }
+        }
       
         if (selectedLetter) {
           await lettersApi.update(selectedLetter.id, letterData);
@@ -376,7 +448,18 @@ export function Compose() {
         if (selectedLetter) {
           await lettersApi.seal(selectedLetter.id);
         } else {
-          const letterData = {
+          // Prepare letter data with encryption if available
+          let letterData: {
+            title: string;
+            salutation: string;
+            body: string;
+            signature: string;
+            recipientIds: string[];
+            deliveryTrigger: string;
+            scheduledDate?: string;
+            encrypted?: boolean;
+            encryption_iv?: string;
+          } = {
             title,
             salutation,
             body,
@@ -385,6 +468,30 @@ export function Compose() {
             deliveryTrigger,
             scheduledDate: scheduledDate || undefined,
           };
+
+          // Encrypt letter content if vault is unlocked (E2E encryption)
+          if (encryptionService.isVaultUnlocked()) {
+            try {
+              const encryptedData = await encryptionService.encryptLetterData({
+                title,
+                salutation,
+                body,
+                signature,
+              });
+              letterData = {
+                ...letterData,
+                title: encryptedData.title || title,
+                salutation: encryptedData.salutation || salutation,
+                body: encryptedData.body,
+                signature: encryptedData.signature || signature,
+                encrypted: encryptedData.encrypted,
+                encryption_iv: encryptedData.encryption_iv,
+              };
+            } catch (encryptError) {
+              console.warn('Encryption failed, saving unencrypted:', encryptError);
+            }
+          }
+
           const response = await lettersApi.create(letterData);
           await lettersApi.seal(response.data.id);
         }
