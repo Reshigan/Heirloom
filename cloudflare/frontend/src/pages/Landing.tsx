@@ -25,32 +25,40 @@ export function Landing() {
     { icon: Lock, title: 'E2E Encryption', desc: 'Zero-knowledge architecture. Only you and your beneficiaries can decrypt.' },
   ];
   
-  // Mass-Adoption Pricing: $1 / $2 / $5
+  // New Pricing: $4.99 / $9.99 / $19.99 with 14-day free trial
   const plans = [
     { 
       name: 'Starter', 
-      price: '$1', 
+      price: '$4.99', 
       period: '/month',
-      yearlyPrice: '$10/year',
-      features: ['500MB storage', '3 voice recordings/month', '5 letters/month', '50 photos', '2 family members'],
+      yearlyPrice: '$49.99/year',
+      features: ['5GB storage', '1 user account', '50 memories/month', 'AI memory prompts', 'Email support', 'PDF export'],
       popular: false 
     },
     { 
       name: 'Family', 
-      price: '$2', 
+      price: '$9.99', 
       period: '/month',
-      yearlyPrice: '$20/year',
-      features: ['5GB storage', '20 voice recordings/month', 'Unlimited letters', 'Unlimited photos', '10 family members', '2 min video messages', 'Family tree'],
+      yearlyPrice: '$99.99/year',
+      features: ['50GB storage', 'Up to 5 family members', 'Unlimited memories', 'AI insights', 'Priority support', 'Video montage', 'Family tree'],
       popular: true 
     },
     { 
-      name: 'Forever', 
-      price: '$5', 
+      name: 'Legacy', 
+      price: '$19.99', 
       period: '/month',
-      yearlyPrice: '$50/year',
-      features: ['25GB storage', 'Unlimited voice', 'Unlimited letters', 'Unlimited photos', 'Unlimited family', '10 min video', 'AI transcription', 'Priority support'],
+      yearlyPrice: '$199.99/year',
+      features: ['500GB storage', 'Unlimited family', 'Unlimited memories', 'AI Avatar (coming soon)', 'Dedicated support', 'API access', 'Physical memory book'],
       popular: false 
     },
+  ];
+  
+  // Zero-knowledge privacy features
+  const privacyFeatures = [
+    { icon: Lock, title: 'End-to-End Encryption', desc: 'Your memories are encrypted on your device before upload. We never see your content.' },
+    { icon: KeyRound, title: 'Zero-Knowledge Architecture', desc: 'We cannot access, read, or share your memories. Only you and your chosen recipients hold the keys.' },
+    { icon: FileKey, title: 'Client-Side Encryption', desc: 'Encryption happens in your browser. Your data is unreadable to us, even in transit.' },
+    { icon: ShieldCheck, title: 'No Data Mining', desc: 'We don\'t analyze, sell, or monetize your memories. Your privacy is our promise.' },
   ];
 
   return (
@@ -437,7 +445,7 @@ export function Landing() {
           >
             <span className="text-gold tracking-[0.3em] text-sm">PRICING</span>
             <h2 className="text-4xl md:text-5xl font-light mt-4">Simple, transparent pricing</h2>
-            <p className="text-paper/50 mt-4">Start with a 14-day free trial. No credit card required.</p>
+            <p className="text-paper/50 mt-4">Start with a 14-day free trial. Full Family tier access. Cancel anytime.</p>
           </motion.div>
           
           <div className="grid md:grid-cols-3 gap-6">
@@ -485,7 +493,7 @@ export function Landing() {
         </div>
       </section>
       
-      {/* Military-Grade Security */}
+      {/* True Zero-Knowledge Privacy */}
       <section className="py-32 px-6 md:px-12 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/30 to-transparent" />
         
@@ -497,31 +505,15 @@ export function Landing() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <span className="text-gold tracking-[0.3em] text-sm">SECURITY</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">Military-Grade Encryption</h2>
+            <span className="text-gold tracking-[0.3em] text-sm">TRUE ZERO-KNOWLEDGE</span>
+            <h2 className="text-4xl md:text-5xl font-light mt-4">We Can't See Your Memories. Ever.</h2>
             <p className="text-paper/50 mt-4 max-w-2xl mx-auto">
-              Your memories are protected with the same encryption standards used by governments and financial institutions worldwide.
+              Your memories are encrypted on your device before they ever leave it. We have zero access to your content — not our engineers, not our servers, not anyone. Only you and your chosen recipients hold the keys.
             </p>
           </motion.div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: ShieldCheck,
-                title: 'AES-256 Encryption',
-                desc: 'Your data is encrypted with AES-256, the gold standard used by the U.S. government for classified information. Virtually unbreakable.',
-              },
-              {
-                icon: KeyRound,
-                title: 'Zero-Knowledge Architecture',
-                desc: 'We never see your data. Your encryption keys are derived from your password and never leave your device. Not even we can access your content.',
-              },
-              {
-                icon: FileKey,
-                title: 'End-to-End Encrypted',
-                desc: 'From the moment you create content to when your loved ones receive it, everything is encrypted. No middleman can ever read your memories.',
-              },
-            ].map((item, i) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {privacyFeatures.map((item, i) => (
               <motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 30 }}
@@ -530,11 +522,11 @@ export function Landing() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="card text-center"
               >
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full glass flex items-center justify-center">
-                  <item.icon size={28} className="text-gold" strokeWidth={1.5} />
+                <div className="w-14 h-14 mx-auto mb-5 rounded-full glass flex items-center justify-center">
+                  <item.icon size={24} className="text-gold" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-xl font-medium mb-3">{item.title}</h3>
-                <p className="text-paper/50 leading-relaxed">{item.desc}</p>
+                <h3 className="text-lg font-medium mb-2">{item.title}</h3>
+                <p className="text-paper/50 text-sm leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -543,12 +535,32 @@ export function Landing() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-12 text-center"
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mt-16 card border-gold/20"
+          >
+            <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+              <div className="w-20 h-20 rounded-full glass flex items-center justify-center flex-shrink-0">
+                <Shield size={36} className="text-gold" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-medium mb-2">Our Zero-Knowledge Promise</h3>
+                <p className="text-paper/60 leading-relaxed">
+                  Unlike other platforms that store your data in readable form, Heirloom uses client-side encryption. Your memories are encrypted in your browser using AES-256 before upload. We store only encrypted blobs — meaningless without your keys. We cannot read, analyze, or share your content. We cannot comply with data requests because we literally cannot decrypt your memories. This is true zero-knowledge architecture.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-8 text-center"
           >
             <div className="inline-flex items-center gap-3 px-6 py-3 glass-subtle rounded-full">
               <Lock size={18} className="text-gold" />
-              <span className="text-paper/60 text-sm">Enterprise-grade security • Privacy-first design • Encrypted at rest</span>
+              <span className="text-paper/60 text-sm">AES-256 encryption • Client-side encryption • No data mining • Privacy by design</span>
             </div>
           </motion.div>
         </div>

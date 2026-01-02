@@ -28,28 +28,39 @@ function generateVoucherCode(): string {
   return code;
 }
 
-// Pricing by tier and cycle (in cents for Stripe)
-// Note: quarterly = 3 months at regular price (no discount)
+// Pricing by tier and duration (in cents for Stripe)
+// Durations: 3 months, 6 months, 12 months (yearly), 24 months
 const GIFT_PRICING: Record<string, Record<string, Record<string, number>>> = {
   USD: {
-    STARTER: { quarterly: 300, yearly: 1000 },
-    FAMILY: { quarterly: 1500, yearly: 5000 },
-    FOREVER: { quarterly: 4500, yearly: 15000 },
+    STARTER: { '3': 1499, '6': 2799, '12': 4999, '24': 8499 },
+    FAMILY: { '3': 2999, '6': 5499, '12': 9999, '24': 16999 },
+    LEGACY: { '3': 5999, '6': 10999, '12': 19999, '24': 33999 },
+    // Backward compatibility
+    FOREVER: { '3': 5999, '6': 10999, '12': 19999, '24': 33999 },
   },
   ZAR: {
-    STARTER: { quarterly: 5400, yearly: 18000 },
-    FAMILY: { quarterly: 27000, yearly: 90000 },
-    FOREVER: { quarterly: 81000, yearly: 270000 },
+    STARTER: { '3': 14700, '6': 27400, '12': 49900, '24': 84900 },
+    FAMILY: { '3': 29700, '6': 54900, '12': 99900, '24': 169900 },
+    LEGACY: { '3': 50700, '6': 93400, '12': 169900, '24': 288900 },
+    FOREVER: { '3': 50700, '6': 93400, '12': 169900, '24': 288900 },
   },
   GBP: {
-    STARTER: { quarterly: 237, yearly: 790 },
-    FAMILY: { quarterly: 1197, yearly: 3990 },
-    FOREVER: { quarterly: 3597, yearly: 11990 },
+    STARTER: { '3': 1199, '6': 2199, '12': 3999, '24': 6799 },
+    FAMILY: { '3': 2399, '6': 4399, '12': 7999, '24': 13599 },
+    LEGACY: { '3': 4799, '6': 8799, '12': 15999, '24': 27199 },
+    FOREVER: { '3': 4799, '6': 8799, '12': 15999, '24': 27199 },
   },
   EUR: {
-    STARTER: { quarterly: 297, yearly: 990 },
-    FAMILY: { quarterly: 1497, yearly: 4990 },
-    FOREVER: { quarterly: 4497, yearly: 14990 },
+    STARTER: { '3': 1199, '6': 2199, '12': 3999, '24': 6799 },
+    FAMILY: { '3': 2399, '6': 4399, '12': 7999, '24': 13599 },
+    LEGACY: { '3': 4499, '6': 8299, '12': 14999, '24': 25499 },
+    FOREVER: { '3': 4499, '6': 8299, '12': 14999, '24': 25499 },
+  },
+  INR: {
+    STARTER: { '12': 149900, '24': 254900 },
+    FAMILY: { '12': 299900, '24': 509900 },
+    LEGACY: { '12': 599900, '24': 1019900 },
+    FOREVER: { '12': 599900, '24': 1019900 },
   },
 };
 

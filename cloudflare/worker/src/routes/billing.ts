@@ -1,12 +1,18 @@
 /**
- * Heirloom Billing Routes - FINAL PRODUCTION VERSION
+ * Heirloom Billing Routes - PRODUCTION VERSION
  * 
- * Simple 3-tier pricing based on storage:
- * - Starter: $1/mo - 500MB
- * - Family: $5/mo - 5GB  
- * - Forever: $15/mo - 50GB
+ * 3-tier pricing with regional PPP adjustments:
+ * - Starter: $4.99/mo - 5GB storage, 1 user
+ * - Family: $9.99/mo - 50GB storage, 5 family members
+ * - Legacy: $19.99/mo - 500GB storage, unlimited family
  * 
- * All tiers get ALL features. Only storage differs.
+ * Regional Pricing Tiers:
+ * - Tier 1: US, UK, CA, AU, NZ (full price)
+ * - Tier 2: EU, Western Europe (EUR pricing)
+ * - Tier 3: ZA, BR, MX, Southeast Asia (50% PPP)
+ * - Tier 4: IN, NG, KE, PK (annual-only, 30% PPP)
+ * 
+ * 14-day free trial with credit card required.
  * Auto-detects country from Cloudflare for regional pricing.
  */
 
@@ -17,128 +23,166 @@ import { sendEmail } from '../utils/email';
 export const billingRoutes = new Hono<AppEnv>();
 
 // =============================================================================
-// COUNTRY → CURRENCY MAPPING
+// PRICING TIER CONFIGURATION
+// =============================================================================
+type PricingTier = 'tier1' | 'tier2' | 'tier3' | 'tier4';
+
+const COUNTRY_TO_PRICING_TIER: Record<string, PricingTier> = {
+  // Tier 1 - Full price (US, UK, CA, AU, NZ)
+  US: 'tier1', GB: 'tier1', CA: 'tier1', AU: 'tier1', NZ: 'tier1',
+  
+  // Tier 2 - EU pricing (Western Europe)
+  DE: 'tier2', FR: 'tier2', IT: 'tier2', ES: 'tier2', NL: 'tier2',
+  BE: 'tier2', AT: 'tier2', IE: 'tier2', PT: 'tier2', FI: 'tier2',
+  GR: 'tier2', SK: 'tier2', SI: 'tier2', LT: 'tier2', LV: 'tier2',
+  EE: 'tier2', CY: 'tier2', MT: 'tier2', LU: 'tier2',
+  
+  // Tier 3 - 50% PPP (ZA, BR, MX, Southeast Asia)
+  ZA: 'tier3', BR: 'tier3', MX: 'tier3', AR: 'tier3',
+  TH: 'tier3', MY: 'tier3', PH: 'tier3', ID: 'tier3',
+  
+  // Tier 4 - 30% PPP, annual-only (IN, NG, KE, PK, BD, EG, GH)
+  IN: 'tier4', NG: 'tier4', KE: 'tier4', PK: 'tier4',
+  BD: 'tier4', EG: 'tier4', GH: 'tier4',
+};
+
+const PRICING_TIER_CURRENCY: Record<PricingTier, string> = {
+  tier1: 'USD',
+  tier2: 'EUR',
+  tier3: 'ZAR',
+  tier4: 'INR',
+};
+
+// =============================================================================
+// COUNTRY → CURRENCY MAPPING (for display)
 // =============================================================================
 const COUNTRY_CURRENCY: Record<string, string> = {
-  // Africa
-  ZA: 'ZAR', NG: 'NGN', KE: 'KES', GH: 'GHS', TZ: 'TZS', UG: 'UGX', 
-  RW: 'RWF', ZW: 'USD', BW: 'BWP', NA: 'NAD', MZ: 'MZN', ZM: 'ZMW',
+  // Tier 1
+  US: 'USD', GB: 'GBP', CA: 'CAD', AU: 'AUD', NZ: 'NZD',
   
-  // Europe
-  GB: 'GBP',
+  // Tier 2 (EUR)
   DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', 
   IE: 'EUR', PT: 'EUR', FI: 'EUR', GR: 'EUR', SK: 'EUR', SI: 'EUR', LT: 'EUR',
   LV: 'EUR', EE: 'EUR', CY: 'EUR', MT: 'EUR', LU: 'EUR',
   
-  // Asia
-  IN: 'INR', PK: 'PKR', BD: 'BDT', PH: 'PHP', ID: 'IDR', MY: 'MYR', 
-  SG: 'SGD', TH: 'THB', VN: 'VND', JP: 'JPY', KR: 'KRW', CN: 'CNY', 
-  HK: 'HKD', TW: 'TWD', AE: 'AED', SA: 'SAR',
+  // Tier 3
+  ZA: 'ZAR', BR: 'BRL', MX: 'MXN', AR: 'ARS',
+  TH: 'THB', MY: 'MYR', PH: 'PHP', ID: 'IDR',
   
-  // Americas
-  US: 'USD', CA: 'CAD', MX: 'MXN', BR: 'BRL', AR: 'ARS', CO: 'COP', CL: 'CLP', PE: 'PEN',
-  
-  // Oceania
-  AU: 'AUD', NZ: 'NZD',
+  // Tier 4
+  IN: 'INR', NG: 'NGN', KE: 'KES', PK: 'PKR', BD: 'BDT', EG: 'EGP', GH: 'GHS',
 };
 
 // =============================================================================
-// PRICING BY CURRENCY
+// PRICING BY CURRENCY - Updated for new pricing structure
 // =============================================================================
 const PRICING: Record<string, {
   symbol: string;
   code: string;
+  tier: PricingTier;
+  annualOnly?: boolean;
   STARTER: { monthly: number; yearly: number };
   FAMILY: { monthly: number; yearly: number };
-  FOREVER: { monthly: number; yearly: number };
+  LEGACY: { monthly: number; yearly: number };
 }> = {
+  // Tier 1 - Full price
   USD: {
-    symbol: '$', code: 'USD',
-    STARTER: { monthly: 1, yearly: 10 },
-    FAMILY: { monthly: 5, yearly: 50 },
-    FOREVER: { monthly: 15, yearly: 150 },
-  },
-  ZAR: {
-    symbol: 'R', code: 'ZAR',
-    STARTER: { monthly: 18, yearly: 180 },
-    FAMILY: { monthly: 90, yearly: 900 },
-    FOREVER: { monthly: 270, yearly: 2700 },
-  },
-  NGN: {
-    symbol: '₦', code: 'NGN',
-    STARTER: { monthly: 500, yearly: 5000 },
-    FAMILY: { monthly: 2500, yearly: 25000 },
-    FOREVER: { monthly: 7500, yearly: 75000 },
-  },
-  KES: {
-    symbol: 'KSh', code: 'KES',
-    STARTER: { monthly: 100, yearly: 1000 },
-    FAMILY: { monthly: 500, yearly: 5000 },
-    FOREVER: { monthly: 1500, yearly: 15000 },
-  },
-  GHS: {
-    symbol: 'GH₵', code: 'GHS',
-    STARTER: { monthly: 12, yearly: 120 },
-    FAMILY: { monthly: 60, yearly: 600 },
-    FOREVER: { monthly: 180, yearly: 1800 },
-  },
-  INR: {
-    symbol: '₹', code: 'INR',
-    STARTER: { monthly: 50, yearly: 500 },
-    FAMILY: { monthly: 250, yearly: 2500 },
-    FOREVER: { monthly: 750, yearly: 7500 },
+    symbol: '$', code: 'USD', tier: 'tier1',
+    STARTER: { monthly: 4.99, yearly: 49.99 },
+    FAMILY: { monthly: 9.99, yearly: 99.99 },
+    LEGACY: { monthly: 19.99, yearly: 199.99 },
   },
   GBP: {
-    symbol: '£', code: 'GBP',
-    STARTER: { monthly: 0.79, yearly: 7.90 },
-    FAMILY: { monthly: 3.99, yearly: 39.90 },
-    FOREVER: { monthly: 11.99, yearly: 119.90 },
-  },
-  EUR: {
-    symbol: '€', code: 'EUR',
-    STARTER: { monthly: 0.99, yearly: 9.90 },
-    FAMILY: { monthly: 4.99, yearly: 49.90 },
-    FOREVER: { monthly: 14.99, yearly: 149.90 },
+    symbol: '£', code: 'GBP', tier: 'tier1',
+    STARTER: { monthly: 3.99, yearly: 39.99 },
+    FAMILY: { monthly: 7.99, yearly: 79.99 },
+    LEGACY: { monthly: 15.99, yearly: 159.99 },
   },
   CAD: {
-    symbol: 'C$', code: 'CAD',
-    STARTER: { monthly: 1.39, yearly: 13.90 },
-    FAMILY: { monthly: 6.99, yearly: 69.90 },
-    FOREVER: { monthly: 20.99, yearly: 209.90 },
+    symbol: 'C$', code: 'CAD', tier: 'tier1',
+    STARTER: { monthly: 6.99, yearly: 69.99 },
+    FAMILY: { monthly: 13.99, yearly: 139.99 },
+    LEGACY: { monthly: 27.99, yearly: 279.99 },
   },
   AUD: {
-    symbol: 'A$', code: 'AUD',
-    STARTER: { monthly: 1.49, yearly: 14.90 },
-    FAMILY: { monthly: 7.49, yearly: 74.90 },
-    FOREVER: { monthly: 22.49, yearly: 224.90 },
+    symbol: 'A$', code: 'AUD', tier: 'tier1',
+    STARTER: { monthly: 7.99, yearly: 79.99 },
+    FAMILY: { monthly: 15.99, yearly: 159.99 },
+    LEGACY: { monthly: 31.99, yearly: 319.99 },
+  },
+  NZD: {
+    symbol: 'NZ$', code: 'NZD', tier: 'tier1',
+    STARTER: { monthly: 8.99, yearly: 89.99 },
+    FAMILY: { monthly: 17.99, yearly: 179.99 },
+    LEGACY: { monthly: 35.99, yearly: 359.99 },
+  },
+  
+  // Tier 2 - EU pricing
+  EUR: {
+    symbol: '€', code: 'EUR', tier: 'tier2',
+    STARTER: { monthly: 3.99, yearly: 39.99 },
+    FAMILY: { monthly: 7.99, yearly: 79.99 },
+    LEGACY: { monthly: 14.99, yearly: 149.99 },
+  },
+  
+  // Tier 3 - 50% PPP (ZAR as base)
+  ZAR: {
+    symbol: 'R', code: 'ZAR', tier: 'tier3',
+    STARTER: { monthly: 49, yearly: 499 },
+    FAMILY: { monthly: 99, yearly: 999 },
+    LEGACY: { monthly: 169, yearly: 1699 },
   },
   BRL: {
-    symbol: 'R$', code: 'BRL',
-    STARTER: { monthly: 5, yearly: 50 },
-    FAMILY: { monthly: 25, yearly: 250 },
-    FOREVER: { monthly: 75, yearly: 750 },
+    symbol: 'R$', code: 'BRL', tier: 'tier3',
+    STARTER: { monthly: 14.99, yearly: 149.99 },
+    FAMILY: { monthly: 29.99, yearly: 299.99 },
+    LEGACY: { monthly: 59.99, yearly: 599.99 },
   },
   MXN: {
-    symbol: 'MX$', code: 'MXN',
-    STARTER: { monthly: 18, yearly: 180 },
-    FAMILY: { monthly: 90, yearly: 900 },
-    FOREVER: { monthly: 270, yearly: 2700 },
+    symbol: 'MX$', code: 'MXN', tier: 'tier3',
+    STARTER: { monthly: 49, yearly: 499 },
+    FAMILY: { monthly: 99, yearly: 999 },
+    LEGACY: { monthly: 199, yearly: 1999 },
   },
   PHP: {
-    symbol: '₱', code: 'PHP',
-    STARTER: { monthly: 50, yearly: 500 },
-    FAMILY: { monthly: 250, yearly: 2500 },
-    FOREVER: { monthly: 750, yearly: 7500 },
+    symbol: '₱', code: 'PHP', tier: 'tier3',
+    STARTER: { monthly: 149, yearly: 1499 },
+    FAMILY: { monthly: 299, yearly: 2999 },
+    LEGACY: { monthly: 599, yearly: 5999 },
+  },
+  
+  // Tier 4 - 30% PPP, annual-only
+  INR: {
+    symbol: '₹', code: 'INR', tier: 'tier4', annualOnly: true,
+    STARTER: { monthly: 0, yearly: 1499 },
+    FAMILY: { monthly: 0, yearly: 2999 },
+    LEGACY: { monthly: 0, yearly: 5999 },
+  },
+  NGN: {
+    symbol: '₦', code: 'NGN', tier: 'tier4', annualOnly: true,
+    STARTER: { monthly: 0, yearly: 14999 },
+    FAMILY: { monthly: 0, yearly: 29999 },
+    LEGACY: { monthly: 0, yearly: 59999 },
+  },
+  KES: {
+    symbol: 'KSh', code: 'KES', tier: 'tier4', annualOnly: true,
+    STARTER: { monthly: 0, yearly: 4999 },
+    FAMILY: { monthly: 0, yearly: 9999 },
+    LEGACY: { monthly: 0, yearly: 19999 },
   },
   PKR: {
-    symbol: 'Rs', code: 'PKR',
-    STARTER: { monthly: 250, yearly: 2500 },
-    FAMILY: { monthly: 1250, yearly: 12500 },
-    FOREVER: { monthly: 3750, yearly: 37500 },
+    symbol: 'Rs', code: 'PKR', tier: 'tier4', annualOnly: true,
+    STARTER: { monthly: 0, yearly: 9999 },
+    FAMILY: { monthly: 0, yearly: 19999 },
+    LEGACY: { monthly: 0, yearly: 39999 },
   },
 };
 
 const DEFAULT_CURRENCY = 'USD';
+
+// Trial configuration
+const TRIAL_DAYS = 14;
+const TRIAL_TIER = 'FAMILY'; // Trial users get Family tier features
 
 // =============================================================================
 // HELPERS
@@ -161,60 +205,111 @@ function getCountryFromRequest(c: any): string {
 }
 
 // =============================================================================
-// TIER LIMITS - SIMPLE STORAGE-BASED (ALL FEATURES INCLUDED)
+// TIER LIMITS - Feature-based tiers
 // =============================================================================
 const TIER_LIMITS = {
   STARTER: {
-    maxStorage: 500 * 1024 * 1024, // 500MB
-    maxStorageLabel: '500 MB',
+    maxStorage: 5 * 1024 * 1024 * 1024, // 5GB
+    maxStorageLabel: '5 GB',
+    maxMemoriesPerMonth: 50,
+    maxFamilyMembers: 1,
     maxRecipients: -1,
     maxLetters: -1,
     maxVoiceMinutes: -1,
     maxPhotos: -1,
-    maxFamilyMembers: -1,
     maxVideoMinutes: 5,
     posthumousDelivery: true,
     deadManSwitchDays: 30,
-    familyTree: true,
-    aiTranscription: true,
+    familyTree: false,
+    aiTranscription: false,
     aiLetterHelp: true,
+    aiMemoryPrompts: true,
     yearWrapped: true,
     prioritySupport: false,
+    premiumExport: false,
+    apiAccess: false,
   },
   FAMILY: {
-    maxStorage: 5 * 1024 * 1024 * 1024, // 5GB
-    maxStorageLabel: '5 GB',
+    maxStorage: 50 * 1024 * 1024 * 1024, // 50GB
+    maxStorageLabel: '50 GB',
+    maxMemoriesPerMonth: -1, // unlimited
+    maxFamilyMembers: 5,
     maxRecipients: -1,
     maxLetters: -1,
     maxVoiceMinutes: -1,
     maxPhotos: -1,
-    maxFamilyMembers: -1,
-    maxVideoMinutes: 15,
+    maxVideoMinutes: 30,
     posthumousDelivery: true,
     deadManSwitchDays: 14,
     familyTree: true,
     aiTranscription: true,
     aiLetterHelp: true,
+    aiMemoryPrompts: true,
+    aiMemoryInsights: true,
     yearWrapped: true,
     prioritySupport: true,
+    premiumExport: true,
+    videoMontage: true,
+    apiAccess: false,
   },
-  FOREVER: {
-    maxStorage: 50 * 1024 * 1024 * 1024, // 50GB
-    maxStorageLabel: '50 GB',
+  LEGACY: {
+    maxStorage: 500 * 1024 * 1024 * 1024, // 500GB
+    maxStorageLabel: '500 GB',
+    maxMemoriesPerMonth: -1, // unlimited
+    maxFamilyMembers: -1, // unlimited
     maxRecipients: -1,
     maxLetters: -1,
     maxVoiceMinutes: -1,
     maxPhotos: -1,
-    maxFamilyMembers: -1,
-    maxVideoMinutes: 60,
+    maxVideoMinutes: -1, // unlimited
     posthumousDelivery: true,
     deadManSwitchDays: 7,
     familyTree: true,
     aiTranscription: true,
     aiLetterHelp: true,
+    aiMemoryPrompts: true,
+    aiMemoryInsights: true,
+    livingLegacyAvatar: true, // future feature
+    voiceToMemory: true,
+    collaborativeEditing: true,
     yearWrapped: true,
     prioritySupport: true,
-    centuryGuarantee: true,
+    dedicatedSupport: true,
+    premiumExport: true,
+    videoMontage: true,
+    physicalMemoryBook: true, // 1/year
+    apiAccess: true,
+    whiteGloveOnboarding: true,
+  },
+  // Alias for backward compatibility
+  FOREVER: {
+    maxStorage: 500 * 1024 * 1024 * 1024, // 500GB
+    maxStorageLabel: '500 GB',
+    maxMemoriesPerMonth: -1,
+    maxFamilyMembers: -1,
+    maxRecipients: -1,
+    maxLetters: -1,
+    maxVoiceMinutes: -1,
+    maxPhotos: -1,
+    maxVideoMinutes: -1,
+    posthumousDelivery: true,
+    deadManSwitchDays: 7,
+    familyTree: true,
+    aiTranscription: true,
+    aiLetterHelp: true,
+    aiMemoryPrompts: true,
+    aiMemoryInsights: true,
+    livingLegacyAvatar: true,
+    voiceToMemory: true,
+    collaborativeEditing: true,
+    yearWrapped: true,
+    prioritySupport: true,
+    dedicatedSupport: true,
+    premiumExport: true,
+    videoMontage: true,
+    physicalMemoryBook: true,
+    apiAccess: true,
+    whiteGloveOnboarding: true,
   },
 };
 
@@ -229,32 +324,43 @@ const COUPONS: Record<string, { discount: number; type: 'percent' | 'fixed'; exp
 };
 
 const LEGACY_MAP: Record<string, string> = {
-  'FREE': 'STARTER', 'ESSENTIAL': 'STARTER', 'PREMIUM': 'FAMILY', 'LEGACY': 'FOREVER', 'PLUS': 'FAMILY'
+  'FREE': 'STARTER', 'ESSENTIAL': 'STARTER', 'PREMIUM': 'FAMILY', 'FOREVER': 'LEGACY', 'PLUS': 'FAMILY'
 };
 
 // =============================================================================
 // STRIPE PRICE IDS (Multi-currency - created via Stripe API)
+// NOTE: These price IDs need to be updated in Stripe Dashboard with new prices
 // =============================================================================
 const STRIPE_PRICE_IDS: Record<string, Record<string, Record<string, string>>> = {
   USD: {
-    STARTER: { monthly: 'price_1SgNcE0wv1f1SxUqmVW3Glsh', yearly: 'price_1SgNcE0wv1f1SxUqD1OZ5JQ0' },
-    FAMILY: { monthly: 'price_1SgNcE0wv1f1SxUqCYYS5l6f', yearly: 'price_1SgNcF0wv1f1SxUqS0csfMww' },
-    FOREVER: { monthly: 'price_1SgNcF0wv1f1SxUqvRdvElr4', yearly: 'price_1SgNcF0wv1f1SxUqMTL4YDLk' },
-  },
-  ZAR: {
-    STARTER: { monthly: 'price_1SgNuW0wv1f1SxUqQLy4gGPT', yearly: 'price_1SgNuW0wv1f1SxUqeMBSLH1N' },
-    FAMILY: { monthly: 'price_1SgNuX0wv1f1SxUqLT2Jxuq5', yearly: 'price_1SgNuX0wv1f1SxUqbYfuZVgP' },
-    FOREVER: { monthly: 'price_1SgNuX0wv1f1SxUqqoWkbkcS', yearly: 'price_1SgNuX0wv1f1SxUqYBsJihtg' },
-  },
-  EUR: {
-    STARTER: { monthly: 'price_1SgNup0wv1f1SxUqhABE43BL', yearly: 'price_1SgNup0wv1f1SxUq1wX5KQhf' },
-    FAMILY: { monthly: 'price_1SgNup0wv1f1SxUqFpyH6eO0', yearly: 'price_1SgNuq0wv1f1SxUqPyRfJ0Qm' },
-    FOREVER: { monthly: 'price_1SgNuq0wv1f1SxUqADWRwe3G', yearly: 'price_1SgNuq0wv1f1SxUquIKDuqvO' },
+    STARTER: { monthly: 'price_starter_monthly_usd', yearly: 'price_starter_yearly_usd' },
+    FAMILY: { monthly: 'price_family_monthly_usd', yearly: 'price_family_yearly_usd' },
+    LEGACY: { monthly: 'price_legacy_monthly_usd', yearly: 'price_legacy_yearly_usd' },
   },
   GBP: {
-    STARTER: { monthly: 'price_1SgNuq0wv1f1SxUqgr8MaqoJ', yearly: 'price_1SgNur0wv1f1SxUqADOdnFpX' },
-    FAMILY: { monthly: 'price_1SgNur0wv1f1SxUqApwsDTvU', yearly: 'price_1SgNur0wv1f1SxUqo33Al5AR' },
-    FOREVER: { monthly: 'price_1SgNur0wv1f1SxUqL1EXhKNn', yearly: 'price_1SgNus0wv1f1SxUqtytNLBvc' },
+    STARTER: { monthly: 'price_starter_monthly_gbp', yearly: 'price_starter_yearly_gbp' },
+    FAMILY: { monthly: 'price_family_monthly_gbp', yearly: 'price_family_yearly_gbp' },
+    LEGACY: { monthly: 'price_legacy_monthly_gbp', yearly: 'price_legacy_yearly_gbp' },
+  },
+  EUR: {
+    STARTER: { monthly: 'price_starter_monthly_eur', yearly: 'price_starter_yearly_eur' },
+    FAMILY: { monthly: 'price_family_monthly_eur', yearly: 'price_family_yearly_eur' },
+    LEGACY: { monthly: 'price_legacy_monthly_eur', yearly: 'price_legacy_yearly_eur' },
+  },
+  ZAR: {
+    STARTER: { monthly: 'price_starter_monthly_zar', yearly: 'price_starter_yearly_zar' },
+    FAMILY: { monthly: 'price_family_monthly_zar', yearly: 'price_family_yearly_zar' },
+    LEGACY: { monthly: 'price_legacy_monthly_zar', yearly: 'price_legacy_yearly_zar' },
+  },
+  INR: {
+    STARTER: { yearly: 'price_starter_yearly_inr' },
+    FAMILY: { yearly: 'price_family_yearly_inr' },
+    LEGACY: { yearly: 'price_legacy_yearly_inr' },
+  },
+  NGN: {
+    STARTER: { yearly: 'price_starter_yearly_ngn' },
+    FAMILY: { yearly: 'price_family_yearly_ngn' },
+    LEGACY: { yearly: 'price_legacy_yearly_ngn' },
   },
 };
 
@@ -282,40 +388,110 @@ billingRoutes.get('/pricing', async (c) => {
   const country = getCountryFromRequest(c);
   const currency = overrideCurrency && PRICING[overrideCurrency] ? overrideCurrency : getCurrencyForCountry(country);
   const prices = PRICING[currency];
+  const pricingTier = COUNTRY_TO_PRICING_TIER[country] || 'tier1';
+  const isAnnualOnly = prices.annualOnly || false;
 
   return c.json({
     country,
     currency,
     symbol: prices.symbol,
+    pricingTier,
+    isAnnualOnly,
+    trialDays: TRIAL_DAYS,
     tiers: [
       {
         id: 'STARTER',
         name: 'Starter',
-        storage: '500 MB',
-        monthly: { amount: prices.STARTER.monthly, display: `${prices.symbol}${prices.STARTER.monthly}` },
-        yearly: { amount: prices.STARTER.yearly, display: `${prices.symbol}${prices.STARTER.yearly}`, perMonth: `${prices.symbol}${(prices.STARTER.yearly / 12).toFixed(2)}` },
+        description: 'Perfect for individuals starting their legacy',
+        storage: '5 GB',
+        maxFamilyMembers: 1,
+        maxMemoriesPerMonth: 50,
+        monthly: isAnnualOnly ? null : { 
+          amount: prices.STARTER.monthly, 
+          display: `${prices.symbol}${prices.STARTER.monthly}` 
+        },
+        yearly: { 
+          amount: prices.STARTER.yearly, 
+          display: `${prices.symbol}${prices.STARTER.yearly}`, 
+          perMonth: `${prices.symbol}${(prices.STARTER.yearly / 12).toFixed(2)}`,
+          savings: '17% off'
+        },
+        features: [
+          '1 user account',
+          '50 memory entries/month',
+          '5GB storage',
+          'Basic AI memory prompts',
+          'Email support',
+          'Standard export (PDF)',
+        ],
       },
       {
         id: 'FAMILY',
         name: 'Family',
-        storage: '5 GB',
+        description: 'Share memories across generations',
+        storage: '50 GB',
+        maxFamilyMembers: 5,
+        maxMemoriesPerMonth: -1,
         popular: true,
-        monthly: { amount: prices.FAMILY.monthly, display: `${prices.symbol}${prices.FAMILY.monthly}` },
-        yearly: { amount: prices.FAMILY.yearly, display: `${prices.symbol}${prices.FAMILY.yearly}`, perMonth: `${prices.symbol}${(prices.FAMILY.yearly / 12).toFixed(2)}` },
+        monthly: isAnnualOnly ? null : { 
+          amount: prices.FAMILY.monthly, 
+          display: `${prices.symbol}${prices.FAMILY.monthly}` 
+        },
+        yearly: { 
+          amount: prices.FAMILY.yearly, 
+          display: `${prices.symbol}${prices.FAMILY.yearly}`, 
+          perMonth: `${prices.symbol}${(prices.FAMILY.yearly / 12).toFixed(2)}`,
+          savings: '17% off'
+        },
+        features: [
+          'Up to 5 family members',
+          'Unlimited memory entries',
+          '50GB storage',
+          'Advanced AI prompts & suggestions',
+          'AI-powered memory insights',
+          'Priority email support',
+          'Premium export (PDF, video montage)',
+          'Family tree integration',
+        ],
       },
       {
-        id: 'FOREVER',
-        name: 'Forever',
-        storage: '50 GB',
-        monthly: { amount: prices.FOREVER.monthly, display: `${prices.symbol}${prices.FOREVER.monthly}` },
-        yearly: { amount: prices.FOREVER.yearly, display: `${prices.symbol}${prices.FOREVER.yearly}`, perMonth: `${prices.symbol}${(prices.FOREVER.yearly / 12).toFixed(2)}` },
+        id: 'LEGACY',
+        name: 'Legacy',
+        description: 'The ultimate preservation package',
+        storage: '500 GB',
+        maxFamilyMembers: -1,
+        maxMemoriesPerMonth: -1,
+        monthly: isAnnualOnly ? null : { 
+          amount: prices.LEGACY.monthly, 
+          display: `${prices.symbol}${prices.LEGACY.monthly}` 
+        },
+        yearly: { 
+          amount: prices.LEGACY.yearly, 
+          display: `${prices.symbol}${prices.LEGACY.yearly}`, 
+          perMonth: `${prices.symbol}${(prices.LEGACY.yearly / 12).toFixed(2)}`,
+          savings: '17% off'
+        },
+        features: [
+          'Unlimited family members',
+          'Unlimited memory entries',
+          '500GB storage',
+          'Living Legacy AI Avatar (coming soon)',
+          'Voice-to-memory transcription',
+          'Collaborative memory editing',
+          'Dedicated support',
+          'API access',
+          'White-glove onboarding',
+          'Physical memory book printing (1/year)',
+        ],
       },
     ],
-    allFeatures: [
-      'Unlimited memories', 'Unlimited letters', 'Unlimited voice recordings',
-      'Posthumous delivery', 'Dead man\'s switch', 'AI writing help', 'Year Wrapped', 'Family tree'
-    ],
-    annualSavings: '2 months free',
+    trial: {
+      days: TRIAL_DAYS,
+      tier: TRIAL_TIER,
+      creditCardRequired: true,
+      description: 'Full access to Family tier features for 14 days',
+    },
+    annualSavings: '17% off (2 months free)',
   });
 });
 
@@ -408,8 +584,10 @@ billingRoutes.post('/calculate', async (c) => {
   const country = getCountryFromRequest(c);
   const currency = getCurrencyForCountry(country);
   const prices = PRICING[currency];
-  const normalizedTier = normalizeTier(tier) as 'STARTER' | 'FAMILY' | 'FOREVER';
-  const tierPrices = prices[normalizedTier];
+  const normalizedTier = normalizeTier(tier);
+  // Map FOREVER to LEGACY for backward compatibility
+  const pricingTier = (normalizedTier === 'FOREVER' ? 'LEGACY' : normalizedTier) as 'STARTER' | 'FAMILY' | 'LEGACY';
+  const tierPrices = prices[pricingTier];
   
   if (!tierPrices) return c.json({ error: 'Invalid tier' }, 400);
   
@@ -440,8 +618,10 @@ billingRoutes.post('/checkout', async (c) => {
   const country = getCountryFromRequest(c);
   const currency = getCurrencyForCountry(country);
   const prices = PRICING[currency];
-  const normalizedTier = normalizeTier(tier) as 'STARTER' | 'FAMILY' | 'FOREVER';
-  const tierPrices = prices[normalizedTier];
+  const normalizedTier = normalizeTier(tier);
+  // Map FOREVER to LEGACY for backward compatibility
+  const pricingTier = (normalizedTier === 'FOREVER' ? 'LEGACY' : normalizedTier) as 'STARTER' | 'FAMILY' | 'LEGACY';
+  const tierPrices = prices[pricingTier];
   
   if (!tierPrices) return c.json({ error: 'Invalid tier' }, 400);
   
