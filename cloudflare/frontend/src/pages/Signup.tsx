@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2, Eye, EyeOff, ArrowRight, Check } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
+import { VaultModal } from '../components/VaultModal';
 
 export function Signup() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showVaultSetup, setShowVaultSetup] = useState(false);
 
   const passwordChecks = [
     { label: 'At least 8 characters', valid: form.password.length >= 8 },
@@ -55,7 +57,8 @@ export function Signup() {
         marketingConsent: form.marketingConsent,
         marketingConsentAt: form.marketingConsent ? new Date().toISOString() : null,
       });
-      navigate('/dashboard');
+      // Show vault setup modal after successful registration
+      setShowVaultSetup(true);
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
     } finally {
@@ -333,6 +336,20 @@ export function Signup() {
           </div>
         </div>
       </motion.div>
+
+      {/* Vault Setup Modal - shown after successful registration */}
+      <VaultModal
+        isOpen={showVaultSetup}
+        mode="setup"
+        onComplete={() => {
+          setShowVaultSetup(false);
+          navigate('/dashboard');
+        }}
+        onSkip={() => {
+          setShowVaultSetup(false);
+          navigate('/dashboard');
+        }}
+      />
     </div>
   );
 }
