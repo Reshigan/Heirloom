@@ -548,7 +548,7 @@ export function Landing() {
           >
             <div className="inline-flex items-center gap-3 px-6 py-3 glass-subtle rounded-full">
               <Lock size={18} className="text-gold" />
-              <span className="text-paper/60 text-sm">SOC 2 Type II Compliant • GDPR Ready • HIPAA Compatible</span>
+              <span className="text-paper/60 text-sm">Enterprise-grade security • Privacy-first design • Encrypted at rest</span>
             </div>
           </motion.div>
         </div>

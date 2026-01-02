@@ -167,8 +167,8 @@ export function Record() {
         if (uploadResult.fileUrl) {
           fileUrl = uploadResult.fileUrl;
         }
-      } catch {
-        // Response might not be JSON, use default URL
+      } catch (parseError) {
+        // Response might not be JSON, use default URL - this is expected for some upload responses
       }
       
             return voiceApi.create({
@@ -480,8 +480,9 @@ export function Record() {
         // Show first 4 prompts
         setVisiblePrompts(formattedPrompts.slice(0, 4));
       }
-    } catch {
-      // Prompts are optional, fail silently
+    } catch (error) {
+      console.error('Failed to fetch prompts:', error);
+      // Prompts are optional, continue without them
     } finally {
       setIsLoadingPrompts(false);
     }

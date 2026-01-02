@@ -37,12 +37,37 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle token refresh on 401
+// Token refresh retry limit to prevent infinite loops (BUG-004 fix)
+const MAX_RETRY_ATTEMPTS = 3;
+let retryCount = 0;
+
+// Handle token refresh on 401 and rate limiting on 429
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    retryCount = 0; // Reset on successful response
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
+    
+    // Handle rate limiting (BUG-008 fix)
+    if (error.response?.status === 429) {
+      const retryAfter = error.response.headers['retry-after'] || 60;
+      const errorMessage = `Too many requests. Please wait ${retryAfter} seconds before trying again.`;
+      error.message = errorMessage;
+      return Promise.reject(error);
+    }
+    
+    // Handle token refresh with retry limit
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (retryCount >= MAX_RETRY_ATTEMPTS) {
+        retryCount = 0;
+        clearTokens();
+        window.location.href = '/login?session_expired=true';
+        return Promise.reject(error);
+      }
+      
+      retryCount++;
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refreshToken');
@@ -51,10 +76,11 @@ api.interceptors.response.use(
         localStorage.setItem('refreshToken', data.refreshToken);
         originalRequest.headers.Authorization = `Bearer ${data.token}`;
         return api(originalRequest);
-      } catch {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+      } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError);
+        clearTokens();
+        window.location.href = '/login?session_expired=true';
+        return Promise.reject(refreshError);
       }
     }
     return Promise.reject(error);

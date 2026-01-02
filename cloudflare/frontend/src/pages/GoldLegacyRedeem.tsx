@@ -60,7 +60,8 @@ export function GoldLegacyRedeem() {
       } else {
         setError(data.error || 'Invalid voucher code');
       }
-    } catch {
+    } catch (error) {
+      console.error('Voucher validation error:', error);
       setError('Failed to validate voucher code');
     } finally {
       setIsValidating(false);
@@ -99,7 +100,8 @@ export function GoldLegacyRedeem() {
             } else {
         setError(data.error || 'Failed to redeem voucher');
       }
-    } catch {
+    } catch (error) {
+      console.error('Voucher redemption error:', error);
       setError('Failed to redeem voucher');
     } finally {
       setIsRedeeming(false);

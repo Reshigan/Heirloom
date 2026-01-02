@@ -631,6 +631,7 @@ export function Family() {
                                       src={avatarPreview || form.avatarUrl} 
                                       alt="Avatar" 
                                       className="w-24 h-24 rounded-full object-cover border-2 border-gold/30"
+                                      loading="lazy"
                                     />
                                   ) : (
                                     <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold/20 to-gold-dim/20 flex items-center justify-center text-gold text-3xl font-medium border-2 border-dashed border-gold/30">
