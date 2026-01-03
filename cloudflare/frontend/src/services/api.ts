@@ -261,14 +261,29 @@ export const transcriptionApi = {
   transcribeAll: () => api.post('/voice/transcribe-all'),
 };
 
-// Memory cards API extension
+// Memory cards API - Shareable Instagram-ready cards
 export const memoryCardsApi = {
-  getCard: (id: string, style?: 'classic' | 'modern' | 'vintage') =>
-    api.get(`/memories/${id}/card`, { params: { style }, responseType: 'blob' }),
-  getCardUrl: (id: string, style?: 'classic' | 'modern' | 'vintage') => {
-    const API_URL = import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api';
-    return `${API_URL}/memories/${id}/card?style=${style || 'classic'}`;
-  },
+  // Get available card styles
+  getStyles: () => api.get('/memory-cards/styles'),
+  
+  // Generate a new card from a memory
+  generate: (data: { memoryId: string; style?: string; customText?: string; includePhoto?: boolean }) =>
+    api.post('/memory-cards/generate', data),
+  
+  // Get user's generated cards
+  getAll: () => api.get('/memory-cards'),
+  
+  // Get a specific card (public)
+  getOne: (id: string) => api.get(`/memory-cards/${id}`),
+  
+  // Record share action
+  recordShare: (id: string, platform: string) => api.post(`/memory-cards/${id}/share`, { platform }),
+  
+  // Delete a card
+  delete: (id: string) => api.delete(`/memory-cards/${id}`),
+  
+  // On This Day memories
+  getOnThisDay: () => api.get('/memory-cards/on-this-day'),
 };
 
 // Data export API extension

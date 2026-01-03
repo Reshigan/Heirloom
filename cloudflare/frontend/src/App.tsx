@@ -53,6 +53,10 @@ import { GiftSubscriptions } from './pages/GiftSubscriptions';
 import { Memorials } from './pages/Memorials';
 import { Milestones } from './pages/Milestones';
 
+// Quick Wins Features
+import { MemoryCards } from './pages/MemoryCards';
+import { CardView } from './pages/CardView';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -109,6 +113,7 @@ export default function App() {
                                                             <Route path="/gift/redeem" element={<GiftRedeem />} />
                                                             <Route path="/gift/success" element={<GiftSuccess />} />
                                                             <Route path="/gold/redeem" element={<GoldLegacyRedeem />} />
+                                                            <Route path="/card/:id" element={<CardView />} />
           <Route
             path="/login"
             element={
@@ -326,6 +331,14 @@ export default function App() {
                                                                                                       element={
                                                                                                         <ProtectedRoute>
                                                                                                           <Milestones />
+                                                                                                        </ProtectedRoute>
+                                                                                                      }
+                                                                                                    />
+                                                                                                    <Route
+                                                                                                      path="/memory-cards"
+                                                                                                      element={
+                                                                                                        <ProtectedRoute>
+                                                                                                          <MemoryCards />
                                                                                                         </ProtectedRoute>
                                                                                                       }
                                                                                                     />
