@@ -35,6 +35,7 @@ import marketingRoutes from './routes/marketing';
 import { announcementsRoutes } from './routes/announcements';
 import engagementRoutes from './routes/engagement';
 import { streaksRoutes, challengesRoutes, referralsRoutes, giftRoutes, memorialRoutes, milestonesRoutes, notificationsRoutes } from './routes/q4-features';
+import memoryCardsRoutes from './routes/memory-cards';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects } from './jobs/adoption-jobs';
@@ -679,6 +680,7 @@ protectedApp.route('/gifts', giftRoutes);
 protectedApp.route('/memorials', memorialRoutes);
 protectedApp.route('/milestones', milestonesRoutes);
 protectedApp.route('/notifications', notificationsRoutes);
+protectedApp.route('/memory-cards', memoryCardsRoutes);
 
 app.route('/api', protectedApp);
 

@@ -53,6 +53,9 @@ import { GiftSubscriptions } from './pages/GiftSubscriptions';
 import { Memorials } from './pages/Memorials';
 import { Milestones } from './pages/Milestones';
 
+// Quick Wins Features
+import { MemoryCards } from './pages/MemoryCards';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -326,6 +329,14 @@ export default function App() {
                                                                                                       element={
                                                                                                         <ProtectedRoute>
                                                                                                           <Milestones />
+                                                                                                        </ProtectedRoute>
+                                                                                                      }
+                                                                                                    />
+                                                                                                    <Route
+                                                                                                      path="/memory-cards"
+                                                                                                      element={
+                                                                                                        <ProtectedRoute>
+                                                                                                          <MemoryCards />
                                                                                                         </ProtectedRoute>
                                                                                                       }
                                                                                                     />
