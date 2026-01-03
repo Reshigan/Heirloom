@@ -55,6 +55,7 @@ import { Milestones } from './pages/Milestones';
 
 // Quick Wins Features
 import { MemoryCards } from './pages/MemoryCards';
+import { CardView } from './pages/CardView';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,6 +113,7 @@ export default function App() {
                                                             <Route path="/gift/redeem" element={<GiftRedeem />} />
                                                             <Route path="/gift/success" element={<GiftSuccess />} />
                                                             <Route path="/gold/redeem" element={<GoldLegacyRedeem />} />
+                                                            <Route path="/card/:id" element={<CardView />} />
           <Route
             path="/login"
             element={

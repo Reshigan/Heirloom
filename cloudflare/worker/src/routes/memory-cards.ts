@@ -216,75 +216,8 @@ memoryCardsRoutes.get('/', async (c) => {
   });
 });
 
-// Get a specific card (public endpoint for sharing)
-memoryCardsRoutes.get('/:id', async (c) => {
-  const cardId = c.req.param('id');
-  
-  const card = await c.env.DB.prepare(`
-    SELECT mc.*, m.title as memory_title
-    FROM memory_cards mc
-    JOIN memories m ON mc.memory_id = m.id
-    WHERE mc.id = ?
-  `).bind(cardId).first();
-  
-  if (!card) {
-    return c.json({ error: 'Card not found' }, 404);
-  }
-  
-  // Increment view count
-  await c.env.DB.prepare(`
-    UPDATE memory_cards SET view_count = COALESCE(view_count, 0) + 1 WHERE id = ?
-  `).bind(cardId).run();
-  
-  return c.json({
-    id: card.id,
-    style: card.style,
-    styleConfig: CARD_STYLES[card.style as keyof typeof CARD_STYLES] || CARD_STYLES.quote,
-    quote: card.quote_text,
-    photoUrl: card.photo_url,
-    authorName: card.author_name,
-    memoryDate: card.memory_date,
-    memoryTitle: card.memory_title,
-    shareUrl: `https://heirloom.blue/card/${card.id}`,
-  });
-});
-
-// Record share action
-memoryCardsRoutes.post('/:id/share', async (c) => {
-  const cardId = c.req.param('id');
-  const body = await c.req.json();
-  const platform = body.platform || 'unknown';
-  const now = new Date().toISOString();
-  
-  await c.env.DB.prepare(`
-    UPDATE memory_cards 
-    SET share_count = COALESCE(share_count, 0) + 1, 
-        shared_at = COALESCE(shared_at, ?),
-        last_shared_platform = ?
-    WHERE id = ?
-  `).bind(now, platform, cardId).run();
-  
-  return c.json({ success: true });
-});
-
-// Delete a card
-memoryCardsRoutes.delete('/:id', async (c) => {
-  const userId = c.get('userId');
-  const cardId = c.req.param('id');
-  
-  if (!userId) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
-  
-  await c.env.DB.prepare(`
-    DELETE FROM memory_cards WHERE id = ? AND user_id = ?
-  `).bind(cardId, userId).run();
-  
-  return c.json({ success: true });
-});
-
 // ============================================
-// ON THIS DAY FEATURE
+// ON THIS DAY FEATURE (must be before /:id to avoid route conflict)
 // ============================================
 
 // Get "On This Day" memories
@@ -363,6 +296,73 @@ memoryCardsRoutes.get('/on-this-day', async (c) => {
     createdOnThisDay: createdOnThisDay.results.map((m: any) => formatMemory(m, 'created')),
     hasMemories: memories.results.length > 0 || createdOnThisDay.results.length > 0,
   });
+});
+
+// Get a specific card (public endpoint for sharing)
+memoryCardsRoutes.get('/:id', async (c) => {
+  const cardId = c.req.param('id');
+  
+  const card = await c.env.DB.prepare(`
+    SELECT mc.*, m.title as memory_title
+    FROM memory_cards mc
+    JOIN memories m ON mc.memory_id = m.id
+    WHERE mc.id = ?
+  `).bind(cardId).first();
+  
+  if (!card) {
+    return c.json({ error: 'Card not found' }, 404);
+  }
+  
+  // Increment view count
+  await c.env.DB.prepare(`
+    UPDATE memory_cards SET view_count = COALESCE(view_count, 0) + 1 WHERE id = ?
+  `).bind(cardId).run();
+  
+  return c.json({
+    id: card.id,
+    style: card.style,
+    styleConfig: CARD_STYLES[card.style as keyof typeof CARD_STYLES] || CARD_STYLES.quote,
+    quote: card.quote_text,
+    photoUrl: card.photo_url,
+    authorName: card.author_name,
+    memoryDate: card.memory_date,
+    memoryTitle: card.memory_title,
+    shareUrl: `https://heirloom.blue/card/${card.id}`,
+  });
+});
+
+// Record share action
+memoryCardsRoutes.post('/:id/share', async (c) => {
+  const cardId = c.req.param('id');
+  const body = await c.req.json();
+  const platform = body.platform || 'unknown';
+  const now = new Date().toISOString();
+  
+  await c.env.DB.prepare(`
+    UPDATE memory_cards 
+    SET share_count = COALESCE(share_count, 0) + 1, 
+        shared_at = COALESCE(shared_at, ?),
+        last_shared_platform = ?
+    WHERE id = ?
+  `).bind(now, platform, cardId).run();
+  
+  return c.json({ success: true });
+});
+
+// Delete a card
+memoryCardsRoutes.delete('/:id', async (c) => {
+  const userId = c.get('userId');
+  const cardId = c.req.param('id');
+  
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  
+  await c.env.DB.prepare(`
+    DELETE FROM memory_cards WHERE id = ? AND user_id = ?
+  `).bind(cardId, userId).run();
+  
+  return c.json({ success: true });
 });
 
 export default memoryCardsRoutes;
