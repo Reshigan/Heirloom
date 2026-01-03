@@ -620,3 +620,72 @@ encryptionRoutes.get('/shamir/share/:contactId', async (c) => {
     totalShares: share.total_shares,
   });
 });
+
+// =============================================================================
+// ADMIN ROUTES - Encryption Statistics
+// =============================================================================
+
+// Get encryption adoption stats (admin only)
+encryptionRoutes.get('/admin/stats', async (c) => {
+  // Note: This should be protected by admin auth middleware in production
+  
+  // Total users
+  const totalUsers = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM users
+  `).first();
+  
+  // Users with encryption enabled
+  const encryptedUsers = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM users WHERE encrypted_master_key IS NOT NULL
+  `).first();
+  
+  // Users with key escrow configured
+  const escrowUsers = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM key_escrows
+  `).first();
+  
+  // Escrow types breakdown
+  const escrowTypes = await c.env.DB.prepare(`
+    SELECT escrow_type, COUNT(*) as count FROM key_escrows GROUP BY escrow_type
+  `).all();
+  
+  // Users with Shamir shares
+  const shamirUsers = await c.env.DB.prepare(`
+    SELECT COUNT(DISTINCT user_id) as count FROM shamir_shares
+  `).first();
+  
+  // Encrypted content counts
+  const encryptedLetters = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM letters WHERE is_encrypted = 1
+  `).first();
+  
+  const encryptedMemories = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM memories WHERE is_encrypted = 1
+  `).first();
+  
+  // Recent encryption setups (last 30 days)
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const recentSetups = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM users 
+    WHERE encrypted_master_key IS NOT NULL 
+    AND updated_at >= ?
+  `).bind(thirtyDaysAgo).first();
+  
+  const total = (totalUsers as any)?.count || 0;
+  const encrypted = (encryptedUsers as any)?.count || 0;
+  const adoptionRate = total > 0 ? Math.round((encrypted / total) * 100) : 0;
+  
+  return c.json({
+    totalUsers: total,
+    encryptedUsers: encrypted,
+    adoptionRate,
+    escrowConfigured: (escrowUsers as any)?.count || 0,
+    escrowTypes: escrowTypes?.results || [],
+    shamirConfigured: (shamirUsers as any)?.count || 0,
+    encryptedContent: {
+      letters: (encryptedLetters as any)?.count || 0,
+      memories: (encryptedMemories as any)?.count || 0,
+    },
+    recentSetups: (recentSetups as any)?.count || 0,
+  });
+});

@@ -367,6 +367,9 @@ export const adminApi = {
   
   // Usage Analytics
   getUsageAnalytics: () => adminAxios.get('/admin/analytics/usage'),
+  
+  // Encryption Stats
+  getEncryptionStats: () => adminAxios.get('/encryption/admin/stats'),
 };
 
 export const referralApi = {

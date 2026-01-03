@@ -5,7 +5,7 @@ import {
   Users, CreditCard, BarChart3, Tag, LogOut, Plus, Trash2, 
   DollarSign, Activity, Search, X, MessageSquare, Shield,
   FileText, Mail, Download, Clock, AlertTriangle, CheckCircle,
-  UserPlus, Send, Eye, Gift, RefreshCw, Copy, Target
+  UserPlus, Send, Eye, Gift, RefreshCw, Copy, Target, Lock
 } from '../components/Icons';
 import { adminApi } from '../services/api';
 import { MarketingTab } from './MarketingTab';
@@ -167,6 +167,13 @@ export function AdminDashboard() {
       refetchInterval: 60000,
     });
 
+    const { data: encryptionStats } = useQuery({
+      queryKey: ['admin-encryption-stats'],
+      queryFn: () => adminApi.getEncryptionStats().then(r => r.data),
+      enabled: activeTab === 'encryption',
+      refetchInterval: 60000,
+    });
+
     const [showVoucherModal, setShowVoucherModal] = useState(false);
     const [showGoldLegacyModal, setShowGoldLegacyModal] = useState(false);
 
@@ -181,6 +188,7 @@ export function AdminDashboard() {
     const tabs = [
       { id: 'overview', label: 'Overview', icon: BarChart3 },
       { id: 'usage', label: 'Usage', icon: Activity },
+      { id: 'encryption', label: 'Encryption', icon: Lock },
       { id: 'marketing', label: 'Marketing', icon: Target },
       { id: 'users', label: 'Users', icon: Users },
       { id: 'coupons', label: 'Coupons', icon: Tag },
@@ -541,6 +549,137 @@ export function AdminDashboard() {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Encryption Tab */}
+        {activeTab === 'encryption' && (
+          <div className="space-y-8">
+            <h2 className="text-xl">Encryption Adoption</h2>
+            
+            {/* Overview Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="card p-4">
+                <div className="text-3xl text-gold mb-1">{encryptionStats?.encryptedUsers || 0}</div>
+                <div className="text-paper/50 text-sm">Users with Encryption</div>
+                <div className="text-xs text-paper/30 mt-1">
+                  {encryptionStats?.adoptionRate || 0}% adoption rate
+                </div>
+              </div>
+              <div className="card p-4">
+                <div className="text-3xl text-green-400 mb-1">{encryptionStats?.escrowConfigured || 0}</div>
+                <div className="text-paper/50 text-sm">Key Escrow Configured</div>
+              </div>
+              <div className="card p-4">
+                <div className="text-3xl text-blue-400 mb-1">{encryptionStats?.shamirConfigured || 0}</div>
+                <div className="text-paper/50 text-sm">Shamir Shares Active</div>
+              </div>
+              <div className="card p-4">
+                <div className="text-3xl text-purple-400 mb-1">{encryptionStats?.recentSetups || 0}</div>
+                <div className="text-paper/50 text-sm">New Setups (30 days)</div>
+              </div>
+            </div>
+
+            {/* Adoption Progress */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Encryption Adoption Progress</h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-40 text-paper/70 text-sm">Total Users</div>
+                  <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
+                    <div className="h-full bg-paper/30 w-full" />
+                  </div>
+                  <div className="w-20 text-right text-paper">{encryptionStats?.totalUsers || 0}</div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-40 text-paper/70 text-sm">Encryption Enabled</div>
+                  <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
+                    <div 
+                      className="h-full bg-gold transition-all duration-500"
+                      style={{ width: `${encryptionStats?.adoptionRate || 0}%` }}
+                    />
+                  </div>
+                  <div className="w-20 text-right">
+                    <span className="text-paper">{encryptionStats?.encryptedUsers || 0}</span>
+                    <span className="text-paper/50 text-sm ml-1">({encryptionStats?.adoptionRate || 0}%)</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-40 text-paper/70 text-sm">Key Escrow Setup</div>
+                  <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
+                    <div 
+                      className="h-full bg-green-400 transition-all duration-500"
+                      style={{ width: `${encryptionStats?.totalUsers ? Math.round((encryptionStats.escrowConfigured / encryptionStats.totalUsers) * 100) : 0}%` }}
+                    />
+                  </div>
+                  <div className="w-20 text-right">
+                    <span className="text-paper">{encryptionStats?.escrowConfigured || 0}</span>
+                    <span className="text-paper/50 text-sm ml-1">
+                      ({encryptionStats?.totalUsers ? Math.round((encryptionStats.escrowConfigured / encryptionStats.totalUsers) * 100) : 0}%)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Encrypted Content */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Encrypted Content</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="flex items-center gap-3">
+                    <Lock className="text-gold" size={24} />
+                    <div>
+                      <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.letters || 0}</div>
+                      <div className="text-paper/50 text-sm">Encrypted Letters</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                  <div className="flex items-center gap-3">
+                    <Lock className="text-gold" size={24} />
+                    <div>
+                      <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.memories || 0}</div>
+                      <div className="text-paper/50 text-sm">Encrypted Memories</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Escrow Types Breakdown */}
+            <div className="card">
+              <h3 className="text-lg mb-4">Key Escrow Types</h3>
+              {encryptionStats?.escrowTypes && encryptionStats.escrowTypes.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {encryptionStats.escrowTypes.map((type: { escrow_type: string; count: number }) => (
+                    <div key={type.escrow_type} className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                      <div className="text-2xl text-paper mb-1">{type.count}</div>
+                      <div className="text-paper/50 text-sm capitalize">{type.escrow_type.replace(/_/g, ' ').toLowerCase()}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-paper/50">No escrow configurations yet</p>
+              )}
+            </div>
+
+            {/* Zero-Knowledge Info */}
+            <div className="card bg-gold/5 border-gold/20">
+              <h3 className="text-lg mb-4 text-gold">Zero-Knowledge Architecture</h3>
+              <div className="space-y-3 text-paper/70">
+                <p>
+                  Heirloom uses true zero-knowledge encryption. User data is encrypted client-side using AES-256-GCM 
+                  before upload. The server never sees plaintext content.
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Encryption keys are derived from user passphrases using PBKDF2 (100,000 iterations)</li>
+                  <li>Master keys are encrypted before storage - we cannot decrypt them</li>
+                  <li>Shamir Secret Sharing allows key recovery through trusted contacts</li>
+                  <li>All encryption/decryption happens in the browser</li>
+                </ul>
               </div>
             </div>
           </div>
