@@ -351,12 +351,12 @@ giftVoucherRoutes.post('/redeem', async (c) => {
       `).bind(voucher.gold_member_number || null, userId).run();
       
       if (existingSub) {
-        // Upgrade to Gold Legacy
+        // Upgrade to Gold Legacy - clear trial fields and set proper subscription
         await c.env.DB.prepare(`
           UPDATE subscriptions 
-          SET tier = 'FOREVER', billing_cycle = 'lifetime', current_period_end = ?, status = 'ACTIVE', updated_at = datetime('now')
-          WHERE user_id = ?
-        `).bind(periodEnd.toISOString(), userId).run();
+          SET tier = 'FOREVER', billing_cycle = 'lifetime', current_period_start = ?, current_period_end = ?, status = 'ACTIVE', trial_ends_at = NULL, updated_at = datetime('now')
+          WHERE id = ?
+        `).bind(now.toISOString(), periodEnd.toISOString(), existingSub.id).run();
       } else {
         // Create Gold Legacy subscription
         await c.env.DB.prepare(`
@@ -367,21 +367,24 @@ giftVoucherRoutes.post('/redeem', async (c) => {
     } else {
       // Regular voucher redemption
       if (existingSub) {
-        // Extend existing subscription
-        const newPeriodEnd = new Date(existingSub.current_period_end as string);
+        // Extend existing subscription or convert from trial
+        // If trial (no current_period_end), start from now; otherwise extend from current end
+        const baseDate = existingSub.current_period_end ? new Date(existingSub.current_period_end as string) : now;
+        const newPeriodEnd = new Date(baseDate);
         newPeriodEnd.setMonth(newPeriodEnd.getMonth() + (voucher.duration_months as number));
         
         // Upgrade tier if gift is higher
-        const tierOrder = { STARTER: 1, FAMILY: 2, FOREVER: 3 };
+        const tierOrder = { STARTER: 1, FAMILY: 2, FOREVER: 3, LEGACY: 3, FREE: 0 };
         const currentTier = (existingSub.tier as string).toUpperCase();
         const giftTier = (voucher.tier as string).toUpperCase();
         const newTier = tierOrder[giftTier as keyof typeof tierOrder] > tierOrder[currentTier as keyof typeof tierOrder] ? giftTier : currentTier;
         
+        // Clear trial fields and set proper subscription - update by id to be deterministic
         await c.env.DB.prepare(`
           UPDATE subscriptions 
-          SET tier = ?, current_period_end = ?, status = 'ACTIVE', updated_at = datetime('now')
-          WHERE user_id = ?
-        `).bind(newTier, newPeriodEnd.toISOString(), userId).run();
+          SET tier = ?, current_period_start = COALESCE(current_period_start, ?), current_period_end = ?, status = 'ACTIVE', trial_ends_at = NULL, updated_at = datetime('now')
+          WHERE id = ?
+        `).bind(newTier, now.toISOString(), newPeriodEnd.toISOString(), existingSub.id).run();
       } else {
         // Create new subscription
         await c.env.DB.prepare(`

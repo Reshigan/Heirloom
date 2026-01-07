@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
@@ -8,7 +8,11 @@ import { encryptionService } from '../services/encryptionService';
 
 export function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuthStore();
+  
+  // Get redirect URL from query params (used for voucher redemption flow)
+  const redirectUrl = searchParams.get('redirect');
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,8 +42,8 @@ export function Login() {
         // Show vault unlock modal
         setShowVaultUnlock(true);
       } else {
-        // No encryption or already unlocked, go to dashboard
-        navigate('/dashboard');
+        // No encryption or already unlocked, go to redirect URL or dashboard
+        navigate(redirectUrl || '/dashboard');
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password');
@@ -306,7 +310,7 @@ export function Login() {
         mode="unlock"
         onComplete={() => {
           setShowVaultUnlock(false);
-          navigate('/dashboard');
+          navigate(redirectUrl || '/dashboard');
         }}
       />
     </div>

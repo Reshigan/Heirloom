@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2, Eye, EyeOff, ArrowRight, Check } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
@@ -7,7 +7,11 @@ import { VaultModal } from '../components/VaultModal';
 
 export function Signup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { register } = useAuthStore();
+  
+  // Get redirect URL from query params (used for voucher redemption flow)
+  const redirectUrl = searchParams.get('redirect');
   
   const [form, setForm] = useState({
     firstName: '',
@@ -343,11 +347,11 @@ export function Signup() {
         mode="setup"
         onComplete={() => {
           setShowVaultSetup(false);
-          navigate('/dashboard');
+          navigate(redirectUrl || '/dashboard');
         }}
         onSkip={() => {
           setShowVaultSetup(false);
-          navigate('/dashboard');
+          navigate(redirectUrl || '/dashboard');
         }}
       />
     </div>
