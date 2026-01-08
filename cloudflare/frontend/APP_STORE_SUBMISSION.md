@@ -7,8 +7,8 @@ This document contains all the metadata, descriptions, and compliance informatio
 **App Name:** Heirloom
 **Bundle ID (iOS):** blue.heirloom.app
 **Package Name (Android):** blue.heirloom.app
-**Version:** 1.0.0
-**Build Number:** 1
+**Version:** 1.1.0
+**Build Number:** 2
 
 ## Apple App Store Metadata
 
@@ -28,7 +28,7 @@ Heirloom is your digital sanctuary for preserving life's most precious moments. 
 
 Life moves fast, but memories deserve to live forever. Heirloom gives you a beautiful, secure space to preserve the stories, wisdom, and love you want to pass on to future generations.
 
-**Key Features:**
+**Core Features:**
 
 Photo Memories - Upload and organize photos with context and stories for each moment. Every image becomes part of your family's visual history.
 
@@ -40,17 +40,37 @@ Legacy Contacts - Designate trusted contacts who verify your passing before post
 
 Dead Man's Switch - Automatic content release to loved ones with multi-contact verification. Your memories reach the right people at the right time.
 
-End-to-End Encryption - Zero-knowledge architecture ensures only you and your beneficiaries can decrypt your content. Your privacy is absolute.
+**True Zero-Knowledge Security:**
+
+End-to-End Encryption - Your vault passphrase encrypts all content locally before upload. We never see your memories - only you and your chosen recipients can decrypt them.
+
+**Engagement Features:**
+
+Memory Streaks - Build daily habits of memory preservation. Track your streak and earn badges as you consistently capture life's moments.
+
+Weekly Challenges - Fun prompts like "Share a childhood photo" or "Record your favorite recipe" to inspire meaningful content creation.
+
+Shareable Memory Cards - Create beautiful, shareable cards from your memories to post on social media or send to family.
+
+On This Day - Rediscover memories from the same date in previous years. A daily reminder of your journey.
+
+**Family Features:**
+
+Family Referrals - Invite family members and earn rewards. Build your family's memory network together.
+
+Gift Subscriptions - Give the gift of legacy preservation to loved ones with prepaid subscription gifts.
+
+QR Memorials - Generate QR codes linking to memorial pages for loved ones who have passed. Place on headstones or memorial items.
 
 **Advanced Features:**
 
 Legacy Playbook - A guided checklist organized into five categories: People, Stories, Gratitude, Practical, and Wisdom. Build a complete and meaningful legacy.
 
-Story Artifacts - Transform your photos and voice recordings into beautiful 60-120 second micro-documentaries with AI-powered story generation.
+Story Artifacts - Transform your photos and voice recordings into beautiful micro-documentaries with AI-powered story generation.
 
-Life Event Triggers - Schedule content delivery for life's milestones: graduations, weddings, first child, and more. Your words arrive exactly when they're needed.
+Life Event Triggers - Schedule content delivery for life's milestones: graduations, weddings, first child, and more.
 
-Recipient Experience - Control how your loved ones receive your legacy with staged content releases and a Family Memory Room where they can contribute their own memories.
+Milestone Alerts - Get notified of important family dates and anniversaries so you never miss a moment to connect.
 
 **Your Legacy, Your Terms**
 
@@ -64,17 +84,20 @@ Preserve your family's memories forever. Record voice stories, write letters to 
 
 ### Keywords (100 characters max)
 
-legacy,memories,family,photos,voice,letters,inheritance,stories,preservation,time capsule,memorial
+legacy,memories,family,photos,voice,letters,encryption,stories,memorial,streaks,challenges,gifts
 
 ### What's New (for updates)
 
-Welcome to Heirloom! This is our first release featuring:
-- Photo memories with stories
-- Voice recordings with guided prompts
-- Letters for loved ones
-- Legacy contacts and Dead Man's Switch
-- End-to-end encryption
-- Advanced features: Legacy Playbook, Story Artifacts, Life Events
+Version 1.1.0 - Major Feature Update:
+- Memory Streaks: Build daily habits with streak tracking and badges
+- Weekly Challenges: Fun prompts to inspire meaningful content creation
+- Shareable Memory Cards: Create beautiful cards to share on social media
+- On This Day: Rediscover memories from the same date in previous years
+- Family Referrals: Invite family and earn rewards together
+- Gift Subscriptions: Give the gift of legacy preservation
+- QR Memorials: Generate QR codes for memorial pages
+- Milestone Alerts: Never miss important family dates
+- Enhanced E2E Encryption: True zero-knowledge vault security
 
 ### Support Information
 
@@ -162,7 +185,7 @@ Why Heirloom?
 
 Life moves fast, but memories deserve to live forever. Heirloom gives you a beautiful, secure space to preserve the stories, wisdom, and love you want to pass on to future generations.
 
-Key Features:
+Core Features:
 
 Photo Memories - Upload and organize photos with context and stories for each moment. Every image becomes part of your family's visual history.
 
@@ -174,28 +197,46 @@ Legacy Contacts - Designate trusted contacts who verify your passing before post
 
 Dead Man's Switch - Automatic content release to loved ones with multi-contact verification. Your memories reach the right people at the right time.
 
-End-to-End Encryption - Zero-knowledge architecture ensures only you and your beneficiaries can decrypt your content. Your privacy is absolute.
+True Zero-Knowledge Security:
+
+End-to-End Encryption - Your vault passphrase encrypts all content locally before upload. We never see your memories - only you and your chosen recipients can decrypt them.
+
+Engagement Features:
+
+Memory Streaks - Build daily habits of memory preservation. Track your streak and earn badges.
+
+Weekly Challenges - Fun prompts like "Share a childhood photo" to inspire meaningful content.
+
+Shareable Memory Cards - Create beautiful cards from your memories to share on social media.
+
+On This Day - Rediscover memories from the same date in previous years.
+
+Family Features:
+
+Family Referrals - Invite family members and earn rewards together.
+
+Gift Subscriptions - Give the gift of legacy preservation to loved ones.
+
+QR Memorials - Generate QR codes linking to memorial pages for loved ones who have passed.
 
 Advanced Features:
 
-Legacy Playbook - A guided checklist organized into five categories: People, Stories, Gratitude, Practical, and Wisdom. Build a complete and meaningful legacy.
+Legacy Playbook - A guided checklist to build a complete and meaningful legacy.
 
-Story Artifacts - Transform your photos and voice recordings into beautiful 60-120 second micro-documentaries with AI-powered story generation.
+Story Artifacts - Transform your memories into beautiful micro-documentaries.
 
-Life Event Triggers - Schedule content delivery for life's milestones: graduations, weddings, first child, and more. Your words arrive exactly when they're needed.
+Life Event Triggers - Schedule content delivery for life's milestones.
 
-Recipient Experience - Control how your loved ones receive your legacy with staged content releases and a Family Memory Room where they can contribute their own memories.
+Milestone Alerts - Get notified of important family dates and anniversaries.
 
 Your Legacy, Your Terms
 
-Heirloom puts you in control. Decide who receives what, when they receive it, and how your story is told. Whether it's a birthday message for your grandchild 20 years from now or wisdom for your children after you're gone, Heirloom ensures your voice is heard.
-
-Start preserving your legacy today. Your memories deserve to live forever.
+Heirloom puts you in control. Decide who receives what, when they receive it, and how your story is told. Start preserving your legacy today.
 
 ### Category
 
 **Category:** Lifestyle
-**Tags:** Family, Memories, Legacy, Photos, Voice Recording
+**Tags:** Family, Memories, Legacy, Photos, Voice Recording, Encryption, Streaks
 
 ### Contact Details
 
@@ -246,8 +287,12 @@ Suggested screenshots:
 2. Memories grid - "Preserve Your Photos"
 3. Voice recording - "Record Your Stories"
 4. Letter writing - "Write Heartfelt Letters"
-5. Legacy Playbook - "Build Your Legacy"
-6. Family connections - "Connect With Loved Ones"
+5. Memory Streaks - "Build Daily Habits"
+6. Weekly Challenges - "Fun Prompts to Inspire"
+7. Shareable Memory Cards - "Share Your Memories"
+8. Family Referrals - "Grow Your Family Network"
+9. Vault Setup - "True Zero-Knowledge Security"
+10. QR Memorials - "Honor Loved Ones"
 
 **iPhone 6.5" (iPhone 11 Pro Max, XS Max):** 1242 x 2688 pixels
 Same screenshots as above
@@ -268,8 +313,10 @@ Suggested screenshots (same as iOS):
 2. Memories grid
 3. Voice recording
 4. Letter writing
-5. Legacy Playbook
-6. Family connections
+5. Memory Streaks
+6. Weekly Challenges
+7. Shareable Memory Cards
+8. Family Referrals
 
 ### Feature Graphic (Google Play)
 
@@ -350,7 +397,12 @@ Host at: `https://heirloom.blue/.well-known/apple-app-site-association`
           "/gold/redeem/*",
           "/verify-email/*",
           "/reset-password/*",
-          "/inherit/*"
+          "/inherit/*",
+          "/referral/*",
+          "/memory-cards/*",
+          "/memorial/*",
+          "/streaks",
+          "/challenges"
         ]
       }
     ]
