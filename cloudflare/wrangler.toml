@@ -50,6 +50,7 @@ crons = [
   "0 9 * * *",   # Daily at 9 AM UTC - check for missed check-ins
   "0 0 * * SUN", # Weekly on Sunday - send reminder emails
   "0 */12 * * *", # Every 12 hours - regenerate AI prompts cache
+  "*/5 * * * *", # Every 5 minutes - process push notification queue
 ]
 
 # ============================================

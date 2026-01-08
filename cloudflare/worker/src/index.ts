@@ -40,6 +40,7 @@ import pushNotificationRoutes from './routes/push-notifications';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects } from './jobs/adoption-jobs';
+import { processPushNotificationQueue, cleanupOldNotifications } from './services/pushSender';
 
 // Types
 export interface Env {
@@ -78,6 +79,17 @@ export interface Env {
   
   // Admin notifications
   ADMIN_NOTIFICATION_EMAIL?: string;
+  
+  // APNs (iOS Push Notifications)
+  APNS_TEAM_ID?: string;
+  APNS_KEY_ID?: string;
+  APNS_PRIVATE_KEY?: string;
+  APNS_BUNDLE_ID?: string;
+  
+  // FCM (Android Push Notifications)
+  FCM_PROJECT_ID?: string;
+  FCM_PRIVATE_KEY?: string;
+  FCM_CLIENT_EMAIL?: string;
   
   // Feature flags
   CRON_ENABLED?: string;
@@ -805,7 +817,18 @@ export default {
       const dripResult = await processDripCampaigns(env);
       console.log(`Drip campaigns processed: ${dripResult.processed}`);
       
+      // Cleanup old push notifications
+      console.log('Cleaning up old push notifications...');
+      const cleanedUp = await cleanupOldNotifications(env);
+      console.log(`Old push notifications cleaned up: ${cleanedUp}`);
+      
       console.log('Twice-daily jobs complete.');
+      
+    } else if (cronType === '*/5 * * * *') {
+      // ========== EVERY 5 MINUTES - Push Notification Processing ==========
+      console.log('Processing push notification queue...');
+      const pushResult = await processPushNotificationQueue(env);
+      console.log(`Push notifications - processed: ${pushResult.processed}, sent: ${pushResult.sent}, failed: ${pushResult.failed}, skipped: ${pushResult.skipped}`);
     }
   },
 };
