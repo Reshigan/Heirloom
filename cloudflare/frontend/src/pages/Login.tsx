@@ -237,6 +237,9 @@ export function Login() {
                   <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                   <input
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    autoCapitalize="none"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
@@ -252,6 +255,7 @@ export function Login() {
                   <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
@@ -261,7 +265,7 @@ export function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>

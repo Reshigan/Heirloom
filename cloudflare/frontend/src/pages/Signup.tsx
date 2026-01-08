@@ -158,13 +158,15 @@ export function Signup() {
                 </motion.div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-paper/50 mb-2">First name</label>
                   <div className="relative">
                     <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                     <input
                       type="text"
+                      autoComplete="given-name"
+                      autoCapitalize="words"
                       value={form.firstName}
                       onChange={(e) => setForm({ ...form, firstName: e.target.value })}
                       placeholder="John"
@@ -177,6 +179,8 @@ export function Signup() {
                   <label className="block text-sm text-paper/50 mb-2">Last name</label>
                   <input
                     type="text"
+                    autoComplete="family-name"
+                    autoCapitalize="words"
                     value={form.lastName}
                     onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                     placeholder="Doe"
@@ -192,6 +196,9 @@ export function Signup() {
                   <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                   <input
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    autoCapitalize="none"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     placeholder="you@example.com"
@@ -207,6 +214,7 @@ export function Signup() {
                   <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     placeholder="••••••••"
@@ -215,7 +223,7 @@ export function Signup() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>

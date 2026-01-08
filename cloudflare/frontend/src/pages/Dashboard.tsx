@@ -69,17 +69,20 @@ export function Dashboard() {
 
     // Memoize floating particles to prevent re-randomization on every render
     // This fixes the "flashing" issue where particles would jump to new positions
+    // Reduced count on mobile for better performance
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const particleCount = isMobile ? 8 : 20;
     const floatingParticles = useMemo(() => 
-      [...Array(20)].map((_, i) => ({
+      [...Array(particleCount)].map((_, i) => ({
         id: i,
         width: 2 + Math.random() * 2,
         height: 2 + Math.random() * 2,
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
-        duration: 15 + Math.random() * 10,
+        duration: isMobile ? 20 + Math.random() * 10 : 15 + Math.random() * 10,
         delay: Math.random() * 10,
       })), 
-    []);
+    [particleCount, isMobile]);
 
     // Platform Tour - use user-scoped key so tour only shows once per user
     const { isOpen: isTourOpen, hasCompletedTour, openTour, closeTour, completeTour } = usePlatformTour(user?.id);
@@ -246,8 +249,8 @@ export function Dashboard() {
 
       <Navigation />
 
-      {/* Toast - with aria-live for accessibility (BUG-021 fix) */}
-      <div aria-live="polite" aria-atomic="true" className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+      {/* Toast - with aria-live for accessibility (BUG-021 fix) - positioned above mobile bottom nav */}
+      <div aria-live="polite" aria-atomic="true" className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 w-full max-w-md">
         <AnimatePresence>
           {toast && (
             <motion.div

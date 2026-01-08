@@ -1794,6 +1794,218 @@ select:focus-visible {
   top: 0;
 }
 
+/* ============================================
+   MOBILE UX IMPROVEMENTS
+   ============================================ */
+
+/* Safe area padding for iOS devices with notch/home indicator */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.px-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Add bottom padding for pages with mobile bottom nav */
+@media (max-width: 767px) {
+  .mobile-nav-padding {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+  
+  /* Ensure main content doesn't get hidden behind bottom nav */
+  main, .main-content {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Keyboard-safe modal layouts using dynamic viewport height */
+.modal-keyboard-safe {
+  max-height: calc(100vh - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px));
+  max-height: calc(100dvh - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px));
+}
+
+/* Ensure modals scroll properly when keyboard is open */
+@supports (height: 100dvh) {
+  .modal-content {
+    max-height: 85dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Large tap targets for mobile (minimum 44x44px per Apple HIG) */
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Mobile-friendly buttons */
+@media (max-width: 767px) {
+  button, .btn, [role="button"] {
+    min-height: 44px;
+  }
+  
+  /* Larger touch targets for form inputs */
+  input, select, textarea {
+    min-height: 48px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* Sticky footer for mobile CTAs */
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: rgba(8, 8, 12, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(235, 230, 220, 0.1);
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Hide sticky footer on desktop */
+@media (min-width: 768px) {
+  .sticky-footer-mobile-only {
+    display: none;
+  }
+}
+
+/* Prevent body scroll when modal is open on mobile */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Mobile-optimized grid layouts */
+@media (max-width: 767px) {
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .mobile-grid-1 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Reduce animations on mobile for better performance */
+@media (max-width: 767px) {
+  .eternal-particle,
+  .sanctuary-orb {
+    animation-duration: 30s !important;
+  }
+  
+  /* Reduce number of floating particles on mobile */
+  .eternal-particle:nth-child(n+6) {
+    display: none;
+  }
+}
+
+/* Bottom sheet modal style for mobile */
+@media (max-width: 767px) {
+  .mobile-bottom-sheet {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    transform: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
+    padding-bottom: env(safe-area-inset-bottom, 16px) !important;
+  }
+  
+  .mobile-bottom-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(235, 230, 220, 0.3);
+    border-radius: 2px;
+    margin: 12px auto;
+  }
+}
+
+/* Improve text readability on mobile */
+@media (max-width: 767px) {
+  .mobile-text-base {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+  }
+  
+  .mobile-text-lg {
+    font-size: 18px !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* Ensure headings don't get too small */
+  h1 {
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+  }
+  
+  h2 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+  }
+}
+
+/* Touch-friendly spacing */
+@media (max-width: 767px) {
+  .mobile-p-4 {
+    padding: 16px !important;
+  }
+  
+  .mobile-gap-3 {
+    gap: 12px !important;
+  }
+  
+  .mobile-gap-4 {
+    gap: 16px !important;
+  }
+}
+
+/* Hide desktop-only elements on mobile */
+@media (max-width: 767px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Hide mobile-only elements on desktop */
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Smooth scroll for better UX */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
 /* Print styles for letters and memories */
 @media print {
   /* Hide non-essential elements */

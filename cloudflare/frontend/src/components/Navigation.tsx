@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
 import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X, ChevronDown, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger } from './Icons';
+import { MobileBottomNav } from './MobileBottomNav';
 
 const navItems = [
   { path: '/dashboard', icon: Home, label: 'Vault' },
@@ -345,6 +346,9 @@ export function Navigation() {
         )}
       </AnimatePresence>
     </nav>
+    
+    {/* Mobile Bottom Navigation */}
+    <MobileBottomNav onMenuClick={() => setMobileMenuOpen(true)} />
     </>
   );
 }
