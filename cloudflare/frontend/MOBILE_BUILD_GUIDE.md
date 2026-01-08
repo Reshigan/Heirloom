@@ -170,6 +170,11 @@ The app is configured to handle these deep links:
 - `https://heirloom.blue/gold/redeem/*` - Gold Legacy voucher redemption
 - `https://heirloom.blue/verify-email/*` - Email verification
 - `https://heirloom.blue/reset-password/*` - Password reset
+- `https://heirloom.blue/referral/*` - Family referral links
+- `https://heirloom.blue/memory-cards/*` - Shareable memory cards
+- `https://heirloom.blue/memorial/*` - QR memorial pages
+- `https://heirloom.blue/streaks` - Memory streaks
+- `https://heirloom.blue/challenges` - Weekly challenges
 - `heirloom://` - Custom URL scheme
 
 ### iOS Universal Links Setup
@@ -185,7 +190,7 @@ Content:
     "details": [
       {
         "appID": "TEAM_ID.blue.heirloom.app",
-        "paths": ["/gift/redeem/*", "/gold/redeem/*", "/verify-email/*", "/reset-password/*", "/inherit/*"]
+        "paths": ["/gift/redeem/*", "/gold/redeem/*", "/verify-email/*", "/reset-password/*", "/inherit/*", "/referral/*", "/memory-cards/*", "/memorial/*", "/streaks", "/challenges"]
       }
     ]
   },
@@ -293,17 +298,30 @@ pod install
 
 Update version numbers before each release:
 
+**Current Version:** 1.1.0 (Build 2)
+
 ### iOS
 In Xcode, update:
-- Version (CFBundleShortVersionString): e.g., "1.0.0"
-- Build (CFBundleVersion): e.g., "1"
+- Version (CFBundleShortVersionString): "1.1.0"
+- Build (CFBundleVersion): "2"
 
 ### Android
 In `android/app/build.gradle`:
 ```gradle
-versionCode 1
-versionName "1.0.0"
+versionCode 2
+versionName "1.1.0"
 ```
+
+### Version 1.1.0 Changes
+- Memory Streaks with daily habit tracking
+- Weekly Challenges with fun prompts
+- Shareable Memory Cards for social sharing
+- On This Day memory rediscovery
+- Family Referrals with rewards
+- Gift Subscriptions
+- QR Memorials for loved ones
+- Milestone Alerts for family dates
+- Enhanced E2E encryption with vault passphrase
 
 ## Contact
 
