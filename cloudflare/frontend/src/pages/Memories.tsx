@@ -330,14 +330,14 @@ export function Memories() {
 
       <Navigation />
 
-      {/* Toast */}
+      {/* Toast - positioned above mobile bottom nav */}
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            className={`toast ${toast.type === 'success' ? 'toast-success' : 'toast-error'}`}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl glass-strong max-w-sm mx-4 ${toast.type === 'success' ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'}`}
           >
             <div className="flex items-center gap-3">
               {toast.type === 'success' ? <Check size={20} className="text-green-400" /> : <AlertCircle size={20} className="text-red-400" />}
