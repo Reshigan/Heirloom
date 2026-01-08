@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { EternalBackground } from './components/EternalBackground';
 import { ComfortSettings, ComfortSettingsButton, getComfortPreferences, applyComfortPreferences } from './components/ComfortSettings';
+import {
+  isPushSupported,
+  initializePushNotifications,
+  onNotificationReceived,
+  onNotificationAction,
+  removePushNotificationListeners,
+} from './services/pushNotificationService';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -76,6 +83,36 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
 }
 
+function PushNotificationHandler() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+  
+  useEffect(() => {
+    if (!isAuthenticated || !isPushSupported()) {
+      return;
+    }
+    
+    initializePushNotifications();
+    
+    onNotificationReceived((notification) => {
+      console.log('Notification received in foreground:', notification.title);
+    });
+    
+    onNotificationAction((action) => {
+      const data = action.notification.data as Record<string, string> | undefined;
+      if (data?.route) {
+        navigate(data.route);
+      }
+    });
+    
+    return () => {
+      removePushNotificationListeners();
+    };
+  }, [isAuthenticated, navigate]);
+  
+  return null;
+}
+
 export default function App() {
   const [showComfortSettings, setShowComfortSettings] = useState(false);
   
@@ -88,9 +125,10 @@ export default function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <EternalBackground />
-          <CustomCursor />
+                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                  <PushNotificationHandler />
+                  <EternalBackground />
+                  <CustomCursor />
           
           {/* Comfort Settings - accessible from any page */}
           <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
