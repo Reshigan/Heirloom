@@ -172,7 +172,7 @@ export function Inherit() {
           className="text-center relative z-10"
         >
           <Loader2 size={48} className="animate-spin text-gold mx-auto mb-4" />
-          <p className="text-paper/60">Unlocking memories...</p>
+          <p className="text-paper/60">{t('common.loading')}</p>
         </motion.div>
       </div>
     );
@@ -198,9 +198,9 @@ export function Inherit() {
           <p className="text-paper/60 mb-8">
             This link may have expired or is no longer valid. Please contact the person who shared this with you.
           </p>
-          <Link to="/" className="btn btn-secondary">
-            Return Home
-          </Link>
+                    <Link to="/" className="btn btn-secondary">
+                      {t('common.returnHome')}
+                    </Link>
         </motion.div>
       </div>
     );

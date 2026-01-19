@@ -333,14 +333,14 @@ export function Settings() {
 
     const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
 
-  const tabs = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'subscription', label: 'Subscription', icon: CreditCard },
-    { id: 'deadman', label: 'Dead Man\'s Switch', icon: Clock },
-    { id: 'encryption', label: 'Encryption', icon: Lock },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'security', label: 'Security', icon: Shield },
-  ];
+    const tabs = [
+      { id: 'profile', label: t('settings.profile.title'), icon: User },
+      { id: 'subscription', label: t('settings.subscription'), icon: CreditCard },
+      { id: 'deadman', label: t('settings.deadmanSwitch'), icon: Clock },
+      { id: 'encryption', label: t('settings.encryption'), icon: Lock },
+      { id: 'notifications', label: t('settings.preferences.notifications'), icon: Bell },
+      { id: 'security', label: t('settings.security.title'), icon: Shield },
+    ];
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -358,11 +358,11 @@ export function Settings() {
       <div className="relative z-10 px-6 md:px-12 py-12">
       <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
         <ArrowLeft size={20} />
-        Back to Vault
+        {t('settings.backToVault')}
       </button>
 
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-light mb-12">Settings</h1>
+        <h1 className="text-4xl font-light mb-12">{t('settings.title')}</h1>
 
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
@@ -419,7 +419,7 @@ export function Settings() {
                                   onClick={() => fileInputRef.current?.click()}
                                   className="text-sm text-gold hover:text-gold-dim mt-1"
                                 >
-                                  Change photo
+                                  {t('settings.profile.changeAvatar')}
                                 </button>
                               </div>
                             </div>
@@ -427,17 +427,17 @@ export function Settings() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-paper/50 mb-2">First name</label>
+                      <label className="block text-sm text-paper/50 mb-2">{t('auth.firstName')}</label>
                       <input type="text" value={profile.firstName} onChange={(e) => setProfile({ ...profile, firstName: e.target.value })} className="input" />
                     </div>
                     <div>
-                      <label className="block text-sm text-paper/50 mb-2">Last name</label>
+                      <label className="block text-sm text-paper/50 mb-2">{t('auth.lastName')}</label>
                       <input type="text" value={profile.lastName} onChange={(e) => setProfile({ ...profile, lastName: e.target.value })} className="input" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">Preferred Currency</label>
+                    <label className="block text-sm text-paper/50 mb-2">{t('settings.preferredCurrency')}</label>
                     <select
                       value={user?.preferredCurrency || 'USD'}
                       onChange={(e) => updateCurrencyMutation.mutate(e.target.value)}

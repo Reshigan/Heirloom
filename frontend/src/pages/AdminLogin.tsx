@@ -37,8 +37,8 @@ export function AdminLogin() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center">
             <Lock className="w-8 h-8 text-gold" />
           </div>
-          <h1 className="text-3xl font-light text-paper">Admin Portal</h1>
-          <p className="text-paper/50 mt-2">Sign in to access the admin dashboard</p>
+                    <h1 className="text-3xl font-light text-paper">{t('common.adminPortal')}</h1>
+                    <p className="text-paper/50 mt-2">{t('common.adminSignInSubtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="card space-y-6">
@@ -50,7 +50,7 @@ export function AdminLogin() {
           )}
 
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Email</label>
+            <label className="block text-sm text-paper/50 mb-2">{t('auth.email')}</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-paper/30" />
               <input
@@ -65,7 +65,7 @@ export function AdminLogin() {
           </div>
 
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Password</label>
+            <label className="block text-sm text-paper/50 mb-2">{t('auth.password')}</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-paper/30" />
               <input
@@ -84,12 +84,12 @@ export function AdminLogin() {
             disabled={loginMutation.isPending}
             className="btn btn-primary w-full"
           >
-            {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
+            {loginMutation.isPending ? t('common.loading') : t('auth.signIn')}
           </button>
         </form>
 
         <p className="text-center text-paper/30 text-sm mt-6">
-          <a href="/" className="hover:text-gold transition-colors">Back to main site</a>
+          <a href="/" className="hover:text-gold transition-colors">{t('common.backToHome')}</a>
         </p>
       </div>
     </div>

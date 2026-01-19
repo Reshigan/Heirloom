@@ -232,8 +232,8 @@ export function Family() {
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
         >
-          <ArrowLeft size={20} />
-          Back to Vault
+                    <ArrowLeft size={20} />
+                    {t('settings.backToVault')}
         </motion.button>
 
         <div className="max-w-6xl mx-auto">
@@ -242,8 +242,8 @@ export function Family() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-16"
           >
-            <h1 className="text-4xl md:text-5xl font-light mb-2">Your Family <em>Constellation</em></h1>
-            <p className="text-paper/50">The people who matter most to you</p>
+                        <h1 className="text-4xl md:text-5xl font-light mb-2">{t('family.title')}</h1>
+                        <p className="text-paper/50">{t('family.subtitle')}</p>
           </motion.div>
 
           {/* Constellation View - outer relative wrapper for positioning */}
@@ -372,14 +372,14 @@ export function Family() {
                   <div className="w-20 h-20 rounded-full glass flex items-center justify-center mx-auto mb-4">
                     <Users size={32} className="text-paper/30" />
                   </div>
-                  <p className="text-paper/50 mb-4">No family members yet</p>
-                  <button 
-                    onClick={() => setShowAddModal(true)} 
-                    className="btn btn-primary"
-                  >
-                    <Plus size={18} />
-                    Add Your First Family Member
-                  </button>
+                                    <p className="text-paper/50 mb-4">{t('family.noMembers')}</p>
+                                    <button 
+                                      onClick={() => setShowAddModal(true)} 
+                                      className="btn btn-primary"
+                                    >
+                                      <Plus size={18} />
+                                      {t('family.addMember')}
+                                    </button>
                 </motion.div>
               )}
             </div>

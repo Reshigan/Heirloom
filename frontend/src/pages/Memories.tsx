@@ -264,8 +264,8 @@ export function Memories() {
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
         >
-          <ArrowLeft size={20} />
-          Back to Vault
+                    <ArrowLeft size={20} />
+                    {t('settings.backToVault')}
         </motion.button>
 
         <div className="max-w-6xl mx-auto">
@@ -275,8 +275,8 @@ export function Memories() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h1 className="text-4xl md:text-5xl font-light mb-2">Your <em>Memories</em></h1>
-              <p className="text-paper/50">Moments worth preserving forever</p>
+                            <h1 className="text-4xl md:text-5xl font-light mb-2">{t('memories.title')}</h1>
+                            <p className="text-paper/50">{t('memories.subtitle')}</p>
             </motion.div>
 
             <motion.div
@@ -320,8 +320,8 @@ export function Memories() {
                 onClick={() => setShowUploadModal(true)}
                 className="btn btn-primary"
               >
-                <Plus size={18} />
-                Add Memory
+                                <Plus size={18} />
+                                {t('memories.create')}
               </button>
             </motion.div>
           </div>

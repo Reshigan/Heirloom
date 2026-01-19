@@ -104,8 +104,8 @@ export function Referral() {
           onClick={() => navigate('/dashboard')} 
           className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8"
         >
-          <ArrowLeft size={20} />
-          Back to Dashboard
+                    <ArrowLeft size={20} />
+                    {t('settings.backToVault')}
         </button>
 
         <div className="max-w-4xl mx-auto">
@@ -114,10 +114,10 @@ export function Referral() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl font-light mb-4">Refer Friends & Family</h1>
-            <p className="text-paper/60 text-lg">
-              Share Heirloom with your loved ones and earn rewards when they subscribe
-            </p>
+                        <h1 className="text-4xl font-light mb-4">{t('referral.title')}</h1>
+                        <p className="text-paper/60 text-lg">
+                          {t('referral.subtitle')}
+                        </p>
           </motion.div>
 
           {statusMessage && (
@@ -145,8 +145,8 @@ export function Referral() {
                 <Link2 className="text-gold" size={24} />
               </div>
               <div>
-                <h2 className="text-xl">Your Referral Link</h2>
-                <p className="text-paper/50 text-sm">Share this link to invite others</p>
+                                <h2 className="text-xl">{t('referral.yourLink')}</h2>
+                                <p className="text-paper/50 text-sm">{t('referral.shareLink')}</p>
               </div>
             </div>
 
@@ -176,8 +176,8 @@ export function Referral() {
                 onClick={shareReferral}
                 className="btn btn-primary flex items-center gap-2"
               >
-                <Share2 size={18} />
-                Share Link
+                                <Share2 size={18} />
+                                {t('referral.share')}
               </button>
               <button
                 onClick={() => {
@@ -186,8 +186,8 @@ export function Referral() {
                 }}
                 className="btn btn-secondary flex items-center gap-2"
               >
-                <Edit3 size={18} />
-                Customize Code
+                                <Edit3 size={18} />
+                                {t('referral.customizeCode')}
               </button>
             </div>
 

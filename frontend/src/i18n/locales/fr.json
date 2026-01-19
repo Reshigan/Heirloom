@@ -1,39 +1,46 @@
 {
-  "common": {
-    "loading": "Chargement...",
-    "save": "Enregistrer",
-    "cancel": "Annuler",
-    "delete": "Supprimer",
-    "edit": "Modifier",
-    "close": "Fermer",
-    "submit": "Soumettre",
-    "confirm": "Confirmer",
-    "back": "Retour",
-    "next": "Suivant",
-    "previous": "Précédent",
-    "search": "Rechercher",
-    "filter": "Filtrer",
-    "sort": "Trier",
-    "view": "Voir",
-    "download": "Télécharger",
-    "upload": "Téléverser",
-    "share": "Partager",
-    "copy": "Copier",
-    "copied": "Copié !",
-    "error": "Erreur",
-    "success": "Succès",
-    "warning": "Avertissement",
-    "info": "Information",
-    "yes": "Oui",
-    "no": "Non",
-    "or": "ou",
-    "and": "et",
-    "all": "Tout",
-    "none": "Aucun",
-    "select": "Sélectionner",
-    "required": "Requis",
-    "optional": "Optionnel"
-  },
+    "common": {
+      "loading": "Chargement...",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "close": "Fermer",
+      "submit": "Soumettre",
+      "confirm": "Confirmer",
+      "back": "Retour",
+      "next": "Suivant",
+      "previous": "Précédent",
+      "search": "Rechercher",
+      "filter": "Filtrer",
+      "sort": "Trier",
+      "view": "Voir",
+      "download": "Télécharger",
+      "upload": "Téléverser",
+      "share": "Partager",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "error": "Erreur",
+      "success": "Succès",
+      "warning": "Avertissement",
+      "info": "Information",
+      "yes": "Oui",
+      "no": "Non",
+      "or": "ou",
+      "and": "et",
+      "all": "Tout",
+      "none": "Aucun",
+      "select": "Sélectionner",
+      "required": "Requis",
+      "optional": "Optionnel",
+      "goBack": "Retour",
+      "returnHome": "Retour à l'Accueil",
+      "backToHome": "Retour à l'Accueil",
+      "becomePartner": "Devenir Partenaire",
+      "partnerSubtitle": "Associez-vous à Heirloom pour offrir à vos clients un moyen significatif de préserver l'héritage de leur famille. Obtenez des prix de gros sur les bons cadeaux et gagnez des commissions sur les références.",
+      "adminPortal": "Portail Administrateur",
+      "adminSignInSubtitle": "Connectez-vous pour accéder au tableau de bord administrateur"
+    },
   "nav": {
     "home": "Accueil",
     "vault": "Coffre",
@@ -51,36 +58,45 @@
     "login": "Connexion",
     "signup": "S'inscrire"
   },
-  "auth": {
-    "login": "Connexion",
-    "signup": "S'inscrire",
-    "logout": "Déconnexion",
-    "email": "E-mail",
-    "password": "Mot de passe",
-    "confirmPassword": "Confirmer le mot de passe",
-    "forgotPassword": "Mot de passe oublié ?",
-    "resetPassword": "Réinitialiser le mot de passe",
-    "rememberMe": "Se souvenir de moi",
-    "noAccount": "Vous n'avez pas de compte ?",
-    "hasAccount": "Vous avez déjà un compte ?",
-    "createAccount": "Créer un compte",
-    "welcomeBack": "Bon retour",
-    "loginSubtitle": "Connectez-vous pour continuer à préserver l'héritage de votre famille",
-    "signupSubtitle": "Commencez à préserver les précieux souvenirs de votre famille aujourd'hui",
-    "firstName": "Prénom",
-    "lastName": "Nom",
-    "termsAgree": "J'accepte les Conditions d'utilisation et la Politique de confidentialité",
-    "invalidEmail": "Veuillez entrer une adresse e-mail valide",
-    "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
-    "passwordsNoMatch": "Les mots de passe ne correspondent pas"
-  },
-  "landing": {
-    "hero": {
-      "title": "Préservez l'Héritage de Votre Famille",
-      "subtitle": "Créez des souvenirs durables, écrivez des lettres sincères et construisez un héritage numérique pour les générations à venir.",
-      "cta": "Commencez Votre Héritage",
-      "ctaSecondary": "En Savoir Plus"
+    "auth": {
+      "login": "Connexion",
+      "signup": "S'inscrire",
+      "logout": "Déconnexion",
+      "signIn": "Se Connecter",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "forgotPasswordSubtitle": "Entrez votre e-mail et nous vous enverrons un lien de réinitialisation",
+      "resetPassword": "Réinitialiser le mot de passe",
+      "resetPasswordSubtitle": "Entrez votre nouveau mot de passe ci-dessous",
+      "newPassword": "Nouveau Mot de Passe",
+      "sendResetLink": "Envoyer le Lien de Réinitialisation",
+      "backToLogin": "Retour à la Connexion",
+      "rememberMe": "Se souvenir de moi",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "createAccount": "Créer un compte",
+      "welcomeBack": "Bon retour",
+      "loginSubtitle": "Connectez-vous pour continuer à préserver l'héritage de votre famille",
+      "signupSubtitle": "Commencez à préserver les précieux souvenirs de votre famille aujourd'hui",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "termsAgree": "J'accepte les Conditions d'utilisation et la Politique de confidentialité",
+      "invalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordsNoMatch": "Les mots de passe ne correspondent pas"
     },
+    "landing": {
+      "hero": {
+        "title": "Préservez les",
+        "titleLine2": "Plus Précieux",
+        "titleHighlight": "Souvenirs",
+        "subtitle": "Créez des souvenirs durables, écrivez des lettres sincères et construisez un héritage numérique pour les générations à venir.",
+        "cta": "Commencez Votre Héritage",
+        "ctaSecondary": "En Savoir Plus",
+        "trial": "14 jours d'essai gratuit • Sans carte de crédit"
+      },
     "features": {
       "title": "Tout ce dont Vous Avez Besoin pour Préserver les Souvenirs",
       "memories": {
@@ -278,9 +294,10 @@
       "deleteAccount": "Supprimer le Compte"
     }
   },
-  "billing": {
-    "title": "Facturation",
-    "currentPlan": "Forfait Actuel",
+    "billing": {
+      "title": "Choisissez Votre Héritage",
+      "subtitle": "Préservez ce qui compte le plus avec un forfait adapté aux besoins de votre famille.",
+      "currentPlan": "Forfait Actuel",
     "changePlan": "Changer de Forfait",
     "cancelSubscription": "Annuler l'Abonnement",
     "paymentMethod": "Méthode de Paiement",
@@ -299,12 +316,15 @@
       "download": "Télécharger"
     }
   },
-  "referral": {
-    "title": "Parrainer des Amis",
-    "subtitle": "Partagez Heirloom et gagnez des récompenses",
-    "yourCode": "Votre Code de Parrainage",
-    "shareLink": "Lien de Partage",
-    "rewards": {
+    "referral": {
+      "title": "Parrainez Amis et Famille",
+      "subtitle": "Partagez Heirloom avec vos proches et gagnez des récompenses pour chaque parrainage réussi.",
+      "yourLink": "Votre Lien de Parrainage",
+      "yourCode": "Votre Code de Parrainage",
+      "shareLink": "Partagez ce lien pour inviter d'autres personnes",
+      "share": "Partager le Lien",
+      "customizeCode": "Personnaliser le Code",
+      "rewards": {
       "title": "Vos Récompenses",
       "earned": "Total Gagné",
       "pending": "En Attente"
@@ -315,11 +335,12 @@
       "conversions": "Conversions"
     }
   },
-  "influencer": {
-    "title": "Programme Influenceur",
-    "subtitle": "Partenariat avec Heirloom et gagnez des commissions",
-    "apply": "Postuler Maintenant",
-    "dashboard": {
+    "influencer": {
+      "title": "Devenez Partenaire Influenceur",
+      "subtitle": "Rejoignez notre programme d'influenceurs et gagnez des commissions tout en aidant les familles à préserver leurs précieux souvenirs.",
+      "apply": "Postuler Maintenant",
+      "applyNow": "Postuler Maintenant",
+      "dashboard": {
       "earnings": "Gains Totaux",
       "pending": "Paiement en Attente",
       "conversions": "Conversions",
@@ -328,15 +349,16 @@
     "discountCode": "Votre Code de Réduction",
     "landingPage": "Votre Page de Destination"
   },
-  "errors": {
-    "generic": "Une erreur s'est produite. Veuillez réessayer.",
-    "network": "Erreur réseau. Veuillez vérifier votre connexion.",
-    "unauthorized": "Veuillez vous connecter pour continuer.",
-    "forbidden": "Vous n'avez pas la permission de faire cela.",
-    "notFound": "Page non trouvée.",
-    "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
-    "validation": "Veuillez vérifier votre saisie et réessayer."
-  },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "network": "Erreur réseau. Veuillez vérifier votre connexion.",
+      "unauthorized": "Veuillez vous connecter pour continuer.",
+      "forbidden": "Vous n'avez pas la permission de faire cela.",
+      "notFound": "Page Non Trouvée",
+      "notFoundMessage": "La page que vous recherchez semble s'être perdue dans le vide. Laissez-nous vous guider vers un territoire familier.",
+      "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
+      "validation": "Veuillez vérifier votre saisie et réessayer."
+    },
   "footer": {
     "about": "À Propos",
     "privacy": "Politique de Confidentialité",

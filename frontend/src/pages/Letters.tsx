@@ -126,8 +126,8 @@ export function Letters() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Plus size={18} />
-            Write Letter
+                        <Plus size={18} />
+                        {t('letters.create')}
           </motion.button>
         </div>
       </header>
@@ -139,8 +139,8 @@ export function Letters() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-light mb-2">Your Letters</h1>
-          <p className="text-paper/60">Messages waiting to be delivered to your loved ones</p>
+                    <h1 className="text-4xl font-light mb-2">{t('letters.title')}</h1>
+                    <p className="text-paper/60">{t('letters.subtitle')}</p>
         </motion.div>
 
         {/* Search and Filters */}
@@ -198,15 +198,15 @@ export function Letters() {
             <div className="w-20 h-20 rounded-full bg-paper/5 flex items-center justify-center mx-auto mb-6">
               <Mail className="text-paper/30" size={40} />
             </div>
-            <h3 className="text-xl mb-2">No letters yet</h3>
-            <p className="text-paper/50 mb-6">Start preserving your thoughts for loved ones</p>
-            <button
-              onClick={() => navigate('/compose')}
-              className="btn btn-primary"
-            >
-              <Plus size={18} />
-              Write Your First Letter
-            </button>
+                        <h3 className="text-xl mb-2">{t('letters.noLetters')}</h3>
+                        <p className="text-paper/50 mb-6">{t('letters.startWriting')}</p>
+                        <button
+                          onClick={() => navigate('/compose')}
+                          className="btn btn-primary"
+                        >
+                          <Plus size={18} />
+                          {t('letters.create')}
+                        </button>
           </motion.div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

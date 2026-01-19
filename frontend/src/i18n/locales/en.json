@@ -1,39 +1,47 @@
 {
-  "common": {
-    "loading": "Loading...",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "close": "Close",
-    "submit": "Submit",
-    "confirm": "Confirm",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous",
-    "search": "Search",
-    "filter": "Filter",
-    "sort": "Sort",
-    "view": "View",
-    "download": "Download",
-    "upload": "Upload",
-    "share": "Share",
-    "copy": "Copy",
-    "copied": "Copied!",
-    "error": "Error",
-    "success": "Success",
-    "warning": "Warning",
-    "info": "Info",
-    "yes": "Yes",
-    "no": "No",
-    "or": "or",
-    "and": "and",
-    "all": "All",
-    "none": "None",
-    "select": "Select",
-    "required": "Required",
-    "optional": "Optional"
-  },
+        "common": {
+          "loading": "Loading...",
+          "save": "Save",
+          "cancel": "Cancel",
+          "delete": "Delete",
+          "edit": "Edit",
+          "close": "Close",
+          "submit": "Submit",
+          "confirm": "Confirm",
+          "back": "Back",
+          "next": "Next",
+          "previous": "Previous",
+          "search": "Search",
+          "filter": "Filter",
+          "sort": "Sort",
+          "view": "View",
+          "download": "Download",
+          "upload": "Upload",
+          "share": "Share",
+          "copy": "Copy",
+          "copied": "Copied!",
+          "error": "Error",
+          "success": "Success",
+          "warning": "Warning",
+          "info": "Info",
+          "yes": "Yes",
+          "no": "No",
+          "or": "or",
+          "and": "and",
+          "all": "All",
+          "none": "None",
+          "select": "Select",
+          "required": "Required",
+          "optional": "Optional",
+          "friend": "Friend",
+          "goBack": "Go Back",
+          "returnHome": "Return Home",
+          "backToHome": "Back to Home",
+          "becomePartner": "Become a Partner",
+          "partnerSubtitle": "Partner with Heirloom to offer your clients a meaningful way to preserve their family legacy. Get wholesale pricing on gift vouchers and earn commissions on referrals.",
+          "adminPortal": "Admin Portal",
+          "adminSignInSubtitle": "Sign in to access the admin dashboard"
+        },
   "nav": {
     "home": "Home",
     "vault": "Vault",
@@ -51,36 +59,45 @@
     "login": "Log In",
     "signup": "Sign Up"
   },
-  "auth": {
-    "login": "Log In",
-    "signup": "Sign Up",
-    "logout": "Log Out",
-    "email": "Email",
-    "password": "Password",
-    "confirmPassword": "Confirm Password",
-    "forgotPassword": "Forgot Password?",
-    "resetPassword": "Reset Password",
-    "rememberMe": "Remember me",
-    "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?",
-    "createAccount": "Create Account",
-    "welcomeBack": "Welcome back",
-    "loginSubtitle": "Sign in to continue preserving your family's legacy",
-    "signupSubtitle": "Start preserving your family's precious memories today",
-    "firstName": "First Name",
-    "lastName": "Last Name",
-    "termsAgree": "I agree to the Terms of Service and Privacy Policy",
-    "invalidEmail": "Please enter a valid email address",
-    "passwordMinLength": "Password must be at least 8 characters",
-    "passwordsNoMatch": "Passwords do not match"
-  },
-  "landing": {
-    "hero": {
-      "title": "Preserve Your Family's Legacy",
-      "subtitle": "Create lasting memories, write heartfelt letters, and build a digital heirloom for generations to come.",
-      "cta": "Start Your Legacy",
-      "ctaSecondary": "Learn More"
+    "auth": {
+      "login": "Log In",
+      "signup": "Sign Up",
+      "logout": "Log Out",
+      "signIn": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "forgotPassword": "Forgot Password?",
+      "forgotPasswordSubtitle": "Enter your email and we'll send you a reset link",
+      "resetPassword": "Reset Password",
+      "resetPasswordSubtitle": "Enter your new password below",
+      "newPassword": "New Password",
+      "sendResetLink": "Send Reset Link",
+      "backToLogin": "Back to Login",
+      "rememberMe": "Remember me",
+      "noAccount": "Don't have an account?",
+      "hasAccount": "Already have an account?",
+      "createAccount": "Create Account",
+      "welcomeBack": "Welcome back",
+      "loginSubtitle": "Sign in to continue preserving your family's legacy",
+      "signupSubtitle": "Start preserving your family's precious memories today",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "termsAgree": "I agree to the Terms of Service and Privacy Policy",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordsNoMatch": "Passwords do not match"
     },
+    "landing": {
+      "hero": {
+        "title": "Preserve Your Family's",
+        "titleLine2": "Most Precious",
+        "titleHighlight": "Memories",
+        "subtitle": "Create lasting memories, write heartfelt letters, and build a digital heirloom for generations to come.",
+        "cta": "Start Your Legacy",
+        "ctaSecondary": "Learn More",
+        "trial": "14-day free trial • No credit card required"
+      },
     "features": {
       "title": "Everything You Need to Preserve Memories",
       "memories": {
@@ -125,24 +142,35 @@
       }
     }
   },
-  "dashboard": {
-    "welcome": "Welcome back, {{name}}",
-    "recentMemories": "Recent Memories",
-    "upcomingLetters": "Upcoming Letters",
-    "familyActivity": "Family Activity",
-    "quickActions": "Quick Actions",
-    "createMemory": "Create Memory",
-    "writeALetter": "Write a Letter",
-    "viewFamily": "View Family",
-    "noMemories": "No memories yet. Start capturing your first memory!",
-    "noLetters": "No letters scheduled. Write your first letter!",
-    "stats": {
-      "memories": "Memories",
-      "letters": "Letters",
-      "familyMembers": "Family Members",
-      "storageUsed": "Storage Used"
-    }
-  },
+    "dashboard": {
+      "welcome": "Welcome back,",
+      "sanctuaryAwaits": "Your sanctuary awaits",
+      "checkInRequired": "Check In Required",
+      "protected": "Protected",
+      "trialDaysLeft": "{{days}} days left in your trial",
+      "upgradePrompt": "Upgrade now to keep your memories forever",
+      "captured": "captured",
+      "writeLetter": "Write Letter",
+      "written": "written",
+      "recordVoice": "Record Voice",
+      "minutes": "minutes",
+      "members": "members",
+      "recentMemories": "Recent Memories",
+      "upcomingLetters": "Upcoming Letters",
+      "familyActivity": "Family Activity",
+      "quickActions": "Quick Actions",
+      "createMemory": "Create Memory",
+      "writeALetter": "Write a Letter",
+      "viewFamily": "View Family",
+      "noMemories": "No memories yet. Start capturing your first memory!",
+      "noLetters": "No letters scheduled. Write your first letter!",
+      "stats": {
+        "memories": "Memories",
+        "letters": "Letters",
+        "familyMembers": "Family Members",
+        "storageUsed": "Storage Used"
+      }
+    },
   "memories": {
     "title": "Memories",
     "subtitle": "Your collection of precious moments",
@@ -209,9 +237,9 @@
       "read": "Read"
     }
   },
-  "family": {
-    "title": "Family",
-    "subtitle": "Your family tree and connections",
+    "family": {
+      "title": "Your Family Constellation",
+      "subtitle": "The people who matter most to you",
     "addMember": "Add Family Member",
     "noMembers": "No family members yet",
     "startBuilding": "Start building your family tree",
@@ -240,10 +268,15 @@
       "sent": "Invitation sent!"
     }
   },
-  "settings": {
-    "title": "Settings",
-    "profile": {
-      "title": "Profile",
+    "settings": {
+      "title": "Settings",
+      "backToVault": "Back to Vault",
+      "subscription": "Subscription",
+      "deadmanSwitch": "Dead Man's Switch",
+      "encryption": "Encryption",
+      "preferredCurrency": "Preferred Currency",
+      "profile": {
+        "title": "Profile",
       "name": "Name",
       "email": "Email",
       "avatar": "Profile Picture",
@@ -278,65 +311,71 @@
       "deleteAccount": "Delete Account"
     }
   },
-  "billing": {
-    "title": "Billing",
-    "currentPlan": "Current Plan",
-    "changePlan": "Change Plan",
-    "cancelSubscription": "Cancel Subscription",
-    "paymentMethod": "Payment Method",
-    "updatePayment": "Update Payment Method",
-    "billingHistory": "Billing History",
-    "nextBilling": "Next billing date",
-    "trial": {
-      "title": "Free Trial",
-      "daysRemaining": "{{days}} days remaining",
-      "upgrade": "Upgrade Now"
+    "billing": {
+      "title": "Choose Your Legacy",
+      "subtitle": "Preserve what matters most with a plan that fits your family's needs.",
+      "currentPlan": "Current Plan",
+      "changePlan": "Change Plan",
+      "cancelSubscription": "Cancel Subscription",
+      "paymentMethod": "Payment Method",
+      "updatePayment": "Update Payment Method",
+      "billingHistory": "Billing History",
+      "nextBilling": "Next billing date",
+      "trial": {
+        "title": "Free Trial",
+        "daysRemaining": "{{days}} days remaining",
+        "upgrade": "Upgrade Now"
+      },
+      "invoice": {
+        "date": "Date",
+        "amount": "Amount",
+        "status": "Status",
+        "download": "Download"
+      }
     },
-    "invoice": {
-      "date": "Date",
-      "amount": "Amount",
-      "status": "Status",
-      "download": "Download"
-    }
-  },
-  "referral": {
-    "title": "Refer Friends",
-    "subtitle": "Share Heirloom and earn rewards",
-    "yourCode": "Your Referral Code",
-    "shareLink": "Share Link",
-    "rewards": {
-      "title": "Your Rewards",
-      "earned": "Total Earned",
-      "pending": "Pending"
+    "referral": {
+      "title": "Refer Friends & Family",
+      "subtitle": "Share Heirloom with your loved ones and earn rewards for every successful referral.",
+      "yourLink": "Your Referral Link",
+      "yourCode": "Your Referral Code",
+      "shareLink": "Share this link to invite others",
+      "share": "Share Link",
+      "customizeCode": "Customize Code",
+      "rewards": {
+        "title": "Your Rewards",
+        "earned": "Total Earned",
+        "pending": "Pending"
+      },
+      "stats": {
+        "clicks": "Clicks",
+        "signups": "Signups",
+        "conversions": "Conversions"
+      }
     },
-    "stats": {
-      "clicks": "Clicks",
-      "signups": "Signups",
-      "conversions": "Conversions"
-    }
-  },
-  "influencer": {
-    "title": "Influencer Program",
-    "subtitle": "Partner with Heirloom and earn commissions",
-    "apply": "Apply Now",
-    "dashboard": {
-      "earnings": "Total Earnings",
-      "pending": "Pending Payout",
-      "conversions": "Conversions",
-      "clicks": "Total Clicks"
+    "influencer": {
+      "title": "Become an Influencer Partner",
+      "subtitle": "Join our influencer program and earn commissions while helping families preserve their precious memories.",
+      "apply": "Apply Now",
+      "applyNow": "Apply Now",
+      "dashboard": {
+        "earnings": "Total Earnings",
+        "pending": "Pending Payout",
+        "conversions": "Conversions",
+        "clicks": "Total Clicks"
+      },
+      "discountCode": "Your Discount Code",
+      "landingPage": "Your Landing Page"
     },
-    "discountCode": "Your Discount Code",
-    "landingPage": "Your Landing Page"
-  },
-  "errors": {
-    "generic": "Something went wrong. Please try again.",
-    "network": "Network error. Please check your connection.",
-    "unauthorized": "Please log in to continue.",
-    "forbidden": "You don't have permission to do this.",
-    "notFound": "Page not found.",
-    "serverError": "Server error. Please try again later.",
-    "validation": "Please check your input and try again."
-  },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "network": "Network error. Please check your connection.",
+      "unauthorized": "Please log in to continue.",
+      "forbidden": "You don't have permission to do this.",
+      "notFound": "Page Not Found",
+      "notFoundMessage": "The page you're looking for seems to have drifted into the void. Let's guide you back to familiar territory.",
+      "serverError": "Server error. Please try again later.",
+      "validation": "Please check your input and try again."
+    },
   "footer": {
     "about": "About",
     "privacy": "Privacy Policy",

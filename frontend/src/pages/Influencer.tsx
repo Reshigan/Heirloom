@@ -169,8 +169,8 @@ export function Influencer() {
           onClick={() => navigate('/dashboard')} 
           className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8"
         >
-          <ArrowLeft size={20} />
-          Back to Dashboard
+                    <ArrowLeft size={20} />
+                    {t('settings.backToVault')}
         </button>
 
         <div className="max-w-5xl mx-auto">
@@ -197,11 +197,10 @@ export function Influencer() {
               <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-6">
                 <Star className="text-gold" size={40} />
               </div>
-              <h1 className="text-4xl font-light mb-4">Become an Influencer Partner</h1>
-              <p className="text-paper/60 text-lg mb-8 max-w-2xl mx-auto">
-                Join our influencer program and earn commissions by sharing Heirloom with your audience. 
-                Get personalized discount codes, custom landing pages, and monthly payouts.
-              </p>
+                            <h1 className="text-4xl font-light mb-4">{t('influencer.title')}</h1>
+                            <p className="text-paper/60 text-lg mb-8 max-w-2xl mx-auto">
+                              {t('influencer.subtitle')}
+                            </p>
 
               <div className="grid md:grid-cols-3 gap-6 mb-12">
                 <div className="card text-center">
@@ -227,12 +226,12 @@ export function Influencer() {
                 </div>
               </div>
 
-              <button
-                onClick={() => setShowApplyModal(true)}
-                className="btn btn-primary text-lg px-8 py-4"
-              >
-                Apply Now
-              </button>
+                            <button
+                              onClick={() => setShowApplyModal(true)}
+                              className="btn btn-primary text-lg px-8 py-4"
+                            >
+                              {t('influencer.applyNow')}
+                            </button>
             </motion.div>
           ) : (
             <>

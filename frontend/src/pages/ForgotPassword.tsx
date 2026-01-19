@@ -123,10 +123,10 @@ export function ForgotPassword() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <h1 className="text-2xl font-light text-center mb-2">Forgot your password?</h1>
-                  <p className="text-paper/50 text-center mb-8">
-                    Enter your email and we'll send you a reset link
-                  </p>
+                                    <h1 className="text-2xl font-light text-center mb-2">{t('auth.forgotPassword')}</h1>
+                                    <p className="text-paper/50 text-center mb-8">
+                                      {t('auth.forgotPasswordSubtitle')}
+                                    </p>
                 </motion.div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -141,7 +141,7 @@ export function ForgotPassword() {
                   )}
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">Email</label>
+                    <label className="block text-sm text-paper/50 mb-2">{t('auth.email')}</label>
                     <div className="relative">
                       <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                       <input
@@ -162,11 +162,11 @@ export function ForgotPassword() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {isLoading ? (
-                      <Loader2 size={20} className="animate-spin" />
-                    ) : (
-                      'Send Reset Link'
-                    )}
+                                        {isLoading ? (
+                                          <Loader2 size={20} className="animate-spin" />
+                                        ) : (
+                                          t('auth.sendResetLink')
+                                        )}
                   </motion.button>
                 </form>
 
@@ -175,8 +175,8 @@ export function ForgotPassword() {
                     to="/login" 
                     className="text-paper/50 hover:text-paper transition-colors inline-flex items-center gap-2"
                   >
-                    <ArrowLeft size={16} />
-                    Back to Login
+                                        <ArrowLeft size={16} />
+                                        {t('auth.backToLogin')}
                   </Link>
                 </div>
               </>

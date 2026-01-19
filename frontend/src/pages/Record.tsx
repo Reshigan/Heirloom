@@ -389,8 +389,8 @@ export function Record() {
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
         >
-          <ArrowLeft size={20} />
-          Back to Vault
+                    <ArrowLeft size={20} />
+                    {t('settings.backToVault')}
         </motion.button>
 
         <div className="max-w-5xl mx-auto">

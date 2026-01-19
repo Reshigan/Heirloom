@@ -167,8 +167,8 @@ export function Partner() {
           onClick={() => navigate('/dashboard')} 
           className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8"
         >
-          <ArrowLeft size={20} />
-          Back to Dashboard
+                    <ArrowLeft size={20} />
+                    {t('settings.backToVault')}
         </button>
 
         <div className="max-w-5xl mx-auto">
@@ -195,11 +195,10 @@ export function Partner() {
               <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-6">
                 <Building2 className="text-gold" size={40} />
               </div>
-              <h1 className="text-4xl font-light mb-4">Become a Partner</h1>
-              <p className="text-paper/60 text-lg mb-8 max-w-2xl mx-auto">
-                Partner with Heirloom to offer your clients a meaningful way to preserve their family legacy. 
-                Get wholesale pricing on gift vouchers and earn commissions on referrals.
-              </p>
+                            <h1 className="text-4xl font-light mb-4">{t('common.becomePartner')}</h1>
+                            <p className="text-paper/60 text-lg mb-8 max-w-2xl mx-auto">
+                              {t('common.partnerSubtitle')}
+                            </p>
 
               <div className="grid md:grid-cols-3 gap-6 mb-12">
                 <div className="card text-center">

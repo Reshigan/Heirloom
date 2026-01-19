@@ -1,39 +1,46 @@
 {
-  "common": {
-    "loading": "Cargando...",
-    "save": "Guardar",
-    "cancel": "Cancelar",
-    "delete": "Eliminar",
-    "edit": "Editar",
-    "close": "Cerrar",
-    "submit": "Enviar",
-    "confirm": "Confirmar",
-    "back": "Atrás",
-    "next": "Siguiente",
-    "previous": "Anterior",
-    "search": "Buscar",
-    "filter": "Filtrar",
-    "sort": "Ordenar",
-    "view": "Ver",
-    "download": "Descargar",
-    "upload": "Subir",
-    "share": "Compartir",
-    "copy": "Copiar",
-    "copied": "¡Copiado!",
-    "error": "Error",
-    "success": "Éxito",
-    "warning": "Advertencia",
-    "info": "Información",
-    "yes": "Sí",
-    "no": "No",
-    "or": "o",
-    "and": "y",
-    "all": "Todo",
-    "none": "Ninguno",
-    "select": "Seleccionar",
-    "required": "Requerido",
-    "optional": "Opcional"
-  },
+    "common": {
+      "loading": "Cargando...",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "close": "Cerrar",
+      "submit": "Enviar",
+      "confirm": "Confirmar",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "search": "Buscar",
+      "filter": "Filtrar",
+      "sort": "Ordenar",
+      "view": "Ver",
+      "download": "Descargar",
+      "upload": "Subir",
+      "share": "Compartir",
+      "copy": "Copiar",
+      "copied": "¡Copiado!",
+      "error": "Error",
+      "success": "Éxito",
+      "warning": "Advertencia",
+      "info": "Información",
+      "yes": "Sí",
+      "no": "No",
+      "or": "o",
+      "and": "y",
+      "all": "Todo",
+      "none": "Ninguno",
+      "select": "Seleccionar",
+      "required": "Requerido",
+      "optional": "Opcional",
+      "goBack": "Volver",
+      "returnHome": "Volver al Inicio",
+      "backToHome": "Volver al Inicio",
+      "becomePartner": "Conviértete en Socio",
+      "partnerSubtitle": "Asóciate con Heirloom para ofrecer a tus clientes una forma significativa de preservar el legado de su familia. Obtén precios mayoristas en vales de regalo y gana comisiones por referencias.",
+      "adminPortal": "Portal de Administración",
+      "adminSignInSubtitle": "Inicia sesión para acceder al panel de administración"
+    },
   "nav": {
     "home": "Inicio",
     "vault": "Bóveda",
@@ -51,36 +58,45 @@
     "login": "Iniciar Sesión",
     "signup": "Registrarse"
   },
-  "auth": {
-    "login": "Iniciar Sesión",
-    "signup": "Registrarse",
-    "logout": "Cerrar Sesión",
-    "email": "Correo Electrónico",
-    "password": "Contraseña",
-    "confirmPassword": "Confirmar Contraseña",
-    "forgotPassword": "¿Olvidaste tu contraseña?",
-    "resetPassword": "Restablecer Contraseña",
-    "rememberMe": "Recordarme",
-    "noAccount": "¿No tienes una cuenta?",
-    "hasAccount": "¿Ya tienes una cuenta?",
-    "createAccount": "Crear Cuenta",
-    "welcomeBack": "Bienvenido de nuevo",
-    "loginSubtitle": "Inicia sesión para continuar preservando el legado de tu familia",
-    "signupSubtitle": "Comienza a preservar los preciosos recuerdos de tu familia hoy",
-    "firstName": "Nombre",
-    "lastName": "Apellido",
-    "termsAgree": "Acepto los Términos de Servicio y la Política de Privacidad",
-    "invalidEmail": "Por favor ingresa un correo electrónico válido",
-    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
-    "passwordsNoMatch": "Las contraseñas no coinciden"
-  },
-  "landing": {
-    "hero": {
-      "title": "Preserva el Legado de Tu Familia",
-      "subtitle": "Crea recuerdos duraderos, escribe cartas sinceras y construye una herencia digital para las generaciones venideras.",
-      "cta": "Comienza Tu Legado",
-      "ctaSecondary": "Saber Más"
+    "auth": {
+      "login": "Iniciar Sesión",
+      "signup": "Registrarse",
+      "logout": "Cerrar Sesión",
+      "signIn": "Iniciar Sesión",
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "forgotPasswordSubtitle": "Ingresa tu correo y te enviaremos un enlace de restablecimiento",
+      "resetPassword": "Restablecer Contraseña",
+      "resetPasswordSubtitle": "Ingresa tu nueva contraseña a continuación",
+      "newPassword": "Nueva Contraseña",
+      "sendResetLink": "Enviar Enlace de Restablecimiento",
+      "backToLogin": "Volver a Iniciar Sesión",
+      "rememberMe": "Recordarme",
+      "noAccount": "¿No tienes una cuenta?",
+      "hasAccount": "¿Ya tienes una cuenta?",
+      "createAccount": "Crear Cuenta",
+      "welcomeBack": "Bienvenido de nuevo",
+      "loginSubtitle": "Inicia sesión para continuar preservando el legado de tu familia",
+      "signupSubtitle": "Comienza a preservar los preciosos recuerdos de tu familia hoy",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "termsAgree": "Acepto los Términos de Servicio y la Política de Privacidad",
+      "invalidEmail": "Por favor ingresa un correo electrónico válido",
+      "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+      "passwordsNoMatch": "Las contraseñas no coinciden"
     },
+    "landing": {
+      "hero": {
+        "title": "Preserva los",
+        "titleLine2": "Más Preciosos",
+        "titleHighlight": "Recuerdos",
+        "subtitle": "Crea recuerdos duraderos, escribe cartas sinceras y construye una herencia digital para las generaciones venideras.",
+        "cta": "Comienza Tu Legado",
+        "ctaSecondary": "Saber Más",
+        "trial": "14 días de prueba gratis • Sin tarjeta de crédito"
+      },
     "features": {
       "title": "Todo lo que Necesitas para Preservar Recuerdos",
       "memories": {
@@ -278,9 +294,10 @@
       "deleteAccount": "Eliminar Cuenta"
     }
   },
-  "billing": {
-    "title": "Facturación",
-    "currentPlan": "Plan Actual",
+    "billing": {
+      "title": "Elige Tu Legado",
+      "subtitle": "Preserva lo que más importa con un plan que se adapte a las necesidades de tu familia.",
+      "currentPlan": "Plan Actual",
     "changePlan": "Cambiar Plan",
     "cancelSubscription": "Cancelar Suscripción",
     "paymentMethod": "Método de Pago",
@@ -299,12 +316,15 @@
       "download": "Descargar"
     }
   },
-  "referral": {
-    "title": "Referir Amigos",
-    "subtitle": "Comparte Heirloom y gana recompensas",
-    "yourCode": "Tu Código de Referido",
-    "shareLink": "Enlace para Compartir",
-    "rewards": {
+    "referral": {
+      "title": "Refiere a Amigos y Familia",
+      "subtitle": "Comparte Heirloom con tus seres queridos y gana recompensas por cada referencia exitosa.",
+      "yourLink": "Tu Enlace de Referido",
+      "yourCode": "Tu Código de Referido",
+      "shareLink": "Comparte este enlace para invitar a otros",
+      "share": "Compartir Enlace",
+      "customizeCode": "Personalizar Código",
+      "rewards": {
       "title": "Tus Recompensas",
       "earned": "Total Ganado",
       "pending": "Pendiente"
@@ -315,11 +335,12 @@
       "conversions": "Conversiones"
     }
   },
-  "influencer": {
-    "title": "Programa de Influencers",
-    "subtitle": "Asóciate con Heirloom y gana comisiones",
-    "apply": "Aplicar Ahora",
-    "dashboard": {
+    "influencer": {
+      "title": "Conviértete en Socio Influencer",
+      "subtitle": "Únete a nuestro programa de influencers y gana comisiones mientras ayudas a las familias a preservar sus preciosos recuerdos.",
+      "apply": "Aplicar Ahora",
+      "applyNow": "Aplicar Ahora",
+      "dashboard": {
       "earnings": "Ganancias Totales",
       "pending": "Pago Pendiente",
       "conversions": "Conversiones",
@@ -328,15 +349,16 @@
     "discountCode": "Tu Código de Descuento",
     "landingPage": "Tu Página de Destino"
   },
-  "errors": {
-    "generic": "Algo salió mal. Por favor intenta de nuevo.",
-    "network": "Error de red. Por favor verifica tu conexión.",
-    "unauthorized": "Por favor inicia sesión para continuar.",
-    "forbidden": "No tienes permiso para hacer esto.",
-    "notFound": "Página no encontrada.",
-    "serverError": "Error del servidor. Por favor intenta más tarde.",
-    "validation": "Por favor verifica tu entrada e intenta de nuevo."
-  },
+    "errors": {
+      "generic": "Algo salió mal. Por favor intenta de nuevo.",
+      "network": "Error de red. Por favor verifica tu conexión.",
+      "unauthorized": "Por favor inicia sesión para continuar.",
+      "forbidden": "No tienes permiso para hacer esto.",
+      "notFound": "Página No Encontrada",
+      "notFoundMessage": "La página que buscas parece haberse perdido en el vacío. Vamos a guiarte de vuelta a territorio familiar.",
+      "serverError": "Error del servidor. Por favor intenta más tarde.",
+      "validation": "Por favor verifica tu entrada e intenta de nuevo."
+    },
   "footer": {
     "about": "Acerca de",
     "privacy": "Política de Privacidad",
