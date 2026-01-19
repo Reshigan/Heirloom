@@ -1,39 +1,46 @@
 {
-  "common": {
-    "loading": "加载中...",
-    "save": "保存",
-    "cancel": "取消",
-    "delete": "删除",
-    "edit": "编辑",
-    "close": "关闭",
-    "submit": "提交",
-    "confirm": "确认",
-    "back": "返回",
-    "next": "下一步",
-    "previous": "上一步",
-    "search": "搜索",
-    "filter": "筛选",
-    "sort": "排序",
-    "view": "查看",
-    "download": "下载",
-    "upload": "上传",
-    "share": "分享",
-    "copy": "复制",
-    "copied": "已复制！",
-    "error": "错误",
-    "success": "成功",
-    "warning": "警告",
-    "info": "信息",
-    "yes": "是",
-    "no": "否",
-    "or": "或",
-    "and": "和",
-    "all": "全部",
-    "none": "无",
-    "select": "选择",
-    "required": "必填",
-    "optional": "可选"
-  },
+    "common": {
+      "loading": "加载中...",
+      "save": "保存",
+      "cancel": "取消",
+      "delete": "删除",
+      "edit": "编辑",
+      "close": "关闭",
+      "submit": "提交",
+      "confirm": "确认",
+      "back": "返回",
+      "next": "下一步",
+      "previous": "上一步",
+      "search": "搜索",
+      "filter": "筛选",
+      "sort": "排序",
+      "view": "查看",
+      "download": "下载",
+      "upload": "上传",
+      "share": "分享",
+      "copy": "复制",
+      "copied": "已复制！",
+      "error": "错误",
+      "success": "成功",
+      "warning": "警告",
+      "info": "信息",
+      "yes": "是",
+      "no": "否",
+      "or": "或",
+      "and": "和",
+      "all": "全部",
+      "none": "无",
+      "select": "选择",
+      "required": "必填",
+      "optional": "可选",
+      "goBack": "返回",
+      "returnHome": "返回首页",
+      "backToHome": "返回首页",
+      "becomePartner": "成为合作伙伴",
+      "partnerSubtitle": "与Heirloom合作，为您的客户提供一种有意义的方式来保存他们的家族传承。获得礼品券批发价格，并通过推荐赚取佣金。",
+      "adminPortal": "管理员门户",
+      "adminSignInSubtitle": "登录以访问管理员仪表板"
+    },
   "nav": {
     "home": "首页",
     "vault": "保险库",
@@ -51,36 +58,45 @@
     "login": "登录",
     "signup": "注册"
   },
-  "auth": {
-    "login": "登录",
-    "signup": "注册",
-    "logout": "退出",
-    "email": "电子邮件",
-    "password": "密码",
-    "confirmPassword": "确认密码",
-    "forgotPassword": "忘记密码？",
-    "resetPassword": "重置密码",
-    "rememberMe": "记住我",
-    "noAccount": "还没有账户？",
-    "hasAccount": "已有账户？",
-    "createAccount": "创建账户",
-    "welcomeBack": "欢迎回来",
-    "loginSubtitle": "登录以继续保存您的家族传承",
-    "signupSubtitle": "今天就开始保存您家庭的珍贵回忆",
-    "firstName": "名",
-    "lastName": "姓",
-    "termsAgree": "我同意服务条款和隐私政策",
-    "invalidEmail": "请输入有效的电子邮件地址",
-    "passwordMinLength": "密码必须至少8个字符",
-    "passwordsNoMatch": "密码不匹配"
-  },
-  "landing": {
-    "hero": {
-      "title": "保存您的家族传承",
-      "subtitle": "创建持久的回忆，写下真挚的信件，为后代建立数字传家宝。",
-      "cta": "开始您的传承",
-      "ctaSecondary": "了解更多"
+    "auth": {
+      "login": "登录",
+      "signup": "注册",
+      "logout": "退出",
+      "signIn": "登录",
+      "email": "电子邮件",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "forgotPassword": "忘记密码？",
+      "forgotPasswordSubtitle": "输入您的电子邮件，我们将发送重置链接",
+      "resetPassword": "重置密码",
+      "resetPasswordSubtitle": "在下方输入您的新密码",
+      "newPassword": "新密码",
+      "sendResetLink": "发送重置链接",
+      "backToLogin": "返回登录",
+      "rememberMe": "记住我",
+      "noAccount": "还没有账户？",
+      "hasAccount": "已有账户？",
+      "createAccount": "创建账户",
+      "welcomeBack": "欢迎回来",
+      "loginSubtitle": "登录以继续保存您的家族传承",
+      "signupSubtitle": "今天就开始保存您家庭的珍贵回忆",
+      "firstName": "名",
+      "lastName": "姓",
+      "termsAgree": "我同意服务条款和隐私政策",
+      "invalidEmail": "请输入有效的电子邮件地址",
+      "passwordMinLength": "密码必须至少8个字符",
+      "passwordsNoMatch": "密码不匹配"
     },
+    "landing": {
+      "hero": {
+        "title": "保存最",
+        "titleLine2": "珍贵的",
+        "titleHighlight": "回忆",
+        "subtitle": "创建持久的回忆，写下真挚的信件，为后代建立数字传家宝。",
+        "cta": "开始您的传承",
+        "ctaSecondary": "了解更多",
+        "trial": "14天免费试用 • 无需信用卡"
+      },
     "features": {
       "title": "保存回忆所需的一切",
       "memories": {
@@ -278,9 +294,10 @@
       "deleteAccount": "删除账户"
     }
   },
-  "billing": {
-    "title": "账单",
-    "currentPlan": "当前计划",
+    "billing": {
+      "title": "选择您的传承",
+      "subtitle": "用适合您家庭需求的计划保存最重要的东西。",
+      "currentPlan": "当前计划",
     "changePlan": "更改计划",
     "cancelSubscription": "取消订阅",
     "paymentMethod": "支付方式",
@@ -299,12 +316,15 @@
       "download": "下载"
     }
   },
-  "referral": {
-    "title": "推荐朋友",
-    "subtitle": "分享Heirloom并获得奖励",
-    "yourCode": "您的推荐码",
-    "shareLink": "分享链接",
-    "rewards": {
+    "referral": {
+      "title": "推荐朋友和家人",
+      "subtitle": "与您的亲人分享Heirloom，每次成功推荐都可获得奖励。",
+      "yourLink": "您的推荐链接",
+      "yourCode": "您的推荐码",
+      "shareLink": "分享此链接邀请他人",
+      "share": "分享链接",
+      "customizeCode": "自定义代码",
+      "rewards": {
       "title": "您的奖励",
       "earned": "总收入",
       "pending": "待结算"
@@ -315,11 +335,12 @@
       "conversions": "转化"
     }
   },
-  "influencer": {
-    "title": "网红计划",
-    "subtitle": "与Heirloom合作赚取佣金",
-    "apply": "立即申请",
-    "dashboard": {
+    "influencer": {
+      "title": "成为网红合作伙伴",
+      "subtitle": "加入我们的网红计划，在帮助家庭保存珍贵回忆的同时赚取佣金。",
+      "apply": "立即申请",
+      "applyNow": "立即申请",
+      "dashboard": {
       "earnings": "总收入",
       "pending": "待支付",
       "conversions": "转化",
@@ -328,15 +349,16 @@
     "discountCode": "您的折扣码",
     "landingPage": "您的落地页"
   },
-  "errors": {
-    "generic": "出了点问题。请重试。",
-    "network": "网络错误。请检查您的连接。",
-    "unauthorized": "请登录以继续。",
-    "forbidden": "您没有权限执行此操作。",
-    "notFound": "页面未找到。",
-    "serverError": "服务器错误。请稍后重试。",
-    "validation": "请检查您的输入并重试。"
-  },
+    "errors": {
+      "generic": "出了点问题。请重试。",
+      "network": "网络错误。请检查您的连接。",
+      "unauthorized": "请登录以继续。",
+      "forbidden": "您没有权限执行此操作。",
+      "notFound": "页面未找到",
+      "notFoundMessage": "您正在寻找的页面似乎已经消失在虚空中。让我们带您回到熟悉的地方。",
+      "serverError": "服务器错误。请稍后重试。",
+      "validation": "请检查您的输入并重试。"
+    },
   "footer": {
     "about": "关于",
     "privacy": "隐私政策",

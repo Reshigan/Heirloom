@@ -1,39 +1,46 @@
 {
-  "common": {
-    "loading": "Carregando...",
-    "save": "Salvar",
-    "cancel": "Cancelar",
-    "delete": "Excluir",
-    "edit": "Editar",
-    "close": "Fechar",
-    "submit": "Enviar",
-    "confirm": "Confirmar",
-    "back": "Voltar",
-    "next": "Próximo",
-    "previous": "Anterior",
-    "search": "Pesquisar",
-    "filter": "Filtrar",
-    "sort": "Ordenar",
-    "view": "Ver",
-    "download": "Baixar",
-    "upload": "Enviar",
-    "share": "Compartilhar",
-    "copy": "Copiar",
-    "copied": "Copiado!",
-    "error": "Erro",
-    "success": "Sucesso",
-    "warning": "Aviso",
-    "info": "Informação",
-    "yes": "Sim",
-    "no": "Não",
-    "or": "ou",
-    "and": "e",
-    "all": "Todos",
-    "none": "Nenhum",
-    "select": "Selecionar",
-    "required": "Obrigatório",
-    "optional": "Opcional"
-  },
+    "common": {
+      "loading": "Carregando...",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "edit": "Editar",
+      "close": "Fechar",
+      "submit": "Enviar",
+      "confirm": "Confirmar",
+      "back": "Voltar",
+      "next": "Próximo",
+      "previous": "Anterior",
+      "search": "Pesquisar",
+      "filter": "Filtrar",
+      "sort": "Ordenar",
+      "view": "Ver",
+      "download": "Baixar",
+      "upload": "Enviar",
+      "share": "Compartilhar",
+      "copy": "Copiar",
+      "copied": "Copiado!",
+      "error": "Erro",
+      "success": "Sucesso",
+      "warning": "Aviso",
+      "info": "Informação",
+      "yes": "Sim",
+      "no": "Não",
+      "or": "ou",
+      "and": "e",
+      "all": "Todos",
+      "none": "Nenhum",
+      "select": "Selecionar",
+      "required": "Obrigatório",
+      "optional": "Opcional",
+      "goBack": "Voltar",
+      "returnHome": "Voltar ao Início",
+      "backToHome": "Voltar ao Início",
+      "becomePartner": "Torne-se um Parceiro",
+      "partnerSubtitle": "Faça parceria com a Heirloom para oferecer aos seus clientes uma forma significativa de preservar o legado de sua família. Obtenha preços de atacado em vales-presente e ganhe comissões por indicações.",
+      "adminPortal": "Portal do Administrador",
+      "adminSignInSubtitle": "Entre para acessar o painel de administração"
+    },
   "nav": {
     "home": "Início",
     "vault": "Cofre",
@@ -51,36 +58,45 @@
     "login": "Entrar",
     "signup": "Cadastrar"
   },
-  "auth": {
-    "login": "Entrar",
-    "signup": "Cadastrar",
-    "logout": "Sair",
-    "email": "E-mail",
-    "password": "Senha",
-    "confirmPassword": "Confirmar Senha",
-    "forgotPassword": "Esqueceu a senha?",
-    "resetPassword": "Redefinir Senha",
-    "rememberMe": "Lembrar de mim",
-    "noAccount": "Não tem uma conta?",
-    "hasAccount": "Já tem uma conta?",
-    "createAccount": "Criar Conta",
-    "welcomeBack": "Bem-vindo de volta",
-    "loginSubtitle": "Entre para continuar preservando o legado da sua família",
-    "signupSubtitle": "Comece a preservar as memórias preciosas da sua família hoje",
-    "firstName": "Nome",
-    "lastName": "Sobrenome",
-    "termsAgree": "Concordo com os Termos de Serviço e Política de Privacidade",
-    "invalidEmail": "Por favor, insira um e-mail válido",
-    "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
-    "passwordsNoMatch": "As senhas não coincidem"
-  },
-  "landing": {
-    "hero": {
-      "title": "Preserve o Legado da Sua Família",
-      "subtitle": "Crie memórias duradouras, escreva cartas sinceras e construa uma herança digital para as gerações futuras.",
-      "cta": "Comece Seu Legado",
-      "ctaSecondary": "Saiba Mais"
+    "auth": {
+      "login": "Entrar",
+      "signup": "Cadastrar",
+      "logout": "Sair",
+      "signIn": "Entrar",
+      "email": "E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "forgotPassword": "Esqueceu a senha?",
+      "forgotPasswordSubtitle": "Digite seu e-mail e enviaremos um link de redefinição",
+      "resetPassword": "Redefinir Senha",
+      "resetPasswordSubtitle": "Digite sua nova senha abaixo",
+      "newPassword": "Nova Senha",
+      "sendResetLink": "Enviar Link de Redefinição",
+      "backToLogin": "Voltar ao Login",
+      "rememberMe": "Lembrar de mim",
+      "noAccount": "Não tem uma conta?",
+      "hasAccount": "Já tem uma conta?",
+      "createAccount": "Criar Conta",
+      "welcomeBack": "Bem-vindo de volta",
+      "loginSubtitle": "Entre para continuar preservando o legado da sua família",
+      "signupSubtitle": "Comece a preservar as memórias preciosas da sua família hoje",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "termsAgree": "Concordo com os Termos de Serviço e Política de Privacidade",
+      "invalidEmail": "Por favor, insira um e-mail válido",
+      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+      "passwordsNoMatch": "As senhas não coincidem"
     },
+    "landing": {
+      "hero": {
+        "title": "Preserve as",
+        "titleLine2": "Mais Preciosas",
+        "titleHighlight": "Memórias",
+        "subtitle": "Crie memórias duradouras, escreva cartas sinceras e construa uma herança digital para as gerações futuras.",
+        "cta": "Comece Seu Legado",
+        "ctaSecondary": "Saiba Mais",
+        "trial": "14 dias de teste grátis • Sem cartão de crédito"
+      },
     "features": {
       "title": "Tudo que Você Precisa para Preservar Memórias",
       "memories": {
@@ -278,9 +294,10 @@
       "deleteAccount": "Excluir Conta"
     }
   },
-  "billing": {
-    "title": "Faturamento",
-    "currentPlan": "Plano Atual",
+    "billing": {
+      "title": "Escolha Seu Legado",
+      "subtitle": "Preserve o que mais importa com um plano que atenda às necessidades da sua família.",
+      "currentPlan": "Plano Atual",
     "changePlan": "Alterar Plano",
     "cancelSubscription": "Cancelar Assinatura",
     "paymentMethod": "Método de Pagamento",
@@ -299,12 +316,15 @@
       "download": "Baixar"
     }
   },
-  "referral": {
-    "title": "Indicar Amigos",
-    "subtitle": "Compartilhe Heirloom e ganhe recompensas",
-    "yourCode": "Seu Código de Indicação",
-    "shareLink": "Link para Compartilhar",
-    "rewards": {
+    "referral": {
+      "title": "Indique Amigos e Família",
+      "subtitle": "Compartilhe Heirloom com seus entes queridos e ganhe recompensas por cada indicação bem-sucedida.",
+      "yourLink": "Seu Link de Indicação",
+      "yourCode": "Seu Código de Indicação",
+      "shareLink": "Compartilhe este link para convidar outros",
+      "share": "Compartilhar Link",
+      "customizeCode": "Personalizar Código",
+      "rewards": {
       "title": "Suas Recompensas",
       "earned": "Total Ganho",
       "pending": "Pendente"
@@ -315,11 +335,12 @@
       "conversions": "Conversões"
     }
   },
-  "influencer": {
-    "title": "Programa de Influenciadores",
-    "subtitle": "Parceria com Heirloom e ganhe comissões",
-    "apply": "Aplicar Agora",
-    "dashboard": {
+    "influencer": {
+      "title": "Torne-se um Parceiro Influenciador",
+      "subtitle": "Junte-se ao nosso programa de influenciadores e ganhe comissões enquanto ajuda famílias a preservar suas memórias preciosas.",
+      "apply": "Aplicar Agora",
+      "applyNow": "Aplicar Agora",
+      "dashboard": {
       "earnings": "Ganhos Totais",
       "pending": "Pagamento Pendente",
       "conversions": "Conversões",
@@ -328,15 +349,16 @@
     "discountCode": "Seu Código de Desconto",
     "landingPage": "Sua Página de Destino"
   },
-  "errors": {
-    "generic": "Algo deu errado. Por favor, tente novamente.",
-    "network": "Erro de rede. Por favor, verifique sua conexão.",
-    "unauthorized": "Por favor, faça login para continuar.",
-    "forbidden": "Você não tem permissão para fazer isso.",
-    "notFound": "Página não encontrada.",
-    "serverError": "Erro do servidor. Por favor, tente novamente mais tarde.",
-    "validation": "Por favor, verifique sua entrada e tente novamente."
-  },
+    "errors": {
+      "generic": "Algo deu errado. Por favor, tente novamente.",
+      "network": "Erro de rede. Por favor, verifique sua conexão.",
+      "unauthorized": "Por favor, faça login para continuar.",
+      "forbidden": "Você não tem permissão para fazer isso.",
+      "notFound": "Página Não Encontrada",
+      "notFoundMessage": "A página que você está procurando parece ter se perdido no vazio. Deixe-nos guiá-lo de volta a um território familiar.",
+      "serverError": "Erro do servidor. Por favor, tente novamente mais tarde.",
+      "validation": "Por favor, verifique sua entrada e tente novamente."
+    },
   "footer": {
     "about": "Sobre",
     "privacy": "Política de Privacidade",
