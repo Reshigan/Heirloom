@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Navigation } from '../components/Navigation';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 import { lettersApi, familyApi } from '../services/api';
@@ -155,6 +156,7 @@ const letterPrompts = [
 
 export function Compose() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [letters, setLetters] = useState<Letter[]>([]);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);

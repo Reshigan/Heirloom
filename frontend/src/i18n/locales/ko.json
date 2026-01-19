@@ -1,0 +1,370 @@
+{
+    "common": {
+      "loading": "로딩 중...",
+      "save": "저장",
+      "cancel": "취소",
+      "delete": "삭제",
+      "edit": "편집",
+      "close": "닫기",
+      "submit": "제출",
+      "confirm": "확인",
+      "back": "뒤로",
+      "next": "다음",
+      "previous": "이전",
+      "search": "검색",
+      "filter": "필터",
+      "sort": "정렬",
+      "view": "보기",
+      "download": "다운로드",
+      "upload": "업로드",
+      "share": "공유",
+      "copy": "복사",
+      "copied": "복사됨!",
+      "error": "오류",
+      "success": "성공",
+      "warning": "경고",
+      "info": "정보",
+      "yes": "예",
+      "no": "아니오",
+      "or": "또는",
+      "and": "그리고",
+      "all": "전체",
+      "none": "없음",
+      "select": "선택",
+      "required": "필수",
+      "optional": "선택사항",
+      "goBack": "뒤로",
+      "returnHome": "홈으로 돌아가기",
+      "backToHome": "홈으로 돌아가기",
+      "becomePartner": "파트너 되기",
+      "partnerSubtitle": "Heirloom과 파트너가 되어 고객에게 가족의 유산을 보존하는 의미 있는 방법을 제공하세요. 상품권 도매가를 받고 추천으로 커미션을 받으세요.",
+      "adminPortal": "관리자 포털",
+      "adminSignInSubtitle": "관리자 대시보드에 액세스하려면 로그인하세요"
+    },
+  "nav": {
+    "home": "홈",
+    "vault": "보관함",
+    "dashboard": "대시보드",
+    "memories": "추억",
+    "write": "쓰기",
+    "record": "녹음",
+    "letters": "편지",
+    "family": "가족",
+    "wrapped": "요약",
+    "settings": "설정",
+    "billing": "결제",
+    "logout": "로그아웃",
+    "signOut": "로그아웃",
+    "login": "로그인",
+    "signup": "가입"
+  },
+    "auth": {
+      "login": "로그인",
+      "signup": "가입",
+      "logout": "로그아웃",
+      "signIn": "로그인",
+      "email": "이메일",
+      "password": "비밀번호",
+      "confirmPassword": "비밀번호 확인",
+      "forgotPassword": "비밀번호를 잊으셨나요?",
+      "forgotPasswordSubtitle": "이메일을 입력하시면 재설정 링크를 보내드립니다",
+      "resetPassword": "비밀번호 재설정",
+      "resetPasswordSubtitle": "아래에 새 비밀번호를 입력하세요",
+      "newPassword": "새 비밀번호",
+      "sendResetLink": "재설정 링크 보내기",
+      "backToLogin": "로그인으로 돌아가기",
+      "rememberMe": "로그인 상태 유지",
+      "noAccount": "계정이 없으신가요?",
+      "hasAccount": "이미 계정이 있으신가요?",
+      "createAccount": "계정 만들기",
+      "welcomeBack": "다시 오신 것을 환영합니다",
+      "loginSubtitle": "로그인하여 가족의 유산을 계속 보존하세요",
+      "signupSubtitle": "오늘부터 가족의 소중한 추억을 보존하세요",
+      "firstName": "이름",
+      "lastName": "성",
+      "termsAgree": "서비스 약관 및 개인정보 보호정책에 동의합니다",
+      "invalidEmail": "유효한 이메일 주소를 입력하세요",
+      "passwordMinLength": "비밀번호는 최소 8자 이상이어야 합니다",
+      "passwordsNoMatch": "비밀번호가 일치하지 않습니다"
+    },
+    "landing": {
+      "hero": {
+        "title": "가장 소중한",
+        "titleLine2": "귀중한",
+        "titleHighlight": "추억을 보존하세요",
+        "subtitle": "영원한 추억을 만들고, 진심 어린 편지를 쓰고, 다음 세대를 위한 디지털 유산을 만드세요.",
+        "cta": "유산 시작하기",
+        "ctaSecondary": "더 알아보기",
+        "trial": "14일 무료 체험 • 신용카드 불필요"
+      },
+    "features": {
+      "title": "추억을 보존하는 데 필요한 모든 것",
+      "memories": {
+        "title": "추억 담기",
+        "description": "음성 메시지를 녹음하고, 사진을 업로드하고, 영원히 남을 이야기를 쓰세요."
+      },
+      "letters": {
+        "title": "편지 쓰기",
+        "description": "특별한 순간에 사랑하는 사람에게 전달될 진심 어린 편지를 작성하세요."
+      },
+      "family": {
+        "title": "가족 연결",
+        "description": "가계도를 만들고 세대를 넘어 추억을 공유하세요."
+      },
+      "secure": {
+        "title": "안전하고 프라이빗",
+        "description": "추억은 암호화되어 은행 수준의 보안으로 보호됩니다."
+      }
+    },
+    "testimonials": {
+      "title": "사용자 후기"
+    },
+    "pricing": {
+      "title": "플랜 선택",
+      "subtitle": "오늘부터 추억을 보존하세요",
+      "monthly": "월간",
+      "yearly": "연간",
+      "perMonth": "/월",
+      "perYear": "/년",
+      "popular": "인기",
+      "starter": {
+        "name": "스타터",
+        "description": "개인에게 적합"
+      },
+      "family": {
+        "name": "패밀리",
+        "description": "성장하는 가족을 위해"
+      },
+      "legacy": {
+        "name": "레거시",
+        "description": "세대를 보존하기 위해"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "다시 오신 것을 환영합니다, {{name}}님",
+    "recentMemories": "최근 추억",
+    "upcomingLetters": "예정된 편지",
+    "familyActivity": "가족 활동",
+    "quickActions": "빠른 작업",
+    "createMemory": "추억 만들기",
+    "writeALetter": "편지 쓰기",
+    "viewFamily": "가족 보기",
+    "noMemories": "아직 추억이 없습니다. 첫 번째 추억을 담아보세요!",
+    "noLetters": "예정된 편지가 없습니다. 첫 번째 편지를 써보세요!",
+    "stats": {
+      "memories": "추억",
+      "letters": "편지",
+      "familyMembers": "가족 구성원",
+      "storageUsed": "사용된 저장공간"
+    }
+  },
+  "memories": {
+    "title": "추억",
+    "subtitle": "소중한 순간들의 컬렉션",
+    "create": "추억 만들기",
+    "noMemories": "아직 추억이 없습니다",
+    "startCapturing": "소중한 순간을 담기 시작하세요",
+    "types": {
+      "photo": "사진",
+      "video": "동영상",
+      "voice": "음성 녹음",
+      "text": "글"
+    },
+    "form": {
+      "title": "제목",
+      "titlePlaceholder": "추억에 제목을 붙여주세요",
+      "description": "설명",
+      "descriptionPlaceholder": "이 추억 뒤에 숨겨진 이야기를 들려주세요...",
+      "date": "날짜",
+      "tags": "태그",
+      "tagsPlaceholder": "정리를 위한 태그 추가",
+      "privacy": "공개 범위",
+      "privacyOptions": {
+        "private": "비공개 - 나만",
+        "family": "가족 - 가족과 공유",
+        "public": "공개 - 링크가 있는 모든 사람"
+      }
+    },
+    "record": {
+      "title": "추억 녹음",
+      "startRecording": "녹음 시작",
+      "stopRecording": "녹음 중지",
+      "pauseRecording": "일시정지",
+      "resumeRecording": "재개",
+      "recordingTime": "녹음 중: {{time}}"
+    }
+  },
+  "letters": {
+    "title": "편지",
+    "subtitle": "사랑하는 사람들을 위한 진심 어린 메시지",
+    "create": "편지 쓰기",
+    "noLetters": "아직 편지가 없습니다",
+    "startWriting": "첫 번째 편지를 쓰기 시작하세요",
+    "form": {
+      "recipient": "받는 사람",
+      "recipientPlaceholder": "이 편지는 누구를 위한 것인가요?",
+      "subject": "제목",
+      "subjectPlaceholder": "이 편지는 무엇에 관한 것인가요?",
+      "content": "메시지",
+      "contentPlaceholder": "진심 어린 메시지를 써주세요...",
+      "deliveryDate": "전달 날짜",
+      "deliveryTrigger": "전달 트리거",
+      "triggers": {
+        "date": "특정 날짜에",
+        "birthday": "생일에",
+        "anniversary": "기념일에",
+        "event": "인생 이벤트 후에",
+        "manual": "내가 선택할 때"
+      }
+    },
+    "status": {
+      "draft": "초안",
+      "scheduled": "예약됨",
+      "delivered": "전달됨",
+      "read": "읽음"
+    }
+  },
+  "family": {
+    "title": "가족",
+    "subtitle": "가계도와 연결",
+    "addMember": "가족 구성원 추가",
+    "noMembers": "아직 가족 구성원이 없습니다",
+    "startBuilding": "가계도를 만들기 시작하세요",
+    "relationships": {
+      "parent": "부모",
+      "child": "자녀",
+      "sibling": "형제자매",
+      "spouse": "배우자",
+      "grandparent": "조부모",
+      "grandchild": "손자녀",
+      "aunt": "이모/고모",
+      "uncle": "삼촌/외삼촌",
+      "cousin": "사촌",
+      "other": "기타"
+    },
+    "form": {
+      "name": "이름",
+      "relationship": "관계",
+      "email": "이메일 (선택)",
+      "birthdate": "생년월일",
+      "notes": "메모"
+    },
+    "invite": {
+      "title": "Heirloom에 초대",
+      "description": "이 가족 구성원을 초대하여 추억을 공유하세요",
+      "sent": "초대장이 전송되었습니다!"
+    }
+  },
+  "settings": {
+    "title": "설정",
+    "profile": {
+      "title": "프로필",
+      "name": "이름",
+      "email": "이메일",
+      "avatar": "프로필 사진",
+      "changeAvatar": "사진 변경",
+      "bio": "소개",
+      "bioPlaceholder": "자기소개를 해주세요..."
+    },
+    "preferences": {
+      "title": "환경설정",
+      "language": "언어",
+      "timezone": "시간대",
+      "dateFormat": "날짜 형식",
+      "notifications": "알림",
+      "emailNotifications": "이메일 알림",
+      "pushNotifications": "푸시 알림"
+    },
+    "security": {
+      "title": "보안",
+      "changePassword": "비밀번호 변경",
+      "currentPassword": "현재 비밀번호",
+      "newPassword": "새 비밀번호",
+      "confirmNewPassword": "새 비밀번호 확인",
+      "twoFactor": "2단계 인증",
+      "enable2FA": "2FA 활성화",
+      "disable2FA": "2FA 비활성화"
+    },
+    "privacy": {
+      "title": "개인정보",
+      "profileVisibility": "프로필 공개 범위",
+      "dataSharing": "데이터 공유",
+      "downloadData": "내 데이터 다운로드",
+      "deleteAccount": "계정 삭제"
+    }
+  },
+    "billing": {
+      "title": "당신의 유산을 선택하세요",
+      "subtitle": "가족의 필요에 맞는 플랜으로 가장 소중한 것을 보존하세요.",
+      "currentPlan": "현재 플랜",
+    "changePlan": "플랜 변경",
+    "cancelSubscription": "구독 취소",
+    "paymentMethod": "결제 수단",
+    "updatePayment": "결제 수단 업데이트",
+    "billingHistory": "결제 내역",
+    "nextBilling": "다음 결제일",
+    "trial": {
+      "title": "무료 체험",
+      "daysRemaining": "{{days}}일 남음",
+      "upgrade": "지금 업그레이드"
+    },
+    "invoice": {
+      "date": "날짜",
+      "amount": "금액",
+      "status": "상태",
+      "download": "다운로드"
+    }
+  },
+    "referral": {
+      "title": "친구와 가족 추천",
+      "subtitle": "사랑하는 사람들과 Heirloom을 공유하고 성공적인 추천마다 보상을 받으세요.",
+      "yourLink": "추천 링크",
+      "yourCode": "추천 코드",
+      "shareLink": "이 링크를 공유하여 다른 사람을 초대하세요",
+      "share": "링크 공유",
+      "customizeCode": "코드 사용자 정의",
+      "rewards": {
+      "title": "보상",
+      "earned": "총 수익",
+      "pending": "대기 중"
+    },
+    "stats": {
+      "clicks": "클릭",
+      "signups": "가입",
+      "conversions": "전환"
+    }
+  },
+    "influencer": {
+      "title": "인플루언서 파트너 되기",
+      "subtitle": "인플루언서 프로그램에 참여하여 가족들이 소중한 추억을 보존하도록 도우면서 커미션을 받으세요.",
+      "apply": "지금 신청",
+      "applyNow": "지금 신청",
+      "dashboard": {
+      "earnings": "총 수익",
+      "pending": "대기 중인 지급",
+      "conversions": "전환",
+      "clicks": "총 클릭"
+    },
+    "discountCode": "할인 코드",
+    "landingPage": "랜딩 페이지"
+  },
+    "errors": {
+      "generic": "문제가 발생했습니다. 다시 시도해 주세요.",
+      "network": "네트워크 오류. 연결을 확인해 주세요.",
+      "unauthorized": "계속하려면 로그인해 주세요.",
+      "forbidden": "이 작업을 수행할 권한이 없습니다.",
+      "notFound": "페이지를 찾을 수 없습니다",
+      "notFoundMessage": "찾고 계신 페이지가 허공으로 사라진 것 같습니다. 익숙한 곳으로 안내해 드리겠습니다.",
+      "serverError": "서버 오류. 나중에 다시 시도해 주세요.",
+      "validation": "입력을 확인하고 다시 시도해 주세요."
+    },
+  "footer": {
+    "about": "소개",
+    "privacy": "개인정보 보호정책",
+    "terms": "서비스 약관",
+    "contact": "문의하기",
+    "help": "도움말 센터",
+    "copyright": "© {{year}} Heirloom. All rights reserved."
+  }
+}

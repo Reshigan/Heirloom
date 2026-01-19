@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Home, ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function NotFound() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
@@ -61,13 +63,12 @@ export function NotFound() {
           </motion.h1>
 
           {/* Message */}
-          <h2 className="text-2xl md:text-3xl font-light text-paper mb-4">
-            Page Not Found
-          </h2>
-          <p className="text-paper/50 max-w-md mx-auto mb-8">
-            The page you're looking for seems to have drifted into the void. 
-            Let's guide you back to familiar territory.
-          </p>
+                    <h2 className="text-2xl md:text-3xl font-light text-paper mb-4">
+                      {t('errors.notFound')}
+                    </h2>
+                    <p className="text-paper/50 max-w-md mx-auto mb-8">
+                      {t('errors.notFoundMessage')}
+                    </p>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -77,8 +78,8 @@ export function NotFound() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <ArrowLeft size={18} />
-              Go Back
+                            <ArrowLeft size={18} />
+                            {t('common.goBack')}
             </motion.button>
             <motion.button
               onClick={() => navigate('/')}
@@ -86,8 +87,8 @@ export function NotFound() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Home size={18} />
-              Return Home
+                            <Home size={18} />
+                            {t('common.returnHome')}
             </motion.button>
           </div>
         </motion.div>

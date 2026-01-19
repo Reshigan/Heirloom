@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Loader2, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../services/api';
 
 export function ResetPassword() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   
@@ -166,10 +168,10 @@ export function ResetPassword() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <h1 className="text-2xl font-light text-center mb-2">Reset your password</h1>
-                  <p className="text-paper/50 text-center mb-8">
-                    Enter your new password below
-                  </p>
+                                    <h1 className="text-2xl font-light text-center mb-2">{t('auth.resetPassword')}</h1>
+                                    <p className="text-paper/50 text-center mb-8">
+                                      {t('auth.resetPasswordSubtitle')}
+                                    </p>
                 </motion.div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -184,7 +186,7 @@ export function ResetPassword() {
                   )}
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">New Password</label>
+                    <label className="block text-sm text-paper/50 mb-2">{t('auth.newPassword')}</label>
                     <div className="relative">
                       <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                       <input
@@ -208,7 +210,7 @@ export function ResetPassword() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">Confirm Password</label>
+                    <label className="block text-sm text-paper/50 mb-2">{t('auth.confirmPassword')}</label>
                     <div className="relative">
                       <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                       <input
@@ -236,11 +238,11 @@ export function ResetPassword() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {isLoading ? (
-                      <Loader2 size={20} className="animate-spin" />
-                    ) : (
-                      'Reset Password'
-                    )}
+                                        {isLoading ? (
+                                          <Loader2 size={20} className="animate-spin" />
+                                        ) : (
+                                          t('auth.resetPassword')
+                                        )}
                   </motion.button>
                 </form>
 
@@ -249,7 +251,7 @@ export function ResetPassword() {
                     to="/login" 
                     className="text-paper/50 hover:text-paper transition-colors"
                   >
-                    Back to Login
+                    {t('auth.backToLogin')}
                   </Link>
                 </div>
               </>

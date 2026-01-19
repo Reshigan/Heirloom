@@ -6,12 +6,14 @@ import {
   Bell, Settings, LogOut, Shield, Clock, Crown, AlertTriangle,
   ChevronRight, X, Check, Loader2
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const queryClient = useQueryClient();
   const deskRef = useRef<HTMLDivElement>(null);
@@ -201,7 +203,7 @@ export function Dashboard() {
                 ) : (
                   <Shield size={16} />
                 )}
-                {deadmanStatus.needsCheckIn ? 'Check In Required' : 'Protected'}
+                {deadmanStatus.needsCheckIn ? t('dashboard.checkInRequired') : t('dashboard.protected')}
               </motion.button>
             )}
 
@@ -271,12 +273,12 @@ export function Dashboard() {
                     <Clock size={20} className="text-gold" />
                   </div>
                   <div>
-                    <p className="font-medium">
-                      {trialDaysLeft} days left in your trial
-                    </p>
-                    <p className="text-sm text-paper/50">
-                      Upgrade now to keep your memories forever
-                    </p>
+                                        <p className="font-medium">
+                                          {t('dashboard.trialDaysLeft', { days: trialDaysLeft })}
+                                        </p>
+                                        <p className="text-sm text-paper/50">
+                                          {t('dashboard.upgradePrompt')}
+                                        </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -286,9 +288,9 @@ export function Dashboard() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Crown size={16} />
-                    Upgrade
-                  </motion.button>
+                                      <Crown size={16} />
+                                      {t('billing.trial.upgrade')}
+                                    </motion.button>
                   <button
                     onClick={() => setShowTrialWarning(false)}
                     className="text-paper/40 hover:text-paper transition-colors"
@@ -311,10 +313,10 @@ export function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl md:text-4xl font-light mb-2">
-              Welcome back, <em className="text-gold">{user?.firstName || 'Friend'}</em>
-            </h1>
-            <p className="text-paper/50">Your sanctuary awaits</p>
+                        <h1 className="text-3xl md:text-4xl font-light mb-2">
+                          {t('dashboard.welcome', { name: '' })} <em className="text-gold">{user?.firstName || t('common.friend')}</em>
+                        </h1>
+                        <p className="text-paper/50">{t('dashboard.sanctuaryAwaits')}</p>
           </motion.div>
 
           {/* 3D Desk with Objects */}
@@ -411,8 +413,8 @@ export function Dashboard() {
                     </div>
                     
                     <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">Memories</h3>
-                      <p className="text-sm text-paper/50">{stats?.totalMemories || 0} captured</p>
+                                            <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">{t('nav.memories')}</h3>
+                                            <p className="text-sm text-paper/50">{stats?.totalMemories || 0} {t('dashboard.captured')}</p>
                     </div>
                   </motion.button>
 
@@ -496,8 +498,8 @@ export function Dashboard() {
                     </div>
                     
                     <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">Write Letter</h3>
-                      <p className="text-sm text-paper/50">{stats?.totalLetters || 0} written</p>
+                                            <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">{t('dashboard.writeLetter')}</h3>
+                                            <p className="text-sm text-paper/50">{stats?.totalLetters || 0} {t('dashboard.written')}</p>
                     </div>
                   </motion.button>
 
@@ -588,8 +590,8 @@ export function Dashboard() {
                     </div>
                     
                     <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">Record Voice</h3>
-                      <p className="text-sm text-paper/50">{stats?.totalVoiceMinutes || 0} minutes</p>
+                                            <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">{t('dashboard.recordVoice')}</h3>
+                                            <p className="text-sm text-paper/50">{stats?.totalVoiceMinutes || 0} {t('dashboard.minutes')}</p>
                     </div>
                   </motion.button>
 
@@ -639,9 +641,9 @@ export function Dashboard() {
                               </div>
                             ))}
                             {(!family || family.length === 0) && (
-                              <div className="text-paper/30 text-xs text-center">
-                                Add family
-                              </div>
+                                                            <div className="text-paper/30 text-xs text-center">
+                                                              {t('family.addMember')}
+                                                            </div>
                             )}
                           </div>
                         </div>
@@ -655,8 +657,8 @@ export function Dashboard() {
                     </div>
                     
                     <div className="mt-4 text-center">
-                      <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">Family</h3>
-                      <p className="text-sm text-paper/50">{family?.length || 0} members</p>
+                                            <h3 className="text-lg font-medium group-hover:text-gold transition-colors duration-300">{t('nav.family')}</h3>
+                                            <p className="text-sm text-paper/50">{family?.length || 0} {t('dashboard.members')}</p>
                     </div>
                   </motion.button>
                 </div>

@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, FileText, Users, CreditCard, AlertTriangle, Scale, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function Terms() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Sanctuary Background */}
@@ -29,12 +31,12 @@ export function Terms() {
           </Link>
           
           <div className="flex items-center gap-6">
-            <Link to="/login" className="text-paper/60 hover:text-gold transition-colors hidden md:block">
-              Sign In
-            </Link>
-            <Link to="/signup" className="btn btn-primary">
-              Start Free Trial
-            </Link>
+                        <Link to="/login" className="text-paper/60 hover:text-gold transition-colors hidden md:block">
+                          {t('auth.signIn')}
+                        </Link>
+                        <Link to="/signup" className="btn btn-primary">
+                          {t('landing.hero.cta')}
+                        </Link>
           </div>
         </div>
       </nav>
@@ -43,8 +45,8 @@ export function Terms() {
       <main className="pt-32 pb-20 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
           <Link to="/" className="inline-flex items-center gap-2 text-paper/50 hover:text-gold transition-colors mb-8">
-            <ArrowLeft size={18} />
-            Back to Home
+                        <ArrowLeft size={18} />
+                        {t('common.backToHome')}
           </Link>
           
           <motion.div
@@ -52,7 +54,7 @@ export function Terms() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl font-light mb-4">Terms of Service</h1>
+            <h1 className="text-4xl md:text-5xl font-light mb-4">{t('footer.terms')}</h1>
             <p className="text-paper/50 mb-12">Last updated: December 16, 2025</p>
             
             <div className="space-y-12">
