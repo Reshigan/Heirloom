@@ -42,7 +42,7 @@ import { influencerRoutes } from './routes/influencers';
 import { partnerRoutes } from './routes/partners';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
-import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps } from './jobs/adoption-jobs';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts } from './jobs/adoption-jobs';
 import { processPushNotificationQueue, cleanupOldNotifications } from './services/pushSender';
 
 // Types
@@ -792,6 +792,10 @@ export default {
       console.log('Sending voucher follow-ups...');
       const voucherFollowUpResult = await sendVoucherFollowUps(env);
       console.log(`Voucher follow-ups sent: ${voucherFollowUpResult.sent}`);
+      
+      console.log('Processing automated influencer payouts...');
+      const payoutResult = await processAutomatedPayouts(env);
+      console.log(`Payouts processed: ${payoutResult.processed}, total paid: $${(payoutResult.totalPaid / 100).toFixed(2)}`);
       
       console.log('Daily jobs complete.');
       

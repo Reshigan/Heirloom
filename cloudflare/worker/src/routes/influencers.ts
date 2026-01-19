@@ -465,6 +465,304 @@ influencerRoutes.patch('/payment-info', influencerAuth, async (c) => {
 });
 
 // =============================================================================
+// STRIPE CONNECT ONBOARDING
+// =============================================================================
+
+// Create Stripe Connect account for influencer
+influencerRoutes.post('/connect-stripe', influencerAuth, async (c) => {
+  const influencerId = (c.req as any).influencerId;
+  
+  const influencer = await c.env.DB.prepare(`
+    SELECT id, name, email, stripe_account_id, stripe_account_status
+    FROM influencers WHERE id = ?
+  `).bind(influencerId).first();
+  
+  if (!influencer) {
+    return c.json({ error: 'Influencer not found' }, 404);
+  }
+  
+  // If already has an active Stripe account, return it
+  if (influencer.stripe_account_id && influencer.stripe_account_status === 'ACTIVE') {
+    return c.json({ 
+      success: true, 
+      message: 'Stripe account already connected',
+      stripeAccountId: influencer.stripe_account_id,
+    });
+  }
+  
+  try {
+    // Create Stripe Connect Express account
+    const accountResponse = await fetch('https://api.stripe.com/v1/accounts', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        type: 'express',
+        country: 'US',
+        email: influencer.email as string,
+        'capabilities[transfers][requested]': 'true',
+        'business_type': 'individual',
+        'metadata[influencer_id]': influencerId,
+        'metadata[influencer_name]': influencer.name as string,
+      }).toString(),
+    });
+    
+    if (!accountResponse.ok) {
+      const errorData = await accountResponse.json() as { error?: { message?: string } };
+      throw new Error(errorData.error?.message || 'Failed to create Stripe account');
+    }
+    
+    const account = await accountResponse.json() as { id: string };
+    
+    // Update influencer with Stripe account ID
+    await c.env.DB.prepare(`
+      UPDATE influencers SET 
+        stripe_account_id = ?,
+        stripe_account_status = 'PENDING',
+        payment_method = 'STRIPE_CONNECT',
+        updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(account.id, influencerId).run();
+    
+    // Create account link for onboarding
+    const linkResponse = await fetch('https://api.stripe.com/v1/account_links', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        account: account.id,
+        refresh_url: `${c.env.APP_URL}/influencer?stripe_refresh=true`,
+        return_url: `${c.env.APP_URL}/influencer?stripe_connected=true`,
+        type: 'account_onboarding',
+      }).toString(),
+    });
+    
+    if (!linkResponse.ok) {
+      const errorData = await linkResponse.json() as { error?: { message?: string } };
+      throw new Error(errorData.error?.message || 'Failed to create onboarding link');
+    }
+    
+    const link = await linkResponse.json() as { url: string };
+    
+    return c.json({
+      success: true,
+      stripeAccountId: account.id,
+      onboardingUrl: link.url,
+    });
+    
+  } catch (error) {
+    console.error('Stripe Connect error:', error);
+    return c.json({ 
+      error: error instanceof Error ? error.message : 'Failed to connect Stripe account' 
+    }, 500);
+  }
+});
+
+// Get Stripe Connect onboarding link (for returning users who didn't complete)
+influencerRoutes.get('/stripe-onboarding-link', influencerAuth, async (c) => {
+  const influencerId = (c.req as any).influencerId;
+  
+  const influencer = await c.env.DB.prepare(`
+    SELECT stripe_account_id, stripe_account_status FROM influencers WHERE id = ?
+  `).bind(influencerId).first();
+  
+  if (!influencer?.stripe_account_id) {
+    return c.json({ error: 'No Stripe account found. Please connect first.' }, 400);
+  }
+  
+  if (influencer.stripe_account_status === 'ACTIVE') {
+    return c.json({ message: 'Stripe account already fully connected' });
+  }
+  
+  try {
+    const linkResponse = await fetch('https://api.stripe.com/v1/account_links', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        account: influencer.stripe_account_id as string,
+        refresh_url: `${c.env.APP_URL}/influencer?stripe_refresh=true`,
+        return_url: `${c.env.APP_URL}/influencer?stripe_connected=true`,
+        type: 'account_onboarding',
+      }).toString(),
+    });
+    
+    if (!linkResponse.ok) {
+      const errorData = await linkResponse.json() as { error?: { message?: string } };
+      throw new Error(errorData.error?.message || 'Failed to create onboarding link');
+    }
+    
+    const link = await linkResponse.json() as { url: string };
+    
+    return c.json({ onboardingUrl: link.url });
+    
+  } catch (error) {
+    return c.json({ 
+      error: error instanceof Error ? error.message : 'Failed to get onboarding link' 
+    }, 500);
+  }
+});
+
+// Check and update Stripe account status
+influencerRoutes.post('/verify-stripe-status', influencerAuth, async (c) => {
+  const influencerId = (c.req as any).influencerId;
+  
+  const influencer = await c.env.DB.prepare(`
+    SELECT stripe_account_id FROM influencers WHERE id = ?
+  `).bind(influencerId).first();
+  
+  if (!influencer?.stripe_account_id) {
+    return c.json({ error: 'No Stripe account found' }, 400);
+  }
+  
+  try {
+    const accountResponse = await fetch(
+      `https://api.stripe.com/v1/accounts/${influencer.stripe_account_id}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+        },
+      }
+    );
+    
+    if (!accountResponse.ok) {
+      throw new Error('Failed to fetch Stripe account');
+    }
+    
+    const account = await accountResponse.json() as { 
+      charges_enabled: boolean;
+      payouts_enabled: boolean;
+      details_submitted: boolean;
+      requirements?: { currently_due?: string[] };
+    };
+    
+    // Determine status based on account state
+    let status = 'PENDING';
+    if (account.charges_enabled && account.payouts_enabled) {
+      status = 'ACTIVE';
+    } else if (account.requirements?.currently_due?.length) {
+      status = 'RESTRICTED';
+    }
+    
+    // Update influencer status
+    await c.env.DB.prepare(`
+      UPDATE influencers SET 
+        stripe_account_status = ?,
+        stripe_onboarding_completed = ?,
+        updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(status, account.details_submitted ? 1 : 0, influencerId).run();
+    
+    return c.json({
+      status,
+      chargesEnabled: account.charges_enabled,
+      payoutsEnabled: account.payouts_enabled,
+      detailsSubmitted: account.details_submitted,
+      requirementsCurrentlyDue: account.requirements?.currently_due || [],
+    });
+    
+  } catch (error) {
+    return c.json({ 
+      error: error instanceof Error ? error.message : 'Failed to verify Stripe status' 
+    }, 500);
+  }
+});
+
+// Get commission earnings summary
+influencerRoutes.get('/earnings', influencerAuth, async (c) => {
+  const influencerId = (c.req as any).influencerId;
+  
+  const influencer = await c.env.DB.prepare(`
+    SELECT 
+      total_commission_earned,
+      total_commission_paid,
+      (total_commission_earned - total_commission_paid) as pending_balance,
+      payout_threshold,
+      auto_payout_enabled,
+      stripe_account_status
+    FROM influencers WHERE id = ?
+  `).bind(influencerId).first();
+  
+  if (!influencer) {
+    return c.json({ error: 'Influencer not found' }, 404);
+  }
+  
+  // Get pending conversions breakdown
+  const pendingConversions = await c.env.DB.prepare(`
+    SELECT 
+      subscription_tier,
+      subscription_billing_cycle,
+      COUNT(*) as count,
+      SUM(commission_amount) as total_commission
+    FROM influencer_conversions
+    WHERE influencer_id = ? AND commission_status = 'PENDING'
+    GROUP BY subscription_tier, subscription_billing_cycle
+  `).bind(influencerId).all();
+  
+  // Get recent payouts
+  const recentPayouts = await c.env.DB.prepare(`
+    SELECT id, amount, status, stripe_transfer_id, completed_at, created_at
+    FROM influencer_payouts
+    WHERE influencer_id = ?
+    ORDER BY created_at DESC
+    LIMIT 5
+  `).bind(influencerId).all();
+  
+  // Get monthly earnings for the last 6 months
+  const monthlyEarnings = await c.env.DB.prepare(`
+    SELECT 
+      strftime('%Y-%m', created_at) as month,
+      SUM(commission_amount) as earnings,
+      COUNT(*) as conversions
+    FROM influencer_conversions
+    WHERE influencer_id = ? AND created_at >= date('now', '-6 months')
+    GROUP BY strftime('%Y-%m', created_at)
+    ORDER BY month DESC
+  `).bind(influencerId).all();
+  
+  return c.json({
+    totalEarned: influencer.total_commission_earned,
+    totalPaid: influencer.total_commission_paid,
+    pendingBalance: influencer.pending_balance,
+    payoutThreshold: influencer.payout_threshold,
+    autoPayoutEnabled: influencer.auto_payout_enabled,
+    stripeStatus: influencer.stripe_account_status,
+    eligibleForPayout: (influencer.pending_balance as number) >= (influencer.payout_threshold as number) && influencer.stripe_account_status === 'ACTIVE',
+    pendingConversions: pendingConversions.results,
+    recentPayouts: recentPayouts.results,
+    monthlyEarnings: monthlyEarnings.results,
+  });
+});
+
+// Update payout settings
+influencerRoutes.patch('/payout-settings', influencerAuth, async (c) => {
+  const influencerId = (c.req as any).influencerId;
+  const body = await c.req.json();
+  const { payoutThreshold, autoPayoutEnabled } = body;
+  
+  // Validate threshold (minimum $50)
+  if (payoutThreshold !== undefined && payoutThreshold < 5000) {
+    return c.json({ error: 'Minimum payout threshold is $50' }, 400);
+  }
+  
+  await c.env.DB.prepare(`
+    UPDATE influencers SET 
+      payout_threshold = COALESCE(?, payout_threshold),
+      auto_payout_enabled = COALESCE(?, auto_payout_enabled),
+      updated_at = datetime('now')
+    WHERE id = ?
+  `).bind(payoutThreshold, autoPayoutEnabled, influencerId).run();
+  
+  return c.json({ success: true });
+});
+
+// =============================================================================
 // ADMIN ROUTES
 // =============================================================================
 

@@ -215,6 +215,13 @@ export const influencerApi = {
     api.get('/influencer/payouts', { params }),
   updatePaymentInfo: (data: { paymentMethod: string; paymentDetails: string }) => 
     api.patch('/influencer/payment-info', data),
+  // Stripe Connect
+  connectStripe: () => api.post('/influencer/connect-stripe'),
+  getStripeOnboardingLink: () => api.get('/influencer/stripe-onboarding-link'),
+  verifyStripeStatus: () => api.post('/influencer/verify-stripe-status'),
+  getEarnings: () => api.get('/influencer/earnings'),
+  updatePayoutSettings: (data: { payoutThreshold?: number; autoPayoutEnabled?: boolean }) =>
+    api.patch('/influencer/payout-settings', data),
 };
 
 // Partner API

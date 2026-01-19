@@ -253,6 +253,64 @@ const VIRAL_INFLUENCERS = [
   { name: 'Cassey Ho', email: 'hello@blogilates.com', platform: 'YOUTUBE', segment: 'FITNESS', handle: '@blogilates', follower_count: 6000000 },
   { name: 'Adriene Mishler', email: 'hello@yogawithadriene.com', platform: 'YOUTUBE', segment: 'YOGA', handle: '@yogawithadriene', follower_count: 12000000 },
   { name: 'Dr. Mark Hyman', email: 'press@drhyman.com', platform: 'INSTAGRAM', segment: 'HEALTH', handle: '@drmarkhyman', follower_count: 1000000 },
+  
+  // ========== MICRO-INFLUENCERS (1K-50K followers - Higher engagement, need income) ==========
+  // These smaller creators are more likely to respond and partner
+  { name: 'The Memory Keeper Mom', email: 'hello@memorykeepmom.com', platform: 'INSTAGRAM', segment: 'SCRAPBOOKING', handle: '@memorykeepmom', follower_count: 8500 },
+  { name: 'Legacy Letters Blog', email: 'contact@legacylettersblog.com', platform: 'BLOG', segment: 'MEMOIR', handle: '@legacyletters', follower_count: 12000 },
+  { name: 'Family Story Project', email: 'hello@familystoryproject.com', platform: 'INSTAGRAM', segment: 'STORYTELLING', handle: '@familystoryproject', follower_count: 15000 },
+  { name: 'Grief Journey Guide', email: 'support@griefjourney.com', platform: 'INSTAGRAM', segment: 'GRIEF', handle: '@griefjourney', follower_count: 9800 },
+  { name: 'Senior Moments Blog', email: 'editor@seniormomentsblog.com', platform: 'BLOG', segment: 'SENIOR_LIVING', handle: '@seniormoments', follower_count: 18000 },
+  { name: 'The Estate Planning Mom', email: 'hello@estateplanningmom.com', platform: 'INSTAGRAM', segment: 'ESTATE_PLANNING', handle: '@estateplanningmom', follower_count: 7500 },
+  { name: 'Mindful Parenting Tips', email: 'contact@mindfulparentingtips.com', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@mindfulparentingtips', follower_count: 22000 },
+  { name: 'Heritage Recipes Blog', email: 'hello@heritagerecipes.com', platform: 'BLOG', segment: 'HERITAGE', handle: '@heritagerecipes', follower_count: 35000 },
+  { name: 'The Widow Coach', email: 'support@thewidowcoach.com', platform: 'INSTAGRAM', segment: 'GRIEF', handle: '@thewidowcoach', follower_count: 11000 },
+  { name: 'Military Family Life', email: 'hello@militaryfamilylife.com', platform: 'INSTAGRAM', segment: 'MILITARY', handle: '@militaryfamilylife', follower_count: 28000 },
+  { name: 'Grandparents Corner', email: 'editor@grandparentscorner.com', platform: 'BLOG', segment: 'SENIOR_LIVING', handle: '@grandparentscorner', follower_count: 19000 },
+  { name: 'Faith Family Legacy', email: 'hello@faithfamilylegacy.com', platform: 'INSTAGRAM', segment: 'FAITH', handle: '@faithfamilylegacy', follower_count: 14000 },
+  { name: 'The Adoption Journey', email: 'contact@adoptionjourney.com', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@adoptionjourney', follower_count: 25000 },
+  { name: 'Wedding Memory Keeper', email: 'hello@weddingmemorykeeper.com', platform: 'INSTAGRAM', segment: 'WEDDING', handle: '@weddingmemorykeeper', follower_count: 16000 },
+  { name: 'Empty Nest Chronicles', email: 'hello@emptynestchronicles.com', platform: 'BLOG', segment: 'PARENTING', handle: '@emptynestchronicles', follower_count: 21000 },
+  { name: 'The Therapy Mama', email: 'hello@therapymama.com', platform: 'INSTAGRAM', segment: 'THERAPY', handle: '@therapymama', follower_count: 32000 },
+  { name: 'Blended Family Blog', email: 'contact@blendedfamilyblog.com', platform: 'BLOG', segment: 'PARENTING', handle: '@blendedfamilyblog', follower_count: 18500 },
+  { name: 'Digital Legacy Tips', email: 'hello@digitallegacytips.com', platform: 'INSTAGRAM', segment: 'TECH', handle: '@digitallegacytips', follower_count: 8000 },
+  { name: 'Hospice Hearts', email: 'contact@hospicehearts.com', platform: 'INSTAGRAM', segment: 'GRIEF', handle: '@hospicehearts', follower_count: 12500 },
+  { name: 'The Genealogy Girl', email: 'hello@genealogygirl.com', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@genealogygirl', follower_count: 27000 },
+  
+  // ========== LEADERSHIP & LIFE COACHES ==========
+  // Coaches who help clients with life transitions, legacy planning, and personal development
+  { name: 'Michael Hyatt', email: 'team@michaelhyatt.com', platform: 'PODCAST', segment: 'LEADERSHIP', handle: '@michaelhyatt', follower_count: 500000 },
+  { name: 'John Maxwell', email: 'press@johnmaxwell.com', platform: 'INSTAGRAM', segment: 'LEADERSHIP', handle: '@johncmaxwell', follower_count: 3000000 },
+  { name: 'Simon Sinek', email: 'press@simonsinek.com', platform: 'INSTAGRAM', segment: 'LEADERSHIP', handle: '@simonsinek', follower_count: 8000000 },
+  { name: 'Chalene Johnson', email: 'team@chalenejohnson.com', platform: 'PODCAST', segment: 'COACHING', handle: '@chalenejohnson', follower_count: 800000 },
+  { name: 'Amy Porterfield', email: 'team@amyporterfield.com', platform: 'PODCAST', segment: 'COACHING', handle: '@amyporterfield', follower_count: 400000 },
+  { name: 'Brooke Castillo', email: 'hello@thelifecoachschool.com', platform: 'PODCAST', segment: 'COACHING', handle: '@brookecastillo', follower_count: 200000 },
+  { name: 'Martha Beck', email: 'press@marthabeck.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@themarthabeck', follower_count: 150000 },
+  { name: 'Kris Carr', email: 'hello@kriscarr.com', platform: 'INSTAGRAM', segment: 'WELLNESS_COACHING', handle: '@kikicarr', follower_count: 300000 },
+  { name: 'Danielle LaPorte', email: 'hello@daniellelaporte.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@daniellelaporte', follower_count: 400000 },
+  { name: 'Mastin Kipp', email: 'team@mastinkipp.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@mastinkipp', follower_count: 250000 },
+  { name: 'Gabrielle Bernstein', email: 'press@gabbybernstein.com', platform: 'INSTAGRAM', segment: 'SPIRITUALITY_COACHING', handle: '@gabbybernstein', follower_count: 1000000 },
+  { name: 'Jen Sincero', email: 'press@jensincero.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@jensincero', follower_count: 300000 },
+  { name: 'Rachel Luna', email: 'hello@rachelluna.biz', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@girlconfident', follower_count: 50000 },
+  { name: 'Natalie Ellis', email: 'hello@bossbabe.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@iamnatalie', follower_count: 700000 },
+  { name: 'Patrice Washington', email: 'team@patricewashington.com', platform: 'PODCAST', segment: 'COACHING', handle: '@seekwisdompcw', follower_count: 150000 },
+  { name: 'Lisa Nichols', email: 'press@lisanichols.com', platform: 'INSTAGRAM', segment: 'MOTIVATION', handle: '@lisa2motivate', follower_count: 1500000 },
+  { name: 'Trent Shelton', email: 'team@trentshelton.com', platform: 'INSTAGRAM', segment: 'MOTIVATION', handle: '@trentshelton', follower_count: 3000000 },
+  { name: 'Inky Johnson', email: 'booking@inkyjohnson.com', platform: 'INSTAGRAM', segment: 'MOTIVATION', handle: '@inkyjohnson', follower_count: 1000000 },
+  { name: 'Ed Mylett', email: 'team@edmylett.com', platform: 'PODCAST', segment: 'LEADERSHIP', handle: '@edmylett', follower_count: 3500000 },
+  { name: 'Dean Graziosi', email: 'team@deangraziosi.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@deangraziosi', follower_count: 2000000 },
+  
+  // ========== MICRO LIFE COACHES (Higher engagement, need income) ==========
+  { name: 'The Legacy Coach', email: 'hello@thelegacycoach.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@thelegacycoach', follower_count: 8500 },
+  { name: 'Midlife Mentor', email: 'contact@midlifementor.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@midlifementor', follower_count: 15000 },
+  { name: 'Purpose Driven Parent', email: 'hello@purposedrivenparent.com', platform: 'INSTAGRAM', segment: 'PARENTING_COACHING', handle: '@purposedrivenparent', follower_count: 12000 },
+  { name: 'The Retirement Coach', email: 'hello@retirementcoach.com', platform: 'INSTAGRAM', segment: 'SENIOR_COACHING', handle: '@retirementcoach', follower_count: 9500 },
+  { name: 'Family Values Coach', email: 'contact@familyvaluescoach.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@familyvaluescoach', follower_count: 7800 },
+  { name: 'The Grief Coach', email: 'support@thegriefcoach.com', platform: 'INSTAGRAM', segment: 'GRIEF_COACHING', handle: '@thegriefcoach', follower_count: 18000 },
+  { name: 'Transition Life Coach', email: 'hello@transitionlifecoach.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@transitionlifecoach', follower_count: 11000 },
+  { name: 'The Memoir Coach', email: 'hello@memoircoach.com', platform: 'INSTAGRAM', segment: 'MEMOIR_COACHING', handle: '@memoircoach', follower_count: 6500 },
+  { name: 'Empty Nest Coach', email: 'contact@emptynestcoach.com', platform: 'INSTAGRAM', segment: 'COACHING', handle: '@emptynestcoach', follower_count: 14000 },
+  { name: 'The Wisdom Years', email: 'hello@wisdomyears.com', platform: 'BLOG', segment: 'SENIOR_COACHING', handle: '@wisdomyears', follower_count: 22000 },
 ];
 
 // Combine all prospect sources for daily processing
@@ -906,6 +964,175 @@ export async function sendContentPrompts(env: Env) {
   }
   
   return { sent };
+}
+
+// ============================================
+// AUTOMATED INFLUENCER PAYOUTS
+// Processes payouts for influencers who have reached their payout threshold
+// ============================================
+
+export async function processAutomatedPayouts(env: Env) {
+  const now = new Date();
+  const nowISO = now.toISOString();
+  
+  // Get influencers eligible for payout:
+  // - Active status
+  // - Stripe account connected and active
+  // - Auto payout enabled
+  // - Pending balance >= payout threshold
+  const eligibleInfluencers = await env.DB.prepare(`
+    SELECT 
+      i.id, i.name, i.email, i.stripe_account_id, i.payout_threshold,
+      i.total_commission_earned, i.total_commission_paid,
+      (i.total_commission_earned - i.total_commission_paid) as pending_balance,
+      (SELECT COUNT(*) FROM influencer_conversions ic WHERE ic.influencer_id = i.id AND ic.commission_status = 'PENDING') as pending_conversions
+    FROM influencers i
+    WHERE i.status = 'ACTIVE'
+    AND i.stripe_account_id IS NOT NULL
+    AND i.stripe_account_status = 'ACTIVE'
+    AND i.auto_payout_enabled = 1
+    AND (i.total_commission_earned - i.total_commission_paid) >= i.payout_threshold
+  `).all();
+  
+  let processed = 0;
+  let totalPaid = 0;
+  const errors: string[] = [];
+  
+  for (const influencer of eligibleInfluencers.results) {
+    try {
+      const pendingBalance = influencer.pending_balance as number;
+      
+      // Create Stripe transfer to connected account
+      const transferResponse = await fetch('https://api.stripe.com/v1/transfers', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          amount: pendingBalance.toString(),
+          currency: 'usd',
+          destination: influencer.stripe_account_id as string,
+          description: `Heirloom influencer commission payout - ${influencer.name}`,
+          'metadata[influencer_id]': influencer.id as string,
+          'metadata[payout_date]': nowISO,
+        }).toString(),
+      });
+      
+      if (!transferResponse.ok) {
+        const errorData = await transferResponse.json() as { error?: { message?: string } };
+        throw new Error(errorData.error?.message || 'Stripe transfer failed');
+      }
+      
+      const transfer = await transferResponse.json() as { id: string };
+      
+      // Calculate period for this payout
+      const lastPayout = await env.DB.prepare(`
+        SELECT MAX(period_end) as last_period_end FROM influencer_payouts 
+        WHERE influencer_id = ? AND status = 'COMPLETED'
+      `).bind(influencer.id).first();
+      
+      const periodStart = lastPayout?.last_period_end || '2024-01-01';
+      const periodEnd = nowISO;
+      
+      // Create payout record
+      const payoutId = crypto.randomUUID();
+      await env.DB.prepare(`
+        INSERT INTO influencer_payouts (
+          id, influencer_id, amount, currency, payment_method, payment_reference,
+          period_start, period_end, conversions_count, status, stripe_transfer_id,
+          auto_generated, processed_at, completed_at, created_at
+        ) VALUES (?, ?, ?, 'USD', 'STRIPE_CONNECT', ?, ?, ?, ?, 'COMPLETED', ?, 1, ?, ?, ?)
+      `).bind(
+        payoutId, influencer.id, pendingBalance, transfer.id,
+        periodStart, periodEnd, influencer.pending_conversions,
+        transfer.id, nowISO, nowISO, nowISO
+      ).run();
+      
+      // Update conversions to paid
+      await env.DB.prepare(`
+        UPDATE influencer_conversions 
+        SET commission_status = 'PAID', commission_paid_at = ?
+        WHERE influencer_id = ? AND commission_status = 'PENDING'
+      `).bind(nowISO, influencer.id).run();
+      
+      // Update influencer total paid
+      await env.DB.prepare(`
+        UPDATE influencers SET 
+          total_commission_paid = total_commission_paid + ?,
+          updated_at = ?
+        WHERE id = ?
+      `).bind(pendingBalance, nowISO, influencer.id).run();
+      
+      // Send payout notification email
+      await sendEmail(env, {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: influencer.email as string,
+        subject: `Your Heirloom commission payout of $${(pendingBalance / 100).toFixed(2)} is on its way!`,
+        html: payoutNotificationEmail(influencer.name as string, pendingBalance, transfer.id),
+      }, 'influencer_payout_notification');
+      
+      processed++;
+      totalPaid += pendingBalance;
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      errors.push(`${influencer.email}: ${errorMessage}`);
+      console.error(`Error processing payout for ${influencer.email}:`, error);
+      
+      // Record failed payout attempt
+      await env.DB.prepare(`
+        INSERT INTO influencer_payouts (
+          id, influencer_id, amount, currency, payment_method,
+          period_start, period_end, conversions_count, status, failure_reason,
+          auto_generated, created_at
+        ) VALUES (?, ?, ?, 'USD', 'STRIPE_CONNECT', ?, ?, ?, 'FAILED', ?, 1, ?)
+      `).bind(
+        crypto.randomUUID(), influencer.id, influencer.pending_balance,
+        nowISO, nowISO, influencer.pending_conversions, errorMessage, nowISO
+      ).run();
+    }
+  }
+  
+  return { processed, totalPaid, errors };
+}
+
+function payoutNotificationEmail(name: string, amountCents: number, transferId: string): string {
+  const amount = (amountCents / 100).toFixed(2);
+  return emailWrapper(`
+    <h2 style="color: #f5f5dc; font-size: 24px; font-weight: normal; margin: 0 0 20px 0;">
+      Great news, ${name}!
+    </h2>
+    
+    <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+      Your Heirloom commission payout has been processed and is on its way to your connected bank account.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(184, 150, 46, 0.1) 100%); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+      <p style="color: #888; font-size: 14px; margin: 0 0 5px 0;">Payout Amount</p>
+      <p style="color: #d4af37; font-size: 36px; font-weight: bold; margin: 0;">$${amount}</p>
+      <p style="color: #888; font-size: 12px; margin: 10px 0 0 0;">Transfer ID: ${transferId}</p>
+    </div>
+    
+    <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 20px 0;">
+      Funds typically arrive in your bank account within 2-3 business days, depending on your bank.
+    </p>
+    
+    <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 20px 0;">
+      Keep up the great work! Your audience is discovering the joy of preserving their family legacy with Heirloom.
+    </p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+        View Your Dashboard
+      </a>
+    </div>
+    
+    <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 25px 0 0 0;">
+      Thank you for being a Heirloom partner,<br>
+      <strong style="color: #f5f5dc;">The Heirloom Team</strong>
+    </p>
+  `);
 }
 
 // ============================================
