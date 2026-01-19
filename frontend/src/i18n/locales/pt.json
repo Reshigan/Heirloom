@@ -1,0 +1,343 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "submit": "Enviar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "view": "Ver",
+    "download": "Baixar",
+    "upload": "Enviar",
+    "share": "Compartilhar",
+    "copy": "Copiar",
+    "copied": "Copiado!",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação",
+    "yes": "Sim",
+    "no": "Não",
+    "or": "ou",
+    "and": "e",
+    "all": "Todos",
+    "none": "Nenhum",
+    "select": "Selecionar",
+    "required": "Obrigatório",
+    "optional": "Opcional"
+  },
+  "nav": {
+    "home": "Início",
+    "dashboard": "Painel",
+    "memories": "Memórias",
+    "letters": "Cartas",
+    "family": "Família",
+    "settings": "Configurações",
+    "billing": "Faturamento",
+    "logout": "Sair",
+    "login": "Entrar",
+    "signup": "Cadastrar"
+  },
+  "auth": {
+    "login": "Entrar",
+    "signup": "Cadastrar",
+    "logout": "Sair",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "resetPassword": "Redefinir Senha",
+    "rememberMe": "Lembrar de mim",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "createAccount": "Criar Conta",
+    "welcomeBack": "Bem-vindo de volta",
+    "loginSubtitle": "Entre para continuar preservando o legado da sua família",
+    "signupSubtitle": "Comece a preservar as memórias preciosas da sua família hoje",
+    "firstName": "Nome",
+    "lastName": "Sobrenome",
+    "termsAgree": "Concordo com os Termos de Serviço e Política de Privacidade",
+    "invalidEmail": "Por favor, insira um e-mail válido",
+    "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+    "passwordsNoMatch": "As senhas não coincidem"
+  },
+  "landing": {
+    "hero": {
+      "title": "Preserve o Legado da Sua Família",
+      "subtitle": "Crie memórias duradouras, escreva cartas sinceras e construa uma herança digital para as gerações futuras.",
+      "cta": "Comece Seu Legado",
+      "ctaSecondary": "Saiba Mais"
+    },
+    "features": {
+      "title": "Tudo que Você Precisa para Preservar Memórias",
+      "memories": {
+        "title": "Capture Memórias",
+        "description": "Grave mensagens de voz, envie fotos e escreva histórias que durarão para sempre."
+      },
+      "letters": {
+        "title": "Escreva Cartas",
+        "description": "Componha cartas sinceras para serem entregues aos seus entes queridos em momentos especiais."
+      },
+      "family": {
+        "title": "Conecte a Família",
+        "description": "Construa sua árvore genealógica e compartilhe memórias através das gerações."
+      },
+      "secure": {
+        "title": "Seguro e Privado",
+        "description": "Suas memórias são criptografadas e protegidas com segurança de nível bancário."
+      }
+    },
+    "testimonials": {
+      "title": "O Que Nossos Usuários Dizem"
+    },
+    "pricing": {
+      "title": "Escolha Seu Plano",
+      "subtitle": "Comece a preservar memórias hoje",
+      "monthly": "Mensal",
+      "yearly": "Anual",
+      "perMonth": "/mês",
+      "perYear": "/ano",
+      "popular": "Mais Popular",
+      "starter": {
+        "name": "Inicial",
+        "description": "Perfeito para indivíduos"
+      },
+      "family": {
+        "name": "Família",
+        "description": "Para famílias em crescimento"
+      },
+      "legacy": {
+        "name": "Legado",
+        "description": "Para preservar gerações"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Bem-vindo de volta, {{name}}",
+    "recentMemories": "Memórias Recentes",
+    "upcomingLetters": "Próximas Cartas",
+    "familyActivity": "Atividade Familiar",
+    "quickActions": "Ações Rápidas",
+    "createMemory": "Criar Memória",
+    "writeALetter": "Escrever uma Carta",
+    "viewFamily": "Ver Família",
+    "noMemories": "Ainda não há memórias. Comece a capturar sua primeira memória!",
+    "noLetters": "Nenhuma carta agendada. Escreva sua primeira carta!",
+    "stats": {
+      "memories": "Memórias",
+      "letters": "Cartas",
+      "familyMembers": "Membros da Família",
+      "storageUsed": "Armazenamento Usado"
+    }
+  },
+  "memories": {
+    "title": "Memórias",
+    "subtitle": "Sua coleção de momentos preciosos",
+    "create": "Criar Memória",
+    "noMemories": "Ainda não há memórias",
+    "startCapturing": "Comece a capturar seus momentos preciosos",
+    "types": {
+      "photo": "Foto",
+      "video": "Vídeo",
+      "voice": "Gravação de Voz",
+      "text": "História Escrita"
+    },
+    "form": {
+      "title": "Título",
+      "titlePlaceholder": "Dê um título à sua memória",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Conte a história por trás desta memória...",
+      "date": "Data",
+      "tags": "Tags",
+      "tagsPlaceholder": "Adicione tags para organizar",
+      "privacy": "Privacidade",
+      "privacyOptions": {
+        "private": "Privado - Apenas você",
+        "family": "Família - Compartilhado com a família",
+        "public": "Público - Qualquer um com o link"
+      }
+    },
+    "record": {
+      "title": "Gravar uma Memória",
+      "startRecording": "Iniciar Gravação",
+      "stopRecording": "Parar Gravação",
+      "pauseRecording": "Pausar",
+      "resumeRecording": "Retomar",
+      "recordingTime": "Gravando: {{time}}"
+    }
+  },
+  "letters": {
+    "title": "Cartas",
+    "subtitle": "Mensagens sinceras para seus entes queridos",
+    "create": "Escrever uma Carta",
+    "noLetters": "Ainda não há cartas",
+    "startWriting": "Comece a escrever sua primeira carta",
+    "form": {
+      "recipient": "Destinatário",
+      "recipientPlaceholder": "Para quem é esta carta?",
+      "subject": "Assunto",
+      "subjectPlaceholder": "Sobre o que é esta carta?",
+      "content": "Sua Mensagem",
+      "contentPlaceholder": "Escreva sua mensagem sincera...",
+      "deliveryDate": "Data de Entrega",
+      "deliveryTrigger": "Gatilho de Entrega",
+      "triggers": {
+        "date": "Em uma data específica",
+        "birthday": "No aniversário",
+        "anniversary": "Em um aniversário",
+        "event": "Após um evento de vida",
+        "manual": "Quando eu escolher"
+      }
+    },
+    "status": {
+      "draft": "Rascunho",
+      "scheduled": "Agendada",
+      "delivered": "Entregue",
+      "read": "Lida"
+    }
+  },
+  "family": {
+    "title": "Família",
+    "subtitle": "Sua árvore genealógica e conexões",
+    "addMember": "Adicionar Membro da Família",
+    "noMembers": "Ainda não há membros da família",
+    "startBuilding": "Comece a construir sua árvore genealógica",
+    "relationships": {
+      "parent": "Pai/Mãe",
+      "child": "Filho/a",
+      "sibling": "Irmão/ã",
+      "spouse": "Cônjuge",
+      "grandparent": "Avô/Avó",
+      "grandchild": "Neto/a",
+      "aunt": "Tia",
+      "uncle": "Tio",
+      "cousin": "Primo/a",
+      "other": "Outro"
+    },
+    "form": {
+      "name": "Nome",
+      "relationship": "Relacionamento",
+      "email": "E-mail (opcional)",
+      "birthdate": "Data de Nascimento",
+      "notes": "Notas"
+    },
+    "invite": {
+      "title": "Convidar para Heirloom",
+      "description": "Convide este membro da família para participar e compartilhar memórias",
+      "sent": "Convite enviado!"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "profile": {
+      "title": "Perfil",
+      "name": "Nome",
+      "email": "E-mail",
+      "avatar": "Foto de Perfil",
+      "changeAvatar": "Alterar Foto",
+      "bio": "Biografia",
+      "bioPlaceholder": "Conte-nos sobre você..."
+    },
+    "preferences": {
+      "title": "Preferências",
+      "language": "Idioma",
+      "timezone": "Fuso Horário",
+      "dateFormat": "Formato de Data",
+      "notifications": "Notificações",
+      "emailNotifications": "Notificações por E-mail",
+      "pushNotifications": "Notificações Push"
+    },
+    "security": {
+      "title": "Segurança",
+      "changePassword": "Alterar Senha",
+      "currentPassword": "Senha Atual",
+      "newPassword": "Nova Senha",
+      "confirmNewPassword": "Confirmar Nova Senha",
+      "twoFactor": "Autenticação de Dois Fatores",
+      "enable2FA": "Ativar 2FA",
+      "disable2FA": "Desativar 2FA"
+    },
+    "privacy": {
+      "title": "Privacidade",
+      "profileVisibility": "Visibilidade do Perfil",
+      "dataSharing": "Compartilhamento de Dados",
+      "downloadData": "Baixar Meus Dados",
+      "deleteAccount": "Excluir Conta"
+    }
+  },
+  "billing": {
+    "title": "Faturamento",
+    "currentPlan": "Plano Atual",
+    "changePlan": "Alterar Plano",
+    "cancelSubscription": "Cancelar Assinatura",
+    "paymentMethod": "Método de Pagamento",
+    "updatePayment": "Atualizar Pagamento",
+    "billingHistory": "Histórico de Faturamento",
+    "nextBilling": "Próxima data de cobrança",
+    "trial": {
+      "title": "Teste Gratuito",
+      "daysRemaining": "{{days}} dias restantes",
+      "upgrade": "Fazer Upgrade"
+    },
+    "invoice": {
+      "date": "Data",
+      "amount": "Valor",
+      "status": "Status",
+      "download": "Baixar"
+    }
+  },
+  "referral": {
+    "title": "Indicar Amigos",
+    "subtitle": "Compartilhe Heirloom e ganhe recompensas",
+    "yourCode": "Seu Código de Indicação",
+    "shareLink": "Link para Compartilhar",
+    "rewards": {
+      "title": "Suas Recompensas",
+      "earned": "Total Ganho",
+      "pending": "Pendente"
+    },
+    "stats": {
+      "clicks": "Cliques",
+      "signups": "Cadastros",
+      "conversions": "Conversões"
+    }
+  },
+  "influencer": {
+    "title": "Programa de Influenciadores",
+    "subtitle": "Parceria com Heirloom e ganhe comissões",
+    "apply": "Aplicar Agora",
+    "dashboard": {
+      "earnings": "Ganhos Totais",
+      "pending": "Pagamento Pendente",
+      "conversions": "Conversões",
+      "clicks": "Cliques Totais"
+    },
+    "discountCode": "Seu Código de Desconto",
+    "landingPage": "Sua Página de Destino"
+  },
+  "errors": {
+    "generic": "Algo deu errado. Por favor, tente novamente.",
+    "network": "Erro de rede. Por favor, verifique sua conexão.",
+    "unauthorized": "Por favor, faça login para continuar.",
+    "forbidden": "Você não tem permissão para fazer isso.",
+    "notFound": "Página não encontrada.",
+    "serverError": "Erro do servidor. Por favor, tente novamente mais tarde.",
+    "validation": "Por favor, verifique sua entrada e tente novamente."
+  },
+  "footer": {
+    "about": "Sobre",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Serviço",
+    "contact": "Contato",
+    "help": "Central de Ajuda",
+    "copyright": "© {{year}} Heirloom. Todos os direitos reservados."
+  }
+}

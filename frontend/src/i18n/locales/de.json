@@ -1,0 +1,343 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "close": "Schließen",
+    "submit": "Absenden",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "view": "Ansehen",
+    "download": "Herunterladen",
+    "upload": "Hochladen",
+    "share": "Teilen",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "warning": "Warnung",
+    "info": "Information",
+    "yes": "Ja",
+    "no": "Nein",
+    "or": "oder",
+    "and": "und",
+    "all": "Alle",
+    "none": "Keine",
+    "select": "Auswählen",
+    "required": "Erforderlich",
+    "optional": "Optional"
+  },
+  "nav": {
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "memories": "Erinnerungen",
+    "letters": "Briefe",
+    "family": "Familie",
+    "settings": "Einstellungen",
+    "billing": "Abrechnung",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "signup": "Registrieren"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "logout": "Abmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "forgotPassword": "Passwort vergessen?",
+    "resetPassword": "Passwort zurücksetzen",
+    "rememberMe": "Angemeldet bleiben",
+    "noAccount": "Noch kein Konto?",
+    "hasAccount": "Bereits ein Konto?",
+    "createAccount": "Konto erstellen",
+    "welcomeBack": "Willkommen zurück",
+    "loginSubtitle": "Melden Sie sich an, um das Erbe Ihrer Familie weiter zu bewahren",
+    "signupSubtitle": "Beginnen Sie noch heute, die wertvollen Erinnerungen Ihrer Familie zu bewahren",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "termsAgree": "Ich stimme den Nutzungsbedingungen und der Datenschutzrichtlinie zu",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "passwordMinLength": "Das Passwort muss mindestens 8 Zeichen lang sein",
+    "passwordsNoMatch": "Die Passwörter stimmen nicht überein"
+  },
+  "landing": {
+    "hero": {
+      "title": "Bewahren Sie das Erbe Ihrer Familie",
+      "subtitle": "Schaffen Sie bleibende Erinnerungen, schreiben Sie herzliche Briefe und bauen Sie ein digitales Erbstück für kommende Generationen.",
+      "cta": "Starten Sie Ihr Erbe",
+      "ctaSecondary": "Mehr erfahren"
+    },
+    "features": {
+      "title": "Alles, was Sie brauchen, um Erinnerungen zu bewahren",
+      "memories": {
+        "title": "Erinnerungen festhalten",
+        "description": "Nehmen Sie Sprachnachrichten auf, laden Sie Fotos hoch und schreiben Sie Geschichten, die für immer bleiben."
+      },
+      "letters": {
+        "title": "Briefe schreiben",
+        "description": "Verfassen Sie herzliche Briefe, die zu besonderen Momenten an Ihre Lieben übermittelt werden."
+      },
+      "family": {
+        "title": "Familie verbinden",
+        "description": "Erstellen Sie Ihren Stammbaum und teilen Sie Erinnerungen über Generationen hinweg."
+      },
+      "secure": {
+        "title": "Sicher & Privat",
+        "description": "Ihre Erinnerungen sind verschlüsselt und mit Sicherheit auf Bankniveau geschützt."
+      }
+    },
+    "testimonials": {
+      "title": "Was unsere Nutzer sagen"
+    },
+    "pricing": {
+      "title": "Wählen Sie Ihren Plan",
+      "subtitle": "Beginnen Sie noch heute mit dem Bewahren von Erinnerungen",
+      "monthly": "Monatlich",
+      "yearly": "Jährlich",
+      "perMonth": "/Monat",
+      "perYear": "/Jahr",
+      "popular": "Am beliebtesten",
+      "starter": {
+        "name": "Starter",
+        "description": "Perfekt für Einzelpersonen"
+      },
+      "family": {
+        "name": "Familie",
+        "description": "Für wachsende Familien"
+      },
+      "legacy": {
+        "name": "Erbe",
+        "description": "Für Generationen bewahren"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Willkommen zurück, {{name}}",
+    "recentMemories": "Neueste Erinnerungen",
+    "upcomingLetters": "Kommende Briefe",
+    "familyActivity": "Familienaktivität",
+    "quickActions": "Schnellaktionen",
+    "createMemory": "Erinnerung erstellen",
+    "writeALetter": "Brief schreiben",
+    "viewFamily": "Familie ansehen",
+    "noMemories": "Noch keine Erinnerungen. Beginnen Sie mit Ihrer ersten Erinnerung!",
+    "noLetters": "Keine Briefe geplant. Schreiben Sie Ihren ersten Brief!",
+    "stats": {
+      "memories": "Erinnerungen",
+      "letters": "Briefe",
+      "familyMembers": "Familienmitglieder",
+      "storageUsed": "Genutzter Speicher"
+    }
+  },
+  "memories": {
+    "title": "Erinnerungen",
+    "subtitle": "Ihre Sammlung wertvoller Momente",
+    "create": "Erinnerung erstellen",
+    "noMemories": "Noch keine Erinnerungen",
+    "startCapturing": "Beginnen Sie, Ihre wertvollen Momente festzuhalten",
+    "types": {
+      "photo": "Foto",
+      "video": "Video",
+      "voice": "Sprachaufnahme",
+      "text": "Geschriebene Geschichte"
+    },
+    "form": {
+      "title": "Titel",
+      "titlePlaceholder": "Geben Sie Ihrer Erinnerung einen Titel",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Erzählen Sie die Geschichte hinter dieser Erinnerung...",
+      "date": "Datum",
+      "tags": "Tags",
+      "tagsPlaceholder": "Tags zum Organisieren hinzufügen",
+      "privacy": "Privatsphäre",
+      "privacyOptions": {
+        "private": "Privat - Nur Sie",
+        "family": "Familie - Mit Familie geteilt",
+        "public": "Öffentlich - Jeder mit Link"
+      }
+    },
+    "record": {
+      "title": "Erinnerung aufnehmen",
+      "startRecording": "Aufnahme starten",
+      "stopRecording": "Aufnahme stoppen",
+      "pauseRecording": "Pause",
+      "resumeRecording": "Fortsetzen",
+      "recordingTime": "Aufnahme: {{time}}"
+    }
+  },
+  "letters": {
+    "title": "Briefe",
+    "subtitle": "Herzliche Nachrichten für Ihre Lieben",
+    "create": "Brief schreiben",
+    "noLetters": "Noch keine Briefe",
+    "startWriting": "Beginnen Sie, Ihren ersten Brief zu schreiben",
+    "form": {
+      "recipient": "Empfänger",
+      "recipientPlaceholder": "Für wen ist dieser Brief?",
+      "subject": "Betreff",
+      "subjectPlaceholder": "Worum geht es in diesem Brief?",
+      "content": "Ihre Nachricht",
+      "contentPlaceholder": "Schreiben Sie Ihre herzliche Nachricht...",
+      "deliveryDate": "Lieferdatum",
+      "deliveryTrigger": "Lieferauslöser",
+      "triggers": {
+        "date": "An einem bestimmten Datum",
+        "birthday": "An ihrem Geburtstag",
+        "anniversary": "An einem Jahrestag",
+        "event": "Nach einem Lebensereignis",
+        "manual": "Wenn ich es wähle"
+      }
+    },
+    "status": {
+      "draft": "Entwurf",
+      "scheduled": "Geplant",
+      "delivered": "Zugestellt",
+      "read": "Gelesen"
+    }
+  },
+  "family": {
+    "title": "Familie",
+    "subtitle": "Ihr Stammbaum und Verbindungen",
+    "addMember": "Familienmitglied hinzufügen",
+    "noMembers": "Noch keine Familienmitglieder",
+    "startBuilding": "Beginnen Sie, Ihren Stammbaum aufzubauen",
+    "relationships": {
+      "parent": "Elternteil",
+      "child": "Kind",
+      "sibling": "Geschwister",
+      "spouse": "Ehepartner",
+      "grandparent": "Großelternteil",
+      "grandchild": "Enkelkind",
+      "aunt": "Tante",
+      "uncle": "Onkel",
+      "cousin": "Cousin/Cousine",
+      "other": "Andere"
+    },
+    "form": {
+      "name": "Name",
+      "relationship": "Beziehung",
+      "email": "E-Mail (optional)",
+      "birthdate": "Geburtsdatum",
+      "notes": "Notizen"
+    },
+    "invite": {
+      "title": "Zu Heirloom einladen",
+      "description": "Laden Sie dieses Familienmitglied ein, beizutreten und Erinnerungen zu teilen",
+      "sent": "Einladung gesendet!"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "profile": {
+      "title": "Profil",
+      "name": "Name",
+      "email": "E-Mail",
+      "avatar": "Profilbild",
+      "changeAvatar": "Bild ändern",
+      "bio": "Biografie",
+      "bioPlaceholder": "Erzählen Sie uns von sich..."
+    },
+    "preferences": {
+      "title": "Einstellungen",
+      "language": "Sprache",
+      "timezone": "Zeitzone",
+      "dateFormat": "Datumsformat",
+      "notifications": "Benachrichtigungen",
+      "emailNotifications": "E-Mail-Benachrichtigungen",
+      "pushNotifications": "Push-Benachrichtigungen"
+    },
+    "security": {
+      "title": "Sicherheit",
+      "changePassword": "Passwort ändern",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmNewPassword": "Neues Passwort bestätigen",
+      "twoFactor": "Zwei-Faktor-Authentifizierung",
+      "enable2FA": "2FA aktivieren",
+      "disable2FA": "2FA deaktivieren"
+    },
+    "privacy": {
+      "title": "Datenschutz",
+      "profileVisibility": "Profilsichtbarkeit",
+      "dataSharing": "Datenfreigabe",
+      "downloadData": "Meine Daten herunterladen",
+      "deleteAccount": "Konto löschen"
+    }
+  },
+  "billing": {
+    "title": "Abrechnung",
+    "currentPlan": "Aktueller Plan",
+    "changePlan": "Plan ändern",
+    "cancelSubscription": "Abonnement kündigen",
+    "paymentMethod": "Zahlungsmethode",
+    "updatePayment": "Zahlung aktualisieren",
+    "billingHistory": "Abrechnungsverlauf",
+    "nextBilling": "Nächstes Abrechnungsdatum",
+    "trial": {
+      "title": "Kostenlose Testversion",
+      "daysRemaining": "{{days}} Tage verbleibend",
+      "upgrade": "Jetzt upgraden"
+    },
+    "invoice": {
+      "date": "Datum",
+      "amount": "Betrag",
+      "status": "Status",
+      "download": "Herunterladen"
+    }
+  },
+  "referral": {
+    "title": "Freunde werben",
+    "subtitle": "Teilen Sie Heirloom und verdienen Sie Belohnungen",
+    "yourCode": "Ihr Empfehlungscode",
+    "shareLink": "Link teilen",
+    "rewards": {
+      "title": "Ihre Belohnungen",
+      "earned": "Gesamt verdient",
+      "pending": "Ausstehend"
+    },
+    "stats": {
+      "clicks": "Klicks",
+      "signups": "Anmeldungen",
+      "conversions": "Konversionen"
+    }
+  },
+  "influencer": {
+    "title": "Influencer-Programm",
+    "subtitle": "Partner von Heirloom werden und Provisionen verdienen",
+    "apply": "Jetzt bewerben",
+    "dashboard": {
+      "earnings": "Gesamteinnahmen",
+      "pending": "Ausstehende Auszahlung",
+      "conversions": "Konversionen",
+      "clicks": "Gesamtklicks"
+    },
+    "discountCode": "Ihr Rabattcode",
+    "landingPage": "Ihre Landingpage"
+  },
+  "errors": {
+    "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+    "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "unauthorized": "Bitte melden Sie sich an, um fortzufahren.",
+    "forbidden": "Sie haben keine Berechtigung dafür.",
+    "notFound": "Seite nicht gefunden.",
+    "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut."
+  },
+  "footer": {
+    "about": "Über uns",
+    "privacy": "Datenschutzrichtlinie",
+    "terms": "Nutzungsbedingungen",
+    "contact": "Kontakt",
+    "help": "Hilfezentrum",
+    "copyright": "© {{year}} Heirloom. Alle Rechte vorbehalten."
+  }
+}
