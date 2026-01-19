@@ -7,6 +7,8 @@
 
 import { Hono } from 'hono';
 import type { Env, Variables } from '../index';
+import { sendEmail } from '../utils/email';
+import { partnerApplicationReceivedEmail, partnerApprovedEmail, partnerRejectedEmail, adminPartnerApplicationEmail, wholesaleOrderConfirmationEmail } from '../email-templates';
 
 export const partnerRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -114,6 +116,24 @@ partnerRoutes.post('/apply', async (c) => {
     postalCode || null, country || 'US', partnerCode, WHOLESALE_DISCOUNT_PERCENT,
     REFERRAL_COMMISSION_PERCENT
   ).run();
+  
+  // Send confirmation email to applicant
+  const applicantEmail = partnerApplicationReceivedEmail(contactName, businessName);
+  await sendEmail(c.env, {
+    from: 'Heirloom <noreply@heirloom.blue>',
+    to: contactEmail,
+    subject: applicantEmail.subject,
+    html: applicantEmail.html,
+  }, 'partner_application_received');
+  
+  // Send notification to admin
+  const adminEmail = adminPartnerApplicationEmail(businessName, businessType, contactName, contactEmail);
+  await sendEmail(c.env, {
+    from: 'Heirloom <noreply@heirloom.blue>',
+    to: c.env.ADMIN_NOTIFICATION_EMAIL || 'admin@heirloom.blue',
+    subject: adminEmail.subject,
+    html: adminEmail.html,
+  }, 'admin_partner_application');
   
   return c.json({
     success: true,
@@ -502,6 +522,11 @@ partnerRoutes.post('/orders', partnerAuth, async (c) => {
   
   const orderId = crypto.randomUUID();
   
+  // Get partner email for Stripe
+  const partnerDetails = await c.env.DB.prepare(`
+    SELECT contact_email, business_name FROM partners WHERE id = ?
+  `).bind(partnerId).first();
+  
   await c.env.DB.prepare(`
     INSERT INTO partner_wholesale_orders (
       id, partner_id, voucher_tier, voucher_duration_months, quantity,
@@ -512,9 +537,94 @@ partnerRoutes.post('/orders', partnerAuth, async (c) => {
     wholesalePrice, retailPrice, totalAmount, discountAmount
   ).run();
   
-  // In a real implementation, you would create a Stripe checkout session here
-  // For now, we'll return the order details
+  // Create Stripe checkout session if Stripe is configured
+  if (c.env.STRIPE_SECRET_KEY) {
+    try {
+      const params: Record<string, string> = {
+        'mode': 'payment',
+        'customer_email': partnerDetails?.contact_email as string,
+        'success_url': `${c.env.APP_URL}/partner?tab=orders&success=true&order_id=${orderId}`,
+        'cancel_url': `${c.env.APP_URL}/partner?tab=orders&canceled=true`,
+        'metadata[order_id]': orderId,
+        'metadata[partner_id]': partnerId,
+        'metadata[type]': 'wholesale_order',
+        'line_items[0][price_data][currency]': 'usd',
+        'line_items[0][price_data][product_data][name]': `Wholesale Vouchers: ${quantity}x ${tier} (${durationMonths} months)`,
+        'line_items[0][price_data][product_data][description]': `${quantity} ${tier} vouchers at wholesale pricing (${WHOLESALE_DISCOUNT_PERCENT}% off retail)`,
+        'line_items[0][price_data][unit_amount]': totalAmount.toString(),
+        'line_items[0][quantity]': '1',
+      };
+      
+      const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(params).toString(),
+      });
+      
+      if (!stripeResponse.ok) {
+        const errorData = await stripeResponse.json() as { error?: { message?: string } };
+        console.error('Stripe error:', errorData);
+        // Still return order but without checkout URL
+        return c.json({
+          success: true,
+          orderId,
+          order: {
+            tier,
+            durationMonths,
+            quantity,
+            unitPrice: wholesalePrice,
+            retailPrice,
+            totalAmount,
+            discountSaved: discountAmount,
+          },
+          error: 'Failed to create payment session. Please contact support.',
+        });
+      }
+      
+      const session = await stripeResponse.json() as { id: string; url: string };
+      
+      // Update order with Stripe session ID
+      await c.env.DB.prepare(`
+        UPDATE partner_wholesale_orders SET stripe_session_id = ? WHERE id = ?
+      `).bind(session.id, orderId).run();
+      
+      return c.json({
+        success: true,
+        orderId,
+        checkoutUrl: session.url,
+        order: {
+          tier,
+          durationMonths,
+          quantity,
+          unitPrice: wholesalePrice,
+          retailPrice,
+          totalAmount,
+          discountSaved: discountAmount,
+        },
+      });
+    } catch (error) {
+      console.error('Stripe checkout error:', error);
+      return c.json({
+        success: true,
+        orderId,
+        order: {
+          tier,
+          durationMonths,
+          quantity,
+          unitPrice: wholesalePrice,
+          retailPrice,
+          totalAmount,
+          discountSaved: discountAmount,
+        },
+        error: 'Failed to create payment session. Please contact support.',
+      });
+    }
+  }
   
+  // Fallback when Stripe is not configured
   return c.json({
     success: true,
     orderId,
@@ -527,7 +637,7 @@ partnerRoutes.post('/orders', partnerAuth, async (c) => {
       totalAmount,
       discountSaved: discountAmount,
     },
-    // checkoutUrl would be returned here in production
+    message: 'Order created. Payment processing not configured - contact admin.',
   });
 });
 

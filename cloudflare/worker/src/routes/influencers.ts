@@ -7,6 +7,8 @@
 
 import { Hono } from 'hono';
 import type { Env, Variables } from '../index';
+import { sendEmail } from '../utils/email';
+import { influencerApplicationReceivedEmail, influencerApprovedEmail, influencerRejectedEmail, adminInfluencerApplicationEmail } from '../email-templates';
 
 export const influencerRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -117,6 +119,29 @@ influencerRoutes.post('/apply', async (c) => {
     youtubeChannel || null, twitterHandle || null, websiteUrl || null,
     followerCount || 0, tier, niche || null, discountCode, discountPercent, landingPageSlug
   ).run();
+  
+  // Send confirmation email to applicant
+  const applicantEmail = influencerApplicationReceivedEmail(name);
+  await sendEmail(c.env, {
+    from: 'Heirloom <noreply@heirloom.blue>',
+    to: email,
+    subject: applicantEmail.subject,
+    html: applicantEmail.html,
+  }, 'influencer_application_received');
+  
+  // Send notification to admin
+  const adminEmail = adminInfluencerApplicationEmail(
+    name,
+    instagramHandle || tiktokHandle || youtubeChannel || 'N/A',
+    instagramHandle || tiktokHandle || youtubeChannel || twitterHandle || 'N/A',
+    followerCount || 0
+  );
+  await sendEmail(c.env, {
+    from: 'Heirloom <noreply@heirloom.blue>',
+    to: c.env.ADMIN_NOTIFICATION_EMAIL || 'admin@heirloom.blue',
+    subject: adminEmail.subject,
+    html: adminEmail.html,
+  }, 'admin_influencer_application');
   
   return c.json({
     success: true,

@@ -585,6 +585,31 @@ billingRoutes.post('/validate-coupon', async (c) => {
   return c.json({ valid: true, code: code.toUpperCase(), discount: coupon.discount, description: coupon.description });
 });
 
+// Validate influencer discount code
+billingRoutes.post('/validate-influencer-code', async (c) => {
+  const { code } = await c.req.json();
+  
+  if (!code) {
+    return c.json({ valid: false, error: 'Code is required' }, 400);
+  }
+  
+  const influencer = await c.env.DB.prepare(`
+    SELECT id, name, discount_code, discount_percent, status
+    FROM influencers WHERE discount_code = ? AND status = 'ACTIVE'
+  `).bind(code.toUpperCase()).first();
+  
+  if (!influencer) {
+    return c.json({ valid: false, error: 'Invalid or inactive discount code' }, 400);
+  }
+  
+  return c.json({
+    valid: true,
+    code: influencer.discount_code,
+    discountPercent: influencer.discount_percent,
+    influencerName: influencer.name,
+  });
+});
+
 // Calculate price
 billingRoutes.post('/calculate', async (c) => {
   const { tier, billingCycle, couponCode } = await c.req.json();
@@ -621,7 +646,7 @@ billingRoutes.post('/calculate', async (c) => {
 // Create checkout
 billingRoutes.post('/checkout', async (c) => {
   const userId = c.get('userId');
-  const { tier, billingCycle, couponCode } = await c.req.json();
+  const { tier, billingCycle, couponCode, influencerCode } = await c.req.json();
   
   const country = getCountryFromRequest(c);
   const currency = getCurrencyForCountry(country);
@@ -635,11 +660,31 @@ billingRoutes.post('/checkout', async (c) => {
   
   const isYearly = billingCycle === 'yearly';
   let finalPrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
+  let appliedDiscount: { type: 'coupon' | 'influencer'; code: string; percent: number } | null = null;
+  let influencerId: string | null = null;
   
-  if (couponCode) {
+  // Check for influencer discount code first
+  if (influencerCode) {
+    const influencer = await c.env.DB.prepare(`
+      SELECT id, discount_code, discount_percent, status
+      FROM influencers WHERE discount_code = ? AND status = 'ACTIVE'
+    `).bind(influencerCode.toUpperCase()).first();
+    
+    if (influencer) {
+      const discountPercent = influencer.discount_percent as number;
+      finalPrice = Math.max(0, finalPrice - (finalPrice * (discountPercent / 100)));
+      appliedDiscount = { type: 'influencer', code: influencer.discount_code as string, percent: discountPercent };
+      influencerId = influencer.id as string;
+    }
+  }
+  
+  // Apply coupon code if no influencer discount was applied
+  if (!appliedDiscount && couponCode) {
     const coupon = COUPONS[couponCode.toUpperCase()];
     if (coupon && (!coupon.expires || new Date(coupon.expires) > new Date())) {
-      finalPrice = Math.max(0, finalPrice - (coupon.type === 'percent' ? finalPrice * (coupon.discount / 100) : coupon.discount));
+      const discountAmount = coupon.type === 'percent' ? finalPrice * (coupon.discount / 100) : coupon.discount;
+      finalPrice = Math.max(0, finalPrice - discountAmount);
+      appliedDiscount = { type: 'coupon', code: couponCode.toUpperCase(), percent: coupon.discount };
     }
   }
   
@@ -691,6 +736,14 @@ billingRoutes.post('/checkout', async (c) => {
       'subscription_data[metadata][tier]': normalizedTier,
       'subscription_data[metadata][billing_cycle]': billingInterval,
     };
+    
+    // Add influencer tracking metadata if applicable
+    if (influencerId) {
+      params['metadata[influencer_id]'] = influencerId;
+      params['metadata[influencer_code]'] = appliedDiscount?.code || '';
+      params['subscription_data[metadata][influencer_id]'] = influencerId;
+      params['subscription_data[metadata][influencer_code]'] = appliedDiscount?.code || '';
+    }
     
     if (stripePriceId) {
       // Use pre-created Stripe Price ID

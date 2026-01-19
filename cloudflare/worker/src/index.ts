@@ -42,7 +42,7 @@ import { influencerRoutes } from './routes/influencers';
 import { partnerRoutes } from './routes/partners';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
-import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects } from './jobs/adoption-jobs';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps } from './jobs/adoption-jobs';
 import { processPushNotificationQueue, cleanupOldNotifications } from './services/pushSender';
 
 // Types
@@ -776,6 +776,10 @@ export default {
       console.log('Processing influencer outreach...');
       const influencerResult = await processInfluencerOutreach(env);
       console.log(`Influencer outreach sent: ${influencerResult.sent}`);
+      
+      console.log('Processing influencer follow-ups...');
+      const followUpResult = await processInfluencerFollowUps(env);
+      console.log(`Influencer follow-ups sent: ${followUpResult.sent}`);
       
       console.log('Processing prospect outreach with trial vouchers...');
       const prospectResult = await processProspectOutreach(env);

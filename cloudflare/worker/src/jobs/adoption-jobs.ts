@@ -83,6 +83,64 @@ const DISCOVERY_SEARCH_PATTERNS = [
   'family storytelling coach',
 ];
 
+// Additional curated prospects - expanded list for daily outreach
+const EXPANDED_PROSPECTS = [
+  // Senior Living & Aging Influencers
+  { name: 'A Place for Mom', email: 'partnerships@aplaceformom.com', platform: 'BLOG', segment: 'SENIOR_LIVING', handle: '@APlaceForMom', follower_count: 300000 },
+  { name: 'Senior Planet', email: 'info@seniorplanet.org', platform: 'BLOG', segment: 'SENIOR_LIVING', handle: '@SeniorPlanet', follower_count: 150000 },
+  { name: 'Next Avenue', email: 'editors@nextavenue.org', platform: 'BLOG', segment: 'SENIOR_LIVING', handle: '@NextAvenue', follower_count: 200000 },
+  { name: 'Sixty and Me', email: 'margaret@sixtyandme.com', platform: 'BLOG', segment: 'SENIOR_LIVING', handle: '@SixtyAndMe', follower_count: 500000 },
+  { name: 'Aging Care', email: 'contact@agingcare.com', platform: 'BLOG', segment: 'SENIOR_LIVING', handle: '@AgingCare', follower_count: 180000 },
+  
+  // Wedding & Family Event Planners
+  { name: 'The Knot', email: 'partnerships@theknot.com', platform: 'BLOG', segment: 'WEDDING', handle: '@TheKnot', follower_count: 3000000 },
+  { name: 'Wedding Wire', email: 'partnerships@weddingwire.com', platform: 'BLOG', segment: 'WEDDING', handle: '@WeddingWire', follower_count: 2000000 },
+  { name: 'Brides Magazine', email: 'editors@brides.com', platform: 'BLOG', segment: 'WEDDING', handle: '@BridesMagazine', follower_count: 1500000 },
+  { name: 'Martha Stewart Weddings', email: 'weddings@marthastewart.com', platform: 'BLOG', segment: 'WEDDING', handle: '@MarthaWeddings', follower_count: 800000 },
+  
+  // Life Coaches & Personal Development
+  { name: 'Life Coach Directory', email: 'info@lifecoachdirectory.com', platform: 'BLOG', segment: 'COACHING', handle: '@LifeCoachDir', follower_count: 50000 },
+  { name: 'Tiny Buddha', email: 'lori@tinybuddha.com', platform: 'BLOG', segment: 'COACHING', handle: '@TinyBuddha', follower_count: 400000 },
+  { name: 'Marc and Angel', email: 'email@marcandangel.com', platform: 'BLOG', segment: 'COACHING', handle: '@MarcAndAngel', follower_count: 350000 },
+  
+  // Memoir & Autobiography Writers
+  { name: 'Story Worth', email: 'hello@storyworth.com', platform: 'BLOG', segment: 'MEMOIR', handle: '@StoryWorth', follower_count: 100000 },
+  { name: 'Memoir Writing', email: 'contact@memoirwriting.com', platform: 'BLOG', segment: 'MEMOIR', handle: '@MemoirWriting', follower_count: 25000 },
+  { name: 'Life Bio', email: 'info@lifebio.com', platform: 'BLOG', segment: 'MEMOIR', handle: '@LifeBio', follower_count: 30000 },
+  
+  // Family Therapy & Counseling
+  { name: 'Psychology Today', email: 'editors@psychologytoday.com', platform: 'BLOG', segment: 'THERAPY', handle: '@PsychToday', follower_count: 5000000 },
+  { name: 'Good Therapy', email: 'info@goodtherapy.org', platform: 'BLOG', segment: 'THERAPY', handle: '@GoodTherapy', follower_count: 200000 },
+  { name: 'The Gottman Institute', email: 'info@gottman.com', platform: 'BLOG', segment: 'THERAPY', handle: '@GottmanInst', follower_count: 500000 },
+  
+  // Scrapbooking & Memory Keeping
+  { name: 'Scrapbook.com', email: 'partnerships@scrapbook.com', platform: 'BLOG', segment: 'SCRAPBOOKING', handle: '@ScrapbookCom', follower_count: 400000 },
+  { name: 'Simple Scrapper', email: 'jennifer@simplescrapper.com', platform: 'BLOG', segment: 'SCRAPBOOKING', handle: '@SimpleScrapper', follower_count: 50000 },
+  { name: 'Ali Edwards', email: 'hello@aliedwards.com', platform: 'BLOG', segment: 'SCRAPBOOKING', handle: '@AliEdwards', follower_count: 150000 },
+  
+  // Faith & Spirituality
+  { name: 'Crosswalk', email: 'editors@crosswalk.com', platform: 'BLOG', segment: 'FAITH', handle: '@Crosswalk', follower_count: 1000000 },
+  { name: 'Desiring God', email: 'info@desiringgod.org', platform: 'BLOG', segment: 'FAITH', handle: '@DesiringGod', follower_count: 800000 },
+  { name: 'Relevant Magazine', email: 'editors@relevantmagazine.com', platform: 'BLOG', segment: 'FAITH', handle: '@RelevantMag', follower_count: 500000 },
+  
+  // Military & Veterans
+  { name: 'Military.com', email: 'partnerships@military.com', platform: 'BLOG', segment: 'MILITARY', handle: '@MilitaryCom', follower_count: 2000000 },
+  { name: 'We Are The Mighty', email: 'info@wearethemighty.com', platform: 'BLOG', segment: 'MILITARY', handle: '@WeAreTheMighty', follower_count: 500000 },
+  { name: 'Task & Purpose', email: 'editors@taskandpurpose.com', platform: 'BLOG', segment: 'MILITARY', handle: '@TaskAndPurpose', follower_count: 400000 },
+  
+  // Cultural Heritage
+  { name: 'African Ancestry', email: 'info@africanancestry.com', platform: 'BLOG', segment: 'HERITAGE', handle: '@AfricanAncestry', follower_count: 100000 },
+  { name: 'My Heritage', email: 'partnerships@myheritage.com', platform: 'BLOG', segment: 'HERITAGE', handle: '@MyHeritage', follower_count: 500000 },
+  { name: 'Ancestry', email: 'partnerships@ancestry.com', platform: 'BLOG', segment: 'HERITAGE', handle: '@Ancestry', follower_count: 2000000 },
+];
+
+// Outreach follow-up sequence configuration
+const INFLUENCER_FOLLOWUP_SEQUENCE = [
+  { daysAfterInitial: 3, emailType: 'FOLLOWUP_1' },
+  { daysAfterInitial: 7, emailType: 'FOLLOWUP_2' },
+  { daysAfterInitial: 14, emailType: 'FOLLOWUP_FINAL' },
+];
+
 // ============================================
 // AUTOMATED PROSPECT DISCOVERY
 // Syncs curated prospects to database weekly
@@ -96,7 +154,10 @@ export async function discoverNewProspects(env: Env) {
   let skipped = 0;
   let errors: string[] = [];
   
-  for (const prospect of CURATED_PROSPECTS) {
+  // Combine all prospect sources
+  const allProspects = [...CURATED_PROSPECTS, ...EXPANDED_PROSPECTS];
+  
+  for (const prospect of allProspects) {
     try {
       // Check if this email already exists in the database
       const existing = await env.DB.prepare(`
@@ -141,7 +202,87 @@ export async function discoverNewProspects(env: Env) {
     }
   }
   
-  return { added, skipped, total: CURATED_PROSPECTS.length, errors: errors.length > 0 ? errors : undefined };
+  return { added, skipped, total: allProspects.length, errors: errors.length > 0 ? errors : undefined };
+}
+
+// ============================================
+// AUTOMATED INFLUENCER FOLLOW-UP SEQUENCE
+// Sends follow-up emails to contacted influencers who haven't responded
+// ============================================
+
+export async function processInfluencerFollowUps(env: Env) {
+  const now = new Date();
+  const nowISO = now.toISOString();
+  
+  let sent = 0;
+  let errors: string[] = [];
+  
+  for (const followup of INFLUENCER_FOLLOWUP_SEQUENCE) {
+    // Find influencers who were contacted X days ago and haven't responded
+    const eligibleInfluencers = await env.DB.prepare(`
+      SELECT i.id, i.name, i.email, i.segment,
+             mo.sent_at as initial_sent_at,
+             (SELECT COUNT(*) FROM marketing_outreach WHERE influencer_id = i.id) as outreach_count
+      FROM influencers i
+      JOIN marketing_outreach mo ON mo.influencer_id = i.id
+      WHERE i.status = 'CONTACTED'
+      AND i.email IS NOT NULL
+      AND mo.sent_at <= datetime('now', '-${followup.daysAfterInitial} days')
+      AND mo.sent_at > datetime('now', '-${followup.daysAfterInitial + 1} days')
+      AND i.id NOT IN (
+        SELECT influencer_id FROM marketing_outreach 
+        WHERE status = 'SENT' AND sent_at > datetime('now', '-1 day')
+      )
+      ORDER BY i.follower_count DESC
+      LIMIT 15
+    `).all();
+    
+    for (const influencer of eligibleInfluencers.results) {
+      try {
+        const emailContent = getInfluencerFollowUpEmail(
+          influencer.name as string,
+          influencer.segment as string,
+          followup.emailType
+        );
+        
+        await sendEmail(env, {
+          from: 'Heirloom <admin@heirloom.blue>',
+          to: influencer.email as string,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }, `INFLUENCER_${followup.emailType}`);
+        
+        // Record follow-up in marketing_outreach table
+        await env.DB.prepare(`
+          INSERT INTO marketing_outreach (id, influencer_id, email_to, subject, body, status, sent_at)
+          VALUES (?, ?, ?, ?, ?, 'SENT', ?)
+        `).bind(crypto.randomUUID(), influencer.id, influencer.email, emailContent.subject, emailContent.html, nowISO).run();
+        
+        // If this is the final follow-up, mark as NO_RESPONSE
+        if (followup.emailType === 'FOLLOWUP_FINAL') {
+          await env.DB.prepare(`
+            UPDATE influencers SET status = 'NO_RESPONSE', updated_at = ? WHERE id = ?
+          `).bind(nowISO, influencer.id).run();
+        }
+        
+        sent++;
+      } catch (error: any) {
+        errors.push(`${influencer.email}: ${error.message}`);
+      }
+    }
+  }
+  
+  return { sent, errors: errors.length > 0 ? errors : undefined };
+}
+
+// Helper function for follow-up emails
+function getInfluencerFollowUpEmail(name: string, segment: string | null, emailType: string): { subject: string; html: string } {
+  return {
+    subject: emailType === 'FOLLOWUP_FINAL' 
+      ? `Last chance: Partner with Heirloom, ${name}?`
+      : `Quick follow-up: Heirloom partnership opportunity`,
+    html: influencerFollowUpTemplate(name, segment, emailType),
+  };
 }
 
 // ============================================
@@ -1007,8 +1148,8 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
-        Learn More About Heirloom
+      <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+        Join Our Influencer Program
       </a>
     </div>
     
@@ -1017,6 +1158,112 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
       The Heirloom Team
     </p>
   `);
+}
+
+function influencerFollowUpTemplate(name: string, niche: string | null, emailType: string): string {
+  const nicheText = niche ? ` in the ${niche.toLowerCase().replace('_', ' ')} space` : '';
+  
+  if (emailType === 'FOLLOWUP_1') {
+    return emailWrapper(`
+      <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
+        Hi ${name},
+      </h2>
+      
+      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        I wanted to follow up on my previous email about partnering with Heirloom. I know you're busy, 
+        so I'll keep this brief.
+      </p>
+      
+      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        Our influencer program offers:
+      </p>
+      <ul style="color: #c0c0c0; font-size: 16px; line-height: 1.8; margin: 0 0 20px 20px;">
+        <li><strong style="color: #d4af37;">20% commission</strong> on yearly subscriptions</li>
+        <li><strong style="color: #d4af37;">Personalized discount code</strong> for your audience (15-25% off)</li>
+        <li><strong style="color: #d4af37;">Free Family Plan</strong> for you to experience the product</li>
+        <li><strong style="color: #d4af37;">Custom landing page</strong> with your branding</li>
+      </ul>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+          Apply in 2 Minutes
+        </a>
+      </div>
+      
+      <p style="color: #808080; font-size: 14px; margin: 20px 0 0 0;">
+        Just reply to this email if you have any questions!
+      </p>
+    `);
+  } else if (emailType === 'FOLLOWUP_2') {
+    return emailWrapper(`
+      <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
+        ${name}, quick question
+      </h2>
+      
+      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        I've reached out a couple times about our influencer program${nicheText}. I wanted to check - 
+        is this something you'd be interested in exploring?
+      </p>
+      
+      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        If the timing isn't right, no worries at all. But if you're open to it, I'd love to set you up 
+        with a free account so you can see what Heirloom is all about.
+      </p>
+      
+      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        Many of our influencer partners love sharing Heirloom because it genuinely helps families 
+        preserve what matters most - and the commission structure is quite generous.
+      </p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+          Learn More
+        </a>
+      </div>
+      
+      <p style="color: #808080; font-size: 14px; margin: 20px 0 0 0;">
+        Either way, I appreciate your time!
+      </p>
+    `);
+  } else {
+    // FOLLOWUP_FINAL
+    return emailWrapper(`
+      <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
+        Last note from me, ${name}
+      </h2>
+      
+      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        I don't want to be a pest, so this will be my last email about our influencer partnership.
+      </p>
+      
+      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        If you ever want to explore working together in the future, the door is always open. 
+        Just visit our influencer page or reply to this email.
+      </p>
+      
+      <div style="background: rgba(212, 175, 55, 0.1); border-left: 3px solid #d4af37; padding: 20px; margin: 25px 0;">
+        <p style="color: #d4af37; font-size: 16px; margin: 0;">
+          <strong>Quick reminder of what we offer:</strong><br>
+          20% commission | Personalized discount codes | Free Family Plan | Custom landing page
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+          Join When You're Ready
+        </a>
+      </div>
+      
+      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 20px 0 0 0;">
+        Wishing you all the best,<br>
+        The Heirloom Team
+      </p>
+      
+      <p style="color: #808080; font-size: 14px; text-align: center; margin: 20px 0 0 0;">
+        <a href="https://heirloom.blue/unsubscribe" style="color: #808080;">Unsubscribe from partnership emails</a>
+      </p>
+    `);
+  }
 }
 
 function contentPromptTemplate(name: string, prompt: string): string {
