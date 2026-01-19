@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "Inicio",
+    "vault": "Bóveda",
     "dashboard": "Panel",
     "memories": "Recuerdos",
+    "write": "Escribir",
+    "record": "Grabar",
     "letters": "Cartas",
     "family": "Familia",
+    "wrapped": "Resumen",
     "settings": "Configuración",
     "billing": "Facturación",
     "logout": "Cerrar Sesión",
+    "signOut": "Cerrar Sesión",
     "login": "Iniciar Sesión",
     "signup": "Registrarse"
   },

@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "Startseite",
+    "vault": "Tresor",
     "dashboard": "Dashboard",
     "memories": "Erinnerungen",
+    "write": "Schreiben",
+    "record": "Aufnehmen",
     "letters": "Briefe",
     "family": "Familie",
+    "wrapped": "Zusammenfassung",
     "settings": "Einstellungen",
     "billing": "Abrechnung",
     "logout": "Abmelden",
+    "signOut": "Abmelden",
     "login": "Anmelden",
     "signup": "Registrieren"
   },

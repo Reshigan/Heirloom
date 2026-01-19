@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "होम",
+    "vault": "तिजोरी",
     "dashboard": "डैशबोर्ड",
     "memories": "यादें",
+    "write": "लिखें",
+    "record": "रिकॉर्ड",
     "letters": "पत्र",
     "family": "परिवार",
+    "wrapped": "सारांश",
     "settings": "सेटिंग्स",
     "billing": "बिलिंग",
     "logout": "लॉग आउट",
+    "signOut": "साइन आउट",
     "login": "लॉग इन",
     "signup": "साइन अप"
   },

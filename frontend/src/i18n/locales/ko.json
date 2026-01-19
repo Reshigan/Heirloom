@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "홈",
+    "vault": "보관함",
     "dashboard": "대시보드",
     "memories": "추억",
+    "write": "쓰기",
+    "record": "녹음",
     "letters": "편지",
     "family": "가족",
+    "wrapped": "요약",
     "settings": "설정",
     "billing": "결제",
     "logout": "로그아웃",
+    "signOut": "로그아웃",
     "login": "로그인",
     "signup": "가입"
   },

@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "ホーム",
+    "vault": "保管庫",
     "dashboard": "ダッシュボード",
     "memories": "思い出",
+    "write": "書く",
+    "record": "録音",
     "letters": "手紙",
     "family": "家族",
+    "wrapped": "まとめ",
     "settings": "設定",
     "billing": "請求",
     "logout": "ログアウト",
+    "signOut": "サインアウト",
     "login": "ログイン",
     "signup": "登録"
   },

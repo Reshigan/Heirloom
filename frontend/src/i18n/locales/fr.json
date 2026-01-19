@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "Accueil",
+    "vault": "Coffre",
     "dashboard": "Tableau de bord",
     "memories": "Souvenirs",
+    "write": "Écrire",
+    "record": "Enregistrer",
     "letters": "Lettres",
     "family": "Famille",
+    "wrapped": "Résumé",
     "settings": "Paramètres",
     "billing": "Facturation",
     "logout": "Déconnexion",
+    "signOut": "Se déconnecter",
     "login": "Connexion",
     "signup": "S'inscrire"
   },

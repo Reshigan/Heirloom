@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "Início",
+    "vault": "Cofre",
     "dashboard": "Painel",
     "memories": "Memórias",
+    "write": "Escrever",
+    "record": "Gravar",
     "letters": "Cartas",
     "family": "Família",
+    "wrapped": "Resumo",
     "settings": "Configurações",
     "billing": "Faturamento",
     "logout": "Sair",
+    "signOut": "Sair",
     "login": "Entrar",
     "signup": "Cadastrar"
   },

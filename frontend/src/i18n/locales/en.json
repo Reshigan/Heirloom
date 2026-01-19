@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "Home",
+    "vault": "Vault",
     "dashboard": "Dashboard",
     "memories": "Memories",
+    "write": "Write",
+    "record": "Record",
     "letters": "Letters",
     "family": "Family",
+    "wrapped": "Wrapped",
     "settings": "Settings",
     "billing": "Billing",
     "logout": "Log Out",
+    "signOut": "Sign Out",
     "login": "Log In",
     "signup": "Sign Up"
   },

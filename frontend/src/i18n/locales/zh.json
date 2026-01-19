@@ -36,13 +36,18 @@
   },
   "nav": {
     "home": "首页",
+    "vault": "保险库",
     "dashboard": "控制台",
     "memories": "回忆",
+    "write": "写作",
+    "record": "录制",
     "letters": "信件",
     "family": "家庭",
+    "wrapped": "年度回顾",
     "settings": "设置",
     "billing": "账单",
     "logout": "退出",
+    "signOut": "退出登录",
     "login": "登录",
     "signup": "注册"
   },
