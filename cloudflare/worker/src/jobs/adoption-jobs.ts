@@ -1249,38 +1249,111 @@ function dateReminderEmailTemplate(name: string, person: string, label: string, 
 }
 
 function influencerOutreachTemplate(name: string, niche: string | null): string {
-  const nicheText = niche ? ` in the ${niche} space` : '';
+  const nicheText = niche ? ` in the ${niche.toLowerCase().replace('_', ' ')} space` : '';
   
   return emailWrapper(`
-    <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
+    <h2 style="color: #f5f5dc; font-size: 24px; font-weight: normal; margin: 0 0 20px 0;">
       Hi ${name},
     </h2>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      I came across your work${nicheText} and was moved by the way you connect with your audience 
-      on meaningful topics.
+      I came across your incredible work${nicheText} and was moved by how authentically you connect 
+      with your audience. That's exactly why I'm reaching out.
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      I'm reaching out from <strong style="color: #d4af37;">Heirloom</strong>, a platform that helps 
-      families preserve memories, stories, and messages for future generations. We believe your 
-      voice could help more families start their legacy journey.
+      <strong style="color: #d4af37;">Heirloom</strong> helps families preserve their most precious 
+      memories, stories, and messages for future generations. We're building a movement around 
+      meaningful legacy-building, and we'd love for you to be part of it.
     </p>
     
-    <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-      We'd love to offer you a complimentary year of our Family Plan and explore how we might 
-      work together. No pressure - just an invitation to experience what we've built.
+    <!-- Value Proposition Box -->
+    <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(184, 150, 46, 0.1) 100%); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0;">
+      <h3 style="color: #d4af37; font-size: 18px; margin: 0 0 15px 0; text-align: center;">
+        What You'll Get as a Heirloom Partner
+      </h3>
+      
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+            <span style="color: #d4af37; font-size: 20px;">💰</span>
+            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>20% Commission</strong></span>
+          </td>
+          <td style="padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); color: #c0c0c0; font-size: 14px; text-align: right;">
+            On every yearly subscription ($20-$40 per sale)
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+            <span style="color: #d4af37; font-size: 20px;">🎁</span>
+            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>Free Family Plan</strong></span>
+          </td>
+          <td style="padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); color: #c0c0c0; font-size: 14px; text-align: right;">
+            $120/year value - yours free forever
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+            <span style="color: #d4af37; font-size: 20px;">🏷️</span>
+            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>Personalized Discount Code</strong></span>
+          </td>
+          <td style="padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); color: #c0c0c0; font-size: 14px; text-align: right;">
+            15-25% off for your audience
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+            <span style="color: #d4af37; font-size: 20px;">🌐</span>
+            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>Custom Landing Page</strong></span>
+          </td>
+          <td style="padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.2); color: #c0c0c0; font-size: 14px; text-align: right;">
+            heirloom.blue/yourname with your branding
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 0;">
+            <span style="color: #d4af37; font-size: 20px;">📊</span>
+            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>Real-Time Dashboard</strong></span>
+          </td>
+          <td style="padding: 10px 0; color: #c0c0c0; font-size: 14px; text-align: right;">
+            Track clicks, conversions & earnings
+          </td>
+        </tr>
+      </table>
+    </div>
+    
+    <!-- Earnings Example -->
+    <div style="background: rgba(10, 10, 15, 0.5); border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+      <p style="color: #c0c0c0; font-size: 14px; margin: 0 0 5px 0;">
+        Example: With just 100 conversions/month
+      </p>
+      <p style="color: #d4af37; font-size: 28px; font-weight: bold; margin: 0;">
+        $2,000 - $4,000/month
+      </p>
+      <p style="color: #888; font-size: 12px; margin: 5px 0 0 0;">
+        in passive recurring income
+      </p>
+    </div>
+    
+    <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 20px 0;">
+      The best part? <strong style="color: #f5f5dc;">Heirloom sells itself.</strong> It's an emotional product 
+      that resonates deeply with families. Your audience will thank you for introducing them to a 
+      meaningful way to preserve their legacy.
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
-        Join Our Influencer Program
+      <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 17px; font-weight: bold; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);">
+        Join the Heirloom Partner Program
       </a>
     </div>
     
-    <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 20px 0 0 0;">
-      Warm regards,<br>
-      The Heirloom Team
+    <p style="color: #888; font-size: 14px; text-align: center; margin: 20px 0 0 0;">
+      Takes less than 2 minutes to apply. We review applications within 24 hours.
+    </p>
+    
+    <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 25px 0 0 0;">
+      Looking forward to partnering with you,<br>
+      <strong style="color: #f5f5dc;">The Heirloom Team</strong>
     </p>
   `);
 }
