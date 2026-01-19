@@ -47,13 +47,79 @@ authRoutes.post('/register', async (c) => {
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).bind(userId, email.toLowerCase(), passwordHash, firstName, lastName, now, now).run();
   
-  // Create trial subscription
-  const trialEnds = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  // Check for pending vouchers sent to this email address
+  const pendingVoucher = await c.env.DB.prepare(`
+    SELECT * FROM gift_vouchers 
+    WHERE LOWER(recipient_email) = ? 
+    AND status IN ('PAID', 'SENT') 
+    AND expires_at > datetime('now')
+    ORDER BY created_at ASC
+    LIMIT 1
+  `).bind(email.toLowerCase()).first();
   
-  await c.env.DB.prepare(`
-    INSERT INTO subscriptions (id, user_id, tier, status, trial_ends_at, created_at, updated_at)
-    VALUES (?, ?, 'FREE', 'TRIALING', ?, ?, ?)
-  `).bind(crypto.randomUUID(), userId, trialEnds, now, now).run();
+  if (pendingVoucher) {
+    // Auto-redeem the voucher for this new user
+    const isGoldLegacy = pendingVoucher.voucher_type === 'GOLD_LEGACY';
+    const periodStart = now;
+    const periodEnd = new Date();
+    
+    if (isGoldLegacy) {
+      periodEnd.setFullYear(periodEnd.getFullYear() + 100);
+      
+      // Set Gold Legacy flag on user
+      await c.env.DB.prepare(`
+        UPDATE users SET gold_legacy_member = 1, gold_member_number = ?, updated_at = datetime('now')
+        WHERE id = ?
+      `).bind(pendingVoucher.gold_member_number || null, userId).run();
+      
+      // Create Gold Legacy subscription
+      await c.env.DB.prepare(`
+        INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, current_period_start, current_period_end, created_at, updated_at)
+        VALUES (?, ?, 'FOREVER', 'ACTIVE', 'lifetime', ?, ?, ?, ?)
+      `).bind(crypto.randomUUID(), userId, periodStart, periodEnd.toISOString(), now, now).run();
+    } else {
+      periodEnd.setMonth(periodEnd.getMonth() + (pendingVoucher.duration_months as number));
+      
+      // Create subscription from voucher
+      await c.env.DB.prepare(`
+        INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, current_period_start, current_period_end, created_at, updated_at)
+        VALUES (?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?)
+      `).bind(crypto.randomUUID(), userId, pendingVoucher.tier, pendingVoucher.billing_cycle, periodStart, periodEnd.toISOString(), now, now).run();
+    }
+    
+    // Mark voucher as redeemed
+    await c.env.DB.prepare(`
+      UPDATE gift_vouchers SET status = 'REDEEMED', redeemed_by_user_id = ?, redeemed_at = ?, updated_at = ?
+      WHERE id = ?
+    `).bind(userId, now, now, pendingVoucher.id).run();
+    
+    // Send voucher redeemed notification email
+    try {
+      const { giftVoucherRedeemedEmail } = await import('../email-templates');
+      const emailContent = giftVoucherRedeemedEmail(
+        firstName,
+        pendingVoucher.tier as string,
+        pendingVoucher.duration_months as number
+      );
+      
+      await sendEmail(c.env, {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: email.toLowerCase(),
+        subject: emailContent.subject,
+        html: emailContent.html,
+      }, 'GIFT_VOUCHER_REDEEMED');
+    } catch (err) {
+      console.error('Failed to send voucher redeemed email:', err);
+    }
+  } else {
+    // No pending voucher - create trial subscription
+    const trialEnds = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+    
+    await c.env.DB.prepare(`
+      INSERT INTO subscriptions (id, user_id, tier, status, trial_ends_at, created_at, updated_at)
+      VALUES (?, ?, 'FREE', 'TRIALING', ?, ?, ?)
+    `).bind(crypto.randomUUID(), userId, trialEnds, now, now).run();
+  }
   
   // Create session
   const { token, refreshToken, sessionId } = await createSession(c.env, userId);
