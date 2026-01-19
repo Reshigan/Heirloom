@@ -336,6 +336,7 @@ authRoutes.get('/me', async (c) => {
   try {
     const payload = await verifyJWT(token, c.env.JWT_SECRET);
     
+    // Prioritize ACTIVE subscriptions over TRIALING, and get the most recent one
     const user = await c.env.DB.prepare(`
       SELECT u.id, u.email, u.first_name, u.last_name, u.avatar_url, 
              u.email_verified, u.two_factor_enabled, u.preferred_currency,
@@ -343,6 +344,7 @@ authRoutes.get('/me', async (c) => {
       FROM users u
       LEFT JOIN subscriptions s ON u.id = s.user_id
       WHERE u.id = ?
+      ORDER BY CASE s.status WHEN 'ACTIVE' THEN 0 WHEN 'TRIALING' THEN 1 ELSE 2 END, s.created_at DESC
     `).bind(payload.sub).first();
     
     if (!user) {
