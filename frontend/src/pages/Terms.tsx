@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, FileText, Users, CreditCard, AlertTriangle, Scale, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function Terms() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Sanctuary Background */}

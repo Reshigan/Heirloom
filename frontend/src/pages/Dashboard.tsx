@@ -6,12 +6,14 @@ import {
   Bell, Settings, LogOut, Shield, Clock, Crown, AlertTriangle,
   ChevronRight, X, Check, Loader2
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, memoriesApi, familyApi, deadmanApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const queryClient = useQueryClient();
   const deskRef = useRef<HTMLDivElement>(null);

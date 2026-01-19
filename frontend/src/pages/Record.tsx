@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Mic, Square, Play, Pause, Save, Trash2, Loader2, Check, X, Clock, Lightbulb, Users, RefreshCw, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun, Volume2, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { voiceApi, familyApi } from '../services/api';
 import { AddFamilyMemberModal } from '../components/AddFamilyMemberModal';
 import { Navigation } from '../components/Navigation';
@@ -34,6 +35,7 @@ type VoiceRecording = {
 
 export function Record() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   
   const [isRecording, setIsRecording] = useState(false);

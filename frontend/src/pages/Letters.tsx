@@ -6,6 +6,7 @@ import {
   Plus, Search, Filter, Mail, Clock, CheckCircle, AlertCircle,
   MoreVertical, Edit2, Trash2, Eye, Send, Calendar, Users, X
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { lettersApi } from '../services/api';
 import { Logo } from '../components/Logo';
 
@@ -32,6 +33,7 @@ const DELIVERY_LABELS: Record<DeliveryTrigger, { label: string; icon: typeof Clo
 
 export function Letters() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   
   const [searchQuery, setSearchQuery] = useState('');

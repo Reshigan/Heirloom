@@ -6,6 +6,7 @@ import {
   ArrowLeft, Check, Crown, Sparkles, Shield, Clock, 
   CreditCard, Loader2, AlertTriangle, X, Zap
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { billingApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
@@ -70,6 +71,7 @@ const PLANS = [
 
 export function Billing() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);

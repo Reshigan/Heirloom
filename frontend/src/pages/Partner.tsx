@@ -7,6 +7,7 @@ import {
   DollarSign, Users, Loader2, ShoppingCart, Tag,
   Check, Copy, ExternalLink, Plus
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { partnerApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
@@ -29,6 +30,7 @@ const WHOLESALE_TIERS = [
 
 export function Partner() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'vouchers' | 'orders' | 'referrals'>('overview');

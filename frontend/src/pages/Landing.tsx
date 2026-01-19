@@ -2,8 +2,10 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { ArrowRight, Pen, Mic, Image, Shield, Clock, Heart, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function Landing() {
+  const { t } = useTranslation();
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
   const pricingRef = useRef(null);

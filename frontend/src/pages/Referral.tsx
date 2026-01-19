@@ -6,11 +6,13 @@ import {
   ArrowLeft, Copy, Check, Users, Gift, TrendingUp, 
   Share2, Link2, Edit3, Loader2, ExternalLink
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { referralApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
 export function Referral() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);

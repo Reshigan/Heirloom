@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, X, Pen, Trash2, Mail, Phone, Heart, Users, Check, AlertCircle, Camera } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { familyApi, settingsApi } from '../services/api';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
 import { Navigation } from '../components/Navigation';
@@ -12,6 +13,7 @@ const RELATIONSHIPS = ['Spouse', 'Partner', 'Child', 'Parent', 'Sibling', 'Grand
 export function Family() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);

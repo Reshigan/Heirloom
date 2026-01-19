@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Globe, Check, ArrowUp, ArrowDown, Tag, Camera } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
@@ -47,6 +48,7 @@ const CURRENCIES = [
 
 export function Settings() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user, updateUser, logout } = useAuthStore();

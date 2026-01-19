@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../services/api';
 
 export function AdminLogin() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

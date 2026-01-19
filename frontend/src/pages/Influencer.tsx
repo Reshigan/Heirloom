@@ -8,6 +8,7 @@ import {
   ExternalLink, Star, Award, ChevronRight, Wallet,
   AlertCircle, CheckCircle, Settings
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { influencerApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
@@ -21,6 +22,7 @@ const TIER_INFO: Record<string, { name: string; discount: string; color: string 
 
 export function Influencer() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'conversions' | 'payouts' | 'settings'>('overview');
