@@ -1,40 +1,21 @@
 -- Referral, Influencer, and Partner Systems for Heirloom
 -- Enables user referrals, influencer tracking, and offline partner management
+-- Note: referral_codes and influencers tables already exist from 0021_marketing_automation.sql
+-- This migration adds new columns and creates additional tables
 
 -- ============================================
--- REFERRAL CODES (User-to-User Referrals)
+-- EXTEND REFERRAL_CODES TABLE (already exists)
 -- ============================================
 
-CREATE TABLE IF NOT EXISTS referral_codes (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  
-  -- Owner of the referral code
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  
-  -- Unique referral code (e.g., "JOHN2024" or auto-generated)
-  code TEXT UNIQUE NOT NULL,
-  
-  -- Rewards configuration
-  referrer_reward_type TEXT DEFAULT 'FREE_MONTH' CHECK (referrer_reward_type IN ('FREE_MONTH', 'DISCOUNT_PERCENT', 'CREDIT')),
-  referrer_reward_value INTEGER DEFAULT 1, -- 1 month, or percentage, or credit amount in cents
-  referee_reward_type TEXT DEFAULT 'EXTENDED_TRIAL' CHECK (referee_reward_type IN ('EXTENDED_TRIAL', 'DISCOUNT_PERCENT', 'FREE_MONTH')),
-  referee_reward_value INTEGER DEFAULT 30, -- 30 days extended trial, or percentage
-  
-  -- Stats
-  total_referrals INTEGER DEFAULT 0,
-  successful_conversions INTEGER DEFAULT 0,
-  total_rewards_earned INTEGER DEFAULT 0, -- in months or cents depending on type
-  
-  -- Status
-  is_active INTEGER DEFAULT 1,
-  
-  -- Timestamps
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE INDEX idx_referral_codes_user ON referral_codes(user_id);
-CREATE INDEX idx_referral_codes_code ON referral_codes(code);
+-- Add new columns to existing referral_codes table
+ALTER TABLE referral_codes ADD COLUMN referrer_reward_type TEXT DEFAULT 'FREE_MONTH';
+ALTER TABLE referral_codes ADD COLUMN referrer_reward_value INTEGER DEFAULT 1;
+ALTER TABLE referral_codes ADD COLUMN referee_reward_type TEXT DEFAULT 'EXTENDED_TRIAL';
+ALTER TABLE referral_codes ADD COLUMN referee_reward_value INTEGER DEFAULT 30;
+ALTER TABLE referral_codes ADD COLUMN total_referrals INTEGER DEFAULT 0;
+ALTER TABLE referral_codes ADD COLUMN successful_conversions INTEGER DEFAULT 0;
+ALTER TABLE referral_codes ADD COLUMN total_rewards_earned INTEGER DEFAULT 0;
+ALTER TABLE referral_codes ADD COLUMN updated_at TEXT DEFAULT (datetime('now'));
 
 -- ============================================
 -- REFERRALS (Tracking individual referrals)
@@ -60,7 +41,7 @@ CREATE TABLE IF NOT EXISTS referrals (
   signed_up_at TEXT,
   converted_at TEXT,
   subscription_tier TEXT,
-  subscription_value INTEGER, -- First year value in cents
+  subscription_value INTEGER,
   
   -- Rewards
   referrer_reward_applied INTEGER DEFAULT 0,
@@ -79,83 +60,46 @@ CREATE TABLE IF NOT EXISTS referrals (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_referrals_code ON referrals(referral_code_id);
-CREATE INDEX idx_referrals_referrer ON referrals(referrer_user_id);
-CREATE INDEX idx_referrals_referee ON referrals(referee_user_id);
-CREATE INDEX idx_referrals_email ON referrals(referee_email);
-CREATE INDEX idx_referrals_status ON referrals(status);
+CREATE INDEX IF NOT EXISTS idx_referrals_code ON referrals(referral_code_id);
+CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_user_id);
+CREATE INDEX IF NOT EXISTS idx_referrals_referee ON referrals(referee_user_id);
+CREATE INDEX IF NOT EXISTS idx_referrals_email ON referrals(referee_email);
+CREATE INDEX IF NOT EXISTS idx_referrals_status ON referrals(status);
 
 -- ============================================
--- INFLUENCERS
+-- EXTEND INFLUENCERS TABLE (already exists from 0021)
 -- ============================================
 
-CREATE TABLE IF NOT EXISTS influencers (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  
-  -- Basic info
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  
-  -- Social profiles
-  instagram_handle TEXT,
-  tiktok_handle TEXT,
-  youtube_channel TEXT,
-  twitter_handle TEXT,
-  website_url TEXT,
-  
-  -- Audience metrics
-  follower_count INTEGER DEFAULT 0,
-  tier TEXT DEFAULT 'MICRO' CHECK (tier IN ('NANO', 'MICRO', 'MID', 'MACRO', 'MEGA')),
-  -- NANO: <1K, MICRO: 1K-10K, MID: 10K-100K, MACRO: 100K-1M, MEGA: 1M+
-  
-  -- Niche/category
-  niche TEXT, -- e.g., 'family', 'lifestyle', 'estate_planning', 'grief_support'
-  
-  -- Commission structure
-  commission_type TEXT DEFAULT 'FLAT' CHECK (commission_type IN ('FLAT', 'PERCENTAGE', 'TIERED')),
-  commission_rate INTEGER DEFAULT 20, -- $20 flat or 20%
-  
-  -- Discount code for their audience
-  discount_code TEXT UNIQUE,
-  discount_percent INTEGER DEFAULT 15, -- 15% off for their audience
-  
-  -- Custom landing page slug
-  landing_page_slug TEXT UNIQUE, -- e.g., /ref/johndoe
-  
-  -- Payment info
-  payment_email TEXT, -- PayPal or payment email
-  payment_method TEXT DEFAULT 'PAYPAL' CHECK (payment_method IN ('PAYPAL', 'BANK_TRANSFER', 'GIFT_CARD')),
-  
-  -- Stats
-  total_clicks INTEGER DEFAULT 0,
-  total_signups INTEGER DEFAULT 0,
-  total_conversions INTEGER DEFAULT 0,
-  total_revenue_generated INTEGER DEFAULT 0, -- in cents
-  total_commission_earned INTEGER DEFAULT 0, -- in cents
-  total_commission_paid INTEGER DEFAULT 0, -- in cents
-  
-  -- Status
-  status TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'ACTIVE', 'PAUSED', 'TERMINATED')),
-  
-  -- Contract/agreement
-  agreement_signed_at TEXT,
-  agreement_version TEXT,
-  
-  -- Notes
-  notes TEXT,
-  
-  -- Timestamps
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now')),
-  approved_at TEXT,
-  last_activity_at TEXT
-);
+-- Add new columns to existing influencers table
+ALTER TABLE influencers ADD COLUMN instagram_handle TEXT;
+ALTER TABLE influencers ADD COLUMN tiktok_handle TEXT;
+ALTER TABLE influencers ADD COLUMN youtube_channel TEXT;
+ALTER TABLE influencers ADD COLUMN twitter_handle TEXT;
+ALTER TABLE influencers ADD COLUMN website_url TEXT;
+ALTER TABLE influencers ADD COLUMN tier TEXT DEFAULT 'MICRO';
+ALTER TABLE influencers ADD COLUMN niche TEXT;
+ALTER TABLE influencers ADD COLUMN commission_type TEXT DEFAULT 'FLAT';
+ALTER TABLE influencers ADD COLUMN commission_rate INTEGER DEFAULT 20;
+ALTER TABLE influencers ADD COLUMN discount_code TEXT;
+ALTER TABLE influencers ADD COLUMN discount_percent INTEGER DEFAULT 15;
+ALTER TABLE influencers ADD COLUMN landing_page_slug TEXT;
+ALTER TABLE influencers ADD COLUMN payment_email TEXT;
+ALTER TABLE influencers ADD COLUMN payment_method TEXT DEFAULT 'PAYPAL';
+ALTER TABLE influencers ADD COLUMN total_clicks INTEGER DEFAULT 0;
+ALTER TABLE influencers ADD COLUMN total_signups INTEGER DEFAULT 0;
+ALTER TABLE influencers ADD COLUMN total_conversions INTEGER DEFAULT 0;
+ALTER TABLE influencers ADD COLUMN total_revenue_generated INTEGER DEFAULT 0;
+ALTER TABLE influencers ADD COLUMN total_commission_earned INTEGER DEFAULT 0;
+ALTER TABLE influencers ADD COLUMN total_commission_paid INTEGER DEFAULT 0;
+ALTER TABLE influencers ADD COLUMN agreement_signed_at TEXT;
+ALTER TABLE influencers ADD COLUMN agreement_version TEXT;
+ALTER TABLE influencers ADD COLUMN approved_at TEXT;
+ALTER TABLE influencers ADD COLUMN last_activity_at TEXT;
 
-CREATE INDEX idx_influencers_email ON influencers(email);
-CREATE INDEX idx_influencers_discount_code ON influencers(discount_code);
-CREATE INDEX idx_influencers_landing_page ON influencers(landing_page_slug);
-CREATE INDEX idx_influencers_status ON influencers(status);
-CREATE INDEX idx_influencers_tier ON influencers(tier);
+-- Create indexes for new columns
+CREATE INDEX IF NOT EXISTS idx_influencers_discount_code ON influencers(discount_code);
+CREATE INDEX IF NOT EXISTS idx_influencers_landing_page ON influencers(landing_page_slug);
+CREATE INDEX IF NOT EXISTS idx_influencers_tier ON influencers(tier);
 
 -- ============================================
 -- INFLUENCER CONVERSIONS (Tracking sales)
@@ -191,9 +135,9 @@ CREATE TABLE IF NOT EXISTS influencer_conversions (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_influencer_conversions_influencer ON influencer_conversions(influencer_id);
-CREATE INDEX idx_influencer_conversions_user ON influencer_conversions(user_id);
-CREATE INDEX idx_influencer_conversions_status ON influencer_conversions(commission_status);
+CREATE INDEX IF NOT EXISTS idx_influencer_conversions_influencer ON influencer_conversions(influencer_id);
+CREATE INDEX IF NOT EXISTS idx_influencer_conversions_user ON influencer_conversions(user_id);
+CREATE INDEX IF NOT EXISTS idx_influencer_conversions_status ON influencer_conversions(commission_status);
 
 -- ============================================
 -- INFLUENCER PAYOUTS
@@ -228,8 +172,8 @@ CREATE TABLE IF NOT EXISTS influencer_payouts (
   completed_at TEXT
 );
 
-CREATE INDEX idx_influencer_payouts_influencer ON influencer_payouts(influencer_id);
-CREATE INDEX idx_influencer_payouts_status ON influencer_payouts(status);
+CREATE INDEX IF NOT EXISTS idx_influencer_payouts_influencer ON influencer_payouts(influencer_id);
+CREATE INDEX IF NOT EXISTS idx_influencer_payouts_status ON influencer_payouts(status);
 
 -- ============================================
 -- PARTNERS (Offline partners: funeral homes, estate planners, etc.)
@@ -293,10 +237,10 @@ CREATE TABLE IF NOT EXISTS partners (
   last_order_at TEXT
 );
 
-CREATE INDEX idx_partners_email ON partners(contact_email);
-CREATE INDEX idx_partners_code ON partners(partner_code);
-CREATE INDEX idx_partners_type ON partners(business_type);
-CREATE INDEX idx_partners_status ON partners(status);
+CREATE INDEX IF NOT EXISTS idx_partners_email ON partners(contact_email);
+CREATE INDEX IF NOT EXISTS idx_partners_code ON partners(partner_code);
+CREATE INDEX IF NOT EXISTS idx_partners_type ON partners(business_type);
+CREATE INDEX IF NOT EXISTS idx_partners_status ON partners(status);
 
 -- ============================================
 -- PARTNER WHOLESALE ORDERS
@@ -336,9 +280,9 @@ CREATE TABLE IF NOT EXISTS partner_wholesale_orders (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_partner_orders_partner ON partner_wholesale_orders(partner_id);
-CREATE INDEX idx_partner_orders_payment ON partner_wholesale_orders(payment_status);
-CREATE INDEX idx_partner_orders_fulfillment ON partner_wholesale_orders(fulfillment_status);
+CREATE INDEX IF NOT EXISTS idx_partner_orders_partner ON partner_wholesale_orders(partner_id);
+CREATE INDEX IF NOT EXISTS idx_partner_orders_payment ON partner_wholesale_orders(payment_status);
+CREATE INDEX IF NOT EXISTS idx_partner_orders_fulfillment ON partner_wholesale_orders(fulfillment_status);
 
 -- ============================================
 -- PARTNER VOUCHERS (Vouchers from wholesale orders)
@@ -378,10 +322,10 @@ CREATE TABLE IF NOT EXISTS partner_vouchers (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_partner_vouchers_order ON partner_vouchers(wholesale_order_id);
-CREATE INDEX idx_partner_vouchers_partner ON partner_vouchers(partner_id);
-CREATE INDEX idx_partner_vouchers_code ON partner_vouchers(code);
-CREATE INDEX idx_partner_vouchers_status ON partner_vouchers(status);
+CREATE INDEX IF NOT EXISTS idx_partner_vouchers_order ON partner_vouchers(wholesale_order_id);
+CREATE INDEX IF NOT EXISTS idx_partner_vouchers_partner ON partner_vouchers(partner_id);
+CREATE INDEX IF NOT EXISTS idx_partner_vouchers_code ON partner_vouchers(code);
+CREATE INDEX IF NOT EXISTS idx_partner_vouchers_status ON partner_vouchers(status);
 
 -- ============================================
 -- PARTNER REFERRALS (QR code / link referrals)
@@ -418,9 +362,9 @@ CREATE TABLE IF NOT EXISTS partner_referrals (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_partner_referrals_partner ON partner_referrals(partner_id);
-CREATE INDEX idx_partner_referrals_user ON partner_referrals(user_id);
-CREATE INDEX idx_partner_referrals_status ON partner_referrals(status);
+CREATE INDEX IF NOT EXISTS idx_partner_referrals_partner ON partner_referrals(partner_id);
+CREATE INDEX IF NOT EXISTS idx_partner_referrals_user ON partner_referrals(user_id);
+CREATE INDEX IF NOT EXISTS idx_partner_referrals_status ON partner_referrals(status);
 
 -- ============================================
 -- DISCOUNT CODES (Unified tracking for all discount codes)
@@ -463,9 +407,9 @@ CREATE TABLE IF NOT EXISTS discount_codes (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_discount_codes_code ON discount_codes(code);
-CREATE INDEX idx_discount_codes_owner ON discount_codes(owner_type, owner_id);
-CREATE INDEX idx_discount_codes_active ON discount_codes(is_active);
+CREATE INDEX IF NOT EXISTS idx_discount_codes_code ON discount_codes(code);
+CREATE INDEX IF NOT EXISTS idx_discount_codes_owner ON discount_codes(owner_type, owner_id);
+CREATE INDEX IF NOT EXISTS idx_discount_codes_active ON discount_codes(is_active);
 
 -- ============================================
 -- DISCOUNT CODE USES (Track each use)
@@ -491,5 +435,5 @@ CREATE TABLE IF NOT EXISTS discount_code_uses (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_discount_uses_code ON discount_code_uses(discount_code_id);
-CREATE INDEX idx_discount_uses_user ON discount_code_uses(user_id);
+CREATE INDEX IF NOT EXISTS idx_discount_uses_code ON discount_code_uses(discount_code_id);
+CREATE INDEX IF NOT EXISTS idx_discount_uses_user ON discount_code_uses(user_id);

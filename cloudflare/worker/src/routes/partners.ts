@@ -304,7 +304,7 @@ partnerRoutes.post('/redeem-voucher', async (c) => {
 // PARTNER PORTAL ROUTES (Authenticated partner)
 // =============================================================================
 
-// Partner auth middleware
+// Partner auth middleware - stores partnerId in request for downstream access
 const partnerAuth = async (c: any, next: any) => {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -319,7 +319,8 @@ const partnerAuth = async (c: any, next: any) => {
   }
   
   const session = JSON.parse(sessionData);
-  c.set('partnerId', session.partnerId);
+  // Store partnerId in request for downstream handlers
+  (c.req as any).partnerId = session.partnerId;
   
   await next();
 };
@@ -358,7 +359,7 @@ partnerRoutes.post('/login', async (c) => {
 
 // Get partner dashboard
 partnerRoutes.get('/dashboard', partnerAuth, async (c) => {
-  const partnerId = c.get('partnerId');
+  const partnerId = (c.req as any).partnerId;
   
   const partner = await c.env.DB.prepare(`
     SELECT * FROM partners WHERE id = ?
@@ -428,7 +429,7 @@ partnerRoutes.get('/dashboard', partnerAuth, async (c) => {
 
 // Get wholesale pricing
 partnerRoutes.get('/pricing', partnerAuth, async (c) => {
-  const partnerId = c.get('partnerId');
+  const partnerId = (c.req as any).partnerId;
   
   const partner = await c.env.DB.prepare(`
     SELECT wholesale_discount_percent, minimum_order_quantity FROM partners WHERE id = ?
@@ -470,7 +471,7 @@ partnerRoutes.get('/pricing', partnerAuth, async (c) => {
 
 // Create wholesale order
 partnerRoutes.post('/orders', partnerAuth, async (c) => {
-  const partnerId = c.get('partnerId');
+  const partnerId = (c.req as any).partnerId;
   const body = await c.req.json();
   const { tier, durationMonths, quantity } = body;
   
@@ -532,7 +533,7 @@ partnerRoutes.post('/orders', partnerAuth, async (c) => {
 
 // Get partner's orders
 partnerRoutes.get('/orders', partnerAuth, async (c) => {
-  const partnerId = c.get('partnerId');
+  const partnerId = (c.req as any).partnerId;
   const page = parseInt(c.req.query('page') || '1');
   const limit = 20;
   const offset = (page - 1) * limit;
@@ -561,7 +562,7 @@ partnerRoutes.get('/orders', partnerAuth, async (c) => {
 
 // Get partner's vouchers
 partnerRoutes.get('/vouchers', partnerAuth, async (c) => {
-  const partnerId = c.get('partnerId');
+  const partnerId = (c.req as any).partnerId;
   const status = c.req.query('status');
   const page = parseInt(c.req.query('page') || '1');
   const limit = 50;
@@ -599,7 +600,7 @@ partnerRoutes.get('/vouchers', partnerAuth, async (c) => {
 
 // Assign voucher to recipient
 partnerRoutes.patch('/vouchers/:id/assign', partnerAuth, async (c) => {
-  const partnerId = c.get('partnerId');
+  const partnerId = (c.req as any).partnerId;
   const voucherId = c.req.param('id');
   const body = await c.req.json();
   const { recipientName, recipientEmail } = body;
@@ -628,7 +629,7 @@ partnerRoutes.patch('/vouchers/:id/assign', partnerAuth, async (c) => {
 
 // Get partner's referrals
 partnerRoutes.get('/referrals', partnerAuth, async (c) => {
-  const partnerId = c.get('partnerId');
+  const partnerId = (c.req as any).partnerId;
   const page = parseInt(c.req.query('page') || '1');
   const limit = 20;
   const offset = (page - 1) * limit;

@@ -235,7 +235,7 @@ influencerRoutes.post('/track-conversion', async (c) => {
 // INFLUENCER DASHBOARD ROUTES (Authenticated influencer)
 // =============================================================================
 
-// Influencer auth middleware
+// Influencer auth middleware - stores influencerId in request header for downstream access
 const influencerAuth = async (c: any, next: any) => {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -251,7 +251,8 @@ const influencerAuth = async (c: any, next: any) => {
   }
   
   const session = JSON.parse(sessionData);
-  c.set('influencerId', session.influencerId);
+  // Store influencerId in a custom header for downstream handlers
+  (c.req as any).influencerId = session.influencerId;
   
   await next();
 };
@@ -292,7 +293,7 @@ influencerRoutes.post('/login', async (c) => {
 
 // Get influencer dashboard data
 influencerRoutes.get('/dashboard', influencerAuth, async (c) => {
-  const influencerId = c.get('influencerId');
+  const influencerId = (c.req as any).influencerId;
   
   const influencer = await c.env.DB.prepare(`
     SELECT * FROM influencers WHERE id = ?
@@ -369,7 +370,7 @@ influencerRoutes.get('/dashboard', influencerAuth, async (c) => {
 
 // Get influencer's conversions
 influencerRoutes.get('/conversions', influencerAuth, async (c) => {
-  const influencerId = c.get('influencerId');
+  const influencerId = (c.req as any).influencerId;
   const page = parseInt(c.req.query('page') || '1');
   const limit = 20;
   const offset = (page - 1) * limit;
@@ -407,7 +408,7 @@ influencerRoutes.get('/conversions', influencerAuth, async (c) => {
 
 // Get influencer's payouts
 influencerRoutes.get('/payouts', influencerAuth, async (c) => {
-  const influencerId = c.get('influencerId');
+  const influencerId = (c.req as any).influencerId;
   
   const payouts = await c.env.DB.prepare(`
     SELECT * FROM influencer_payouts 
@@ -423,7 +424,7 @@ influencerRoutes.get('/payouts', influencerAuth, async (c) => {
 
 // Update payment info
 influencerRoutes.patch('/payment-info', influencerAuth, async (c) => {
-  const influencerId = c.get('influencerId');
+  const influencerId = (c.req as any).influencerId;
   const body = await c.req.json();
   const { paymentEmail, paymentMethod } = body;
   
