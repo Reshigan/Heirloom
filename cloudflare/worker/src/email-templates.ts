@@ -866,6 +866,162 @@ export const supportTicketResolvedEmail = (
 // NEW FEATURES ANNOUNCEMENT EMAIL
 // ============================================
 
+// ============================================
+// INFLUENCER & PARTNER PROGRAM EMAILS
+// ============================================
+
+export const influencerApplicationReceivedEmail = (name: string) => ({
+  subject: 'Application Received - Heirloom Influencer Program',
+  html: baseTemplate(`
+    <h2>Application Received</h2>
+    <p>Hi ${name},</p>
+    <p>Thank you for applying to the <span class="gold">Heirloom Influencer Program</span>!</p>
+    <p>We've received your application and our team will review it within <strong>48 hours</strong>.</p>
+    <div class="info-box">
+      <p><strong>What happens next?</strong></p>
+      <p>Once approved, you'll receive:</p>
+      <ul>
+        <li>Your personalized discount code</li>
+        <li>Access to your influencer dashboard</li>
+        <li>Marketing materials and guidelines</li>
+      </ul>
+    </div>
+    <p>We'll be in touch soon!</p>
+  `),
+});
+
+export const influencerApprovedEmail = (name: string, discountCode: string, tier: string, discountPercent: number) => ({
+  subject: 'Welcome to the Heirloom Influencer Program!',
+  html: baseTemplate(`
+    <h2>You're Approved!</h2>
+    <p>Hi ${name},</p>
+    <p>Congratulations! Your application to the <span class="gold">Heirloom Influencer Program</span> has been approved.</p>
+    <div class="info-box">
+      <p><strong>Your Influencer Details:</strong></p>
+      <p>Tier: <span class="gold">${tier}</span></p>
+      <p>Your Discount Code: <span class="gold">${discountCode}</span></p>
+      <p>Discount for your audience: <span class="gold">${discountPercent}% off</span></p>
+    </div>
+    <p>Share your code with your audience and earn <strong>20% commission</strong> on every subscription!</p>
+    <a href="${APP_URL}/influencer" class="button">VIEW YOUR DASHBOARD</a>
+    <p style="margin-top: 20px;">Need marketing materials or have questions? Reply to this email and we'll help you get started.</p>
+  `),
+});
+
+export const influencerRejectedEmail = (name: string, reason?: string) => ({
+  subject: 'Heirloom Influencer Program - Application Update',
+  html: baseTemplate(`
+    <h2>Application Update</h2>
+    <p>Hi ${name},</p>
+    <p>Thank you for your interest in the Heirloom Influencer Program.</p>
+    <p>After careful review, we're unable to approve your application at this time.${reason ? ` ${reason}` : ''}</p>
+    <p>This doesn't mean the door is closed! You're welcome to reapply in the future as your platform grows.</p>
+    <p>In the meantime, you can still earn rewards through our <a href="${APP_URL}/referral" style="color: #c9a959;">referral program</a>.</p>
+  `),
+});
+
+export const partnerApplicationReceivedEmail = (contactName: string, businessName: string) => ({
+  subject: 'Application Received - Heirloom Partner Program',
+  html: baseTemplate(`
+    <h2>Application Received</h2>
+    <p>Hi ${contactName},</p>
+    <p>Thank you for applying to become a <span class="gold">Heirloom Partner</span> on behalf of ${businessName}!</p>
+    <p>We've received your application and our team will review it within <strong>48-72 hours</strong>.</p>
+    <div class="info-box">
+      <p><strong>What happens next?</strong></p>
+      <p>Once approved, you'll receive:</p>
+      <ul>
+        <li>Your unique partner code and QR code</li>
+        <li>Access to wholesale voucher ordering (30% off retail)</li>
+        <li>Partner dashboard with referral tracking</li>
+        <li>Marketing materials for your location</li>
+      </ul>
+    </div>
+    <p>We'll be in touch soon!</p>
+  `),
+});
+
+export const partnerApprovedEmail = (contactName: string, businessName: string, partnerCode: string) => ({
+  subject: 'Welcome to the Heirloom Partner Program!',
+  html: baseTemplate(`
+    <h2>You're Approved!</h2>
+    <p>Hi ${contactName},</p>
+    <p>Congratulations! <span class="gold">${businessName}</span> has been approved as a Heirloom Partner.</p>
+    <div class="info-box">
+      <p><strong>Your Partner Details:</strong></p>
+      <p>Partner Code: <span class="gold">${partnerCode}</span></p>
+      <p>Wholesale Discount: <span class="gold">30% off retail</span></p>
+      <p>Referral Commission: <span class="gold">15% on conversions</span></p>
+    </div>
+    <p>You can now:</p>
+    <ul>
+      <li>Order wholesale vouchers to resell or gift to clients</li>
+      <li>Track referrals from your unique QR code</li>
+      <li>Earn commission on referral conversions</li>
+    </ul>
+    <a href="${APP_URL}/partner" class="button">ACCESS PARTNER PORTAL</a>
+    <p style="margin-top: 20px;">Need marketing materials or have questions? Reply to this email and we'll help you get started.</p>
+  `),
+});
+
+export const partnerRejectedEmail = (contactName: string, businessName: string, reason?: string) => ({
+  subject: 'Heirloom Partner Program - Application Update',
+  html: baseTemplate(`
+    <h2>Application Update</h2>
+    <p>Hi ${contactName},</p>
+    <p>Thank you for ${businessName}'s interest in the Heirloom Partner Program.</p>
+    <p>After careful review, we're unable to approve your application at this time.${reason ? ` ${reason}` : ''}</p>
+    <p>If you believe this was in error or have additional information to share, please reply to this email.</p>
+  `),
+});
+
+export const wholesaleOrderConfirmationEmail = (contactName: string, orderId: string, tier: string, quantity: number, totalAmount: number) => ({
+  subject: 'Wholesale Order Confirmed - Heirloom',
+  html: baseTemplate(`
+    <h2>Order Confirmed</h2>
+    <p>Hi ${contactName},</p>
+    <p>Your wholesale voucher order has been confirmed!</p>
+    <div class="info-box">
+      <p><strong>Order Details:</strong></p>
+      <p>Order ID: ${orderId}</p>
+      <p>Vouchers: ${quantity}x ${tier}</p>
+      <p>Total: $${(totalAmount / 100).toFixed(2)}</p>
+    </div>
+    <p>Your vouchers are now available in your partner dashboard. You can assign them to recipients or distribute the codes directly.</p>
+    <a href="${APP_URL}/partner?tab=vouchers" class="button">VIEW YOUR VOUCHERS</a>
+  `),
+});
+
+export const adminInfluencerApplicationEmail = (influencerName: string, platform: string, handle: string, followerCount: number) => ({
+  subject: `New Influencer Application: ${influencerName}`,
+  html: baseTemplate(`
+    <h2>New Influencer Application</h2>
+    <p>A new influencer has applied to the program:</p>
+    <div class="info-box">
+      <p><strong>Name:</strong> ${influencerName}</p>
+      <p><strong>Platform:</strong> ${platform}</p>
+      <p><strong>Handle:</strong> ${handle}</p>
+      <p><strong>Followers:</strong> ${followerCount.toLocaleString()}</p>
+    </div>
+    <a href="${APP_URL}/admin/influencers" class="button">REVIEW APPLICATION</a>
+  `),
+});
+
+export const adminPartnerApplicationEmail = (businessName: string, businessType: string, contactName: string, contactEmail: string) => ({
+  subject: `New Partner Application: ${businessName}`,
+  html: baseTemplate(`
+    <h2>New Partner Application</h2>
+    <p>A new business has applied to become a partner:</p>
+    <div class="info-box">
+      <p><strong>Business:</strong> ${businessName}</p>
+      <p><strong>Type:</strong> ${businessType}</p>
+      <p><strong>Contact:</strong> ${contactName}</p>
+      <p><strong>Email:</strong> ${contactEmail}</p>
+    </div>
+    <a href="${APP_URL}/admin/partners" class="button">REVIEW APPLICATION</a>
+  `),
+});
+
 export const newFeaturesAnnouncementEmail = (userName: string) => ({
   subject: 'New Features: Legacy Playbook, Story Artifacts & More',
   html: baseTemplate(`

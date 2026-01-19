@@ -5,7 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
-import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnouncementEmail } from '../email-templates';
+import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnouncementEmail, influencerApprovedEmail, influencerRejectedEmail, partnerApprovedEmail, partnerRejectedEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects } from '../jobs/adoption-jobs';
 
@@ -2308,6 +2308,283 @@ adminRoutes.post('/run-adoption-jobs', adminAuth, async (c) => {
     console.error('Error running adoption jobs:', error);
     return c.json({ error: 'Failed to run adoption jobs', details: error.message }, 500);
   }
+});
+
+// ============================================
+// INFLUENCER MANAGEMENT
+// ============================================
+
+// List all influencers
+adminRoutes.get('/influencers', adminAuth, async (c) => {
+  const status = c.req.query('status');
+  const page = parseInt(c.req.query('page') || '1');
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  
+  let query = `SELECT * FROM influencers`;
+  const params: any[] = [];
+  
+  if (status) {
+    query += ` WHERE status = ?`;
+    params.push(status);
+  }
+  
+  query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
+  
+  const influencers = await c.env.DB.prepare(query).bind(...params).all();
+  
+  let countQuery = `SELECT COUNT(*) as total FROM influencers`;
+  if (status) {
+    countQuery += ` WHERE status = ?`;
+  }
+  const countResult = await c.env.DB.prepare(countQuery).bind(...(status ? [status] : [])).first();
+  
+  return c.json({
+    influencers: influencers.results,
+    pagination: {
+      page,
+      limit,
+      total: countResult?.total || 0,
+      totalPages: Math.ceil((countResult?.total as number || 0) / limit),
+    },
+  });
+});
+
+// Get single influencer details
+adminRoutes.get('/influencers/:id', adminAuth, async (c) => {
+  const id = c.req.param('id');
+  
+  const influencer = await c.env.DB.prepare(`
+    SELECT * FROM influencers WHERE id = ?
+  `).bind(id).first();
+  
+  if (!influencer) {
+    return c.json({ error: 'Influencer not found' }, 404);
+  }
+  
+  // Get conversion stats
+  const conversions = await c.env.DB.prepare(`
+    SELECT COUNT(*) as total, SUM(commission_amount) as total_commission
+    FROM influencer_conversions WHERE influencer_id = ?
+  `).bind(id).first();
+  
+  return c.json({
+    influencer,
+    stats: {
+      totalConversions: conversions?.total || 0,
+      totalCommission: conversions?.total_commission || 0,
+    },
+  });
+});
+
+// Approve/reject influencer
+adminRoutes.patch('/influencers/:id', adminAuth, async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json();
+  const { status, rejectionReason } = body;
+  
+  if (!['ACTIVE', 'REJECTED', 'SUSPENDED'].includes(status)) {
+    return c.json({ error: 'Invalid status. Must be ACTIVE, REJECTED, or SUSPENDED' }, 400);
+  }
+  
+  const influencer = await c.env.DB.prepare(`
+    SELECT * FROM influencers WHERE id = ?
+  `).bind(id).first();
+  
+  if (!influencer) {
+    return c.json({ error: 'Influencer not found' }, 404);
+  }
+  
+  await c.env.DB.prepare(`
+    UPDATE influencers SET status = ?, updated_at = datetime('now') WHERE id = ?
+  `).bind(status, id).run();
+  
+  // Send email notification
+  if (status === 'ACTIVE') {
+    const emailContent = influencerApprovedEmail(
+      influencer.name as string,
+      influencer.discount_code as string,
+      influencer.tier as string,
+      influencer.discount_percent as number
+    );
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: influencer.email as string,
+      subject: emailContent.subject,
+      html: emailContent.html,
+    }, 'influencer_approved');
+  } else if (status === 'REJECTED') {
+    const emailContent = influencerRejectedEmail(
+      influencer.name as string,
+      rejectionReason
+    );
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: influencer.email as string,
+      subject: emailContent.subject,
+      html: emailContent.html,
+    }, 'influencer_rejected');
+  }
+  
+  // Log audit action
+  await logAuditAction(c.env, c.get('adminId'), 'UPDATE_INFLUENCER_STATUS', { 
+    influencerId: id, 
+    newStatus: status,
+    rejectionReason: rejectionReason || null,
+  });
+  
+  return c.json({ success: true, status });
+});
+
+// ============================================
+// PARTNER MANAGEMENT
+// ============================================
+
+// List all partners
+adminRoutes.get('/partners', adminAuth, async (c) => {
+  const status = c.req.query('status');
+  const businessType = c.req.query('businessType');
+  const page = parseInt(c.req.query('page') || '1');
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  
+  let query = `SELECT * FROM partners`;
+  const conditions: string[] = [];
+  const params: any[] = [];
+  
+  if (status) {
+    conditions.push(`status = ?`);
+    params.push(status);
+  }
+  if (businessType) {
+    conditions.push(`business_type = ?`);
+    params.push(businessType);
+  }
+  
+  if (conditions.length > 0) {
+    query += ` WHERE ${conditions.join(' AND ')}`;
+  }
+  
+  query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
+  
+  const partners = await c.env.DB.prepare(query).bind(...params).all();
+  
+  let countQuery = `SELECT COUNT(*) as total FROM partners`;
+  if (conditions.length > 0) {
+    countQuery += ` WHERE ${conditions.join(' AND ')}`;
+  }
+  const countParams = params.slice(0, -2); // Remove limit and offset
+  const countResult = await c.env.DB.prepare(countQuery).bind(...countParams).first();
+  
+  return c.json({
+    partners: partners.results,
+    pagination: {
+      page,
+      limit,
+      total: countResult?.total || 0,
+      totalPages: Math.ceil((countResult?.total as number || 0) / limit),
+    },
+  });
+});
+
+// Get single partner details
+adminRoutes.get('/partners/:id', adminAuth, async (c) => {
+  const id = c.req.param('id');
+  
+  const partner = await c.env.DB.prepare(`
+    SELECT * FROM partners WHERE id = ?
+  `).bind(id).first();
+  
+  if (!partner) {
+    return c.json({ error: 'Partner not found' }, 404);
+  }
+  
+  // Get order stats
+  const orderStats = await c.env.DB.prepare(`
+    SELECT COUNT(*) as total_orders, SUM(total_amount) as total_revenue
+    FROM partner_wholesale_orders WHERE partner_id = ? AND payment_status = 'PAID'
+  `).bind(id).first();
+  
+  // Get voucher stats
+  const voucherStats = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(*) as total_vouchers,
+      SUM(CASE WHEN status = 'AVAILABLE' THEN 1 ELSE 0 END) as available,
+      SUM(CASE WHEN status = 'REDEEMED' THEN 1 ELSE 0 END) as redeemed
+    FROM partner_vouchers WHERE partner_id = ?
+  `).bind(id).first();
+  
+  return c.json({
+    partner,
+    stats: {
+      totalOrders: orderStats?.total_orders || 0,
+      totalRevenue: orderStats?.total_revenue || 0,
+      totalVouchers: voucherStats?.total_vouchers || 0,
+      availableVouchers: voucherStats?.available || 0,
+      redeemedVouchers: voucherStats?.redeemed || 0,
+    },
+  });
+});
+
+// Approve/reject partner
+adminRoutes.patch('/partners/:id', adminAuth, async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json();
+  const { status, rejectionReason } = body;
+  
+  if (!['ACTIVE', 'REJECTED', 'SUSPENDED'].includes(status)) {
+    return c.json({ error: 'Invalid status. Must be ACTIVE, REJECTED, or SUSPENDED' }, 400);
+  }
+  
+  const partner = await c.env.DB.prepare(`
+    SELECT * FROM partners WHERE id = ?
+  `).bind(id).first();
+  
+  if (!partner) {
+    return c.json({ error: 'Partner not found' }, 404);
+  }
+  
+  await c.env.DB.prepare(`
+    UPDATE partners SET status = ?, updated_at = datetime('now') WHERE id = ?
+  `).bind(status, id).run();
+  
+  // Send email notification
+  if (status === 'ACTIVE') {
+    const emailContent = partnerApprovedEmail(
+      partner.contact_name as string,
+      partner.business_name as string,
+      partner.partner_code as string
+    );
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: partner.contact_email as string,
+      subject: emailContent.subject,
+      html: emailContent.html,
+    }, 'partner_approved');
+  } else if (status === 'REJECTED') {
+    const emailContent = partnerRejectedEmail(
+      partner.contact_name as string,
+      partner.business_name as string,
+      rejectionReason
+    );
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: partner.contact_email as string,
+      subject: emailContent.subject,
+      html: emailContent.html,
+    }, 'partner_rejected');
+  }
+  
+  // Log audit action
+  await logAuditAction(c.env, c.get('adminId'), 'UPDATE_PARTNER_STATUS', { 
+    partnerId: id, 
+    newStatus: status,
+    rejectionReason: rejectionReason || null,
+  });
+  
+  return c.json({ success: true, status });
 });
 
 // ============================================
