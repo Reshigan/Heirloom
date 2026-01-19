@@ -185,6 +185,66 @@ export const wrappedApi = {
   getYears: () => api.get('/wrapped'),
 };
 
+// Referral API
+export const referralApi = {
+  getMyCode: () => api.get('/referral/my-code'),
+  getMyReferrals: () => api.get('/referral/my-referrals'),
+  customizeCode: (code: string) => api.post('/referral/customize-code', { code }),
+  validateCode: (code: string) => api.get(`/referral/validate/${code}`),
+  trackClick: (code: string) => api.post('/referral/track-click', { code }),
+};
+
+// Influencer API
+export const influencerApi = {
+  apply: (data: { 
+    fullName: string; 
+    email: string; 
+    platform: string; 
+    handle: string; 
+    followerCount: number;
+    niche?: string;
+    website?: string;
+    bio?: string;
+  }) => api.post('/influencer/apply', data),
+  validateCode: (code: string) => api.get(`/influencer/validate-code/${code}`),
+  getLandingPage: (slug: string) => api.get(`/influencer/landing/${slug}`),
+  getDashboard: () => api.get('/influencer/dashboard'),
+  getConversions: (params?: { page?: number; limit?: number }) => 
+    api.get('/influencer/conversions', { params }),
+  getPayouts: (params?: { page?: number; limit?: number }) => 
+    api.get('/influencer/payouts', { params }),
+  updatePaymentInfo: (data: { paymentMethod: string; paymentDetails: string }) => 
+    api.patch('/influencer/payment-info', data),
+};
+
+// Partner API
+export const partnerApi = {
+  apply: (data: {
+    businessName: string;
+    businessType: string;
+    contactName: string;
+    contactEmail: string;
+    contactPhone?: string;
+    website?: string;
+    address?: string;
+    description?: string;
+    estimatedMonthlyReferrals?: number;
+  }) => api.post('/partner/apply', data),
+  validateCode: (code: string) => api.get(`/partner/validate-code/${code}`),
+  getDashboard: () => api.get('/partner/dashboard'),
+  getVouchers: (params?: { status?: string; page?: number; limit?: number }) => 
+    api.get('/partner/vouchers', { params }),
+  createWholesaleOrder: (data: { 
+    tier: string; 
+    quantity: number; 
+    billingCycle: string;
+  }) => api.post('/partner/wholesale-order', data),
+  getOrders: (params?: { page?: number; limit?: number }) => 
+    api.get('/partner/orders', { params }),
+  getReferrals: (params?: { page?: number; limit?: number }) => 
+    api.get('/partner/referrals', { params }),
+};
+
 // Admin API (uses separate admin token)
 const adminAxios = axios.create({
   baseURL: API_URL,

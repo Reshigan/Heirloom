@@ -25,6 +25,9 @@ import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
+import { Referral } from './pages/Referral';
+import { Influencer } from './pages/Influencer';
+import { Partner } from './pages/Partner';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -163,16 +166,40 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
-                    <Route
-                      path="/wrapped"
-                      element={
-                        <ProtectedRoute>
-                          <Wrapped />
-                        </ProtectedRoute>
-                      }
-                    />
+                                        <Route
+                                          path="/wrapped"
+                                          element={
+                                            <ProtectedRoute>
+                                              <Wrapped />
+                                            </ProtectedRoute>
+                                          }
+                                        />
+                                        <Route
+                                          path="/referral"
+                                          element={
+                                            <ProtectedRoute>
+                                              <Referral />
+                                            </ProtectedRoute>
+                                          }
+                                        />
+                                        <Route
+                                          path="/influencer"
+                                          element={
+                                            <ProtectedRoute>
+                                              <Influencer />
+                                            </ProtectedRoute>
+                                          }
+                                        />
+                                        <Route
+                                          path="/partner"
+                                          element={
+                                            <ProtectedRoute>
+                                              <Partner />
+                                            </ProtectedRoute>
+                                          }
+                                        />
 
-                    {/* Admin routes */}
+                                        {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
