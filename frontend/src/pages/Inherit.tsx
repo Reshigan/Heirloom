@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Image, Mic, Play, Pause, Clock, Calendar, AlertCircle, Loader2, ChevronRight, Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // @ts-ignore - Vite env types
 const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue';
@@ -48,6 +49,7 @@ type TabType = 'letters' | 'memories' | 'voice';
 
 export function Inherit() {
   const { token } = useParams<{ token: string }>();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
@@ -170,7 +172,7 @@ export function Inherit() {
           className="text-center relative z-10"
         >
           <Loader2 size={48} className="animate-spin text-gold mx-auto mb-4" />
-          <p className="text-paper/60">Unlocking memories...</p>
+          <p className="text-paper/60">{t('common.loading')}</p>
         </motion.div>
       </div>
     );
@@ -196,9 +198,9 @@ export function Inherit() {
           <p className="text-paper/60 mb-8">
             This link may have expired or is no longer valid. Please contact the person who shared this with you.
           </p>
-          <Link to="/" className="btn btn-secondary">
-            Return Home
-          </Link>
+                    <Link to="/" className="btn btn-secondary">
+                      {t('common.returnHome')}
+                    </Link>
         </motion.div>
       </div>
     );

@@ -3,20 +3,23 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X } from 'lucide-react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 const navItems = [
-  { path: '/dashboard', icon: Home, label: 'Vault' },
-  { path: '/memories', icon: Image, label: 'Memories' },
-  { path: '/compose', icon: Pen, label: 'Write' },
-  { path: '/record', icon: Mic, label: 'Record' },
-  { path: '/family', icon: Users, label: 'Family' },
-  { path: '/wrapped', icon: Sparkles, label: 'Wrapped' },
+  { path: '/dashboard', icon: Home, labelKey: 'nav.vault' },
+  { path: '/memories', icon: Image, labelKey: 'nav.memories' },
+  { path: '/compose', icon: Pen, labelKey: 'nav.write' },
+  { path: '/record', icon: Mic, labelKey: 'nav.record' },
+  { path: '/family', icon: Users, labelKey: 'nav.family' },
+  { path: '/wrapped', icon: Sparkles, labelKey: 'nav.wrapped' },
 ];
 
 export function Navigation() {
   const location = useLocation();
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
@@ -52,7 +55,7 @@ export function Navigation() {
         
         {/* Nav links - desktop */}
         <div className="hidden md:flex items-center gap-8">
-          {navItems.map(({ path, icon: Icon, label }) => {
+          {navItems.map(({ path, icon: Icon, labelKey }) => {
             const isActive = location.pathname === path;
             
             return (
@@ -65,7 +68,7 @@ export function Navigation() {
                 )}
               >
                 <Icon size={18} strokeWidth={1.5} />
-                <span>{label}</span>
+                <span>{t(labelKey)}</span>
                 
                 {isActive && (
                   <motion.div
@@ -80,6 +83,9 @@ export function Navigation() {
         
         {/* User menu - desktop */}
         <div className="hidden md:flex items-center gap-4">
+          {/* Language switcher */}
+          <LanguageSwitcher variant="dropdown" />
+          
           <Link
             to="/settings"
             className={clsx(
@@ -101,7 +107,7 @@ export function Navigation() {
           <button
             onClick={logout}
             className="p-2 text-paper/40 hover:text-blood transition-smooth"
-            title="Sign out"
+            title={t('nav.signOut')}
           >
             <LogOut size={20} strokeWidth={1.5} />
           </button>
@@ -164,7 +170,7 @@ export function Navigation() {
               
               {/* Nav links */}
               <nav className="flex-1 py-4 overflow-y-auto">
-                {navItems.map(({ path, icon: Icon, label }) => {
+                {navItems.map(({ path, icon: Icon, labelKey }) => {
                   const isActive = location.pathname === path;
                   return (
                     <Link
@@ -176,7 +182,7 @@ export function Navigation() {
                       )}
                     >
                       <Icon size={20} strokeWidth={1.5} />
-                      <span>{label}</span>
+                      <span>{t(labelKey)}</span>
                     </Link>
                   );
                 })}
@@ -190,9 +196,14 @@ export function Navigation() {
                   )}
                 >
                   <Settings size={20} strokeWidth={1.5} />
-                  <span>Settings</span>
+                  <span>{t('nav.settings')}</span>
                 </Link>
               </nav>
+              
+              {/* Language switcher in mobile menu */}
+              <div className="px-6 py-4 border-t border-gold/10">
+                <LanguageSwitcher variant="dropdown" />
+              </div>
               
               {/* Logout button */}
               <div className="p-4 border-t border-gold/10">
@@ -201,7 +212,7 @@ export function Navigation() {
                   className="flex items-center gap-3 w-full px-4 py-3 text-blood hover:bg-blood/10 rounded-lg transition-smooth"
                 >
                   <LogOut size={20} strokeWidth={1.5} />
-                  <span>Sign out</span>
+                  <span>{t('nav.signOut')}</span>
                 </button>
               </div>
             </motion.div>

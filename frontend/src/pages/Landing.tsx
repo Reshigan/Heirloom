@@ -2,8 +2,10 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { ArrowRight, Pen, Mic, Image, Shield, Clock, Heart, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function Landing() {
+  const { t } = useTranslation();
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
   const pricingRef = useRef(null);
@@ -79,12 +81,12 @@ export function Landing() {
           </Link>
           
           <div className="flex items-center gap-6">
-            <Link to="/login" className="text-paper/60 hover:text-gold transition-colors hidden md:block">
-              Sign In
-            </Link>
-            <Link to="/signup" className="btn btn-primary">
-              Start Free Trial
-            </Link>
+                        <Link to="/login" className="text-paper/60 hover:text-gold transition-colors hidden md:block">
+                          {t('auth.signIn')}
+                        </Link>
+                        <Link to="/signup" className="btn btn-primary">
+                          {t('landing.hero.cta')}
+                        </Link>
           </div>
         </div>
       </nav>
@@ -102,7 +104,7 @@ export function Landing() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-subtle rounded-full mb-8">
               <Sparkles size={16} className="text-gold" />
-              <span className="text-sm text-paper/60 tracking-wider">14-DAY FREE TRIAL</span>
+              <span className="text-sm text-paper/60 tracking-wider">{t('landing.hero.trial')}</span>
             </div>
           </motion.div>
           
@@ -112,10 +114,10 @@ export function Landing() {
             transition={{ duration: 1, delay: 0.1 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light leading-[1.1] mb-8"
           >
-            Your memories deserve
-            <br />
-            to live <em className="relative">
-              forever
+                        {t('landing.hero.title')}
+                        <br />
+                        {t('landing.hero.titleLine2')} <em className="relative">
+                          {t('landing.hero.titleHighlight')}
               <motion.span
                 className="absolute -bottom-2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent"
                 initial={{ scaleX: 0 }}
@@ -131,8 +133,7 @@ export function Landing() {
             transition={{ duration: 1, delay: 0.2 }}
             className="text-xl md:text-2xl text-paper/50 mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            A sanctuary for your life's precious moments. Capture photos, record your voice, 
-            write letters to loved ones — delivered on your terms, even after you're gone.
+                        {t('landing.hero.subtitle')}
           </motion.p>
           
           <motion.div
@@ -141,13 +142,13 @@ export function Landing() {
             transition={{ duration: 1, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/signup" className="btn btn-primary text-lg px-8 py-4 group">
-              Begin Your Legacy
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <a href="#features" className="btn btn-secondary text-lg px-8 py-4">
-              Discover More
-            </a>
+                        <Link to="/signup" className="btn btn-primary text-lg px-8 py-4 group">
+                          {t('landing.hero.cta')}
+                          <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                        <a href="#features" className="btn btn-secondary text-lg px-8 py-4">
+                          {t('landing.hero.learnMore')}
+                        </a>
           </motion.div>
           
           {/* Trust badges */}

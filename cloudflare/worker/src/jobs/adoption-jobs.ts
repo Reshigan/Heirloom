@@ -106,52 +106,60 @@ const LOCALIZED_MICRO_INFLUENCERS = [
   { name: 'Montreal Ancestry Tales', email: 'tales@montrealancestry.ca', platform: 'BLOG', segment: 'GENEALOGY', handle: '@montrealancestry', follower_count: 590, country: 'CA' },
   { name: 'Calgary Family Stories', email: 'stories@calgaryfamilystories.ca', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@calgaryfamilystories', follower_count: 510, country: 'CA' },
   { name: 'Ottawa Grief Circle', email: 'circle@ottawagrief.ca', platform: 'BLOG', segment: 'GRIEF', handle: '@ottawagrief', follower_count: 390, country: 'CA' },
-  { name: 'Edmonton Estate Planning', email: 'planning@edmontonestates.ca', platform: 'BLOG', segment: 'ESTATE_PLANNING', handle: '@edmontonestates', follower_count: 280, country: 'CA' },
+  { name: 'Edmonton Estate Planning', email: 'planning@edmontonestates.ca', platform: 'BLOG', segment: 'ESTATE_PLANNING', handle: '@edmontonestates', follower_count: 340, country: 'CA' },
   
   // ========== NIGERIA ==========
-  { name: 'Lagos Family Heritage', email: 'heritage@lagosfamilyheritage.ng', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@lagosfamilyheritage', follower_count: 950, country: 'NG' },
-  { name: 'Abuja Memory Keeper', email: 'keeper@abujamemory.ng', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@abujamemory', follower_count: 820, country: 'NG' },
-  { name: 'Nigerian Ancestry Tales', email: 'tales@nigerianancestry.ng', platform: 'BLOG', segment: 'GENEALOGY', handle: '@nigerianancestry', follower_count: 680, country: 'NG' },
-  { name: 'Port Harcourt Grief Support', email: 'support@phgrief.ng', platform: 'BLOG', segment: 'GRIEF', handle: '@phgrief', follower_count: 450, country: 'NG' },
+  { name: 'Lagos Family Roots', email: 'roots@lagosfamilyroots.ng', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@lagosfamilyroots', follower_count: 950, country: 'NG' },
+  { name: 'Abuja Heritage Stories', email: 'stories@abujaheritagestories.ng', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@abujaheritagestories', follower_count: 820, country: 'NG' },
+  { name: 'Nigerian Family Tales', email: 'tales@nigerianfamilytales.ng', platform: 'BLOG', segment: 'PARENTING', handle: '@nigerianfamilytales', follower_count: 680, country: 'NG' },
+  { name: 'Ibadan Memory Keeper', email: 'keeper@ibadanmemorykeeper.ng', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@ibadanmemorykeeper', follower_count: 560, country: 'NG' },
+  { name: 'Port Harcourt Grief Support', email: 'support@phgriefsupport.ng', platform: 'BLOG', segment: 'GRIEF', handle: '@phgriefsupport', follower_count: 430, country: 'NG' },
+  { name: 'Kano Estate Guide', email: 'guide@kanoestateguide.ng', platform: 'BLOG', segment: 'ESTATE_PLANNING', handle: '@kanoestateguide', follower_count: 290, country: 'NG' },
   
   // ========== KENYA ==========
-  { name: 'Nairobi Family Roots', email: 'roots@nairobifamilyroots.ke', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@nairobifamilyroots', follower_count: 880, country: 'KE' },
-  { name: 'Mombasa Memory Lane', email: 'lane@mombasamemory.ke', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@mombasamemory', follower_count: 720, country: 'KE' },
-  { name: 'Kenya Heritage Tales', email: 'tales@kenyaheritage.ke', platform: 'BLOG', segment: 'GENEALOGY', handle: '@kenyaheritage', follower_count: 590, country: 'KE' },
-  { name: 'Kisumu Grief Circle', email: 'circle@kisumugrief.ke', platform: 'BLOG', segment: 'GRIEF', handle: '@kisumugrief', follower_count: 380, country: 'KE' },
+  { name: 'Nairobi Family Heritage', email: 'heritage@nairobifamilyheritage.co.ke', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@nairobifamilyheritage', follower_count: 880, country: 'KE' },
+  { name: 'Mombasa Memory Lane', email: 'lane@mombasamemory.co.ke', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@mombasamemory', follower_count: 720, country: 'KE' },
+  { name: 'Kenyan Ancestry Tales', email: 'tales@kenyanancestry.co.ke', platform: 'BLOG', segment: 'GENEALOGY', handle: '@kenyanancestry', follower_count: 610, country: 'KE' },
+  { name: 'Kisumu Family Stories', email: 'stories@kisumufamily.co.ke', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@kisumufamily', follower_count: 480, country: 'KE' },
+  { name: 'Nakuru Grief Circle', email: 'circle@nakurugrief.co.ke', platform: 'BLOG', segment: 'GRIEF', handle: '@nakurugrief', follower_count: 350, country: 'KE' },
+  { name: 'Eldoret Estate Planning', email: 'planning@eldoretestate.co.ke', platform: 'BLOG', segment: 'ESTATE_PLANNING', handle: '@eldoretestate', follower_count: 280, country: 'KE' },
   
   // ========== INDIA ==========
-  { name: 'Mumbai Family Heritage', email: 'heritage@mumbaifamilyheritage.in', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@mumbaifamilyheritage', follower_count: 980, country: 'IN' },
-  { name: 'Delhi Memory Keeper', email: 'keeper@delhimemory.in', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@delhimemory', follower_count: 850, country: 'IN' },
-  { name: 'Bangalore Ancestry Tales', email: 'tales@bangaloreancestry.in', platform: 'BLOG', segment: 'GENEALOGY', handle: '@bangaloreancestry', follower_count: 720, country: 'IN' },
-  { name: 'Chennai Grief Support', email: 'support@chennaigrief.in', platform: 'BLOG', segment: 'GRIEF', handle: '@chennaigrief', follower_count: 480, country: 'IN' },
-  { name: 'Kolkata Estate Planning', email: 'planning@kolkataestate.in', platform: 'BLOG', segment: 'ESTATE_PLANNING', handle: '@kolkataestate', follower_count: 350, country: 'IN' },
+  { name: 'Mumbai Family Roots', email: 'roots@mumbaifamilyroots.in', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@mumbaifamilyroots', follower_count: 920, country: 'IN' },
+  { name: 'Delhi Heritage Stories', email: 'stories@delhiheritagestories.in', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@delhiheritagestories', follower_count: 850, country: 'IN' },
+  { name: 'Bangalore Memory Keeper', email: 'keeper@bangalorememory.in', platform: 'BLOG', segment: 'PARENTING', handle: '@bangalorememory', follower_count: 710, country: 'IN' },
+  { name: 'Chennai Family Tales', email: 'tales@chennaifamilytales.in', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@chennaifamilytales', follower_count: 590, country: 'IN' },
+  { name: 'Kolkata Grief Support', email: 'support@kolkatagrief.in', platform: 'BLOG', segment: 'GRIEF', handle: '@kolkatagrief', follower_count: 440, country: 'IN' },
+  { name: 'Hyderabad Estate Guide', email: 'guide@hyderabadestate.in', platform: 'BLOG', segment: 'ESTATE_PLANNING', handle: '@hyderabadestate', follower_count: 360, country: 'IN' },
   
   // ========== NEW ZEALAND ==========
-  { name: 'Auckland Family Roots', email: 'roots@aucklandfamilyroots.nz', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@aucklandfamilyroots', follower_count: 820, country: 'NZ' },
-  { name: 'Wellington Memory Lane', email: 'lane@wellingtonmemory.nz', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@wellingtonmemory', follower_count: 680, country: 'NZ' },
-  { name: 'Christchurch Heritage Tales', email: 'tales@christchurchheritage.nz', platform: 'BLOG', segment: 'GENEALOGY', handle: '@christchurchheritage', follower_count: 540, country: 'NZ' },
+  { name: 'Auckland Family Heritage', email: 'heritage@aucklandfamilyheritage.co.nz', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@aucklandfamilyheritage', follower_count: 780, country: 'NZ' },
+  { name: 'Wellington Memory Lane', email: 'lane@wellingtonmemory.co.nz', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@wellingtonmemory', follower_count: 650, country: 'NZ' },
+  { name: 'Christchurch Ancestry', email: 'ancestry@christchurchancestry.co.nz', platform: 'BLOG', segment: 'GENEALOGY', handle: '@christchurchancestry', follower_count: 520, country: 'NZ' },
+  { name: 'NZ Grief Circle', email: 'circle@nzgriefcircle.co.nz', platform: 'BLOG', segment: 'GRIEF', handle: '@nzgriefcircle', follower_count: 380, country: 'NZ' },
   
   // ========== IRELAND ==========
-  { name: 'Dublin Family Heritage', email: 'heritage@dublinfamilyheritage.ie', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@dublinfamilyheritage', follower_count: 890, country: 'IE' },
-  { name: 'Cork Memory Keeper', email: 'keeper@corkmemory.ie', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@corkmemory', follower_count: 720, country: 'IE' },
-  { name: 'Galway Ancestry Tales', email: 'tales@galwayancestry.ie', platform: 'BLOG', segment: 'GENEALOGY', handle: '@galwayancestry', follower_count: 580, country: 'IE' },
-  { name: 'Irish Grief Circle', email: 'circle@irishgrief.ie', platform: 'BLOG', segment: 'GRIEF', handle: '@irishgrief', follower_count: 420, country: 'IE' },
+  { name: 'Dublin Family Roots', email: 'roots@dublinfamilyroots.ie', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@dublinfamilyroots', follower_count: 840, country: 'IE' },
+  { name: 'Cork Heritage Tales', email: 'tales@corkheritagetales.ie', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@corkheritagetales', follower_count: 690, country: 'IE' },
+  { name: 'Galway Memory Keeper', email: 'keeper@galwaymemory.ie', platform: 'BLOG', segment: 'PARENTING', handle: '@galwaymemory', follower_count: 540, country: 'IE' },
+  { name: 'Irish Grief Support', email: 'support@irishgriefsupport.ie', platform: 'BLOG', segment: 'GRIEF', handle: '@irishgriefsupport', follower_count: 420, country: 'IE' },
   
   // ========== GHANA ==========
-  { name: 'Accra Family Roots', email: 'roots@accrafamilyroots.gh', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@accrafamilyroots', follower_count: 780, country: 'GH' },
-  { name: 'Kumasi Memory Lane', email: 'lane@kumasimemory.gh', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@kumasimemory', follower_count: 640, country: 'GH' },
-  { name: 'Ghana Heritage Tales', email: 'tales@ghanaheritage.gh', platform: 'BLOG', segment: 'GENEALOGY', handle: '@ghanaheritage', follower_count: 510, country: 'GH' },
+  { name: 'Accra Family Heritage', email: 'heritage@accrafamilyheritage.gh', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@accrafamilyheritage', follower_count: 760, country: 'GH' },
+  { name: 'Kumasi Memory Lane', email: 'lane@kumasimemory.gh', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@kumasimemory', follower_count: 620, country: 'GH' },
+  { name: 'Ghana Ancestry Tales', email: 'tales@ghanaancestry.gh', platform: 'BLOG', segment: 'GENEALOGY', handle: '@ghanaancestry', follower_count: 480, country: 'GH' },
+  { name: 'Takoradi Grief Circle', email: 'circle@takoradigrief.gh', platform: 'BLOG', segment: 'GRIEF', handle: '@takoradigrief', follower_count: 310, country: 'GH' },
   
-  // ========== USA (Regional) ==========
-  { name: 'Texas Family Heritage', email: 'heritage@texasfamilyheritage.com', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@texasfamilyheritage', follower_count: 920, country: 'US' },
-  { name: 'California Memory Keeper', email: 'keeper@californiamemory.com', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@californiamemory', follower_count: 780, country: 'US' },
-  { name: 'New York Ancestry Tales', email: 'tales@nyancestry.com', platform: 'BLOG', segment: 'GENEALOGY', handle: '@nyancestry', follower_count: 650, country: 'US' },
-  { name: 'Florida Grief Support', email: 'support@floridagrief.com', platform: 'BLOG', segment: 'GRIEF', handle: '@floridagrief', follower_count: 480, country: 'US' },
-  { name: 'Chicago Estate Planning', email: 'planning@chicagoestate.com', platform: 'BLOG', segment: 'ESTATE_PLANNING', handle: '@chicagoestate', follower_count: 350, country: 'US' },
+  // ========== UNITED STATES (Regional Micro-Influencers) ==========
+  { name: 'Texas Family Roots', email: 'roots@texasfamilyroots.com', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@texasfamilyroots', follower_count: 980, country: 'US' },
+  { name: 'California Memory Keeper', email: 'keeper@californiamemory.com', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@californiamemory', follower_count: 890, country: 'US' },
+  { name: 'Florida Heritage Stories', email: 'stories@floridaheritage.com', platform: 'BLOG', segment: 'GENEALOGY', handle: '@floridaheritage', follower_count: 750, country: 'US' },
+  { name: 'New York Family Tales', email: 'tales@nyfamilytales.com', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@nyfamilytales', follower_count: 680, country: 'US' },
+  { name: 'Chicago Grief Support', email: 'support@chicagogrief.com', platform: 'BLOG', segment: 'GRIEF', handle: '@chicagogrief', follower_count: 520, country: 'US' },
+  { name: 'Atlanta Estate Guide', email: 'guide@atlantaestate.com', platform: 'BLOG', segment: 'ESTATE_PLANNING', handle: '@atlantaestate', follower_count: 410, country: 'US' },
   
   // ========== SINGAPORE ==========
-  { name: 'Singapore Family Heritage', email: 'heritage@sgfamilyheritage.sg', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@sgfamilyheritage', follower_count: 850, country: 'SG' },
+  { name: 'Singapore Family Heritage', email: 'heritage@sgfamilyheritage.sg', platform: 'INSTAGRAM', segment: 'GENEALOGY', handle: '@sgfamilyheritage', follower_count: 820, country: 'SG' },
   { name: 'SG Memory Lane', email: 'lane@sgmemorylane.sg', platform: 'INSTAGRAM', segment: 'PARENTING', handle: '@sgmemorylane', follower_count: 690, country: 'SG' },
   { name: 'Singapore Grief Circle', email: 'circle@sggrief.sg', platform: 'BLOG', segment: 'GRIEF', handle: '@sggrief', follower_count: 450, country: 'SG' },
   
@@ -462,8 +470,8 @@ export async function discoverNewProspects(env: Env) {
   let skipped = 0;
   let errors: string[] = [];
   
-  // Combine all prospect sources (including localized micro-influencers and viral influencers)
-  const allProspects = [...CURATED_PROSPECTS, ...LOCALIZED_MICRO_INFLUENCERS, ...EXPANDED_PROSPECTS];
+  // Combine all prospect sources (including localized micro-influencers)
+  const allProspects = [...CURATED_PROSPECTS, ...EXPANDED_PROSPECTS, ...LOCALIZED_MICRO_INFLUENCERS];
   
   for (const prospect of allProspects) {
     try {

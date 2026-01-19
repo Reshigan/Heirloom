@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ZoomIn, ZoomOut, Upload, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface AvatarCropperModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export function AvatarCropperModal({
   onComplete,
   isUploading = false 
 }: AvatarCropperModalProps) {
+  const { t } = useTranslation();
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);

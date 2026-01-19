@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2, Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 
 export function Signup() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { register } = useAuthStore();
   
   const [form, setForm] = useState({
@@ -127,8 +129,8 @@ export function Signup() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h1 className="text-2xl font-light text-center mb-2">Create your legacy</h1>
-              <p className="text-paper/50 text-center mb-8">Start your 14-day free trial</p>
+                            <h1 className="text-2xl font-light text-center mb-2">{t('auth.createAccount')}</h1>
+                            <p className="text-paper/50 text-center mb-8">{t('auth.signupSubtitle')}</p>
             </motion.div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -144,7 +146,7 @@ export function Signup() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">First name</label>
+                  <label className="block text-sm text-paper/50 mb-2">{t('auth.firstName')}</label>
                   <div className="relative">
                     <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                     <input
@@ -158,7 +160,7 @@ export function Signup() {
                   {errors.firstName && <p className="text-blood text-xs mt-1">{errors.firstName}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Last name</label>
+                  <label className="block text-sm text-paper/50 mb-2">{t('auth.lastName')}</label>
                   <input
                     type="text"
                     value={form.lastName}
@@ -170,23 +172,23 @@ export function Signup() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm text-paper/50 mb-2">Email</label>
-                <div className="relative">
-                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="you@example.com"
-                    className={`input pl-12 ${errors.email ? 'border-blood' : ''}`}
-                  />
-                </div>
-                {errors.email && <p className="text-blood text-xs mt-1">{errors.email}</p>}
-              </div>
+                            <div>
+                              <label className="block text-sm text-paper/50 mb-2">{t('auth.email')}</label>
+                              <div className="relative">
+                                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                                <input
+                                  type="email"
+                                  value={form.email}
+                                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                  placeholder="you@example.com"
+                                  className={`input pl-12 ${errors.email ? 'border-blood' : ''}`}
+                                />
+                              </div>
+                              {errors.email && <p className="text-blood text-xs mt-1">{errors.email}</p>}
+                            </div>
 
-              <div>
-                <label className="block text-sm text-paper/50 mb-2">Password</label>
+                            <div>
+                              <label className="block text-sm text-paper/50 mb-2">{t('auth.password')}</label>
                 <div className="relative">
                   <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                   <input
@@ -220,7 +222,7 @@ export function Signup() {
               </div>
 
               <div>
-                <label className="block text-sm text-paper/50 mb-2">Confirm password</label>
+                <label className="block text-sm text-paper/50 mb-2">{t('auth.confirmPassword')}</label>
                 <div className="relative">
                   <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                   <input
@@ -244,10 +246,10 @@ export function Signup() {
                 {isLoading ? (
                   <Loader2 size={20} className="animate-spin" />
                 ) : (
-                  <>
-                    Begin Your Legacy
-                    <ArrowRight size={20} />
-                  </>
+                                    <>
+                                      {t('auth.signup')}
+                                      <ArrowRight size={20} />
+                                    </>
                 )}
               </motion.button>
 
@@ -260,12 +262,12 @@ export function Signup() {
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-paper/50">
-                Already have an account?{' '}
-                <Link to="/login" className="text-gold hover:text-gold-bright transition-colors">
-                  Sign in
-                </Link>
-              </p>
+                            <p className="text-paper/50">
+                              {t('auth.hasAccount')}{' '}
+                              <Link to="/login" className="text-gold hover:text-gold-bright transition-colors">
+                                {t('auth.login')}
+                              </Link>
+                            </p>
             </div>
           </div>
         </div>

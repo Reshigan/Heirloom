@@ -1,0 +1,370 @@
+{
+    "common": {
+      "loading": "加载中...",
+      "save": "保存",
+      "cancel": "取消",
+      "delete": "删除",
+      "edit": "编辑",
+      "close": "关闭",
+      "submit": "提交",
+      "confirm": "确认",
+      "back": "返回",
+      "next": "下一步",
+      "previous": "上一步",
+      "search": "搜索",
+      "filter": "筛选",
+      "sort": "排序",
+      "view": "查看",
+      "download": "下载",
+      "upload": "上传",
+      "share": "分享",
+      "copy": "复制",
+      "copied": "已复制！",
+      "error": "错误",
+      "success": "成功",
+      "warning": "警告",
+      "info": "信息",
+      "yes": "是",
+      "no": "否",
+      "or": "或",
+      "and": "和",
+      "all": "全部",
+      "none": "无",
+      "select": "选择",
+      "required": "必填",
+      "optional": "可选",
+      "goBack": "返回",
+      "returnHome": "返回首页",
+      "backToHome": "返回首页",
+      "becomePartner": "成为合作伙伴",
+      "partnerSubtitle": "与Heirloom合作，为您的客户提供一种有意义的方式来保存他们的家族传承。获得礼品券批发价格，并通过推荐赚取佣金。",
+      "adminPortal": "管理员门户",
+      "adminSignInSubtitle": "登录以访问管理员仪表板"
+    },
+  "nav": {
+    "home": "首页",
+    "vault": "保险库",
+    "dashboard": "控制台",
+    "memories": "回忆",
+    "write": "写作",
+    "record": "录制",
+    "letters": "信件",
+    "family": "家庭",
+    "wrapped": "年度回顾",
+    "settings": "设置",
+    "billing": "账单",
+    "logout": "退出",
+    "signOut": "退出登录",
+    "login": "登录",
+    "signup": "注册"
+  },
+    "auth": {
+      "login": "登录",
+      "signup": "注册",
+      "logout": "退出",
+      "signIn": "登录",
+      "email": "电子邮件",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "forgotPassword": "忘记密码？",
+      "forgotPasswordSubtitle": "输入您的电子邮件，我们将发送重置链接",
+      "resetPassword": "重置密码",
+      "resetPasswordSubtitle": "在下方输入您的新密码",
+      "newPassword": "新密码",
+      "sendResetLink": "发送重置链接",
+      "backToLogin": "返回登录",
+      "rememberMe": "记住我",
+      "noAccount": "还没有账户？",
+      "hasAccount": "已有账户？",
+      "createAccount": "创建账户",
+      "welcomeBack": "欢迎回来",
+      "loginSubtitle": "登录以继续保存您的家族传承",
+      "signupSubtitle": "今天就开始保存您家庭的珍贵回忆",
+      "firstName": "名",
+      "lastName": "姓",
+      "termsAgree": "我同意服务条款和隐私政策",
+      "invalidEmail": "请输入有效的电子邮件地址",
+      "passwordMinLength": "密码必须至少8个字符",
+      "passwordsNoMatch": "密码不匹配"
+    },
+    "landing": {
+      "hero": {
+        "title": "保存最",
+        "titleLine2": "珍贵的",
+        "titleHighlight": "回忆",
+        "subtitle": "创建持久的回忆，写下真挚的信件，为后代建立数字传家宝。",
+        "cta": "开始您的传承",
+        "ctaSecondary": "了解更多",
+        "trial": "14天免费试用 • 无需信用卡"
+      },
+    "features": {
+      "title": "保存回忆所需的一切",
+      "memories": {
+        "title": "捕捉回忆",
+        "description": "录制语音消息，上传照片，写下永恒的故事。"
+      },
+      "letters": {
+        "title": "写信",
+        "description": "撰写真挚的信件，在特殊时刻送达给您的亲人。"
+      },
+      "family": {
+        "title": "连接家庭",
+        "description": "建立您的家谱，跨代分享回忆。"
+      },
+      "secure": {
+        "title": "安全私密",
+        "description": "您的回忆经过加密，受银行级安全保护。"
+      }
+    },
+    "testimonials": {
+      "title": "用户评价"
+    },
+    "pricing": {
+      "title": "选择您的计划",
+      "subtitle": "今天就开始保存回忆",
+      "monthly": "月付",
+      "yearly": "年付",
+      "perMonth": "/月",
+      "perYear": "/年",
+      "popular": "最受欢迎",
+      "starter": {
+        "name": "入门版",
+        "description": "适合个人使用"
+      },
+      "family": {
+        "name": "家庭版",
+        "description": "适合成长中的家庭"
+      },
+      "legacy": {
+        "name": "传承版",
+        "description": "保存世代传承"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "欢迎回来，{{name}}",
+    "recentMemories": "最近的回忆",
+    "upcomingLetters": "即将发送的信件",
+    "familyActivity": "家庭活动",
+    "quickActions": "快捷操作",
+    "createMemory": "创建回忆",
+    "writeALetter": "写一封信",
+    "viewFamily": "查看家庭",
+    "noMemories": "还没有回忆。开始捕捉您的第一个回忆吧！",
+    "noLetters": "没有计划的信件。写下您的第一封信吧！",
+    "stats": {
+      "memories": "回忆",
+      "letters": "信件",
+      "familyMembers": "家庭成员",
+      "storageUsed": "已用存储"
+    }
+  },
+  "memories": {
+    "title": "回忆",
+    "subtitle": "您珍贵时刻的收藏",
+    "create": "创建回忆",
+    "noMemories": "还没有回忆",
+    "startCapturing": "开始捕捉您的珍贵时刻",
+    "types": {
+      "photo": "照片",
+      "video": "视频",
+      "voice": "语音录音",
+      "text": "文字故事"
+    },
+    "form": {
+      "title": "标题",
+      "titlePlaceholder": "给您的回忆起个标题",
+      "description": "描述",
+      "descriptionPlaceholder": "讲述这个回忆背后的故事...",
+      "date": "日期",
+      "tags": "标签",
+      "tagsPlaceholder": "添加标签以便整理",
+      "privacy": "隐私",
+      "privacyOptions": {
+        "private": "私密 - 仅自己可见",
+        "family": "家庭 - 与家人共享",
+        "public": "公开 - 任何有链接的人"
+      }
+    },
+    "record": {
+      "title": "录制回忆",
+      "startRecording": "开始录制",
+      "stopRecording": "停止录制",
+      "pauseRecording": "暂停",
+      "resumeRecording": "继续",
+      "recordingTime": "录制中：{{time}}"
+    }
+  },
+  "letters": {
+    "title": "信件",
+    "subtitle": "给亲人的真挚消息",
+    "create": "写一封信",
+    "noLetters": "还没有信件",
+    "startWriting": "开始写您的第一封信",
+    "form": {
+      "recipient": "收件人",
+      "recipientPlaceholder": "这封信是写给谁的？",
+      "subject": "主题",
+      "subjectPlaceholder": "这封信是关于什么的？",
+      "content": "您的消息",
+      "contentPlaceholder": "写下您真挚的消息...",
+      "deliveryDate": "送达日期",
+      "deliveryTrigger": "送达触发条件",
+      "triggers": {
+        "date": "在特定日期",
+        "birthday": "在他们的生日",
+        "anniversary": "在纪念日",
+        "event": "在某个人生事件后",
+        "manual": "当我选择时"
+      }
+    },
+    "status": {
+      "draft": "草稿",
+      "scheduled": "已计划",
+      "delivered": "已送达",
+      "read": "已读"
+    }
+  },
+  "family": {
+    "title": "家庭",
+    "subtitle": "您的家谱和联系",
+    "addMember": "添加家庭成员",
+    "noMembers": "还没有家庭成员",
+    "startBuilding": "开始建立您的家谱",
+    "relationships": {
+      "parent": "父母",
+      "child": "子女",
+      "sibling": "兄弟姐妹",
+      "spouse": "配偶",
+      "grandparent": "祖父母",
+      "grandchild": "孙子女",
+      "aunt": "姑姑/阿姨",
+      "uncle": "叔叔/舅舅",
+      "cousin": "表亲",
+      "other": "其他"
+    },
+    "form": {
+      "name": "姓名",
+      "relationship": "关系",
+      "email": "电子邮件（可选）",
+      "birthdate": "出生日期",
+      "notes": "备注"
+    },
+    "invite": {
+      "title": "邀请加入Heirloom",
+      "description": "邀请这位家庭成员加入并分享回忆",
+      "sent": "邀请已发送！"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "profile": {
+      "title": "个人资料",
+      "name": "姓名",
+      "email": "电子邮件",
+      "avatar": "头像",
+      "changeAvatar": "更换头像",
+      "bio": "简介",
+      "bioPlaceholder": "介绍一下您自己..."
+    },
+    "preferences": {
+      "title": "偏好设置",
+      "language": "语言",
+      "timezone": "时区",
+      "dateFormat": "日期格式",
+      "notifications": "通知",
+      "emailNotifications": "邮件通知",
+      "pushNotifications": "推送通知"
+    },
+    "security": {
+      "title": "安全",
+      "changePassword": "更改密码",
+      "currentPassword": "当前密码",
+      "newPassword": "新密码",
+      "confirmNewPassword": "确认新密码",
+      "twoFactor": "双因素认证",
+      "enable2FA": "启用2FA",
+      "disable2FA": "禁用2FA"
+    },
+    "privacy": {
+      "title": "隐私",
+      "profileVisibility": "个人资料可见性",
+      "dataSharing": "数据共享",
+      "downloadData": "下载我的数据",
+      "deleteAccount": "删除账户"
+    }
+  },
+    "billing": {
+      "title": "选择您的传承",
+      "subtitle": "用适合您家庭需求的计划保存最重要的东西。",
+      "currentPlan": "当前计划",
+    "changePlan": "更改计划",
+    "cancelSubscription": "取消订阅",
+    "paymentMethod": "支付方式",
+    "updatePayment": "更新支付方式",
+    "billingHistory": "账单历史",
+    "nextBilling": "下次账单日期",
+    "trial": {
+      "title": "免费试用",
+      "daysRemaining": "剩余{{days}}天",
+      "upgrade": "立即升级"
+    },
+    "invoice": {
+      "date": "日期",
+      "amount": "金额",
+      "status": "状态",
+      "download": "下载"
+    }
+  },
+    "referral": {
+      "title": "推荐朋友和家人",
+      "subtitle": "与您的亲人分享Heirloom，每次成功推荐都可获得奖励。",
+      "yourLink": "您的推荐链接",
+      "yourCode": "您的推荐码",
+      "shareLink": "分享此链接邀请他人",
+      "share": "分享链接",
+      "customizeCode": "自定义代码",
+      "rewards": {
+      "title": "您的奖励",
+      "earned": "总收入",
+      "pending": "待结算"
+    },
+    "stats": {
+      "clicks": "点击",
+      "signups": "注册",
+      "conversions": "转化"
+    }
+  },
+    "influencer": {
+      "title": "成为网红合作伙伴",
+      "subtitle": "加入我们的网红计划，在帮助家庭保存珍贵回忆的同时赚取佣金。",
+      "apply": "立即申请",
+      "applyNow": "立即申请",
+      "dashboard": {
+      "earnings": "总收入",
+      "pending": "待支付",
+      "conversions": "转化",
+      "clicks": "总点击"
+    },
+    "discountCode": "您的折扣码",
+    "landingPage": "您的落地页"
+  },
+    "errors": {
+      "generic": "出了点问题。请重试。",
+      "network": "网络错误。请检查您的连接。",
+      "unauthorized": "请登录以继续。",
+      "forbidden": "您没有权限执行此操作。",
+      "notFound": "页面未找到",
+      "notFoundMessage": "您正在寻找的页面似乎已经消失在虚空中。让我们带您回到熟悉的地方。",
+      "serverError": "服务器错误。请稍后重试。",
+      "validation": "请检查您的输入并重试。"
+    },
+  "footer": {
+    "about": "关于",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "contact": "联系我们",
+    "help": "帮助中心",
+    "copyright": "© {{year}} Heirloom。保留所有权利。"
+  }
+}

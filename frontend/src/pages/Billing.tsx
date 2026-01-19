@@ -6,6 +6,7 @@ import {
   ArrowLeft, Check, Crown, Sparkles, Shield, Clock, 
   CreditCard, Loader2, AlertTriangle, X, Zap
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { billingApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
@@ -70,6 +71,7 @@ const PLANS = [
 
 export function Billing() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -151,8 +153,8 @@ export function Billing() {
             className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors"
             whileHover={{ x: -4 }}
           >
-            <ArrowLeft size={20} />
-            <span>Back to Dashboard</span>
+                        <ArrowLeft size={20} />
+                        <span>{t('settings.backToVault')}</span>
           </motion.button>
 
           <motion.div 
@@ -197,11 +199,10 @@ export function Billing() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-light mb-4">Choose Your Legacy</h1>
-          <p className="text-paper/60 text-lg max-w-2xl mx-auto">
-            Preserve what matters most. Every plan includes our iron-clad security 
-            and the promise to protect your memories for generations.
-          </p>
+                    <h1 className="text-4xl md:text-5xl font-light mb-4">{t('billing.title')}</h1>
+                    <p className="text-paper/60 text-lg max-w-2xl mx-auto">
+                      {t('billing.subtitle')}
+                    </p>
         </motion.div>
 
         {/* Billing Toggle */}

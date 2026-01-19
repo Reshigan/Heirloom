@@ -1,0 +1,370 @@
+{
+    "common": {
+      "loading": "Chargement...",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "close": "Fermer",
+      "submit": "Soumettre",
+      "confirm": "Confirmer",
+      "back": "Retour",
+      "next": "Suivant",
+      "previous": "Précédent",
+      "search": "Rechercher",
+      "filter": "Filtrer",
+      "sort": "Trier",
+      "view": "Voir",
+      "download": "Télécharger",
+      "upload": "Téléverser",
+      "share": "Partager",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "error": "Erreur",
+      "success": "Succès",
+      "warning": "Avertissement",
+      "info": "Information",
+      "yes": "Oui",
+      "no": "Non",
+      "or": "ou",
+      "and": "et",
+      "all": "Tout",
+      "none": "Aucun",
+      "select": "Sélectionner",
+      "required": "Requis",
+      "optional": "Optionnel",
+      "goBack": "Retour",
+      "returnHome": "Retour à l'Accueil",
+      "backToHome": "Retour à l'Accueil",
+      "becomePartner": "Devenir Partenaire",
+      "partnerSubtitle": "Associez-vous à Heirloom pour offrir à vos clients un moyen significatif de préserver l'héritage de leur famille. Obtenez des prix de gros sur les bons cadeaux et gagnez des commissions sur les références.",
+      "adminPortal": "Portail Administrateur",
+      "adminSignInSubtitle": "Connectez-vous pour accéder au tableau de bord administrateur"
+    },
+  "nav": {
+    "home": "Accueil",
+    "vault": "Coffre",
+    "dashboard": "Tableau de bord",
+    "memories": "Souvenirs",
+    "write": "Écrire",
+    "record": "Enregistrer",
+    "letters": "Lettres",
+    "family": "Famille",
+    "wrapped": "Résumé",
+    "settings": "Paramètres",
+    "billing": "Facturation",
+    "logout": "Déconnexion",
+    "signOut": "Se déconnecter",
+    "login": "Connexion",
+    "signup": "S'inscrire"
+  },
+    "auth": {
+      "login": "Connexion",
+      "signup": "S'inscrire",
+      "logout": "Déconnexion",
+      "signIn": "Se Connecter",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "forgotPasswordSubtitle": "Entrez votre e-mail et nous vous enverrons un lien de réinitialisation",
+      "resetPassword": "Réinitialiser le mot de passe",
+      "resetPasswordSubtitle": "Entrez votre nouveau mot de passe ci-dessous",
+      "newPassword": "Nouveau Mot de Passe",
+      "sendResetLink": "Envoyer le Lien de Réinitialisation",
+      "backToLogin": "Retour à la Connexion",
+      "rememberMe": "Se souvenir de moi",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "createAccount": "Créer un compte",
+      "welcomeBack": "Bon retour",
+      "loginSubtitle": "Connectez-vous pour continuer à préserver l'héritage de votre famille",
+      "signupSubtitle": "Commencez à préserver les précieux souvenirs de votre famille aujourd'hui",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "termsAgree": "J'accepte les Conditions d'utilisation et la Politique de confidentialité",
+      "invalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordsNoMatch": "Les mots de passe ne correspondent pas"
+    },
+    "landing": {
+      "hero": {
+        "title": "Préservez les",
+        "titleLine2": "Plus Précieux",
+        "titleHighlight": "Souvenirs",
+        "subtitle": "Créez des souvenirs durables, écrivez des lettres sincères et construisez un héritage numérique pour les générations à venir.",
+        "cta": "Commencez Votre Héritage",
+        "ctaSecondary": "En Savoir Plus",
+        "trial": "14 jours d'essai gratuit • Sans carte de crédit"
+      },
+    "features": {
+      "title": "Tout ce dont Vous Avez Besoin pour Préserver les Souvenirs",
+      "memories": {
+        "title": "Capturez des Souvenirs",
+        "description": "Enregistrez des messages vocaux, téléchargez des photos et écrivez des histoires qui dureront pour toujours."
+      },
+      "letters": {
+        "title": "Écrivez des Lettres",
+        "description": "Composez des lettres sincères à livrer à vos proches lors de moments spéciaux."
+      },
+      "family": {
+        "title": "Connectez la Famille",
+        "description": "Construisez votre arbre généalogique et partagez des souvenirs à travers les générations."
+      },
+      "secure": {
+        "title": "Sécurisé et Privé",
+        "description": "Vos souvenirs sont cryptés et protégés avec une sécurité de niveau bancaire."
+      }
+    },
+    "testimonials": {
+      "title": "Ce que Disent Nos Utilisateurs"
+    },
+    "pricing": {
+      "title": "Choisissez Votre Forfait",
+      "subtitle": "Commencez à préserver des souvenirs aujourd'hui",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "perMonth": "/mois",
+      "perYear": "/an",
+      "popular": "Le Plus Populaire",
+      "starter": {
+        "name": "Débutant",
+        "description": "Parfait pour les individus"
+      },
+      "family": {
+        "name": "Famille",
+        "description": "Pour les familles grandissantes"
+      },
+      "legacy": {
+        "name": "Héritage",
+        "description": "Pour préserver les générations"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Bon retour, {{name}}",
+    "recentMemories": "Souvenirs Récents",
+    "upcomingLetters": "Lettres à Venir",
+    "familyActivity": "Activité Familiale",
+    "quickActions": "Actions Rapides",
+    "createMemory": "Créer un Souvenir",
+    "writeALetter": "Écrire une Lettre",
+    "viewFamily": "Voir la Famille",
+    "noMemories": "Pas encore de souvenirs. Commencez à capturer votre premier souvenir !",
+    "noLetters": "Aucune lettre programmée. Écrivez votre première lettre !",
+    "stats": {
+      "memories": "Souvenirs",
+      "letters": "Lettres",
+      "familyMembers": "Membres de la Famille",
+      "storageUsed": "Stockage Utilisé"
+    }
+  },
+  "memories": {
+    "title": "Souvenirs",
+    "subtitle": "Votre collection de moments précieux",
+    "create": "Créer un Souvenir",
+    "noMemories": "Pas encore de souvenirs",
+    "startCapturing": "Commencez à capturer vos moments précieux",
+    "types": {
+      "photo": "Photo",
+      "video": "Vidéo",
+      "voice": "Enregistrement Vocal",
+      "text": "Histoire Écrite"
+    },
+    "form": {
+      "title": "Titre",
+      "titlePlaceholder": "Donnez un titre à votre souvenir",
+      "description": "Description",
+      "descriptionPlaceholder": "Racontez l'histoire derrière ce souvenir...",
+      "date": "Date",
+      "tags": "Tags",
+      "tagsPlaceholder": "Ajoutez des tags pour organiser",
+      "privacy": "Confidentialité",
+      "privacyOptions": {
+        "private": "Privé - Vous seul",
+        "family": "Famille - Partagé avec la famille",
+        "public": "Public - Toute personne avec le lien"
+      }
+    },
+    "record": {
+      "title": "Enregistrer un Souvenir",
+      "startRecording": "Démarrer l'Enregistrement",
+      "stopRecording": "Arrêter l'Enregistrement",
+      "pauseRecording": "Pause",
+      "resumeRecording": "Reprendre",
+      "recordingTime": "Enregistrement : {{time}}"
+    }
+  },
+  "letters": {
+    "title": "Lettres",
+    "subtitle": "Messages sincères pour vos proches",
+    "create": "Écrire une Lettre",
+    "noLetters": "Pas encore de lettres",
+    "startWriting": "Commencez à écrire votre première lettre",
+    "form": {
+      "recipient": "Destinataire",
+      "recipientPlaceholder": "À qui est destinée cette lettre ?",
+      "subject": "Sujet",
+      "subjectPlaceholder": "De quoi parle cette lettre ?",
+      "content": "Votre Message",
+      "contentPlaceholder": "Écrivez votre message sincère...",
+      "deliveryDate": "Date de Livraison",
+      "deliveryTrigger": "Déclencheur de Livraison",
+      "triggers": {
+        "date": "À une date spécifique",
+        "birthday": "À leur anniversaire",
+        "anniversary": "À un anniversaire",
+        "event": "Après un événement de vie",
+        "manual": "Quand je choisis"
+      }
+    },
+    "status": {
+      "draft": "Brouillon",
+      "scheduled": "Programmée",
+      "delivered": "Livrée",
+      "read": "Lue"
+    }
+  },
+  "family": {
+    "title": "Famille",
+    "subtitle": "Votre arbre généalogique et connexions",
+    "addMember": "Ajouter un Membre de la Famille",
+    "noMembers": "Pas encore de membres de la famille",
+    "startBuilding": "Commencez à construire votre arbre généalogique",
+    "relationships": {
+      "parent": "Parent",
+      "child": "Enfant",
+      "sibling": "Frère/Sœur",
+      "spouse": "Conjoint(e)",
+      "grandparent": "Grand-parent",
+      "grandchild": "Petit-enfant",
+      "aunt": "Tante",
+      "uncle": "Oncle",
+      "cousin": "Cousin(e)",
+      "other": "Autre"
+    },
+    "form": {
+      "name": "Nom",
+      "relationship": "Relation",
+      "email": "E-mail (optionnel)",
+      "birthdate": "Date de Naissance",
+      "notes": "Notes"
+    },
+    "invite": {
+      "title": "Inviter sur Heirloom",
+      "description": "Invitez ce membre de la famille à rejoindre et partager des souvenirs",
+      "sent": "Invitation envoyée !"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": {
+      "title": "Profil",
+      "name": "Nom",
+      "email": "E-mail",
+      "avatar": "Photo de Profil",
+      "changeAvatar": "Changer la Photo",
+      "bio": "Biographie",
+      "bioPlaceholder": "Parlez-nous de vous..."
+    },
+    "preferences": {
+      "title": "Préférences",
+      "language": "Langue",
+      "timezone": "Fuseau Horaire",
+      "dateFormat": "Format de Date",
+      "notifications": "Notifications",
+      "emailNotifications": "Notifications par E-mail",
+      "pushNotifications": "Notifications Push"
+    },
+    "security": {
+      "title": "Sécurité",
+      "changePassword": "Changer le Mot de Passe",
+      "currentPassword": "Mot de Passe Actuel",
+      "newPassword": "Nouveau Mot de Passe",
+      "confirmNewPassword": "Confirmer le Nouveau Mot de Passe",
+      "twoFactor": "Authentification à Deux Facteurs",
+      "enable2FA": "Activer 2FA",
+      "disable2FA": "Désactiver 2FA"
+    },
+    "privacy": {
+      "title": "Confidentialité",
+      "profileVisibility": "Visibilité du Profil",
+      "dataSharing": "Partage de Données",
+      "downloadData": "Télécharger Mes Données",
+      "deleteAccount": "Supprimer le Compte"
+    }
+  },
+    "billing": {
+      "title": "Choisissez Votre Héritage",
+      "subtitle": "Préservez ce qui compte le plus avec un forfait adapté aux besoins de votre famille.",
+      "currentPlan": "Forfait Actuel",
+    "changePlan": "Changer de Forfait",
+    "cancelSubscription": "Annuler l'Abonnement",
+    "paymentMethod": "Méthode de Paiement",
+    "updatePayment": "Mettre à Jour le Paiement",
+    "billingHistory": "Historique de Facturation",
+    "nextBilling": "Prochaine date de facturation",
+    "trial": {
+      "title": "Essai Gratuit",
+      "daysRemaining": "{{days}} jours restants",
+      "upgrade": "Mettre à Niveau"
+    },
+    "invoice": {
+      "date": "Date",
+      "amount": "Montant",
+      "status": "Statut",
+      "download": "Télécharger"
+    }
+  },
+    "referral": {
+      "title": "Parrainez Amis et Famille",
+      "subtitle": "Partagez Heirloom avec vos proches et gagnez des récompenses pour chaque parrainage réussi.",
+      "yourLink": "Votre Lien de Parrainage",
+      "yourCode": "Votre Code de Parrainage",
+      "shareLink": "Partagez ce lien pour inviter d'autres personnes",
+      "share": "Partager le Lien",
+      "customizeCode": "Personnaliser le Code",
+      "rewards": {
+      "title": "Vos Récompenses",
+      "earned": "Total Gagné",
+      "pending": "En Attente"
+    },
+    "stats": {
+      "clicks": "Clics",
+      "signups": "Inscriptions",
+      "conversions": "Conversions"
+    }
+  },
+    "influencer": {
+      "title": "Devenez Partenaire Influenceur",
+      "subtitle": "Rejoignez notre programme d'influenceurs et gagnez des commissions tout en aidant les familles à préserver leurs précieux souvenirs.",
+      "apply": "Postuler Maintenant",
+      "applyNow": "Postuler Maintenant",
+      "dashboard": {
+      "earnings": "Gains Totaux",
+      "pending": "Paiement en Attente",
+      "conversions": "Conversions",
+      "clicks": "Clics Totaux"
+    },
+    "discountCode": "Votre Code de Réduction",
+    "landingPage": "Votre Page de Destination"
+  },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "network": "Erreur réseau. Veuillez vérifier votre connexion.",
+      "unauthorized": "Veuillez vous connecter pour continuer.",
+      "forbidden": "Vous n'avez pas la permission de faire cela.",
+      "notFound": "Page Non Trouvée",
+      "notFoundMessage": "La page que vous recherchez semble s'être perdue dans le vide. Laissez-nous vous guider vers un territoire familier.",
+      "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
+      "validation": "Veuillez vérifier votre saisie et réessayer."
+    },
+  "footer": {
+    "about": "À Propos",
+    "privacy": "Politique de Confidentialité",
+    "terms": "Conditions d'Utilisation",
+    "contact": "Nous Contacter",
+    "help": "Centre d'Aide",
+    "copyright": "© {{year}} Heirloom. Tous droits réservés."
+  }
+}

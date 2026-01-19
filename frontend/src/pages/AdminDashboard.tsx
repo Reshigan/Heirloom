@@ -7,6 +7,7 @@ import {
   FileText, Mail, Download, Clock, AlertTriangle, CheckCircle,
   UserPlus, Settings, Send, Eye
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { adminApi } from '../services/api';
 
 // Admin auth check
@@ -27,6 +28,7 @@ const useAdminAuth = () => {
 
 export function AdminDashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const admin = useAdminAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [showCouponModal, setShowCouponModal] = useState(false);

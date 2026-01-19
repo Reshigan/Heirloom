@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 
 export function Login() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { login } = useAuthStore();
   
   const [email, setEmail] = useState('');
@@ -200,8 +202,8 @@ export function Login() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h1 className="text-2xl font-light text-center mb-2">Welcome back</h1>
-              <p className="text-paper/50 text-center mb-8">Enter your sanctuary</p>
+                            <h1 className="text-2xl font-light text-center mb-2">{t('auth.welcomeBack')}</h1>
+                            <p className="text-paper/50 text-center mb-8">{t('auth.loginSubtitle')}</p>
             </motion.div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -216,7 +218,7 @@ export function Login() {
               )}
 
               <div>
-                <label className="block text-sm text-paper/50 mb-2">Email</label>
+                <label className="block text-sm text-paper/50 mb-2">{t('auth.email')}</label>
                 <div className="relative">
                   <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                   <input
@@ -231,7 +233,7 @@ export function Login() {
               </div>
 
               <div>
-                <label className="block text-sm text-paper/50 mb-2">Password</label>
+                <label className="block text-sm text-paper/50 mb-2">{t('auth.password')}</label>
                 <div className="relative">
                   <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
                   <input
@@ -253,9 +255,9 @@ export function Login() {
               </div>
 
               <div className="flex justify-end">
-                <Link to="/forgot-password" className="text-sm text-gold/70 hover:text-gold transition-colors">
-                  Forgot password?
-                </Link>
+                                <Link to="/forgot-password" className="text-sm text-gold/70 hover:text-gold transition-colors">
+                                  {t('auth.forgotPassword')}
+                                </Link>
               </div>
 
               <motion.button
@@ -268,21 +270,21 @@ export function Login() {
                 {isLoading ? (
                   <Loader2 size={20} className="animate-spin" />
                 ) : (
-                  <>
-                    Enter Vault
-                    <ArrowRight size={20} />
-                  </>
+                                    <>
+                                      {t('auth.login')}
+                                      <ArrowRight size={20} />
+                                    </>
                 )}
               </motion.button>
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-paper/50">
-                Don't have an account?{' '}
-                <Link to="/signup" className="text-gold hover:text-gold-bright transition-colors">
-                  Create one
-                </Link>
-              </p>
+                            <p className="text-paper/50">
+                              {t('auth.noAccount')}{' '}
+                              <Link to="/signup" className="text-gold hover:text-gold-bright transition-colors">
+                                {t('auth.createAccount')}
+                              </Link>
+                            </p>
             </div>
           </div>
         </div>

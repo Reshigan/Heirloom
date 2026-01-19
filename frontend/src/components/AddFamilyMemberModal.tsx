@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Users, Mail, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { familyApi } from '../services/api';
 
 const RELATIONSHIPS = ['Spouse', 'Partner', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Grandparent', 'Friend', 'Other'];
@@ -19,6 +20,7 @@ interface AddFamilyMemberModalProps {
 }
 
 export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMemberModalProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [relationship, setRelationship] = useState('');
   const [email, setEmail] = useState('');

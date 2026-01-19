@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCircle, Filter, Grid, List, Calendar, ChevronLeft, ChevronRight, Heart, Sparkles, Cloud, Gift, Droplet, Eye, Trophy, Leaf, Sun } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { memoriesApi, familyApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 
@@ -35,6 +36,7 @@ type Memory = {
 
 export function Memories() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -262,8 +264,8 @@ export function Memories() {
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
         >
-          <ArrowLeft size={20} />
-          Back to Vault
+                    <ArrowLeft size={20} />
+                    {t('settings.backToVault')}
         </motion.button>
 
         <div className="max-w-6xl mx-auto">
@@ -273,8 +275,8 @@ export function Memories() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h1 className="text-4xl md:text-5xl font-light mb-2">Your <em>Memories</em></h1>
-              <p className="text-paper/50">Moments worth preserving forever</p>
+                            <h1 className="text-4xl md:text-5xl font-light mb-2">{t('memories.title')}</h1>
+                            <p className="text-paper/50">{t('memories.subtitle')}</p>
             </motion.div>
 
             <motion.div
@@ -318,8 +320,8 @@ export function Memories() {
                 onClick={() => setShowUploadModal(true)}
                 className="btn btn-primary"
               >
-                <Plus size={18} />
-                Add Memory
+                                <Plus size={18} />
+                                {t('memories.create')}
               </button>
             </motion.div>
           </div>

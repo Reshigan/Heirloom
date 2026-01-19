@@ -1,0 +1,370 @@
+{
+    "common": {
+      "loading": "読み込み中...",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "delete": "削除",
+      "edit": "編集",
+      "close": "閉じる",
+      "submit": "送信",
+      "confirm": "確認",
+      "back": "戻る",
+      "next": "次へ",
+      "previous": "前へ",
+      "search": "検索",
+      "filter": "フィルター",
+      "sort": "並べ替え",
+      "view": "表示",
+      "download": "ダウンロード",
+      "upload": "アップロード",
+      "share": "共有",
+      "copy": "コピー",
+      "copied": "コピーしました！",
+      "error": "エラー",
+      "success": "成功",
+      "warning": "警告",
+      "info": "情報",
+      "yes": "はい",
+      "no": "いいえ",
+      "or": "または",
+      "and": "と",
+      "all": "すべて",
+      "none": "なし",
+      "select": "選択",
+      "required": "必須",
+      "optional": "任意",
+      "goBack": "戻る",
+      "returnHome": "ホームに戻る",
+      "backToHome": "ホームに戻る",
+      "becomePartner": "パートナーになる",
+      "partnerSubtitle": "Heirloomと提携して、お客様に家族の遺産を守る意義ある方法を提供しましょう。ギフト券の卸売価格を取得し、紹介でコミッションを獲得できます。",
+      "adminPortal": "管理者ポータル",
+      "adminSignInSubtitle": "管理者ダッシュボードにアクセスするにはサインインしてください"
+    },
+  "nav": {
+    "home": "ホーム",
+    "vault": "保管庫",
+    "dashboard": "ダッシュボード",
+    "memories": "思い出",
+    "write": "書く",
+    "record": "録音",
+    "letters": "手紙",
+    "family": "家族",
+    "wrapped": "まとめ",
+    "settings": "設定",
+    "billing": "請求",
+    "logout": "ログアウト",
+    "signOut": "サインアウト",
+    "login": "ログイン",
+    "signup": "登録"
+  },
+    "auth": {
+      "login": "ログイン",
+      "signup": "登録",
+      "logout": "ログアウト",
+      "signIn": "サインイン",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "confirmPassword": "パスワード確認",
+      "forgotPassword": "パスワードをお忘れですか？",
+      "forgotPasswordSubtitle": "メールアドレスを入力すると、リセットリンクをお送りします",
+      "resetPassword": "パスワードをリセット",
+      "resetPasswordSubtitle": "新しいパスワードを入力してください",
+      "newPassword": "新しいパスワード",
+      "sendResetLink": "リセットリンクを送信",
+      "backToLogin": "ログインに戻る",
+      "rememberMe": "ログイン状態を保持",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "hasAccount": "すでにアカウントをお持ちですか？",
+      "createAccount": "アカウント作成",
+      "welcomeBack": "おかえりなさい",
+      "loginSubtitle": "ログインして家族の遺産を守り続けましょう",
+      "signupSubtitle": "今日から家族の大切な思い出を守り始めましょう",
+      "firstName": "名",
+      "lastName": "姓",
+      "termsAgree": "利用規約とプライバシーポリシーに同意します",
+      "invalidEmail": "有効なメールアドレスを入力してください",
+      "passwordMinLength": "パスワードは8文字以上必要です",
+      "passwordsNoMatch": "パスワードが一致しません"
+    },
+    "landing": {
+      "hero": {
+        "title": "最も大切な",
+        "titleLine2": "かけがえのない",
+        "titleHighlight": "思い出を守る",
+        "subtitle": "永続的な思い出を作り、心のこもった手紙を書き、次世代のためのデジタル遺産を築きましょう。",
+        "cta": "遺産を始める",
+        "ctaSecondary": "詳しく見る",
+        "trial": "14日間無料トライアル • クレジットカード不要"
+      },
+    "features": {
+      "title": "思い出を守るために必要なすべて",
+      "memories": {
+        "title": "思い出を残す",
+        "description": "音声メッセージを録音し、写真をアップロードし、永遠に残る物語を書きましょう。"
+      },
+      "letters": {
+        "title": "手紙を書く",
+        "description": "特別な瞬間に届けられる心のこもった手紙を作成しましょう。"
+      },
+      "family": {
+        "title": "家族をつなぐ",
+        "description": "家系図を作成し、世代を超えて思い出を共有しましょう。"
+      },
+      "secure": {
+        "title": "安全でプライベート",
+        "description": "あなたの思い出は暗号化され、銀行レベルのセキュリティで保護されています。"
+      }
+    },
+    "testimonials": {
+      "title": "ユーザーの声"
+    },
+    "pricing": {
+      "title": "プランを選ぶ",
+      "subtitle": "今日から思い出を守り始めましょう",
+      "monthly": "月額",
+      "yearly": "年額",
+      "perMonth": "/月",
+      "perYear": "/年",
+      "popular": "人気",
+      "starter": {
+        "name": "スターター",
+        "description": "個人に最適"
+      },
+      "family": {
+        "name": "ファミリー",
+        "description": "成長する家族向け"
+      },
+      "legacy": {
+        "name": "レガシー",
+        "description": "世代を守るために"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "おかえりなさい、{{name}}さん",
+    "recentMemories": "最近の思い出",
+    "upcomingLetters": "予定の手紙",
+    "familyActivity": "家族の活動",
+    "quickActions": "クイックアクション",
+    "createMemory": "思い出を作成",
+    "writeALetter": "手紙を書く",
+    "viewFamily": "家族を見る",
+    "noMemories": "まだ思い出がありません。最初の思い出を残しましょう！",
+    "noLetters": "予定の手紙がありません。最初の手紙を書きましょう！",
+    "stats": {
+      "memories": "思い出",
+      "letters": "手紙",
+      "familyMembers": "家族メンバー",
+      "storageUsed": "使用容量"
+    }
+  },
+  "memories": {
+    "title": "思い出",
+    "subtitle": "大切な瞬間のコレクション",
+    "create": "思い出を作成",
+    "noMemories": "まだ思い出がありません",
+    "startCapturing": "大切な瞬間を残し始めましょう",
+    "types": {
+      "photo": "写真",
+      "video": "動画",
+      "voice": "音声録音",
+      "text": "文章"
+    },
+    "form": {
+      "title": "タイトル",
+      "titlePlaceholder": "思い出にタイトルをつけてください",
+      "description": "説明",
+      "descriptionPlaceholder": "この思い出の背景を語ってください...",
+      "date": "日付",
+      "tags": "タグ",
+      "tagsPlaceholder": "整理用のタグを追加",
+      "privacy": "プライバシー",
+      "privacyOptions": {
+        "private": "プライベート - 自分のみ",
+        "family": "家族 - 家族と共有",
+        "public": "公開 - リンクを知っている人"
+      }
+    },
+    "record": {
+      "title": "思い出を録音",
+      "startRecording": "録音開始",
+      "stopRecording": "録音停止",
+      "pauseRecording": "一時停止",
+      "resumeRecording": "再開",
+      "recordingTime": "録音中：{{time}}"
+    }
+  },
+  "letters": {
+    "title": "手紙",
+    "subtitle": "大切な人への心のこもったメッセージ",
+    "create": "手紙を書く",
+    "noLetters": "まだ手紙がありません",
+    "startWriting": "最初の手紙を書き始めましょう",
+    "form": {
+      "recipient": "宛先",
+      "recipientPlaceholder": "この手紙は誰宛てですか？",
+      "subject": "件名",
+      "subjectPlaceholder": "この手紙は何についてですか？",
+      "content": "メッセージ",
+      "contentPlaceholder": "心のこもったメッセージを書いてください...",
+      "deliveryDate": "配達日",
+      "deliveryTrigger": "配達トリガー",
+      "triggers": {
+        "date": "特定の日付に",
+        "birthday": "誕生日に",
+        "anniversary": "記念日に",
+        "event": "人生のイベント後に",
+        "manual": "自分で選ぶ時に"
+      }
+    },
+    "status": {
+      "draft": "下書き",
+      "scheduled": "予定済み",
+      "delivered": "配達済み",
+      "read": "既読"
+    }
+  },
+  "family": {
+    "title": "家族",
+    "subtitle": "家系図とつながり",
+    "addMember": "家族メンバーを追加",
+    "noMembers": "まだ家族メンバーがいません",
+    "startBuilding": "家系図を作り始めましょう",
+    "relationships": {
+      "parent": "親",
+      "child": "子",
+      "sibling": "兄弟姉妹",
+      "spouse": "配偶者",
+      "grandparent": "祖父母",
+      "grandchild": "孫",
+      "aunt": "叔母",
+      "uncle": "叔父",
+      "cousin": "いとこ",
+      "other": "その他"
+    },
+    "form": {
+      "name": "名前",
+      "relationship": "関係",
+      "email": "メール（任意）",
+      "birthdate": "生年月日",
+      "notes": "メモ"
+    },
+    "invite": {
+      "title": "Heirloomに招待",
+      "description": "この家族メンバーを招待して思い出を共有しましょう",
+      "sent": "招待を送信しました！"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "profile": {
+      "title": "プロフィール",
+      "name": "名前",
+      "email": "メールアドレス",
+      "avatar": "プロフィール画像",
+      "changeAvatar": "画像を変更",
+      "bio": "自己紹介",
+      "bioPlaceholder": "自己紹介を書いてください..."
+    },
+    "preferences": {
+      "title": "設定",
+      "language": "言語",
+      "timezone": "タイムゾーン",
+      "dateFormat": "日付形式",
+      "notifications": "通知",
+      "emailNotifications": "メール通知",
+      "pushNotifications": "プッシュ通知"
+    },
+    "security": {
+      "title": "セキュリティ",
+      "changePassword": "パスワードを変更",
+      "currentPassword": "現在のパスワード",
+      "newPassword": "新しいパスワード",
+      "confirmNewPassword": "新しいパスワードを確認",
+      "twoFactor": "二要素認証",
+      "enable2FA": "2FAを有効化",
+      "disable2FA": "2FAを無効化"
+    },
+    "privacy": {
+      "title": "プライバシー",
+      "profileVisibility": "プロフィールの公開範囲",
+      "dataSharing": "データ共有",
+      "downloadData": "データをダウンロード",
+      "deleteAccount": "アカウントを削除"
+    }
+  },
+    "billing": {
+      "title": "あなたの遺産を選ぶ",
+      "subtitle": "ご家族のニーズに合ったプランで、大切なものを守りましょう。",
+      "currentPlan": "現在のプラン",
+    "changePlan": "プランを変更",
+    "cancelSubscription": "サブスクリプションをキャンセル",
+    "paymentMethod": "支払い方法",
+    "updatePayment": "支払い方法を更新",
+    "billingHistory": "請求履歴",
+    "nextBilling": "次回請求日",
+    "trial": {
+      "title": "無料トライアル",
+      "daysRemaining": "残り{{days}}日",
+      "upgrade": "今すぐアップグレード"
+    },
+    "invoice": {
+      "date": "日付",
+      "amount": "金額",
+      "status": "ステータス",
+      "download": "ダウンロード"
+    }
+  },
+    "referral": {
+      "title": "友達や家族を紹介",
+      "subtitle": "大切な人にHeirloomを共有して、紹介が成功するたびに報酬を獲得しましょう。",
+      "yourLink": "紹介リンク",
+      "yourCode": "紹介コード",
+      "shareLink": "このリンクを共有して他の人を招待",
+      "share": "リンクを共有",
+      "customizeCode": "コードをカスタマイズ",
+      "rewards": {
+      "title": "報酬",
+      "earned": "獲得総額",
+      "pending": "保留中"
+    },
+    "stats": {
+      "clicks": "クリック",
+      "signups": "登録",
+      "conversions": "コンバージョン"
+    }
+  },
+    "influencer": {
+      "title": "インフルエンサーパートナーになる",
+      "subtitle": "インフルエンサープログラムに参加して、家族が大切な思い出を守るお手伝いをしながらコミッションを獲得しましょう。",
+      "apply": "今すぐ申し込む",
+      "applyNow": "今すぐ申し込む",
+      "dashboard": {
+      "earnings": "総収入",
+      "pending": "保留中の支払い",
+      "conversions": "コンバージョン",
+      "clicks": "総クリック"
+    },
+    "discountCode": "割引コード",
+    "landingPage": "ランディングページ"
+  },
+    "errors": {
+      "generic": "問題が発生しました。もう一度お試しください。",
+      "network": "ネットワークエラー。接続を確認してください。",
+      "unauthorized": "続行するにはログインしてください。",
+      "forbidden": "この操作を行う権限がありません。",
+      "notFound": "ページが見つかりません",
+      "notFoundMessage": "お探しのページは虚空に消えてしまったようです。馴染みのある場所へご案内しましょう。",
+      "serverError": "サーバーエラー。後でもう一度お試しください。",
+      "validation": "入力を確認してもう一度お試しください。"
+    },
+  "footer": {
+    "about": "概要",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ",
+    "help": "ヘルプセンター",
+    "copyright": "© {{year}} Heirloom. All rights reserved."
+  }
+}
