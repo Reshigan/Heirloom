@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, TrendingUp, DollarSign, Users, Link2, 
   Copy, Check, Loader2, CreditCard, Calendar, 
-  ExternalLink, Star, Award, ChevronRight
+  ExternalLink, Star, Award, ChevronRight, Wallet,
+  AlertCircle, CheckCircle, Settings
 } from 'lucide-react';
 import { influencerApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
@@ -52,6 +53,45 @@ export function Influencer() {
     queryKey: ['influencer-payouts'],
     queryFn: () => influencerApi.getPayouts().then(r => r.data),
     enabled: !!dashboardData?.influencer,
+  });
+
+  const { data: earningsData, refetch: refetchEarnings } = useQuery({
+    queryKey: ['influencer-earnings'],
+    queryFn: () => influencerApi.getEarnings().then(r => r.data),
+    enabled: !!dashboardData?.influencer,
+  });
+
+  const [searchParams] = useSearchParams();
+
+  // Handle Stripe Connect return
+  useEffect(() => {
+    if (searchParams.get('stripe_connected') === 'true') {
+      // Verify Stripe status after returning from onboarding
+      influencerApi.verifyStripeStatus().then(() => {
+        refetchEarnings();
+        setStatusMessage({ type: 'success', text: 'Stripe account connected successfully!' });
+        setTimeout(() => setStatusMessage(null), 5000);
+      });
+    } else if (searchParams.get('stripe_refresh') === 'true') {
+      setStatusMessage({ type: 'error', text: 'Stripe onboarding was not completed. Please try again.' });
+      setTimeout(() => setStatusMessage(null), 5000);
+    }
+  }, [searchParams, refetchEarnings]);
+
+  const connectStripeMutation = useMutation({
+    mutationFn: () => influencerApi.connectStripe(),
+    onSuccess: (response) => {
+      if (response.data.onboardingUrl) {
+        window.location.href = response.data.onboardingUrl;
+      }
+    },
+    onError: (error: any) => {
+      setStatusMessage({ 
+        type: 'error', 
+        text: error.response?.data?.error || 'Failed to connect Stripe account' 
+      });
+      setTimeout(() => setStatusMessage(null), 5000);
+    },
   });
 
   const applyMutation = useMutation({
@@ -431,39 +471,181 @@ export function Influencer() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="card"
+                  className="space-y-6"
                 >
-                  <h2 className="text-xl mb-6">Payment Settings</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm text-paper/50 mb-2">Payment Method</label>
-                      <select
-                        defaultValue={influencer.paymentMethod || 'paypal'}
-                        className="input"
-                        onChange={(e) => updatePaymentMutation.mutate({
-                          paymentMethod: e.target.value,
-                          paymentDetails: influencer.paymentDetails || '',
-                        })}
-                      >
-                        <option value="paypal">PayPal</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                        <option value="wise">Wise</option>
-                      </select>
+                  {/* Stripe Connect Section */}
+                  <div className="card">
+                    <h2 className="text-xl mb-4 flex items-center gap-2">
+                      <Wallet className="text-gold" size={24} />
+                      Automated Payouts with Stripe
+                    </h2>
+                    
+                    {earningsData?.stripeStatus === 'ACTIVE' ? (
+                      <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="text-green-400" size={24} />
+                          <div>
+                            <p className="font-medium text-green-400">Stripe Connected</p>
+                            <p className="text-paper/50 text-sm">
+                              Payouts are processed automatically when your balance reaches ${((earningsData?.payoutThreshold || 5000) / 100).toFixed(0)}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-4 pt-4 border-t border-green-500/20 grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-paper/50 text-sm">Pending Balance</p>
+                            <p className="text-2xl font-light text-gold">
+                              ${((earningsData?.pendingBalance || 0) / 100).toFixed(2)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-paper/50 text-sm">Payout Threshold</p>
+                            <p className="text-2xl font-light">
+                              ${((earningsData?.payoutThreshold || 5000) / 100).toFixed(0)}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {earningsData?.eligibleForPayout && (
+                          <div className="mt-4 p-3 bg-gold/10 rounded-lg">
+                            <p className="text-gold text-sm">
+                              Your balance is above the threshold. A payout will be processed automatically.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : earningsData?.stripeStatus === 'PENDING' ? (
+                      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+                        <div className="flex items-center gap-3">
+                          <AlertCircle className="text-yellow-400" size={24} />
+                          <div>
+                            <p className="font-medium text-yellow-400">Stripe Onboarding Incomplete</p>
+                            <p className="text-paper/50 text-sm">
+                              Please complete your Stripe account setup to receive payouts.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => influencerApi.getStripeOnboardingLink().then(r => {
+                            if (r.data.onboardingUrl) window.location.href = r.data.onboardingUrl;
+                          })}
+                          className="btn btn-primary mt-4"
+                        >
+                          Complete Stripe Setup
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="bg-void/50 rounded-xl p-6 text-center">
+                        <Wallet className="text-gold mx-auto mb-4" size={48} />
+                        <h3 className="text-lg font-medium mb-2">Connect Stripe for Automatic Payouts</h3>
+                        <p className="text-paper/50 mb-6 max-w-md mx-auto">
+                          Connect your Stripe account to receive automatic payouts when your commission balance reaches $50. 
+                          No more waiting for manual payments!
+                        </p>
+                        <button
+                          onClick={() => connectStripeMutation.mutate()}
+                          disabled={connectStripeMutation.isPending}
+                          className="btn btn-primary"
+                        >
+                          {connectStripeMutation.isPending ? (
+                            <Loader2 className="animate-spin mx-auto" size={20} />
+                          ) : (
+                            'Connect Stripe Account'
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Earnings Summary */}
+                  {earningsData && (
+                    <div className="card">
+                      <h2 className="text-xl mb-4 flex items-center gap-2">
+                        <DollarSign className="text-gold" size={24} />
+                        Earnings Summary
+                      </h2>
+                      
+                      <div className="grid grid-cols-3 gap-4 mb-6">
+                        <div className="bg-void/30 rounded-xl p-4 text-center">
+                          <p className="text-paper/50 text-sm">Total Earned</p>
+                          <p className="text-2xl font-light text-gold">
+                            ${((earningsData.totalEarned || 0) / 100).toFixed(2)}
+                          </p>
+                        </div>
+                        <div className="bg-void/30 rounded-xl p-4 text-center">
+                          <p className="text-paper/50 text-sm">Pending</p>
+                          <p className="text-2xl font-light text-yellow-400">
+                            ${((earningsData.pendingBalance || 0) / 100).toFixed(2)}
+                          </p>
+                        </div>
+                        <div className="bg-void/30 rounded-xl p-4 text-center">
+                          <p className="text-paper/50 text-sm">Paid Out</p>
+                          <p className="text-2xl font-light text-green-400">
+                            ${((earningsData.totalPaid || 0) / 100).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {earningsData.monthlyEarnings?.length > 0 && (
+                        <div>
+                          <h3 className="text-sm text-paper/50 mb-3">Monthly Earnings (Last 6 Months)</h3>
+                          <div className="space-y-2">
+                            {earningsData.monthlyEarnings.map((month: any) => (
+                              <div key={month.month} className="flex justify-between items-center p-3 bg-void/20 rounded-lg">
+                                <span className="text-paper/70">{month.month}</span>
+                                <div className="text-right">
+                                  <span className="font-medium">${((month.earnings || 0) / 100).toFixed(2)}</span>
+                                  <span className="text-paper/50 text-sm ml-2">({month.conversions} sales)</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <label className="block text-sm text-paper/50 mb-2">
-                        Payment Details (Email or Account Info)
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue={influencer.paymentDetails || ''}
-                        placeholder="your@email.com"
-                        className="input"
-                        onBlur={(e) => updatePaymentMutation.mutate({
-                          paymentMethod: influencer.paymentMethod || 'paypal',
-                          paymentDetails: e.target.value,
-                        })}
-                      />
+                  )}
+
+                  {/* Legacy Payment Settings */}
+                  <div className="card">
+                    <h2 className="text-xl mb-4 flex items-center gap-2">
+                      <Settings className="text-paper/50" size={24} />
+                      Alternative Payment Methods
+                    </h2>
+                    <p className="text-paper/50 text-sm mb-4">
+                      If you prefer not to use Stripe, you can set up alternative payment methods below.
+                    </p>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm text-paper/50 mb-2">Payment Method</label>
+                        <select
+                          defaultValue={influencer.paymentMethod || 'paypal'}
+                          className="input"
+                          onChange={(e) => updatePaymentMutation.mutate({
+                            paymentMethod: e.target.value,
+                            paymentDetails: influencer.paymentDetails || '',
+                          })}
+                        >
+                          <option value="paypal">PayPal</option>
+                          <option value="bank_transfer">Bank Transfer</option>
+                          <option value="wise">Wise</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-paper/50 mb-2">
+                          Payment Details (Email or Account Info)
+                        </label>
+                        <input
+                          type="text"
+                          defaultValue={influencer.paymentDetails || ''}
+                          placeholder="your@email.com"
+                          className="input"
+                          onBlur={(e) => updatePaymentMutation.mutate({
+                            paymentMethod: influencer.paymentMethod || 'paypal',
+                            paymentDetails: e.target.value,
+                          })}
+                        />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
