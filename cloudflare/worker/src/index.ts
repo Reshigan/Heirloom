@@ -773,6 +773,10 @@ export default {
       const streakResult = await processStreakMaintenance(env);
       console.log(`Streaks reset: ${streakResult.reset}`);
       
+      console.log('Discovering new influencers from viral list...');
+      const discoveryResult = await discoverNewProspects(env);
+      console.log(`Influencers discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
+      
       console.log('Processing influencer outreach...');
       const influencerResult = await processInfluencerOutreach(env);
       console.log(`Influencer outreach sent: ${influencerResult.sent}`);
@@ -805,11 +809,6 @@ export default {
       console.log('Sending weekly content prompts...');
       const promptResult = await sendContentPrompts(env);
       console.log(`Content prompts sent: ${promptResult.sent}`);
-      
-      // Discover new prospects from curated list
-      console.log('Discovering new prospects...');
-      const discoveryResult = await discoverNewProspects(env);
-      console.log(`Prospects discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
       
       console.log('Weekly jobs complete.');
       
