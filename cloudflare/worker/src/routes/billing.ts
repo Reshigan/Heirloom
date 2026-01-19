@@ -498,7 +498,11 @@ billingRoutes.get('/pricing', async (c) => {
 // Get subscription
 billingRoutes.get('/subscription', async (c) => {
   const userId = c.get('userId');
-  const sub = await c.env.DB.prepare('SELECT * FROM subscriptions WHERE user_id = ?').bind(userId).first();
+  // Prioritize ACTIVE subscriptions over TRIALING, and get the most recent one
+  const sub = await c.env.DB.prepare(`
+    SELECT * FROM subscriptions WHERE user_id = ?
+    ORDER BY CASE status WHEN 'ACTIVE' THEN 0 WHEN 'TRIALING' THEN 1 ELSE 2 END, created_at DESC
+  `).bind(userId).first();
   
   if (!sub) {
     return c.json({ tier: 'STARTER', status: 'ACTIVE', storage: '500 MB', limits: TIER_LIMITS.STARTER, trialDaysRemaining: 0 });
@@ -524,7 +528,11 @@ billingRoutes.get('/subscription', async (c) => {
 // Get limits/usage
 billingRoutes.get('/limits', async (c) => {
   const userId = c.get('userId');
-  const sub = await c.env.DB.prepare('SELECT tier FROM subscriptions WHERE user_id = ?').bind(userId).first();
+  // Prioritize ACTIVE subscriptions over TRIALING, and get the most recent one
+  const sub = await c.env.DB.prepare(`
+    SELECT tier FROM subscriptions WHERE user_id = ?
+    ORDER BY CASE status WHEN 'ACTIVE' THEN 0 WHEN 'TRIALING' THEN 1 ELSE 2 END, created_at DESC
+  `).bind(userId).first();
   const tier = normalizeTier(sub?.tier as string || 'STARTER');
   const tierLimits = TIER_LIMITS[tier];
   

@@ -336,8 +336,10 @@ export const billingRoutes = new Hono<AppEnv>();
 billingRoutes.get('/subscription', async (c) => {
   const userId = c.get('userId');
   
+  // Prioritize ACTIVE subscriptions over TRIALING, and get the most recent one
   const sub = await c.env.DB.prepare(`
     SELECT * FROM subscriptions WHERE user_id = ?
+    ORDER BY CASE status WHEN 'ACTIVE' THEN 0 WHEN 'TRIALING' THEN 1 ELSE 2 END, created_at DESC
   `).bind(userId).first();
   
   if (!sub) {
@@ -363,10 +365,11 @@ billingRoutes.get('/subscription', async (c) => {
 billingRoutes.get('/limits', async (c) => {
   const userId = c.get('userId');
   
-  // Get subscription tier
-  const sub = await c.env.DB.prepare(
-    'SELECT tier FROM subscriptions WHERE user_id = ?'
-  ).bind(userId).first();
+  // Get subscription tier - prioritize ACTIVE subscriptions over TRIALING
+  const sub = await c.env.DB.prepare(`
+    SELECT tier FROM subscriptions WHERE user_id = ?
+    ORDER BY CASE status WHEN 'ACTIVE' THEN 0 WHEN 'TRIALING' THEN 1 ELSE 2 END, created_at DESC
+  `).bind(userId).first();
   
   const tier = (sub?.tier as string) || 'FREE';
   
