@@ -7,7 +7,7 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnouncementEmail, influencerApprovedEmail, influencerRejectedEmail, partnerApprovedEmail, partnerRejectedEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
-import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects } from '../jobs/adoption-jobs';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processEmailBounces } from '../jobs/adoption-jobs';
 
 export const adminRoutes = new Hono<AppEnv>();
 
@@ -2585,6 +2585,55 @@ adminRoutes.patch('/partners/:id', adminAuth, async (c) => {
   });
   
   return c.json({ success: true, status });
+});
+
+// ============================================
+// MAILBOX BOUNCE DETECTION
+// ============================================
+
+// Process mailbox to detect bounced emails and remove from prospect list
+adminRoutes.post('/marketing/bounce-detection', adminAuth, async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const mailboxEmail = body.mailboxEmail || 'reshigan@vantax.co.za';
+  
+  try {
+    const results = await processEmailBounces(c.env, mailboxEmail);
+    
+    // Log audit action
+    await logAuditAction(c.env, c.get('adminId'), 'PROCESS_BOUNCE_DETECTION', {
+      mailboxEmail,
+      processed: results.processed,
+      bounced: results.bounced,
+      bouncedEmails: results.emails,
+    });
+    
+    return c.json({
+      success: true,
+      message: `Processed ${results.processed} messages, found ${results.bounced} bounces`,
+      results,
+    });
+  } catch (error) {
+    console.error('Bounce detection error:', error);
+    return c.json({ 
+      error: 'Failed to process bounce detection', 
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    }, 500);
+  }
+});
+
+// Get list of bounced emails
+adminRoutes.get('/marketing/bounced-emails', adminAuth, async (c) => {
+  const bounced = await c.env.DB.prepare(`
+    SELECT email, name, status, notes, updated_at
+    FROM influencer_prospects 
+    WHERE status = 'BOUNCED'
+    ORDER BY updated_at DESC
+  `).all();
+  
+  return c.json({
+    count: bounced.results.length,
+    emails: bounced.results,
+  });
 });
 
 // ============================================
