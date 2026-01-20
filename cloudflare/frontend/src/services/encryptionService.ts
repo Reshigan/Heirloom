@@ -101,6 +101,12 @@ class EncryptionService {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      
+      if (!saltResponse.ok) {
+        console.error('Failed to fetch encryption salt:', saltResponse.status);
+        return false;
+      }
+      
       const saltData = await saltResponse.json();
       
       const masterKeyResponse = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/encryption/master-key`, {
@@ -108,6 +114,12 @@ class EncryptionService {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      
+      if (!masterKeyResponse.ok) {
+        console.error('Failed to fetch encrypted master key:', masterKeyResponse.status);
+        return false;
+      }
+      
       const masterKeyData = await masterKeyResponse.json();
       
       if (!saltData.salt || !masterKeyData.encryptedMasterKey) {

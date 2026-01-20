@@ -1339,6 +1339,9 @@ async function sendDailyAdminSummary(env: Env) {
 
 export class RateLimiter implements DurableObject {
   private requests: Map<string, number[]> = new Map();
+  private lastCleanup: number = 0;
+  private readonly CLEANUP_INTERVAL = 60000; // Clean up every minute
+  private readonly MAX_IPS = 10000; // Maximum IPs to track before forced cleanup
   
   constructor(private state: DurableObjectState) {}
   
@@ -1349,12 +1352,25 @@ export class RateLimiter implements DurableObject {
     const window = parseInt(url.searchParams.get('window') || '60000'); // 1 minute
     
     const now = Date.now();
+    
+    // Periodic cleanup of stale entries to prevent memory leak
+    if (now - this.lastCleanup > this.CLEANUP_INTERVAL || this.requests.size > this.MAX_IPS) {
+      this.cleanupStaleEntries(now, window);
+      this.lastCleanup = now;
+    }
+    
     const timestamps = this.requests.get(ip) || [];
     
     // Filter out old timestamps
     const validTimestamps = timestamps.filter(t => now - t < window);
     
     if (validTimestamps.length >= limit) {
+      // Update with filtered timestamps even on rejection
+      if (validTimestamps.length > 0) {
+        this.requests.set(ip, validTimestamps);
+      } else {
+        this.requests.delete(ip);
+      }
       return new Response(JSON.stringify({ 
         allowed: false, 
         remaining: 0,
@@ -1371,5 +1387,25 @@ export class RateLimiter implements DurableObject {
       remaining: limit - validTimestamps.length,
       reset: Math.ceil(window / 1000)
     }));
+  }
+  
+  // Clean up entries with no valid timestamps
+  private cleanupStaleEntries(now: number, window: number): void {
+    const ipsToDelete: string[] = [];
+    
+    for (const [ip, timestamps] of this.requests.entries()) {
+      const validTimestamps = timestamps.filter(t => now - t < window);
+      if (validTimestamps.length === 0) {
+        ipsToDelete.push(ip);
+      } else {
+        // Update with filtered timestamps
+        this.requests.set(ip, validTimestamps);
+      }
+    }
+    
+    // Delete stale IPs
+    for (const ip of ipsToDelete) {
+      this.requests.delete(ip);
+    }
   }
 }
