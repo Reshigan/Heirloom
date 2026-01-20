@@ -40,6 +40,8 @@ import pushNotificationRoutes from './routes/push-notifications';
 import { referralRoutes } from './routes/referrals';
 import { influencerRoutes } from './routes/influencers';
 import { partnerRoutes } from './routes/partners';
+import { socialImportRoutes } from './routes/social-import';
+import { exportRoutes } from './routes/export';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts } from './jobs/adoption-jobs';
@@ -96,6 +98,14 @@ export interface Env {
   
   // Feature flags
   CRON_ENABLED?: string;
+  
+  // Social Media OAuth (for importing photos)
+  FACEBOOK_CLIENT_ID?: string;
+  FACEBOOK_CLIENT_SECRET?: string;
+  INSTAGRAM_CLIENT_ID?: string;
+  INSTAGRAM_CLIENT_SECRET?: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
 }
 
 // Variables type for Hono context (set by middleware)
@@ -701,6 +711,8 @@ protectedApp.route('/milestones', milestonesRoutes);
 protectedApp.route('/notifications', notificationsRoutes);
 protectedApp.route('/memory-cards', memoryCardsRoutes);
 protectedApp.route('/push', pushNotificationRoutes);
+protectedApp.route('/import', socialImportRoutes);
+protectedApp.route('/export', exportRoutes);
 
 app.route('/api', protectedApp);
 
