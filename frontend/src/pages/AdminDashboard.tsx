@@ -5,7 +5,7 @@ import {
   Users, CreditCard, BarChart3, Tag, LogOut, Plus, Trash2, 
   DollarSign, Activity, Search, X, MessageSquare, Shield,
   FileText, Mail, Download, Clock, AlertTriangle, CheckCircle,
-  UserPlus, Settings, Send, Eye
+  UserPlus, Settings, Send, Eye, Star, Building2, Check, XCircle
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { adminApi } from '../services/api';
@@ -124,6 +124,18 @@ export function AdminDashboard() {
     enabled: activeTab === 'reports',
   });
 
+  const { data: influencers } = useQuery({
+    queryKey: ['admin-influencers'],
+    queryFn: () => adminApi.getInfluencers({ limit: 100 }).then(r => r.data),
+    enabled: activeTab === 'influencers',
+  });
+
+  const { data: partners } = useQuery({
+    queryKey: ['admin-partners'],
+    queryFn: () => adminApi.getPartners({ limit: 100 }).then(r => r.data),
+    enabled: activeTab === 'partners',
+  });
+
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
@@ -135,6 +147,8 @@ export function AdminDashboard() {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'influencers', label: 'Influencers', icon: Star },
+    { id: 'partners', label: 'Partners', icon: Building2 },
     { id: 'coupons', label: 'Coupons', icon: Tag },
     { id: 'billing', label: 'Billing', icon: CreditCard },
     { id: 'support', label: 'Support', icon: MessageSquare },
@@ -543,6 +557,110 @@ export function AdminDashboard() {
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
                   <span className="text-paper/50 text-sm">
                     Showing {users.users?.length || 0} of {users.pagination.total} users
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Influencers Tab */}
+        {activeTab === 'influencers' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl">Influencer Management</h2>
+              <div className="flex gap-2">
+                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded">
+                  {influencers?.influencers?.filter((i: any) => i.status === 'PENDING').length || 0} Pending
+                </span>
+                <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded">
+                  {influencers?.influencers?.filter((i: any) => i.status === 'APPROVED').length || 0} Approved
+                </span>
+              </div>
+            </div>
+
+            <div className="card">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Name</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Platform</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Followers</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Tier</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Conversions</th>
+                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {influencers?.influencers?.map((influencer: any) => (
+                    <InfluencerRow key={influencer.id} influencer={influencer} />
+                  ))}
+                  {(!influencers?.influencers || influencers.influencers.length === 0) && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-paper/50">
+                        No influencers found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              {influencers?.pagination && (
+                <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
+                  <span className="text-paper/50 text-sm">
+                    Showing {influencers.influencers?.length || 0} of {influencers.pagination.total} influencers
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Partners Tab */}
+        {activeTab === 'partners' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl">Partner Management</h2>
+              <div className="flex gap-2">
+                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded">
+                  {partners?.partners?.filter((p: any) => p.status === 'PENDING').length || 0} Pending
+                </span>
+                <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded">
+                  {partners?.partners?.filter((p: any) => p.status === 'APPROVED').length || 0} Approved
+                </span>
+              </div>
+            </div>
+
+            <div className="card">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Business</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Type</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Contact</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Orders</th>
+                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Vouchers</th>
+                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {partners?.partners?.map((partner: any) => (
+                    <PartnerRow key={partner.id} partner={partner} />
+                  ))}
+                  {(!partners?.partners || partners.partners.length === 0) && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-paper/50">
+                        No partners found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              {partners?.pagination && (
+                <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
+                  <span className="text-paper/50 text-sm">
+                    Showing {partners.partners?.length || 0} of {partners.pagination.total} partners
                   </span>
                 </div>
               )}
@@ -1018,6 +1136,161 @@ function CouponRow({ coupon }: { coupon: any }) {
         >
           <Trash2 size={16} />
         </button>
+      </td>
+    </tr>
+  );
+}
+
+// Influencer Row Component
+function InfluencerRow({ influencer }: { influencer: any }) {
+  const queryClient = useQueryClient();
+  
+  const approveMutation = useMutation({
+    mutationFn: () => adminApi.updateInfluencer(influencer.id, { status: 'APPROVED' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-influencers'] }),
+  });
+  
+  const rejectMutation = useMutation({
+    mutationFn: () => adminApi.updateInfluencer(influencer.id, { status: 'REJECTED' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-influencers'] }),
+  });
+
+  const formatFollowers = (count: number) => {
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+    return count.toString();
+  };
+
+  return (
+    <tr className="border-b border-white/5 hover:bg-white/[0.02]">
+      <td className="py-3 px-4">
+        <div className="text-paper">{influencer.name || influencer.full_name}</div>
+        <div className="text-paper/50 text-sm">{influencer.email}</div>
+      </td>
+      <td className="py-3 px-4">
+        <span className="px-2 py-1 text-xs bg-blue-500/20 text-blue-400 rounded">
+          {influencer.platform}
+        </span>
+      </td>
+      <td className="py-3 px-4 text-paper/70">
+        {formatFollowers(influencer.follower_count || 0)}
+      </td>
+      <td className="py-3 px-4">
+        <span className={`px-2 py-1 text-xs rounded ${
+          influencer.tier === 'MEGA' ? 'bg-purple-500/20 text-purple-400' :
+          influencer.tier === 'MACRO' ? 'bg-gold/20 text-gold' :
+          influencer.tier === 'MID' ? 'bg-blue-500/20 text-blue-400' :
+          influencer.tier === 'MICRO' ? 'bg-green-500/20 text-green-400' :
+          'bg-white/10 text-paper/50'
+        }`}>
+          {influencer.tier || 'NANO'}
+        </span>
+      </td>
+      <td className="py-3 px-4">
+        <span className={`px-2 py-1 text-xs rounded ${
+          influencer.status === 'APPROVED' ? 'bg-green-500/20 text-green-400' :
+          influencer.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-400' :
+          influencer.status === 'REJECTED' ? 'bg-blood/20 text-blood' :
+          'bg-white/10 text-paper/50'
+        }`}>
+          {influencer.status}
+        </span>
+      </td>
+      <td className="py-3 px-4 text-paper/70">
+        {influencer.total_conversions || 0}
+      </td>
+      <td className="py-3 px-4 text-right">
+        {influencer.status === 'PENDING' && (
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => approveMutation.mutate()}
+              disabled={approveMutation.isPending}
+              className="p-1 text-paper/50 hover:text-green-400 transition-colors"
+              title="Approve"
+            >
+              <Check size={16} />
+            </button>
+            <button
+              onClick={() => rejectMutation.mutate()}
+              disabled={rejectMutation.isPending}
+              className="p-1 text-paper/50 hover:text-blood transition-colors"
+              title="Reject"
+            >
+              <XCircle size={16} />
+            </button>
+          </div>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+// Partner Row Component
+function PartnerRow({ partner }: { partner: any }) {
+  const queryClient = useQueryClient();
+  
+  const approveMutation = useMutation({
+    mutationFn: () => adminApi.updatePartner(partner.id, { status: 'APPROVED' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-partners'] }),
+  });
+  
+  const rejectMutation = useMutation({
+    mutationFn: () => adminApi.updatePartner(partner.id, { status: 'REJECTED' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-partners'] }),
+  });
+
+  return (
+    <tr className="border-b border-white/5 hover:bg-white/[0.02]">
+      <td className="py-3 px-4">
+        <div className="text-paper">{partner.business_name}</div>
+        <div className="text-paper/50 text-sm">{partner.partner_code}</div>
+      </td>
+      <td className="py-3 px-4">
+        <span className="px-2 py-1 text-xs bg-purple-500/20 text-purple-400 rounded">
+          {partner.business_type?.replace(/_/g, ' ')}
+        </span>
+      </td>
+      <td className="py-3 px-4">
+        <div className="text-paper/70">{partner.contact_name}</div>
+        <div className="text-paper/50 text-sm">{partner.contact_email}</div>
+      </td>
+      <td className="py-3 px-4">
+        <span className={`px-2 py-1 text-xs rounded ${
+          partner.status === 'APPROVED' ? 'bg-green-500/20 text-green-400' :
+          partner.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-400' :
+          partner.status === 'REJECTED' ? 'bg-blood/20 text-blood' :
+          'bg-white/10 text-paper/50'
+        }`}>
+          {partner.status}
+        </span>
+      </td>
+      <td className="py-3 px-4 text-paper/70">
+        {partner.total_orders || 0}
+      </td>
+      <td className="py-3 px-4 text-paper/70">
+        {partner.total_vouchers || 0}
+      </td>
+      <td className="py-3 px-4 text-right">
+        {partner.status === 'PENDING' && (
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => approveMutation.mutate()}
+              disabled={approveMutation.isPending}
+              className="p-1 text-paper/50 hover:text-green-400 transition-colors"
+              title="Approve"
+            >
+              <Check size={16} />
+            </button>
+            <button
+              onClick={() => rejectMutation.mutate()}
+              disabled={rejectMutation.isPending}
+              className="p-1 text-paper/50 hover:text-blood transition-colors"
+              title="Reject"
+            >
+              <XCircle size={16} />
+            </button>
+          </div>
+        )}
       </td>
     </tr>
   );
