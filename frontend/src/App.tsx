@@ -1,8 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { CustomCursor } from './components/CustomCursor';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { SkipToContent, CreateFAB } from './components/ui';
 
 // Pages
 import { Landing } from './pages/Landing';
@@ -45,6 +46,26 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
+function MobileFAB() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuthStore();
+  
+  const hiddenPaths = ['/login', '/signup', '/forgot-password', '/reset-password', '/', '/admin/login', '/admin/dashboard', '/compose', '/record'];
+  const shouldHide = hiddenPaths.some(path => location.pathname === path || location.pathname.startsWith('/inherit/'));
+  
+  if (!isAuthenticated || shouldHide) return null;
+  
+  const fabActions = [
+    { id: 'memory', label: 'Add Memory', icon: 'camera', color: 'gold' as const, onClick: () => navigate('/memories') },
+    { id: 'letter', label: 'Write Letter', icon: 'mail', color: 'blood' as const, onClick: () => navigate('/compose') },
+    { id: 'voice', label: 'Record Voice', icon: 'mic', color: 'sanctuary-teal' as const, onClick: () => navigate('/record') },
+    { id: 'family', label: 'Add Family', icon: 'users', color: 'sanctuary-blue' as const, onClick: () => navigate('/family') },
+  ];
+  
+  return <CreateFAB actions={fabActions} />;
+}
+
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
   return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
@@ -55,7 +76,9 @@ export default function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <SkipToContent />
           <CustomCursor />
+          <MobileFAB />
           <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
