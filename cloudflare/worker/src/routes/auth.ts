@@ -300,7 +300,7 @@ authRoutes.post('/verify-2fa', async (c) => {
   }
   
   // Verify TOTP code
-  const valid = verifyTOTP(code, user.two_factor_secret as string);
+  const valid = await verifyTOTP(code, user.two_factor_secret as string);
   if (!valid) {
     return c.json({ error: 'Invalid verification code' }, 401);
   }
@@ -782,18 +782,38 @@ async function createSession(env: Env, userId: string, existingSessionId?: strin
     expirationTtl: 30 * 24 * 3600,
   });
   
-  // Store session in DB for tracking
+  // Store session in DB for tracking with cleanup of old sessions
   if (!existingSessionId) {
-    await env.DB.prepare(`
-      INSERT INTO sessions (id, user_id, token, expires_at, created_at)
-      VALUES (?, ?, ?, ?, ?)
-    `).bind(
-      sessionId,
-      userId,
-      sessionId, // Use sessionId instead of truncated token to avoid uniqueness issues
-      new Date(exp * 1000).toISOString(),
-      new Date().toISOString()
-    ).run();
+    try {
+      // Clean up expired sessions for this user (limit to 10 active sessions)
+      await env.DB.prepare(`
+        DELETE FROM sessions 
+        WHERE user_id = ? AND (
+          expires_at < datetime('now') OR
+          id IN (
+            SELECT id FROM sessions 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC 
+            LIMIT -1 OFFSET 10
+          )
+        )
+      `).bind(userId, userId).run();
+      
+      // Insert new session
+      await env.DB.prepare(`
+        INSERT INTO sessions (id, user_id, token, expires_at, created_at)
+        VALUES (?, ?, ?, ?, ?)
+      `).bind(
+        sessionId,
+        userId,
+        sessionId, // Use sessionId instead of truncated token to avoid uniqueness issues
+        new Date(exp * 1000).toISOString(),
+        new Date().toISOString()
+      ).run();
+    } catch (error) {
+      // Log error but don't fail session creation - KV is the primary session store
+      console.error('Failed to store session in DB:', error);
+    }
   }
   
   return { token, refreshToken, sessionId };
@@ -872,22 +892,90 @@ async function verifyJWT(token: string, secret: string): Promise<any> {
   return payload;
 }
 
-function verifyTOTP(code: string, secret: string): boolean {
-  // Basic TOTP verification (you may want to use a library)
-  // This is a simplified implementation
-  const time = Math.floor(Date.now() / 30000);
+/**
+ * RFC 6238 TOTP Implementation using Web Crypto API
+ * Uses HMAC-SHA1 for compatibility with standard authenticator apps
+ */
+
+// Base32 decode helper for TOTP secrets
+function base32Decode(encoded: string): Uint8Array {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const cleanedInput = encoded.toUpperCase().replace(/[^A-Z2-7]/g, '');
   
+  let bits = '';
+  for (const char of cleanedInput) {
+    const val = alphabet.indexOf(char);
+    if (val === -1) continue;
+    bits += val.toString(2).padStart(5, '0');
+  }
+  
+  const bytes = new Uint8Array(Math.floor(bits.length / 8));
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(bits.slice(i * 8, (i + 1) * 8), 2);
+  }
+  
+  return bytes;
+}
+
+async function generateTOTP(secret: string, counter: number): Promise<string> {
+  // Decode base32 secret
+  const keyBytes = base32Decode(secret);
+  
+  // Convert counter to 8-byte big-endian buffer
+  const counterBuffer = new ArrayBuffer(8);
+  const counterView = new DataView(counterBuffer);
+  counterView.setBigUint64(0, BigInt(counter), false); // big-endian
+  
+  // Import key for HMAC-SHA1
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyBytes,
+    { name: 'HMAC', hash: 'SHA-1' },
+    false,
+    ['sign']
+  );
+  
+  // Generate HMAC-SHA1
+  const signature = await crypto.subtle.sign('HMAC', key, counterBuffer);
+  const hmac = new Uint8Array(signature);
+  
+  // Dynamic truncation per RFC 4226
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const binary = 
+    ((hmac[offset] & 0x7f) << 24) |
+    ((hmac[offset + 1] & 0xff) << 16) |
+    ((hmac[offset + 2] & 0xff) << 8) |
+    (hmac[offset + 3] & 0xff);
+  
+  // Generate 6-digit code
+  const otp = binary % 1000000;
+  return otp.toString().padStart(6, '0');
+}
+
+async function verifyTOTP(code: string, secret: string): Promise<boolean> {
+  // Get current time step (30 second window per RFC 6238)
+  const timeStep = Math.floor(Date.now() / 30000);
+  
+  // Check current time step and adjacent windows for clock drift tolerance
   for (let i = -1; i <= 1; i++) {
-    const expectedCode = generateTOTP(secret, time + i);
-    if (code === expectedCode) return true;
+    const expectedCode = await generateTOTP(secret, timeStep + i);
+    // Use timing-safe comparison to prevent timing attacks
+    if (timingSafeEqual(code, expectedCode)) {
+      return true;
+    }
   }
   
   return false;
 }
 
-function generateTOTP(secret: string, time: number): string {
-  // Simplified TOTP - in production use a proper library
-  const counter = time.toString(16).padStart(16, '0');
-  // This is a placeholder - real TOTP needs HMAC-SHA1
-  return ((parseInt(secret.slice(0, 8), 36) + time) % 1000000).toString().padStart(6, '0');
+// Timing-safe string comparison to prevent timing attacks
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
 }

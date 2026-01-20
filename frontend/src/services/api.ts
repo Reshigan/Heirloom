@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -18,6 +18,30 @@ export const clearTokens = () => {
   localStorage.removeItem('refreshToken');
 };
 
+// Token refresh state management to prevent race conditions
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+// Subscribe to token refresh
+const subscribeTokenRefresh = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback);
+};
+
+// Notify all subscribers when token is refreshed
+const onTokenRefreshed = (token: string) => {
+  refreshSubscribers.forEach(callback => callback(token));
+  refreshSubscribers = [];
+};
+
+// Handle refresh failure
+const onRefreshFailed = () => {
+  refreshSubscribers = [];
+  isRefreshing = false;
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+  window.location.href = '/login';
+};
+
 // Add auth token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -27,24 +51,55 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle token refresh on 401
+// Extend AxiosRequestConfig to include _retry flag
+interface RetryableRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+// Handle token refresh on 401 with proper race condition handling
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as RetryableRequestConfig;
+    
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
+    
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+      
+      // If already refreshing, queue this request
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((token: string) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(api(originalRequest));
+          });
+        });
+      }
+      
+      isRefreshing = true;
+      
       try {
         const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+          onRefreshFailed();
+          return Promise.reject(error);
+        }
+        
         const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
         localStorage.setItem('token', data.token);
         localStorage.setItem('refreshToken', data.refreshToken);
+        
+        isRefreshing = false;
+        onTokenRefreshed(data.token);
+        
         originalRequest.headers.Authorization = `Bearer ${data.token}`;
         return api(originalRequest);
       } catch {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        onRefreshFailed();
+        return Promise.reject(error);
       }
     }
     return Promise.reject(error);
