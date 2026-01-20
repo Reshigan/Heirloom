@@ -1,10 +1,11 @@
 /**
  * Adoption Jobs - Automated Cron Jobs for User Engagement
- * Handles drip campaigns, re-engagement, birthday reminders, automated outreach, and prospect discovery
+ * Handles drip campaigns, re-engagement, birthday reminders, automated outreach, prospect discovery, and bounce detection
  */
 
 import type { Env } from '../index';
 import { sendEmail } from '../utils/email';
+import { processMailboxBounces } from '../services/mailbox-bounce-detector';
 
 // ============================================
 // CURATED PROSPECT SOURCES
@@ -1955,4 +1956,32 @@ function emailWrapper(content: string): string {
 </body>
 </html>
   `;
+}
+
+// ============================================
+// MAILBOX BOUNCE DETECTION
+// Automatically detect bounced emails and remove from prospect list
+// ============================================
+
+/**
+ * Process mailbox to detect bounced emails and update prospect status
+ * This should be run daily to keep the prospect list clean
+ */
+export async function processEmailBounces(env: Env, mailboxEmail: string): Promise<{ processed: number; bounced: number; emails: string[] }> {
+  console.log('Starting mailbox bounce detection...');
+  
+  try {
+    const results = await processMailboxBounces(env, mailboxEmail);
+    
+    console.log(`Bounce detection complete: ${results.bounced} bounces detected out of ${results.processed} messages`);
+    
+    if (results.bounced > 0) {
+      console.log(`Bounced emails removed from prospect list: ${results.emails.join(', ')}`);
+    }
+    
+    return results;
+  } catch (error) {
+    console.error('Error in bounce detection:', error);
+    throw error;
+  }
 }
