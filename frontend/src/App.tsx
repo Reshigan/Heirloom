@@ -28,6 +28,8 @@ import { NotFound } from './pages/NotFound';
 import { Referral } from './pages/Referral';
 import { Influencer } from './pages/Influencer';
 import { Partner } from './pages/Partner';
+import { Import } from './pages/Import';
+import { Export } from './pages/Export';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -195,6 +197,22 @@ export default function App() {
                                           element={
                                             <ProtectedRoute>
                                               <Partner />
+                                            </ProtectedRoute>
+                                          }
+                                        />
+                                        <Route
+                                          path="/import"
+                                          element={
+                                            <ProtectedRoute>
+                                              <Import />
+                                            </ProtectedRoute>
+                                          }
+                                        />
+                                        <Route
+                                          path="/export"
+                                          element={
+                                            <ProtectedRoute>
+                                              <Export />
                                             </ProtectedRoute>
                                           }
                                         />
