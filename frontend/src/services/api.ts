@@ -332,6 +332,113 @@ export const adminApi = {
   resolveBillingError: (errorId: string, data: { resolution?: string }) => 
     adminAxios.post(`/admin/billing/errors/${errorId}/resolve`, data),
   notifyAllFailedBilling: () => adminAxios.post('/admin/billing/notify-all-failed'),
+  
+  // Influencer Management
+  getInfluencers: (params?: { status?: string; page?: number; limit?: number }) => 
+    adminAxios.get('/admin/influencers', { params }),
+  getInfluencer: (id: string) => adminAxios.get(`/admin/influencers/${id}`),
+  updateInfluencer: (id: string, data: { status: string }) => 
+    adminAxios.patch(`/admin/influencers/${id}`, data),
+  
+  // Partner Management
+  getPartners: (params?: { status?: string; page?: number; limit?: number }) => 
+    adminAxios.get('/admin/partners', { params }),
+  getPartner: (id: string) => adminAxios.get(`/admin/partners/${id}`),
+  updatePartner: (id: string, data: { status: string }) => 
+    adminAxios.patch(`/admin/partners/${id}`, data),
+};
+
+// Gamification API (Streaks, Challenges, Badges)
+export const gamificationApi = {
+  // Streaks
+  getStreak: () => api.get('/streaks'),
+  recordActivity: () => api.post('/streaks/activity'),
+  freezeStreak: () => api.post('/streaks/freeze'),
+  
+  // Challenges
+  getChallenges: () => api.get('/challenges'),
+  getCurrentChallenge: () => api.get('/challenges/current'),
+  getChallengeSubmissions: (challengeId: string) => api.get(`/challenges/${challengeId}/submissions`),
+  submitToChallenge: (challengeId: string, data: { memoryId?: string; voiceId?: string; content?: string }) => 
+    api.post(`/challenges/${challengeId}/submit`, data),
+  shareSubmission: (submissionId: string, platform: string) => 
+    api.post(`/challenges/submissions/${submissionId}/share`, { platform }),
+  
+  // Milestones
+  getMilestones: () => api.get('/milestones'),
+  getUpcomingMilestones: () => api.get('/milestones/upcoming'),
+  
+  // Notifications
+  getNotifications: (params?: { unreadOnly?: boolean; page?: number; limit?: number }) => 
+    api.get('/notifications', { params }),
+  markNotificationRead: (id: string) => api.patch(`/notifications/${id}/read`),
+  markAllNotificationsRead: () => api.post('/notifications/mark-all-read'),
+};
+
+// Social Sharing API
+export const sharingApi = {
+  // Share memory with privacy controls
+  shareMemory: (memoryId: string, data: { 
+    platform?: 'facebook' | 'twitter' | 'instagram' | 'email' | 'link';
+    privacy: 'public' | 'family' | 'private';
+    expiresIn?: number; // hours
+    allowDownload?: boolean;
+    message?: string;
+  }) => api.post(`/memories/${memoryId}/share`, data),
+  
+  // Get share link
+  getShareLink: (memoryId: string) => api.get(`/memories/${memoryId}/share-link`),
+  
+  // Revoke share
+  revokeShare: (shareId: string) => api.delete(`/sharing/${shareId}`),
+  
+  // Get shared items
+  getSharedItems: () => api.get('/sharing/my-shares'),
+  
+  // View shared content (public endpoint)
+  viewShared: (shareToken: string) => api.get(`/shared/${shareToken}`),
+};
+
+// Export API (PDF/Book)
+export const exportApi = {
+  // Generate PDF of memories
+  generateMemoriesPdf: (data: {
+    title?: string;
+    includePhotos?: boolean;
+    includeLetters?: boolean;
+    includeVoiceTranscripts?: boolean;
+    dateRange?: { start: string; end: string };
+    familyMemberIds?: string[];
+    style?: 'classic' | 'modern' | 'elegant';
+  }) => api.post('/export/memories-pdf', data),
+  
+  // Generate PDF of letters
+  generateLettersPdf: (data: {
+    letterIds?: string[];
+    includeAll?: boolean;
+    style?: 'classic' | 'modern' | 'elegant';
+  }) => api.post('/export/letters-pdf', data),
+  
+  // Generate family book
+  generateFamilyBook: (data: {
+    title: string;
+    subtitle?: string;
+    includeMemories?: boolean;
+    includeLetters?: boolean;
+    includeVoiceTranscripts?: boolean;
+    includeFamilyTree?: boolean;
+    coverStyle?: 'classic' | 'modern' | 'elegant';
+    dedication?: string;
+  }) => api.post('/export/family-book', data),
+  
+  // Get export status
+  getExportStatus: (exportId: string) => api.get(`/export/${exportId}/status`),
+  
+  // Download export
+  downloadExport: (exportId: string) => api.get(`/export/${exportId}/download`, { responseType: 'blob' }),
+  
+  // Get export history
+  getExportHistory: () => api.get('/export/history'),
 };
 
 export default api;
