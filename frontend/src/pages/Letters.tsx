@@ -9,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { lettersApi } from '../services/api';
 import { Logo } from '../components/Logo';
+import { EmptyState, LoadingState } from '../components/ui';
 
 type DeliveryTrigger = 'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS';
 type FilterType = 'all' | 'drafts' | 'scheduled' | 'sent';
@@ -180,34 +181,17 @@ export function Letters() {
 
         {/* Letters Grid */}
         {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="card animate-pulse">
-                <div className="h-4 bg-paper/10 rounded w-3/4 mb-4" />
-                <div className="h-3 bg-paper/10 rounded w-full mb-2" />
-                <div className="h-3 bg-paper/10 rounded w-2/3" />
-              </div>
-            ))}
-          </div>
+          <LoadingState type="letters" message={t('letters.loading') || 'Loading your letters...'} />
         ) : filteredLetters.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <div className="w-20 h-20 rounded-full bg-paper/5 flex items-center justify-center mx-auto mb-6">
-              <Mail className="text-paper/30" size={40} />
-            </div>
-                        <h3 className="text-xl mb-2">{t('letters.noLetters')}</h3>
-                        <p className="text-paper/50 mb-6">{t('letters.startWriting')}</p>
-                        <button
-                          onClick={() => navigate('/compose')}
-                          className="btn btn-primary"
-                        >
-                          <Plus size={18} />
-                          {t('letters.create')}
-                        </button>
-          </motion.div>
+          <EmptyState
+            type="letters"
+            title={t('letters.noLetters') || 'No letters yet'}
+            subtitle={t('letters.startWriting') || 'Start preserving your thoughts for loved ones'}
+            primaryAction={{
+              label: t('letters.create') || 'Write Your First Letter',
+              onClick: () => navigate('/compose'),
+            }}
+          />
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence>

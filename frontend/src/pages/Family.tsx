@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { familyApi, settingsApi } from '../services/api';
 import { AvatarCropperModal } from '../components/AvatarCropperModal';
 import { Navigation } from '../components/Navigation';
+import { EmptyState, LoadingState } from '../components/ui';
 
 const RELATIONSHIPS = ['Spouse', 'Partner', 'Child', 'Parent', 'Sibling', 'Grandchild', 'Grandparent', 'Friend', 'Other'];
 
@@ -364,23 +365,17 @@ export function Family() {
 
               {/* Empty state */}
               {!isLoading && (!family || family.length === 0) && (
-                <motion.div
-                  className="absolute text-center"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <div className="w-20 h-20 rounded-full glass flex items-center justify-center mx-auto mb-4">
-                    <Users size={32} className="text-paper/30" />
-                  </div>
-                                    <p className="text-paper/50 mb-4">{t('family.noMembers')}</p>
-                                    <button 
-                                      onClick={() => setShowAddModal(true)} 
-                                      className="btn btn-primary"
-                                    >
-                                      <Plus size={18} />
-                                      {t('family.addMember')}
-                                    </button>
-                </motion.div>
+                <div className="absolute">
+                  <EmptyState
+                    type="family"
+                    title={t('family.noMembers') || 'No family members yet'}
+                    subtitle={t('family.addFirstMember') || 'Start building your family constellation'}
+                    primaryAction={{
+                      label: t('family.addMember') || 'Add Your First Family Member',
+                      onClick: () => setShowAddModal(true),
+                    }}
+                  />
+                </div>
               )}
             </div>
 

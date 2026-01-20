@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCirc
 import { useTranslation } from 'react-i18next';
 import { memoriesApi, familyApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
+import { EmptyState, LoadingState } from '../components/ui';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
 
@@ -431,11 +432,7 @@ export function Memories() {
 
           {/* Memory Grid/List */}
           {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="aspect-square skeleton rounded-xl" />
-              ))}
-            </div>
+            <LoadingState type="memories" message={t('memories.loading') || 'Loading your memories...'} />
           ) : filteredMemories.length > 0 ? (
             <motion.div
               className={viewMode === 'grid' 
@@ -525,39 +522,30 @@ export function Memories() {
               ))}
             </motion.div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
-              <div className="w-24 h-24 rounded-full glass flex items-center justify-center mx-auto mb-6">
-                <Image size={40} className="text-paper/30" />
-              </div>
-              {memories?.memories?.length > 0 ? (
-                <>
-                  <h3 className="text-xl font-light mb-2">No memories match your filters</h3>
-                  <p className="text-paper/50 mb-6">Try adjusting the year, month, or emotion filter</p>
-                  <button 
-                    onClick={() => {
-                      setSelectedMonth(null);
-                      setSelectedEmotion(null);
-                    }} 
-                    className="btn btn-secondary"
-                  >
-                    Clear Filters
-                  </button>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-xl font-light mb-2">No memories yet</h3>
-                  <p className="text-paper/50 mb-6">Start preserving your precious moments</p>
-                  <button onClick={() => setShowUploadModal(true)} className="btn btn-primary">
-                    <Plus size={18} />
-                    Upload Your First Memory
-                  </button>
-                </>
-              )}
-            </motion.div>
+            memories?.memories?.length > 0 ? (
+              <EmptyState
+                type="generic"
+                title={t('memories.noMatchingMemories') || 'No memories match your filters'}
+                subtitle={t('memories.adjustFilters') || 'Try adjusting the year, month, or emotion filter'}
+                primaryAction={{
+                  label: t('memories.clearFilters') || 'Clear Filters',
+                  onClick: () => {
+                    setSelectedMonth(null);
+                    setSelectedEmotion(null);
+                  },
+                }}
+              />
+            ) : (
+              <EmptyState
+                type="memories"
+                title={t('memories.noMemories') || 'No memories yet'}
+                subtitle={t('memories.startPreserving') || 'Start preserving your precious moments'}
+                primaryAction={{
+                  label: t('memories.uploadFirst') || 'Upload Your First Memory',
+                  onClick: () => setShowUploadModal(true),
+                }}
+              />
+            )
           )}
         </div>
       </div>
