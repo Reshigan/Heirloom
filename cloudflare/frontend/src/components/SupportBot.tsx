@@ -869,7 +869,7 @@ What can I help you with today?`,
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="fixed bottom-4 right-4 w-full max-w-md h-[600px] max-h-[80vh] bg-void border border-gold/20 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+            className="fixed bottom-20 md:bottom-4 right-4 w-full max-w-md h-[500px] md:h-[600px] max-h-[70vh] md:max-h-[80vh] bg-void border border-gold/20 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-gold/10 flex items-center justify-between bg-void-elevated">
@@ -969,7 +969,7 @@ export const SupportButton: React.FC = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-gold to-gold-dim rounded-full shadow-lg shadow-gold/30 flex items-center justify-center z-30"
+        className="fixed bottom-20 md:bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-gold to-gold-dim rounded-full shadow-lg shadow-gold/30 flex items-center justify-center z-30"
       >
         <svg className="w-6 h-6 text-void-deep" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
