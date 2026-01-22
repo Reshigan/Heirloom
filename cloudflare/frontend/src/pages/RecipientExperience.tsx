@@ -116,6 +116,10 @@ export function RecipientExperience() {
       queryClient.invalidateQueries({ queryKey: ['family-members'] });
       resetFamilyForm();
     },
+    onError: (error: Error & { response?: { data?: { error?: string } } }) => {
+      const message = error.response?.data?.error || error.message || 'Failed to add recipient';
+      alert(message);
+    },
   });
 
   const updateFamilyMutation = useMutation({
@@ -124,6 +128,10 @@ export function RecipientExperience() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family-members'] });
       resetFamilyForm();
+    },
+    onError: (error: Error & { response?: { data?: { error?: string } } }) => {
+      const message = error.response?.data?.error || error.message || 'Failed to update recipient';
+      alert(message);
     },
   });
 
@@ -139,7 +147,10 @@ export function RecipientExperience() {
   };
 
   const handleSaveFamilyMember = () => {
-    if (!familyForm.name.trim()) return;
+    if (!familyForm.name.trim() || !familyForm.relationship) {
+      alert('Please fill in both Name and Relationship fields');
+      return;
+    }
     if (editingMember) {
       updateFamilyMutation.mutate({ id: editingMember.id, data: familyForm });
     } else {
