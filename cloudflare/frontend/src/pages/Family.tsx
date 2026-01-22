@@ -447,8 +447,8 @@ export function Family() {
               )}
             </div>
 
-            {/* Action buttons - positioned at bottom to avoid overlap with constellation nodes */}
-            <div className="absolute bottom-4 left-4 z-40 flex gap-3">
+            {/* Action buttons - positioned at bottom to avoid overlap with constellation nodes and mobile nav */}
+            <div className="absolute bottom-20 md:bottom-4 left-4 z-40 flex gap-3">
               <motion.button
                 onClick={() => {
                   setEditingId(null);

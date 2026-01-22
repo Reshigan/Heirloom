@@ -760,7 +760,7 @@ export function Inherit() {
             {/* Floating "Send a Note" Button */}
             <motion.button
               onClick={() => setShowReactionModal(true)}
-              className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-gold text-void font-medium shadow-lg hover:shadow-xl transition-all"
+              className="fixed bottom-20 md:bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-gold text-void font-medium shadow-lg hover:shadow-xl transition-all"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0, y: 20 }}
