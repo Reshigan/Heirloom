@@ -98,7 +98,7 @@ export function WhatsNewNotification() {
   const announcement = announcements[currentIndex];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="relative w-full max-w-lg mx-4 bg-gradient-to-br from-[#1a1a2e] to-[#16213e] rounded-2xl border border-gold/30 shadow-2xl overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold/50 via-gold to-gold/50" />
         

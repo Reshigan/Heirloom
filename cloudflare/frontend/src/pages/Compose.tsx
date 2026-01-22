@@ -799,7 +799,7 @@ export function Compose() {
 
         {/* Seal Confirmation Modal */}
         {showSealConfirm && (
-          <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-[1100] p-4">
             <div className="bg-void-elevated border border-gold/30 rounded-2xl p-8 max-w-md w-full text-center">
               {/* Wax Seal with Heirloom Infinity Symbol */}
               <div className="w-24 h-24 mx-auto mb-6">

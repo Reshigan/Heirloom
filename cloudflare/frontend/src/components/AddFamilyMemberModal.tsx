@@ -95,7 +95,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="fixed inset-0 bg-void/80 backdrop-blur-sm z-50"
+                      className="fixed inset-0 bg-void/80 backdrop-blur-sm z-[1100]"
                       onClick={handleClose}
                     />
           
@@ -104,7 +104,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                       initial={{ opacity: 0, scale: 0.95, y: 20 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+                      className="fixed inset-0 z-[1100] flex items-center justify-center p-4 overflow-y-auto"
                       onClick={handleClose}
                     >
                       <div 
