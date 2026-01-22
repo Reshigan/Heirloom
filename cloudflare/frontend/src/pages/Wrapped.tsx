@@ -975,7 +975,7 @@ const Wrapped: React.FC = () => {
       </motion.div>
 
       {/* Spotify-style controls */}
-      <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-4 z-50">
+      <div className="absolute bottom-20 md:bottom-8 left-0 right-0 flex justify-center items-center gap-4 z-50">
         {/* Previous button */}
         <button
           onClick={() => {
