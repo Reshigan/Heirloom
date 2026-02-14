@@ -68,7 +68,9 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthEndpoint = originalRequest.url?.startsWith('/auth/');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
       
       // If already refreshing, queue this request
