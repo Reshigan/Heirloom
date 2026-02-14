@@ -126,50 +126,58 @@ lettersRoutes.get('/', async (c) => {
   query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
   params.push(limit, offset);
   
-  const letters = await c.env.DB.prepare(query).bind(...params).all();
+  const [letters, countResult] = await c.env.DB.batch([
+    c.env.DB.prepare(query).bind(...params),
+    c.env.DB.prepare(
+      status === 'draft'
+        ? `SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND sealed_at IS NULL`
+        : status === 'sealed'
+        ? `SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND sealed_at IS NOT NULL`
+        : `SELECT COUNT(*) as count FROM letters WHERE user_id = ?`
+    ).bind(userId),
+  ]);
   
-  // Get recipients for each letter
-  const lettersWithRecipients = await Promise.all(
-    letters.results.map(async (letter: any) => {
-      const recipients = await c.env.DB.prepare(`
-        SELECT fm.id, fm.name, fm.relationship FROM family_members fm
-        JOIN letter_recipients lr ON fm.id = lr.family_member_id
-        WHERE lr.letter_id = ?
-      `).bind(letter.id).all();
-      
-      return {
-        id: letter.id,
-        title: letter.title,
-        salutation: letter.salutation,
-        bodyPreview: letter.body ? letter.body.substring(0, 200) + (letter.body.length > 200 ? '...' : '') : '',
-        signature: letter.signature,
-        deliveryTrigger: letter.delivery_trigger,
-        scheduledDate: letter.scheduled_date,
-        sealedAt: letter.sealed_at,
-        encrypted: !!letter.encrypted,
-        recipients: recipients.results,
-        createdAt: letter.created_at,
-        updatedAt: letter.updated_at,
-      };
-    })
-  );
+  const letterIds = letters.results.map((l: any) => l.id);
+  let recipientMap: Record<string, any[]> = {};
   
-  // Get total count
-  let countQuery = `SELECT COUNT(*) as count FROM letters WHERE user_id = ?`;
-  if (status === 'draft') {
-    countQuery += ` AND sealed_at IS NULL`;
-  } else if (status === 'sealed') {
-    countQuery += ` AND sealed_at IS NOT NULL`;
+  if (letterIds.length > 0) {
+    const placeholders = letterIds.map(() => '?').join(',');
+    const allRecipients = await c.env.DB.prepare(`
+      SELECT lr.letter_id, fm.id, fm.name, fm.relationship FROM family_members fm
+      JOIN letter_recipients lr ON fm.id = lr.family_member_id
+      WHERE lr.letter_id IN (${placeholders})
+    `).bind(...letterIds).all();
+    
+    for (const r of allRecipients.results as any[]) {
+      if (!recipientMap[r.letter_id]) recipientMap[r.letter_id] = [];
+      recipientMap[r.letter_id].push({ id: r.id, name: r.name, relationship: r.relationship });
+    }
   }
-  const countResult = await c.env.DB.prepare(countQuery).bind(userId).first();
+  
+  const lettersWithRecipients = letters.results.map((letter: any) => ({
+    id: letter.id,
+    title: letter.title,
+    salutation: letter.salutation,
+    bodyPreview: letter.body ? letter.body.substring(0, 200) + (letter.body.length > 200 ? '...' : '') : '',
+    signature: letter.signature,
+    deliveryTrigger: letter.delivery_trigger,
+    scheduledDate: letter.scheduled_date,
+    sealedAt: letter.sealed_at,
+    encrypted: !!letter.encrypted,
+    recipients: recipientMap[letter.id] || [],
+    createdAt: letter.created_at,
+    updatedAt: letter.updated_at,
+  }));
+  
+  const countRow = countResult.results[0] as any;
   
   return c.json({
     data: lettersWithRecipients,
     pagination: {
       page,
       limit,
-      total: countResult?.count || 0,
-      totalPages: Math.ceil((countResult?.count as number || 0) / limit),
+      total: countRow?.count || 0,
+      totalPages: Math.ceil((countRow?.count as number || 0) / limit),
     },
   });
 });
@@ -246,14 +254,13 @@ lettersRoutes.post('/', async (c) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, deliveryTrigger || 'IMMEDIATE', scheduledDate || null, encrypted ? 1 : 0, encryption_iv || null, now, now).run();
   
-  // Add recipients if provided
   if (recipientIds && recipientIds.length > 0) {
-    for (const recipientId of recipientIds) {
-      await c.env.DB.prepare(`
-        INSERT INTO letter_recipients (id, letter_id, family_member_id, created_at)
-        VALUES (?, ?, ?, ?)
-      `).bind(crypto.randomUUID(), id, recipientId, now).run();
-    }
+    await c.env.DB.batch(
+      recipientIds.map((recipientId: string) =>
+        c.env.DB.prepare(`INSERT INTO letter_recipients (id, letter_id, family_member_id, created_at) VALUES (?, ?, ?, ?)`)
+          .bind(crypto.randomUUID(), id, recipientId, now)
+      )
+    );
   }
   
   const letter = await c.env.DB.prepare(`
@@ -329,13 +336,12 @@ lettersRoutes.patch('/:id', async (c) => {
       DELETE FROM letter_recipients WHERE letter_id = ?
     `).bind(letterId).run();
     
-    // Add new recipients
-    for (const recipientId of recipientIds) {
-      await c.env.DB.prepare(`
-        INSERT INTO letter_recipients (id, letter_id, family_member_id, created_at)
-        VALUES (?, ?, ?, ?)
-      `).bind(crypto.randomUUID(), letterId, recipientId, now).run();
-    }
+    await c.env.DB.batch(
+      recipientIds.map((recipientId: string) =>
+        c.env.DB.prepare(`INSERT INTO letter_recipients (id, letter_id, family_member_id, created_at) VALUES (?, ?, ?, ?)`)
+          .bind(crypto.randomUUID(), letterId, recipientId, now)
+      )
+    );
   }
   
   const letter = await c.env.DB.prepare(`
@@ -386,14 +392,14 @@ lettersRoutes.post('/:id/seal', async (c) => {
     WHERE lr.letter_id = ?
   `).bind(letterId).all();
   
-  // Create delivery records
-  for (const recipient of recipients.results as any[]) {
-    if (recipient.email) {
-      await c.env.DB.prepare(`
-        INSERT INTO letter_deliveries (id, letter_id, recipient_email, status, created_at, updated_at)
-        VALUES (?, ?, ?, 'PENDING', ?, ?)
-      `).bind(crypto.randomUUID(), letterId, recipient.email, now, now).run();
-    }
+  const recipientsWithEmail = (recipients.results as any[]).filter(r => r.email);
+  if (recipientsWithEmail.length > 0) {
+    await c.env.DB.batch(
+      recipientsWithEmail.map((recipient: any) =>
+        c.env.DB.prepare(`INSERT INTO letter_deliveries (id, letter_id, recipient_email, status, created_at, updated_at) VALUES (?, ?, ?, 'PENDING', ?, ?)`)
+          .bind(crypto.randomUUID(), letterId, recipient.email, now, now)
+      )
+    );
   }
   
   const letter = await c.env.DB.prepare(`
