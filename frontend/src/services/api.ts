@@ -16,6 +16,7 @@ export const setTokens = (accessToken: string, refreshToken: string) => {
 export const clearTokens = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('heirloom-auth');
 };
 
 // Token refresh state management to prevent race conditions
@@ -39,6 +40,7 @@ const onRefreshFailed = () => {
   isRefreshing = false;
   localStorage.removeItem('token');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('heirloom-auth');
   window.location.href = '/login';
 };
 
