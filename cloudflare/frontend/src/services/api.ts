@@ -59,8 +59,9 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     
-    // Handle token refresh with retry limit
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthEndpoint = originalRequest?.url?.startsWith('/auth/');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       if (retryCount >= MAX_RETRY_ATTEMPTS) {
         retryCount = 0;
         clearTokens();
