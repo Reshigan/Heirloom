@@ -16,6 +16,7 @@ export const setTokens = (accessToken: string, refreshToken: string) => {
 export const clearTokens = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('heirloom-auth');
 };
 
 // Get current auth token (for use with raw fetch calls that bypass axios)
