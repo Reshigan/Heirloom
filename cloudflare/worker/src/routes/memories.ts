@@ -83,26 +83,24 @@ memoriesRoutes.get('/', async (c) => {
 memoriesRoutes.get('/stats/summary', async (c) => {
   const userId = c.get('userId');
   
-  const stats = await c.env.DB.prepare(`
-    SELECT 
-      COUNT(*) as total,
-      SUM(CASE WHEN type = 'PHOTO' THEN 1 ELSE 0 END) as photos,
-      SUM(CASE WHEN type = 'VIDEO' THEN 1 ELSE 0 END) as videos,
-      SUM(CASE WHEN type = 'VOICE' THEN 1 ELSE 0 END) as voice,
-      SUM(CASE WHEN type = 'LETTER' THEN 1 ELSE 0 END) as letters,
-      SUM(file_size) as total_storage
-    FROM memories WHERE user_id = ?
-  `).bind(userId).first();
+  const [statsResult, letterCountResult, voiceStatsResult] = await c.env.DB.batch([
+    c.env.DB.prepare(`
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN type = 'PHOTO' THEN 1 ELSE 0 END) as photos,
+        SUM(CASE WHEN type = 'VIDEO' THEN 1 ELSE 0 END) as videos,
+        SUM(CASE WHEN type = 'VOICE' THEN 1 ELSE 0 END) as voice,
+        SUM(CASE WHEN type = 'LETTER' THEN 1 ELSE 0 END) as letters,
+        SUM(file_size) as total_storage
+      FROM memories WHERE user_id = ?
+    `).bind(userId),
+    c.env.DB.prepare(`SELECT COUNT(*) as count FROM letters WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`SELECT COUNT(*) as count, SUM(duration) as total_minutes FROM voice_recordings WHERE user_id = ?`).bind(userId),
+  ]);
   
-  // Get letter count from letters table (letters are stored separately)
-  const letterCount = await c.env.DB.prepare(`
-    SELECT COUNT(*) as count FROM letters WHERE user_id = ?
-  `).bind(userId).first();
-  
-  // Get voice recording stats
-  const voiceStats = await c.env.DB.prepare(`
-    SELECT COUNT(*) as count, SUM(duration) as total_minutes FROM voice_recordings WHERE user_id = ?
-  `).bind(userId).first();
+  const stats = statsResult.results[0] as any;
+  const letterCount = letterCountResult.results[0] as any;
+  const voiceStats = voiceStatsResult.results[0] as any;
   
   return c.json({
     total: stats?.total || 0,
@@ -322,14 +320,13 @@ memoriesRoutes.post('/', async (c) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), encrypted ? 1 : 0, encryption_iv || null, createdAt, now).run();
   
-  // Add recipients
   if (recipientIds && recipientIds.length > 0) {
-    for (const recipientId of recipientIds) {
-      await c.env.DB.prepare(`
-        INSERT INTO memory_recipients (id, memory_id, family_member_id, created_at)
-        VALUES (?, ?, ?, ?)
-      `).bind(crypto.randomUUID(), id, recipientId, now).run();
-    }
+    await c.env.DB.batch(
+      recipientIds.map((recipientId: string) =>
+        c.env.DB.prepare(`INSERT INTO memory_recipients (id, memory_id, family_member_id, created_at) VALUES (?, ?, ?, ?)`)
+          .bind(crypto.randomUUID(), id, recipientId, now)
+      )
+    );
   }
   
   const memory = await c.env.DB.prepare(`

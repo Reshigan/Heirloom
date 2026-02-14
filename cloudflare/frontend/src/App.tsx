@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
@@ -14,55 +14,51 @@ import {
   removePushNotificationListeners,
 } from './services/pushNotificationService';
 
-// Pages
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
-import { ForgotPassword } from './pages/ForgotPassword';
-import { ResetPassword } from './pages/ResetPassword';
-import { Dashboard } from './pages/Dashboard';
-import { Memories } from './pages/Memories';
-import { Compose } from './pages/Compose';
-import { Record } from './pages/Record';
-import { Family } from './pages/Family';
-import { Settings } from './pages/Settings';
-import { Billing } from './pages/Billing';
-import { Letters } from './pages/Letters';
-import { AdminLogin } from './pages/AdminLogin';
-import { AdminDashboard } from './pages/AdminDashboard';
-import Wrapped from './pages/Wrapped';
-import { Privacy } from './pages/Privacy';
-import { Terms } from './pages/Terms';
-import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
-import { VerifyEmail } from './pages/VerifyEmail';
-import { FutureLetter } from './pages/FutureLetter';
-import { GiftPurchase } from './pages/GiftPurchase';
-import { GiftRedeem } from './pages/GiftRedeem';
-import { GiftSuccess } from './pages/GiftSuccess';
-import { GoldLegacyRedeem } from './pages/GoldLegacyRedeem';
-import { Contact } from './pages/Contact';
-import { LegacyPlan } from './pages/LegacyPlan';
-import { StoryArtifact } from './pages/StoryArtifact';
-import { LifeEvents } from './pages/LifeEvents';
-import { RecipientExperience } from './pages/RecipientExperience';
-import { CreatorSignup } from './pages/CreatorSignup';
-import { MemoryRoom } from './pages/MemoryRoom';
-import { StoryView } from './pages/StoryView';
-import { PersonPage } from './pages/PersonPage';
-import { QuickWizard } from './pages/QuickWizard';
 
-// Q4 2025 Features
-import { Streaks } from './pages/Streaks';
-import { Challenges } from './pages/Challenges';
-import { Referrals } from './pages/Referrals';
-import { GiftSubscriptions } from './pages/GiftSubscriptions';
-import { Memorials } from './pages/Memorials';
-import { Milestones } from './pages/Milestones';
-
-// Quick Wins Features
-import { MemoryCards } from './pages/MemoryCards';
-import { CardView } from './pages/CardView';
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
+const ResetPassword = lazy(() => import('./pages/ResetPassword').then(m => ({ default: m.ResetPassword })));
+const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
+const Memories = lazy(() => import('./pages/Memories').then(m => ({ default: m.Memories })));
+const Compose = lazy(() => import('./pages/Compose').then(m => ({ default: m.Compose })));
+const Record = lazy(() => import('./pages/Record').then(m => ({ default: m.Record })));
+const Family = lazy(() => import('./pages/Family').then(m => ({ default: m.Family })));
+const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
+const Billing = lazy(() => import('./pages/Billing').then(m => ({ default: m.Billing })));
+const Letters = lazy(() => import('./pages/Letters').then(m => ({ default: m.Letters })));
+const AdminLogin = lazy(() => import('./pages/AdminLogin').then(m => ({ default: m.AdminLogin })));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const Wrapped = lazy(() => import('./pages/Wrapped'));
+const Privacy = lazy(() => import('./pages/Privacy').then(m => ({ default: m.Privacy })));
+const Terms = lazy(() => import('./pages/Terms').then(m => ({ default: m.Terms })));
+const Inherit = lazy(() => import('./pages/Inherit').then(m => ({ default: m.Inherit })));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail').then(m => ({ default: m.VerifyEmail })));
+const FutureLetter = lazy(() => import('./pages/FutureLetter').then(m => ({ default: m.FutureLetter })));
+const GiftPurchase = lazy(() => import('./pages/GiftPurchase').then(m => ({ default: m.GiftPurchase })));
+const GiftRedeem = lazy(() => import('./pages/GiftRedeem').then(m => ({ default: m.GiftRedeem })));
+const GiftSuccess = lazy(() => import('./pages/GiftSuccess').then(m => ({ default: m.GiftSuccess })));
+const GoldLegacyRedeem = lazy(() => import('./pages/GoldLegacyRedeem').then(m => ({ default: m.GoldLegacyRedeem })));
+const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
+const LegacyPlan = lazy(() => import('./pages/LegacyPlan').then(m => ({ default: m.LegacyPlan })));
+const StoryArtifact = lazy(() => import('./pages/StoryArtifact').then(m => ({ default: m.StoryArtifact })));
+const LifeEvents = lazy(() => import('./pages/LifeEvents').then(m => ({ default: m.LifeEvents })));
+const RecipientExperience = lazy(() => import('./pages/RecipientExperience').then(m => ({ default: m.RecipientExperience })));
+const CreatorSignup = lazy(() => import('./pages/CreatorSignup').then(m => ({ default: m.CreatorSignup })));
+const MemoryRoom = lazy(() => import('./pages/MemoryRoom').then(m => ({ default: m.MemoryRoom })));
+const StoryView = lazy(() => import('./pages/StoryView').then(m => ({ default: m.StoryView })));
+const PersonPage = lazy(() => import('./pages/PersonPage').then(m => ({ default: m.PersonPage })));
+const QuickWizard = lazy(() => import('./pages/QuickWizard').then(m => ({ default: m.QuickWizard })));
+const Streaks = lazy(() => import('./pages/Streaks').then(m => ({ default: m.Streaks })));
+const Challenges = lazy(() => import('./pages/Challenges').then(m => ({ default: m.Challenges })));
+const Referrals = lazy(() => import('./pages/Referrals').then(m => ({ default: m.Referrals })));
+const GiftSubscriptions = lazy(() => import('./pages/GiftSubscriptions').then(m => ({ default: m.GiftSubscriptions })));
+const Memorials = lazy(() => import('./pages/Memorials').then(m => ({ default: m.Memorials })));
+const Milestones = lazy(() => import('./pages/Milestones').then(m => ({ default: m.Milestones })));
+const MemoryCards = lazy(() => import('./pages/MemoryCards').then(m => ({ default: m.MemoryCards })));
+const CardView = lazy(() => import('./pages/CardView').then(m => ({ default: m.CardView })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -136,6 +132,7 @@ export default function App() {
             isOpen={showComfortSettings} 
             onClose={() => setShowComfortSettings(false)} 
           />
+          <Suspense fallback={<div style={{ minHeight: '100vh' }} />}>
           <Routes>
           {/* Public routes */}
                     <Route path="/" element={<Landing />} />
@@ -389,6 +386,7 @@ export default function App() {
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>
