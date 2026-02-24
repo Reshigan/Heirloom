@@ -5,8 +5,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:prod": "tsc && vite build --mode production",
     "preview": "vite preview",
-    "lint": "eslint src --ext .ts,.tsx"
+    "lint": "eslint src --ext .ts,.tsx",
+    "audit": "npm audit --audit-level=high",
+    "audit:fix": "npm audit fix",
+    "security": "npm audit --audit-level=high && npm outdated"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
@@ -42,6 +46,6 @@
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "vite": "^7.3.1"
   }
 }
