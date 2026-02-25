@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, X, Image, Video, Upload, Trash2, Pen, Check, AlertCirc
 import { useTranslation } from 'react-i18next';
 import { memoriesApi, familyApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
+import { TimelineView } from '../components/TimelineView';
 import { EmptyState, LoadingState } from '../components/ui';
 
 type EmotionType = 'joyful' | 'nostalgic' | 'grateful' | 'loving' | 'bittersweet' | 'sad' | 'reflective' | 'proud' | 'peaceful' | 'hopeful';
@@ -42,7 +43,7 @@ export function Memories() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'timeline' | 'calendar'>('grid');
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -300,6 +301,20 @@ export function Memories() {
                 >
                   <List size={18} />
                 </button>
+                <button
+                  onClick={() => setViewMode('timeline')}
+                  className={`p-2 rounded-md transition-colors ${viewMode === 'timeline' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode('calendar')}
+                  className={`p-2 rounded-md transition-colors ${viewMode === 'calendar' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
+                >
+                  <Calendar size={16} />
+                </button>
               </div>
 
               {/* Filter */}
@@ -430,97 +445,111 @@ export function Memories() {
             </div>
           </motion.div>
 
-          {/* Memory Grid/List */}
+          {/* Memory Views */}
           {isLoading ? (
             <LoadingState type="memories" message={t('memories.loading') || 'Loading your memories...'} />
           ) : filteredMemories.length > 0 ? (
-            <motion.div
-              className={viewMode === 'grid' 
-                ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' 
-                : 'space-y-4'
-              }
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {filteredMemories.map((memory: Memory, i: number) => (
-                <motion.button
-                  key={memory.id}
-                  onClick={() => setSelectedMemory(memory)}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`relative group overflow-hidden rounded-xl ${
-                    viewMode === 'grid' ? 'aspect-square' : 'flex items-center gap-4 p-4 glass'
-                  }`}
+            <>
+              {viewMode === 'timeline' || viewMode === 'calendar' ? (
+                <TimelineView
+                  memories={filteredMemories}
+                  selectedYear={selectedYear}
+                  selectedMonth={selectedMonth}
+                  onYearChange={setSelectedYear}
+                  onMonthChange={setSelectedMonth}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                />
+              ) : (
+                <motion.div
+                  className={viewMode === 'grid' 
+                    ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4' 
+                    : 'space-y-4'
+                  }
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                 >
-                  {viewMode === 'grid' ? (
-                    <>
-                      {/* Thumbnail */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-blood/10">
-                        {memory.fileUrl ? (
-                          <img
-                            src={memory.fileUrl}
-                            alt={memory.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            {memory.type === 'VIDEO' ? (
-                              <Video size={40} className="text-paper/30" />
+                  {filteredMemories.map((memory: Memory, i: number) => (
+                    <motion.button
+                      key={memory.id}
+                      onClick={() => setSelectedMemory(memory)}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`relative group overflow-hidden rounded-xl ${
+                        viewMode === 'grid' ? 'aspect-square' : 'flex items-center gap-4 p-4 glass'
+                      }`}
+                    >
+                      {viewMode === 'grid' ? (
+                        <>
+                          {/* Thumbnail */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-blood/10">
+                            {memory.fileUrl ? (
+                              <img
+                                src={memory.fileUrl}
+                                alt={memory.title}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
-                              <Image size={40} className="text-paper/30" />
+                              <div className="w-full h-full flex items-center justify-center">
+                                {memory.type === 'VIDEO' ? (
+                                  <Video size={40} className="text-paper/30" />
+                                ) : (
+                                  <Image size={40} className="text-paper/30" />
+                                )}
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                      
-                      {/* Glass overlay on hover */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-void/90 via-void/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      
-                      {/* Info */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform">
-                        <div className="text-paper font-medium truncate">{memory.title}</div>
-                        <div className="text-paper/50 text-sm">{new Date(memory.createdAt).toLocaleDateString()}</div>
-                      </div>
+                          
+                          {/* Glass overlay on hover */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-void/90 via-void/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                          
+                          {/* Info */}
+                          <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform">
+                            <div className="text-paper font-medium truncate">{memory.title}</div>
+                            <div className="text-paper/50 text-sm">{new Date(memory.createdAt).toLocaleDateString()}</div>
+                          </div>
 
-                      {/* Type badge */}
-                      <div className="absolute top-3 right-3">
-                        <span className={`badge ${memory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
-                          {memory.type === 'VIDEO' ? <Video size={12} /> : <Image size={12} />}
-                        </span>
-                      </div>
+                          {/* Type badge */}
+                          <div className="absolute top-3 right-3">
+                            <span className={`badge ${memory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
+                              {memory.type === 'VIDEO' ? <Video size={12} /> : <Image size={12} />}
+                            </span>
+                          </div>
 
-                      {/* Glass shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-20 h-20 rounded-lg glass flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {memory.fileUrl ? (
-                          <img src={memory.fileUrl} alt="" className="w-full h-full object-cover" />
-                        ) : memory.type === 'VIDEO' ? (
-                          <Video size={24} className="text-paper/30" />
-                        ) : (
-                          <Image size={24} className="text-paper/30" />
-                        )}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="text-paper font-medium">{memory.title}</div>
-                        {memory.description && (
-                          <div className="text-paper/50 text-sm truncate">{memory.description}</div>
-                        )}
-                        <div className="text-paper/30 text-xs mt-1">{new Date(memory.createdAt).toLocaleDateString()}</div>
-                      </div>
-                      <span className={`badge ${memory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
-                        {memory.type}
-                      </span>
-                    </>
-                  )}
-                </motion.button>
-              ))}
-            </motion.div>
+                          {/* Glass shine effect */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-20 h-20 rounded-lg glass flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {memory.fileUrl ? (
+                              <img src={memory.fileUrl} alt="" className="w-full h-full object-cover" />
+                            ) : memory.type === 'VIDEO' ? (
+                              <Video size={24} className="text-paper/30" />
+                            ) : (
+                              <Image size={24} className="text-paper/30" />
+                            )}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="text-paper font-medium">{memory.title}</div>
+                            {memory.description && (
+                              <div className="text-paper/50 text-sm truncate">{memory.description}</div>
+                            )}
+                            <div className="text-paper/30 text-xs mt-1">{new Date(memory.createdAt).toLocaleDateString()}</div>
+                          </div>
+                          <span className={`badge ${memory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
+                            {memory.type}
+                          </span>
+                        </>
+                      )}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+            </>
           ) : (
             memories?.memories?.length > 0 ? (
               <EmptyState
