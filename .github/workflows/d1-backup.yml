@@ -40,11 +40,10 @@ jobs:
           echo "Creating D1 backup: $BACKUP_FILE"
           
           # Export D1 database to SQL
-          # Note: This requires the CLOUDFLARE_API_TOKEN secret to be set
-          # with D1 read permissions
+          # Note: This requires CLOUDFLARE_API_KEY and CLOUDFLARE_EMAIL secrets to be set
           wrangler d1 export heirloom-db --output="$BACKUP_FILE" || {
-            echo "Warning: D1 export failed. This may be due to missing API token."
-            echo "Please set CLOUDFLARE_API_TOKEN secret with D1 read permissions."
+            echo "Warning: D1 export failed. This may be due to missing API credentials."
+            echo "Please ensure CLOUDFLARE_API_KEY and CLOUDFLARE_EMAIL secrets are set."
             exit 0
           }
           

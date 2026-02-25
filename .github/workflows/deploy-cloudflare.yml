@@ -92,4 +92,4 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           echo "Applying D1 migrations..."
-          wrangler d1 migrations apply heirloom-db --remote || echo "No new migrations to apply"
+          wrangler d1 migrations apply heirloom-db --remote
