@@ -651,6 +651,9 @@ app.get('/api/voice/file/*', async (c) => {
 // Admin routes (separate auth - must be before protected routes)
 app.route('/api/admin', adminRoutes);
 
+// Social admin routes (own admin auth middleware)
+app.route('/api/admin/social', socialRoutes);
+
 // Marketing routes (mix of public and admin-protected endpoints)
 app.route('/api/marketing', marketingRoutes);
 
@@ -745,7 +748,6 @@ protectedApp.route('/export', exportRoutes);
 protectedApp.route('/capsules', capsulesRoutes);
 protectedApp.route('/engagement', engagementV2Routes);
 protectedApp.route('/gifts', giftsV2ProtectedRoutes);
-protectedApp.route('/admin/social', socialRoutes);
 
 app.route('/api', protectedApp);
 

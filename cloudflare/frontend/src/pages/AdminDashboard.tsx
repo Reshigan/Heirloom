@@ -1733,12 +1733,12 @@ export function AdminDashboard() {
             </div>
           </div>
         )}
-      </div>
 
         {/* Social Calendar Tab */}
         {activeTab === 'social' && (
           <SocialCalendarTab />
         )}
+      </div>
 
       {/* Modals */}
             {showCouponModal && (
