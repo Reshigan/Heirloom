@@ -116,6 +116,7 @@ export const familyApi = {
 export const memoriesApi = {
   getAll: (params?: { type?: string; recipientId?: string; page?: number; limit?: number }) =>
     api.get('/memories', { params }),
+  getMapMemories: (params?: { type?: string }) => api.get('/memories/map', { params }),
   getOne: (id: string) => api.get(`/memories/${id}`),
   getStats: () => api.get('/memories/stats/summary'),
   getUploadUrl: (data: { filename: string; contentType: string }) =>
@@ -165,6 +166,35 @@ export const billingApi = {
   updateCurrency: (currency: string) => api.patch('/billing/currency', { currency }),
 };
 
+// Gifts API (Gift-a-Memory viral loop)
+export const giftsApi = {
+  send: (data: { memory_type: string; memory_id: string; recipient_email: string; recipient_name: string; personal_message?: string; unlock_date?: string }) =>
+    api.post('/gifts/send', data),
+  receive: (token: string) => api.get(`/gifts/receive/${token}`),
+  claim: (token: string) => api.post(`/gifts/claim/${token}`),
+};
+
+// Capsules API (Time Capsules)
+export const capsulesApi = {
+  getAll: () => api.get('/capsules'),
+  getOne: (id: string) => api.get(`/capsules/${id}`),
+  create: (data: { title: string; description?: string; unlock_date: string; cover_style?: string }) =>
+    api.post('/capsules', data),
+  addItem: (capsuleId: string, data: { item_type: string; title: string; content?: string; file_key?: string }) =>
+    api.post(`/capsules/${capsuleId}/items`, data),
+  seal: (capsuleId: string) => api.post(`/capsules/${capsuleId}/seal`),
+  open: (capsuleId: string) => api.post(`/capsules/${capsuleId}/open`),
+  invite: (capsuleId: string, data: { email: string }) =>
+    api.post(`/capsules/${capsuleId}/invite`, data),
+};
+
+// Engagement API (Family Feed, On This Day, Legacy Score, Streaks)
+export const engagementApi = {
+  getLegacyScore: () => api.get('/engagement/legacy-score'),
+  getFamilyFeed: () => api.get('/engagement/family-feed'),
+  getOnThisDay: () => api.get('/memories/on-this-day'),
+};
+
 // Settings API
 export const settingsApi = {
   getProfile: () => api.get('/settings/profile'),
@@ -186,6 +216,11 @@ export const settingsApi = {
   getInbox: () => api.get('/settings/inbox'),
   markInboxMessageRead: (id: string) => api.patch(`/settings/inbox/${id}/read`),
   markAllInboxRead: () => api.post('/settings/inbox/mark-all-read'),
+  // Onboarding
+  completeOnboarding: () => api.post('/settings/onboarding/complete'),
+  // WhatsApp
+  connectWhatsApp: (data: { phone: string }) => api.post('/settings/connect-whatsapp', data),
+  verifyWhatsApp: (data: { code: string }) => api.post('/settings/verify-whatsapp', data),
 };
 
 // Dead Man's Switch API
@@ -249,6 +284,13 @@ export const aiApi = {
   
   // Legacy score
   getLegacyScore: () => api.get('/ai/legacy-score'),
+
+  // Interview follow-up
+  interviewFollowup: (data: { currentQuestion: string; transcriptSoFar: string }) =>
+    api.post('/ai/interview-followup', data),
+
+  // Transcribe
+  transcribe: (data: { audioUrl: string }) => api.post('/ai/transcribe', data),
 };
 
 // Search API
@@ -291,6 +333,8 @@ export const memoryCardsApi = {
 // Data export API extension
 export const exportApi = {
   exportData: () => api.get('/settings/export'),
+  bookPreview: (config: any) => api.post('/export/book/preview', config),
+  bookOrder: (config: any) => api.post('/export/book/order', config),
 };
 
 // Email verification API extension

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
-import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X, ChevronDown, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger } from './Icons';
+import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X, ChevronDown, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger, Gift, Clock, Heart, Trophy } from './Icons';
 import { MobileBottomNav } from './MobileBottomNav';
 
 const navItems = [
@@ -21,6 +21,13 @@ const advancedFeatures = [
   { path: '/recipient-experience', icon: RecipientJourney, label: 'Recipient Experience', description: 'Staged releases & memory room' },
   { path: '/story-artifacts', icon: StoryArtifact, label: 'Story Artifacts', description: 'Create micro-documentaries' },
   { path: '/life-events', icon: LifeEventTrigger, label: 'Life Events', description: 'Milestone-based triggers' },
+  { path: '/interview', icon: Mic, label: 'Interview Mode', description: 'Guided interview recording' },
+  { path: '/time-capsules', icon: Clock, label: 'Time Capsules', description: 'Seal memories for the future' },
+  { path: '/gift-a-memory', icon: Gift, label: 'Gift a Memory', description: 'Send a memory to someone special' },
+  { path: '/family-feed', icon: Heart, label: 'Family Feed', description: 'Activity from your family' },
+  { path: '/on-this-day', icon: Sparkles, label: 'On This Day', description: 'Memories from years past' },
+  { path: '/book-builder', icon: StoryArtifact, label: 'Book Builder', description: 'Create a printed memory book' },
+  { path: '/memory-map', icon: Trophy, label: 'Memory Map', description: 'See memories on a map' },
 ];
 
 export function Navigation() {
