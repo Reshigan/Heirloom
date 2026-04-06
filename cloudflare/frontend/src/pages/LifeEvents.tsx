@@ -332,7 +332,7 @@ export function LifeEvents() {
         >
           <div>
             <h1 className="font-display text-4xl md:text-5xl mb-2">Life Event Triggers</h1>
-            <p className="text-paper/60">
+            <p className="text-paper/70">
               Deliver messages when life's special moments happen
             </p>
           </div>
@@ -374,9 +374,9 @@ export function LifeEvents() {
                         </span>
                       </div>
                       {trigger.event_description && (
-                        <p className="text-paper/50 text-sm mb-2">{trigger.event_description}</p>
+                        <p className="text-paper/65 text-sm mb-2">{trigger.event_description}</p>
                       )}
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-paper/40">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-paper/70">
                         <span className="flex items-center gap-1">
                           <User size={14} />
                           {trigger.recipient_name || trigger.family_member_name || 'No recipient'}
@@ -411,7 +411,7 @@ export function LifeEvents() {
                           </button>
                           <button
                             onClick={() => cancelMutation.mutate(trigger.id)}
-                            className="btn btn-ghost btn-sm text-paper/50"
+                            className="btn btn-ghost btn-sm text-paper/65"
                           >
                             Cancel
                           </button>
@@ -437,7 +437,7 @@ export function LifeEvents() {
           >
             <Calendar size={64} className="mx-auto text-paper/20 mb-4" />
             <h3 className="text-xl font-medium mb-2">No life event triggers yet</h3>
-            <p className="text-paper/50 mb-6">Create triggers to deliver messages at life's special moments</p>
+            <p className="text-paper/65 mb-6">Create triggers to deliver messages at life's special moments</p>
             <button
               onClick={() => setShowCreate(true)}
               className="btn btn-primary"
@@ -470,7 +470,7 @@ export function LifeEvents() {
                     {wizardStep > 1 && (
                       <button 
                         onClick={() => setWizardStep(wizardStep - 1)} 
-                        className="text-paper/50 hover:text-paper"
+                        className="text-paper/65 hover:text-paper"
                       >
                         <ArrowRight size={20} className="rotate-180" />
                       </button>
@@ -481,10 +481,10 @@ export function LifeEvents() {
                         {wizardStep === 2 && 'Who is this for?'}
                         {wizardStep === 3 && 'Review & Create'}
                       </h3>
-                      <p className="text-sm text-paper/50">Step {wizardStep} of 3</p>
+                      <p className="text-sm text-paper/65">Step {wizardStep} of 3</p>
                     </div>
                   </div>
-                  <button onClick={() => resetForm()} className="text-paper/50 hover:text-paper">
+                  <button onClick={() => resetForm()} className="text-paper/65 hover:text-paper">
                     <X size={24} />
                   </button>
                 </div>
@@ -505,9 +505,9 @@ export function LifeEvents() {
                           </div>
                           <div className="flex-1">
                             <h4 className="font-medium">{template.title}</h4>
-                            <p className="text-sm text-paper/50">{template.description}</p>
+                            <p className="text-sm text-paper/65">{template.description}</p>
                           </div>
-                          <ChevronRight size={20} className="text-paper/30 group-hover:text-gold transition-colors" />
+                          <ChevronRight size={20} className="text-paper/65 group-hover:text-gold transition-colors" />
                         </button>
                       );
                     })}
@@ -517,7 +517,7 @@ export function LifeEvents() {
                           setWizardStep(2);
                           setSelectedTemplate(null);
                         }}
-                        className="w-full p-3 text-center text-paper/50 hover:text-paper transition-colors"
+                        className="w-full p-3 text-center text-paper/65 hover:text-paper transition-colors"
                       >
                         Or create a custom event...
                       </button>
@@ -530,7 +530,7 @@ export function LifeEvents() {
                   <div className="space-y-4">
                     {family.length > 0 ? (
                       <div className="space-y-2">
-                        <p className="text-sm text-paper/60 mb-3">Select a family member:</p>
+                        <p className="text-sm text-paper/70 mb-3">Select a family member:</p>
                         {family.map((member) => (
                           <button
                             key={member.id}
@@ -546,9 +546,9 @@ export function LifeEvents() {
                             </div>
                             <div className="flex-1">
                               <h4 className="font-medium">{member.name}</h4>
-                              <p className="text-sm text-paper/50">{member.relationship}</p>
+                              <p className="text-sm text-paper/65">{member.relationship}</p>
                             </div>
-                            <ChevronRight size={20} className="text-paper/30" />
+                            <ChevronRight size={20} className="text-paper/65" />
                           </button>
                         ))}
                       </div>
@@ -556,14 +556,14 @@ export function LifeEvents() {
                       <div className="text-center py-8">
                         <User size={48} className="mx-auto text-paper/20 mb-4" />
                         <h4 className="font-medium mb-2">No family members yet</h4>
-                        <p className="text-paper/50 text-sm mb-4">Add family members to easily select recipients</p>
+                        <p className="text-paper/65 text-sm mb-4">Add family members to easily select recipients</p>
                         <a href="/family" className="btn btn-primary">
                           Add Family Members
                         </a>
                       </div>
                     )}
                     <div className="pt-4 border-t border-paper/10">
-                      <p className="text-sm text-paper/50 mb-2">Or enter manually:</p>
+                      <p className="text-sm text-paper/65 mb-2">Or enter manually:</p>
                       <div className="grid grid-cols-2 gap-2">
                         <input
                           type="text"
@@ -642,7 +642,7 @@ export function LifeEvents() {
                               <span>{item.title}</span>
                               <button
                                 onClick={() => removeContent(item.type, item.id)}
-                                className="text-paper/50 hover:text-red-400"
+                                className="text-paper/65 hover:text-red-400"
                               >
                                 <X size={14} />
                               </button>
@@ -661,7 +661,7 @@ export function LifeEvents() {
                     {selectedContent.length === 0 && (
                       <button
                         onClick={() => setShowContentPicker(true)}
-                        className="w-full p-3 border border-dashed border-paper/20 rounded-lg text-paper/50 hover:text-paper hover:border-paper/40 transition-all flex items-center justify-center gap-2"
+                        className="w-full p-3 border border-dashed border-paper/20 rounded-lg text-paper/65 hover:text-paper hover:border-paper/40 transition-all flex items-center justify-center gap-2"
                       >
                         <Plus size={16} />
                         Add photos, letters, or voice recordings
@@ -711,7 +711,7 @@ export function LifeEvents() {
                 
                 {memories.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/60 mb-2 flex items-center gap-2">
+                    <h4 className="text-sm font-medium text-paper/70 mb-2 flex items-center gap-2">
                       <Image size={14} /> Photos & Memories ({memories.length})
                     </h4>
                     <div className="space-y-1 max-h-32 overflow-y-auto">
@@ -731,7 +731,7 @@ export function LifeEvents() {
 
                 {letters.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/60 mb-2 flex items-center gap-2">
+                    <h4 className="text-sm font-medium text-paper/70 mb-2 flex items-center gap-2">
                       <FileText size={14} /> Letters ({letters.length})
                     </h4>
                     <div className="space-y-1 max-h-32 overflow-y-auto">
@@ -751,7 +751,7 @@ export function LifeEvents() {
 
                 {voiceRecordings.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/60 mb-2 flex items-center gap-2">
+                    <h4 className="text-sm font-medium text-paper/70 mb-2 flex items-center gap-2">
                       <Mic size={14} /> Voice Recordings ({voiceRecordings.length})
                     </h4>
                     <div className="space-y-1 max-h-32 overflow-y-auto">
@@ -771,7 +771,7 @@ export function LifeEvents() {
 
                 {memories.length === 0 && letters.length === 0 && voiceRecordings.length === 0 && (
                   <div className="text-center py-6">
-                    <p className="text-paper/50 mb-4">No content available yet. Create some first:</p>
+                    <p className="text-paper/65 mb-4">No content available yet. Create some first:</p>
                     <div className="space-y-2">
                       <a
                         href="/memories"

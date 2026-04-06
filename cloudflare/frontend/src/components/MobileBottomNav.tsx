@@ -34,7 +34,7 @@ export function MobileBottomNav({ onMenuClick }: MobileBottomNavProps) {
       role="navigation"
       aria-label="Mobile navigation"
     >
-      <div className="absolute inset-0 bg-void-deep/95 backdrop-blur-xl border-t border-paper-08" />
+      <div className="absolute inset-0 glass-strong border-t border-paper-08" />
       
       <div 
         className="relative flex items-stretch justify-around"

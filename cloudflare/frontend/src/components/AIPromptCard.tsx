@@ -120,7 +120,7 @@ export function AIPromptCard({ onUsePrompt, className = '' }: AIPromptCardProps)
       </div>
 
       {promptData?.category && (
-        <p className="text-paper/40 text-sm mt-4">
+        <p className="text-paper/70 text-sm mt-4">
           Category: {promptData.category}
         </p>
       )}

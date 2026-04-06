@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
             <h2 className="text-xl font-serif text-paper mb-2">Something went wrong</h2>
-            <p className="text-paper/60 mb-6">
+            <p className="text-paper/70 mb-6">
               We encountered an unexpected error. Please try again or refresh the page.
             </p>
             <div className="flex gap-3 justify-center">
@@ -72,7 +72,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             {this.state.error && (
               <details className="mt-6 text-left">
-                <summary className="text-paper/40 text-sm cursor-pointer hover:text-paper/60">
+                <summary className="text-paper/70 text-sm cursor-pointer hover:text-paper/70">
                   Technical details
                 </summary>
                 <pre className="mt-2 p-3 bg-void rounded text-xs text-red-400 overflow-auto max-h-32">

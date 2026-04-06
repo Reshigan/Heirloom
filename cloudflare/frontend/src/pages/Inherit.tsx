@@ -294,7 +294,7 @@ export function Inherit() {
           className="text-center relative z-10"
         >
           <Loader2 size={48} className="animate-spin text-gold mx-auto mb-4" />
-          <p className="text-paper/60">Unlocking memories...</p>
+          <p className="text-paper/70">Unlocking memories...</p>
         </motion.div>
       </div>
     );
@@ -317,7 +317,7 @@ export function Inherit() {
             <AlertCircle size={40} className="text-red-400" />
           </div>
           <h1 className="text-2xl font-light mb-4">{error}</h1>
-          <p className="text-paper/60 mb-8">
+          <p className="text-paper/70 mb-8">
             This link may have expired or is no longer valid. Please contact the person who shared this with you.
           </p>
           <Link to="/" className="btn btn-secondary">
@@ -364,7 +364,7 @@ export function Inherit() {
             <h1 className="text-3xl md:text-4xl font-light mb-2">
               Memories from <span className="text-gold">{ownerName}</span>
             </h1>
-            <p className="text-paper/60">
+            <p className="text-paper/70">
               Shared with you, {recipientName} ({relationship})
             </p>
           </motion.div>
@@ -376,19 +376,19 @@ export function Inherit() {
               <div className="max-w-2xl mx-auto">
                 <form onSubmit={handleSearch} className="relative">
                   <div className="relative">
-                    <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/40" />
+                    <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/70" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Ask about memories... e.g., 'When did dad buy his first car?'"
-                      className="w-full pl-12 pr-24 py-4 rounded-xl glass border border-paper/10 focus:border-gold/50 focus:outline-none text-paper placeholder:text-paper/40 transition-all"
+                      className="w-full pl-12 pr-24 py-4 rounded-xl glass border border-paper/10 focus:border-gold/50 focus:outline-none text-paper placeholder:text-paper/70 transition-all"
                     />
                     {searchQuery && (
                       <button
                         type="button"
                         onClick={clearSearch}
-                        className="absolute right-16 top-1/2 -translate-y-1/2 p-1 text-paper/40 hover:text-paper transition-colors"
+                        className="absolute right-16 top-1/2 -translate-y-1/2 p-1 text-paper/70 hover:text-paper transition-colors"
                       >
                         <X size={16} />
                       </button>
@@ -401,7 +401,7 @@ export function Inherit() {
                       {searchLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                     </button>
                   </div>
-                  <p className="text-xs text-paper/40 mt-2 text-center">
+                  <p className="text-xs text-paper/70 mt-2 text-center">
                     <MessageCircle size={12} className="inline mr-1" />
                     Ask questions about {ownerName}'s memories, letters, and recordings
                   </p>
@@ -424,7 +424,7 @@ export function Inherit() {
                       className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-xl transition-all ${
                         activeTab === tab.id
                           ? 'bg-gold text-void'
-                          : 'glass text-paper/60 hover:text-paper'
+                          : 'glass text-paper/70 hover:text-paper'
                       }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -448,7 +448,7 @@ export function Inherit() {
                       className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-xl transition-all ${
                         activeTab === 'search'
                           ? 'bg-gold text-void'
-                          : 'glass text-paper/60 hover:text-paper'
+                          : 'glass text-paper/70 hover:text-paper'
                       }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -477,14 +477,14 @@ export function Inherit() {
                   <div className="card">
                     <button
                       onClick={() => setSelectedLetter(null)}
-                      className="text-paper/60 hover:text-gold transition-colors mb-6 flex items-center gap-2"
+                      className="text-paper/70 hover:text-gold transition-colors mb-6 flex items-center gap-2"
                     >
                       <ChevronRight size={16} className="rotate-180" />
                       Back to letters
                     </button>
                     <div className="prose prose-invert max-w-none">
                       <h2 className="text-2xl font-light text-gold mb-2">{selectedLetter.title}</h2>
-                      <p className="text-paper/40 text-sm mb-6">
+                      <p className="text-paper/70 text-sm mb-6">
                         Written on {formatDate(selectedLetter.createdAt)}
                       </p>
                       {selectedLetter.salutation && (
@@ -501,7 +501,7 @@ export function Inherit() {
                 ) : content?.letters.length === 0 ? (
                   <div className="card text-center py-12">
                     <FileText size={48} className="mx-auto mb-4 text-paper/20" />
-                    <p className="text-paper/40">No letters have been shared yet</p>
+                    <p className="text-paper/70">No letters have been shared yet</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -517,14 +517,14 @@ export function Inherit() {
                             <h3 className="text-lg font-medium group-hover:text-gold transition-colors">
                               {letter.title || 'Untitled Letter'}
                             </h3>
-                            <p className="text-paper/40 text-sm mt-1">
+                            <p className="text-paper/70 text-sm mt-1">
                               {formatDate(letter.createdAt)}
                             </p>
-                            <p className="text-paper/60 mt-2 line-clamp-2">
+                            <p className="text-paper/70 mt-2 line-clamp-2">
                               {letter.body.substring(0, 150)}...
                             </p>
                           </div>
-                          <ChevronRight size={20} className="text-paper/30 group-hover:text-gold transition-colors" />
+                          <ChevronRight size={20} className="text-paper/65 group-hover:text-gold transition-colors" />
                         </div>
                         {letter.emotion && (
                           <span className="inline-block mt-3 px-3 py-1 rounded-full bg-gold/10 text-gold text-xs">
@@ -549,7 +549,7 @@ export function Inherit() {
                 {content?.memories.length === 0 ? (
                   <div className="card text-center py-12">
                     <Image size={48} className="mx-auto mb-4 text-paper/20" />
-                    <p className="text-paper/40">No photos have been shared yet</p>
+                    <p className="text-paper/70">No photos have been shared yet</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -569,7 +569,7 @@ export function Inherit() {
                             <div>
                               <h3 className="font-medium">{memory.title}</h3>
                               {memory.description && (
-                                <p className="text-sm text-paper/60 line-clamp-2">{memory.description}</p>
+                                <p className="text-sm text-paper/70 line-clamp-2">{memory.description}</p>
                               )}
                             </div>
                           </div>
@@ -592,7 +592,7 @@ export function Inherit() {
                 {content?.voiceRecordings.length === 0 ? (
                   <div className="card text-center py-12">
                     <Mic size={48} className="mx-auto mb-4 text-paper/20" />
-                    <p className="text-paper/40">No voice recordings have been shared yet</p>
+                    <p className="text-paper/70">No voice recordings have been shared yet</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -620,7 +620,7 @@ export function Inherit() {
                         </motion.button>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium truncate">{recording.title}</h3>
-                          <div className="flex items-center gap-4 text-sm text-paper/50 mt-1">
+                          <div className="flex items-center gap-4 text-sm text-paper/65 mt-1">
                             <span className="flex items-center gap-1">
                               <Clock size={12} />
                               {formatDuration(recording.duration)}
@@ -631,7 +631,7 @@ export function Inherit() {
                             </span>
                           </div>
                           {recording.transcript && (
-                            <p className="text-paper/40 text-sm mt-2 line-clamp-2">
+                            <p className="text-paper/70 text-sm mt-2 line-clamp-2">
                               {recording.transcript}
                             </p>
                           )}
@@ -659,12 +659,12 @@ export function Inherit() {
                       {searchLoading ? (
                         <div className="card text-center py-12">
                           <Loader2 size={48} className="animate-spin text-gold mx-auto mb-4" />
-                          <p className="text-paper/60">Searching through memories...</p>
+                          <p className="text-paper/70">Searching through memories...</p>
                         </div>
                       ) : searchError ? (
                         <div className="card text-center py-12">
                           <AlertCircle size={48} className="mx-auto mb-4 text-red-400" />
-                          <p className="text-paper/60">{searchError}</p>
+                          <p className="text-paper/70">{searchError}</p>
                           <button
                             onClick={clearSearch}
                             className="mt-4 text-gold hover:underline"
@@ -710,16 +710,16 @@ export function Inherit() {
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
-                                          <span className="text-xs uppercase tracking-wider text-paper/40">
+                                          <span className="text-xs uppercase tracking-wider text-paper/70">
                                             {result.type}
                                           </span>
-                                          <span className="text-xs text-paper/30">•</span>
-                                          <span className="text-xs text-paper/40">
+                                          <span className="text-xs text-paper/65">•</span>
+                                          <span className="text-xs text-paper/70">
                                             {formatDate(result.date)}
                                           </span>
                                         </div>
                                         <h4 className="font-medium text-paper/90 truncate">{result.title}</h4>
-                                        <p className="text-sm text-paper/50 mt-1 line-clamp-2">{result.snippet}</p>
+                                        <p className="text-sm text-paper/65 mt-1 line-clamp-2">{result.snippet}</p>
                                         {result.emotion && (
                                           <span className="inline-block mt-2 px-2 py-0.5 rounded-full bg-gold/10 text-gold text-xs">
                                             {result.emotion}
@@ -741,14 +741,14 @@ export function Inherit() {
                           )}
 
                           {/* Search Info */}
-                          <p className="text-center text-paper/40 text-sm">
+                          <p className="text-center text-paper/70 text-sm">
                             Searched through {searchResponse.totalItems} memories for "{searchResponse.query}"
                           </p>
                         </div>
                       ) : (
                         <div className="card text-center py-12">
                           <Search size={48} className="mx-auto mb-4 text-paper/20" />
-                          <p className="text-paper/40">Enter a question above to search through memories</p>
+                          <p className="text-paper/70">Enter a question above to search through memories</p>
                         </div>
                       )}
                     </motion.div>
@@ -798,7 +798,7 @@ export function Inherit() {
                           <Sparkles size={32} className="text-green-400" />
                         </motion.div>
                         <h3 className="text-xl font-medium mb-2">Message Sent!</h3>
-                        <p className="text-paper/60">{ownerName} will receive your note</p>
+                        <p className="text-paper/70">{ownerName} will receive your note</p>
                       </div>
                     ) : (
                       <>
@@ -812,7 +812,7 @@ export function Inherit() {
                           </button>
                         </div>
                         
-                        <p className="text-paper/60 mb-6">
+                        <p className="text-paper/70 mb-6">
                           Let {ownerName.split(' ')[0]} know these memories mean something to you.
                         </p>
                         
@@ -829,7 +829,7 @@ export function Inherit() {
                               }`}
                             >
                               <div className="font-medium">{option.label}</div>
-                              <div className="text-sm text-paper/50">{option.description}</div>
+                              <div className="text-sm text-paper/65">{option.description}</div>
                             </button>
                           ))}
                         </div>
@@ -880,7 +880,7 @@ export function Inherit() {
             </AnimatePresence>
 
             {/* Footer */}
-      <footer className="relative z-10 py-8 text-center text-paper/40 text-sm">
+      <footer className="relative z-10 py-8 text-center text-paper/70 text-sm">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Lock size={14} />
           <span>Secured by Heirloom</span>

@@ -89,7 +89,7 @@ export function GiftPurchase() {
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <Link to="/" className="inline-flex items-center gap-2 text-paper/50 hover:text-gold mb-8 transition-colors">
+          <Link to="/" className="inline-flex items-center gap-2 text-paper/65 hover:text-gold mb-8 transition-colors">
             <ArrowLeft size={18} />
             Back to Heirloom
           </Link>
@@ -101,7 +101,7 @@ export function GiftPurchase() {
           <h1 className="text-3xl md:text-4xl font-light text-paper mb-4">
             Gift a <span className="text-gold">Legacy</span>
           </h1>
-          <p className="text-paper/60 max-w-xl mx-auto">
+          <p className="text-paper/70 max-w-xl mx-auto">
             Give someone special the gift of preserving their memories forever. 
             A Heirloom subscription is a meaningful gift that lasts generations.
           </p>
@@ -120,7 +120,7 @@ export function GiftPurchase() {
                   className={`flex-1 py-2 px-4 rounded transition-all ${
                     billingCycle === 'quarterly' 
                       ? 'bg-gold/20 text-gold' 
-                      : 'text-paper/50 hover:text-paper'
+                      : 'text-paper/65 hover:text-paper'
                   }`}
                 >
                   3 Months
@@ -130,7 +130,7 @@ export function GiftPurchase() {
                   className={`flex-1 py-2 px-4 rounded transition-all ${
                     billingCycle === 'yearly' 
                       ? 'bg-gold/20 text-gold' 
-                      : 'text-paper/50 hover:text-paper'
+                      : 'text-paper/65 hover:text-paper'
                   }`}
                 >
                   Annual
@@ -160,14 +160,14 @@ export function GiftPurchase() {
                             </span>
                           )}
                         </div>
-                        <p className="text-paper/50 text-sm mt-1">{tier.description}</p>
-                        <p className="text-paper/40 text-xs mt-1">{tier.storage} storage</p>
+                        <p className="text-paper/65 text-sm mt-1">{tier.description}</p>
+                        <p className="text-paper/70 text-xs mt-1">{tier.storage} storage</p>
                       </div>
                       <div className="text-right">
                         <div className="text-xl text-gold">
                           {tier[billingCycle].display}
                         </div>
-                        <div className="text-paper/40 text-xs">
+                        <div className="text-paper/70 text-xs">
                           {billingCycle === 'yearly' ? '/year' : '/3 months'}
                         </div>
                       </div>
@@ -184,7 +184,7 @@ export function GiftPurchase() {
 
             {/* Features */}
             <div className="card">
-              <h3 className="text-sm text-paper/50 mb-3">What's included:</h3>
+              <h3 className="text-sm text-paper/65 mb-3">What's included:</h3>
               <ul className="space-y-2 text-sm">
                 {[
                   'Unlimited memories with stories',
@@ -210,7 +210,7 @@ export function GiftPurchase() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-paper/50 text-sm mb-1">Your Email *</label>
+                  <label className="block text-paper/65 text-sm mb-1">Your Email *</label>
                   <input
                     type="email"
                     value={formData.purchaserEmail}
@@ -222,7 +222,7 @@ export function GiftPurchase() {
                 </div>
                 
                 <div>
-                  <label className="block text-paper/50 text-sm mb-1">Your Name</label>
+                  <label className="block text-paper/65 text-sm mb-1">Your Name</label>
                   <input
                     type="text"
                     value={formData.purchaserName}
@@ -236,13 +236,13 @@ export function GiftPurchase() {
 
             <div className="card">
               <h2 className="text-lg mb-4">Recipient Details (Optional)</h2>
-              <p className="text-paper/50 text-sm mb-4">
+              <p className="text-paper/65 text-sm mb-4">
                 You can send the gift directly to someone, or leave blank to receive the voucher code yourself.
               </p>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-paper/50 text-sm mb-1">Recipient Email</label>
+                  <label className="block text-paper/65 text-sm mb-1">Recipient Email</label>
                   <input
                     type="email"
                     value={formData.recipientEmail}
@@ -253,7 +253,7 @@ export function GiftPurchase() {
                 </div>
                 
                 <div>
-                  <label className="block text-paper/50 text-sm mb-1">Recipient Name</label>
+                  <label className="block text-paper/65 text-sm mb-1">Recipient Name</label>
                   <input
                     type="text"
                     value={formData.recipientName}
@@ -264,7 +264,7 @@ export function GiftPurchase() {
                 </div>
                 
                 <div>
-                  <label className="block text-paper/50 text-sm mb-1">Personal Message</label>
+                  <label className="block text-paper/65 text-sm mb-1">Personal Message</label>
                   <textarea
                     value={formData.recipientMessage}
                     onChange={(e) => setFormData({ ...formData, recipientMessage: e.target.value })}
@@ -286,7 +286,7 @@ export function GiftPurchase() {
               </div>
               
               <div className="flex items-center justify-between mb-6">
-                <span className="text-paper/50">Total</span>
+                <span className="text-paper/65">Total</span>
                 <span className="text-2xl text-gold">{price?.display}</span>
               </div>
               
@@ -305,7 +305,7 @@ export function GiftPurchase() {
                 )}
               </button>
               
-              <p className="text-center text-paper/40 text-xs mt-4">
+              <p className="text-center text-paper/70 text-xs mt-4">
                 Secure payment powered by Stripe. Voucher valid for 1 year.
               </p>
             </div>

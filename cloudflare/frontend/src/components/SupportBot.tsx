@@ -682,7 +682,7 @@ const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
             );
           })}
         </div>
-        <span className={`text-xs mt-2 block ${isUser ? 'text-void-deep/50' : 'text-paper/40'}`}>
+        <span className={`text-xs mt-2 block ${isUser ? 'text-void-deep/50' : 'text-paper/70'}`}>
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>
@@ -717,7 +717,7 @@ const FeedbackButtons: React.FC<{ onFeedback: (helpful: boolean) => void }> = ({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-center text-paper/50 text-sm py-2"
+        className="text-center text-paper/65 text-sm py-2"
       >
         Thanks for your feedback! 💜
       </motion.div>
@@ -726,7 +726,7 @@ const FeedbackButtons: React.FC<{ onFeedback: (helpful: boolean) => void }> = ({
   
   return (
     <div className="flex items-center justify-center gap-4 py-2">
-      <span className="text-paper/50 text-sm">Was this helpful?</span>
+      <span className="text-paper/65 text-sm">Was this helpful?</span>
       <button
         onClick={() => { onFeedback(true); setSubmitted(true); }}
         className="p-2 hover:bg-green-500/20 rounded-full transition-colors"
@@ -887,7 +887,7 @@ What can I help you with today?`,
               </div>
               <button
                 onClick={onClose}
-                className="p-2 text-paper/60 hover:text-paper transition-colors"
+                className="p-2 text-paper/70 hover:text-paper transition-colors"
               >
                 ✕
               </button>
@@ -900,7 +900,7 @@ What can I help you with today?`,
               ))}
               
               {isTyping && (
-                <div className="flex items-center gap-2 text-paper/50 text-sm mb-4">
+                <div className="flex items-center gap-2 text-paper/65 text-sm mb-4">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center">
                     <span className="text-void-deep text-sm">∞</span>
                   </div>

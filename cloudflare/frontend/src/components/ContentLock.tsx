@@ -58,7 +58,7 @@ export function ContentLock({ children, isLocked, type = 'default' }: ContentLoc
           </motion.div>
 
           <h3 className="font-serif text-xl text-paper mb-2">{title}</h3>
-          <p className="text-paper/50 text-sm mb-6">{subtitle}</p>
+          <p className="text-paper/65 text-sm mb-6">{subtitle}</p>
 
           <motion.button
             onClick={() => navigate('/billing')}

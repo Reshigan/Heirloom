@@ -101,7 +101,7 @@ export function Milestones() {
         >
           <div>
             <h1 className="text-3xl md:text-4xl font-light mb-2">Milestone Alerts</h1>
-            <p className="text-paper/60">Never miss an important date with smart reminders</p>
+            <p className="text-paper/70">Never miss an important date with smart reminders</p>
           </div>
           <div className="flex gap-3">
             <button
@@ -159,7 +159,7 @@ export function Milestones() {
                             </div>
                             <div>
                               <div className="font-medium">{milestone.milestone_name}</div>
-                              <div className="text-sm text-paper/60">
+                              <div className="text-sm text-paper/70">
                                 {milestone.family_member_name && `${milestone.family_member_name} • `}
                                 {new Date(milestone.milestone_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
                               </div>
@@ -170,7 +170,7 @@ export function Milestones() {
                               {daysUntil === 0 ? 'Today!' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil} days`}
                             </div>
                             {milestone.prompt_suggestion && (
-                              <div className="text-xs text-paper/50 max-w-[200px] truncate">
+                              <div className="text-xs text-paper/65 max-w-[200px] truncate">
                                 {milestone.prompt_suggestion}
                               </div>
                             )}
@@ -181,7 +181,7 @@ export function Milestones() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-8 text-paper/50">
+                <div className="text-center py-8 text-paper/65">
                   <Calendar size={32} className="mx-auto mb-2 opacity-50" />
                   <p>No upcoming milestones in the next 30 days</p>
                 </div>
@@ -205,19 +205,19 @@ export function Milestones() {
                   <div className="text-2xl font-light text-gold mb-1">
                     {milestones?.length || 0}
                   </div>
-                  <div className="text-sm text-paper/60">Total Milestones</div>
+                  <div className="text-sm text-paper/70">Total Milestones</div>
                 </div>
 
                 <div className="p-4 bg-paper/5 rounded-lg">
                   <div className="text-2xl font-light text-gold mb-1">
                     {upcoming?.length || 0}
                   </div>
-                  <div className="text-sm text-paper/60">Coming Up (30 days)</div>
+                  <div className="text-sm text-paper/70">Coming Up (30 days)</div>
                 </div>
 
-                <div className="text-sm text-paper/60">
+                <div className="text-sm text-paper/70">
                   <p className="mb-2">You'll receive reminders:</p>
-                  <ul className="space-y-1 text-paper/50">
+                  <ul className="space-y-1 text-paper/65">
                     <li>7 days before each milestone</li>
                     <li>On the day of the milestone</li>
                     <li>With memory prompts to help you celebrate</li>
@@ -239,7 +239,7 @@ export function Milestones() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left text-paper/50 text-sm border-b border-paper/10">
+                      <tr className="text-left text-paper/65 text-sm border-b border-paper/10">
                         <th className="pb-3 font-medium">Name</th>
                         <th className="pb-3 font-medium">Type</th>
                         <th className="pb-3 font-medium">Date</th>
@@ -263,7 +263,7 @@ export function Milestones() {
                                 <div>
                                   <div className="font-medium">{milestone.milestone_name}</div>
                                   {milestone.family_member_name && (
-                                    <div className="text-xs text-paper/50">{milestone.family_member_name}</div>
+                                    <div className="text-xs text-paper/65">{milestone.family_member_name}</div>
                                   )}
                                 </div>
                               </div>
@@ -274,18 +274,18 @@ export function Milestones() {
                             </td>
                             <td className="py-3">
                               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
-                                milestone.recurring ? 'bg-green-500/20 text-green-400' : 'bg-paper/10 text-paper/50'
+                                milestone.recurring ? 'bg-green-500/20 text-green-400' : 'bg-paper/10 text-paper/65'
                               }`}>
                                 {milestone.recurring ? 'Yearly' : 'Once'}
                               </span>
                             </td>
-                            <td className="py-3 text-paper/50 text-sm">
+                            <td className="py-3 text-paper/65 text-sm">
                               {milestone.reminder_days_before} days before
                             </td>
                             <td className="py-3">
                               <button
                                 onClick={() => deleteMutation.mutate(milestone.id)}
-                                className="text-paper/30 hover:text-red-400 transition-colors"
+                                className="text-paper/65 hover:text-red-400 transition-colors"
                                 title="Delete"
                               >
                                 <Trash2 size={16} />
@@ -298,7 +298,7 @@ export function Milestones() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-12 text-paper/50">
+                <div className="text-center py-12 text-paper/65">
                   <Calendar size={48} className="mx-auto mb-4 opacity-30" />
                   <h3 className="text-lg font-light mb-2">No Milestones Yet</h3>
                   <p className="mb-4">Add important dates to get reminders and memory prompts</p>
@@ -345,7 +345,7 @@ export function Milestones() {
             >
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="absolute top-4 right-4 text-paper/50 hover:text-paper"
+                className="absolute top-4 right-4 text-paper/65 hover:text-paper"
               >
                 <X size={20} />
               </button>

@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
-import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X, ChevronDown, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger, Gift, Clock, Heart, Trophy } from './Icons';
+import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X, ChevronDown, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger, Gift, Clock, Heart, Trophy, Sun, Moon } from './Icons';
 import { MobileBottomNav } from './MobileBottomNav';
+import { useThemeStore } from '../stores/themeStore';
 
 const navItems = [
   { path: '/dashboard', icon: Home, label: 'Vault' },
@@ -33,6 +34,7 @@ const advancedFeatures = [
 export function Navigation() {
   const location = useLocation();
   const { user, logout } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [advancedDropdownOpen, setAdvancedDropdownOpen] = useState(false);
   const advancedDropdownRef = useRef<HTMLDivElement>(null);
@@ -191,6 +193,15 @@ export function Navigation() {
         
         {/* User menu - desktop */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-paper-50 hover:text-gold hover:bg-gold-10 transition-all duration-300"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
+          </button>
+          
           <Link
             to="/settings"
             className={clsx(

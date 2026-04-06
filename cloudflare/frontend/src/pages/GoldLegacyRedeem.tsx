@@ -154,7 +154,7 @@ export function GoldLegacyRedeem() {
       <div className="relative z-10 max-w-lg mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-paper/50 hover:text-gold mb-8 transition-colors">
+          <Link to="/" className="inline-flex items-center gap-2 text-paper/65 hover:text-gold mb-8 transition-colors">
             <ArrowLeft size={18} />
             Back to Heirloom
           </Link>
@@ -196,20 +196,20 @@ export function GoldLegacyRedeem() {
             </div>
             
             <h2 className="text-2xl mb-2" style={{ color: '#D4AF37' }}>Welcome to Gold Legacy</h2>
-            <p className="text-paper/60 mb-6">Your lifetime membership is now active</p>
+            <p className="text-paper/70 mb-6">Your lifetime membership is now active</p>
             
             {memberNumber && (
               <div className="inline-block px-6 py-3 rounded mb-6" style={{ 
                 background: 'rgba(212, 175, 55, 0.1)',
                 border: '1px solid rgba(212, 175, 55, 0.3)',
               }}>
-                <p className="text-paper/50 text-xs tracking-widest mb-1">MEMBER NUMBER</p>
+                <p className="text-paper/65 text-xs tracking-widest mb-1">MEMBER NUMBER</p>
                 <p className="font-mono text-xl" style={{ color: '#D4AF37' }}>{memberNumber}</p>
               </div>
             )}
             
             <div className="space-y-3 text-left max-w-sm mx-auto mb-8 px-4">
-              <p className="text-paper/50 text-sm text-center mb-4">Your Gold Legacy benefits:</p>
+              <p className="text-paper/65 text-sm text-center mb-4">Your Gold Legacy benefits:</p>
               {[
                 'Lifetime access to all features',
                 'Unlimited memory storage',
@@ -297,7 +297,7 @@ export function GoldLegacyRedeem() {
                   </p>
                   <h3 className="text-xl" style={{ color: '#D4AF37' }}>Gold Legacy Circle</h3>
                   {memberNumber && (
-                    <p className="text-paper/50 text-sm mt-2">Member #{memberNumber}</p>
+                    <p className="text-paper/65 text-sm mt-2">Member #{memberNumber}</p>
                   )}
                 </div>
 
@@ -360,7 +360,7 @@ export function GoldLegacyRedeem() {
                     </button>
                   ) : (
                     <div className="space-y-3">
-                      <p className="text-center text-paper/60 text-sm">
+                      <p className="text-center text-paper/70 text-sm">
                         Sign in or create an account to accept your invitation
                       </p>
                       <div className="flex gap-3">
@@ -398,7 +398,7 @@ export function GoldLegacyRedeem() {
                 background: 'rgba(0, 0, 0, 0.3)',
                 border: '1px solid rgba(212, 175, 55, 0.1)',
               }}>
-                <p className="text-center text-paper/50 text-sm mb-4">
+                <p className="text-center text-paper/65 text-sm mb-4">
                   Gold Legacy membership grants you:
                 </p>
                 <div className="space-y-3">
@@ -413,7 +413,7 @@ export function GoldLegacyRedeem() {
                       <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'rgba(212, 175, 55, 0.15)' }}>
                         <span style={{ color: '#D4AF37', fontSize: '10px' }}>∞</span>
                       </div>
-                      <span className="text-paper/60 text-sm">{feature}</span>
+                      <span className="text-paper/70 text-sm">{feature}</span>
                     </div>
                   ))}
                 </div>

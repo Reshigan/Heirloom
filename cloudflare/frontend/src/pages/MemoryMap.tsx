@@ -57,7 +57,7 @@ export function MemoryMap() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Memory Map</h1>
-            <p className="text-paper/50 font-serif">Your memories, mapped across the world</p>
+            <p className="text-paper/65 font-serif">Your memories, mapped across the world</p>
           </div>
 
           {/* Filters */}
@@ -69,7 +69,7 @@ export function MemoryMap() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   filter === type
                     ? 'bg-gold/20 text-gold border border-gold/30'
-                    : 'bg-paper/5 text-paper/40 border border-paper/10 hover:border-paper/20'
+                    : 'bg-paper/5 text-paper/70 border border-paper/10 hover:border-paper/20'
                 }`}
               >
                 {type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1) + 's'}
@@ -101,10 +101,10 @@ export function MemoryMap() {
                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center">
                       <Image size={28} className="text-gold/60" />
                     </div>
-                    <p className="text-paper/40 text-sm">
+                    <p className="text-paper/70 text-sm">
                       {memories.length} memories across {new Set(memories.map((m) => m.location_name)).size} locations
                     </p>
-                    <p className="text-paper/30 text-xs mt-1">Map view requires Mapbox API key</p>
+                    <p className="text-paper/65 text-xs mt-1">Map view requires Mapbox API key</p>
                   </div>
                 </div>
               </div>
@@ -133,8 +133,8 @@ export function MemoryMap() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-paper/80 text-sm font-medium truncate">{memory.title}</p>
-                        <p className="text-paper/40 text-xs mt-0.5">{memory.location_name}</p>
-                        <p className="text-paper/30 text-xs mt-1">
+                        <p className="text-paper/70 text-xs mt-0.5">{memory.location_name}</p>
+                        <p className="text-paper/65 text-xs mt-1">
                           {new Date(memory.created_at).toLocaleDateString()}
                         </p>
                       </div>

@@ -265,7 +265,7 @@ export function RecipientExperience() {
           className="text-center mb-8"
         >
           <h1 className="font-display text-4xl md:text-5xl mb-4">Recipient Experience</h1>
-          <p className="text-paper/60 max-w-xl mx-auto">
+          <p className="text-paper/70 max-w-xl mx-auto">
             Configure how your loved ones will receive and interact with your legacy
           </p>
         </motion.div>
@@ -294,9 +294,9 @@ export function RecipientExperience() {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-sm">Add Recipients</h3>
-                <p className="text-xs text-paper/50">Who should receive your legacy?</p>
+                <p className="text-xs text-paper/65">Who should receive your legacy?</p>
               </div>
-              <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+              <ChevronRight size={16} className="text-paper/65 group-hover:text-gold transition-colors" />
             </button>
             <button
               onClick={() => setActiveTab('schedules')}
@@ -307,9 +307,9 @@ export function RecipientExperience() {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-sm">Set Release Schedule</h3>
-                <p className="text-xs text-paper/50">When should content be released?</p>
+                <p className="text-xs text-paper/65">When should content be released?</p>
               </div>
-              <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+              <ChevronRight size={16} className="text-paper/65 group-hover:text-gold transition-colors" />
             </button>
             <button
               onClick={() => {
@@ -325,9 +325,9 @@ export function RecipientExperience() {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-sm">Enable Memory Room</h3>
-                <p className="text-xs text-paper/50">Let family share their memories</p>
+                <p className="text-xs text-paper/65">Let family share their memories</p>
               </div>
-              <ChevronRight size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+              <ChevronRight size={16} className="text-paper/65 group-hover:text-gold transition-colors" />
             </button>
           </div>
         </motion.div>
@@ -408,7 +408,7 @@ export function RecipientExperience() {
                   </div>
                   <div>
                     <h2 className="text-xl font-medium mb-1">Preview What They'll Experience</h2>
-                    <p className="text-paper/50 text-sm">
+                    <p className="text-paper/65 text-sm">
                       See exactly what your loved ones will receive when your legacy is activated.
                     </p>
                   </div>
@@ -417,7 +417,7 @@ export function RecipientExperience() {
                 {/* Preview Card - Simulated Email */}
                 <div className="bg-void/50 rounded-xl border border-paper/10 overflow-hidden mb-6">
                   <div className="bg-paper/5 px-4 py-3 border-b border-paper/10">
-                    <div className="flex items-center gap-2 text-sm text-paper/60">
+                    <div className="flex items-center gap-2 text-sm text-paper/70">
                       <Mail size={14} />
                       <span>Preview: Email they'll receive</span>
                     </div>
@@ -429,7 +429,7 @@ export function RecipientExperience() {
                       </div>
                       <div>
                         <p className="font-medium">A Message From Someone Who Loves You</p>
-                        <p className="text-sm text-paper/50">From Heirloom</p>
+                        <p className="text-sm text-paper/65">From Heirloom</p>
                       </div>
                     </div>
                     <div className="space-y-4 text-paper/70">
@@ -450,19 +450,19 @@ export function RecipientExperience() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="p-4 bg-paper/5 rounded-xl text-center">
                     <div className="text-2xl font-light text-gold mb-1">{memoriesStats?.total || 0}</div>
-                    <div className="text-xs text-paper/50">Total Memories</div>
+                    <div className="text-xs text-paper/65">Total Memories</div>
                   </div>
                   <div className="p-4 bg-paper/5 rounded-xl text-center">
                     <div className="text-2xl font-light text-blue-400 mb-1">{memoriesStats?.byType?.letters || 0}</div>
-                    <div className="text-xs text-paper/50">Letters</div>
+                    <div className="text-xs text-paper/65">Letters</div>
                   </div>
                   <div className="p-4 bg-paper/5 rounded-xl text-center">
                     <div className="text-2xl font-light text-purple-400 mb-1">{memoriesStats?.byType?.voice || 0}</div>
-                    <div className="text-xs text-paper/50">Voice Messages</div>
+                    <div className="text-xs text-paper/65">Voice Messages</div>
                   </div>
                   <div className="p-4 bg-paper/5 rounded-xl text-center">
                     <div className="text-2xl font-light text-green-400 mb-1">{familyData?.members?.length || 0}</div>
-                    <div className="text-xs text-paper/50">Recipients</div>
+                    <div className="text-xs text-paper/65">Recipients</div>
                   </div>
                 </div>
 
@@ -499,7 +499,7 @@ export function RecipientExperience() {
                       </div>
                       <div className="flex-1">
                         <p className="font-medium text-sm">{schedule.stage_name}</p>
-                        <p className="text-xs text-paper/50">
+                        <p className="text-xs text-paper/65">
                           {schedule.delay_days === 0 ? 'Delivered immediately' : `Delivered after ${schedule.delay_days} days`}
                         </p>
                       </div>
@@ -520,28 +520,28 @@ export function RecipientExperience() {
                     <Lock size={18} className="text-green-400 mt-0.5" />
                     <div>
                       <p className="font-medium text-sm">End-to-End Encrypted</p>
-                      <p className="text-xs text-paper/50">Your memories are protected with bank-level encryption</p>
+                      <p className="text-xs text-paper/65">Your memories are protected with bank-level encryption</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
                     <Users size={18} className="text-blue-400 mt-0.5" />
                     <div>
                       <p className="font-medium text-sm">You Control Access</p>
-                      <p className="text-xs text-paper/50">Only invited recipients can view your content</p>
+                      <p className="text-xs text-paper/65">Only invited recipients can view your content</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
                     <Download size={18} className="text-purple-400 mt-0.5" />
                     <div>
                       <p className="font-medium text-sm">Export Anytime</p>
-                      <p className="text-xs text-paper/50">Download all your content whenever you want</p>
+                      <p className="text-xs text-paper/65">Download all your content whenever you want</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
                     <Trash2 size={18} className="text-red-400 mt-0.5" />
                     <div>
                       <p className="font-medium text-sm">Delete Permanently</p>
-                      <p className="text-xs text-paper/50">Remove any content at any time, no questions asked</p>
+                      <p className="text-xs text-paper/65">Remove any content at any time, no questions asked</p>
                     </div>
                   </div>
                 </div>
@@ -550,7 +550,7 @@ export function RecipientExperience() {
               {/* What Happens Next */}
               <div className="glass rounded-xl p-4 flex items-start gap-3 text-sm">
                 <AlertCircle size={18} className="text-gold mt-0.5 flex-shrink-0" />
-                <div className="text-paper/60">
+                <div className="text-paper/70">
                   <p className="font-medium text-paper mb-1">What happens when your legacy is activated?</p>
                   <p>Your designated recipients will receive an email with a secure link to access the content you've prepared for them. Content is released in stages to help them process gradually. You can change these settings anytime.</p>
                 </div>
@@ -573,7 +573,7 @@ export function RecipientExperience() {
                   </div>
                   <div>
                     <h2 className="text-xl font-medium mb-1">Staged Content Release</h2>
-                    <p className="text-paper/50 text-sm">
+                    <p className="text-paper/65 text-sm">
                       Instead of overwhelming recipients with everything at once, your content will be released in thoughtful stages to help them through their grief journey.
                     </p>
                   </div>
@@ -594,7 +594,7 @@ export function RecipientExperience() {
                           </div>
                           <div>
                             <h3 className="font-medium">{schedule.stage_name}</h3>
-                            <p className="text-sm text-paper/50">
+                            <p className="text-sm text-paper/65">
                               {schedule.delay_days === 0 ? 'Immediately' : `After ${schedule.delay_days} days`}
                             </p>
                           </div>
@@ -613,13 +613,13 @@ export function RecipientExperience() {
                           }`} />
                         </button>
                       </div>
-                      <p className="text-sm text-paper/40 ml-11">{schedule.stage_description}</p>
+                      <p className="text-sm text-paper/70 ml-11">{schedule.stage_description}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="glass rounded-xl p-4 flex items-center gap-3 text-sm text-paper/60">
+              <div className="glass rounded-xl p-4 flex items-center gap-3 text-sm text-paper/70">
                 <Shield size={18} className="text-gold" />
                 <p>
                   Staged releases help recipients process content gradually, providing comfort when they need it most and deeper reflections over time.
@@ -646,7 +646,7 @@ export function RecipientExperience() {
                     </div>
                     <div>
                       <h2 className="text-xl font-medium mb-1">Family Memory Room</h2>
-                      <p className="text-paper/50 text-sm">
+                      <p className="text-paper/65 text-sm">
                         A shared space where your loved ones can add their own memories and stories about you.
                       </p>
                     </div>
@@ -656,7 +656,7 @@ export function RecipientExperience() {
                     className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
                       room.is_active === 1 
                         ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                        : 'bg-paper/10 text-paper/50'
+                        : 'bg-paper/10 text-paper/65'
                     }`}
                   >
                     {room.is_active === 1 ? (
@@ -685,7 +685,7 @@ export function RecipientExperience() {
                                       </div>
                                       <div className="text-left">
                                         <p className="font-medium text-gold">Invite Family</p>
-                                        <p className="text-xs text-paper/50">Send email invitations</p>
+                                        <p className="text-xs text-paper/65">Send email invitations</p>
                                       </div>
                                     </button>
                                     <button
@@ -697,7 +697,7 @@ export function RecipientExperience() {
                                       </div>
                                       <div className="text-left">
                                         <p className="font-medium text-purple-400">Preview Room</p>
-                                        <p className="text-xs text-paper/50">See what family sees</p>
+                                        <p className="text-xs text-paper/65">See what family sees</p>
                                       </div>
                                     </button>
                                     <button
@@ -709,7 +709,7 @@ export function RecipientExperience() {
                                       </div>
                                       <div className="text-left">
                                         <p className="font-medium text-blue-400">{copiedUrl ? 'Copied!' : 'Copy Link'}</p>
-                                        <p className="text-xs text-paper/50">Share manually</p>
+                                        <p className="text-xs text-paper/65">Share manually</p>
                                       </div>
                                     </button>
                                   </div>
@@ -720,7 +720,7 @@ export function RecipientExperience() {
                   <button
                     onClick={() => updateRoomMutation.mutate({ allow_photos: room.allow_photos !== 1 })}
                     className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
-                      room.allow_photos === 1 ? 'bg-blue-500/20 text-blue-400' : 'bg-void/30 text-paper/40'
+                      room.allow_photos === 1 ? 'bg-blue-500/20 text-blue-400' : 'bg-void/30 text-paper/70'
                     }`}
                   >
                     <Image size={24} />
@@ -730,7 +730,7 @@ export function RecipientExperience() {
                   <button
                     onClick={() => updateRoomMutation.mutate({ allow_voice: room.allow_voice !== 1 })}
                     className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
-                      room.allow_voice === 1 ? 'bg-purple-500/20 text-purple-400' : 'bg-void/30 text-paper/40'
+                      room.allow_voice === 1 ? 'bg-purple-500/20 text-purple-400' : 'bg-void/30 text-paper/70'
                     }`}
                   >
                     <Mic size={24} />
@@ -740,7 +740,7 @@ export function RecipientExperience() {
                   <button
                     onClick={() => updateRoomMutation.mutate({ allow_text: room.allow_text !== 1 })}
                     className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
-                      room.allow_text === 1 ? 'bg-green-500/20 text-green-400' : 'bg-void/30 text-paper/40'
+                      room.allow_text === 1 ? 'bg-green-500/20 text-green-400' : 'bg-void/30 text-paper/70'
                     }`}
                   >
                     <FileText size={24} />
@@ -750,7 +750,7 @@ export function RecipientExperience() {
                   <button
                     onClick={() => updateRoomMutation.mutate({ moderation_required: room.moderation_required !== 1 })}
                     className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
-                      room.moderation_required === 1 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-void/30 text-paper/40'
+                      room.moderation_required === 1 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-void/30 text-paper/70'
                     }`}
                   >
                     <Shield size={24} />
@@ -781,14 +781,14 @@ export function RecipientExperience() {
                             <div className="flex items-center gap-2 mb-1">
                               <span className="font-medium">{contribution.contributor_name}</span>
                               {contribution.contributor_relationship && (
-                                <span className="text-sm text-paper/50">({contribution.contributor_relationship})</span>
+                                <span className="text-sm text-paper/65">({contribution.contributor_relationship})</span>
                               )}
                             </div>
                             {contribution.title && (
                               <p className="text-sm font-medium mb-1">{contribution.title}</p>
                             )}
-                            <p className="text-sm text-paper/60 line-clamp-2">{contribution.content}</p>
-                            <p className="text-xs text-paper/40 mt-2">
+                            <p className="text-sm text-paper/70 line-clamp-2">{contribution.content}</p>
+                            <p className="text-xs text-paper/70 mt-2">
                               {new Date(contribution.created_at).toLocaleDateString()} - {contribution.content_type}
                             </p>
                           </div>
@@ -832,7 +832,7 @@ export function RecipientExperience() {
                 <div className="glass rounded-xl p-8 text-center">
                   <Users size={48} className="mx-auto text-paper/20 mb-4" />
                   <h3 className="font-medium mb-2">No contributions yet</h3>
-                  <p className="text-paper/50 text-sm">
+                  <p className="text-paper/65 text-sm">
                     Share the room link with family members to start collecting memories.
                   </p>
                 </div>
@@ -857,7 +857,7 @@ export function RecipientExperience() {
                     </div>
                     <div>
                       <h2 className="text-xl font-medium mb-1">Manage Recipients</h2>
-                      <p className="text-paper/50 text-sm">
+                      <p className="text-paper/65 text-sm">
                         Add and manage the people who will receive your legacy content.
                       </p>
                     </div>
@@ -885,9 +885,9 @@ export function RecipientExperience() {
                           </div>
                           <div>
                             <h3 className="font-medium">{member.name}</h3>
-                            <p className="text-sm text-paper/50">{member.relationship}</p>
+                            <p className="text-sm text-paper/65">{member.relationship}</p>
                             {member.email && (
-                              <p className="text-xs text-paper/40 flex items-center gap-1 mt-1">
+                              <p className="text-xs text-paper/70 flex items-center gap-1 mt-1">
                                 <Mail size={12} />
                                 {member.email}
                               </p>
@@ -897,7 +897,7 @@ export function RecipientExperience() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEditMember(member)}
-                            className="p-2 hover:bg-paper/10 rounded-lg transition-colors text-paper/60 hover:text-paper"
+                            className="p-2 hover:bg-paper/10 rounded-lg transition-colors text-paper/70 hover:text-paper"
                           >
                             <Edit2 size={16} />
                           </button>
@@ -915,7 +915,7 @@ export function RecipientExperience() {
                   <div className="text-center py-12">
                     <Users size={48} className="mx-auto text-paper/20 mb-4" />
                     <h3 className="font-medium mb-2">No recipients added yet</h3>
-                    <p className="text-paper/50 text-sm mb-4">
+                    <p className="text-paper/65 text-sm mb-4">
                       Add family members and loved ones who will receive your legacy.
                     </p>
                     <button
@@ -929,7 +929,7 @@ export function RecipientExperience() {
                 )}
               </div>
 
-              <div className="glass rounded-xl p-4 flex items-center gap-3 text-sm text-paper/60">
+              <div className="glass rounded-xl p-4 flex items-center gap-3 text-sm text-paper/70">
                 <Shield size={18} className="text-gold" />
                 <p>
                   Recipients will only receive content after your legacy is activated. You control exactly what each person receives.
@@ -972,7 +972,7 @@ export function RecipientExperience() {
                 <h3 className="text-xl font-medium">
                   {editingMember ? 'Edit Recipient' : 'Add Recipient'}
                 </h3>
-                <button onClick={() => resetFamilyForm()} className="text-paper/50 hover:text-paper">
+                <button onClick={() => resetFamilyForm()} className="text-paper/65 hover:text-paper">
                   <X size={24} />
                 </button>
               </div>
@@ -1083,18 +1083,18 @@ export function RecipientExperience() {
                     <CheckCircle size={32} className="text-green-400" />
                   </div>
                   <h3 className="text-xl font-medium mb-2">Invitation Sent!</h3>
-                  <p className="text-paper/60">They will receive an email with the link to your memory room.</p>
+                  <p className="text-paper/70">They will receive an email with the link to your memory room.</p>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-medium">Invite Family Member</h3>
-                    <button onClick={() => setShowInviteModal(false)} className="text-paper/50 hover:text-paper">
+                    <button onClick={() => setShowInviteModal(false)} className="text-paper/65 hover:text-paper">
                       <X size={24} />
                     </button>
                   </div>
 
-                  <p className="text-paper/60 text-sm mb-6">
+                  <p className="text-paper/70 text-sm mb-6">
                     Send an email invitation to a family member or friend to contribute memories and stories.
                   </p>
 
@@ -1166,13 +1166,13 @@ export function RecipientExperience() {
                     <CheckCircle size={32} className="text-green-400" />
                   </div>
                   <h3 className="text-xl font-medium mb-2">Test Email Sent!</h3>
-                  <p className="text-paper/60">Check your inbox to see exactly what your recipients will receive.</p>
+                  <p className="text-paper/70">Check your inbox to see exactly what your recipients will receive.</p>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-medium">Send Test Email</h3>
-                    <button onClick={() => setShowTestEmailModal(false)} className="text-paper/50 hover:text-paper">
+                    <button onClick={() => setShowTestEmailModal(false)} className="text-paper/65 hover:text-paper">
                       <X size={24} />
                     </button>
                   </div>
@@ -1181,7 +1181,7 @@ export function RecipientExperience() {
                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center">
                       <Mail size={32} className="text-gold" />
                     </div>
-                    <p className="text-paper/60 text-sm mb-6">
+                    <p className="text-paper/70 text-sm mb-6">
                       We'll send you a sample of the email your recipients will receive when your legacy is activated. This helps you see exactly what they'll experience.
                     </p>
                   </div>

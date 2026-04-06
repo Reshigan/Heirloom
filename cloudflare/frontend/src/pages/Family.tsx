@@ -273,7 +273,7 @@ export function Family() {
       <div className="relative z-10 px-6 md:px-12 py-12">
         <motion.button
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8"
+          className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
@@ -289,7 +289,7 @@ export function Family() {
             className="text-center mb-16"
           >
             <h1 className="text-4xl md:text-5xl font-light mb-2">Your Family <em>Constellation</em></h1>
-            <p className="text-paper/50">The people who matter most to you</p>
+            <p className="text-paper/65">The people who matter most to you</p>
           </motion.div>
 
           {/* Constellation View - outer relative wrapper for positioning */}
@@ -418,7 +418,7 @@ export function Family() {
                       </div>
                       <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-center w-32 md:w-36">
                         <div className="text-paper text-xs md:text-sm font-medium truncate" title={member.name}>{member.name}</div>
-                        <div className="text-paper/40 text-xs truncate" title={member.relationship}>{member.relationship}</div>
+                        <div className="text-paper/70 text-xs truncate" title={member.relationship}>{member.relationship}</div>
                       </div>
                     </motion.button>
                   </motion.div>
@@ -433,9 +433,9 @@ export function Family() {
                   animate={{ opacity: 1 }}
                 >
                   <div className="w-20 h-20 rounded-full glass flex items-center justify-center mx-auto mb-4">
-                    <Users size={32} className="text-paper/30" />
+                    <Users size={32} className="text-paper/65" />
                   </div>
-                  <p className="text-paper/50 mb-4">No family members yet</p>
+                  <p className="text-paper/65 mb-4">No family members yet</p>
                   <button 
                     onClick={() => setShowAddModal(true)} 
                     className="btn btn-primary bg-gradient-to-r from-gold to-gold-dim text-void-deep font-semibold hover:shadow-lg hover:shadow-gold/20"
@@ -506,7 +506,7 @@ export function Family() {
               <div className="p-8">
                 <button
                   onClick={() => navigate('/family')}
-                  className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper transition-colors"
+                  className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -538,7 +538,7 @@ export function Family() {
                         <Mail size={18} className="text-gold" />
                       </div>
                       <div>
-                        <div className="text-paper/50 text-xs">Email</div>
+                        <div className="text-paper/65 text-xs">Email</div>
                         <div className="text-paper group-hover:text-gold transition-colors">{selectedMember.email}</div>
                       </div>
                     </motion.a>
@@ -554,14 +554,14 @@ export function Family() {
                         <Phone size={18} className="text-gold" />
                       </div>
                       <div>
-                        <div className="text-paper/50 text-xs">Phone</div>
+                        <div className="text-paper/65 text-xs">Phone</div>
                         <div className="text-paper group-hover:text-gold transition-colors">{selectedMember.phone}</div>
                       </div>
                     </motion.a>
                   )}
 
                   {!selectedMember.email && !selectedMember.phone && (
-                    <div className="text-center py-8 text-paper/40">
+                    <div className="text-center py-8 text-paper/70">
                       <p>No contact information added</p>
                     </div>
                   )}
@@ -616,7 +616,7 @@ export function Family() {
                 </h2>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper transition-colors"
+                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -654,10 +654,10 @@ export function Family() {
                                   />
                                 </div>
                               </div>
-                              <p className="text-center text-paper/40 text-sm -mt-2 mb-4">Click to add photo</p>
+                              <p className="text-center text-paper/70 text-sm -mt-2 mb-4">Click to add photo</p>
 
                               <div>
-                                <label className="block text-sm text-paper/50 mb-2">Name *</label>
+                                <label className="block text-sm text-paper/65 mb-2">Name *</label>
                                 <input
                                   type="text"
                                   value={form.name}
@@ -669,7 +669,7 @@ export function Family() {
                               </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Relationship *</label>
+                  <label className="block text-sm text-paper/65 mb-2">Relationship *</label>
                   <select
                     value={form.relationship}
                     onChange={(e) => setForm({ ...form, relationship: e.target.value })}
@@ -684,7 +684,7 @@ export function Family() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Email (optional)</label>
+                  <label className="block text-sm text-paper/65 mb-2">Email (optional)</label>
                   <input
                     type="email"
                     value={form.email}
@@ -696,7 +696,7 @@ export function Family() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Phone (optional)</label>
+                  <label className="block text-sm text-paper/65 mb-2">Phone (optional)</label>
                   <input
                     type="tel"
                     value={form.phone}
@@ -765,13 +765,13 @@ export function Family() {
                 <h2 className="text-xl font-light">Invite Family to Heirloom</h2>
                 <button
                   onClick={() => setShowShareModal(false)}
-                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper transition-colors"
+                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper transition-colors"
                 >
                   <X size={16} />
                 </button>
               </div>
 
-              <p className="text-paper/60 text-sm mb-6">
+              <p className="text-paper/70 text-sm mb-6">
                 Share Heirloom with your family so you can preserve memories together. Choose how you'd like to invite them:
               </p>
 
@@ -840,7 +840,7 @@ export function Family() {
                   </div>
                   <div className="flex flex-col items-start">
                     <span className="text-paper group-hover:text-gold transition-colors">Instagram</span>
-                    <span className="text-paper/40 text-xs">{copiedPlatform === 'instagram' ? 'Copied!' : 'Copy link'}</span>
+                    <span className="text-paper/70 text-xs">{copiedPlatform === 'instagram' ? 'Copied!' : 'Copy link'}</span>
                   </div>
                 </button>
 
@@ -856,7 +856,7 @@ export function Family() {
                   </div>
                   <div className="flex flex-col items-start">
                     <span className="text-paper group-hover:text-gold transition-colors">TikTok</span>
-                    <span className="text-paper/40 text-xs">{copiedPlatform === 'tiktok' ? 'Copied!' : 'Copy link'}</span>
+                    <span className="text-paper/70 text-xs">{copiedPlatform === 'tiktok' ? 'Copied!' : 'Copy link'}</span>
                   </div>
                 </button>
               </div>

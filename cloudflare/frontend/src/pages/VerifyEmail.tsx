@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { CheckCircle, XCircle, Loader2, Mail } from '../components/Icons';
 import { emailVerificationApi } from '../services/api';
 
@@ -63,12 +62,7 @@ export function VerifyEmail() {
         <div className="sanctuary-mist" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-md"
-      >
+      <div className="relative w-full max-w-md animate-fade-in">
         <div className="absolute -inset-4 bg-gold/5 blur-3xl rounded-full" />
         
         <div className="card glass-strong relative text-center">
@@ -76,14 +70,10 @@ export function VerifyEmail() {
           
           <div className="relative">
             <Link to="/" className="inline-block mb-8">
-              <motion.div
-                className="text-5xl text-gold mb-2"
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-              >
+              <div className="text-5xl text-gold mb-2 inline-block animate-spin" style={{ animationDuration: '30s' }}>
                 ∞
-              </motion.div>
-              <span className="text-lg tracking-[0.2em] text-paper/60">HEIRLOOM</span>
+              </div>
+              <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
             </Link>
 
             {status === 'loading' && (
@@ -142,7 +132,7 @@ export function VerifyEmail() {
 
             {status === 'no-token' && (
               <div className="py-8">
-                <Mail size={48} className="text-paper/50 mx-auto mb-4" />
+                <Mail size={48} className="text-paper/65 mx-auto mb-4" />
                 <h1 className="text-2xl font-light mb-2">Verify Your Email</h1>
                 <p className="text-paper/70 mb-6">
                   Check your inbox for a verification link, or request a new one below.
@@ -179,7 +169,7 @@ export function VerifyEmail() {
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

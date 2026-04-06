@@ -64,7 +64,7 @@ export function StoryWorthAlternative() {
             The Best StoryWorth Alternative<br />
             <span className="text-gold">for Families Who Want More</span>
           </h1>
-          <p className="text-paper/60 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-serif">
+          <p className="text-paper/70 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-serif">
             StoryWorth captures stories. Heirloom preserves your entire legacy &mdash; 
             with voice recordings, zero-knowledge encryption, and posthumous delivery 
             that ensures your memories reach the right people at the right time.
@@ -111,7 +111,7 @@ export function StoryWorthAlternative() {
                 <Icon size={28} className="text-gold" />
               </div>
               <h3 className="font-serif text-xl text-paper mb-2">{title}</h3>
-              <p className="text-paper/40 text-sm">{desc}</p>
+              <p className="text-paper/70 text-sm">{desc}</p>
             </motion.div>
           ))}
         </div>
@@ -124,9 +124,9 @@ export function StoryWorthAlternative() {
         </h2>
         <div className="glass rounded-2xl border border-paper/10 overflow-hidden">
           <div className="grid grid-cols-3 gap-4 p-4 border-b border-paper/10 text-sm font-medium">
-            <span className="text-paper/50">Feature</span>
+            <span className="text-paper/65">Feature</span>
             <span className="text-center text-gold">Heirloom</span>
-            <span className="text-center text-paper/50">StoryWorth</span>
+            <span className="text-center text-paper/65">StoryWorth</span>
           </div>
           {features.map(({ name, heirloom, storyworth }) => (
             <div key={name} className="grid grid-cols-3 gap-4 p-4 border-b border-paper/5 text-sm">
@@ -135,7 +135,7 @@ export function StoryWorthAlternative() {
                 {heirloom ? <Check size={18} className="text-green-400" /> : <X size={18} className="text-paper/20" />}
               </span>
               <span className="flex justify-center">
-                {storyworth ? <Check size={18} className="text-paper/40" /> : <X size={18} className="text-paper/20" />}
+                {storyworth ? <Check size={18} className="text-paper/70" /> : <X size={18} className="text-paper/20" />}
               </span>
             </div>
           ))}
@@ -156,10 +156,10 @@ export function StoryWorthAlternative() {
               transition={{ delay: i * 0.1 }}
               className="glass rounded-2xl border border-paper/10 p-6"
             >
-              <p className="text-paper/60 font-serif text-sm mb-4 italic">&ldquo;{quote}&rdquo;</p>
+              <p className="text-paper/70 font-serif text-sm mb-4 italic">&ldquo;{quote}&rdquo;</p>
               <div>
                 <p className="text-paper text-sm font-medium">{author}</p>
-                <p className="text-paper/40 text-xs">{role}</p>
+                <p className="text-paper/70 text-xs">{role}</p>
               </div>
             </motion.div>
           ))}
@@ -171,7 +171,7 @@ export function StoryWorthAlternative() {
         <h2 className="font-serif text-3xl text-paper mb-4">
           Start Preserving Your Legacy Today
         </h2>
-        <p className="text-paper/50 text-lg font-serif mb-8">
+        <p className="text-paper/65 text-lg font-serif mb-8">
           14-day free trial. No credit card required.
         </p>
         <motion.button
@@ -186,7 +186,7 @@ export function StoryWorthAlternative() {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 md:px-12 py-8 border-t border-paper/10 text-center text-paper/30 text-sm">
+      <footer className="px-6 md:px-12 py-8 border-t border-paper/10 text-center text-paper/65 text-sm">
         <p>&copy; {new Date().getFullYear()} Heirloom. Preserve what matters most.</p>
       </footer>
     </div>

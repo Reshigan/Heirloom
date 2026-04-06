@@ -9,7 +9,7 @@ interface LegacyScoreProps {
 }
 
 const tierColors: Record<string, string> = {
-  'Just Started': 'text-paper/50',
+  'Just Started': 'text-paper/65',
   'Beginning': 'text-blue-400',
   'Story Builder': 'text-emerald-400',
   'Memory Keeper': 'text-purple-400',
@@ -49,7 +49,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
   // Handle tier as either a string or an object {name, emoji, description}
   const tierName = typeof tier === 'object' && tier !== null ? tier.name : tier;
   const tierEmoji = typeof tier === 'object' && tier !== null ? tier.emoji : null;
-  const tierColor = tierColors[tierName] || 'text-paper/50';
+  const tierColor = tierColors[tierName] || 'text-paper/65';
   const tierIcon = tierEmoji || tierIcons[tierName] || '🌱';
 
   if (compact) {
@@ -64,7 +64,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
             <span className="text-2xl">{tierIcon}</span>
             <div>
               <p className={`font-medium ${tierColor}`}>{tierName}</p>
-              <p className="text-paper/50 text-sm">{score} / {maxScore} points</p>
+              <p className="text-paper/65 text-sm">{score} / {maxScore} points</p>
             </div>
           </div>
           <div className="relative w-16 h-16">
@@ -137,7 +137,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-3xl font-light">{percentage}%</span>
-            <span className="text-paper/50 text-sm">{score}/{maxScore}</span>
+            <span className="text-paper/65 text-sm">{score}/{maxScore}</span>
           </div>
         </div>
 
@@ -146,7 +146,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
             <span className="text-3xl">{tierIcon}</span>
             <span className={`text-2xl font-medium ${tierColor}`}>{tierName}</span>
           </div>
-          <p className="text-paper/60">
+          <p className="text-paper/70">
             Keep building your legacy to unlock higher tiers!
           </p>
         </div>
@@ -161,9 +161,9 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
         <div className="grid grid-cols-2 gap-3">
           {breakdown && Object.entries(breakdown).map(([key, value]: [string, any]) => (
             <div key={key} className="p-3 bg-void/30 rounded-lg">
-              <p className="text-paper/50 text-sm capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+              <p className="text-paper/65 text-sm capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
               <p className="text-lg font-medium">
-                {value.points} <span className="text-paper/40 text-sm">/ {value.max}</span>
+                {value.points} <span className="text-paper/70 text-sm">/ {value.max}</span>
               </p>
             </div>
           ))}

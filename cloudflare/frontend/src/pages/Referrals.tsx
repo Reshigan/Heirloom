@@ -59,7 +59,7 @@ export function Referrals() {
           className="mb-8"
         >
           <h1 className="text-3xl md:text-4xl font-light mb-2">Family Tree Referrals</h1>
-          <p className="text-paper/60">Grow your family tree and earn rewards</p>
+          <p className="text-paper/70">Grow your family tree and earn rewards</p>
         </motion.div>
 
         {isLoading ? (
@@ -80,19 +80,19 @@ export function Referrals() {
                   <div className="text-4xl font-light text-gold mb-1">
                     {referralData?.stats?.totalInvites || 0}
                   </div>
-                  <div className="text-paper/60 text-sm">Invites Sent</div>
+                  <div className="text-paper/70 text-sm">Invites Sent</div>
                 </div>
                 <div>
                   <div className="text-4xl font-light text-green-400 mb-1">
                     {referralData?.stats?.accepted || 0}
                   </div>
-                  <div className="text-paper/60 text-sm">Joined</div>
+                  <div className="text-paper/70 text-sm">Joined</div>
                 </div>
                 <div>
                   <div className="text-4xl font-light text-blue-400 mb-1">
                     +{referralData?.stats?.totalBonusMB || 0}MB
                   </div>
-                  <div className="text-paper/60 text-sm">Bonus Storage</div>
+                  <div className="text-paper/70 text-sm">Bonus Storage</div>
                 </div>
               </div>
 
@@ -129,10 +129,10 @@ export function Referrals() {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <milestone.icon size={16} className={achieved ? 'text-gold' : 'text-paper/50'} />
+                          <milestone.icon size={16} className={achieved ? 'text-gold' : 'text-paper/65'} />
                           <span className={achieved ? 'text-gold' : 'text-paper/70'}>{milestone.reward}</span>
                         </div>
-                        <span className="text-xs text-paper/50">{milestone.count} members</span>
+                        <span className="text-xs text-paper/65">{milestone.count} members</span>
                       </div>
                       {!achieved && (
                         <div className="h-1 bg-paper/10 rounded-full overflow-hidden">
@@ -169,7 +169,7 @@ export function Referrals() {
                         <Users size={20} className="text-white" />
                       </div>
                       <h4 className="font-medium mb-1">{branch.label}</h4>
-                      <div className="text-sm text-paper/60 mb-3">
+                      <div className="text-sm text-paper/70 mb-3">
                         {branchReferrals.length} member{branchReferrals.length !== 1 ? 's' : ''}
                       </div>
                       
@@ -186,7 +186,7 @@ export function Referrals() {
                             </div>
                           ))}
                           {branchReferrals.length > 3 && (
-                            <div className="text-xs text-paper/50">
+                            <div className="text-xs text-paper/65">
                               +{branchReferrals.length - 3} more
                             </div>
                           )}
@@ -218,7 +218,7 @@ export function Referrals() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left text-paper/50 text-sm border-b border-paper/10">
+                      <tr className="text-left text-paper/65 text-sm border-b border-paper/10">
                         <th className="pb-3 font-medium">Email</th>
                         <th className="pb-3 font-medium">Relationship</th>
                         <th className="pb-3 font-medium">Status</th>
@@ -252,7 +252,7 @@ export function Referrals() {
                               Copy
                             </button>
                           </td>
-                          <td className="py-3 text-paper/50 text-sm">
+                          <td className="py-3 text-paper/65 text-sm">
                             {new Date(ref.created_at).toLocaleDateString()}
                           </td>
                         </tr>
@@ -280,8 +280,8 @@ export function Referrals() {
                   {referralData.rewards.map((reward: any) => (
                     <div key={reward.id} className="bg-paper/5 rounded-lg p-4">
                       <div className="text-gold font-medium mb-1">{reward.reward_value}</div>
-                      <div className="text-sm text-paper/60">{reward.milestone}</div>
-                      <div className="text-xs text-paper/40 mt-2">
+                      <div className="text-sm text-paper/70">{reward.milestone}</div>
+                      <div className="text-xs text-paper/70 mt-2">
                         Earned {new Date(reward.claimed_at).toLocaleDateString()}
                       </div>
                     </div>
@@ -312,7 +312,7 @@ export function Referrals() {
             >
               <button
                 onClick={() => setShowInviteModal(false)}
-                className="absolute top-4 right-4 text-paper/50 hover:text-paper"
+                className="absolute top-4 right-4 text-paper/65 hover:text-paper"
               >
                 <X size={20} />
               </button>
@@ -322,7 +322,7 @@ export function Referrals() {
                   <Users className="text-gold" size={32} />
                 </div>
                 <h3 className="text-xl font-medium">Invite Family Member</h3>
-                <p className="text-paper/60 text-sm mt-1">
+                <p className="text-paper/70 text-sm mt-1">
                   They'll get a special welcome, you'll get bonus storage
                 </p>
               </div>

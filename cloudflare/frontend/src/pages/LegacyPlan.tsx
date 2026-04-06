@@ -144,7 +144,7 @@ export function LegacyPlan() {
           className="text-center mb-12"
         >
           <h1 className="font-display text-4xl md:text-5xl mb-4">Legacy Playbook</h1>
-          <p className="text-paper/60 max-w-xl mx-auto">
+          <p className="text-paper/70 max-w-xl mx-auto">
             Your personal guide to preserving what matters most. Complete these items to build a meaningful legacy.
           </p>
         </motion.div>
@@ -159,7 +159,7 @@ export function LegacyPlan() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-xl font-medium">Your Progress</h2>
-              <p className="text-paper/50 text-sm">
+              <p className="text-paper/65 text-sm">
                 {plan?.completedItems || 0} of {plan?.totalItems || 0} items completed
               </p>
             </div>
@@ -189,7 +189,7 @@ export function LegacyPlan() {
             </button>
             
             {shareUrl && (
-              <div className="flex items-center gap-2 text-sm text-paper/60">
+              <div className="flex items-center gap-2 text-sm text-paper/70">
                 <Link2 size={14} />
                 <span className="truncate max-w-[200px]">{shareUrl}</span>
                 <button
@@ -230,7 +230,7 @@ export function LegacyPlan() {
                     </div>
                     <div className="text-left">
                       <h3 className="font-medium">{config.label}</h3>
-                      <p className="text-sm text-paper/50">{completedCount} of {items.length} completed</p>
+                      <p className="text-sm text-paper/65">{completedCount} of {items.length} completed</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -275,16 +275,16 @@ export function LegacyPlan() {
                               {item.completed === 1 && <Check size={14} />}
                             </button>
                             <div className="flex-1 min-w-0">
-                              <p className={`font-medium ${item.completed === 1 ? 'line-through text-paper/50' : ''}`}>
+                              <p className={`font-medium ${item.completed === 1 ? 'line-through text-paper/65' : ''}`}>
                                 {item.title}
                               </p>
                               {item.description && (
-                                <p className="text-sm text-paper/50 mt-1">{item.description}</p>
+                                <p className="text-sm text-paper/65 mt-1">{item.description}</p>
                               )}
                             </div>
                             <button
                               onClick={() => deleteItemMutation.mutate(item.id)}
-                              className="text-paper/30 hover:text-red-400 transition-colors p-1"
+                              className="text-paper/65 hover:text-red-400 transition-colors p-1"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -332,7 +332,7 @@ export function LegacyPlan() {
                         ) : (
                           <button
                             onClick={() => setShowAddItem(category)}
-                            className="w-full p-3 border border-dashed border-paper/20 rounded-lg text-paper/50 hover:text-paper hover:border-paper/40 transition-all flex items-center justify-center gap-2"
+                            className="w-full p-3 border border-dashed border-paper/20 rounded-lg text-paper/65 hover:text-paper hover:border-paper/40 transition-all flex items-center justify-center gap-2"
                           >
                             <Plus size={16} />
                             Add custom item

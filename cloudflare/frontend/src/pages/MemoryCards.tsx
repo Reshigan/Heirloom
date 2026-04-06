@@ -152,7 +152,7 @@ export function MemoryCards() {
       <Navigation />
 
       <div className="relative z-10 px-6 md:px-12 py-12">
-        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
+        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8">
           <ArrowLeft size={20} />
           Back to Vault
         </button>
@@ -167,7 +167,7 @@ export function MemoryCards() {
               <Image size={32} className="text-gold" />
               <h1 className="text-4xl font-light">Memory Cards</h1>
             </div>
-            <p className="text-paper/60 max-w-2xl mx-auto">
+            <p className="text-paper/70 max-w-2xl mx-auto">
               Transform your memories into beautiful, shareable cards. Perfect for Instagram, 
               Facebook, or sending to loved ones.
             </p>
@@ -224,7 +224,7 @@ export function MemoryCards() {
                   <h2 className="text-xl font-medium mb-4">1. Select a Memory</h2>
                   <div className="max-h-[300px] overflow-y-auto space-y-2">
                     {memories.length === 0 ? (
-                      <p className="text-paper/50 text-center py-8">
+                      <p className="text-paper/65 text-center py-8">
                         No memories yet. Create some memories first!
                       </p>
                     ) : (
@@ -239,7 +239,7 @@ export function MemoryCards() {
                           }`}
                         >
                           <div className="font-medium">{memory.title || 'Untitled Memory'}</div>
-                          <div className="text-sm text-paper/50 line-clamp-2">
+                          <div className="text-sm text-paper/65 line-clamp-2">
                             {memory.description?.substring(0, 100) || 'No description'}
                           </div>
                         </button>
@@ -278,7 +278,7 @@ export function MemoryCards() {
                   <h2 className="text-xl font-medium mb-4">3. Customize</h2>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm text-paper/50 mb-2">
+                      <label className="block text-sm text-paper/65 mb-2">
                         Custom Quote (optional)
                       </label>
                       <textarea
@@ -412,7 +412,7 @@ export function MemoryCards() {
                 ) : (
                   <div className="card text-center py-16">
                     <Image size={64} className="text-paper/20 mx-auto mb-4" />
-                    <p className="text-paper/50">
+                    <p className="text-paper/65">
                       Select a memory and style to generate your card
                     </p>
                   </div>
@@ -430,7 +430,7 @@ export function MemoryCards() {
               {cards.length === 0 ? (
                 <div className="card text-center py-16">
                   <Image size={64} className="text-paper/20 mx-auto mb-4" />
-                  <p className="text-paper/50 mb-4">
+                  <p className="text-paper/65 mb-4">
                     You haven't created any cards yet
                   </p>
                   <button
@@ -444,14 +444,14 @@ export function MemoryCards() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {cards.map((card: any) => (
                     <div key={card.id} className="card">
-                      <div className="text-sm text-paper/50 mb-2">
+                      <div className="text-sm text-paper/65 mb-2">
                         {card.memoryTitle || 'Untitled'}
                       </div>
                       <blockquote className="text-paper/80 italic mb-4 line-clamp-3">
                         "{card.quote}"
                       </blockquote>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-paper/50">
+                        <span className="text-paper/65">
                           {card.shareCount || 0} shares
                         </span>
                         <a
@@ -486,10 +486,10 @@ export function MemoryCards() {
               {!onThisDay.hasMemories ? (
                 <div className="card text-center py-16">
                   <Clock size={64} className="text-paper/20 mx-auto mb-4" />
-                  <p className="text-paper/50 mb-2">
+                  <p className="text-paper/65 mb-2">
                     No memories from this day in previous years
                   </p>
-                  <p className="text-paper/30 text-sm">
+                  <p className="text-paper/65 text-sm">
                     Keep capturing memories and they'll appear here on their anniversaries!
                   </p>
                 </div>
@@ -513,7 +513,7 @@ export function MemoryCards() {
                               />
                             )}
                             <h4 className="font-medium mb-2">{memory.title || 'Untitled Memory'}</h4>
-                            <p className="text-paper/60 text-sm">{memory.description}</p>
+                            <p className="text-paper/70 text-sm">{memory.description}</p>
                             <div className="mt-4 flex gap-2">
                               <button
                                 onClick={() => {
@@ -543,12 +543,12 @@ export function MemoryCards() {
                       <div className="grid md:grid-cols-2 gap-6">
                         {onThisDay.createdOnThisDay.map((memory: OnThisDayMemory) => (
                           <div key={memory.id} className="card bg-white/[0.02]">
-                            <div className="flex items-center gap-2 text-paper/50 text-sm mb-3">
+                            <div className="flex items-center gap-2 text-paper/65 text-sm mb-3">
                               <Clock size={16} />
                               Created {memory.yearsAgo} year{memory.yearsAgo !== 1 ? 's' : ''} ago
                             </div>
                             <h4 className="font-medium mb-2">{memory.title || 'Untitled Memory'}</h4>
-                            <p className="text-paper/60 text-sm">{memory.description}</p>
+                            <p className="text-paper/70 text-sm">{memory.description}</p>
                           </div>
                         ))}
                       </div>

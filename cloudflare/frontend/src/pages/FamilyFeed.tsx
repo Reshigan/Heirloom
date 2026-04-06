@@ -1,6 +1,5 @@
 // FamilyFeed page
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2, Image, Mic, Pen, Heart, Clock, Users } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
@@ -52,7 +51,7 @@ export function FamilyFeed() {
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-32 max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Family Feed</h1>
-          <p className="text-paper/50 font-serif">See what your family has been preserving</p>
+          <p className="text-paper/65 font-serif">See what your family has been preserving</p>
         </div>
 
         {isLoading ? (
@@ -69,15 +68,12 @@ export function FamilyFeed() {
           />
         ) : (
           <div className="space-y-4">
-            {items.map((item, i) => {
+            {items.map((item) => {
               const Icon = typeIcons[item.type] || Image;
               return (
-                <motion.div
+                <div
                   key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="glass rounded-xl border border-paper/10 p-5"
+                  className="glass rounded-xl border border-paper/10 p-5 animate-fade-in"
                 >
                   {/* Author */}
                   <div className="flex items-center gap-3 mb-3">
@@ -86,9 +82,9 @@ export function FamilyFeed() {
                     </div>
                     <div>
                       <span className="text-paper/80 text-sm font-medium">{item.author_name}</span>
-                      <span className="text-paper/30 text-sm"> {typeLabels[item.type]}</span>
+                      <span className="text-paper/65 text-sm"> {typeLabels[item.type]}</span>
                     </div>
-                    <span className="ml-auto text-paper/30 text-xs flex items-center gap-1">
+                    <span className="ml-auto text-paper/65 text-xs flex items-center gap-1">
                       <Clock size={12} />
                       {new Date(item.created_at).toLocaleDateString()}
                     </span>
@@ -102,19 +98,19 @@ export function FamilyFeed() {
                     <div className="flex-1 min-w-0">
                       <p className="text-paper font-serif text-lg mb-1">{item.title}</p>
                       {item.preview && (
-                        <p className="text-paper/40 text-sm line-clamp-2">{item.preview}</p>
+                        <p className="text-paper/70 text-sm line-clamp-2">{item.preview}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Reactions */}
                   <div className="flex items-center justify-end mt-3 pt-3 border-t border-paper/5">
-                    <button className="flex items-center gap-1.5 text-paper/30 hover:text-blood text-xs transition-colors">
+                    <button className="flex items-center gap-1.5 text-paper/65 hover:text-blood text-xs transition-colors">
                       <Heart size={14} />
                       {item.reactions > 0 && item.reactions}
                     </button>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>

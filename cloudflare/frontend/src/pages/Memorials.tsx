@@ -84,7 +84,7 @@ export function Memorials() {
         >
           <div>
             <h1 className="text-3xl md:text-4xl font-light mb-2">QR Memorial Codes</h1>
-            <p className="text-paper/60">Create lasting digital memorials accessible via QR code</p>
+            <p className="text-paper/70">Create lasting digital memorials accessible via QR code</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -113,7 +113,7 @@ export function Memorials() {
                   <div>
                     <h3 className="font-medium text-lg">{memorial.memorial_name}</h3>
                     {memorial.family_member_name && (
-                      <div className="text-sm text-paper/60">{memorial.family_member_name}</div>
+                      <div className="text-sm text-paper/70">{memorial.family_member_name}</div>
                     )}
                   </div>
                   <div className="w-16 h-16 bg-white rounded-lg p-1">
@@ -131,7 +131,7 @@ export function Memorials() {
                   </p>
                 )}
 
-                <div className="flex flex-wrap gap-2 text-xs text-paper/50 mb-4">
+                <div className="flex flex-wrap gap-2 text-xs text-paper/65 mb-4">
                   {memorial.birth_date && memorial.death_date && (
                     <div className="flex items-center gap-1">
                       <Calendar size={12} />
@@ -183,10 +183,10 @@ export function Memorials() {
             className="card text-center py-16"
           >
             <div className="w-20 h-20 rounded-full bg-paper/5 flex items-center justify-center mx-auto mb-4">
-              <Grid size={40} className="text-paper/30" />
+              <Grid size={40} className="text-paper/65" />
             </div>
             <h2 className="text-xl font-light mb-2">No Memorials Yet</h2>
-            <p className="text-paper/60 mb-6 max-w-md mx-auto">
+            <p className="text-paper/70 mb-6 max-w-md mx-auto">
               Create a QR code memorial that can be placed on gravestones, photo frames, 
               or any physical location to share memories with visitors.
             </p>
@@ -214,28 +214,28 @@ export function Memorials() {
                 <span className="text-gold font-medium">1</span>
               </div>
               <h3 className="font-medium mb-2">Create Memorial</h3>
-              <p className="text-sm text-paper/60">Add details about your loved one</p>
+              <p className="text-sm text-paper/70">Add details about your loved one</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-3">
                 <span className="text-gold font-medium">2</span>
               </div>
               <h3 className="font-medium mb-2">Get QR Code</h3>
-              <p className="text-sm text-paper/60">Download weather-resistant QR</p>
+              <p className="text-sm text-paper/70">Download weather-resistant QR</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-3">
                 <span className="text-gold font-medium">3</span>
               </div>
               <h3 className="font-medium mb-2">Place Anywhere</h3>
-              <p className="text-sm text-paper/60">Gravestone, frame, or keepsake</p>
+              <p className="text-sm text-paper/70">Gravestone, frame, or keepsake</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-3">
                 <span className="text-gold font-medium">4</span>
               </div>
               <h3 className="font-medium mb-2">Share Memories</h3>
-              <p className="text-sm text-paper/60">Visitors can view and add tributes</p>
+              <p className="text-sm text-paper/70">Visitors can view and add tributes</p>
             </div>
           </div>
         </motion.div>
@@ -260,7 +260,7 @@ export function Memorials() {
             >
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="absolute top-4 right-4 text-paper/50 hover:text-paper"
+                className="absolute top-4 right-4 text-paper/65 hover:text-paper"
               >
                 <X size={20} />
               </button>
@@ -345,7 +345,7 @@ export function Memorials() {
                         }`}
                       >
                         <div className="text-sm font-medium">{style.name}</div>
-                        <div className="text-xs text-paper/50">{style.description}</div>
+                        <div className="text-xs text-paper/65">{style.description}</div>
                       </button>
                     ))}
                   </div>
@@ -404,7 +404,7 @@ export function Memorials() {
             >
               <button
                 onClick={() => setSelectedMemorial(null)}
-                className="absolute top-4 right-4 text-paper/50 hover:text-paper"
+                className="absolute top-4 right-4 text-paper/65 hover:text-paper"
               >
                 <X size={20} />
               </button>
@@ -419,7 +419,7 @@ export function Memorials() {
                 </div>
                 <h3 className="text-xl font-medium">{selectedMemorial.memorial_name}</h3>
                 {selectedMemorial.birth_date && selectedMemorial.death_date && (
-                  <div className="text-paper/60 mt-1">
+                  <div className="text-paper/70 mt-1">
                     {new Date(selectedMemorial.birth_date).getFullYear()} - {new Date(selectedMemorial.death_date).getFullYear()}
                   </div>
                 )}
@@ -437,7 +437,7 @@ export function Memorials() {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-4 justify-center text-sm text-paper/60 mb-6">
+              <div className="flex flex-wrap gap-4 justify-center text-sm text-paper/70 mb-6">
                 {selectedMemorial.location && (
                   <div className="flex items-center gap-1">
                     <Calendar size={14} />

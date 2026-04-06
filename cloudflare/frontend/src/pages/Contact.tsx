@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowLeft, Mail, User, MessageSquare, Send, Check, Loader2 } from 'lucide-react';
 
 export function Contact() {
@@ -60,22 +59,18 @@ export function Contact() {
         </div>
 
         <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="card text-center py-12"
-          >
+          <div className="card text-center py-12 animate-fade-in">
             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-8 h-8 text-green-400" />
             </div>
             <h1 className="text-2xl font-display text-paper mb-4">Message Sent</h1>
-            <p className="text-paper/60 mb-8">
+            <p className="text-paper/70 mb-8">
               Thank you for reaching out. We'll get back to you within 24-48 hours.
             </p>
             <Link to="/" className="btn btn-primary">
               Return Home
             </Link>
-          </motion.div>
+          </div>
         </div>
       </div>
     );
@@ -90,31 +85,27 @@ export function Contact() {
       </div>
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
-        <Link to="/" className="inline-flex items-center gap-2 text-paper/50 hover:text-gold mb-8 transition-colors">
+        <Link to="/" className="inline-flex items-center gap-2 text-paper/65 hover:text-gold mb-8 transition-colors">
           <ArrowLeft size={18} />
           Back to Heirloom
         </Link>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="card"
-        >
+        <div className="card animate-fade-in">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-gold/20">
               <Mail className="w-8 h-8 text-gold" />
             </div>
             <h1 className="text-2xl md:text-3xl font-display text-paper mb-2">Contact Us</h1>
-            <p className="text-paper/60">
+            <p className="text-paper/70">
               Have a question or need help? We'd love to hear from you.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Your Name</label>
+              <label className="block text-sm text-paper/65 mb-2">Your Name</label>
               <div className="relative">
-                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                 <input
                   type="text"
                   value={form.name}
@@ -126,9 +117,9 @@ export function Contact() {
             </div>
 
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Email Address</label>
+              <label className="block text-sm text-paper/65 mb-2">Email Address</label>
               <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                 <input
                   type="email"
                   value={form.email}
@@ -140,9 +131,9 @@ export function Contact() {
             </div>
 
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Subject</label>
+              <label className="block text-sm text-paper/65 mb-2">Subject</label>
               <div className="relative">
-                <MessageSquare size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                <MessageSquare size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                 <input
                   type="text"
                   value={form.subject}
@@ -154,7 +145,7 @@ export function Contact() {
             </div>
 
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Message</label>
+              <label className="block text-sm text-paper/65 mb-2">Message</label>
               <textarea
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
@@ -168,12 +159,10 @@ export function Contact() {
               <p className="text-blood text-sm text-center">{error}</p>
             )}
 
-            <motion.button
+            <button
               type="submit"
               disabled={isSubmitting}
-              className="btn btn-primary w-full py-4 text-lg"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              className="btn btn-primary w-full py-4 text-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
             >
               {isSubmitting ? (
                 <Loader2 size={20} className="animate-spin" />
@@ -183,19 +172,19 @@ export function Contact() {
                   <Send size={18} />
                 </>
               )}
-            </motion.button>
+            </button>
           </form>
 
           <div className="mt-8 pt-6 border-t border-paper/10 text-center">
-            <p className="text-paper/40 text-sm mb-2">Or reach us directly at:</p>
+            <p className="text-paper/70 text-sm mb-2">Or reach us directly at:</p>
             <a href="mailto:support@heirloom.blue" className="text-gold hover:text-gold-bright transition-colors">
               support@heirloom.blue
             </a>
-            <p className="text-paper/30 text-xs mt-4">
+            <p className="text-paper/65 text-xs mt-4">
               131 Continental Dr Suite 305, Newark, DE 19713, US
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

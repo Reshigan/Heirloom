@@ -53,7 +53,7 @@ const PILLAR_COLORS: Record<string, string> = {
   demo: 'text-purple-300',
   engagement: 'text-yellow-300',
   viral: 'text-green-300',
-  general: 'text-paper/60',
+  general: 'text-paper/70',
 };
 
 export function SocialCalendarTab() {
@@ -114,7 +114,7 @@ export function SocialCalendarTab() {
       {/* Filters */}
       <div className="glass p-4 flex flex-wrap gap-4 items-center">
         <div className="flex items-center gap-2">
-          <label className="text-paper/50 text-sm">Week:</label>
+          <label className="text-paper/65 text-sm">Week:</label>
           <select
             value={selectedWeek || ''}
             onChange={(e) => setSelectedWeek(e.target.value ? parseInt(e.target.value) : undefined)}
@@ -128,7 +128,7 @@ export function SocialCalendarTab() {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-paper/50 text-sm">Status:</label>
+          <label className="text-paper/65 text-sm">Status:</label>
           <select
             value={statusFilter || ''}
             onChange={(e) => setStatusFilter(e.target.value || undefined)}
@@ -146,12 +146,12 @@ export function SocialCalendarTab() {
       {/* Posts List */}
       <div className="space-y-3">
         {isLoading ? (
-          <div className="glass p-8 text-center text-paper/50">Loading posts...</div>
+          <div className="glass p-8 text-center text-paper/65">Loading posts...</div>
         ) : posts.length === 0 ? (
           <div className="glass p-8 text-center">
-            <Send size={32} className="mx-auto mb-3 text-paper/30" />
-            <p className="text-paper/50">No social posts found</p>
-            <p className="text-paper/30 text-sm mt-1">Use the bulk-load API to add content for a week</p>
+            <Send size={32} className="mx-auto mb-3 text-paper/65" />
+            <p className="text-paper/65">No social posts found</p>
+            <p className="text-paper/65 text-sm mt-1">Use the bulk-load API to add content for a week</p>
           </div>
         ) : (
           posts.map((post) => (
@@ -176,7 +176,7 @@ function StatBox({ label, value, icon, color }: { label: string; value: number; 
         {icon}
         <span className="text-2xl font-light">{value}</span>
       </div>
-      <p className="text-paper/50 text-xs">{label}</p>
+      <p className="text-paper/65 text-xs">{label}</p>
     </div>
   );
 }
@@ -206,7 +206,7 @@ function PostCard({ post, onPause, onRetry, onDelete }: {
               </span>
             )}
             {post.campaign_week && (
-              <span className="text-xs text-paper/40">
+              <span className="text-xs text-paper/70">
                 Week {post.campaign_week}
               </span>
             )}
@@ -218,14 +218,14 @@ function PostCard({ post, onPause, onRetry, onDelete }: {
           {/* Platforms */}
           <div className="flex flex-wrap gap-1 mb-2">
             {post.platforms.map((p) => (
-              <span key={p} className="px-1.5 py-0.5 bg-white/5 text-paper/60 text-xs rounded">
+              <span key={p} className="px-1.5 py-0.5 bg-white/5 text-paper/70 text-xs rounded">
                 {PLATFORM_LABELS[p] || p}
               </span>
             ))}
           </div>
 
           {/* Schedule time */}
-          <div className="flex items-center gap-1 text-paper/40 text-xs">
+          <div className="flex items-center gap-1 text-paper/70 text-xs">
             <Clock size={12} />
             <span>
               {post.published_at
@@ -247,7 +247,7 @@ function PostCard({ post, onPause, onRetry, onDelete }: {
           {post.status === 'scheduled' && (
             <button
               onClick={onPause}
-              className="p-1.5 hover:bg-white/10 rounded text-paper/50 hover:text-yellow-400 transition-colors"
+              className="p-1.5 hover:bg-white/10 rounded text-paper/65 hover:text-yellow-400 transition-colors"
               title="Skip this post"
             >
               <Pause size={16} />
@@ -256,7 +256,7 @@ function PostCard({ post, onPause, onRetry, onDelete }: {
           {(post.status === 'failed' || post.status === 'skipped') && (
             <button
               onClick={onRetry}
-              className="p-1.5 hover:bg-white/10 rounded text-paper/50 hover:text-blue-400 transition-colors"
+              className="p-1.5 hover:bg-white/10 rounded text-paper/65 hover:text-blue-400 transition-colors"
               title="Retry / Reschedule"
             >
               <RefreshCw size={16} />
@@ -265,7 +265,7 @@ function PostCard({ post, onPause, onRetry, onDelete }: {
           {post.status !== 'published' && (
             <button
               onClick={onDelete}
-              className="p-1.5 hover:bg-white/10 rounded text-paper/50 hover:text-red-400 transition-colors"
+              className="p-1.5 hover:bg-white/10 rounded text-paper/65 hover:text-red-400 transition-colors"
               title="Delete post"
             >
               <Trash2 size={16} />

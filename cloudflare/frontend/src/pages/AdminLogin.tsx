@@ -36,7 +36,7 @@ export function AdminLogin() {
             <Lock className="w-8 h-8 text-gold" />
           </div>
           <h1 className="text-3xl font-light text-paper">Admin Portal</h1>
-          <p className="text-paper/50 mt-2">Sign in to access the admin dashboard</p>
+          <p className="text-paper/65 mt-2">Sign in to access the admin dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="card space-y-6">
@@ -48,9 +48,9 @@ export function AdminLogin() {
           )}
 
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Email</label>
+            <label className="block text-sm text-paper/65 mb-2">Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-paper/30" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-paper/65" />
               <input
                 type="email"
                 value={email}
@@ -63,9 +63,9 @@ export function AdminLogin() {
           </div>
 
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Password</label>
+            <label className="block text-sm text-paper/65 mb-2">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-paper/30" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-paper/65" />
               <input
                 type="password"
                 value={password}
@@ -86,7 +86,7 @@ export function AdminLogin() {
           </button>
         </form>
 
-        <p className="text-center text-paper/30 text-sm mt-6">
+        <p className="text-center text-paper/65 text-sm mt-6">
           <a href="/" className="hover:text-gold transition-colors">Back to main site</a>
         </p>
       </div>

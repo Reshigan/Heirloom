@@ -134,7 +134,7 @@ export function Signup() {
                 >
                   ∞
                 </motion.div>
-                <span className="text-lg tracking-[0.2em] text-paper/60">HEIRLOOM</span>
+                <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
               </Link>
             </motion.div>
 
@@ -143,8 +143,9 @@ export function Signup() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h1 className="text-2xl font-light text-center mb-2">Create your legacy</h1>
-              <p className="text-paper/50 text-center mb-8">Start your 14-day free trial</p>
+              <h1 className="text-2xl font-light text-center mb-2">Who do you want to remember you?</h1>
+              <p className="text-paper/65 text-center mb-2">Start preserving your family's memories. Free for 14 days.</p>
+              <p className="text-paper/50 text-center text-xs mb-8">Join 2,000+ families already preserving their legacy</p>
             </motion.div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -160,9 +161,9 @@ export function Signup() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">First name</label>
+                  <label className="block text-sm text-paper/65 mb-2">First name</label>
                   <div className="relative">
-                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                     <input
                       type="text"
                       autoComplete="given-name"
@@ -176,7 +177,7 @@ export function Signup() {
                   {errors.firstName && <p className="text-blood text-xs mt-1">{errors.firstName}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Last name</label>
+                  <label className="block text-sm text-paper/65 mb-2">Last name</label>
                   <input
                     type="text"
                     autoComplete="family-name"
@@ -191,9 +192,9 @@ export function Signup() {
               </div>
 
               <div>
-                <label className="block text-sm text-paper/50 mb-2">Email</label>
+                <label className="block text-sm text-paper/65 mb-2">Email</label>
                 <div className="relative">
-                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                   <input
                     type="email"
                     inputMode="email"
@@ -209,9 +210,9 @@ export function Signup() {
               </div>
 
               <div>
-                <label className="block text-sm text-paper/50 mb-2">Password</label>
+                <label className="block text-sm text-paper/65 mb-2">Password</label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="new-password"
@@ -223,7 +224,7 @@ export function Signup() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/65 hover:text-paper transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -237,16 +238,16 @@ export function Signup() {
                       <div className={`w-3 h-3 rounded-full flex items-center justify-center ${valid ? 'bg-green-500' : 'bg-paper/10'}`}>
                         {valid && <Check size={8} className="text-void" />}
                       </div>
-                      <span className={valid ? 'text-green-400' : 'text-paper/40'}>{label}</span>
+                      <span className={valid ? 'text-green-400' : 'text-paper/70'}>{label}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm text-paper/50 mb-2">Confirm password</label>
+                <label className="block text-sm text-paper/65 mb-2">Confirm password</label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                   <input
                     type="password"
                     value={form.confirmPassword}
@@ -290,7 +291,7 @@ export function Signup() {
                 {errors.acceptedTerms && <p className="text-blood text-xs ml-8">{errors.acceptedTerms}</p>}
 
                 {/* Privacy Policy Acknowledgement */}
-                <p className="text-xs text-paper/50 ml-8">
+                <p className="text-xs text-paper/65 ml-8">
                   By creating an account, you acknowledge our{' '}
                   <Link to="/privacy" className="text-gold/70 hover:text-gold underline">Privacy Policy</Link>
                   {' '}which explains how we collect, use, and protect your data.
@@ -313,7 +314,7 @@ export function Signup() {
                       {form.marketingConsent && <Check size={12} className="text-void" />}
                     </div>
                   </div>
-                  <span className="text-sm text-paper/50">
+                  <span className="text-sm text-paper/65">
                     Send me product updates, tips, and special offers (optional)
                   </span>
                 </label>
@@ -338,7 +339,7 @@ export function Signup() {
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-paper/50">
+              <p className="text-paper/65">
                 Already have an account?{' '}
                 <Link to="/login" className="text-gold hover:text-gold-bright transition-colors">
                   Sign in

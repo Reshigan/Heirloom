@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowLeft, Shield, Lock, Eye, Server, Trash2, Mail } from '../components/Icons';
 
 export function Privacy() {
@@ -18,18 +17,14 @@ export function Privacy() {
         <div className="absolute inset-0 glass-subtle border-b border-white/[0.04]" />
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <motion.span 
-              className="text-2xl text-gold"
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            >
+            <span className="text-2xl text-gold inline-block animate-spin" style={{ animationDuration: '20s' }}>
               ∞
-            </motion.span>
+            </span>
             <span className="text-lg tracking-[0.2em] text-paper/80">HEIRLOOM</span>
           </Link>
           
           <div className="flex items-center gap-6">
-            <Link to="/login" className="text-paper/60 hover:text-gold transition-colors hidden md:block">
+            <Link to="/login" className="text-paper/70 hover:text-gold transition-colors hidden md:block">
               Sign In
             </Link>
             <Link to="/signup" className="btn btn-primary">
@@ -42,18 +37,14 @@ export function Privacy() {
       {/* Content */}
       <main className="pt-32 pb-20 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
-          <Link to="/" className="inline-flex items-center gap-2 text-paper/50 hover:text-gold transition-colors mb-8">
+          <Link to="/" className="inline-flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-8">
             <ArrowLeft size={18} />
             Back to Home
           </Link>
           
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <div className="animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-light mb-4">Privacy Policy</h1>
-            <p className="text-paper/50 mb-12">Last updated: December 16, 2025</p>
+            <p className="text-paper/65 mb-12">Last updated: December 16, 2025</p>
             
             <div className="space-y-12">
               {/* Introduction */}
@@ -133,7 +124,7 @@ export function Privacy() {
                 </p>
               </section>
             </div>
-          </motion.div>
+          </div>
         </div>
       </main>
       
@@ -142,14 +133,14 @@ export function Privacy() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <span className="text-xl text-gold">∞</span>
-            <span className="tracking-[0.15em] text-paper/60">HEIRLOOM</span>
+            <span className="tracking-[0.15em] text-paper/70">HEIRLOOM</span>
           </div>
-          <div className="flex gap-8 text-sm text-paper/40">
+          <div className="flex gap-8 text-sm text-paper/70">
             <Link to="/privacy" className="hover:text-gold transition-colors text-gold">Privacy</Link>
             <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
             <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">Contact</a>
           </div>
-          <div className="text-sm text-paper/30">
+          <div className="text-sm text-paper/65">
             © {new Date().getFullYear()} Heirloom. All rights reserved.
           </div>
         </div>

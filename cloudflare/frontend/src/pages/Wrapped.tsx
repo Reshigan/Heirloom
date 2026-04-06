@@ -147,7 +147,7 @@ const IntroSlide: React.FC<{ year: number }> = ({ year }) => (
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-2xl text-paper/60 font-body"
+      className="text-2xl text-paper/70 font-body"
     >
       Wrapped in memories
     </motion.p>
@@ -178,7 +178,7 @@ const TotalMemoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
     <motion.p
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="text-xl text-paper/60 mb-4"
+      className="text-xl text-paper/70 mb-4"
     >
       This year, you preserved
     </motion.p>
@@ -209,7 +209,7 @@ const TotalMemoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/40 mt-8"
+      className="text-lg text-paper/70 mt-8"
     >
       That's more than {Math.round(stats.totalMemories / 12)} memories per month
     </motion.p>
@@ -251,7 +251,7 @@ const VoiceStoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="text-xl text-paper/60 mb-2"
+      className="text-xl text-paper/70 mb-2"
     >
       Your voice echoed through
     </motion.p>
@@ -268,7 +268,7 @@ const VoiceStoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/40 mt-8"
+      className="text-lg text-paper/70 mt-8"
     >
       {stats.totalMinutesRecorded} minutes of your voice, preserved forever
     </motion.p>
@@ -289,12 +289,12 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => {
     <motion.p
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="text-xl text-paper/60 mb-8 text-center"
+      className="text-xl text-paper/70 mb-8 text-center"
     >
       The emotions that colored your year
     </motion.p>
     {topEmotions.length === 0 ? (
-      <div className="text-center text-paper/50">
+      <div className="text-center text-paper/65">
         <p className="text-lg mb-2">No emotion data yet</p>
         <p className="text-sm">Start adding memories to see your emotional journey</p>
       </div>
@@ -312,7 +312,7 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => {
           <div className="flex-1">
             <div className="flex justify-between mb-1">
               <span className="text-paper font-medium">{emotion.emotion}</span>
-              <span className="text-paper/60">{emotion.percentage}%</span>
+              <span className="text-paper/70">{emotion.percentage}%</span>
             </div>
             <div className="h-3 bg-void-elevated rounded-full overflow-hidden">
               <motion.div
@@ -352,7 +352,7 @@ const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
     <motion.p
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="text-xl text-paper/60 mb-8 text-center"
+      className="text-xl text-paper/70 mb-8 text-center"
     >
       Your constellation grew to
     </motion.p>
@@ -457,7 +457,7 @@ const StreakSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="text-xl text-paper/60 mb-4"
+      className="text-xl text-paper/70 mb-4"
     >
       Your longest streak was
     </motion.p>
@@ -474,7 +474,7 @@ const StreakSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/40 mt-8"
+      className="text-lg text-paper/70 mt-8"
     >
       You were most active on <span className="text-gold">{stats.mostActiveDay}s</span>
     </motion.p>
@@ -491,7 +491,7 @@ const WordCloudSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
     <motion.p
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="text-xl text-paper/60 mb-8 text-center"
+      className="text-xl text-paper/70 mb-8 text-center"
     >
       Words that defined your year
     </motion.p>
@@ -546,7 +546,7 @@ const LettersSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="text-xl text-paper/60 mb-4"
+      className="text-xl text-paper/70 mb-4"
     >
       You wrote
     </motion.p>
@@ -563,7 +563,7 @@ const LettersSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/40 mt-8"
+      className="text-lg text-paper/70 mt-8"
     >
       Messages waiting to be discovered
     </motion.p>
@@ -602,19 +602,19 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
     >
       <div className="text-center">
         <p className="text-4xl font-display text-gold">{stats.totalMemories}</p>
-        <p className="text-sm text-paper/60">Memories</p>
+        <p className="text-sm text-paper/70">Memories</p>
       </div>
       <div className="text-center">
         <p className="text-4xl font-display text-gold">{stats.totalVoiceStories}</p>
-        <p className="text-sm text-paper/60">Voice Stories</p>
+        <p className="text-sm text-paper/70">Voice Stories</p>
       </div>
       <div className="text-center">
         <p className="text-4xl font-display text-gold">{stats.totalLetters}</p>
-        <p className="text-sm text-paper/60">Letters</p>
+        <p className="text-sm text-paper/70">Letters</p>
       </div>
       <div className="text-center">
         <p className="text-4xl font-display text-gold">{stats.familyMembersConnected}</p>
-        <p className="text-sm text-paper/60">Family</p>
+        <p className="text-sm text-paper/70">Family</p>
       </div>
     </motion.div>
     
@@ -623,7 +623,7 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/60 mb-8"
+      className="text-lg text-paper/70 mb-8"
     >
       Dominant emotion: <span className="text-gold">{stats.topEmotions[0].emotion}</span>
     </motion.p>
@@ -902,7 +902,7 @@ const Wrapped: React.FC = () => {
             }
           }}
           disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
-          className="p-2 rounded-full border border-paper/30 text-paper/50 hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="p-2 rounded-full border border-paper/30 text-paper/65 hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <ChevronLeft size={18} />
         </button>
@@ -919,7 +919,7 @@ const Wrapped: React.FC = () => {
             }
           }}
           disabled={availableYears.indexOf(selectedYear) === 0}
-          className="p-2 rounded-full border border-paper/30 text-paper/50 hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="p-2 rounded-full border border-paper/30 text-paper/65 hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <ChevronRight size={18} />
         </button>
@@ -1023,7 +1023,7 @@ const Wrapped: React.FC = () => {
         {/* Mute button (for future audio support) */}
         <button
           onClick={() => setIsMuted(!isMuted)}
-          className="p-2 rounded-full border border-paper/20 text-paper/50 hover:text-paper hover:border-paper/40 transition-all ml-4"
+          className="p-2 rounded-full border border-paper/20 text-paper/65 hover:text-paper hover:border-paper/40 transition-all ml-4"
         >
           {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
@@ -1032,7 +1032,7 @@ const Wrapped: React.FC = () => {
       {/* Back to Vault breadcrumb */}
       <button
         onClick={() => window.location.href = '/dashboard'}
-        className="absolute top-8 right-4 sm:right-8 flex items-center gap-2 px-3 py-2 text-paper/60 hover:text-gold transition-colors z-50 rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50 backdrop-blur-sm"
+        className="absolute top-8 right-4 sm:right-8 flex items-center gap-2 px-3 py-2 text-paper/70 hover:text-gold transition-colors z-50 rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50 backdrop-blur-sm"
       >
         <ChevronLeft size={16} />
         <span className="text-sm font-medium">Back to Vault</span>
@@ -1042,7 +1042,7 @@ const Wrapped: React.FC = () => {
       <div className="absolute top-20 sm:top-8 right-4 sm:right-48 z-50">
         <button
           onClick={() => setShowShareMenu(!showShareMenu)}
-          className="flex items-center gap-2 px-3 py-2 text-paper/60 hover:text-gold transition-colors rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50 backdrop-blur-sm"
+          className="flex items-center gap-2 px-3 py-2 text-paper/70 hover:text-gold transition-colors rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50 backdrop-blur-sm"
         >
           <Share2 size={16} />
           <span className="text-sm font-medium hidden sm:inline">Share</span>

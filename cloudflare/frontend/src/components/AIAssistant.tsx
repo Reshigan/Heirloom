@@ -390,12 +390,12 @@ What would you like to create today?`;
                 </div>
                 <div>
                   <h3 className="text-paper font-display text-lg">Writing Assistant</h3>
-                  <p className="text-paper/40 text-xs">Powered by Heirloom AI</p>
+                  <p className="text-paper/70 text-xs">Powered by Heirloom AI</p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 text-paper/60 hover:text-paper transition-colors"
+                className="p-2 text-paper/70 hover:text-paper transition-colors"
               >
                 ✕
               </button>
@@ -403,7 +403,7 @@ What would you like to create today?`;
 
                         {/* Quick Actions - Try different suggestions */}
                         <div className="p-3 border-b border-gold/10">
-                          <p className="text-xs text-paper/40 mb-2">Try a suggestion:</p>
+                          <p className="text-xs text-paper/70 mb-2">Try a suggestion:</p>
                           <div className="flex flex-wrap gap-2">
                             {getQuickActions().map((action, i) => (
                               <button
@@ -495,13 +495,13 @@ What would you like to create today?`;
                   className={`px-4 rounded-xl transition-all ${
                     input.trim() && !isLoading
                       ? 'bg-gold text-void-deep hover:bg-gold-bright'
-                      : 'bg-gold/20 text-paper/30'
+                      : 'bg-gold/20 text-paper/65'
                   }`}
                 >
                   ↑
                 </button>
               </div>
-                            <p className="text-xs text-paper/30 mt-2 text-center">
+                            <p className="text-xs text-paper/65 mt-2 text-center">
                               Powered by Heirloom AI • Your data is encrypted
                             </p>
             </div>

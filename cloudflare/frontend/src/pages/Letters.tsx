@@ -146,7 +146,7 @@ export function Letters() {
           className="mb-8"
         >
           <h1 className="text-4xl font-light mb-2">Your Letters</h1>
-          <p className="text-paper/60">Messages waiting to be delivered to your loved ones</p>
+          <p className="text-paper/70">Messages waiting to be delivered to your loved ones</p>
         </motion.div>
 
         {/* Search and Filters */}
@@ -157,7 +157,7 @@ export function Letters() {
           className="flex flex-col md:flex-row gap-4 mb-8"
         >
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" size={18} />
             <input
               type="text"
               placeholder="Search letters..."
@@ -208,7 +208,7 @@ export function Letters() {
                           <Mail className="text-gold" size={40} />
                         </div>
                         <h2 className="text-2xl font-light mb-2">Write Your First Letter</h2>
-                        <p className="text-paper/60">
+                        <p className="text-paper/70">
                           A letter is a timeless gift. Here's how to get started.
                         </p>
                       </div>
@@ -218,7 +218,7 @@ export function Letters() {
                           <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">1</div>
                           <div>
                             <h4 className="font-medium mb-1">Choose Your Recipient</h4>
-                            <p className="text-paper/60 text-sm">Who do you want to receive this letter? A child, partner, friend, or future self?</p>
+                            <p className="text-paper/70 text-sm">Who do you want to receive this letter? A child, partner, friend, or future self?</p>
                           </div>
                         </div>
 
@@ -226,7 +226,7 @@ export function Letters() {
                           <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">2</div>
                           <div>
                             <h4 className="font-medium mb-1">Share What Matters</h4>
-                            <p className="text-paper/60 text-sm">Write about memories, life lessons, hopes for them, or simply say what you've always wanted to say.</p>
+                            <p className="text-paper/70 text-sm">Write about memories, life lessons, hopes for them, or simply say what you've always wanted to say.</p>
                           </div>
                         </div>
 
@@ -234,7 +234,7 @@ export function Letters() {
                           <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">3</div>
                           <div>
                             <h4 className="font-medium mb-1">Choose When to Deliver</h4>
-                            <p className="text-paper/60 text-sm">Send it now, schedule for a special date, or have it delivered after you're gone.</p>
+                            <p className="text-paper/70 text-sm">Send it now, schedule for a special date, or have it delivered after you're gone.</p>
                           </div>
                         </div>
                       </div>
@@ -292,7 +292,7 @@ export function Letters() {
                         <h3 className="text-lg font-medium mb-1 group-hover:text-gold transition-colors">
                           {letter.title || 'Untitled Letter'}
                         </h3>
-                        <p className="text-paper/50 text-sm line-clamp-2">
+                        <p className="text-paper/65 text-sm line-clamp-2">
                           {letter.body?.substring(0, 100) || 'No content'}...
                         </p>
                       </div>
@@ -300,8 +300,8 @@ export function Letters() {
                       {/* Recipients */}
                       {letter.recipients?.length > 0 && (
                         <div className="flex items-center gap-2 mb-4">
-                          <Users size={14} className="text-paper/40" />
-                          <span className="text-sm text-paper/60">
+                          <Users size={14} className="text-paper/70" />
+                          <span className="text-sm text-paper/70">
                             {letter.recipients.map(r => r.name).join(', ')}
                           </span>
                         </div>
@@ -313,14 +313,14 @@ export function Letters() {
                           <DeliveryIcon size={14} />
                           <span>{delivery.label}</span>
                         </div>
-                        <span className="text-xs text-paper/40">
+                        <span className="text-xs text-paper/70">
                           {formatDate(letter.updatedAt)}
                         </span>
                       </div>
 
                       {/* Scheduled Date */}
                       {letter.deliveryTrigger === 'SCHEDULED' && letter.scheduledDate && (
-                        <div className="mt-2 text-xs text-paper/50">
+                        <div className="mt-2 text-xs text-paper/65">
                           Delivers: {formatDate(letter.scheduledDate)}
                         </div>
                       )}
@@ -379,7 +379,7 @@ export function Letters() {
             >
               <button
                 onClick={() => setSelectedLetter(null)}
-                className="absolute top-4 right-4 text-paper/50 hover:text-paper transition-colors"
+                className="absolute top-4 right-4 text-paper/65 hover:text-paper transition-colors"
               >
                 <X size={20} />
               </button>
@@ -388,7 +388,7 @@ export function Letters() {
                 <h2 className="text-2xl font-light mb-2">
                   {selectedLetter.title || 'Untitled Letter'}
                 </h2>
-                <div className="flex items-center gap-4 text-sm text-paper/50">
+                <div className="flex items-center gap-4 text-sm text-paper/65">
                   <span>Created {formatDate(selectedLetter.createdAt)}</span>
                   {selectedLetter.recipients?.length > 0 && (
                     <span>To: {selectedLetter.recipients.map(r => r.name).join(', ')}</span>
@@ -449,7 +449,7 @@ export function Letters() {
                   <AlertCircle className="text-blood" size={32} />
                 </div>
                 <h3 className="text-2xl mb-2">Delete Letter?</h3>
-                <p className="text-paper/60 mb-6">
+                <p className="text-paper/70 mb-6">
                   This action cannot be undone. The letter will be permanently removed.
                 </p>
 
