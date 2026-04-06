@@ -528,6 +528,22 @@ export const userNotificationsApi = {
   markAllRead: () => api.post('/notifications/read-all'),
 };
 
+// Social Posting Engine Admin API
+export const socialApi = {
+  getCalendar: (params?: { week?: number; status?: string }) =>
+    adminAxios.get('/admin/social/calendar', { params }),
+  getStats: () => adminAxios.get('/admin/social/stats'),
+  bulkLoad: (data: { week: number; startDate: string; posts: any[] }) =>
+    adminAxios.post('/admin/social/bulk-load', data),
+  pause: (id: string) => adminAxios.post(`/admin/social/pause/${id}`),
+  retry: (id: string) => adminAxios.post(`/admin/social/retry/${id}`),
+  deletePost: (id: string) => adminAxios.delete(`/admin/social/${id}`),
+  uploadAsset: (data: { week: number; day: string; filename: string; contentType: string }) =>
+    adminAxios.post('/admin/social/upload-asset', data),
+  getTemplates: (week?: number) => adminAxios.get('/admin/social/templates', { params: { week } }),
+  createTemplate: (data: any) => adminAxios.post('/admin/social/templates', data),
+};
+
 export const marketingApi = {
   getContent: (params?: { platform?: string; status?: string; theme?: string }) =>
     adminAxios.get('/marketing/content', { params }),

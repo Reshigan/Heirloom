@@ -9,6 +9,7 @@ import {
 } from '../components/Icons';
 import { adminApi } from '../services/api';
 import { MarketingTab } from './MarketingTab';
+import { SocialCalendarTab } from './SocialCalendarTab';
 
 // Admin auth check
 const useAdminAuth = () => {
@@ -201,6 +202,7 @@ export function AdminDashboard() {
       { id: 'admins', label: 'Admins', icon: UserPlus },
       { id: 'emails', label: 'Emails', icon: Mail },
       { id: 'reports', label: 'Reports', icon: Download },
+      { id: 'social', label: 'Social', icon: Send },
     ];
 
   return (
@@ -1732,6 +1734,11 @@ export function AdminDashboard() {
           </div>
         )}
       </div>
+
+        {/* Social Calendar Tab */}
+        {activeTab === 'social' && (
+          <SocialCalendarTab />
+        )}
 
       {/* Modals */}
             {showCouponModal && (
