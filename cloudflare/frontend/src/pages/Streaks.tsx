@@ -67,7 +67,7 @@ export function Streaks() {
           className="mb-8"
         >
           <h1 className="text-3xl md:text-4xl font-light mb-2">Memory Streaks</h1>
-          <p className="text-paper/60">Build your legacy one day at a time</p>
+          <p className="text-paper/70">Build your legacy one day at a time</p>
         </motion.div>
 
         {streakLoading ? (
@@ -91,7 +91,7 @@ export function Streaks() {
                 <div className="text-6xl font-light mb-2">
                   {streak?.currentStreak || 0}
                 </div>
-                <div className="text-paper/60 text-lg mb-6">
+                <div className="text-paper/70 text-lg mb-6">
                   {streak?.currentStreak === 1 ? 'Day Streak' : 'Day Streak'}
                 </div>
 
@@ -114,17 +114,17 @@ export function Streaks() {
                 <div className="mt-8 grid grid-cols-3 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-light text-gold">{streak?.longestStreak || 0}</div>
-                    <div className="text-paper/50 text-sm">Longest Streak</div>
+                    <div className="text-paper/65 text-sm">Longest Streak</div>
                   </div>
                   <div>
                     <div className="text-2xl font-light text-gold">{streak?.totalMemoriesCreated || 0}</div>
-                    <div className="text-paper/50 text-sm">Total Memories</div>
+                    <div className="text-paper/65 text-sm">Total Memories</div>
                   </div>
                   <div>
                     <div className="text-2xl font-light text-gold">
                       {streak?.streakStartedAt ? Math.ceil((Date.now() - new Date(streak.streakStartedAt).getTime()) / (1000 * 60 * 60 * 24)) : 0}
                     </div>
-                    <div className="text-paper/50 text-sm">Days Active</div>
+                    <div className="text-paper/65 text-sm">Days Active</div>
                   </div>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export function Streaks() {
                       <Cloud className="text-blue-400" size={20} />
                       <div>
                         <div className="font-medium">Freeze Your Streak</div>
-                        <div className="text-paper/50 text-sm">Take a day off without losing progress</div>
+                        <div className="text-paper/65 text-sm">Take a day off without losing progress</div>
                       </div>
                     </div>
                     <button
@@ -191,7 +191,7 @@ export function Streaks() {
                           )}
                           <span className={achieved ? 'text-gold' : 'text-paper/70'}>{milestone.label}</span>
                         </div>
-                        <span className="text-xs text-paper/50">{milestone.days} days</span>
+                        <span className="text-xs text-paper/65">{milestone.days} days</span>
                       </div>
                       {!achieved && (
                         <div className="h-1 bg-paper/10 rounded-full overflow-hidden">
@@ -201,7 +201,7 @@ export function Streaks() {
                           />
                         </div>
                       )}
-                      <div className="text-xs text-paper/50 mt-1">{milestone.reward}</div>
+                      <div className="text-xs text-paper/65 mt-1">{milestone.reward}</div>
                     </div>
                   );
                 })}
@@ -221,7 +221,7 @@ export function Streaks() {
                     <div className="text-xs text-purple-400 uppercase tracking-wider mb-1">This Week's Challenge</div>
                     <h3 className="text-xl font-medium mb-2">{currentChallenge.title}</h3>
                     <p className="text-paper/70 mb-4">{currentChallenge.description}</p>
-                    <div className="flex items-center gap-4 text-sm text-paper/50">
+                    <div className="flex items-center gap-4 text-sm text-paper/65">
                       <span>{currentChallenge.hashtag}</span>
                       <span>{currentChallenge.submissionCount || 0} submissions</span>
                     </div>
@@ -250,7 +250,7 @@ export function Streaks() {
                   {challenges.slice(0, 4).map((challenge: any) => (
                     <div key={challenge.id} className="p-4 rounded-lg bg-paper/5">
                       <div className="text-sm font-medium mb-1">{challenge.title}</div>
-                      <div className="text-xs text-paper/50 mb-2">{challenge.theme}</div>
+                      <div className="text-xs text-paper/65 mb-2">{challenge.theme}</div>
                       <div className="text-xs text-gold">
                         {new Date(challenge.start_date).toLocaleDateString()}
                       </div>
@@ -285,7 +285,7 @@ export function Streaks() {
                   <Cloud className="text-blue-400" size={32} />
                 </div>
                 <h3 className="text-xl font-medium mb-2">Freeze Your Streak?</h3>
-                <p className="text-paper/60 mb-6">
+                <p className="text-paper/70 mb-6">
                   This will protect your streak for 24 hours. You can only freeze once per week.
                 </p>
                 <div className="flex gap-3 justify-center">

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowLeft, Sparkles, Loader2, Share2, Check, Clock, Heart } from '../components/Icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
@@ -81,33 +80,25 @@ export function FutureLetter() {
       <Navigation />
 
       <div className="relative z-10 px-6 md:px-12 py-12">
-        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
+        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8">
           <ArrowLeft size={20} />
           Back to Vault
         </button>
 
         <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
+          <div className="text-center mb-12 animate-fade-in">
             <div className="flex items-center justify-center gap-3 mb-4">
               <Sparkles size={32} className="text-gold" />
               <h1 className="text-4xl font-light">Letter from Your Future Self</h1>
             </div>
-            <p className="text-paper/60 max-w-2xl mx-auto">
+            <p className="text-paper/70 max-w-2xl mx-auto">
               AI will write a letter from your 80-year-old self, reflecting on the values, 
               hopes, and fears you share today. A powerful reminder of what truly matters.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
+            <div className="animate-fade-in">
               <form onSubmit={handleSubmit} className="card space-y-6">
                 <h2 className="text-xl font-medium flex items-center gap-2">
                   <Heart size={20} className="text-gold" />
@@ -115,7 +106,7 @@ export function FutureLetter() {
                 </h2>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Your Current Age</label>
+                  <label className="block text-sm text-paper/65 mb-2">Your Current Age</label>
                   <input
                     type="number"
                     min="18"
@@ -128,7 +119,7 @@ export function FutureLetter() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">What do you value most?</label>
+                  <label className="block text-sm text-paper/65 mb-2">What do you value most?</label>
                   <textarea
                     value={formData.values}
                     onChange={(e) => setFormData({ ...formData, values: e.target.value })}
@@ -139,7 +130,7 @@ export function FutureLetter() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">What are your hopes for the future?</label>
+                  <label className="block text-sm text-paper/65 mb-2">What are your hopes for the future?</label>
                   <textarea
                     value={formData.hopes}
                     onChange={(e) => setFormData({ ...formData, hopes: e.target.value })}
@@ -150,7 +141,7 @@ export function FutureLetter() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">What are your fears?</label>
+                  <label className="block text-sm text-paper/65 mb-2">What are your fears?</label>
                   <textarea
                     value={formData.fears}
                     onChange={(e) => setFormData({ ...formData, fears: e.target.value })}
@@ -161,7 +152,7 @@ export function FutureLetter() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Who are your loved ones?</label>
+                  <label className="block text-sm text-paper/65 mb-2">Who are your loved ones?</label>
                   <textarea
                     value={formData.lovedOnes}
                     onChange={(e) => setFormData({ ...formData, lovedOnes: e.target.value })}
@@ -189,14 +180,9 @@ export function FutureLetter() {
                   )}
                 </button>
               </form>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-6"
-            >
+            <div className="space-y-6 animate-fade-in">
               {generatedLetter ? (
                 <div className="card">
                   <div className="flex items-center justify-between mb-4">
@@ -222,8 +208,8 @@ export function FutureLetter() {
                 </div>
               ) : (
                 <div className="card text-center py-12">
-                  <Clock size={48} className="text-paper/30 mx-auto mb-4" />
-                  <p className="text-paper/50">
+                  <Clock size={48} className="text-paper/65 mx-auto mb-4" />
+                  <p className="text-paper/65">
                     Fill out the form to receive a letter from your future self
                   </p>
                 </div>
@@ -235,7 +221,7 @@ export function FutureLetter() {
                   <div className="space-y-4 max-h-[300px] overflow-y-auto">
                     {previousLetters.letters.map((letter: any) => (
                       <div key={letter.id} className="p-4 bg-void/30 rounded-lg">
-                        <p className="text-paper/60 text-sm mb-2">
+                        <p className="text-paper/70 text-sm mb-2">
                           Generated {new Date(letter.createdAt).toLocaleDateString()}
                         </p>
                         <p className="text-paper/80 line-clamp-3">
@@ -246,7 +232,7 @@ export function FutureLetter() {
                   </div>
                 </div>
               )}
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

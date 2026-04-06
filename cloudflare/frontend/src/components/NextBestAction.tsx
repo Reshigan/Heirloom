@@ -100,7 +100,7 @@ export function NextBestAction({ progress, className = '' }: NextBestActionProps
           </div>
           <div>
             <h3 className="text-lg md:text-xl font-medium text-paper">You're all set!</h3>
-            <p className="text-paper/60 text-sm md:text-base">Your legacy foundation is complete. Keep adding memories to enrich it.</p>
+            <p className="text-paper/70 text-sm md:text-base">Your legacy foundation is complete. Keep adding memories to enrich it.</p>
           </div>
         </div>
       </motion.div>
@@ -118,7 +118,7 @@ export function NextBestAction({ progress, className = '' }: NextBestActionProps
     >
       {/* Progress indicator */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-paper/50">Getting Started</span>
+        <span className="text-sm text-paper/65">Getting Started</span>
         <span className="text-sm text-gold">{completedCount}/{totalCount} complete</span>
       </div>
       
@@ -145,21 +145,21 @@ export function NextBestAction({ progress, className = '' }: NextBestActionProps
             <h3 className="text-base md:text-lg font-medium text-paper group-hover:text-gold transition-colors">
               {nextAction.title}
             </h3>
-            <p className="text-sm text-paper/50 truncate">{nextAction.description}</p>
+            <p className="text-sm text-paper/65 truncate">{nextAction.description}</p>
           </div>
-          <ArrowRight size={20} className="text-paper/30 group-hover:text-gold group-hover:translate-x-1 transition-all flex-shrink-0" />
+          <ArrowRight size={20} className="text-paper/65 group-hover:text-gold group-hover:translate-x-1 transition-all flex-shrink-0" />
         </div>
       </Link>
 
       {/* Quick action pills for other incomplete items */}
       {incompleteActions.length > 1 && (
         <div className="mt-4 flex flex-wrap gap-2">
-          <span className="text-xs text-paper/40">Also try:</span>
+          <span className="text-xs text-paper/70">Also try:</span>
           {incompleteActions.slice(1, 4).map(action => (
             <Link
               key={action.id}
               to={action.link}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-paper/5 border border-paper/10 text-xs text-paper/60 hover:border-gold/30 hover:text-gold transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-paper/5 border border-paper/10 text-xs text-paper/70 hover:border-gold/30 hover:text-gold transition-all"
             >
               <action.icon size={12} />
               {action.title.replace('Add your first ', '').replace('Set up ', '')}

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cinzel:wght@400;500;600&family=Caveat:wght@400;500;600&display=swap');
+/* Fonts loaded via index.html preconnect + preload to prevent FOUT */
 
 @tailwind base;
 @tailwind components;
@@ -69,6 +69,46 @@
   --duration-normal: 0.4s;
   --duration-slow: 0.8s;
   --duration-glacial: 1.6s;
+}
+
+/* ===== LIGHT THEME ===== */
+[data-theme="light"] {
+  --void-abyss: #f5f2eb;
+  --void-deep: #ebe6dc;
+  --void: #e0dbd1;
+  --void-surface: #f9f7f3;
+  --void-elevated: #ffffff;
+  --void-hover: #f0ece4;
+
+  --paper: #1a1a1a;
+  --paper-bright: #000000;
+  --paper-dim: #333333;
+  --paper-muted: #666666;
+
+  --paper-90: rgba(26, 26, 26, 0.9);
+  --paper-70: rgba(26, 26, 26, 0.7);
+  --paper-50: rgba(26, 26, 26, 0.5);
+  --paper-30: rgba(26, 26, 26, 0.3);
+  --paper-15: rgba(26, 26, 26, 0.15);
+  --paper-08: rgba(26, 26, 26, 0.08);
+  --paper-04: rgba(26, 26, 26, 0.04);
+  --paper-02: rgba(26, 26, 26, 0.02);
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(26, 26, 26, 0.08);
+  --glass-highlight: rgba(26, 26, 26, 0.05);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+
+  --gold: #9c7a3c;
+  --gold-light: #b8923c;
+  --gold-bright: #d4a853;
+  --gold-dim: #7a5f2e;
+  --gold-deep: #5a4520;
+
+  --gold-40: rgba(156, 122, 60, 0.4);
+  --gold-20: rgba(156, 122, 60, 0.2);
+  --gold-10: rgba(156, 122, 60, 0.1);
+  --gold-05: rgba(156, 122, 60, 0.05);
 }
 
 * {
@@ -514,13 +554,13 @@ THE ETERNAL BACKGROUND - A living, breathing void
   background: var(--paper-04);
   backdrop-filter: blur(12px);
   color: var(--paper);
-  border: 1px solid var(--paper-15);
+  border: 1px solid rgba(255,255,255,0.15);
   box-shadow: inset 0 1px 0 0 var(--paper-08);
 }
 
 .btn-secondary:hover {
-  background: var(--gold-10);
-  border-color: var(--gold-20);
+  background: rgba(201,169,89,0.1);
+  border-color: rgba(201,169,89,0.4);
   color: var(--gold);
 }
 
@@ -591,19 +631,20 @@ THE ETERNAL BACKGROUND - A living, breathing void
     font-size: 16px;
     line-height: 1.5;
     background: var(--void-surface);
-    border: 1px solid var(--paper-08);
+    border: 1px solid rgba(255,255,255,0.15);
     border-radius: 8px;
     color: var(--paper);
     outline: none;
     transition: all var(--duration-fast) var(--ease-out);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), inset 0 -1px 0 rgba(255,255,255,0.05);
   }
 
   .input::placeholder {
-    color: var(--paper-30);
+    color: var(--paper-50);
   }
 
   .input:hover:not(:focus) {
-    border-color: var(--paper-15);
+    border-color: rgba(255,255,255,0.25);
   }
 }
 
@@ -753,13 +794,58 @@ em {
 .animate-glow { animation: glow-pulse 3s ease-in-out infinite; }
 .animate-float { animation: float 6s ease-in-out infinite; }
 
-/* ===== CUSTOM CURSOR ===== */
-@media (pointer: fine) {
-  * { cursor: none !important; }
-  
-  a, button, [role="button"], input[type="submit"], select {
-    cursor: none !important;
-  }
+/* Custom cursor removed per UI polish spec (accessibility) */
+
+/* ===== CSS-ONLY PARTICLE ANIMATION ===== */
+@keyframes particle-ascend-css {
+  0% { opacity: 0; transform: translateY(100vh) scale(0.5); }
+  10% { opacity: var(--opacity, 0.4); }
+  90% { opacity: var(--opacity, 0.4); }
+  100% { opacity: 0; transform: translateY(-10vh) scale(1); }
+}
+
+.animate-particle-ascend {
+  animation: particle-ascend-css var(--duration, 20s) ease-in-out infinite;
+}
+
+/* ===== SKELETON LOADING ===== */
+.skeleton {
+  background: linear-gradient(90deg, var(--paper-08) 25%, var(--paper-15) 50%, var(--paper-08) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== CSS FADE-IN (replaces simple Framer Motion fade) ===== */
+.fade-in {
+  animation: css-fade-in 0.5s ease-out both;
+}
+
+@keyframes css-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== MODAL SCROLL FADE ===== */
+.modal-scroll-fade {
+  position: relative;
+}
+
+.modal-scroll-fade::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to top, var(--void-surface), transparent);
+  pointer-events: none;
+  display: block;
 }
 
 /* ===== SCROLLBAR ===== */
@@ -1908,16 +1994,69 @@ body.modal-open {
   }
 }
 
-/* Reduce animations on mobile for better performance */
+/* Reduce animations on mobile for better performance (2.2) */
 @media (max-width: 767px) {
   .eternal-particle,
   .sanctuary-orb {
-    animation-duration: 30s !important;
+    animation: none !important;
+  }
+  
+  /* Hide third orb on mobile */
+  .sanctuary-orb-3 {
+    display: none;
+  }
+  
+  /* Hide stars and mist on mobile */
+  .sanctuary-stars,
+  .sanctuary-mist,
+  .eternal-stars,
+  .eternal-mist {
+    display: none;
   }
   
   /* Reduce number of floating particles on mobile */
   .eternal-particle:nth-child(n+6) {
     display: none;
+  }
+  
+  /* Toast positioning above mobile bottom nav (3.6) */
+  .toast {
+    bottom: 88px !important;
+  }
+  
+  /* Badge readability on mobile (3.5) */
+  .badge {
+    font-size: 11px !important;
+    padding: 4px 10px !important;
+    min-height: 28px;
+  }
+  
+  /* Emotion pills consistent sizing on mobile (3.11) */
+  .emotion-pill {
+    font-size: 12px !important;
+    padding: 6px 14px !important;
+    min-height: 32px;
+  }
+  
+  /* Settings tab horizontal scroll on mobile (3.7) */
+  .settings-tabs-mobile {
+    display: flex !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 4px;
+    padding-bottom: 8px;
+  }
+  
+  .settings-tabs-mobile > button {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  
+  /* Safe area bottom for notch/home indicator */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 

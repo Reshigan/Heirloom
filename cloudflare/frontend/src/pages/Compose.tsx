@@ -189,6 +189,7 @@ export function Compose() {
                 const [aiSuggestion, setAiSuggestion] = useState('');
                 const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
                 const [sealError, setSealError] = useState<string | null>(null);
+                const [showMoreOptions, setShowMoreOptions] = useState(false);
 
     // AI Assist function - uses Cloudflare Workers AI backend
     const handleAiAssist = async () => {
@@ -530,15 +531,15 @@ export function Compose() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setShowComposer(false)}
-                className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
+                className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors"
               >
                 <span className="w-5 h-5">{Icons.arrowLeft}</span>
                 <span>Back to Letters</span>
               </button>
-              <span className="text-paper/30">|</span>
+              <span className="text-paper/65">|</span>
               <button
                 onClick={() => navigate('/memories')}
-                className="flex items-center gap-2 text-paper/60 hover:text-gold transition-colors"
+                className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors"
               >
                 <span>Back to Vault</span>
               </button>
@@ -569,7 +570,7 @@ export function Compose() {
                 disabled={!body.trim() || selectedRecipients.length === 0}
                 className={`flex items-center gap-2 px-5 py-2 font-semibold rounded-lg transition-all ${
                   !body.trim() || selectedRecipients.length === 0
-                    ? 'bg-void-elevated border border-paper/20 text-paper/40 cursor-not-allowed'
+                    ? 'bg-void-elevated border border-paper/20 text-paper/70 cursor-not-allowed'
                     : 'bg-gradient-to-r from-blood to-red-800 text-paper hover:shadow-lg hover:shadow-blood/30'
                 }`}
               >
@@ -591,19 +592,19 @@ export function Compose() {
           <div className="space-y-6">
             {/* Title */}
             <div>
-              <label className="block text-sm text-paper/60 mb-2">Letter Title (for your reference)</label>
+              <label className="block text-sm text-paper/70 mb-2">Letter Title (for your reference)</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., To My Children on Their Wedding Days"
-                className="w-full px-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                className="w-full px-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/65 focus:outline-none focus:border-gold/50"
               />
             </div>
 
             {/* Recipients */}
             <div>
-              <label className="block text-sm text-paper/60 mb-3">Recipients</label>
+              <label className="block text-sm text-paper/70 mb-3">Recipients</label>
               <div className="flex flex-wrap gap-2">
                 {familyMembers.map((member) => (
                   <button
@@ -612,7 +613,7 @@ export function Compose() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
                       selectedRecipients.includes(member.id)
                         ? 'bg-gold/20 border-gold text-gold'
-                        : 'bg-void-elevated border-gold/20 text-paper/60 hover:border-gold/40'
+                        : 'bg-void-elevated border-gold/20 text-paper/70 hover:border-gold/40'
                     }`}
                   >
                     <span className="w-4 h-4">{Icons.user}</span>
@@ -624,7 +625,7 @@ export function Compose() {
                 ))}
                                 <button
                                   onClick={() => setShowAddFamilyModal(true)}
-                                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-gold/30 text-paper/40 hover:border-gold/50 hover:text-paper/60 transition-all"
+                                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-gold/30 text-paper/70 hover:border-gold/50 hover:text-paper/70 transition-all"
                                 >
                                   <span className="w-4 h-4">{Icons.plus}</span>
                                   <span>Add Family Member</span>
@@ -712,7 +713,7 @@ export function Compose() {
                               onChange={(e) => setBody(e.target.value)}
                               placeholder="Write your letter here... Let your heart speak freely."
                               rows={15}
-                              className="w-full bg-transparent border-none text-paper text-xl leading-loose focus:outline-none resize-none placeholder:text-paper/30"
+                              className="w-full bg-transparent border-none text-paper text-xl leading-loose focus:outline-none resize-none placeholder:text-paper/65"
                               style={{ fontFamily: "'Caveat', 'Dancing Script', cursive, serif" }}
                             />
                 
@@ -730,23 +731,37 @@ export function Compose() {
                           </div>
                         </div>
 
+            {/* More Options Toggle */}
+            <button
+              onClick={() => setShowMoreOptions(!showMoreOptions)}
+              className="flex items-center gap-2 text-sm text-paper/70 hover:text-gold transition-colors"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className={`w-4 h-4 transition-transform ${showMoreOptions ? 'rotate-90' : ''}`}>
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+              <span>{showMoreOptions ? 'Hide options' : 'More options (delivery, prompts, AI)'}</span>
+            </button>
+
+            {/* Collapsible Options Section */}
+            {showMoreOptions && (
+            <>
             {/* Writing Prompts */}
             <div>
-              <label className="block text-sm text-paper/60 mb-3">Need inspiration? Try a prompt:</label>
+              <label className="block text-sm text-paper/70 mb-3">Need inspiration? Try a prompt:</label>
               <div className="flex flex-wrap gap-2">
                 {isLoadingPrompts ? (
-                  <div className="flex items-center gap-2 text-paper/40">
+                  <div className="flex items-center gap-2 text-paper/70">
                     <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
                     <span className="text-sm">Loading prompts...</span>
                   </div>
                 ) : letterPrompts.length === 0 ? (
-                  <p className="text-sm text-paper/40">No prompts available. Use the AI assist button above for suggestions.</p>
+                  <p className="text-sm text-paper/70">No prompts available. Use the AI assist button above for suggestions.</p>
                 ) : (
                   letterPrompts.map((prompt, index) => (
                     <button
                       key={index}
                       onClick={() => insertPrompt(prompt)}
-                      className="px-3 py-1.5 text-sm bg-void-elevated border border-gold/10 rounded-lg text-paper/50 hover:text-paper/80 hover:border-gold/30 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-void-elevated border border-gold/10 rounded-lg text-paper/65 hover:text-paper/80 hover:border-gold/30 transition-colors"
                     >
                       {prompt.substring(0, 40)}...
                     </button>
@@ -757,7 +772,7 @@ export function Compose() {
 
             {/* Delivery Options */}
             <div>
-              <label className="block text-sm text-paper/60 mb-3">When should this letter be delivered?</label>
+              <label className="block text-sm text-paper/70 mb-3">When should this letter be delivered?</label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {deliveryOptions.map((option) => (
                   <button
@@ -769,13 +784,13 @@ export function Compose() {
                         : 'bg-void-elevated border-gold/20 hover:border-gold/40'
                     }`}
                   >
-                    <div className={`w-8 h-8 mb-3 ${deliveryTrigger === option.id ? 'text-gold' : 'text-paper/50'}`}>
+                    <div className={`w-8 h-8 mb-3 ${deliveryTrigger === option.id ? 'text-gold' : 'text-paper/65'}`}>
                       {option.icon}
                     </div>
                     <div className={`font-medium ${deliveryTrigger === option.id ? 'text-gold' : 'text-paper'}`}>
                       {option.label}
                     </div>
-                    <div className="text-sm text-paper/50 mt-1">{option.description}</div>
+                    <div className="text-sm text-paper/65 mt-1">{option.description}</div>
                   </button>
                 ))}
               </div>
@@ -783,7 +798,7 @@ export function Compose() {
               {/* Scheduled Date Picker */}
               {deliveryTrigger === 'SCHEDULED' && (
                 <div className="mt-4">
-                  <label className="block text-sm text-paper/60 mb-2">Delivery Date</label>
+                  <label className="block text-sm text-paper/70 mb-2">Delivery Date</label>
                   <input
                     type="date"
                     value={scheduledDate}
@@ -794,6 +809,8 @@ export function Compose() {
                 </div>
               )}
             </div>
+            </>
+            )}
           </div>
         </main>
 
@@ -827,7 +844,7 @@ export function Compose() {
               </div>
               
               <h3 className="text-2xl font-serif text-paper mb-3">Seal This Letter?</h3>
-              <p className="text-paper/60 mb-4">
+              <p className="text-paper/70 mb-4">
                 Once sealed, this letter cannot be edited. It will be encrypted and stored securely until delivery.
               </p>
               
@@ -881,7 +898,7 @@ export function Compose() {
                     </div>
                     <div>
                       <p className="text-gold font-medium">Letter Sealed Successfully</p>
-                      <p className="text-paper/60 text-sm">Your letter has been encrypted and stored securely for delivery.</p>
+                      <p className="text-paper/70 text-sm">Your letter has been encrypted and stored securely for delivery.</p>
                     </div>
                   </div>
                 )}
@@ -890,7 +907,7 @@ export function Compose() {
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h1 className="text-3xl font-serif text-paper mb-2">Letters</h1>
-                    <p className="text-paper/60">Write messages to be delivered across time</p>
+                    <p className="text-paper/70">Write messages to be delivered across time</p>
                   </div>
           
           <button
@@ -913,7 +930,7 @@ export function Compose() {
               {Icons.envelope}
             </div>
             <h3 className="text-xl font-serif text-paper mb-2">No letters yet</h3>
-            <p className="text-paper/60 mb-6 max-w-md mx-auto">
+            <p className="text-paper/70 mb-6 max-w-md mx-auto">
               Write letters to your loved ones that will be delivered at just the right moment.
             </p>
             <button
@@ -939,7 +956,7 @@ export function Compose() {
                     <span className="text-sm">Sealed</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-paper/40 mb-4">
+                  <div className="flex items-center gap-2 text-paper/70 mb-4">
                     <span className="w-5 h-5">{Icons.save}</span>
                     <span className="text-sm">Draft</span>
                   </div>
@@ -951,18 +968,18 @@ export function Compose() {
                 </h3>
                 
                 {/* Preview */}
-                <p className="text-paper/50 text-sm line-clamp-3 mb-4">
+                <p className="text-paper/65 text-sm line-clamp-3 mb-4">
                   {letter.body}
                 </p>
                 
                 {/* Footer */}
                 <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1 text-paper/40">
+                  <div className="flex items-center gap-1 text-paper/70">
                     <span className="w-4 h-4">{Icons.user}</span>
                     <span>{letter.recipients.length} recipient{letter.recipients.length !== 1 ? 's' : ''}</span>
                   </div>
                   
-                  <div className="flex items-center gap-1 text-paper/40">
+                  <div className="flex items-center gap-1 text-paper/70">
                     <span className="w-4 h-4">
                       {letter.deliveryTrigger === 'IMMEDIATE' && Icons.send}
                       {letter.deliveryTrigger === 'SCHEDULED' && Icons.calendar}
@@ -981,7 +998,7 @@ export function Compose() {
             {/* New Letter Card */}
             <button
               onClick={handleNewLetter}
-              className="flex flex-col items-center justify-center min-h-[250px] border-2 border-dashed border-gold/20 rounded-2xl text-paper/40 hover:border-gold/40 hover:text-paper/60 transition-all"
+              className="flex flex-col items-center justify-center min-h-[250px] border-2 border-dashed border-gold/20 rounded-2xl text-paper/70 hover:border-gold/40 hover:text-paper/70 transition-all"
             >
               <span className="w-12 h-12 mb-4">{Icons.plus}</span>
               <span>New Letter</span>

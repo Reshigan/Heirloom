@@ -66,14 +66,14 @@ export function InspirationPrompt({ prompts, storageKey, onUsePrompt, className 
           <div className="flex items-center gap-1">
             <button
               onClick={handleRefresh}
-              className="p-1.5 text-paper/40 hover:text-gold transition-colors rounded-lg hover:bg-white/5"
+              className="p-1.5 text-paper/70 hover:text-gold transition-colors rounded-lg hover:bg-white/5"
               title="Get new suggestions"
             >
               <RefreshCw size={14} />
             </button>
             <button
               onClick={handleDismiss}
-              className="p-1.5 text-paper/40 hover:text-paper/60 transition-colors rounded-lg hover:bg-white/5"
+              className="p-1.5 text-paper/70 hover:text-paper/70 transition-colors rounded-lg hover:bg-white/5"
               title="Dismiss"
             >
               <X size={14} />
@@ -107,7 +107,7 @@ export function InspirationPrompt({ prompts, storageKey, onUsePrompt, className 
         {!isExpanded && prompts.length > PROMPTS_TO_SHOW && (
           <button 
             onClick={() => setIsExpanded(true)}
-            className="mt-2 text-xs text-paper/40 hover:text-gold transition-colors"
+            className="mt-2 text-xs text-paper/70 hover:text-gold transition-colors"
           >
             + {prompts.length - PROMPTS_TO_SHOW} more suggestions
           </button>

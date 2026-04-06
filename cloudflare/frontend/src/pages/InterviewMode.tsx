@@ -231,7 +231,7 @@ export function InterviewMode() {
       <div className="flex items-center justify-between p-6">
         <button
           onClick={() => navigate('/record')}
-          className="flex items-center gap-2 text-paper/50 hover:text-paper transition-colors"
+          className="flex items-center gap-2 text-paper/65 hover:text-paper transition-colors"
         >
           <ArrowLeft size={20} />
           <span className="text-sm">Exit Interview</span>
@@ -294,7 +294,7 @@ export function InterviewMode() {
               exit={{ opacity: 0, y: -20 }}
               className="w-full space-y-2 mb-8"
             >
-              <p className="text-center text-paper/40 text-sm mb-3">
+              <p className="text-center text-paper/70 text-sm mb-3">
                 <Sparkles size={14} className="inline mr-1" />
                 AI-suggested follow-ups
               </p>
@@ -369,7 +369,7 @@ export function InterviewMode() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-6 text-paper/30 text-sm"
+            className="mt-6 text-paper/65 text-sm"
           >
             Take your time... or tap the sparkle for a follow-up question
           </motion.p>

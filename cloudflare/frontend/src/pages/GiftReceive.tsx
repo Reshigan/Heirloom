@@ -68,7 +68,7 @@ export function GiftReceive() {
             <Gift size={28} className="text-blood" />
           </div>
           <h1 className="font-serif text-2xl text-paper mb-2">Gift Not Found</h1>
-          <p className="text-paper/50 mb-6">{error}</p>
+          <p className="text-paper/65 mb-6">{error}</p>
           <button
             onClick={() => navigate('/')}
             className="px-6 py-3 rounded-xl bg-gold/20 text-gold text-sm"
@@ -97,7 +97,7 @@ export function GiftReceive() {
             <Heart size={36} className="text-gold" />
           </motion.div>
           <h1 className="font-serif text-3xl text-paper mb-3">Gift Claimed!</h1>
-          <p className="text-paper/50 font-serif text-lg mb-8">
+          <p className="text-paper/65 font-serif text-lg mb-8">
             This memory is now part of your collection. Create a free account to keep it safe forever.
           </p>
           <motion.button
@@ -132,7 +132,7 @@ export function GiftReceive() {
 
         <h1 className="font-serif text-3xl text-paper mb-2">You&apos;ve Received a Gift</h1>
         {gift?.sender_name && (
-          <p className="text-paper/50 font-serif text-lg mb-2">
+          <p className="text-paper/65 font-serif text-lg mb-2">
             From <span className="text-gold">{gift.sender_name}</span>
           </p>
         )}
@@ -153,7 +153,7 @@ export function GiftReceive() {
             </div>
             <h3 className="font-serif text-xl text-paper">{gift.content.title}</h3>
             {gift.content.preview && (
-              <p className="text-paper/40 text-sm mt-1 line-clamp-2">{gift.content.preview}</p>
+              <p className="text-paper/70 text-sm mt-1 line-clamp-2">{gift.content.preview}</p>
             )}
           </div>
         )}
@@ -173,7 +173,7 @@ export function GiftReceive() {
           Unwrap Your Gift
         </motion.button>
 
-        <p className="text-paper/30 text-xs mt-4">
+        <p className="text-paper/65 text-xs mt-4">
           Powered by Heirloom &mdash; preserving what matters most
         </p>
       </motion.div>

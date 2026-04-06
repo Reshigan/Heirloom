@@ -163,7 +163,7 @@ export function MarketingTab() {
             className={`flex items-center gap-2 px-4 py-2 rounded-t transition-all ${
               activeSubTab === id 
                 ? 'bg-gold/20 text-gold border-b-2 border-gold' 
-                : 'text-paper/50 hover:text-paper'
+                : 'text-paper/65 hover:text-paper'
             }`}
           >
             <Icon size={16} />
@@ -191,7 +191,7 @@ export function MarketingTab() {
               <option value="">All Statuses</option>
               {INFLUENCER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            <div className="text-paper/50 flex items-center">
+            <div className="text-paper/65 flex items-center">
               {influencers?.influencers?.length || 0} influencers
             </div>
           </div>
@@ -200,25 +200,25 @@ export function MarketingTab() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Name</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Email</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Platform</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Segment</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Last Contact</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Name</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Email</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Platform</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Segment</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Last Contact</th>
                 </tr>
               </thead>
               <tbody>
                 {loadingInfluencers ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper/50">Loading...</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-paper/65">Loading...</td></tr>
                 ) : influencers?.influencers?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper/50">No influencers yet. Import or add some!</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-paper/65">No influencers yet. Import or add some!</td></tr>
                 ) : (
                   influencers?.influencers?.map((inf: any) => (
                     <tr key={inf.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="font-medium">{inf.name}</div>
-                        {inf.handle && <div className="text-xs text-paper/50">@{inf.handle}</div>}
+                        {inf.handle && <div className="text-xs text-paper/65">@{inf.handle}</div>}
                       </td>
                       <td className="py-3 px-4 text-paper/70">{inf.email}</td>
                       <td className="py-3 px-4">
@@ -234,7 +234,7 @@ export function MarketingTab() {
                       <td className="py-3 px-4">
                         <StatusBadge status={inf.status} />
                       </td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {inf.last_contacted_at ? new Date(inf.last_contacted_at).toLocaleDateString() : '-'}
                       </td>
                     </tr>
@@ -252,23 +252,23 @@ export function MarketingTab() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Campaign</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Type</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Sent</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Opens</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Created</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Campaign</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Type</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Sent</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Opens</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Created</th>
                 </tr>
               </thead>
               <tbody>
                 {campaigns?.campaigns?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper/50">No campaigns yet</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-paper/65">No campaigns yet</td></tr>
                 ) : (
                   campaigns?.campaigns?.map((c: any) => (
                     <tr key={c.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="font-medium">{c.name}</div>
-                        <div className="text-xs text-paper/50">{c.subject_line}</div>
+                        <div className="text-xs text-paper/65">{c.subject_line}</div>
                       </td>
                       <td className="py-3 px-4">
                         <span className="px-2 py-1 bg-gold/20 text-gold text-xs rounded">
@@ -280,7 +280,7 @@ export function MarketingTab() {
                       </td>
                       <td className="py-3 px-4">{c.sent_count || 0}</td>
                       <td className="py-3 px-4">{c.open_count || 0}</td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {new Date(c.created_at).toLocaleDateString()}
                       </td>
                     </tr>
@@ -294,31 +294,31 @@ export function MarketingTab() {
 
       {activeSubTab === 'signups' && (
         <div className="space-y-4">
-          <p className="text-paper/50">
+          <p className="text-paper/65">
             Creators who signed up through the public form. Approve them to add to your influencer database.
           </p>
           <div className="card overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Name</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Email</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Platform</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Why Interested</th>
-                  <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                  <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Name</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Email</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Platform</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Why Interested</th>
+                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                  <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {creatorSignups?.signups?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper/50">No signups yet</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-paper/65">No signups yet</td></tr>
                 ) : (
                   creatorSignups?.signups?.map((s: any) => (
                     <tr key={s.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4 font-medium">{s.name}</td>
                       <td className="py-3 px-4 text-paper/70">{s.email}</td>
                       <td className="py-3 px-4">{s.platform || '-'}</td>
-                      <td className="py-3 px-4 text-paper/50 text-sm max-w-xs truncate">{s.why_interested || '-'}</td>
+                      <td className="py-3 px-4 text-paper/65 text-sm max-w-xs truncate">{s.why_interested || '-'}</td>
                       <td className="py-3 px-4">
                         <StatusBadge status={s.status} />
                       </td>
@@ -344,12 +344,12 @@ export function MarketingTab() {
 
       {activeSubTab === 'content' && (
         <div className="space-y-4">
-          <p className="text-paper/50">
+          <p className="text-paper/65">
             Store and manage your marketing content, captions, and templates.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {content?.content?.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-paper/50">No content yet</div>
+              <div className="col-span-full text-center py-8 text-paper/65">No content yet</div>
             ) : (
               content?.content?.map((c: any) => (
                 <div key={c.id} className="card p-4">
@@ -359,10 +359,10 @@ export function MarketingTab() {
                       {c.platform}
                     </span>
                   </div>
-                  <p className="text-paper/50 text-sm line-clamp-3">{c.caption || c.body}</p>
+                  <p className="text-paper/65 text-sm line-clamp-3">{c.caption || c.body}</p>
                   <div className="flex gap-2 mt-3">
                     <StatusBadge status={c.status} />
-                    {c.theme && <span className="text-xs text-paper/40">{c.theme}</span>}
+                    {c.theme && <span className="text-xs text-paper/70">{c.theme}</span>}
                   </div>
                 </div>
               ))
@@ -452,7 +452,7 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
       <div className="bg-void border border-white/10 rounded-lg w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">Import Influencers from CSV</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>
@@ -485,7 +485,7 @@ John Doe,john@example.com,INSTAGRAM,johndoe,GENEALOGY,50000,https://instagram.co
                   </div>
                 ))}
                 {previewData.length > 10 && (
-                  <div className="text-paper/50 text-sm py-1">...and {previewData.length - 10} more</div>
+                  <div className="text-paper/65 text-sm py-1">...and {previewData.length - 10} more</div>
                 )}
               </div>
             </div>
@@ -578,14 +578,14 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
       <div className="bg-void border border-white/10 rounded-lg w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">Create Email Campaign</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>
 
         <div className="flex gap-4 mb-6">
           {['setup', 'compose', 'review'].map((s, i) => (
-            <div key={s} className={`flex items-center gap-2 ${step === s ? 'text-gold' : 'text-paper/50'}`}>
+            <div key={s} className={`flex items-center gap-2 ${step === s ? 'text-gold' : 'text-paper/65'}`}>
               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
                 step === s ? 'bg-gold text-void' : 'bg-white/10'
               }`}>{i + 1}</span>
@@ -629,7 +629,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
                   : `${influencers.length} total influencers`
                 }
               </div>
-              <div className="text-xs text-paper/50">
+              <div className="text-xs text-paper/65">
                 Only influencers with status NEW, CONTACTED, RESPONDED, or INTERESTED will receive emails.
                 Unsubscribed and declined contacts are automatically excluded.
               </div>
@@ -658,7 +658,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
                 placeholder="e.g., Partnership Opportunity: Help Families Preserve Their Stories"
                 className="input w-full"
               />
-              <div className="text-xs text-paper/50 mt-1">Use [Name] to personalize with recipient's name</div>
+              <div className="text-xs text-paper/65 mt-1">Use [Name] to personalize with recipient's name</div>
             </div>
 
             <div>
@@ -669,7 +669,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
                 placeholder="<p>Hi [Name],</p><p>Your email content here...</p>"
                 className="input w-full h-64 font-mono text-sm"
               />
-              <div className="text-xs text-paper/50 mt-1">
+              <div className="text-xs text-paper/65 mt-1">
                 Use [Name] for personalization. Unsubscribe link is added automatically.
               </div>
             </div>
@@ -701,18 +701,18 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
           <div className="space-y-4">
             <div className="p-4 bg-white/[0.02] rounded space-y-3">
               <div>
-                <span className="text-paper/50">Campaign:</span> {formData.name}
+                <span className="text-paper/65">Campaign:</span> {formData.name}
               </div>
               <div>
-                <span className="text-paper/50">Segment:</span> {formData.targetSegment || 'All'}
+                <span className="text-paper/65">Segment:</span> {formData.targetSegment || 'All'}
               </div>
               <div>
-                <span className="text-paper/50">Recipients:</span> {filteredInfluencers.filter(i => 
+                <span className="text-paper/65">Recipients:</span> {filteredInfluencers.filter(i => 
                   !['UNSUBSCRIBED', 'DECLINED'].includes(i.status)
                 ).length} influencers
               </div>
               <div>
-                <span className="text-paper/50">Subject:</span> {formData.subjectLine}
+                <span className="text-paper/65">Subject:</span> {formData.subjectLine}
               </div>
             </div>
 
@@ -781,7 +781,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
       <div className="bg-void border border-white/10 rounded-lg w-full max-w-lg p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">Add Influencer</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>

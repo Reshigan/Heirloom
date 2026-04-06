@@ -84,7 +84,7 @@ export function Challenges() {
           className="mb-8"
         >
           <h1 className="text-3xl md:text-4xl font-light mb-2">Weekly Challenges</h1>
-          <p className="text-paper/60">Join themed memory challenges and share with your community</p>
+          <p className="text-paper/70">Join themed memory challenges and share with your community</p>
         </motion.div>
 
         {isLoading ? (
@@ -111,11 +111,11 @@ export function Challenges() {
                     <p className="text-paper/70 mb-4">{currentChallenge.description}</p>
                     
                     <div className="bg-paper/5 rounded-lg p-4 mb-6">
-                      <div className="text-sm text-paper/50 mb-2">This week's prompt:</div>
+                      <div className="text-sm text-paper/65 mb-2">This week's prompt:</div>
                       <p className="text-paper italic">"{currentChallenge.prompt}"</p>
                     </div>
 
-                    <div className="flex flex-wrap gap-4 text-sm text-paper/60 mb-6">
+                    <div className="flex flex-wrap gap-4 text-sm text-paper/70 mb-6">
                       <div className="flex items-center gap-2">
                         <Tag size={16} className="text-gold" />
                         <span>{currentChallenge.hashtag}</span>
@@ -174,13 +174,13 @@ export function Challenges() {
                             </div>
                             <div className="flex-1">
                               <div className="text-sm font-medium">{sub.first_name} {sub.last_name?.[0]}.</div>
-                              <div className="text-xs text-paper/50 line-clamp-2">{sub.content}</div>
+                              <div className="text-xs text-paper/65 line-clamp-2">{sub.content}</div>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-paper/50">
+                      <div className="text-center py-8 text-paper/65">
                         <Trophy size={32} className="mx-auto mb-2 opacity-50" />
                         <p>Be the first to submit!</p>
                       </div>
@@ -194,9 +194,9 @@ export function Challenges() {
                 animate={{ opacity: 1, y: 0 }}
                 className="card text-center py-12"
               >
-                <Trophy size={48} className="mx-auto mb-4 text-paper/30" />
+                <Trophy size={48} className="mx-auto mb-4 text-paper/65" />
                 <h2 className="text-xl font-light mb-2">No Active Challenge</h2>
-                <p className="text-paper/60">Check back soon for the next weekly challenge!</p>
+                <p className="text-paper/70">Check back soon for the next weekly challenge!</p>
               </motion.div>
             )}
 
@@ -222,8 +222,8 @@ export function Challenges() {
                         {new Date(challenge.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </div>
                       <h3 className="font-medium mb-2">{challenge.title}</h3>
-                      <p className="text-sm text-paper/60 line-clamp-2">{challenge.description}</p>
-                      <div className="mt-3 flex items-center gap-2 text-xs text-paper/50">
+                      <p className="text-sm text-paper/70 line-clamp-2">{challenge.description}</p>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-paper/65">
                         <Tag size={12} />
                         <span>{challenge.hashtag}</span>
                       </div>
@@ -247,21 +247,21 @@ export function Challenges() {
                     <span className="text-gold font-medium">1</span>
                   </div>
                   <h3 className="font-medium mb-2">Join the Challenge</h3>
-                  <p className="text-sm text-paper/60">Each week features a new theme and prompt to inspire your memories</p>
+                  <p className="text-sm text-paper/70">Each week features a new theme and prompt to inspire your memories</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-3">
                     <span className="text-gold font-medium">2</span>
                   </div>
                   <h3 className="font-medium mb-2">Share Your Story</h3>
-                  <p className="text-sm text-paper/60">Submit a memory, voice recording, or written story that fits the theme</p>
+                  <p className="text-sm text-paper/70">Submit a memory, voice recording, or written story that fits the theme</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-3">
                     <span className="text-gold font-medium">3</span>
                   </div>
                   <h3 className="font-medium mb-2">Go Viral</h3>
-                  <p className="text-sm text-paper/60">Share to social media with the hashtag and connect with others</p>
+                  <p className="text-sm text-paper/70">Share to social media with the hashtag and connect with others</p>
                 </div>
               </div>
             </motion.div>
@@ -288,13 +288,13 @@ export function Challenges() {
             >
               <button
                 onClick={() => setShowSubmitModal(false)}
-                className="absolute top-4 right-4 text-paper/50 hover:text-paper"
+                className="absolute top-4 right-4 text-paper/65 hover:text-paper"
               >
                 <X size={20} />
               </button>
 
               <h3 className="text-xl font-medium mb-2">Submit to {currentChallenge.title}</h3>
-              <p className="text-paper/60 text-sm mb-6">{currentChallenge.prompt}</p>
+              <p className="text-paper/70 text-sm mb-6">{currentChallenge.prompt}</p>
 
               <div className="space-y-4">
                 <div>
@@ -350,7 +350,7 @@ export function Challenges() {
             >
               <button
                 onClick={() => setSelectedChallenge(null)}
-                className="absolute top-4 right-4 text-paper/50 hover:text-paper"
+                className="absolute top-4 right-4 text-paper/65 hover:text-paper"
               >
                 <X size={20} />
               </button>
@@ -362,11 +362,11 @@ export function Challenges() {
               <p className="text-paper/70 mb-4">{selectedChallenge.description}</p>
               
               <div className="bg-paper/5 rounded-lg p-4 mb-4">
-                <div className="text-sm text-paper/50 mb-2">Prompt:</div>
+                <div className="text-sm text-paper/65 mb-2">Prompt:</div>
                 <p className="text-paper italic">"{selectedChallenge.prompt}"</p>
               </div>
 
-              <div className="flex items-center gap-4 text-sm text-paper/60">
+              <div className="flex items-center gap-4 text-sm text-paper/70">
                 <div className="flex items-center gap-2">
                   <Tag size={14} />
                   <span>{selectedChallenge.hashtag}</span>

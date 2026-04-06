@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2, Image, Mic, Pen, Calendar, Heart } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
@@ -47,7 +46,7 @@ export function OnThisDay() {
             <Calendar size={28} className="text-gold" />
           </div>
           <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">On This Day</h1>
-          <p className="text-paper/50 font-serif text-lg">{dateStr}</p>
+          <p className="text-paper/65 font-serif text-lg">{dateStr}</p>
         </div>
 
         {isLoading ? (
@@ -62,22 +61,19 @@ export function OnThisDay() {
           />
         ) : (
           <div className="space-y-6">
-            {memories.map((memory, i) => {
+            {memories.map((memory) => {
               const Icon = typeIcons[memory.type] || Image;
               return (
-                <motion.div
+                <div
                   key={memory.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="glass rounded-2xl border border-paper/10 p-6"
+                  className="glass rounded-2xl border border-paper/10 p-6 animate-fade-in"
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-gold font-serif text-sm">
                       {memory.years_ago === 1 ? '1 year ago' : `${memory.years_ago} years ago`}
                     </span>
                     <span className="text-paper/20">&middot;</span>
-                    <span className="text-paper/30 text-sm">
+                    <span className="text-paper/65 text-sm">
                       {new Date(memory.created_at).toLocaleDateString('en-US', { year: 'numeric' })}
                     </span>
                   </div>
@@ -97,18 +93,18 @@ export function OnThisDay() {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-serif text-xl text-paper mb-1">{memory.title}</h3>
                       {memory.preview && (
-                        <p className="text-paper/40 text-sm line-clamp-3">{memory.preview}</p>
+                        <p className="text-paper/70 text-sm line-clamp-3">{memory.preview}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center justify-end mt-4 pt-3 border-t border-paper/5">
-                    <button className="flex items-center gap-1.5 text-paper/30 hover:text-blood text-xs transition-colors">
+                    <button className="flex items-center gap-1.5 text-paper/65 hover:text-blood text-xs transition-colors">
                       <Heart size={14} />
                       Remember
                     </button>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>

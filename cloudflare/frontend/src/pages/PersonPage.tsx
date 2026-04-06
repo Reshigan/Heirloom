@@ -113,7 +113,7 @@ export function PersonPage() {
           <div className="sanctuary-stars" />
         </div>
         <div className="text-center">
-          <p className="text-paper/60 mb-4">Person not found</p>
+          <p className="text-paper/70 mb-4">Person not found</p>
           <Link to="/family" className="btn btn-secondary">Back to Family</Link>
         </div>
       </div>
@@ -135,7 +135,7 @@ export function PersonPage() {
       <div className="relative z-10 px-6 md:px-12 py-12">
         <motion.button
           onClick={() => navigate('/family')}
-          className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8"
+          className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
@@ -172,7 +172,7 @@ export function PersonPage() {
             <h1 className="text-3xl md:text-4xl font-light mb-2">
               What You've Left for <span className="text-gold">{member.name}</span>
             </h1>
-            <p className="text-paper/50">{member.relationship}</p>
+            <p className="text-paper/65">{member.relationship}</p>
 
             {/* Why I'm doing this note */}
             <motion.div 
@@ -187,7 +187,7 @@ export function PersonPage() {
                     setWhyNote(member.notes || '');
                     setShowWhyNote(true);
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full text-paper/60 hover:text-gold transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full text-paper/70 hover:text-gold transition-colors"
                 >
                   <Heart size={16} className="text-gold" />
                   <span className="italic text-sm">"{member.notes}"</span>
@@ -195,7 +195,7 @@ export function PersonPage() {
               ) : (
                 <button
                   onClick={() => setShowWhyNote(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full text-paper/40 hover:text-gold transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full text-paper/70 hover:text-gold transition-colors"
                 >
                   <Plus size={16} />
                   <span className="text-sm">Add a note: "Why I'm doing this for {member.name}"</span>
@@ -214,17 +214,17 @@ export function PersonPage() {
             <div className="card text-center py-6">
               <FileText size={24} className="mx-auto mb-2 text-gold" />
               <div className="text-2xl font-light text-gold">{member.recentLetters?.length || 0}</div>
-              <div className="text-paper/50 text-sm">Letters</div>
+              <div className="text-paper/65 text-sm">Letters</div>
             </div>
             <div className="card text-center py-6">
               <Image size={24} className="mx-auto mb-2 text-purple-400" />
               <div className="text-2xl font-light text-purple-400">{member.recentMemories?.length || 0}</div>
-              <div className="text-paper/50 text-sm">Memories</div>
+              <div className="text-paper/65 text-sm">Memories</div>
             </div>
             <div className="card text-center py-6">
               <Mic size={24} className="mx-auto mb-2 text-blue-400" />
               <div className="text-2xl font-light text-blue-400">{member.recentVoiceRecordings?.length || 0}</div>
-              <div className="text-paper/50 text-sm">Voice</div>
+              <div className="text-paper/65 text-sm">Voice</div>
             </div>
           </motion.div>
 
@@ -242,7 +242,7 @@ export function PersonPage() {
                 </div>
                 <div>
                   <h3 className="font-medium">Next Message for {member.name}</h3>
-                  <p className="text-paper/50 text-sm">AI-suggested prompts just for {member.relationship.toLowerCase()}</p>
+                  <p className="text-paper/65 text-sm">AI-suggested prompts just for {member.relationship.toLowerCase()}</p>
                 </div>
               </div>
               <button
@@ -250,7 +250,7 @@ export function PersonPage() {
                 className="p-2 glass rounded-lg hover:bg-gold/10 transition-colors"
                 title="Get new suggestions"
               >
-                <RefreshCw size={18} className={`text-paper/50 ${promptsLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw size={18} className={`text-paper/65 ${promptsLoading ? 'animate-spin' : ''}`} />
               </button>
             </div>
 
@@ -273,12 +273,12 @@ export function PersonPage() {
                       <p className="text-paper/80 group-hover:text-paper transition-colors">
                         "{prompt.prompt}"
                       </p>
-                      <ChevronRight size={18} className="text-paper/30 group-hover:text-gold transition-colors" />
+                      <ChevronRight size={18} className="text-paper/65 group-hover:text-gold transition-colors" />
                     </div>
                   </motion.button>
                 ))
               ) : (
-                <div className="text-center py-6 text-paper/40">
+                <div className="text-center py-6 text-paper/70">
                   <p>No prompts available. Click refresh to generate some.</p>
                 </div>
               )}
@@ -308,7 +308,7 @@ export function PersonPage() {
             >
               <FileText size={32} className="mx-auto mb-3 text-gold group-hover:scale-110 transition-transform" />
               <p className="font-medium">Write a Letter</p>
-              <p className="text-paper/50 text-sm mt-1">Express your feelings in words</p>
+              <p className="text-paper/65 text-sm mt-1">Express your feelings in words</p>
             </Link>
             <Link
               to={`/memories?for=${id}`}
@@ -316,7 +316,7 @@ export function PersonPage() {
             >
               <Image size={32} className="mx-auto mb-3 text-purple-400 group-hover:scale-110 transition-transform" />
               <p className="font-medium">Add a Memory</p>
-              <p className="text-paper/50 text-sm mt-1">Share a photo or moment</p>
+              <p className="text-paper/65 text-sm mt-1">Share a photo or moment</p>
             </Link>
           </motion.div>
 
@@ -332,7 +332,7 @@ export function PersonPage() {
               {/* Letters */}
               {member.recentLetters?.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-paper/50 text-sm mb-3 flex items-center gap-2">
+                  <h4 className="text-paper/65 text-sm mb-3 flex items-center gap-2">
                     <FileText size={14} /> Letters
                   </h4>
                   <div className="space-y-2">
@@ -345,11 +345,11 @@ export function PersonPage() {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium">{letter.title || 'Untitled Letter'}</p>
-                            <p className="text-paper/40 text-sm">
+                            <p className="text-paper/70 text-sm">
                               {new Date(letter.created_at).toLocaleDateString()}
                             </p>
                           </div>
-                          <ChevronRight size={18} className="text-paper/30" />
+                          <ChevronRight size={18} className="text-paper/65" />
                         </div>
                       </Link>
                     ))}
@@ -360,7 +360,7 @@ export function PersonPage() {
               {/* Voice Recordings */}
               {member.recentVoiceRecordings?.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-paper/50 text-sm mb-3 flex items-center gap-2">
+                  <h4 className="text-paper/65 text-sm mb-3 flex items-center gap-2">
                     <Mic size={14} /> Voice Recordings
                   </h4>
                   <div className="space-y-2">
@@ -382,7 +382,7 @@ export function PersonPage() {
                           </button>
                           <div>
                             <p className="font-medium">{recording.title}</p>
-                            <p className="text-paper/40 text-sm flex items-center gap-2">
+                            <p className="text-paper/70 text-sm flex items-center gap-2">
                               <Clock size={12} />
                               {formatDuration(recording.duration)}
                             </p>
@@ -397,7 +397,7 @@ export function PersonPage() {
               {/* Memories */}
               {member.recentMemories?.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-paper/50 text-sm mb-3 flex items-center gap-2">
+                  <h4 className="text-paper/65 text-sm mb-3 flex items-center gap-2">
                     <Image size={14} /> Memories
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -439,7 +439,7 @@ export function PersonPage() {
             >
               <Heart size={48} className="mx-auto mb-4 text-paper/20" />
               <h3 className="text-xl font-light mb-2">Start Creating for {member.name}</h3>
-              <p className="text-paper/50 mb-6 max-w-md mx-auto">
+              <p className="text-paper/65 mb-6 max-w-md mx-auto">
                 You haven't created any content for {member.name} yet. 
                 Use the prompts above or record your first message.
               </p>
@@ -473,7 +473,7 @@ export function PersonPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className="text-xl font-light mb-2">Why I'm Doing This</h3>
-              <p className="text-paper/50 text-sm mb-4">
+              <p className="text-paper/65 text-sm mb-4">
                 A personal note to remind yourself why you're creating this legacy for {member.name}
               </p>
 

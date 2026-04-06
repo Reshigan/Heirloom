@@ -110,7 +110,7 @@ export function Login() {
                   ∞
                 </motion.div>
                 <motion.span 
-                  className="text-xl tracking-[0.3em] text-paper/60"
+                  className="text-xl tracking-[0.3em] text-paper/70"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1 }}
@@ -207,7 +207,7 @@ export function Login() {
                 >
                   ∞
                 </motion.div>
-                <span className="text-lg tracking-[0.2em] text-paper/60">HEIRLOOM</span>
+                <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
               </Link>
             </motion.div>
 
@@ -217,7 +217,7 @@ export function Login() {
               transition={{ delay: 0.2 }}
             >
               <h1 className="text-2xl font-light text-center mb-2">Welcome back</h1>
-              <p className="text-paper/50 text-center mb-8">Enter your sanctuary</p>
+              <p className="text-paper/65 text-center mb-8"><em className="text-gold/80">Your memories missed you.</em></p>
             </motion.div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -232,9 +232,9 @@ export function Login() {
               )}
 
               <div>
-                <label className="block text-sm text-paper/50 mb-2">Email</label>
+                <label className="block text-sm text-paper/65 mb-2">Email</label>
                 <div className="relative">
-                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                   <input
                     type="email"
                     inputMode="email"
@@ -250,9 +250,9 @@ export function Login() {
               </div>
 
               <div>
-                <label className="block text-sm text-paper/50 mb-2">Password</label>
+                <label className="block text-sm text-paper/65 mb-2">Password</label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
@@ -265,7 +265,7 @@ export function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/65 hover:text-paper transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -297,7 +297,7 @@ export function Login() {
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-paper/50">
+              <p className="text-paper/65">
                 Don't have an account?{' '}
                 <Link to="/signup" className="text-gold hover:text-gold-bright transition-colors">
                   Create one

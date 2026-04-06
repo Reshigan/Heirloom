@@ -187,7 +187,7 @@ export function AvatarCropperModal({
             <h3 className="text-xl font-light text-paper">Adjust Photo</h3>
             <button
               onClick={onCancel}
-              className="p-2 text-paper/50 hover:text-paper transition-colors"
+              className="p-2 text-paper/65 hover:text-paper transition-colors"
             >
               <X size={20} />
             </button>
@@ -231,7 +231,7 @@ export function AvatarCropperModal({
             </div>
 
             {/* Instructions */}
-            <p className="text-center text-paper/50 text-sm mt-3">
+            <p className="text-center text-paper/65 text-sm mt-3">
               Drag to reposition, use slider to zoom
             </p>
           </div>
@@ -240,7 +240,7 @@ export function AvatarCropperModal({
           <div className="flex items-center gap-4 mb-6">
             <button
               onClick={() => setZoom(Math.max(1, zoom - 0.1))}
-              className="p-2 glass rounded-lg text-paper/50 hover:text-gold transition-colors"
+              className="p-2 glass rounded-lg text-paper/65 hover:text-gold transition-colors"
             >
               <ZoomOut size={18} />
             </button>
@@ -255,7 +255,7 @@ export function AvatarCropperModal({
             />
             <button
               onClick={() => setZoom(Math.min(3, zoom + 0.1))}
-              className="p-2 glass rounded-lg text-paper/50 hover:text-gold transition-colors"
+              className="p-2 glass rounded-lg text-paper/65 hover:text-gold transition-colors"
             >
               <ZoomIn size={18} />
             </button>

@@ -39,7 +39,7 @@ function CapsuleCard({ capsule, onClick, isSelected }: { capsule: Capsule; onCli
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
           status === 'unlocked' ? 'bg-green-500/20 text-green-400' :
           status === 'sealed' ? 'bg-gold/20 text-gold' :
-          'bg-paper/10 text-paper/50'
+          'bg-paper/10 text-paper/65'
         }`}>
           {status === 'unlocked' ? <Check size={24} /> :
            status === 'sealed' ? <Lock size={24} /> :
@@ -47,9 +47,9 @@ function CapsuleCard({ capsule, onClick, isSelected }: { capsule: Capsule; onCli
         </div>
         <span className={`text-xs px-2 py-1 rounded-full ${
           canOpen ? 'bg-gold/20 text-gold' :
-          status === 'sealed' ? 'bg-paper/10 text-paper/40' :
+          status === 'sealed' ? 'bg-paper/10 text-paper/70' :
           status === 'unlocked' ? 'bg-green-500/10 text-green-400' :
-          'bg-paper/5 text-paper/30'
+          'bg-paper/5 text-paper/65'
         }`}>
           {canOpen ? 'Ready to open!' :
            status === 'sealed' ? `Opens in ${daysUntilUnlock} days` :
@@ -62,10 +62,10 @@ function CapsuleCard({ capsule, onClick, isSelected }: { capsule: Capsule; onCli
         {capsule.title}
       </h3>
       {capsule.description && (
-        <p className="text-paper/40 text-sm mb-4 line-clamp-2">{capsule.description}</p>
+        <p className="text-paper/70 text-sm mb-4 line-clamp-2">{capsule.description}</p>
       )}
 
-      <div className="flex items-center gap-4 text-xs text-paper/30">
+      <div className="flex items-center gap-4 text-xs text-paper/65">
         <span className="flex items-center gap-1">
           <Users size={12} /> {capsule.contributor_count} contributors
         </span>
@@ -124,7 +124,7 @@ export function TimeCapsule() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Time Capsules</h1>
-            <p className="text-paper/50 font-serif">Seal memories today, open them when the time is right</p>
+            <p className="text-paper/65 font-serif">Seal memories today, open them when the time is right</p>
           </div>
           <motion.button
             onClick={() => setShowCreateModal(true)}
@@ -181,14 +181,14 @@ export function TimeCapsule() {
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-serif text-2xl text-paper">Create Time Capsule</h2>
-                <button onClick={() => setShowCreateModal(false)} className="text-paper/40 hover:text-paper">
+                <button onClick={() => setShowCreateModal(false)} className="text-paper/70 hover:text-paper">
                   <X size={20} />
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Capsule Name</label>
+                  <label className="block text-sm text-paper/65 mb-1">Capsule Name</label>
                   <input
                     type="text"
                     value={newCapsule.title}
@@ -199,7 +199,7 @@ export function TimeCapsule() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Description (optional)</label>
+                  <label className="block text-sm text-paper/65 mb-1">Description (optional)</label>
                   <textarea
                     value={newCapsule.description}
                     onChange={(e) => setNewCapsule((prev) => ({ ...prev, description: e.target.value }))}
@@ -209,7 +209,7 @@ export function TimeCapsule() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Unlock Date</label>
+                  <label className="block text-sm text-paper/65 mb-1">Unlock Date</label>
                   <input
                     type="date"
                     value={newCapsule.unlock_date}
@@ -220,7 +220,7 @@ export function TimeCapsule() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Cover Style</label>
+                  <label className="block text-sm text-paper/65 mb-2">Cover Style</label>
                   <div className="grid grid-cols-2 gap-2">
                     {coverStyles.map((style) => (
                       <button
@@ -242,7 +242,7 @@ export function TimeCapsule() {
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-5 py-2.5 rounded-xl text-paper/50 hover:text-paper transition-colors"
+                  className="px-5 py-2.5 rounded-xl text-paper/65 hover:text-paper transition-colors"
                 >
                   Cancel
                 </button>

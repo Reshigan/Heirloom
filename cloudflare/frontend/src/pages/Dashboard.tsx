@@ -301,7 +301,7 @@ export function Dashboard() {
             <div className="relative">
               <motion.button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="w-12 h-12 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper transition-colors relative border border-paper/10"
+                className="w-12 h-12 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper transition-colors relative border border-paper/10"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -332,7 +332,7 @@ export function Dashboard() {
                   </div>
                   <div>
                     <p className="font-medium">{trialDaysLeft} days left in your trial</p>
-                    <p className="text-sm text-paper/50">Upgrade now to keep your memories forever</p>
+                    <p className="text-sm text-paper/65">Upgrade now to keep your memories forever</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -347,7 +347,7 @@ export function Dashboard() {
                   </motion.button>
                   <button
                     onClick={() => setShowTrialWarning(false)}
-                    className="text-paper/40 hover:text-paper transition-colors"
+                    className="text-paper/70 hover:text-paper transition-colors"
                   >
                     <X size={20} />
                   </button>
@@ -375,7 +375,7 @@ export function Dashboard() {
                         </div>
                         <div>
                           <p className="font-medium text-gold">New Features Available!</p>
-                          <p className="text-sm text-paper/60">Legacy Playbook, Story Artifacts, Life Events & more</p>
+                          <p className="text-sm text-paper/70">Legacy Playbook, Story Artifacts, Life Events & more</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -390,7 +390,7 @@ export function Dashboard() {
                         </motion.button>
                         <button
                           onClick={() => dismissNewFeaturesNotification(newFeaturesNotification.id)}
-                          className="text-paper/40 hover:text-paper transition-colors"
+                          className="text-paper/70 hover:text-paper transition-colors"
                         >
                           <X size={20} />
                         </button>
@@ -574,7 +574,7 @@ export function Dashboard() {
               </div>
               <div className="legacy-value">
                 <span className="font-display text-4xl md:text-5xl tracking-wide">{scorePercent}</span>
-                <span className="text-xs tracking-[0.2em] text-paper/50 uppercase mt-1">Score</span>
+                <span className="text-xs tracking-[0.2em] text-paper/65 uppercase mt-1">Score</span>
               </div>
             </div>
 
@@ -602,7 +602,7 @@ export function Dashboard() {
         >
           <div className="text-center mb-8">
             <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold mb-2">For the People You Love Most</h2>
-            <p className="text-sm text-paper/60 max-w-lg mx-auto">These tools help you leave something real behind—stories, voice, and presence for the moments that matter.</p>
+            <p className="text-sm text-paper/70 max-w-lg mx-auto">These tools help you leave something real behind—stories, voice, and presence for the moments that matter.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <motion.button
@@ -616,7 +616,7 @@ export function Dashboard() {
                 </svg>
               </div>
               <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Make Sure They Don't Lose Your Stories</h3>
-              <p className="text-xs text-paper/60 mb-3">A simple plan for the memories your family will one day wish they had.</p>
+              <p className="text-xs text-paper/70 mb-3">A simple plan for the memories your family will one day wish they had.</p>
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Start my plan <span className="text-gold/70">→</span></span>
             </motion.button>
 
@@ -632,7 +632,7 @@ export function Dashboard() {
                 </svg>
               </div>
               <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Turn Memories Into Something They Can Rewatch</h3>
-              <p className="text-xs text-paper/60 mb-3">A tribute they can keep—your voice, your photos, your meaning.</p>
+              <p className="text-xs text-paper/70 mb-3">A tribute they can keep—your voice, your photos, your meaning.</p>
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Create a tribute <span className="text-gold/70">→</span></span>
             </motion.button>
 
@@ -649,7 +649,7 @@ export function Dashboard() {
                 </svg>
               </div>
               <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Be Present for Milestones—Even Years From Now</h3>
-              <p className="text-xs text-paper/60 mb-3">For the days you can't predict, but your love should still arrive.</p>
+              <p className="text-xs text-paper/70 mb-3">For the days you can't predict, but your love should still arrive.</p>
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Set a milestone <span className="text-gold/70">→</span></span>
             </motion.button>
 
@@ -664,7 +664,7 @@ export function Dashboard() {
                 </svg>
               </div>
               <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Invite Family to Help You Remember</h3>
-              <p className="text-xs text-paper/60 mb-3">Because the people you love carry pieces of your story too.</p>
+              <p className="text-xs text-paper/70 mb-3">Because the people you love carry pieces of your story too.</p>
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Invite someone <span className="text-gold/70">→</span></span>
             </motion.button>
           </div>
@@ -686,7 +686,7 @@ export function Dashboard() {
                 </span>
               </div>
               <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold">Your Family Responded</h2>
-              <p className="text-sm text-paper/50 max-w-lg mx-auto mt-2">
+              <p className="text-sm text-paper/65 max-w-lg mx-auto mt-2">
                 The people you love have sent you notes about the memories you've shared.
               </p>
             </div>
@@ -707,7 +707,7 @@ export function Dashboard() {
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium">{msg.sender_name}</span>
                         {msg.sender_relationship && (
-                          <span className="text-xs text-paper/40">({msg.sender_relationship})</span>
+                          <span className="text-xs text-paper/70">({msg.sender_relationship})</span>
                         )}
                         {!msg.read_at && (
                           <span className="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-xs">New</span>
@@ -724,13 +724,13 @@ export function Dashboard() {
                           <span className="text-sm text-purple-400">I Remember This Too</span>
                         )}
                         {msg.reaction_type === 'CUSTOM' && (
-                          <span className="text-sm text-paper/50">Sent a note</span>
+                          <span className="text-sm text-paper/65">Sent a note</span>
                         )}
                       </div>
                       {msg.message && (
                         <p className="text-paper/70 text-sm italic">"{msg.message}"</p>
                       )}
-                      <p className="text-xs text-paper/30 mt-2">
+                      <p className="text-xs text-paper/65 mt-2">
                         {new Date(msg.created_at).toLocaleDateString('en-US', { 
                           month: 'short', day: 'numeric', year: 'numeric' 
                         })}
@@ -742,7 +742,7 @@ export function Dashboard() {
               {inboxData.messages.length > 3 && (
                 <button
                   onClick={() => navigate('/settings?tab=inbox')}
-                  className="w-full py-3 glass rounded-xl text-center text-paper/60 hover:text-gold transition-colors"
+                  className="w-full py-3 glass rounded-xl text-center text-paper/70 hover:text-gold transition-colors"
                 >
                   View all {inboxData.messages.length} messages
                 </button>
@@ -766,7 +766,7 @@ export function Dashboard() {
                 </div>
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-xl font-medium mb-2">Share Heirloom, Get Rewarded</h3>
-                  <p className="text-paper/50 text-sm mb-4">
+                  <p className="text-paper/65 text-sm mb-4">
                     For every friend who joins using your link, you both get an extra month free. 
                     Help families preserve their memories while extending your own subscription.
                   </p>
@@ -778,7 +778,7 @@ export function Dashboard() {
                           navigator.clipboard.writeText(referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`);
                           showToast('Link copied!', 'success');
                         }}
-                        className="text-paper/50 hover:text-gold transition-colors"
+                        className="text-paper/65 hover:text-gold transition-colors"
                       >
                         <Copy size={16} />
                       </button>
@@ -822,7 +822,7 @@ export function Dashboard() {
                 {referralData.conversions > 0 && (
                   <div className="text-center px-6 py-4 bg-gold/10 rounded-lg">
                     <div className="text-3xl font-light text-gold">{referralData.conversions}</div>
-                    <div className="text-xs text-paper/50">Friends joined</div>
+                    <div className="text-xs text-paper/65">Friends joined</div>
                   </div>
                 )}
               </div>
@@ -847,28 +847,28 @@ export function Dashboard() {
                 <Lock size={16} className="text-green-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium">Encrypted</p>
-                  <p className="text-xs text-paper/50">Bank-level security</p>
+                  <p className="text-xs text-paper/65">Bank-level security</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
                 <Users size={16} className="text-blue-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium">You Control</p>
-                  <p className="text-xs text-paper/50">Who sees what</p>
+                  <p className="text-xs text-paper/65">Who sees what</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
                 <Download size={16} className="text-purple-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium">Export</p>
-                  <p className="text-xs text-paper/50">Download anytime</p>
+                  <p className="text-xs text-paper/65">Download anytime</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
                 <Eye size={16} className="text-gold mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium">Preview</p>
-                  <p className="text-xs text-paper/50">See what they'll see</p>
+                  <p className="text-xs text-paper/65">See what they'll see</p>
                 </div>
               </div>
             </div>
@@ -904,13 +904,13 @@ export function Dashboard() {
               </div>
               <div className="reflection-meta">
                 <h3 className="font-display text-sm tracking-[0.12em] uppercase">Today's Reflection</h3>
-                <p className="text-xs text-paper/50 mt-1">Personalized by Heirloom AI</p>
+                <p className="text-xs text-paper/65 mt-1">Personalized by Heirloom AI</p>
               </div>
             </div>
 
             <p className="reflection-prompt">
               {isLoadingPrompt ? (
-                <span className="text-paper/50">Loading your personalized prompt...</span>
+                <span className="text-paper/65">Loading your personalized prompt...</span>
               ) : (
                 `"${aiPrompt}"`
               )}

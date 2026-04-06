@@ -555,10 +555,52 @@ export function Record() {
         )}
       </AnimatePresence>
 
+      {/* Studio Mode - Full-screen immersive recording overlay */}
+      {isRecording && (
+        <div className="fixed inset-0 bg-void-deep/95 z-40 flex flex-col items-center justify-center">
+          {/* Large waveform in center */}
+          <div className="flex items-end justify-center gap-1 h-32 md:h-48 w-full max-w-lg px-8">
+            {waveformData.map((v, i) => (
+              <div
+                key={i}
+                className="w-1.5 rounded-full transition-all duration-75"
+                style={{
+                  height: `${Math.max(4, v * 100)}%`,
+                  background: 'linear-gradient(180deg, #c9a959 0%, #8b2942 100%)',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Timer - large, prominent */}
+          <div className="text-4xl md:text-6xl text-gold font-mono tabular-nums mt-8">
+            {formatTime(recordingTime)}
+          </div>
+
+          {/* Prompt text - subtle above waveform */}
+          {selectedPrompt && (
+            <p className="text-paper/60 text-center font-serif italic text-lg mt-4 max-w-md px-4">
+              &ldquo;{selectedPrompt}&rdquo;
+            </p>
+          )}
+
+          {/* Stop button - large, centered */}
+          <button
+            onClick={stopRecording}
+            className="mt-8 w-20 h-20 rounded-full bg-blood flex items-center justify-center hover:bg-blood/80 transition-colors"
+            aria-label="Stop recording"
+          >
+            <Square size={28} className="text-paper" fill="currentColor" />
+          </button>
+
+          <p className="text-paper/50 text-sm mt-4">Tap to stop recording</p>
+        </div>
+      )}
+
       <div className="relative z-10 px-6 md:px-12 pt-24 md:pt-28 pb-12">
         <motion.button
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8 group"
+          className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8 group"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
@@ -574,9 +616,9 @@ export function Record() {
             className="text-center mb-8"
           >
             <h1 className="text-4xl md:text-5xl font-light mb-2">Record Your <em>Voice</em></h1>
-            <p className="text-paper/50">Let your loved ones hear your voice forever</p>
+            <p className="text-paper/65">Let your loved ones hear your voice forever</p>
             {stats && (
-              <div className="mt-4 text-sm text-paper/40">
+              <div className="mt-4 text-sm text-paper/70">
                 {stats.totalMinutes || 0} minutes recorded • {stats.totalRecordings || 0} recordings
               </div>
             )}
@@ -815,7 +857,7 @@ export function Record() {
                     
                     <div className="space-y-4">
                                             <div>
-                                              <label className="block text-sm text-paper/50 mb-2">Title</label>
+                                              <label className="block text-sm text-paper/65 mb-2">Title</label>
                                               <input
                                                 type="text"
                                                 value={form.title}
@@ -827,7 +869,7 @@ export function Record() {
 
                                             {/* Recording Date - for historic recordings */}
                                             <div>
-                                              <label className="block text-sm text-paper/50 mb-2">When was this recorded? (optional)</label>
+                                              <label className="block text-sm text-paper/65 mb-2">When was this recorded? (optional)</label>
                                               <input
                                                 type="date"
                                                 value={form.recordingDate}
@@ -835,11 +877,11 @@ export function Record() {
                                                 max={new Date().toISOString().split('T')[0]}
                                                 className="input"
                                               />
-                                              <p className="text-xs text-paper/40 mt-1">Leave empty to use today's date</p>
+                                              <p className="text-xs text-paper/70 mt-1">Leave empty to use today's date</p>
                                             </div>
 
                                                                   <div>
-                                                                    <label className="block text-sm text-paper/50 mb-2">Share with (optional)</label>
+                                                                    <label className="block text-sm text-paper/65 mb-2">Share with (optional)</label>
                                               <div className="flex flex-wrap gap-2">
                                                 {family?.map((member: any) => (
                                                   <button
@@ -849,7 +891,7 @@ export function Record() {
                                                     className={`px-3 py-2 rounded-lg text-sm transition-all ${
                                                       form.recipientIds.includes(member.id)
                                                         ? 'glass bg-gold/20 text-gold border border-gold/30'
-                                                        : 'glass text-paper/60 hover:text-paper'
+                                                        : 'glass text-paper/70 hover:text-paper'
                                                     }`}
                                                   >
                                                     {member.name}
@@ -858,7 +900,7 @@ export function Record() {
                                                 <button
                                                   type="button"
                                                   onClick={() => setShowAddFamilyModal(true)}
-                                                  className="px-3 py-2 rounded-lg text-sm border border-dashed border-gold/30 text-paper/40 hover:border-gold/50 hover:text-paper/60 transition-all flex items-center gap-1.5"
+                                                  className="px-3 py-2 rounded-lg text-sm border border-dashed border-gold/30 text-paper/70 hover:border-gold/50 hover:text-paper/70 transition-all flex items-center gap-1.5"
                                                 >
                                                   <Plus size={14} />
                                                   Add Family Member
@@ -914,7 +956,7 @@ export function Record() {
                     <RefreshCw size={14} className="text-gold" />
                   </motion.button>
                 </div>
-                <p className="text-paper/50 text-xs mb-3">
+                <p className="text-paper/65 text-xs mb-3">
                   Select a prompt to guide your recording.
                 </p>
                 
@@ -922,10 +964,10 @@ export function Record() {
                   {isLoadingPrompts ? (
                     <div className="flex items-center justify-center py-4">
                       <Loader2 size={20} className="text-gold animate-spin" />
-                      <span className="ml-2 text-sm text-paper/50">Loading prompts...</span>
+                      <span className="ml-2 text-sm text-paper/65">Loading prompts...</span>
                     </div>
                   ) : visiblePrompts.length === 0 ? (
-                    <p className="text-sm text-paper/40 text-center py-4">No prompts available. Click refresh to try again.</p>
+                    <p className="text-sm text-paper/70 text-center py-4">No prompts available. Click refresh to try again.</p>
                   ) : (
                     visiblePrompts.map((prompt) => (
                       <motion.button
@@ -953,7 +995,7 @@ export function Record() {
               {/* Tips */}
               <div className="card bg-void-elevated/50">
                 <h4 className="text-sm text-gold mb-3">Recording Tips</h4>
-                <ul className="space-y-2 text-sm text-paper/50">
+                <ul className="space-y-2 text-sm text-paper/65">
                   <li className="flex items-start gap-2">
                     <Check size={14} className="text-green-400 mt-1 flex-shrink-0" />
                     Find a quiet space with minimal echo
@@ -1016,7 +1058,7 @@ export function Record() {
                           }
                         }}
                         disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
-                        className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="p-2 glass rounded-full text-paper/65 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         <ChevronLeft size={20} />
                       </button>
@@ -1033,7 +1075,7 @@ export function Record() {
                           }
                         }}
                         disabled={availableYears.indexOf(selectedYear) === 0}
-                        className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="p-2 glass rounded-full text-paper/65 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         <ChevronRight size={20} />
                       </button>
@@ -1046,7 +1088,7 @@ export function Record() {
                         className={`px-3 py-1.5 rounded-full text-sm transition-all ${
                           selectedMonth === null
                             ? 'bg-gold text-void font-medium'
-                            : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                            : 'glass text-paper/70 hover:text-paper hover:bg-white/10'
                         }`}
                       >
                         All
@@ -1058,7 +1100,7 @@ export function Record() {
                           className={`px-3 py-1.5 rounded-full text-sm transition-all ${
                             selectedMonth === idx
                               ? 'bg-gold text-void font-medium'
-                              : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                              : 'glass text-paper/70 hover:text-paper hover:bg-white/10'
                           }`}
                         >
                           {month}
@@ -1068,13 +1110,13 @@ export function Record() {
 
                     {/* Emotion Filter */}
                     <div className="flex items-center justify-center gap-2 flex-wrap">
-                      <span className="text-paper/40 text-sm mr-2">Filter by emotion:</span>
+                      <span className="text-paper/70 text-sm mr-2">Filter by emotion:</span>
                       <button
                         onClick={() => setSelectedEmotion(null)}
                         className={`px-3 py-1.5 rounded-full text-sm transition-all ${
                           selectedEmotion === null
                             ? 'bg-white/20 text-paper font-medium'
-                            : 'glass text-paper/50 hover:text-paper'
+                            : 'glass text-paper/65 hover:text-paper'
                         }`}
                       >
                         All
@@ -1089,7 +1131,7 @@ export function Record() {
                             className={`px-3 py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 ${
                               selectedEmotion === emotion.value
                                 ? emotion.color + ' font-medium'
-                                : 'glass text-paper/50 hover:text-paper'
+                                : 'glass text-paper/65 hover:text-paper'
                             }`}
                           >
                             <Icon size={14} />
@@ -1154,7 +1196,7 @@ export function Record() {
                               </button>
                               <div>
                                 <h4 className="font-medium">{recording.title}</h4>
-                                <div className="flex items-center gap-3 text-sm text-paper/50">
+                                <div className="flex items-center gap-3 text-sm text-paper/65">
                                   <span>{formatTime(recording.duration)}</span>
                                   <span>{new Date(recording.createdAt).toLocaleDateString()}</span>
                                 </div>
@@ -1187,7 +1229,7 @@ export function Record() {
                                                                                                                     {transcribingId === recording.id ? (
                                                                                                                       <Loader2 size={16} className="animate-spin text-gold" />
                                                                                                                     ) : (
-                                                                                                                      <FileText size={16} className="text-paper/50" />
+                                                                                                                      <FileText size={16} className="text-paper/65" />
                                                                                                                     )}
                                                                                                                   </button>
                                                                                                                 )}
@@ -1196,7 +1238,7 @@ export function Record() {
                                                                                                                   className="p-2 glass rounded-lg hover:bg-white/10 transition-colors"
                                                                                                                   title="Edit recording"
                                                                                                                 >
-                                                                                                                  <Pen size={16} className="text-paper/50" />
+                                                                                                                  <Pen size={16} className="text-paper/65" />
                                                                                                                 </button>
                                                                                                                                     </div>
                                                   </motion.div>
@@ -1223,7 +1265,7 @@ export function Record() {
                       {recordings?.data?.length > 0 ? (
                         <>
                           <h3 className="text-xl font-light mb-2">No recordings match your filters</h3>
-                          <p className="text-paper/50 mb-6">Try adjusting the year, month, or emotion filter</p>
+                          <p className="text-paper/65 mb-6">Try adjusting the year, month, or emotion filter</p>
                           <button 
                             onClick={() => {
                               setSelectedMonth(null);
@@ -1237,7 +1279,7 @@ export function Record() {
                       ) : (
                         <>
                           <h3 className="text-xl font-light mb-2">No recordings yet</h3>
-                          <p className="text-paper/50">Start recording your voice messages above</p>
+                          <p className="text-paper/65">Start recording your voice messages above</p>
                         </>
                       )}
                     </motion.div>
@@ -1287,7 +1329,7 @@ export function Record() {
                 <h2 className="text-xl font-light">Edit Recording</h2>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper"
+                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper"
                 >
                   <X size={16} />
                 </button>
@@ -1295,7 +1337,7 @@ export function Record() {
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Title *</label>
+                  <label className="block text-sm text-paper/65 mb-2">Title *</label>
                   <input
                     type="text"
                     value={editForm.title}

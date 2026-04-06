@@ -307,7 +307,7 @@ export function StoryArtifact() {
         >
           <div>
             <h1 className="font-display text-4xl md:text-5xl mb-2">Story Artifacts</h1>
-            <p className="text-paper/60">
+            <p className="text-paper/70">
               Create beautiful micro-documentaries from your memories
             </p>
           </div>
@@ -348,7 +348,7 @@ export function StoryArtifact() {
                     <span className={`px-2 py-1 rounded text-xs ${
                       artifact.status === 'READY' ? 'bg-green-500/20 text-green-400' :
                       artifact.status === 'PROCESSING' ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-paper/20 text-paper/60'
+                      'bg-paper/20 text-paper/70'
                     }`}>
                       {artifact.status}
                     </span>
@@ -357,9 +357,9 @@ export function StoryArtifact() {
                 <div className="p-4">
                   <h3 className="font-medium mb-1 truncate">{artifact.title}</h3>
                   {artifact.description && (
-                    <p className="text-sm text-paper/50 mb-3 line-clamp-2">{artifact.description}</p>
+                    <p className="text-sm text-paper/65 mb-3 line-clamp-2">{artifact.description}</p>
                   )}
-                  <div className="flex items-center justify-between text-sm text-paper/40">
+                  <div className="flex items-center justify-between text-sm text-paper/70">
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1">
                         <Image size={14} />
@@ -411,7 +411,7 @@ export function StoryArtifact() {
           >
             <Film size={64} className="mx-auto text-paper/20 mb-4" />
             <h3 className="text-xl font-medium mb-2">No stories yet</h3>
-            <p className="text-paper/50 mb-6">Create your first micro-documentary from your memories</p>
+            <p className="text-paper/65 mb-6">Create your first micro-documentary from your memories</p>
             <button
               onClick={() => setShowCreate(true)}
               className="btn btn-primary"
@@ -439,7 +439,7 @@ export function StoryArtifact() {
                 onClick={e => e.stopPropagation()}
               >
                 <h3 className="text-xl font-medium mb-4">Share Your Story</h3>
-                <p className="text-paper/60 mb-4">Anyone with this link can view your story for 7 days.</p>
+                <p className="text-paper/70 mb-4">Anyone with this link can view your story for 7 days.</p>
                 <div className="flex gap-2 mb-4">
                   <input
                     type="text"
@@ -488,7 +488,7 @@ export function StoryArtifact() {
                     {wizardStep > 1 && (
                       <button 
                         onClick={() => setWizardStep(wizardStep - 1)} 
-                        className="text-paper/50 hover:text-paper"
+                        className="text-paper/65 hover:text-paper"
                       >
                         <ArrowRight size={20} className="rotate-180" />
                       </button>
@@ -499,10 +499,10 @@ export function StoryArtifact() {
                         {wizardStep === 2 && 'Select your photos'}
                         {wizardStep === 3 && 'Review & Create'}
                       </h3>
-                      <p className="text-sm text-paper/50">Step {wizardStep} of 3</p>
+                      <p className="text-sm text-paper/65">Step {wizardStep} of 3</p>
                     </div>
                   </div>
-                  <button onClick={() => resetForm()} className="text-paper/50 hover:text-paper">
+                  <button onClick={() => resetForm()} className="text-paper/65 hover:text-paper">
                     <X size={24} />
                   </button>
                 </div>
@@ -523,9 +523,9 @@ export function StoryArtifact() {
                           </div>
                           <div className="flex-1">
                             <h4 className="font-medium">{template.title}</h4>
-                            <p className="text-sm text-paper/50">{template.description}</p>
+                            <p className="text-sm text-paper/65">{template.description}</p>
                           </div>
-                          <ChevronRight size={20} className="text-paper/30 group-hover:text-gold transition-colors" />
+                          <ChevronRight size={20} className="text-paper/65 group-hover:text-gold transition-colors" />
                         </button>
                       );
                     })}
@@ -535,7 +535,7 @@ export function StoryArtifact() {
                           setWizardStep(2);
                           setSelectedTemplate(null);
                         }}
-                        className="w-full p-3 text-center text-paper/50 hover:text-paper transition-colors"
+                        className="w-full p-3 text-center text-paper/65 hover:text-paper transition-colors"
                       >
                         Or create a custom story...
                       </button>
@@ -575,7 +575,7 @@ export function StoryArtifact() {
                       />
                     </div>
 
-                    <p className="text-sm text-paper/60">
+                    <p className="text-sm text-paper/70">
                       Selected: {selectedMemories.length}/10 photos
                     </p>
 
@@ -603,8 +603,8 @@ export function StoryArtifact() {
                       ))}
                       {memories.filter(m => m.type === 'PHOTO').length === 0 && (
                         <div className="col-span-4 text-center py-8">
-                          <Image size={32} className="mx-auto text-paper/30 mb-2" />
-                          <p className="text-paper/50 mb-3">No photos yet</p>
+                          <Image size={32} className="mx-auto text-paper/65 mb-2" />
+                          <p className="text-paper/65 mb-3">No photos yet</p>
                           <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
@@ -681,7 +681,7 @@ export function StoryArtifact() {
                                   : 'bg-void/30 hover:bg-void/50'
                               }`}
                             >
-                              <Mic size={14} className={selectedVoice === recording.id ? 'text-gold' : 'text-paper/50'} />
+                              <Mic size={14} className={selectedVoice === recording.id ? 'text-gold' : 'text-paper/65'} />
                               <span className="flex-1 text-left truncate">{recording.title}</span>
                             </button>
                           ))}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Share2, Heart, Loader2 } from '../components/Icons';
 import axios from 'axios';
 
@@ -90,7 +89,7 @@ export function CardView() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-void text-paper p-6">
         <h1 className="text-2xl font-light mb-4">Card Not Found</h1>
-        <p className="text-paper/60 mb-8">This memory card may have been removed or the link is invalid.</p>
+        <p className="text-paper/70 mb-8">This memory card may have been removed or the link is invalid.</p>
         <Link to="/" className="btn btn-primary">
           Discover Heirloom
         </Link>
@@ -109,11 +108,7 @@ export function CardView() {
       </div>
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-lg"
-        >
+        <div className="w-full max-w-lg animate-fade-in">
           {/* Card Display */}
           <div 
             className="rounded-2xl p-8 shadow-2xl mb-8"
@@ -163,7 +158,7 @@ export function CardView() {
 
           {/* CTA */}
           <div className="text-center">
-            <p className="text-paper/60 mb-4">
+            <p className="text-paper/70 mb-4">
               Preserve your own memories for future generations
             </p>
             <Link 
@@ -173,7 +168,7 @@ export function CardView() {
               Start Your Legacy on Heirloom
             </Link>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -94,7 +94,7 @@ export function GiftSubscriptions() {
             <Gift className="text-gold" size={32} />
           </div>
           <h1 className="text-3xl md:text-4xl font-light mb-2">Gift a Subscription</h1>
-          <p className="text-paper/60">Give the gift of preserving memories</p>
+          <p className="text-paper/70">Give the gift of preserving memories</p>
         </motion.div>
 
         {/* Progress Steps */}
@@ -102,7 +102,7 @@ export function GiftSubscriptions() {
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                s === step ? 'bg-gold text-void' : s < step ? 'bg-green-500 text-white' : 'bg-paper/10 text-paper/50'
+                s === step ? 'bg-gold text-void' : s < step ? 'bg-green-500 text-white' : 'bg-paper/10 text-paper/65'
               }`}>
                 {s < step ? <Check size={16} /> : s}
               </div>
@@ -135,7 +135,7 @@ export function GiftSubscriptions() {
                   >
                     <div className="text-lg font-medium mb-1">{tier.name}</div>
                     <div className="text-3xl font-light text-gold mb-2">${tier.price}</div>
-                    <div className="text-sm text-paper/60">{tier.description}</div>
+                    <div className="text-sm text-paper/70">{tier.description}</div>
                   </button>
                 ))}
               </div>
@@ -202,7 +202,7 @@ export function GiftSubscriptions() {
                     min={new Date().toISOString().split('T')[0]}
                     className="input w-full"
                   />
-                  <p className="text-xs text-paper/50 mt-1">Leave empty to send immediately</p>
+                  <p className="text-xs text-paper/65 mt-1">Leave empty to send immediately</p>
                 </div>
               </div>
             </div>
@@ -245,9 +245,9 @@ export function GiftSubscriptions() {
               <div className="bg-paper/5 rounded-xl p-6 mb-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <div className="text-sm text-paper/50">Gift for</div>
+                    <div className="text-sm text-paper/65">Gift for</div>
                     <div className="text-lg font-medium">{formData.recipientName}</div>
-                    <div className="text-sm text-paper/60">{formData.recipientEmail}</div>
+                    <div className="text-sm text-paper/70">{formData.recipientEmail}</div>
                   </div>
                   <div className={`px-4 py-2 rounded-lg bg-gradient-to-r ${
                     giftStyles.find(s => s.id === selectedStyle)?.color
@@ -269,13 +269,13 @@ export function GiftSubscriptions() {
 
                 {formData.personalMessage && (
                   <div className="border-t border-paper/10 pt-4">
-                    <div className="text-sm text-paper/50 mb-1">Your Message</div>
+                    <div className="text-sm text-paper/65 mb-1">Your Message</div>
                     <p className="text-paper/80 italic">"{formData.personalMessage}"</p>
                   </div>
                 )}
 
                 {formData.scheduledDate && (
-                  <div className="mt-4 flex items-center gap-2 text-sm text-paper/60">
+                  <div className="mt-4 flex items-center gap-2 text-sm text-paper/70">
                     <Calendar size={14} />
                     <span>Scheduled for {new Date(formData.scheduledDate).toLocaleDateString()}</span>
                   </div>
@@ -334,7 +334,7 @@ export function GiftSubscriptions() {
                     </div>
                     <div>
                       <div className="font-medium">{gift.recipient_name}</div>
-                      <div className="text-sm text-paper/60">{gift.tier} Plan</div>
+                      <div className="text-sm text-paper/70">{gift.tier} Plan</div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -347,7 +347,7 @@ export function GiftSubscriptions() {
                     }`}>
                       {gift.status}
                     </span>
-                    <div className="text-xs text-paper/50 mt-1">
+                    <div className="text-xs text-paper/65 mt-1">
                       {new Date(gift.created_at).toLocaleDateString()}
                     </div>
                   </div>
@@ -377,12 +377,12 @@ export function GiftSubscriptions() {
                 <Check className="text-green-400" size={40} />
               </div>
               <h3 className="text-2xl font-medium mb-2">Gift Sent!</h3>
-              <p className="text-paper/60 mb-6">
+              <p className="text-paper/70 mb-6">
                 {formData.recipientName} will receive their gift {formData.scheduledDate ? `on ${new Date(formData.scheduledDate).toLocaleDateString()}` : 'shortly'}.
               </p>
               
               <div className="bg-paper/5 rounded-lg p-4 mb-6">
-                <div className="text-sm text-paper/50 mb-1">Gift Code</div>
+                <div className="text-sm text-paper/65 mb-1">Gift Code</div>
                 <div className="text-lg font-mono text-gold">{giftResult.giftCode}</div>
               </div>
 

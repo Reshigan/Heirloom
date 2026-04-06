@@ -255,7 +255,7 @@ export function PlatformTour({ isOpen, onClose, onComplete }: PlatformTourProps)
             >
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center text-paper/40 hover:text-paper hover:bg-white/5 transition-all z-10"
+                className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center text-paper/70 hover:text-paper hover:bg-white/5 transition-all z-10"
               >
                 <X size={20} />
               </button>
@@ -310,7 +310,7 @@ export function PlatformTour({ isOpen, onClose, onComplete }: PlatformTourProps)
                       {step.title}
                     </h2>
 
-                    <p className="text-paper/60 text-center text-lg mb-8 max-w-md mx-auto leading-relaxed">
+                    <p className="text-paper/70 text-center text-lg mb-8 max-w-md mx-auto leading-relaxed">
                       {step.description}
                     </p>
 
@@ -361,7 +361,7 @@ export function PlatformTour({ isOpen, onClose, onComplete }: PlatformTourProps)
                   {!isFirst && (
                     <motion.button
                       onClick={goToPrev}
-                      className="px-5 py-2.5 rounded-xl flex items-center gap-2 text-paper/60 hover:text-paper transition-colors"
+                      className="px-5 py-2.5 rounded-xl flex items-center gap-2 text-paper/70 hover:text-paper transition-colors"
                       style={{ background: 'rgba(255, 255, 255, 0.05)' }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -391,7 +391,7 @@ export function PlatformTour({ isOpen, onClose, onComplete }: PlatformTourProps)
                 <div className="text-center pb-6">
                   <button
                     onClick={onClose}
-                    className="text-sm text-paper/40 hover:text-paper/60 transition-colors"
+                    className="text-sm text-paper/70 hover:text-paper/70 transition-colors"
                   >
                     Skip tour
                   </button>

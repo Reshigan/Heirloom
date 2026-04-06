@@ -225,8 +225,8 @@ export function AdminDashboard() {
             <span className="px-2 py-1 bg-gold/20 text-gold text-xs">{admin.role}</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-paper/50 text-sm">{admin.email}</span>
-            <button onClick={handleLogout} className="text-paper/50 hover:text-blood transition-colors">
+            <span className="text-paper/65 text-sm">{admin.email}</span>
+            <button onClick={handleLogout} className="text-paper/65 hover:text-blood transition-colors">
               <LogOut size={18} />
             </button>
           </div>
@@ -243,7 +243,7 @@ export function AdminDashboard() {
               className={`flex items-center gap-2 px-4 py-2 rounded transition-all ${
                 activeTab === id 
                   ? 'bg-gold/20 text-gold' 
-                  : 'text-paper/50 hover:text-paper hover:bg-white/5'
+                  : 'text-paper/65 hover:text-paper hover:bg-white/5'
               }`}
             >
               <Icon size={18} />
@@ -296,7 +296,7 @@ export function AdminDashboard() {
                     <div className="text-2xl text-gold mb-1">
                       {overview?.subscriptions?.[key] || overview?.subscriptions?.[key.toUpperCase()] || 0}
                     </div>
-                    <div className="text-paper/50 text-sm">{label}</div>
+                    <div className="text-paper/65 text-sm">{label}</div>
                   </div>
                 ))}
               </div>
@@ -308,19 +308,19 @@ export function AdminDashboard() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{userAnalytics?.signupsLast30Days || 0}</div>
-                  <div className="text-paper/50 text-sm">Signups (30d)</div>
+                  <div className="text-paper/65 text-sm">Signups (30d)</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{userAnalytics?.signupsLast7Days || 0}</div>
-                  <div className="text-paper/50 text-sm">Signups (7d)</div>
+                  <div className="text-paper/65 text-sm">Signups (7d)</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{userAnalytics?.activeUsersLast7Days || 0}</div>
-                  <div className="text-paper/50 text-sm">Active (7d)</div>
+                  <div className="text-paper/65 text-sm">Active (7d)</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{userAnalytics?.usersWithContent || 0}</div>
-                  <div className="text-paper/50 text-sm">With Content</div>
+                  <div className="text-paper/65 text-sm">With Content</div>
                 </div>
               </div>
             </div>
@@ -333,13 +333,13 @@ export function AdminDashboard() {
                   <div className="text-2xl text-green-400 mb-1">
                     ${revenue?.mrr?.toFixed(2) || '0.00'}
                   </div>
-                  <div className="text-paper/50 text-sm">Monthly Recurring Revenue</div>
+                  <div className="text-paper/65 text-sm">Monthly Recurring Revenue</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-blood mb-1">
                     ${revenue?.totalDiscountsLast30Days?.toFixed(2) || '0.00'}
                   </div>
-                  <div className="text-paper/50 text-sm">Discounts Given (30d)</div>
+                  <div className="text-paper/65 text-sm">Discounts Given (30d)</div>
                 </div>
               </div>
             </div>
@@ -355,23 +355,23 @@ export function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="card p-4">
                 <div className="text-3xl text-gold mb-1">{usageAnalytics?.engagement?.totalUsers || 0}</div>
-                <div className="text-paper/50 text-sm">Total Users</div>
+                <div className="text-paper/65 text-sm">Total Users</div>
               </div>
               <div className="card p-4">
                 <div className="text-3xl text-green-400 mb-1">{usageAnalytics?.engagement?.activeToday || 0}</div>
-                <div className="text-paper/50 text-sm">Active Today</div>
+                <div className="text-paper/65 text-sm">Active Today</div>
               </div>
               <div className="card p-4">
                 <div className="text-3xl text-blue-400 mb-1">{usageAnalytics?.engagement?.active7d || 0}</div>
-                <div className="text-paper/50 text-sm">Active (7 days)</div>
+                <div className="text-paper/65 text-sm">Active (7 days)</div>
               </div>
               <div className="card p-4">
                 <div className="text-3xl text-purple-400 mb-1">{usageAnalytics?.engagement?.active30d || 0}</div>
-                <div className="text-paper/50 text-sm">Active (30 days)</div>
+                <div className="text-paper/65 text-sm">Active (30 days)</div>
               </div>
               <div className="card p-4">
                 <div className="text-3xl text-blood mb-1">{usageAnalytics?.engagement?.dormant || 0}</div>
-                <div className="text-paper/50 text-sm">Dormant</div>
+                <div className="text-paper/65 text-sm">Dormant</div>
               </div>
             </div>
 
@@ -400,7 +400,7 @@ export function AdminDashboard() {
                       </div>
                       <div className="w-20 text-right">
                         <span className="text-paper">{step.value}</span>
-                        <span className="text-paper/50 text-sm ml-1">({percentage}%)</span>
+                        <span className="text-paper/65 text-sm ml-1">({percentage}%)</span>
                       </div>
                     </div>
                   );
@@ -414,22 +414,22 @@ export function AdminDashboard() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithContent || 0}</div>
-                  <div className="text-paper/50 text-sm">Users with Content</div>
-                  <div className="text-xs text-paper/30 mt-1">
+                  <div className="text-paper/65 text-sm">Users with Content</div>
+                  <div className="text-xs text-paper/65 mt-1">
                     {Math.round(((usageAnalytics?.contentEngagement?.usersWithContent || 0) / (usageAnalytics?.contentEngagement?.totalUsers || 1)) * 100)}% of users
                   </div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithMemories || 0}</div>
-                  <div className="text-paper/50 text-sm">With Memories</div>
+                  <div className="text-paper/65 text-sm">With Memories</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithLetters || 0}</div>
-                  <div className="text-paper/50 text-sm">With Letters</div>
+                  <div className="text-paper/65 text-sm">With Letters</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithVoice || 0}</div>
-                  <div className="text-paper/50 text-sm">With Voice</div>
+                  <div className="text-paper/65 text-sm">With Voice</div>
                 </div>
               </div>
             </div>
@@ -451,13 +451,13 @@ export function AdminDashboard() {
                         title={`${hour}:00 - ${count} logins`}
                       />
                       {hour % 4 === 0 && (
-                        <div className="text-xs text-paper/30 mt-1">{hour}h</div>
+                        <div className="text-xs text-paper/65 mt-1">{hour}h</div>
                       )}
                     </div>
                   );
                 })}
               </div>
-              <div className="text-xs text-paper/50 mt-2 text-center">Hour of day (UTC)</div>
+              <div className="text-xs text-paper/65 mt-2 text-center">Hour of day (UTC)</div>
             </div>
 
             {/* Activity by Day of Week */}
@@ -476,7 +476,7 @@ export function AdminDashboard() {
                         style={{ height: `${Math.max(height, 5)}%` }}
                         title={`${day} - ${count} logins`}
                       />
-                      <div className="text-xs text-paper/50 mt-2">{day}</div>
+                      <div className="text-xs text-paper/65 mt-2">{day}</div>
                     </div>
                   );
                 })}
@@ -489,18 +489,18 @@ export function AdminDashboard() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-green-400 mb-1">{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
-                  <div className="text-paper/50 text-sm">Active Switches</div>
+                  <div className="text-paper/65 text-sm">Active Switches</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-yellow-400 mb-1">{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
-                  <div className="text-paper/50 text-sm">Warning Status</div>
+                  <div className="text-paper/65 text-sm">Warning Status</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-blood mb-1">{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
-                  <div className="text-paper/50 text-sm">Triggered</div>
+                  <div className="text-paper/65 text-sm">Triggered</div>
                 </div>
               </div>
-              <p className="text-paper/50 text-sm mt-4">
+              <p className="text-paper/65 text-sm mt-4">
                 Reminder emails are sent via scheduled cron jobs. Check that CRON_ENABLED=true is set in your worker environment.
               </p>
             </div>
@@ -512,12 +512,12 @@ export function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">User</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Email</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Tier</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Memories</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Letters</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Last Login</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">User</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Email</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Tier</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Memories</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Letters</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Last Login</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -530,21 +530,21 @@ export function AdminDashboard() {
                             session.tier === 'FOREVER' ? 'bg-gold/20 text-gold' :
                             session.tier === 'FAMILY' ? 'bg-blue-500/20 text-blue-400' :
                             session.tier === 'STARTER' ? 'bg-green-500/20 text-green-400' :
-                            'bg-white/10 text-paper/50'
+                            'bg-white/10 text-paper/65'
                           }`}>
                             {session.tier}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-paper/70">{session.memoryCount}</td>
                         <td className="py-3 px-4 text-paper/70">{session.letterCount}</td>
-                        <td className="py-3 px-4 text-paper/50 text-sm">
+                        <td className="py-3 px-4 text-paper/65 text-sm">
                           {session.lastLogin ? new Date(session.lastLogin).toLocaleString() : 'Never'}
                         </td>
                       </tr>
                     ))}
                     {(!usageAnalytics?.recentSessions || usageAnalytics.recentSessions.length === 0) && (
                       <tr>
-                        <td colSpan={6} className="text-center py-8 text-paper/50">
+                        <td colSpan={6} className="text-center py-8 text-paper/65">
                           No recent sessions
                         </td>
                       </tr>
@@ -565,22 +565,22 @@ export function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="card p-4">
                 <div className="text-3xl text-gold mb-1">{encryptionStats?.encryptedUsers || 0}</div>
-                <div className="text-paper/50 text-sm">Users with Encryption</div>
-                <div className="text-xs text-paper/30 mt-1">
+                <div className="text-paper/65 text-sm">Users with Encryption</div>
+                <div className="text-xs text-paper/65 mt-1">
                   {encryptionStats?.adoptionRate || 0}% adoption rate
                 </div>
               </div>
               <div className="card p-4">
                 <div className="text-3xl text-green-400 mb-1">{encryptionStats?.escrowConfigured || 0}</div>
-                <div className="text-paper/50 text-sm">Key Escrow Configured</div>
+                <div className="text-paper/65 text-sm">Key Escrow Configured</div>
               </div>
               <div className="card p-4">
                 <div className="text-3xl text-blue-400 mb-1">{encryptionStats?.shamirConfigured || 0}</div>
-                <div className="text-paper/50 text-sm">Shamir Shares Active</div>
+                <div className="text-paper/65 text-sm">Shamir Shares Active</div>
               </div>
               <div className="card p-4">
                 <div className="text-3xl text-purple-400 mb-1">{encryptionStats?.recentSetups || 0}</div>
-                <div className="text-paper/50 text-sm">New Setups (30 days)</div>
+                <div className="text-paper/65 text-sm">New Setups (30 days)</div>
               </div>
             </div>
 
@@ -605,7 +605,7 @@ export function AdminDashboard() {
                   </div>
                   <div className="w-20 text-right">
                     <span className="text-paper">{encryptionStats?.encryptedUsers || 0}</span>
-                    <span className="text-paper/50 text-sm ml-1">({encryptionStats?.adoptionRate || 0}%)</span>
+                    <span className="text-paper/65 text-sm ml-1">({encryptionStats?.adoptionRate || 0}%)</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -618,7 +618,7 @@ export function AdminDashboard() {
                   </div>
                   <div className="w-20 text-right">
                     <span className="text-paper">{encryptionStats?.escrowConfigured || 0}</span>
-                    <span className="text-paper/50 text-sm ml-1">
+                    <span className="text-paper/65 text-sm ml-1">
                       ({encryptionStats?.totalUsers ? Math.round((encryptionStats.escrowConfigured / encryptionStats.totalUsers) * 100) : 0}%)
                     </span>
                   </div>
@@ -635,7 +635,7 @@ export function AdminDashboard() {
                     <Lock className="text-gold" size={24} />
                     <div>
                       <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.letters || 0}</div>
-                      <div className="text-paper/50 text-sm">Encrypted Letters</div>
+                      <div className="text-paper/65 text-sm">Encrypted Letters</div>
                     </div>
                   </div>
                 </div>
@@ -644,7 +644,7 @@ export function AdminDashboard() {
                     <Lock className="text-gold" size={24} />
                     <div>
                       <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.memories || 0}</div>
-                      <div className="text-paper/50 text-sm">Encrypted Memories</div>
+                      <div className="text-paper/65 text-sm">Encrypted Memories</div>
                     </div>
                   </div>
                 </div>
@@ -659,12 +659,12 @@ export function AdminDashboard() {
                   {encryptionStats.escrowTypes.map((type: { escrow_type: string; count: number }) => (
                     <div key={type.escrow_type} className="p-4 bg-white/[0.02] border border-white/10 rounded">
                       <div className="text-2xl text-paper mb-1">{type.count}</div>
-                      <div className="text-paper/50 text-sm capitalize">{type.escrow_type.replace(/_/g, ' ').toLowerCase()}</div>
+                      <div className="text-paper/65 text-sm capitalize">{type.escrow_type.replace(/_/g, ' ').toLowerCase()}</div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-paper/50">No escrow configurations yet</p>
+                <p className="text-paper/65">No escrow configurations yet</p>
               )}
             </div>
 
@@ -708,12 +708,12 @@ export function AdminDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Code</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Discount</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Uses</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Valid Until</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Code</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Discount</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Uses</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Valid Until</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -722,7 +722,7 @@ export function AdminDashboard() {
                   ))}
                   {(!coupons || coupons.length === 0) && (
                     <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper/50">
+                      <td colSpan={6} className="text-center py-8 text-paper/65">
                         No coupons created yet
                       </td>
                     </tr>
@@ -756,7 +756,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-gold">{voucherStats?.stats?.total || 0}</div>
-                    <div className="text-paper/50 text-sm">Total Vouchers</div>
+                    <div className="text-paper/65 text-sm">Total Vouchers</div>
                   </div>
                 </div>
               </div>
@@ -767,7 +767,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-blue-400">{voucherStats?.stats?.sent || 0}</div>
-                    <div className="text-paper/50 text-sm">Sent</div>
+                    <div className="text-paper/65 text-sm">Sent</div>
                   </div>
                 </div>
               </div>
@@ -778,7 +778,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-green-400">{voucherStats?.stats?.redeemed || 0}</div>
-                    <div className="text-paper/50 text-sm">Redeemed</div>
+                    <div className="text-paper/65 text-sm">Redeemed</div>
                   </div>
                 </div>
               </div>
@@ -789,7 +789,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-green-400">${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}</div>
-                    <div className="text-paper/50 text-sm">Total Revenue</div>
+                    <div className="text-paper/65 text-sm">Total Revenue</div>
                   </div>
                 </div>
               </div>
@@ -799,7 +799,7 @@ export function AdminDashboard() {
             <div className="card">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg">All Vouchers</h3>
-                <button onClick={() => refetchVouchers()} className="text-paper/50 hover:text-gold">
+                <button onClick={() => refetchVouchers()} className="text-paper/65 hover:text-gold">
                   <RefreshCw size={18} />
                 </button>
               </div>
@@ -807,13 +807,13 @@ export function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Code</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Tier</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Purchaser</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Recipient</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                      <th className="text-left py-3 px-4 text-paper/50 font-normal">Created</th>
-                      <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Code</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Tier</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Purchaser</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Recipient</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Created</th>
+                      <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -827,7 +827,7 @@ export function AdminDashboard() {
                                 navigator.clipboard.writeText(voucher.code);
                                 alert('Code copied!');
                               }}
-                              className="text-paper/30 hover:text-gold"
+                              className="text-paper/65 hover:text-gold"
                             >
                               <Copy size={14} />
                             </button>
@@ -850,12 +850,12 @@ export function AdminDashboard() {
                             voucher.status === 'SENT' ? 'bg-blue-500/20 text-blue-400' :
                             voucher.status === 'PAID' ? 'bg-gold/20 text-gold' :
                             voucher.status === 'EXPIRED' ? 'bg-red-500/20 text-red-400' :
-                            'bg-white/10 text-paper/50'
+                            'bg-white/10 text-paper/65'
                           }`}>
                             {voucher.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-paper/50 text-sm">
+                        <td className="py-3 px-4 text-paper/65 text-sm">
                           {new Date(voucher.created_at).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4 text-right">
@@ -870,7 +870,7 @@ export function AdminDashboard() {
                                   });
                                   alert('Email resent!');
                                 }}
-                                className="text-paper/30 hover:text-blue-400"
+                                className="text-paper/65 hover:text-blue-400"
                                 title="Resend email"
                               >
                                 <Send size={16} />
@@ -882,7 +882,7 @@ export function AdminDashboard() {
                                 navigator.clipboard.writeText(url);
                                 alert('Redemption link copied!');
                               }}
-                              className="text-paper/30 hover:text-gold"
+                              className="text-paper/65 hover:text-gold"
                               title="Copy redemption link"
                             >
                               <Eye size={16} />
@@ -893,7 +893,7 @@ export function AdminDashboard() {
                     ))}
                     {(!giftVouchers?.vouchers || giftVouchers.vouchers.length === 0) && (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-paper/50">
+                        <td colSpan={7} className="text-center py-8 text-paper/65">
                           No gift vouchers created yet
                         </td>
                       </tr>
@@ -911,7 +911,7 @@ export function AdminDashboard() {
             <div className="flex justify-between items-center">
               <div>
                 <h2 className="text-xl text-gold">Gold Legacy Circle</h2>
-                <p className="text-paper/50 text-sm mt-1">Exclusive lifetime access vouchers for VIP members</p>
+                <p className="text-paper/65 text-sm mt-1">Exclusive lifetime access vouchers for VIP members</p>
               </div>
               <button
                 onClick={() => setShowGoldLegacyModal(true)}
@@ -932,7 +932,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-gold">{goldLegacyVouchers?.total || 0}</div>
-                    <div className="text-paper/50 text-sm">Total Gold Legacy</div>
+                    <div className="text-paper/65 text-sm">Total Gold Legacy</div>
                   </div>
                 </div>
               </div>
@@ -945,7 +945,7 @@ export function AdminDashboard() {
                     <div className="text-2xl text-green-400">
                       {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'REDEEMED').length || 0}
                     </div>
-                    <div className="text-paper/50 text-sm">Redeemed</div>
+                    <div className="text-paper/65 text-sm">Redeemed</div>
                   </div>
                 </div>
               </div>
@@ -958,7 +958,7 @@ export function AdminDashboard() {
                     <div className="text-2xl text-blue-400">
                       {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'SENT' || v.status === 'PAID').length || 0}
                     </div>
-                    <div className="text-paper/50 text-sm">Pending</div>
+                    <div className="text-paper/65 text-sm">Pending</div>
                   </div>
                 </div>
               </div>
@@ -968,7 +968,7 @@ export function AdminDashboard() {
             <div className="card" style={{ borderColor: 'rgba(212, 175, 55, 0.2)' }}>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg text-gold">Gold Legacy Members</h3>
-                <button onClick={() => refetchGoldLegacy()} className="text-paper/50 hover:text-gold">
+                <button onClick={() => refetchGoldLegacy()} className="text-paper/65 hover:text-gold">
                   <RefreshCw size={18} />
                 </button>
               </div>
@@ -998,7 +998,7 @@ export function AdminDashboard() {
                                 navigator.clipboard.writeText(voucher.code);
                                 alert('Code copied!');
                               }}
-                              className="text-paper/30 hover:text-gold"
+                              className="text-paper/65 hover:text-gold"
                             >
                               <Copy size={14} />
                             </button>
@@ -1006,7 +1006,7 @@ export function AdminDashboard() {
                         </td>
                         <td className="py-3 px-4">
                           <div className="text-paper">{voucher.recipient_name || '-'}</div>
-                          <div className="text-paper/50 text-sm">{voucher.recipient_email || '-'}</div>
+                          <div className="text-paper/65 text-sm">{voucher.recipient_email || '-'}</div>
                         </td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 text-xs rounded ${
@@ -1017,7 +1017,7 @@ export function AdminDashboard() {
                             {voucher.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-paper/50 text-sm">
+                        <td className="py-3 px-4 text-paper/65 text-sm">
                           {new Date(voucher.created_at).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4 text-right">
@@ -1028,7 +1028,7 @@ export function AdminDashboard() {
                                 navigator.clipboard.writeText(url);
                                 alert('Gold Legacy redemption link copied!');
                               }}
-                              className="text-paper/30 hover:text-gold"
+                              className="text-paper/65 hover:text-gold"
                               title="Copy redemption link"
                             >
                               <Eye size={16} />
@@ -1039,7 +1039,7 @@ export function AdminDashboard() {
                     ))}
                     {(!goldLegacyVouchers?.vouchers || goldLegacyVouchers.vouchers.length === 0) && (
                       <tr>
-                        <td colSpan={6} className="text-center py-8 text-paper/50">
+                        <td colSpan={6} className="text-center py-8 text-paper/65">
                           No Gold Legacy vouchers created yet
                         </td>
                       </tr>
@@ -1074,7 +1074,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-red-400">{billingStats?.failed || 0}</div>
-                    <div className="text-paper/50 text-sm">Failed Payments</div>
+                    <div className="text-paper/65 text-sm">Failed Payments</div>
                   </div>
                 </div>
               </div>
@@ -1085,7 +1085,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-yellow-400">{billingStats?.pendingRetry || 0}</div>
-                    <div className="text-paper/50 text-sm">Pending Retry</div>
+                    <div className="text-paper/65 text-sm">Pending Retry</div>
                   </div>
                 </div>
               </div>
@@ -1096,7 +1096,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-green-400">{billingStats?.resolved || 0}</div>
-                    <div className="text-paper/50 text-sm">Resolved</div>
+                    <div className="text-paper/65 text-sm">Resolved</div>
                   </div>
                 </div>
               </div>
@@ -1107,7 +1107,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <div className="text-2xl text-blue-400">{billingStats?.last24Hours || 0}</div>
-                    <div className="text-paper/50 text-sm">Last 24 Hours</div>
+                    <div className="text-paper/65 text-sm">Last 24 Hours</div>
                   </div>
                 </div>
               </div>
@@ -1119,13 +1119,13 @@ export function AdminDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Error Type</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Amount</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Retries</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Date</th>
-                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">User</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Error Type</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Amount</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Retries</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Date</th>
+                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1133,7 +1133,7 @@ export function AdminDashboard() {
                     <tr key={error.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="text-paper">{error.userName}</div>
-                        <div className="text-paper/50 text-sm">{error.userEmail}</div>
+                        <div className="text-paper/65 text-sm">{error.userEmail}</div>
                       </td>
                       <td className="py-3 px-4">
                         <span className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded">
@@ -1152,29 +1152,29 @@ export function AdminDashboard() {
                           {error.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/50">{error.retryCount || 0}</td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65">{error.retryCount || 0}</td>
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {new Date(error.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => adminApi.notifyBillingError(error.id).then(() => alert('Notification sent!'))}
-                            className="p-1 text-paper/50 hover:text-gold transition-colors"
+                            className="p-1 text-paper/65 hover:text-gold transition-colors"
                             title="Notify User"
                           >
                             <Mail size={16} />
                           </button>
                           <button
                             onClick={() => adminApi.reprocessBillingError(error.id).then(() => alert('Reprocessing initiated!'))}
-                            className="p-1 text-paper/50 hover:text-blue-400 transition-colors"
+                            className="p-1 text-paper/65 hover:text-blue-400 transition-colors"
                             title="Reprocess Payment"
                           >
                             <Activity size={16} />
                           </button>
                           <button
                             onClick={() => adminApi.resolveBillingError(error.id, { resolution: 'Manually resolved' }).then(() => alert('Marked as resolved!'))}
-                            className="p-1 text-paper/50 hover:text-green-400 transition-colors"
+                            className="p-1 text-paper/65 hover:text-green-400 transition-colors"
                             title="Mark Resolved"
                           >
                             <CheckCircle size={16} />
@@ -1185,7 +1185,7 @@ export function AdminDashboard() {
                   ))}
                   {(!billingErrors?.data || billingErrors.data.length === 0) && (
                     <tr>
-                      <td colSpan={7} className="text-center py-8 text-paper/50">
+                      <td colSpan={7} className="text-center py-8 text-paper/65">
                         No billing errors found - all payments are processing successfully
                       </td>
                     </tr>
@@ -1202,7 +1202,7 @@ export function AdminDashboard() {
             <div className="flex justify-between items-center">
               <h2 className="text-xl">User Management</h2>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-paper/30" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-paper/65" />
                 <input
                   type="text"
                   placeholder="Search users..."
@@ -1217,12 +1217,12 @@ export function AdminDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Subscription</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Email Status</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Joined</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Last Active</th>
-                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">User</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Subscription</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Email Status</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Joined</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Last Active</th>
+                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1235,7 +1235,7 @@ export function AdminDashboard() {
                           </div>
                           <div>
                             <div className="text-paper">{user.firstName} {user.lastName}</div>
-                            <div className="text-paper/50 text-sm">{user.email}</div>
+                            <div className="text-paper/65 text-sm">{user.email}</div>
                           </div>
                         </div>
                       </td>
@@ -1245,14 +1245,14 @@ export function AdminDashboard() {
                             user.tier === 'FOREVER' ? 'bg-purple-500/20 text-purple-400' :
                             user.tier === 'FAMILY' ? 'bg-gold/20 text-gold' :
                             user.tier === 'STARTER' ? 'bg-blue-500/20 text-blue-400' :
-                            'bg-white/10 text-paper/50'
+                            'bg-white/10 text-paper/65'
                           }`}>
                             {user.tier || 'FREE'}
                           </span>
                           <span className={`text-xs ${
                             user.subscriptionStatus === 'ACTIVE' ? 'text-green-400' :
                             user.subscriptionStatus === 'TRIALING' ? 'text-yellow-400' :
-                            'text-paper/30'
+                            'text-paper/65'
                           }`}>
                             {user.subscriptionStatus || 'None'}
                           </span>
@@ -1263,16 +1263,16 @@ export function AdminDashboard() {
                           {user.emailVerified ? 'Verified' : 'Unverified'}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => setSelectedUser(user)}
-                          className="text-paper/50 hover:text-gold transition-colors"
+                          className="text-paper/65 hover:text-gold transition-colors"
                           title="Manage user"
                         >
                           <Eye size={16} />
@@ -1282,7 +1282,7 @@ export function AdminDashboard() {
                   ))}
                   {(!users?.data || users.data.length === 0) && (
                     <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper/50">
+                      <td colSpan={6} className="text-center py-8 text-paper/65">
                         {userSearch ? `No users found matching "${userSearch}"` : 'No users found'}
                       </td>
                     </tr>
@@ -1291,7 +1291,7 @@ export function AdminDashboard() {
               </table>
               {users?.pagination && (
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
-                  <span className="text-paper/50 text-sm">
+                  <span className="text-paper/65 text-sm">
                     Showing {users.data?.length || 0} of {users.pagination.total} users (Page {users.pagination.page} of {users.pagination.totalPages})
                   </span>
                 </div>
@@ -1319,12 +1319,12 @@ export function AdminDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Subject</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Priority</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Created</th>
-                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Subject</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">User</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Priority</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Created</th>
+                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1332,14 +1332,14 @@ export function AdminDashboard() {
                     <tr key={ticket.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="text-paper">{ticket.subject}</div>
-                        <div className="text-paper/50 text-sm">{ticket.category}</div>
+                        <div className="text-paper/65 text-sm">{ticket.category}</div>
                       </td>
                       <td className="py-3 px-4 text-paper/70">{ticket.user?.email || ticket.email}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-1 text-xs ${
                           ticket.priority === 'HIGH' ? 'bg-blood/20 text-blood' :
                           ticket.priority === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-white/10 text-paper/50'
+                          'bg-white/10 text-paper/65'
                         }`}>
                           {ticket.priority}
                         </span>
@@ -1349,18 +1349,18 @@ export function AdminDashboard() {
                           ticket.status === 'OPEN' ? 'bg-yellow-500/20 text-yellow-400' :
                           ticket.status === 'IN_PROGRESS' ? 'bg-blue-500/20 text-blue-400' :
                           ticket.status === 'RESOLVED' ? 'bg-green-500/20 text-green-400' :
-                          'bg-white/10 text-paper/50'
+                          'bg-white/10 text-paper/65'
                         }`}>
                           {ticket.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {new Date(ticket.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => setSelectedTicket(ticket.id)}
-                          className="text-paper/50 hover:text-gold transition-colors"
+                          className="text-paper/65 hover:text-gold transition-colors"
                         >
                           <Eye size={16} />
                         </button>
@@ -1369,7 +1369,7 @@ export function AdminDashboard() {
                   ))}
                   {(!tickets?.data || tickets.data.length === 0) && (
                     <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper/50">
+                      <td colSpan={6} className="text-center py-8 text-paper/65">
                         No support tickets
                       </td>
                     </tr>
@@ -1416,23 +1416,23 @@ export function AdminDashboard() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{systemStats?.users || 0}</div>
-                  <div className="text-paper/50 text-sm">Total Users</div>
+                  <div className="text-paper/65 text-sm">Total Users</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">{systemStats?.openTickets || 0}</div>
-                  <div className="text-paper/50 text-sm">Open Tickets</div>
+                  <div className="text-paper/65 text-sm">Open Tickets</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">
                     {((systemStats?.storage?.total || 0) / (1024 * 1024 * 1024)).toFixed(2)} GB
                   </div>
-                  <div className="text-paper/50 text-sm">Storage Used</div>
+                  <div className="text-paper/65 text-sm">Storage Used</div>
                 </div>
                 <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
                   <div className="text-2xl text-paper mb-1">
                     {(systemStats?.content?.memories || 0) + (systemStats?.content?.letters || 0)}
                   </div>
-                  <div className="text-paper/50 text-sm">Total Content</div>
+                  <div className="text-paper/65 text-sm">Total Content</div>
                 </div>
               </div>
             </div>
@@ -1448,10 +1448,10 @@ export function AdminDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Action</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Admin</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Details</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Time</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Action</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Admin</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Details</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Time</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1463,17 +1463,17 @@ export function AdminDashboard() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-paper/70">{log.admin?.email || 'System'}</td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {log.details ? JSON.stringify(log.details).substring(0, 50) : '-'}
                       </td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {new Date(log.createdAt).toLocaleString()}
                       </td>
                     </tr>
                   ))}
                   {(!auditLogs?.data || auditLogs.data.length === 0) && (
                     <tr>
-                      <td colSpan={4} className="text-center py-8 text-paper/50">
+                      <td colSpan={4} className="text-center py-8 text-paper/65">
                         No audit logs
                       </td>
                     </tr>
@@ -1504,11 +1504,11 @@ export function AdminDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Name</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Email</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Role</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Last Login</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Name</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Email</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Role</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Last Login</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1533,14 +1533,14 @@ export function AdminDashboard() {
                           {adminUser.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {adminUser.lastLoginAt ? new Date(adminUser.lastLoginAt).toLocaleString() : 'Never'}
                       </td>
                     </tr>
                   ))}
                   {(!adminUsers || adminUsers.length === 0) && (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-paper/50">
+                      <td colSpan={5} className="text-center py-8 text-paper/65">
                         No admin users
                       </td>
                     </tr>
@@ -1560,11 +1560,11 @@ export function AdminDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">To</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Subject</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper/50 font-normal">Sent</th>
-                    <th className="text-right py-3 px-4 text-paper/50 font-normal">Actions</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">To</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Subject</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Sent</th>
+                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1581,13 +1581,13 @@ export function AdminDashboard() {
                           {email.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/50 text-sm">
+                      <td className="py-3 px-4 text-paper/65 text-sm">
                         {email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => setSelectedEmail(email.id)}
-                          className="text-paper/30 hover:text-gold"
+                          className="text-paper/65 hover:text-gold"
                           title="View email details"
                         >
                           <Eye size={16} />
@@ -1597,7 +1597,7 @@ export function AdminDashboard() {
                   ))}
                   {(!emailLogs?.data || emailLogs.data.length === 0) && (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-paper/50">
+                      <td colSpan={5} className="text-center py-8 text-paper/65">
                         No email logs
                       </td>
                     </tr>
@@ -1647,7 +1647,7 @@ export function AdminDashboard() {
                     <span className="text-gold text-xl">{userGrowth?.totalSignups || 0}</span>
                   </div>
                   <div className="mt-4">
-                    <div className="text-paper/50 text-sm mb-2">Daily Signups</div>
+                    <div className="text-paper/65 text-sm mb-2">Daily Signups</div>
                     <div className="flex gap-1 h-20 items-end">
                       {userGrowth?.data?.slice(-14).map((day: any, i: number) => (
                         <div
@@ -1666,7 +1666,7 @@ export function AdminDashboard() {
             {/* Export Button */}
             <div className="card">
               <h3 className="text-lg mb-4">Export Data</h3>
-              <p className="text-paper/50 text-sm mb-4">Download user data for reporting and analysis. Only available to Super Admins.</p>
+              <p className="text-paper/65 text-sm mb-4">Download user data for reporting and analysis. Only available to Super Admins.</p>
               <div className="flex gap-4 flex-wrap">
                 <button
                   onClick={async () => {
@@ -1770,9 +1770,9 @@ function StatCard({ icon: Icon, label, value, subtext }: { icon: any; label: str
     <div className="card">
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-paper/50 text-sm mb-1">{label}</div>
+          <div className="text-paper/65 text-sm mb-1">{label}</div>
           <div className="text-2xl text-paper">{value}</div>
-          <div className="text-paper/40 text-sm mt-1">{subtext}</div>
+          <div className="text-paper/70 text-sm mt-1">{subtext}</div>
         </div>
         <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
           <Icon className="w-5 h-5 text-gold" />
@@ -1805,7 +1805,7 @@ function CouponRow({ coupon }: { coupon: any }) {
       <td className="py-3 px-4">
         <span className="font-mono text-gold">{coupon.code}</span>
         {coupon.description && (
-          <div className="text-paper/50 text-sm">{coupon.description}</div>
+          <div className="text-paper/65 text-sm">{coupon.description}</div>
         )}
       </td>
       <td className="py-3 px-4">
@@ -1816,7 +1816,7 @@ function CouponRow({ coupon }: { coupon: any }) {
       <td className="py-3 px-4 text-paper/70">
         {coupon.currentUses} / {coupon.maxUses || '∞'}
       </td>
-      <td className="py-3 px-4 text-paper/50 text-sm">
+      <td className="py-3 px-4 text-paper/65 text-sm">
         {coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : 'No expiry'}
       </td>
       <td className="py-3 px-4">
@@ -1825,7 +1825,7 @@ function CouponRow({ coupon }: { coupon: any }) {
           className={`px-2 py-1 text-xs ${
             coupon.isActive 
               ? 'bg-green-500/20 text-green-400' 
-              : 'bg-white/10 text-paper/50'
+              : 'bg-white/10 text-paper/65'
           }`}
         >
           {coupon.isActive ? 'Active' : 'Inactive'}
@@ -1838,7 +1838,7 @@ function CouponRow({ coupon }: { coupon: any }) {
               deleteMutation.mutate();
             }
           }}
-          className="text-paper/30 hover:text-blood transition-colors"
+          className="text-paper/65 hover:text-blood transition-colors"
         >
           <Trash2 size={16} />
         </button>
@@ -1881,14 +1881,14 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
       <div className="bg-void border border-white/10 rounded-lg w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">Create Coupon</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Coupon Code</label>
+            <label className="block text-sm text-paper/65 mb-2">Coupon Code</label>
             <input
               type="text"
               value={formData.code}
@@ -1899,7 +1899,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Description (optional)</label>
+            <label className="block text-sm text-paper/65 mb-2">Description (optional)</label>
             <input
               type="text"
               value={formData.description}
@@ -1911,7 +1911,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Discount Type</label>
+              <label className="block text-sm text-paper/65 mb-2">Discount Type</label>
               <select
                 value={formData.discountType}
                 onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
@@ -1922,7 +1922,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-paper/50 mb-2">
+              <label className="block text-sm text-paper/65 mb-2">
                 {formData.discountType === 'PERCENTAGE' ? 'Percentage (%)' : 'Amount ($)'}
               </label>
               <input
@@ -1938,7 +1938,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Max Uses (optional)</label>
+              <label className="block text-sm text-paper/65 mb-2">Max Uses (optional)</label>
               <input
                 type="number"
                 value={formData.maxUses}
@@ -1949,7 +1949,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Valid Until (optional)</label>
+              <label className="block text-sm text-paper/65 mb-2">Valid Until (optional)</label>
               <input
                 type="date"
                 value={formData.validUntil}
@@ -2000,14 +2000,14 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
       <div className="bg-void border border-white/10 rounded-lg w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">Add Admin User</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Email</label>
+            <label className="block text-sm text-paper/65 mb-2">Email</label>
             <input
               type="email"
               value={formData.email}
@@ -2019,7 +2019,7 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/50 mb-2">First Name</label>
+              <label className="block text-sm text-paper/65 mb-2">First Name</label>
               <input
                 type="text"
                 value={formData.firstName}
@@ -2028,7 +2028,7 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Last Name</label>
+              <label className="block text-sm text-paper/65 mb-2">Last Name</label>
               <input
                 type="text"
                 value={formData.lastName}
@@ -2039,7 +2039,7 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Role</label>
+            <label className="block text-sm text-paper/65 mb-2">Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -2127,7 +2127,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
       <div className="bg-void border border-white/10 rounded-lg w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">Manage User</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>
@@ -2140,47 +2140,47 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
             </div>
             <div>
               <div className="text-paper text-lg">{user.firstName} {user.lastName}</div>
-              <div className="text-paper/50 text-sm">{user.email}</div>
+              <div className="text-paper/65 text-sm">{user.email}</div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-paper/50">User ID:</span>
+              <span className="text-paper/65">User ID:</span>
               <div className="text-paper font-mono text-xs truncate">{user.id}</div>
             </div>
             <div>
-              <span className="text-paper/50">Joined:</span>
+              <span className="text-paper/65">Joined:</span>
               <div className="text-paper">{new Date(user.createdAt).toLocaleDateString()}</div>
             </div>
             <div>
-              <span className="text-paper/50">Current Tier:</span>
+              <span className="text-paper/65">Current Tier:</span>
               <div className={`inline-block px-2 py-0.5 text-xs rounded mt-1 ${
                 user.tier === 'FOREVER' ? 'bg-purple-500/20 text-purple-400' :
                 user.tier === 'FAMILY' ? 'bg-gold/20 text-gold' :
                 user.tier === 'STARTER' ? 'bg-blue-500/20 text-blue-400' :
-                'bg-white/10 text-paper/50'
+                'bg-white/10 text-paper/65'
               }`}>
                 {user.tier || 'FREE'}
               </div>
             </div>
             <div>
-              <span className="text-paper/50">Email Status:</span>
+              <span className="text-paper/65">Email Status:</span>
               <div className={`inline-block px-2 py-0.5 text-xs rounded mt-1 ${user.emailVerified ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                 {user.emailVerified ? 'Verified' : 'Unverified'}
               </div>
             </div>
             <div>
-              <span className="text-paper/50">Subscription:</span>
+              <span className="text-paper/65">Subscription:</span>
               <div className={`text-xs mt-1 ${
                 user.subscriptionStatus === 'ACTIVE' ? 'text-green-400' :
                 user.subscriptionStatus === 'TRIALING' ? 'text-yellow-400' :
-                'text-paper/30'
+                'text-paper/65'
               }`}>
                 {user.subscriptionStatus || 'None'}
               </div>
             </div>
             <div>
-              <span className="text-paper/50">Last Active:</span>
+              <span className="text-paper/65">Last Active:</span>
               <div className="text-paper text-xs">{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}</div>
             </div>
           </div>
@@ -2189,7 +2189,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
         <div className="space-y-6">
           {/* Change Tier */}
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Change Subscription Tier</label>
+            <label className="block text-sm text-paper/65 mb-2">Change Subscription Tier</label>
             <div className="flex gap-2">
               <select
                 value={selectedTier}
@@ -2213,7 +2213,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
 
           {/* Extend Trial */}
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Extend Trial Period</label>
+            <label className="block text-sm text-paper/65 mb-2">Extend Trial Period</label>
             <div className="flex gap-2">
               <input
                 type="number"
@@ -2235,7 +2235,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
 
           {/* Apply Coupon */}
           <div>
-            <label className="block text-sm text-paper/50 mb-2">Apply Coupon Code</label>
+            <label className="block text-sm text-paper/65 mb-2">Apply Coupon Code</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -2257,7 +2257,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
           {/* Verify Email */}
           {!user.emailVerified && (
             <div>
-              <label className="block text-sm text-paper/50 mb-2">Email Verification</label>
+              <label className="block text-sm text-paper/65 mb-2">Email Verification</label>
               <button
                 onClick={() => verifyEmailMutation.mutate()}
                 disabled={verifyEmailMutation.isPending}
@@ -2315,22 +2315,22 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
       <div className="bg-void border border-white/10 rounded-lg w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">Email Details</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>
 
         {isLoading ? (
-          <div className="text-center py-8 text-paper/50">Loading...</div>
+          <div className="text-center py-8 text-paper/65">Loading...</div>
         ) : email ? (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/50 text-xs mb-1">To</div>
+                <div className="text-paper/65 text-xs mb-1">To</div>
                 <div className="text-paper">{email.to}</div>
               </div>
               <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/50 text-xs mb-1">Status</div>
+                <div className="text-paper/65 text-xs mb-1">Status</div>
                 <span className={`px-2 py-1 text-xs ${
                   email.status === 'SENT' ? 'bg-green-500/20 text-green-400' :
                   email.status === 'FAILED' ? 'bg-blood/20 text-blood' :
@@ -2342,24 +2342,24 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
             </div>
 
             <div className="p-3 bg-white/[0.02] rounded">
-              <div className="text-paper/50 text-xs mb-1">Subject</div>
+              <div className="text-paper/65 text-xs mb-1">Subject</div>
               <div className="text-paper">{email.subject}</div>
             </div>
 
             {email.emailType && (
               <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/50 text-xs mb-1">Email Type</div>
+                <div className="text-paper/65 text-xs mb-1">Email Type</div>
                 <div className="text-paper font-mono text-sm">{email.emailType}</div>
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/50 text-xs mb-1">Created</div>
+                <div className="text-paper/65 text-xs mb-1">Created</div>
                 <div className="text-paper text-sm">{email.createdAt ? new Date(email.createdAt).toLocaleString() : '-'}</div>
               </div>
               <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/50 text-xs mb-1">Sent</div>
+                <div className="text-paper/65 text-xs mb-1">Sent</div>
                 <div className="text-paper text-sm">{email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}</div>
               </div>
             </div>
@@ -2372,7 +2372,7 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
             )}
 
             <div className="p-3 bg-white/[0.02] rounded">
-              <div className="text-paper/50 text-xs mb-2">Email Body (HTML Preview)</div>
+              <div className="text-paper/65 text-xs mb-2">Email Body (HTML Preview)</div>
               <div className="bg-white rounded p-4 max-h-96 overflow-y-auto">
                 <div 
                   className="text-black text-sm"
@@ -2395,7 +2395,7 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-paper/50">Email not found</div>
+          <div className="text-center py-8 text-paper/65">Email not found</div>
         )}
       </div>
     </div>
@@ -2439,7 +2439,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       <div className="bg-void border border-white/10 rounded-lg w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl">{ticket?.subject}</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>
@@ -2454,14 +2454,14 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
           </span>
           <span className={`px-2 py-1 text-xs ${
             ticket?.priority === 'HIGH' ? 'bg-blood/20 text-blood' :
-            'bg-white/10 text-paper/50'
+            'bg-white/10 text-paper/65'
           }`}>
             {ticket?.priority}
           </span>
         </div>
 
         <div className="mb-4 p-4 bg-white/[0.02] rounded">
-          <div className="text-paper/50 text-sm">From: {ticket?.user?.name} ({ticket?.user?.email})</div>
+          <div className="text-paper/65 text-sm">From: {ticket?.user?.name} ({ticket?.user?.email})</div>
         </div>
 
         {/* Messages */}
@@ -2473,7 +2473,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
                 msg.senderType === 'ADMIN' ? 'bg-gold/10 ml-8' : 'bg-white/[0.02] mr-8'
               }`}
             >
-              <div className="text-paper/50 text-xs mb-2">
+              <div className="text-paper/65 text-xs mb-2">
                 {msg.senderType === 'ADMIN' ? 'Admin' : 'User'} - {new Date(msg.createdAt).toLocaleString()}
               </div>
               <div className="text-paper">{msg.content}</div>
@@ -2621,7 +2621,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
         <div className="bg-void border border-white/10 rounded-lg max-w-lg w-full p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl">Create Gift Voucher</h3>
-          <button onClick={onClose} className="text-paper/50 hover:text-paper">
+          <button onClick={onClose} className="text-paper/65 hover:text-paper">
             <X size={20} />
           </button>
         </div>
@@ -2667,20 +2667,20 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             <div className="flex gap-2 mb-4">
               <button
                 onClick={() => setMode('single')}
-                className={`flex-1 py-2 px-4 rounded text-sm ${mode === 'single' ? 'bg-gold/20 text-gold' : 'bg-white/5 text-paper/50'}`}
+                className={`flex-1 py-2 px-4 rounded text-sm ${mode === 'single' ? 'bg-gold/20 text-gold' : 'bg-white/5 text-paper/65'}`}
               >
                 Single Voucher
               </button>
               <button
                 onClick={() => setMode('bulk')}
-                className={`flex-1 py-2 px-4 rounded text-sm ${mode === 'bulk' ? 'bg-gold/20 text-gold' : 'bg-white/5 text-paper/50'}`}
+                className={`flex-1 py-2 px-4 rounded text-sm ${mode === 'bulk' ? 'bg-gold/20 text-gold' : 'bg-white/5 text-paper/65'}`}
               >
                 Bulk Create
               </button>
             </div>
 
             <div>
-              <label className="block text-paper/50 text-sm mb-2">Quick Presets</label>
+              <label className="block text-paper/65 text-sm mb-2">Quick Presets</label>
               <div className="flex flex-wrap gap-2">
                 {PROMO_PRESETS.map((preset) => (
                   <button
@@ -2696,7 +2696,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-paper/50 text-sm mb-1">Tier</label>
+                <label className="block text-paper/65 text-sm mb-1">Tier</label>
                 <select
                   value={formData.tier}
                   onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
@@ -2709,7 +2709,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
               </div>
 
               <div>
-                <label className="block text-paper/50 text-sm mb-1">Billing Cycle</label>
+                <label className="block text-paper/65 text-sm mb-1">Billing Cycle</label>
                 <select
                   value={formData.billingCycle}
                   onChange={(e) => setFormData({ 
@@ -2727,7 +2727,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-paper/50 text-sm mb-1">Duration (months)</label>
+                <label className="block text-paper/65 text-sm mb-1">Duration (months)</label>
                 <input
                   type="number"
                   value={formData.durationMonths}
@@ -2740,7 +2740,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
 
               {mode === 'bulk' && (
                 <div>
-                  <label className="block text-paper/50 text-sm mb-1">Quantity</label>
+                  <label className="block text-paper/65 text-sm mb-1">Quantity</label>
                   <input
                     type="number"
                     value={formData.quantity}
@@ -2749,7 +2749,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
                     min="1"
                     max="50"
                   />
-                  <p className="text-paper/30 text-xs mt-1">Max 50 at a time</p>
+                  <p className="text-paper/65 text-xs mt-1">Max 50 at a time</p>
                 </div>
               )}
             </div>
@@ -2757,7 +2757,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             {mode === 'single' && (
               <>
                 <div>
-                  <label className="block text-paper/50 text-sm mb-1">Recipient Email (optional)</label>
+                  <label className="block text-paper/65 text-sm mb-1">Recipient Email (optional)</label>
                   <input
                     type="email"
                     value={formData.recipientEmail}
@@ -2768,7 +2768,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
                 </div>
 
                 <div>
-                  <label className="block text-paper/50 text-sm mb-1">Recipient Name (optional)</label>
+                  <label className="block text-paper/65 text-sm mb-1">Recipient Name (optional)</label>
                   <input
                     type="text"
                     value={formData.recipientName}
@@ -2793,7 +2793,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             )}
 
             <div>
-              <label className="block text-paper/50 text-sm mb-1">Admin Notes (optional)</label>
+              <label className="block text-paper/65 text-sm mb-1">Admin Notes (optional)</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -2881,9 +2881,9 @@ The Heirloom Team`;
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-xl text-gold">Create Gold Legacy Voucher</h3>
-              <p className="text-paper/50 text-sm mt-1">Exclusive lifetime access invitation</p>
+              <p className="text-paper/65 text-sm mt-1">Exclusive lifetime access invitation</p>
             </div>
-            <button onClick={onClose} className="text-paper/50 hover:text-gold">
+            <button onClick={onClose} className="text-paper/65 hover:text-gold">
               <X size={20} />
             </button>
           </div>
@@ -2894,7 +2894,7 @@ The Heirloom Team`;
                 <span className="text-4xl text-gold">∞</span>
               </div>
               <h4 className="text-lg text-gold mb-2">Gold Legacy Voucher Created!</h4>
-              <p className="text-paper/60 text-sm mb-4">Member #{createdVoucher.memberNumber}</p>
+              <p className="text-paper/70 text-sm mb-4">Member #{createdVoucher.memberNumber}</p>
               
               <div className="p-4 rounded mb-4" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' }}>
                 <p className="font-mono text-lg tracking-wider" style={{ color: '#0a0a0f' }}>{createdVoucher.code}</p>
@@ -2980,7 +2980,7 @@ The Heirloom Team`;
                   rows={8}
                   placeholder={DEFAULT_MESSAGE}
                 />
-                <p className="text-paper/30 text-xs mt-1">Leave empty to use the default message</p>
+                <p className="text-paper/65 text-xs mt-1">Leave empty to use the default message</p>
               </div>
 
               {formData.recipientEmail && (

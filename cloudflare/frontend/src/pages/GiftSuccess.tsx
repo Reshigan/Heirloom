@@ -36,7 +36,7 @@ export function GiftSuccess() {
           <h1 className="text-3xl font-light text-paper mb-2">
             Thank You!
           </h1>
-          <p className="text-paper/60 mb-8">
+          <p className="text-paper/70 mb-8">
             Your gift voucher has been created successfully.
           </p>
 
@@ -44,7 +44,7 @@ export function GiftSuccess() {
           <div className="bg-white/5 border border-gold/30 rounded-lg p-6 mb-6">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Gift className="w-5 h-5 text-gold" />
-              <span className="text-paper/50 text-sm">Your Gift Code</span>
+              <span className="text-paper/65 text-sm">Your Gift Code</span>
             </div>
             <div className="font-mono text-2xl md:text-3xl text-gold tracking-wider mb-4">
               {code}
@@ -60,7 +60,7 @@ export function GiftSuccess() {
 
           {/* Redemption Link */}
           <div className="bg-white/[0.02] border border-white/10 rounded-lg p-4 mb-6">
-            <p className="text-paper/50 text-sm mb-2">Or share this redemption link:</p>
+            <p className="text-paper/65 text-sm mb-2">Or share this redemption link:</p>
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -117,7 +117,7 @@ export function GiftSuccess() {
           </div>
 
           {/* Receipt Note */}
-          <p className="text-paper/40 text-xs mt-6">
+          <p className="text-paper/70 text-xs mt-6">
             A confirmation email has been sent to your email address.
           </p>
         </div>

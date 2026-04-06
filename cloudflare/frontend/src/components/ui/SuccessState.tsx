@@ -58,7 +58,7 @@ export function SuccessState({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-paper/60 mb-6"
+          className="text-paper/70 mb-6"
         >
           {message}
         </motion.p>
@@ -84,7 +84,7 @@ export function SuccessState({
           {secondaryAction && (
             <button
               onClick={secondaryAction.onClick}
-              className="px-6 py-3 text-paper/60 hover:text-paper transition-colors"
+              className="px-6 py-3 text-paper/70 hover:text-paper transition-colors"
             >
               {secondaryAction.label}
             </button>
@@ -108,7 +108,7 @@ export function InlineSuccess({ message, onDismiss }: { message: string; onDismi
       {onDismiss && (
         <button
           onClick={onDismiss}
-          className="text-paper/40 hover:text-paper transition-colors text-sm"
+          className="text-paper/70 hover:text-paper transition-colors text-sm"
         >
           Dismiss
         </button>

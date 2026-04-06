@@ -89,7 +89,7 @@ export function ForgotPassword() {
                 >
                   ∞
                 </motion.div>
-                <span className="text-lg tracking-[0.2em] text-paper/60">HEIRLOOM</span>
+                <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
               </Link>
             </motion.div>
 
@@ -103,7 +103,7 @@ export function ForgotPassword() {
                   <CheckCircle className="w-8 h-8 text-gold" />
                 </div>
                 <h1 className="text-2xl font-light mb-4">Check your email</h1>
-                <p className="text-paper/60 mb-8">
+                <p className="text-paper/70 mb-8">
                   If an account exists with <span className="text-gold">{email}</span>, you will receive a password reset link shortly.
                 </p>
                 <Link 
@@ -122,7 +122,7 @@ export function ForgotPassword() {
                   transition={{ delay: 0.2 }}
                 >
                   <h1 className="text-2xl font-light text-center mb-2">Forgot your password?</h1>
-                  <p className="text-paper/50 text-center mb-8">
+                  <p className="text-paper/65 text-center mb-8">
                     Enter your email and we'll send you a reset link
                   </p>
                 </motion.div>
@@ -139,9 +139,9 @@ export function ForgotPassword() {
                   )}
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">Email</label>
+                    <label className="block text-sm text-paper/65 mb-2">Email</label>
                     <div className="relative">
-                      <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                      <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                       <input
                         type="email"
                         value={email}
@@ -171,7 +171,7 @@ export function ForgotPassword() {
                 <div className="mt-8 text-center">
                   <Link 
                     to="/login" 
-                    className="text-paper/50 hover:text-paper transition-colors inline-flex items-center gap-2"
+                    className="text-paper/65 hover:text-paper transition-colors inline-flex items-center gap-2"
                   >
                     <ArrowLeft size={16} />
                     Back to Login

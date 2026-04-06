@@ -131,7 +131,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                   <h2 className="text-2xl font-light mb-2">
                     {mode === 'setup' ? 'Secure Your Vault' : 'Unlock Your Vault'}
                   </h2>
-                  <p className="text-paper/50 text-sm">
+                  <p className="text-paper/65 text-sm">
                     {mode === 'setup' 
                       ? 'Create a vault passphrase to encrypt your memories. This is separate from your login password and provides an extra layer of security.'
                       : 'Enter your vault passphrase to access your encrypted memories.'
@@ -162,11 +162,11 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                   )}
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">
+                    <label className="block text-sm text-paper/65 mb-2">
                       {mode === 'setup' ? 'Create Vault Passphrase' : 'Vault Passphrase'}
                     </label>
                     <div className="relative">
-                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                       <input
                         type={showPassphrase ? 'text' : 'password'}
                         value={passphrase}
@@ -178,7 +178,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                       <button
                         type="button"
                         onClick={() => setShowPassphrase(!showPassphrase)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/65 hover:text-paper transition-colors"
                       >
                         {showPassphrase ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -194,15 +194,15 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                             <div className={`w-3 h-3 rounded-full flex items-center justify-center ${valid ? 'bg-green-500' : 'bg-paper/10'}`}>
                               {valid && <Check size={8} className="text-void" />}
                             </div>
-                            <span className={valid ? 'text-green-400' : 'text-paper/40'}>{label}</span>
+                            <span className={valid ? 'text-green-400' : 'text-paper/70'}>{label}</span>
                           </div>
                         ))}
                       </div>
 
                       <div>
-                        <label className="block text-sm text-paper/50 mb-2">Confirm Passphrase</label>
+                        <label className="block text-sm text-paper/65 mb-2">Confirm Passphrase</label>
                         <div className="relative">
-                          <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                          <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                           <input
                             type="password"
                             value={confirmPassphrase}
@@ -255,7 +255,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                     <button
                       type="button"
                       onClick={onSkip}
-                      className="w-full text-center text-sm text-paper/40 hover:text-paper/60 transition-colors py-2"
+                      className="w-full text-center text-sm text-paper/70 hover:text-paper/70 transition-colors py-2"
                     >
                       Skip for now (you can enable encryption later)
                     </button>

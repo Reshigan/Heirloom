@@ -64,7 +64,7 @@ export function NotFound() {
           <h2 className="text-2xl md:text-3xl font-light text-paper mb-4">
             Page Not Found
           </h2>
-          <p className="text-paper/50 max-w-md mx-auto mb-8">
+          <p className="text-paper/65 max-w-md mx-auto mb-8">
             The page you're looking for seems to have drifted into the void. 
             Let's guide you back to familiar territory.
           </p>

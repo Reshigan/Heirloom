@@ -118,7 +118,7 @@ export function ShareMemoryCard({ memoryId, memoryTitle, isOpen, onClose }: Shar
             </div>
 
             <div className="mb-6">
-              <p className="text-paper/60 mb-4">
+              <p className="text-paper/70 mb-4">
                 Create a beautiful shareable card for "{memoryTitle}"
               </p>
 
@@ -134,14 +134,14 @@ export function ShareMemoryCard({ memoryId, memoryTitle, isOpen, onClose }: Shar
                     }`}
                   >
                     <p className="font-medium text-sm mb-1">{style.label}</p>
-                    <p className="text-paper/50 text-xs">{style.description}</p>
+                    <p className="text-paper/65 text-xs">{style.description}</p>
                   </button>
                 ))}
               </div>
 
               {generatedCard && (
                 <div className="bg-void/50 rounded-lg p-4 mb-6">
-                  <p className="text-paper/50 text-sm mb-2">Generated Quote</p>
+                  <p className="text-paper/65 text-sm mb-2">Generated Quote</p>
                   <blockquote className="text-paper/80 italic">
                     "{generatedCard.quote}"
                   </blockquote>

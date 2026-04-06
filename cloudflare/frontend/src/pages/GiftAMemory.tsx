@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Heart, Loader2, Gift, Check, Image, Mic, Pen } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
@@ -98,23 +97,19 @@ export function GiftAMemory() {
             <Gift size={28} className="text-gold" />
           </div>
           <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Gift a Memory</h1>
-          <p className="text-paper/50 font-serif">Send a piece of your legacy to someone you love</p>
+          <p className="text-paper/65 font-serif">Send a piece of your legacy to someone you love</p>
         </div>
 
         {sendMutation.isSuccess ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-12"
-          >
+          <div className="text-center py-12 animate-fade-in">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center">
               <Check size={36} className="text-green-400" />
             </div>
             <h2 className="font-serif text-2xl text-paper mb-2">Gift Sent!</h2>
-            <p className="text-paper/50 mb-1">
+            <p className="text-paper/65 mb-1">
               Your memory gift has been sent to <span className="text-gold">{config.recipientName}</span>
             </p>
-            <p className="text-paper/40 text-sm mb-8">
+            <p className="text-paper/70 text-sm mb-8">
               They&apos;ll receive an email with a link to unwrap their gift.
             </p>
             <div className="flex gap-3 justify-center">
@@ -124,7 +119,7 @@ export function GiftAMemory() {
                   setStep('select-type');
                   sendMutation.reset();
                 }}
-                className="px-5 py-2.5 rounded-xl border border-paper/20 text-paper/60 hover:text-paper transition-colors text-sm"
+                className="px-5 py-2.5 rounded-xl border border-paper/20 text-paper/70 hover:text-paper transition-colors text-sm"
               >
                 Send Another Gift
               </button>
@@ -135,38 +130,36 @@ export function GiftAMemory() {
                 Back to Dashboard
               </button>
             </div>
-          </motion.div>
+          </div>
         ) : (
           <>
             {step === 'select-type' && (
               <div className="space-y-3">
-                <p className="text-paper/60 text-center mb-6">What would you like to gift?</p>
+                <p className="text-paper/70 text-center mb-6">What would you like to gift?</p>
                 {typeOptions.map(({ id, label, icon: Icon, desc }) => (
-                  <motion.button
+                  <button
                     key={id}
                     onClick={() => {
                       setConfig((prev) => ({ ...prev, memoryType: id }));
                       setStep('select-content');
                     }}
-                    className="w-full text-left p-5 rounded-xl glass border border-paper/10 hover:border-gold/30 transition-all flex items-center gap-4"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
+                    className="w-full text-left p-5 rounded-xl glass border border-paper/10 hover:border-gold/30 transition-all flex items-center gap-4 hover:scale-[1.01] active:scale-[0.99]"
                   >
                     <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center flex-shrink-0">
                       <Icon size={24} className="text-gold" />
                     </div>
                     <div>
                       <p className="font-serif text-lg text-paper">{label}</p>
-                      <p className="text-paper/40 text-sm">{desc}</p>
+                      <p className="text-paper/70 text-sm">{desc}</p>
                     </div>
-                  </motion.button>
+                  </button>
                 ))}
               </div>
             )}
 
             {step === 'select-content' && (
               <div className="space-y-3">
-                <p className="text-paper/60 text-center mb-6">Choose the {config.memoryType} to gift</p>
+                <p className="text-paper/70 text-center mb-6">Choose the {config.memoryType} to gift</p>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {getContentList().map((item: { id: string; title?: string; subject?: string }) => (
                     <button
@@ -191,7 +184,7 @@ export function GiftAMemory() {
                 </div>
                 <button
                   onClick={() => setStep('select-type')}
-                  className="text-paper/40 hover:text-paper/60 text-sm transition-colors"
+                  className="text-paper/70 hover:text-paper/70 text-sm transition-colors"
                 >
                   &larr; Back
                 </button>
@@ -200,9 +193,9 @@ export function GiftAMemory() {
 
             {step === 'recipient' && (
               <div className="space-y-4 max-w-md mx-auto">
-                <p className="text-paper/60 text-center mb-6">Who should receive this gift?</p>
+                <p className="text-paper/70 text-center mb-6">Who should receive this gift?</p>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Recipient&apos;s Name</label>
+                  <label className="block text-sm text-paper/65 mb-1">Recipient&apos;s Name</label>
                   <input
                     type="text"
                     value={config.recipientName}
@@ -212,7 +205,7 @@ export function GiftAMemory() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Recipient&apos;s Email</label>
+                  <label className="block text-sm text-paper/65 mb-1">Recipient&apos;s Email</label>
                   <input
                     type="email"
                     value={config.recipientEmail}
@@ -222,7 +215,7 @@ export function GiftAMemory() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Personal Message (optional)</label>
+                  <label className="block text-sm text-paper/65 mb-1">Personal Message (optional)</label>
                   <textarea
                     value={config.personalMessage}
                     onChange={(e) => setConfig((prev) => ({ ...prev, personalMessage: e.target.value }))}
@@ -231,29 +224,27 @@ export function GiftAMemory() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Unlock Date (optional)</label>
+                  <label className="block text-sm text-paper/65 mb-1">Unlock Date (optional)</label>
                   <input
                     type="date"
                     value={config.unlockDate}
                     onChange={(e) => setConfig((prev) => ({ ...prev, unlockDate: e.target.value }))}
                     className="w-full px-4 py-3 rounded-xl bg-paper/5 border border-paper/10 text-paper focus:border-gold/30 focus:outline-none"
                   />
-                  <p className="text-paper/30 text-xs mt-1">Leave empty to make it available immediately</p>
+                  <p className="text-paper/65 text-xs mt-1">Leave empty to make it available immediately</p>
                 </div>
 
                 <div className="flex justify-between items-center pt-4">
                   <button
                     onClick={() => setStep('select-content')}
-                    className="text-paper/40 hover:text-paper/60 text-sm transition-colors"
+                    className="text-paper/70 hover:text-paper/70 text-sm transition-colors"
                   >
                     &larr; Back
                   </button>
-                  <motion.button
+                  <button
                     onClick={() => sendMutation.mutate()}
                     disabled={!config.recipientEmail || !config.recipientName || sendMutation.isPending}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-gold to-gold-dim text-void font-medium text-sm disabled:opacity-50"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-gold to-gold-dim text-void font-medium text-sm disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98] transition-transform"
                   >
                     {sendMutation.isPending ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -261,7 +252,7 @@ export function GiftAMemory() {
                       <Heart size={16} />
                     )}
                     Send Gift
-                  </motion.button>
+                  </button>
                 </div>
 
                 {sendMutation.isError && (

@@ -115,7 +115,7 @@ export function ResetPassword() {
                 >
                   ∞
                 </motion.div>
-                <span className="text-lg tracking-[0.2em] text-paper/60">HEIRLOOM</span>
+                <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
               </Link>
             </motion.div>
 
@@ -129,7 +129,7 @@ export function ResetPassword() {
                   <AlertCircle className="w-8 h-8 text-blood" />
                 </div>
                 <h1 className="text-2xl font-light mb-4">Invalid Reset Link</h1>
-                <p className="text-paper/60 mb-8">
+                <p className="text-paper/70 mb-8">
                   This password reset link is invalid or has expired.
                 </p>
                 <Link 
@@ -149,7 +149,7 @@ export function ResetPassword() {
                   <CheckCircle className="w-8 h-8 text-gold" />
                 </div>
                 <h1 className="text-2xl font-light mb-4">Password Reset!</h1>
-                <p className="text-paper/60 mb-8">
+                <p className="text-paper/70 mb-8">
                   Your password has been successfully reset. Redirecting you to login...
                 </p>
                 <Link 
@@ -167,7 +167,7 @@ export function ResetPassword() {
                   transition={{ delay: 0.2 }}
                 >
                   <h1 className="text-2xl font-light text-center mb-2">Reset your password</h1>
-                  <p className="text-paper/50 text-center mb-8">
+                  <p className="text-paper/65 text-center mb-8">
                     Enter your new password below
                   </p>
                 </motion.div>
@@ -184,9 +184,9 @@ export function ResetPassword() {
                   )}
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">New Password</label>
+                    <label className="block text-sm text-paper/65 mb-2">New Password</label>
                     <div className="relative">
-                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={password}
@@ -199,18 +199,18 @@ export function ResetPassword() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/65 hover:text-paper transition-colors"
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
-                    <p className="text-xs text-paper/40 mt-1">Must be at least 8 characters</p>
+                    <p className="text-xs text-paper/70 mt-1">Must be at least 8 characters</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">Confirm Password</label>
+                    <label className="block text-sm text-paper/65 mb-2">Confirm Password</label>
                     <div className="relative">
-                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/30" />
+                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
@@ -222,7 +222,7 @@ export function ResetPassword() {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/30 hover:text-paper transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/65 hover:text-paper transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -247,7 +247,7 @@ export function ResetPassword() {
                 <div className="mt-8 text-center">
                   <Link 
                     to="/login" 
-                    className="text-paper/50 hover:text-paper transition-colors"
+                    className="text-paper/65 hover:text-paper transition-colors"
                   >
                     Back to Login
                   </Link>

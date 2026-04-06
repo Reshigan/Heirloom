@@ -121,7 +121,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                 </div>
                 <button
                   onClick={handleClose}
-                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper transition-colors"
+                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper transition-colors"
                 >
                   <X size={18} />
                 </button>
@@ -131,15 +131,15 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">Name</label>
+                  <label className="block text-sm text-paper/70 mb-2">Name</label>
                   <div className="relative">
-                    <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-paper/30" />
+                    <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-paper/65" />
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Enter their name"
-                      className="w-full pl-10 pr-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                      className="w-full pl-10 pr-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/65 focus:outline-none focus:border-gold/50"
                     />
                   </div>
                   {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
@@ -147,7 +147,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
 
                 {/* Relationship */}
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">Relationship</label>
+                  <label className="block text-sm text-paper/70 mb-2">Relationship</label>
                   <select
                     value={relationship}
                     onChange={(e) => setRelationship(e.target.value)}
@@ -163,17 +163,17 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
 
                 {/* Email (required) */}
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">
+                  <label className="block text-sm text-paper/70 mb-2">
                     Email <span className="text-gold">*</span>
                   </label>
                   <div className="relative">
-                    <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-paper/30" />
+                    <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-paper/65" />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="For letter delivery"
-                      className="w-full pl-10 pr-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/50"
+                      className="w-full pl-10 pr-4 py-3 bg-void-elevated border border-gold/20 rounded-xl text-paper placeholder:text-paper/65 focus:outline-none focus:border-gold/50"
                     />
                   </div>
                   {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
@@ -187,7 +187,7 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                 )}
 
                 {/* Note */}
-                <p className="text-paper/40 text-xs">
+                <p className="text-paper/70 text-xs">
                   You can add a photo and more details later from the Family page.
                 </p>
 

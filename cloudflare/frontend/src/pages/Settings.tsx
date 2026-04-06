@@ -418,7 +418,7 @@ export function Settings() {
       <Navigation />
 
       <div className="relative z-10 px-6 md:px-12 py-12">
-      <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8">
+      <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8">
         <ArrowLeft size={20} />
         Back to Vault
       </button>
@@ -427,14 +427,14 @@ export function Settings() {
         <h1 className="text-4xl font-light mb-12">Settings</h1>
 
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="md:w-56 space-y-1">
+          {/* Sidebar - horizontal scroll on mobile, vertical on desktop */}
+          <div className="md:w-56 space-y-1 settings-tabs-mobile md:block scrollbar-hide">
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => handleTabChange(id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${
-                  activeTab === id ? 'bg-gold/10 text-gold border-l-2 border-gold' : 'text-paper/50 hover:text-gold'
+                  activeTab === id ? 'bg-gold/10 text-gold border-l-2 border-gold' : 'text-paper/65 hover:text-gold'
                 }`}
               >
                 <Icon size={18} />
@@ -476,7 +476,7 @@ export function Settings() {
                               </div>
                               <div>
                                 <h2 className="text-xl">{user?.firstName} {user?.lastName}</h2>
-                                <p className="text-paper/50">{user?.email}</p>
+                                <p className="text-paper/65">{user?.email}</p>
                                 <button
                                   onClick={() => fileInputRef.current?.click()}
                                   className="text-sm text-gold hover:text-gold-dim mt-1"
@@ -489,17 +489,17 @@ export function Settings() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-paper/50 mb-2">First name</label>
+                      <label className="block text-sm text-paper/65 mb-2">First name</label>
                       <input type="text" value={profile.firstName} onChange={(e) => setProfile({ ...profile, firstName: e.target.value })} className="input" />
                     </div>
                     <div>
-                      <label className="block text-sm text-paper/50 mb-2">Last name</label>
+                      <label className="block text-sm text-paper/65 mb-2">Last name</label>
                       <input type="text" value={profile.lastName} onChange={(e) => setProfile({ ...profile, lastName: e.target.value })} className="input" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm text-paper/50 mb-2">Preferred Currency</label>
+                    <label className="block text-sm text-paper/65 mb-2">Preferred Currency</label>
                     <select
                       value={user?.preferredCurrency || 'USD'}
                       onChange={(e) => updateCurrencyMutation.mutate(e.target.value)}
@@ -557,14 +557,21 @@ export function Settings() {
                       ].map(({ label, data }) => (
                         <div key={label}>
                           <div className="flex justify-between text-sm mb-1">
-                            <span className="text-paper/50">{label}</span>
+                            <span className="text-paper/65">{label}</span>
                             <span>{data.current} / {data.max === -1 ? '∞' : data.max}</span>
                           </div>
-                          <div className="h-1 bg-white/10 rounded">
-                            <div
-                              className="h-full bg-gold rounded"
-                              style={{ width: `${data.max === -1 ? 0 : Math.min(100, (data.current / data.max) * 100)}%` }}
-                            />
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 bg-white/10 rounded flex-1">
+                              <div
+                                className="h-full bg-gold rounded"
+                                style={{ width: `${data.max === -1 ? 0 : Math.min(100, (data.current / data.max) * 100)}%` }}
+                              />
+                            </div>
+                            {data.max !== -1 && (
+                              <span className="text-xs text-paper/50 tabular-nums w-8 text-right">
+                                {Math.round((data.current / data.max) * 100)}%
+                              </span>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -611,7 +618,7 @@ export function Settings() {
                             <span className={`text-2xl ${isCurrentPlan ? 'text-gold' : 'text-paper'}`}>
                               ${plan.monthlyPrice}
                             </span>
-                            <span className="text-paper/40 text-sm">/month</span>
+                            <span className="text-paper/70 text-sm">/month</span>
                           </div>
               
                           <ul className="space-y-2 mb-6 text-sm">
@@ -675,7 +682,7 @@ export function Settings() {
               <div className="space-y-6">
                 <div className="card">
                   <h3 className="text-xl mb-2">Dead Man's Switch</h3>
-                  <p className="text-paper/50 text-sm mb-6">
+                  <p className="text-paper/65 text-sm mb-6">
                     Configure automatic release of your content to beneficiaries if you don't check in regularly.
                   </p>
 
@@ -686,7 +693,7 @@ export function Settings() {
                           <div className={`text-sm ${deadmanStatus.status === 'ACTIVE' ? 'text-green-400' : deadmanStatus.status === 'WARNING' ? 'text-yellow-400' : 'text-blood'}`}>
                             Status: {deadmanStatus.status}
                           </div>
-                          <div className="text-paper/50 text-sm mt-1">
+                          <div className="text-paper/65 text-sm mt-1">
                             Next check-in due: {deadmanStatus.nextCheckInDue ? new Date(deadmanStatus.nextCheckInDue).toLocaleDateString() : 'Not set'}
                           </div>
                         </div>
@@ -697,7 +704,7 @@ export function Settings() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm text-paper/50 mb-2">Check-in interval</label>
+                          <label className="block text-sm text-paper/65 mb-2">Check-in interval</label>
                           <select
                             value={deadmanConfig.intervalDays}
                             onChange={(e) => setDeadmanConfig({ ...deadmanConfig, intervalDays: Number(e.target.value) })}
@@ -711,7 +718,7 @@ export function Settings() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm text-paper/50 mb-2">Grace period (days)</label>
+                          <label className="block text-sm text-paper/65 mb-2">Grace period (days)</label>
                           <input
                             type="number"
                             value={deadmanConfig.gracePeriodDays}
@@ -730,7 +737,7 @@ export function Settings() {
                   ) : (
                     <div className="text-center py-8">
                       <Clock className="w-12 h-12 text-paper/20 mx-auto mb-4" />
-                      <p className="text-paper/50 mb-4">Dead man's switch is not configured</p>
+                      <p className="text-paper/65 mb-4">Dead man's switch is not configured</p>
                       <button onClick={() => configureDeadmanMutation.mutate()} className="btn btn-primary">
                         Enable Dead Man's Switch
                       </button>
@@ -741,7 +748,7 @@ export function Settings() {
                 {/* Legacy Contacts */}
                 <div className="card">
                   <h3 className="text-lg mb-4">Legacy Contacts</h3>
-                  <p className="text-paper/50 text-sm mb-6">
+                  <p className="text-paper/65 text-sm mb-6">
                     These trusted contacts will be asked to verify your status if you miss check-ins.
                     At least 2 contacts must verify before your content is released.
                   </p>
@@ -751,7 +758,7 @@ export function Settings() {
                       <div key={contact.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.04]">
                         <div>
                           <div className="text-paper">{contact.name}</div>
-                          <div className="text-paper/40 text-sm">{contact.email} • {contact.relationship}</div>
+                          <div className="text-paper/70 text-sm">{contact.email} • {contact.relationship}</div>
                         </div>
                         <span className={`text-xs px-2 py-1 ${contact.verificationStatus === 'VERIFIED' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
                           {contact.verificationStatus}
@@ -792,7 +799,7 @@ export function Settings() {
                       />
                     </div>
                   </div>
-                  <p className="text-paper/40 text-xs mt-2">* All fields are required</p>
+                  <p className="text-paper/70 text-xs mt-2">* All fields are required</p>
                   <button
                     onClick={() => addLegacyContactMutation.mutate()}
                     disabled={!newLegacyContact.name || !newLegacyContact.email || !newLegacyContact.relationship}
@@ -807,7 +814,7 @@ export function Settings() {
                         {activeTab === 'encryption' && (
                           <div className="card">
                             <h3 className="text-xl mb-2">End-to-End Encryption</h3>
-                            <p className="text-paper/50 text-sm mb-6">
+                            <p className="text-paper/65 text-sm mb-6">
                               Your content is encrypted before it leaves your device. Only you and your designated
                               beneficiaries can decrypt it.
                             </p>
@@ -820,8 +827,8 @@ export function Settings() {
                                 </div>
 
                                 <div>
-                                  <h4 className="text-sm text-paper/50 mb-2">Key Escrow Status</h4>
-                                  <p className="text-paper/60 text-sm">
+                                  <h4 className="text-sm text-paper/65 mb-2">Key Escrow Status</h4>
+                                  <p className="text-paper/70 text-sm">
                                     {encryptionStatus?.hasEscrow 
                                       ? 'Your encryption key is securely escrowed and will be released to your beneficiaries when the dead man\'s switch is triggered.'
                                       : 'Key escrow not configured. Set up key escrow to ensure your beneficiaries can access your content.'}
@@ -831,8 +838,8 @@ export function Settings() {
                             ) : (
                               <div className="text-center py-8">
                                 <Lock className="w-12 h-12 text-paper/20 mx-auto mb-4" />
-                                <p className="text-paper/50 mb-4">Encryption not yet configured</p>
-                                <p className="text-paper/40 text-sm mb-6">
+                                <p className="text-paper/65 mb-4">Encryption not yet configured</p>
+                                <p className="text-paper/70 text-sm mb-6">
                                   Set up end-to-end encryption to ensure only you and your beneficiaries can access your content.
                                 </p>
                                 <button 
@@ -858,7 +865,7 @@ export function Settings() {
                               <div key={id} className="flex items-center justify-between">
                                 <div>
                                   <div className="text-paper">{label}</div>
-                                  <div className="text-paper/40 text-sm">{desc}</div>
+                                  <div className="text-paper/70 text-sm">{desc}</div>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                   <input 
@@ -872,7 +879,7 @@ export function Settings() {
                               </div>
                             ))}
                             {updateNotificationsMutation.isPending && (
-                              <div className="text-paper/40 text-sm">Saving...</div>
+                              <div className="text-paper/70 text-sm">Saving...</div>
                             )}
                           </div>
                         )}
@@ -903,7 +910,7 @@ export function Settings() {
 
                             <div className="card">
                               <h3 className="text-lg mb-2">Export Your Data</h3>
-                              <p className="text-paper/50 text-sm mb-4">
+                              <p className="text-paper/65 text-sm mb-4">
                                 Download all your data in JSON format. This includes your profile, memories, voice recordings, letters, and family members.
                               </p>
                               <button
@@ -927,7 +934,7 @@ export function Settings() {
 
                             <div className="card border-blood/30 bg-blood/5">
                               <h3 className="text-lg text-blood mb-2">Danger Zone</h3>
-                              <p className="text-paper/50 text-sm mb-4">Once you delete your account, there is no going back.</p>
+                              <p className="text-paper/65 text-sm mb-4">Once you delete your account, there is no going back.</p>
                               <button
                                 onClick={() => setShowDeleteModal(true)}
                                 className="btn border border-blood text-blood hover:bg-blood/10 flex items-center gap-2"
@@ -949,7 +956,7 @@ export function Settings() {
                     </div>
                     <div>
                       <h3 className="text-lg">Contact Support</h3>
-                      <p className="text-paper/50 text-sm">We're here to help with any questions or issues</p>
+                      <p className="text-paper/65 text-sm">We're here to help with any questions or issues</p>
                     </div>
                   </div>
 
@@ -959,7 +966,7 @@ export function Settings() {
                         <Check size={32} className="text-green-400" />
                       </div>
                       <h4 className="text-xl mb-2">Ticket Submitted!</h4>
-                      <p className="text-paper/60 mb-6">We'll get back to you as soon as possible.</p>
+                      <p className="text-paper/70 mb-6">We'll get back to you as soon as possible.</p>
                       <button
                         onClick={() => setTicketSubmitted(false)}
                         className="btn btn-secondary"
@@ -970,7 +977,7 @@ export function Settings() {
                   ) : (
                     <form onSubmit={handleSubmitTicket} className="space-y-4">
                       <div>
-                        <label className="block text-sm text-paper/60 mb-2">Category</label>
+                        <label className="block text-sm text-paper/70 mb-2">Category</label>
                         <select
                           value={ticketForm.category}
                           onChange={(e) => setTicketForm({ ...ticketForm, category: e.target.value })}
@@ -986,7 +993,7 @@ export function Settings() {
                       </div>
 
                       <div>
-                        <label className="block text-sm text-paper/60 mb-2">Subject <span className="text-gold">*</span></label>
+                        <label className="block text-sm text-paper/70 mb-2">Subject <span className="text-gold">*</span></label>
                         <input
                           type="text"
                           value={ticketForm.subject}
@@ -998,7 +1005,7 @@ export function Settings() {
                       </div>
 
                       <div>
-                        <label className="block text-sm text-paper/60 mb-2">Description <span className="text-gold">*</span></label>
+                        <label className="block text-sm text-paper/70 mb-2">Description <span className="text-gold">*</span></label>
                         <textarea
                           value={ticketForm.description}
                           onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
@@ -1032,7 +1039,7 @@ export function Settings() {
 
                 <div className="card bg-gold/5 border-gold/20">
                   <h4 className="text-sm font-medium text-gold mb-2">Need immediate help?</h4>
-                  <p className="text-paper/60 text-sm">
+                  <p className="text-paper/70 text-sm">
                     Check our <a href="/help" className="text-gold hover:underline">Help Center</a> for answers to common questions, 
                     or email us directly at <a href="mailto:support@heirloom.blue" className="text-gold hover:underline">support@heirloom.blue</a>
                   </p>
@@ -1065,14 +1072,14 @@ export function Settings() {
                 <Trash2 size={32} className="text-blood" />
               </div>
               <h3 className="text-2xl font-serif text-paper mb-2">Delete Account?</h3>
-              <p className="text-paper/60 text-sm">
+              <p className="text-paper/70 text-sm">
                 This action cannot be undone. All your memories, letters, and data will be permanently deleted.
               </p>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-paper/60 mb-2">Enter your password to confirm</label>
+                <label className="block text-sm text-paper/70 mb-2">Enter your password to confirm</label>
                 <input
                   type="password"
                   value={deletePassword}

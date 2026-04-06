@@ -207,12 +207,12 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                 </div>
                 <div>
                   <h2 className="text-xl md:text-2xl font-medium">{config.title}</h2>
-                  <p className="text-sm text-paper/50">{config.subtitle}</p>
+                  <p className="text-sm text-paper/65">{config.subtitle}</p>
                 </div>
               </div>
               <button
                 onClick={onDismiss}
-                className="text-paper/50 hover:text-paper transition-colors p-2"
+                className="text-paper/65 hover:text-paper transition-colors p-2"
               >
                 <X size={24} />
               </button>
@@ -250,12 +250,12 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                 </div>
 
                 <div className="p-4 bg-gold/10 rounded-xl border border-gold/20">
-                  <p className="text-sm text-paper/60 mb-1 font-medium">Why this matters:</p>
+                  <p className="text-sm text-paper/70 mb-1 font-medium">Why this matters:</p>
                   <p className="text-paper/80 italic">{step.whyItMatters}</p>
                 </div>
 
                 <div className="p-4 bg-paper/5 rounded-xl">
-                  <p className="text-sm text-paper/60 mb-1 font-medium">How to start:</p>
+                  <p className="text-sm text-paper/70 mb-1 font-medium">How to start:</p>
                   <p className="text-paper/80">{step.howToStart}</p>
                 </div>
               </motion.div>
@@ -268,7 +268,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                 disabled={currentStep === 0}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                   currentStep === 0 
-                    ? 'text-paper/30 cursor-not-allowed' 
+                    ? 'text-paper/65 cursor-not-allowed' 
                     : 'text-paper/70 hover:text-paper hover:bg-paper/5'
                 }`}
               >

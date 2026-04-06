@@ -199,12 +199,12 @@ const NotificationCard: React.FC<{
             <span className="text-2xl">{notification.icon}</span>
             <div>
               <h3 className="text-paper font-display text-lg">{notification.title}</h3>
-              <p className="text-paper/50 text-sm">{notification.message}</p>
+              <p className="text-paper/65 text-sm">{notification.message}</p>
             </div>
           </div>
           <button
             onClick={() => onDismiss(notification.id)}
-            className="text-paper/30 hover:text-paper/60 transition-colors p-1"
+            className="text-paper/65 hover:text-paper/70 transition-colors p-1"
           >
             ✕
           </button>
@@ -256,11 +256,11 @@ const NotificationToast: React.FC<{
           <span className="text-2xl flex-shrink-0">{notification.icon}</span>
           <div className="flex-1 min-w-0">
             <h4 className="text-paper font-display text-base mb-1">{notification.title}</h4>
-            <p className="text-paper/60 text-sm line-clamp-2">{notification.emotionalAppeal}</p>
+            <p className="text-paper/70 text-sm line-clamp-2">{notification.emotionalAppeal}</p>
           </div>
           <button
             onClick={onDismiss}
-            className="text-paper/30 hover:text-paper/60 transition-colors"
+            className="text-paper/65 hover:text-paper/70 transition-colors"
           >
             ✕
           </button>
@@ -268,7 +268,7 @@ const NotificationToast: React.FC<{
         <div className="flex gap-2 mt-3">
           <button
             onClick={onDismiss}
-            className="flex-1 py-2 text-paper/50 text-sm hover:text-paper transition-colors"
+            className="flex-1 py-2 text-paper/65 text-sm hover:text-paper transition-colors"
           >
             Later
           </button>
@@ -328,14 +328,14 @@ const NotificationCenter: React.FC<{
                 {notifications.length > 0 && (
                   <button
                     onClick={onClearAll}
-                    className="text-paper/40 text-sm hover:text-paper transition-colors"
+                    className="text-paper/70 text-sm hover:text-paper transition-colors"
                   >
                     Clear all
                   </button>
                 )}
                 <button
                   onClick={onClose}
-                  className="p-2 text-paper/60 hover:text-paper transition-colors"
+                  className="p-2 text-paper/70 hover:text-paper transition-colors"
                 >
                   ✕
                 </button>
@@ -347,8 +347,8 @@ const NotificationCenter: React.FC<{
               {notifications.length === 0 ? (
                 <div className="text-center py-12">
                   <span className="text-4xl mb-4 block">✨</span>
-                  <p className="text-paper/60">You're all caught up!</p>
-                  <p className="text-paper/40 text-sm mt-2">
+                  <p className="text-paper/70">You're all caught up!</p>
+                  <p className="text-paper/70 text-sm mt-2">
                     We'll remind you when it's time to add to your legacy.
                   </p>
                 </div>
@@ -382,7 +382,7 @@ const NotificationBell: React.FC<{
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="relative p-2 text-paper/60 hover:text-gold transition-colors"
+      className="relative p-2 text-paper/70 hover:text-gold transition-colors"
     >
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
@@ -560,7 +560,7 @@ export const NotificationSettings: React.FC<{
     <div className="space-y-6">
       <h3 className="text-paper font-display text-xl mb-4">Reminder Settings</h3>
       
-      <p className="text-paper/60 text-sm mb-6">
+      <p className="text-paper/70 text-sm mb-6">
         We'll gently remind you to preserve your memories. Our reminders are designed 
         to inspire, not overwhelm — because your legacy matters.
       </p>
@@ -579,7 +579,7 @@ export const NotificationSettings: React.FC<{
           >
             <div>
               <h4 className="text-paper font-medium">{item.label}</h4>
-              <p className="text-paper/50 text-sm">{item.desc}</p>
+              <p className="text-paper/65 text-sm">{item.desc}</p>
             </div>
             <button
               onClick={() => toggleSetting(item.key as keyof NotificationSettings)}
@@ -602,12 +602,12 @@ export const NotificationSettings: React.FC<{
 
       <div className="pt-4 border-t border-gold/10">
         <h4 className="text-paper font-medium mb-3">Quiet Hours</h4>
-        <p className="text-paper/50 text-sm mb-4">
+        <p className="text-paper/65 text-sm mb-4">
           We won't disturb you during these hours.
         </p>
         <div className="flex gap-4">
           <div className="flex-1">
-            <label className="text-paper/60 text-sm block mb-1">Start</label>
+            <label className="text-paper/70 text-sm block mb-1">Start</label>
             <input
               type="time"
               value={settings.quietHoursStart}
@@ -616,7 +616,7 @@ export const NotificationSettings: React.FC<{
             />
           </div>
           <div className="flex-1">
-            <label className="text-paper/60 text-sm block mb-1">End</label>
+            <label className="text-paper/70 text-sm block mb-1">End</label>
             <input
               type="time"
               value={settings.quietHoursEnd}
@@ -635,7 +635,7 @@ export const NotificationSettings: React.FC<{
           onChange={(e) => onUpdate({ ...settings, preferredTime: e.target.value })}
           className="w-full bg-void border border-gold/20 rounded-lg px-3 py-2 text-paper"
         />
-        <p className="text-paper/40 text-sm mt-2">
+        <p className="text-paper/70 text-sm mt-2">
           We'll send your daily inspiration around this time.
         </p>
       </div>

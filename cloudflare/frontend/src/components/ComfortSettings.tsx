@@ -115,7 +115,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                   </div>
                   <div>
                     <h2 className="text-lg md:text-xl font-medium text-paper">Comfort Settings</h2>
-                    <p className="text-sm text-paper/50">Customize your experience</p>
+                    <p className="text-sm text-paper/65">Customize your experience</p>
                   </div>
                 </div>
                 <button
@@ -123,7 +123,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                   className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-paper/5 hover:bg-paper/10 flex items-center justify-center transition-colors touch-target"
                   aria-label="Close settings"
                 >
-                  <X size={20} className="text-paper/60" />
+                  <X size={20} className="text-paper/70" />
                 </button>
               </div>
               
@@ -135,7 +135,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                     <Pen size={18} className="text-gold" />
                     <span className="font-medium text-paper">Text Size</span>
                   </div>
-                  <p className="text-sm text-paper/50 mb-3">
+                  <p className="text-sm text-paper/65 mb-3">
                     Choose a text size that's comfortable for you
                   </p>
                   <div className="grid grid-cols-1 gap-2">
@@ -156,7 +156,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                           }`}>
                             {option.label}
                           </span>
-                          <span className="text-sm text-paper/50">{option.description}</span>
+                          <span className="text-sm text-paper/65">{option.description}</span>
                         </div>
                         {preferences.textSize === option.value && (
                           <div className="w-6 h-6 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
@@ -174,7 +174,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                     <Sun size={18} className="text-gold" />
                     <span className="font-medium text-paper">High Contrast</span>
                   </div>
-                  <p className="text-sm text-paper/50 mb-3">
+                  <p className="text-sm text-paper/65 mb-3">
                     Increase contrast for better visibility
                   </p>
                   <button
@@ -189,7 +189,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                       {preferences.highContrast ? (
                         <Sun size={20} className="text-gold" />
                       ) : (
-                        <Moon size={20} className="text-paper/50" />
+                        <Moon size={20} className="text-paper/65" />
                       )}
                       <span className="font-medium">
                         {preferences.highContrast ? 'On' : 'Off'}
@@ -211,7 +211,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                     <Zap size={18} className="text-gold" />
                     <span className="font-medium text-paper">Reduced Motion</span>
                   </div>
-                  <p className="text-sm text-paper/50 mb-3">
+                  <p className="text-sm text-paper/65 mb-3">
                     Minimize animations for a calmer experience
                   </p>
                   <button
@@ -223,7 +223,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Zap size={20} className={preferences.reducedMotion ? 'text-gold' : 'text-paper/50'} />
+                      <Zap size={20} className={preferences.reducedMotion ? 'text-gold' : 'text-paper/65'} />
                       <span className="font-medium">
                         {preferences.reducedMotion ? 'On' : 'Off'}
                       </span>
@@ -240,7 +240,7 @@ export function ComfortSettings({ isOpen, onClose }: ComfortSettingsProps) {
                 
                 {/* Preview */}
                 <div className="mt-6 p-4 rounded-xl bg-paper/5 border border-paper/10">
-                  <p className="text-sm text-paper/50 mb-2">Preview</p>
+                  <p className="text-sm text-paper/65 mb-2">Preview</p>
                   <p className="text-paper leading-relaxed">
                     This is how your text will appear throughout Heirloom. 
                     Your memories deserve to be read comfortably.
@@ -278,7 +278,7 @@ export function ComfortSettingsButton({ onClick }: ComfortSettingsButtonProps) {
       aria-label="Open comfort settings"
       title="Comfort Settings"
     >
-      <Eye size={20} className="text-paper/60 group-hover:text-gold transition-colors" />
+      <Eye size={20} className="text-paper/70 group-hover:text-gold transition-colors" />
     </button>
   );
 }

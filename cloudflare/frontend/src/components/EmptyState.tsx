@@ -36,14 +36,14 @@ export function EmptyState({
       {emotional ? (
         <>
           <h3 className="font-serif text-2xl text-paper mb-2">{title}</h3>
-          <p className="font-serif text-paper/40 text-lg max-w-md leading-relaxed">
+          <p className="font-serif text-paper/70 text-lg max-w-md leading-relaxed">
             {subtitle}
           </p>
         </>
       ) : (
         <>
           <h3 className="text-lg font-medium text-paper mb-1">{title}</h3>
-          <p className="text-paper/50 text-sm max-w-md">{subtitle}</p>
+          <p className="text-paper/65 text-sm max-w-md">{subtitle}</p>
         </>
       )}
 

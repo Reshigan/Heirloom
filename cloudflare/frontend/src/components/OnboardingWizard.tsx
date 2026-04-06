@@ -84,7 +84,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
       {/* Skip button */}
       <button
         onClick={onSkip}
-        className="absolute top-6 right-6 text-paper/40 hover:text-paper/70 transition-colors flex items-center gap-2 text-sm"
+        className="absolute top-6 right-6 text-paper/70 hover:text-paper/70 transition-colors flex items-center gap-2 text-sm"
       >
         Skip for now
         <X size={16} />
@@ -125,7 +125,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             <h2 className="font-serif text-3xl md:text-4xl text-paper mb-3">
               {step.title}
             </h2>
-            <p className="text-paper/50 font-serif text-lg mb-10">
+            <p className="text-paper/65 font-serif text-lg mb-10">
               {step.subtitle}
             </p>
 
@@ -168,13 +168,13 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                   </div>
                   <div className="text-left">
                     <p className="font-serif text-lg text-paper">Record a voice message</p>
-                    <p className="text-sm text-paper/50">Just 30 seconds to start your legacy</p>
+                    <p className="text-sm text-paper/65">Just 30 seconds to start your legacy</p>
                   </div>
                 </motion.button>
 
                 <button
                   onClick={handleNext}
-                  className="text-paper/40 hover:text-paper/60 text-sm transition-colors"
+                  className="text-paper/70 hover:text-paper/70 text-sm transition-colors"
                 >
                   I&apos;ll do this later
                 </button>
@@ -196,7 +196,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                     <p className={`font-medium ${deliveryTiming === option.id ? 'text-gold' : 'text-paper/80'}`}>
                       {option.label}
                     </p>
-                    <p className="text-sm text-paper/40 mt-1">{option.description}</p>
+                    <p className="text-sm text-paper/70 mt-1">{option.description}</p>
                   </button>
                 ))}
               </div>
@@ -212,10 +212,10 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                 >
                   <Check size={40} className="text-gold" />
                 </motion.div>
-                <p className="text-paper/60 font-serif text-lg mb-4">
+                <p className="text-paper/70 font-serif text-lg mb-4">
                   Every memory you save becomes a gift that lasts forever.
                 </p>
-                <div className="flex items-center justify-center gap-6 text-sm text-paper/40">
+                <div className="flex items-center justify-center gap-6 text-sm text-paper/70">
                   <span className="flex items-center gap-2">
                     <Heart size={14} className="text-blood" />
                     Encrypted & Private
@@ -234,7 +234,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
         <div className="flex items-center justify-between mt-12">
           <button
             onClick={handleBack}
-            className={`flex items-center gap-2 text-paper/40 hover:text-paper/70 transition-colors ${
+            className={`flex items-center gap-2 text-paper/70 hover:text-paper/70 transition-colors ${
               currentStep === 0 ? 'invisible' : ''
             }`}
           >

@@ -84,7 +84,7 @@ export function CreatorSignup() {
             <Check size={40} className="text-green-400" />
           </div>
           <h1 className="text-3xl font-light mb-4">Thank You!</h1>
-          <p className="text-paper/60 mb-8">
+          <p className="text-paper/70 mb-8">
             We've received your application. Our team will review it and reach out within 48 hours 
             if there's a good fit for collaboration.
           </p>
@@ -132,12 +132,12 @@ export function CreatorSignup() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-subtle rounded-full mb-6">
               <Sparkles size={16} className="text-gold" />
-              <span className="text-sm text-paper/60 tracking-wider">CREATOR PARTNERSHIP</span>
+              <span className="text-sm text-paper/70 tracking-wider">CREATOR PARTNERSHIP</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-light mb-4">
               Help Families Preserve What Matters
             </h1>
-            <p className="text-xl text-paper/50 max-w-2xl mx-auto">
+            <p className="text-xl text-paper/65 max-w-2xl mx-auto">
               Join our creator community and help your audience preserve their most precious memories 
               for generations to come.
             </p>
@@ -160,7 +160,7 @@ export function CreatorSignup() {
                   <benefit.icon size={24} className="text-gold" />
                 </div>
                 <h3 className="font-medium mb-2">{benefit.title}</h3>
-                <p className="text-sm text-paper/50">{benefit.desc}</p>
+                <p className="text-sm text-paper/65">{benefit.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -176,7 +176,7 @@ export function CreatorSignup() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">Your Name *</label>
+                  <label className="block text-sm text-paper/70 mb-2">Your Name *</label>
                   <input
                     type="text"
                     name="name"
@@ -188,7 +188,7 @@ export function CreatorSignup() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">Email Address *</label>
+                  <label className="block text-sm text-paper/70 mb-2">Email Address *</label>
                   <input
                     type="email"
                     name="email"
@@ -203,7 +203,7 @@ export function CreatorSignup() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">Primary Platform *</label>
+                  <label className="block text-sm text-paper/70 mb-2">Primary Platform *</label>
                   <select
                     name="platform"
                     value={formData.platform}
@@ -218,7 +218,7 @@ export function CreatorSignup() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">Handle/Username *</label>
+                  <label className="block text-sm text-paper/70 mb-2">Handle/Username *</label>
                   <input
                     type="text"
                     name="handle"
@@ -233,7 +233,7 @@ export function CreatorSignup() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">Follower Count</label>
+                  <label className="block text-sm text-paper/70 mb-2">Follower Count</label>
                   <input
                     type="number"
                     name="followerCount"
@@ -244,7 +244,7 @@ export function CreatorSignup() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/60 mb-2">Website/Portfolio</label>
+                  <label className="block text-sm text-paper/70 mb-2">Website/Portfolio</label>
                   <input
                     type="url"
                     name="website"
@@ -257,8 +257,8 @@ export function CreatorSignup() {
               </div>
 
               <div>
-                <label className="block text-sm text-paper/60 mb-2">Content Focus *</label>
-                <p className="text-xs text-paper/40 mb-3">Select the category that best describes your content</p>
+                <label className="block text-sm text-paper/70 mb-2">Content Focus *</label>
+                <p className="text-xs text-paper/70 mb-3">Select the category that best describes your content</p>
                 <div className="grid md:grid-cols-2 gap-3">
                   {SEGMENTS.map(seg => (
                     <label
@@ -280,7 +280,7 @@ export function CreatorSignup() {
                       />
                       <div>
                         <div className="font-medium text-sm">{seg.label}</div>
-                        <div className="text-xs text-paper/50">{seg.desc}</div>
+                        <div className="text-xs text-paper/65">{seg.desc}</div>
                       </div>
                     </label>
                   ))}
@@ -288,7 +288,7 @@ export function CreatorSignup() {
               </div>
 
               <div>
-                <label className="block text-sm text-paper/60 mb-2">Tell Us About Yourself</label>
+                <label className="block text-sm text-paper/70 mb-2">Tell Us About Yourself</label>
                 <textarea
                   name="message"
                   value={formData.message}
@@ -315,7 +315,7 @@ export function CreatorSignup() {
                 )}
               </div>
 
-              <p className="text-xs text-paper/40 text-center">
+              <p className="text-xs text-paper/70 text-center">
                 By submitting, you agree to receive occasional emails from Heirloom about partnership opportunities. 
                 You can unsubscribe at any time.
               </p>

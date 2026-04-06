@@ -98,7 +98,7 @@ export function BookBuilder() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Memory Book</h1>
-          <p className="text-paper/50 font-serif">Turn your digital legacy into a beautiful printed book</p>
+          <p className="text-paper/65 font-serif">Turn your digital legacy into a beautiful printed book</p>
         </div>
 
         {/* Progress steps */}
@@ -106,11 +106,11 @@ export function BookBuilder() {
           {stepOrder.map((s, i) => (
             <div key={s} className="flex items-center gap-2 flex-1">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
-                i <= currentStepIndex ? 'bg-gold text-void' : 'bg-paper/10 text-paper/30'
+                i <= currentStepIndex ? 'bg-gold text-void' : 'bg-paper/10 text-paper/65'
               }`}>
                 {i < currentStepIndex ? <Check size={14} /> : i + 1}
               </div>
-              <span className={`text-xs hidden md:block ${i <= currentStepIndex ? 'text-gold' : 'text-paper/30'}`}>
+              <span className={`text-xs hidden md:block ${i <= currentStepIndex ? 'text-gold' : 'text-paper/65'}`}>
                 {stepLabels[s]}
               </span>
               {i < stepOrder.length - 1 && (
@@ -130,7 +130,7 @@ export function BookBuilder() {
           >
             {step === 'select' && (
               <div className="space-y-6">
-                <p className="text-paper/60">Select the memories, letters, and voice recordings to include in your book.</p>
+                <p className="text-paper/70">Select the memories, letters, and voice recordings to include in your book.</p>
 
                 {/* Memories */}
                 <div>
@@ -143,7 +143,7 @@ export function BookBuilder() {
                         key={m.id}
                         onClick={() => toggleItem('memoryIds', m.id)}
                         className={`p-3 rounded-lg border text-left text-xs transition-all ${
-                          config.memoryIds.includes(m.id) ? 'border-gold/50 bg-gold/10 text-gold' : 'border-paper/10 bg-paper/5 text-paper/60'
+                          config.memoryIds.includes(m.id) ? 'border-gold/50 bg-gold/10 text-gold' : 'border-paper/10 bg-paper/5 text-paper/70'
                         }`}
                       >
                         {m.title || 'Untitled'}
@@ -163,7 +163,7 @@ export function BookBuilder() {
                         key={l.id}
                         onClick={() => toggleItem('letterIds', l.id)}
                         className={`p-3 rounded-lg border text-left text-xs transition-all ${
-                          config.letterIds.includes(l.id) ? 'border-gold/50 bg-gold/10 text-gold' : 'border-paper/10 bg-paper/5 text-paper/60'
+                          config.letterIds.includes(l.id) ? 'border-gold/50 bg-gold/10 text-gold' : 'border-paper/10 bg-paper/5 text-paper/70'
                         }`}
                       >
                         {l.title || l.subject || 'Untitled'}
@@ -183,7 +183,7 @@ export function BookBuilder() {
                         key={v.id}
                         onClick={() => toggleItem('voiceIds', v.id)}
                         className={`p-3 rounded-lg border text-left text-xs transition-all ${
-                          config.voiceIds.includes(v.id) ? 'border-gold/50 bg-gold/10 text-gold' : 'border-paper/10 bg-paper/5 text-paper/60'
+                          config.voiceIds.includes(v.id) ? 'border-gold/50 bg-gold/10 text-gold' : 'border-paper/10 bg-paper/5 text-paper/70'
                         }`}
                       >
                         {v.title || 'Untitled'}
@@ -192,14 +192,14 @@ export function BookBuilder() {
                   </div>
                 </div>
 
-                <p className="text-paper/30 text-sm">{totalItems} items selected &middot; ~{estimatedPages} pages</p>
+                <p className="text-paper/65 text-sm">{totalItems} items selected &middot; ~{estimatedPages} pages</p>
               </div>
             )}
 
             {step === 'customize' && (
               <div className="space-y-6 max-w-lg">
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Book Title</label>
+                  <label className="block text-sm text-paper/65 mb-1">Book Title</label>
                   <input
                     type="text"
                     value={config.title}
@@ -208,7 +208,7 @@ export function BookBuilder() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Subtitle (optional)</label>
+                  <label className="block text-sm text-paper/65 mb-1">Subtitle (optional)</label>
                   <input
                     type="text"
                     value={config.subtitle}
@@ -218,7 +218,7 @@ export function BookBuilder() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-1">Dedication</label>
+                  <label className="block text-sm text-paper/65 mb-1">Dedication</label>
                   <textarea
                     value={config.dedicationText}
                     onChange={(e) => setConfig((prev) => ({ ...prev, dedicationText: e.target.value }))}
@@ -227,14 +227,14 @@ export function BookBuilder() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Cover Type</label>
+                  <label className="block text-sm text-paper/65 mb-2">Cover Type</label>
                   <div className="flex gap-3">
                     {(['hardcover', 'softcover'] as const).map((type) => (
                       <button
                         key={type}
                         onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
                         className={`flex-1 p-4 rounded-xl border transition-all ${
-                          config.coverType === type ? 'border-gold/50 bg-gold/10 text-gold' : 'border-paper/10 bg-paper/5 text-paper/60'
+                          config.coverType === type ? 'border-gold/50 bg-gold/10 text-gold' : 'border-paper/10 bg-paper/5 text-paper/70'
                         }`}
                       >
                         <p className="font-medium capitalize">{type}</p>
@@ -268,13 +268,13 @@ export function BookBuilder() {
                 <div className="w-64 h-80 mx-auto mb-8 rounded-lg bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/20 flex flex-col items-center justify-center p-8 shadow-2xl shadow-gold/10">
                   <Sparkles size={24} className="text-gold mb-4" />
                   <h3 className="font-serif text-xl text-paper mb-1">{config.title}</h3>
-                  {config.subtitle && <p className="text-paper/40 text-xs">{config.subtitle}</p>}
-                  <div className="mt-auto text-paper/30 text-xs">
+                  {config.subtitle && <p className="text-paper/70 text-xs">{config.subtitle}</p>}
+                  <div className="mt-auto text-paper/65 text-xs">
                     <p>{totalItems} items &middot; ~{estimatedPages} pages</p>
                     <p className="capitalize">{config.coverType}</p>
                   </div>
                 </div>
-                <p className="text-paper/50 text-sm">
+                <p className="text-paper/65 text-sm">
                   Your book preview is ready. Review the details and place your order.
                 </p>
               </div>
@@ -317,7 +317,7 @@ export function BookBuilder() {
                   {orderMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
                   Place Order
                 </motion.button>
-                <p className="text-paper/30 text-xs mt-3">You&apos;ll be redirected to Stripe for secure payment</p>
+                <p className="text-paper/65 text-xs mt-3">You&apos;ll be redirected to Stripe for secure payment</p>
               </div>
             )}
           </motion.div>
@@ -330,7 +330,7 @@ export function BookBuilder() {
               if (currentStepIndex === 0) navigate('/dashboard');
               else setStep(stepOrder[currentStepIndex - 1]);
             }}
-            className="flex items-center gap-2 text-paper/40 hover:text-paper/70 transition-colors"
+            className="flex items-center gap-2 text-paper/70 hover:text-paper/70 transition-colors"
           >
             <ArrowLeft size={16} />
             {currentStepIndex === 0 ? 'Cancel' : 'Back'}

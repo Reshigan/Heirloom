@@ -113,7 +113,7 @@ export function GiftRedeem() {
       <div className="relative z-10 max-w-lg mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-paper/50 hover:text-gold mb-8 transition-colors">
+          <Link to="/" className="inline-flex items-center gap-2 text-paper/65 hover:text-gold mb-8 transition-colors">
             <ArrowLeft size={18} />
             Back to Heirloom
           </Link>
@@ -125,7 +125,7 @@ export function GiftRedeem() {
           <h1 className="text-3xl font-light text-paper mb-2">
             Redeem Your <span className="text-gold">Gift</span>
           </h1>
-          <p className="text-paper/60">
+          <p className="text-paper/70">
             Enter your gift voucher code to activate your Heirloom subscription
           </p>
         </div>
@@ -137,7 +137,7 @@ export function GiftRedeem() {
               <Check className="w-10 h-10 text-green-400" />
             </div>
             <h2 className="text-2xl text-paper mb-2">Gift Redeemed!</h2>
-            <p className="text-paper/60 mb-6">
+            <p className="text-paper/70 mb-6">
               Your {formatTier(voucherInfo?.tier || '')} subscription is now active.
               {voucherInfo?.durationMonths && ` Enjoy ${voucherInfo.durationMonths} month${voucherInfo.durationMonths > 1 ? 's' : ''} of Heirloom!`}
             </p>
@@ -152,7 +152,7 @@ export function GiftRedeem() {
           <>
             {/* Code Input */}
             <div className="card mb-6">
-              <label className="block text-paper/50 text-sm mb-2">Voucher Code</label>
+              <label className="block text-paper/65 text-sm mb-2">Voucher Code</label>
               <div className="flex gap-3">
                 <input
                   type="text"
@@ -188,7 +188,7 @@ export function GiftRedeem() {
                   <Sparkles className="w-8 h-8 text-gold mx-auto mb-3" />
                   <h3 className="text-xl text-paper mb-1">Valid Gift Voucher!</h3>
                   {voucherInfo.fromName && (
-                    <p className="text-paper/60">
+                    <p className="text-paper/70">
                       From: <span className="text-gold">{voucherInfo.fromName}</span>
                     </p>
                   )}
@@ -204,15 +204,15 @@ export function GiftRedeem() {
                 {/* Gift Details */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between py-2 border-b border-white/10">
-                    <span className="text-paper/50">Plan</span>
+                    <span className="text-paper/65">Plan</span>
                     <span className="text-gold font-medium">{formatTier(voucherInfo.tier)}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-white/10">
-                    <span className="text-paper/50">Duration</span>
+                    <span className="text-paper/65">Duration</span>
                     <span className="text-paper">{voucherInfo.durationMonths} month{voucherInfo.durationMonths > 1 ? 's' : ''}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-white/10">
-                    <span className="text-paper/50">Expires</span>
+                    <span className="text-paper/65">Expires</span>
                     <span className="text-paper/70">{new Date(voucherInfo.expiresAt).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export function GiftRedeem() {
                   </button>
                 ) : (
                   <div className="space-y-3">
-                    <p className="text-center text-paper/60 text-sm">
+                    <p className="text-center text-paper/70 text-sm">
                       Sign in or create an account to redeem your gift
                     </p>
                     <div className="flex gap-3">
@@ -260,7 +260,7 @@ export function GiftRedeem() {
             {/* Features */}
             {!voucherInfo && (
               <div className="card">
-                <h3 className="text-sm text-paper/50 mb-3">What you'll get:</h3>
+                <h3 className="text-sm text-paper/65 mb-3">What you'll get:</h3>
                 <ul className="space-y-2 text-sm">
                   {[
                     'Preserve memories with photos, videos & stories',

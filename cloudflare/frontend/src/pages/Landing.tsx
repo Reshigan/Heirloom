@@ -119,7 +119,7 @@ export function Landing() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 glass-subtle rounded-full mb-8">
               <Sparkles size={16} className="text-gold" />
-              <span className="text-sm text-paper/60 tracking-wider">14-DAY FREE TRIAL</span>
+              <span className="text-sm text-paper/70 tracking-wider">14-DAY FREE TRIAL</span>
             </div>
           </motion.div>
           
@@ -146,7 +146,7 @@ export function Landing() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="text-xl md:text-2xl text-paper/50 mb-12 max-w-2xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-paper/65 mb-12 max-w-2xl mx-auto leading-relaxed"
           >
             A sanctuary for your life's precious moments. Capture photos, record your voice, 
             write letters to loved ones — delivered on your terms, even after you're gone.
@@ -172,7 +172,7 @@ export function Landing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-8 mt-16 text-paper/40"
+            className="flex flex-wrap items-center justify-center gap-8 mt-16 text-paper/70"
           >
             {[
               { icon: Lock, text: 'E2E Encrypted' },
@@ -236,7 +236,7 @@ export function Landing() {
                   <feature.icon size={24} className="text-gold/70 group-hover:text-gold transition-colors" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-xl font-medium mb-3">{feature.title}</h3>
-                <p className="text-paper/50 leading-relaxed">{feature.desc}</p>
+                <p className="text-paper/65 leading-relaxed">{feature.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -259,7 +259,7 @@ export function Landing() {
             <h2 className="text-4xl md:text-5xl font-light mt-4">
               Powerful tools for your legacy
             </h2>
-            <p className="text-paper/50 mt-4 max-w-2xl mx-auto">
+            <p className="text-paper/65 mt-4 max-w-2xl mx-auto">
               Go beyond simple storage with intelligent features designed to make your legacy meaningful and impactful.
             </p>
           </motion.div>
@@ -305,7 +305,7 @@ export function Landing() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-medium mb-2">{feature.title}</h3>
-                    <p className="text-paper/50 leading-relaxed mb-4">{feature.desc}</p>
+                    <p className="text-paper/65 leading-relaxed mb-4">{feature.desc}</p>
                     <Link 
                       to={feature.link} 
                       className="inline-flex items-center gap-2 text-gold/70 hover:text-gold transition-colors text-sm"
@@ -348,7 +348,7 @@ export function Landing() {
                 </div>
                 <div className="flex-1 pb-16 border-l border-gold/20 pl-8" style={{ marginLeft: i % 2 === 0 ? 0 : 'auto', marginRight: i % 2 === 0 ? 'auto' : 0 }}>
                   <h3 className="text-2xl font-light mb-2">{item.title}</h3>
-                  <p className="text-paper/50">{item.desc}</p>
+                  <p className="text-paper/65">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -388,7 +388,7 @@ export function Landing() {
                       className="text-center"
                     >
                       <div className="text-3xl md:text-4xl font-light text-gold mb-2">{stat.value}</div>
-                      <div className="text-sm text-paper/50">{stat.label}</div>
+                      <div className="text-sm text-paper/65">{stat.label}</div>
                     </motion.div>
                   ))}
                 </div>
@@ -426,7 +426,7 @@ export function Landing() {
                         </div>
                         <div>
                           <div className="font-medium text-sm">{testimonial.author}</div>
-                          <div className="text-xs text-paper/40">{testimonial.role}</div>
+                          <div className="text-xs text-paper/70">{testimonial.role}</div>
                         </div>
                       </div>
                     </motion.div>
@@ -448,7 +448,7 @@ export function Landing() {
           >
             <span className="text-gold tracking-[0.3em] text-sm">PRICING</span>
             <h2 className="text-4xl md:text-5xl font-light mt-4">Simple, transparent pricing</h2>
-            <p className="text-paper/50 mt-4">Start with a 14-day free trial. Full Family tier access. Cancel anytime.</p>
+            <p className="text-paper/65 mt-4">Start with a 14-day free trial. Full Family tier access. Cancel anytime.</p>
           </motion.div>
           
           <div className="grid md:grid-cols-3 gap-6">
@@ -471,9 +471,9 @@ export function Landing() {
                 <h3 className="text-xl font-medium mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-2">
                   <span className="text-4xl text-gold">{plan.price}</span>
-                  <span className="text-paper/40">{plan.period}</span>
+                  <span className="text-paper/70">{plan.period}</span>
                 </div>
-                <div className="text-sm text-paper/40 mb-6">or {plan.yearlyPrice} (save 17%)</div>
+                <div className="text-sm text-paper/70 mb-6">or {plan.yearlyPrice} (save 17%)</div>
                 
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature) => (
@@ -510,7 +510,7 @@ export function Landing() {
           >
             <span className="text-gold tracking-[0.3em] text-sm">TRUE ZERO-KNOWLEDGE</span>
             <h2 className="text-4xl md:text-5xl font-light mt-4">We Can't See Your Memories. Ever.</h2>
-            <p className="text-paper/50 mt-4 max-w-2xl mx-auto">
+            <p className="text-paper/65 mt-4 max-w-2xl mx-auto">
               Your memories are encrypted on your device before they ever leave it. We have zero access to your content — not our engineers, not our servers, not anyone. Only you and your chosen recipients hold the keys.
             </p>
           </motion.div>
@@ -529,7 +529,7 @@ export function Landing() {
                   <item.icon size={24} className="text-gold" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-lg font-medium mb-2">{item.title}</h3>
-                <p className="text-paper/50 text-sm leading-relaxed">{item.desc}</p>
+                <p className="text-paper/65 text-sm leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -547,7 +547,7 @@ export function Landing() {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-medium mb-2">Our Zero-Knowledge Promise</h3>
-                <p className="text-paper/60 leading-relaxed">
+                <p className="text-paper/70 leading-relaxed">
                   Unlike other platforms that store your data in readable form, Heirloom uses client-side encryption. Your memories are encrypted in your browser using AES-256 before upload. We store only encrypted blobs — meaningless without your keys. We cannot read, analyze, or share your content. We cannot comply with data requests because we literally cannot decrypt your memories. This is true zero-knowledge architecture.
                 </p>
               </div>
@@ -563,7 +563,7 @@ export function Landing() {
           >
             <div className="inline-flex items-center gap-3 px-6 py-3 glass-subtle rounded-full">
               <Lock size={18} className="text-gold" />
-              <span className="text-paper/60 text-sm">AES-256 encryption • Client-side encryption • No data mining • Privacy by design</span>
+              <span className="text-paper/70 text-sm">AES-256 encryption • Client-side encryption • No data mining • Privacy by design</span>
             </div>
           </motion.div>
         </div>
@@ -581,7 +581,7 @@ export function Landing() {
             className="card border-gold/20 text-center"
           >
             <h3 className="text-2xl md:text-3xl font-light mb-4">Switching from StoryWorth?</h3>
-            <p className="text-paper/50 mb-6 max-w-2xl mx-auto">
+            <p className="text-paper/65 mb-6 max-w-2xl mx-auto">
               Heirloom offers everything StoryWorth does — plus voice recordings, zero-knowledge encryption,
               posthumous delivery, and a family memory map. See the full comparison.
             </p>
@@ -608,7 +608,7 @@ export function Landing() {
             <h2 className="text-4xl md:text-5xl font-light mb-6">
               Your stories matter. Preserve them.
             </h2>
-            <p className="text-xl text-paper/50 mb-12">
+            <p className="text-xl text-paper/65 mb-12">
               Join thousands of families who trust Heirloom with their most precious memories.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -631,9 +631,9 @@ export function Landing() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
             <div className="flex items-center gap-3">
               <span className="text-xl text-gold">∞</span>
-              <span className="tracking-[0.15em] text-paper/60">HEIRLOOM</span>
+              <span className="tracking-[0.15em] text-paper/70">HEIRLOOM</span>
             </div>
-            <div className="flex gap-8 text-sm text-paper/40">
+            <div className="flex gap-8 text-sm text-paper/70">
               <Link to="/gift" className="hover:text-gold transition-colors">Gift Cards</Link>
               <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
               <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
@@ -643,13 +643,13 @@ export function Landing() {
           
           {/* Contact Details */}
           <div className="border-t border-white/[0.04] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-paper/40 text-center md:text-left">
+            <div className="text-sm text-paper/70 text-center md:text-left">
               <p className="mb-1">
                 <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">support@heirloom.blue</a>
               </p>
               <p>131 Continental Dr Suite 305, Newark, DE 19713, US</p>
             </div>
-            <div className="text-sm text-paper/30">
+            <div className="text-sm text-paper/65">
               © {new Date().getFullYear()} Heirloom. All rights reserved.
             </div>
           </div>

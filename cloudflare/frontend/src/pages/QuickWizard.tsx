@@ -217,8 +217,8 @@ export function QuickWizard() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-paper/50">Step {stepNumber[step]} of 5</span>
-            <div className="flex items-center gap-2 text-sm text-paper/50">
+            <span className="text-sm text-paper/65">Step {stepNumber[step]} of 5</span>
+            <div className="flex items-center gap-2 text-sm text-paper/65">
               <Clock size={14} />
               <span>~3 minutes</span>
             </div>
@@ -246,7 +246,7 @@ export function QuickWizard() {
                 <h1 className="text-2xl md:text-3xl font-light mb-2">
                   Who is this message for?
                 </h1>
-                <p className="text-paper/50">
+                <p className="text-paper/65">
                   Choose the person you want to leave a message for
                 </p>
               </div>
@@ -258,7 +258,7 @@ export function QuickWizard() {
               ) : familyMembers.length === 0 ? (
                 <div className="text-center py-12">
                   <User size={48} className="mx-auto mb-4 text-paper/20" />
-                  <p className="text-paper/50 mb-4">No family members added yet</p>
+                  <p className="text-paper/65 mb-4">No family members added yet</p>
                   <button
                     onClick={() => navigate('/family')}
                     className="btn btn-primary"
@@ -286,7 +286,7 @@ export function QuickWizard() {
                         )}
                       </div>
                       <h3 className="font-medium group-hover:text-gold transition-colors">{person.name}</h3>
-                      <p className="text-sm text-paper/50">{person.relationship}</p>
+                      <p className="text-sm text-paper/65">{person.relationship}</p>
                     </motion.button>
                   ))}
                 </div>
@@ -304,7 +304,7 @@ export function QuickWizard() {
             >
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 text-paper/50 hover:text-gold transition-colors mb-6"
+                className="flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-6"
               >
                 <ChevronLeft size={20} />
                 Back
@@ -323,7 +323,7 @@ export function QuickWizard() {
                 <h1 className="text-2xl md:text-3xl font-light mb-2">
                   What would you like to tell <span className="text-gold">{selectedPerson?.name}</span>?
                 </h1>
-                <p className="text-paper/50">
+                <p className="text-paper/65">
                   Pick a template to get started quickly
                 </p>
               </div>
@@ -350,9 +350,9 @@ export function QuickWizard() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-medium mb-0.5">{template.name}</h3>
-                        <p className="text-sm text-paper/50">{template.description}</p>
+                        <p className="text-sm text-paper/65">{template.description}</p>
                       </div>
-                      <ChevronLeft size={20} className="rotate-180 text-paper/30" />
+                      <ChevronLeft size={20} className="rotate-180 text-paper/65" />
                     </motion.button>
                   );
                 })}
@@ -360,7 +360,7 @@ export function QuickWizard() {
 
               <div className="mt-6 p-4 glass rounded-xl flex items-start gap-3 text-sm">
                 <Sparkles size={18} className="text-gold mt-0.5 flex-shrink-0" />
-                <p className="text-paper/60">
+                <p className="text-paper/70">
                   Each template includes AI-suggested prompts to help you express what matters most. You can always customize or write your own.
                 </p>
               </div>
@@ -377,7 +377,7 @@ export function QuickWizard() {
             >
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 text-paper/50 hover:text-gold transition-colors mb-6"
+                className="flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-6"
               >
                 <ChevronLeft size={20} />
                 Back
@@ -396,7 +396,7 @@ export function QuickWizard() {
                 <h1 className="text-2xl md:text-3xl font-light mb-2">
                   How do you want to share with <span className="text-gold">{selectedPerson?.name}</span>?
                 </h1>
-                <p className="text-paper/50">
+                <p className="text-paper/65">
                   Choose how you'd like to leave your message
                 </p>
               </div>
@@ -412,8 +412,8 @@ export function QuickWizard() {
                     <Mic size={28} className="text-purple-400" />
                   </div>
                   <h3 className="font-medium text-lg mb-1 group-hover:text-purple-400 transition-colors">Voice Message</h3>
-                  <p className="text-sm text-paper/50">Record your voice</p>
-                  <p className="text-xs text-paper/30 mt-2">~60 seconds</p>
+                  <p className="text-sm text-paper/65">Record your voice</p>
+                  <p className="text-xs text-paper/65 mt-2">~60 seconds</p>
                 </motion.button>
                 
                 <motion.button
@@ -426,8 +426,8 @@ export function QuickWizard() {
                     <Edit3 size={28} className="text-blue-400" />
                   </div>
                   <h3 className="font-medium text-lg mb-1 group-hover:text-blue-400 transition-colors">Written Letter</h3>
-                  <p className="text-sm text-paper/50">Write a letter</p>
-                  <p className="text-xs text-paper/30 mt-2">~5 minutes</p>
+                  <p className="text-sm text-paper/65">Write a letter</p>
+                  <p className="text-xs text-paper/65 mt-2">~5 minutes</p>
                 </motion.button>
               </div>
             </motion.div>
@@ -443,7 +443,7 @@ export function QuickWizard() {
             >
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 text-paper/50 hover:text-gold transition-colors mb-6"
+                className="flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-6"
               >
                 <ChevronLeft size={20} />
                 Back
@@ -457,7 +457,7 @@ export function QuickWizard() {
                 <h1 className="text-2xl md:text-3xl font-light mb-2">
                   What would you like to tell <span className="text-gold">{selectedPerson?.name}</span>?
                 </h1>
-                <p className="text-paper/50">
+                <p className="text-paper/65">
                   Pick a prompt or write your own
                 </p>
               </div>
@@ -478,7 +478,7 @@ export function QuickWizard() {
                       <p className="text-paper/90 group-hover:text-gold transition-colors">
                         "{prompt.prompt}"
                       </p>
-                      <span className="text-xs text-paper/40 mt-2 block">{prompt.category}</span>
+                      <span className="text-xs text-paper/70 mt-2 block">{prompt.category}</span>
                     </motion.button>
                   ))}
                   
@@ -487,7 +487,7 @@ export function QuickWizard() {
                     className="w-full p-4 card text-left hover:border-paper/30 transition-all border-dashed"
                     whileHover={{ scale: 1.01 }}
                   >
-                    <p className="text-paper/60">
+                    <p className="text-paper/70">
                       I'll write my own message
                     </p>
                   </motion.button>
@@ -506,7 +506,7 @@ export function QuickWizard() {
             >
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 text-paper/50 hover:text-gold transition-colors mb-6"
+                className="flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-6"
               >
                 <ChevronLeft size={20} />
                 Back
@@ -516,7 +516,7 @@ export function QuickWizard() {
                 <h1 className="text-2xl md:text-3xl font-light mb-2">
                   Ready to create your message
                 </h1>
-                <p className="text-paper/50">
+                <p className="text-paper/65">
                   Here's what {selectedPerson?.name} will receive
                 </p>
               </div>
@@ -536,7 +536,7 @@ export function QuickWizard() {
                     </div>
                     <div>
                       <p className="font-medium">For {selectedPerson?.name}</p>
-                      <p className="text-xs text-paper/50">{selectedPerson?.relationship}</p>
+                      <p className="text-xs text-paper/65">{selectedPerson?.relationship}</p>
                     </div>
                   </div>
                 </div>
@@ -549,7 +549,7 @@ export function QuickWizard() {
                       </div>
                       <div>
                         <p className="font-medium">Voice Message</p>
-                        <p className="text-sm text-paper/50">A personal recording from you</p>
+                        <p className="text-sm text-paper/65">A personal recording from you</p>
                       </div>
                     </div>
                   ) : (
@@ -559,7 +559,7 @@ export function QuickWizard() {
                       </div>
                       <div>
                         <p className="font-medium">Written Letter</p>
-                        <p className="text-sm text-paper/50">A heartfelt letter from you</p>
+                        <p className="text-sm text-paper/65">A heartfelt letter from you</p>
                       </div>
                     </div>
                   )}
@@ -572,7 +572,7 @@ export function QuickWizard() {
                 </div>
                 
                 <div className="bg-paper/5 p-4 border-t border-paper/10">
-                  <div className="flex items-center gap-2 text-paper/50 text-sm">
+                  <div className="flex items-center gap-2 text-paper/65 text-sm">
                     <Heart size={14} className="text-pink-400" />
                     <span>{selectedPerson?.name} can send you a note back after viewing</span>
                   </div>
@@ -593,7 +593,7 @@ export function QuickWizard() {
                 
                 <button
                   onClick={() => navigate('/life-events')}
-                  className="w-full py-3 glass rounded-xl text-paper/60 hover:text-gold transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 glass rounded-xl text-paper/70 hover:text-gold transition-colors flex items-center justify-center gap-2"
                 >
                   <Calendar size={18} />
                   Schedule for a milestone instead

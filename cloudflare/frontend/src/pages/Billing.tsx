@@ -137,7 +137,7 @@ export function Billing() {
               <AlertTriangle className="text-gold flex-shrink-0" size={24} />
               <div className="flex-1">
                 <p className="font-medium">Your trial ends in {trialDaysLeft} days</p>
-                <p className="text-sm text-paper/60">Choose a plan to continue preserving your legacy</p>
+                <p className="text-sm text-paper/70">Choose a plan to continue preserving your legacy</p>
               </div>
               <Clock className="text-gold/50" size={20} />
             </motion.div>
@@ -151,7 +151,7 @@ export function Billing() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-5xl font-light mb-4">Choose Your Legacy</h1>
-          <p className="text-paper/60 text-lg max-w-2xl mx-auto">
+          <p className="text-paper/70 text-lg max-w-2xl mx-auto">
             Preserve what matters most. Every plan includes our iron-clad security 
             and the promise to protect your memories for generations.
           </p>
@@ -230,13 +230,13 @@ export function Billing() {
                     <Icon className="text-gold" size={28} />
                   </div>
                   <h3 className="text-2xl font-light mb-1">{plan.name}</h3>
-                  <p className="text-paper/50 text-sm">{plan.description}</p>
+                  <p className="text-paper/65 text-sm">{plan.description}</p>
                 </div>
 
                 <div className="mb-6">
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-light">${price}</span>
-                    <span className="text-paper/50">
+                    <span className="text-paper/65">
                       /{billingCycle === 'yearly' ? 'year' : 'month'}
                     </span>
                   </div>
@@ -261,7 +261,7 @@ export function Billing() {
                   disabled={isCurrent || subscribeMutation.isPending}
                   className={`w-full py-4 rounded-xl font-medium transition-all ${
                     isCurrent
-                      ? 'bg-paper/10 text-paper/50 cursor-not-allowed'
+                      ? 'bg-paper/10 text-paper/65 cursor-not-allowed'
                       : plan.popular
                       ? 'btn btn-primary'
                       : 'btn btn-secondary'
@@ -297,11 +297,11 @@ export function Billing() {
             
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <p className="text-sm text-paper/50">Plan</p>
+                <p className="text-sm text-paper/65">Plan</p>
                 <p className="font-medium">{subscription.tier}</p>
               </div>
               <div>
-                <p className="text-sm text-paper/50">Status</p>
+                <p className="text-sm text-paper/65">Status</p>
                 <p className={`font-medium ${
                   subscription.status === 'ACTIVE' ? 'text-green-400' : 'text-yellow-400'
                 }`}>
@@ -309,7 +309,7 @@ export function Billing() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-paper/50">Current Period Ends</p>
+                <p className="text-sm text-paper/65">Current Period Ends</p>
                 <p className="font-medium">
                   {subscription.currentPeriodEnd 
                     ? new Date(subscription.currentPeriodEnd).toLocaleDateString()
@@ -318,7 +318,7 @@ export function Billing() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-paper/50">Auto-Renew</p>
+                <p className="text-sm text-paper/65">Auto-Renew</p>
                 <p className="font-medium">
                   {subscription.cancelAtPeriodEnd ? 'No' : 'Yes'}
                 </p>
@@ -344,7 +344,7 @@ export function Billing() {
           className="mt-16 text-center"
         >
           <h2 className="text-2xl mb-4">Questions?</h2>
-          <p className="text-paper/60 mb-6">
+          <p className="text-paper/70 mb-6">
             Our team is here to help you choose the right plan for your legacy.
           </p>
           <button className="btn btn-ghost">
@@ -372,7 +372,7 @@ export function Billing() {
             >
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="absolute top-4 right-4 text-paper/50 hover:text-paper transition-colors"
+                className="absolute top-4 right-4 text-paper/65 hover:text-paper transition-colors"
               >
                 <X size={20} />
               </button>
@@ -382,7 +382,7 @@ export function Billing() {
                   <AlertTriangle className="text-blood" size={32} />
                 </div>
                 <h3 className="text-2xl mb-2">Cancel Subscription?</h3>
-                <p className="text-paper/60 mb-6">
+                <p className="text-paper/70 mb-6">
                   Your memories will remain safe, but you'll lose access to premium features 
                   at the end of your current billing period.
                 </p>

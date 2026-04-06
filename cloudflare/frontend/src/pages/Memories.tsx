@@ -350,7 +350,7 @@ export function Memories() {
       <div className="relative z-10 px-6 md:px-12 py-12">
         <motion.button
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-paper/40 hover:text-gold transition-colors mb-8"
+          className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
@@ -367,7 +367,7 @@ export function Memories() {
                         animate={{ opacity: 1, y: 0 }}
                       >
                         <h1 className="text-4xl md:text-5xl font-light mb-2">Your <em>Memories</em></h1>
-                        <p className="text-paper/50">Moments worth preserving forever</p>
+                        <p className="text-paper/65">Moments worth preserving forever</p>
                       </motion.div>
 
                       <motion.div
@@ -383,7 +383,7 @@ export function Memories() {
                                   setViewMode('grid');
                                   try { localStorage.setItem('memories_view_mode', 'grid'); } catch {}
                                 }}
-                                className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-gold/20 text-gold' : 'text-paper/65 hover:text-paper'}`}
                               >
                                 <Grid size={18} />
                               </button>
@@ -392,7 +392,7 @@ export function Memories() {
                                   setViewMode('list');
                                   try { localStorage.setItem('memories_view_mode', 'list'); } catch {}
                                 }}
-                                className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-gold/20 text-gold' : 'text-paper/50 hover:text-paper'}`}
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-gold/20 text-gold' : 'text-paper/65 hover:text-paper'}`}
                               >
                                 <List size={18} />
                               </button>
@@ -400,7 +400,7 @@ export function Memories() {
 
               {/* Filter */}
               <div className="flex items-center gap-2 glass rounded-lg px-3 py-2">
-                <Filter size={16} className="text-paper/50" />
+                <Filter size={16} className="text-paper/65" />
                 <select
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value)}
@@ -431,7 +431,7 @@ export function Memories() {
                       className="mb-8"
                     >
                       <div className="relative max-w-xl mx-auto">
-                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/40 pointer-events-none" />
+                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/70 pointer-events-none" />
                         <input
                           type="text"
                           value={searchQuery}
@@ -449,7 +449,7 @@ export function Memories() {
             
                       {searchResults !== null && (
                         <div className="mt-4 text-center">
-                          <p className="text-paper/50 text-sm">
+                          <p className="text-paper/65 text-sm">
                             {searchResults.length === 0 
                               ? 'No memories found matching your search' 
                               : `Found ${searchResults.length} ${searchResults.length === 1 ? 'memory' : 'memories'}`}
@@ -488,7 +488,7 @@ export function Memories() {
                   }
                 }}
                 disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
-                className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 glass rounded-full text-paper/65 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={20} />
               </button>
@@ -505,7 +505,7 @@ export function Memories() {
                   }
                 }}
                 disabled={availableYears.indexOf(selectedYear) === 0}
-                className="p-2 glass rounded-full text-paper/50 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 glass rounded-full text-paper/65 hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight size={20} />
               </button>
@@ -518,7 +518,7 @@ export function Memories() {
                 className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 flex-shrink-0 ${
                   selectedMonth === null
                     ? 'bg-gold text-void font-medium'
-                    : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                    : 'glass text-paper/70 hover:text-paper hover:bg-white/10'
                 }`}
               >
                 All
@@ -530,7 +530,7 @@ export function Memories() {
                   className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 flex-shrink-0 ${
                     selectedMonth === idx
                       ? 'bg-gold text-void font-medium'
-                      : 'glass text-paper/60 hover:text-paper hover:bg-white/10'
+                      : 'glass text-paper/70 hover:text-paper hover:bg-white/10'
                   }`}
                 >
                   {month}
@@ -540,13 +540,13 @@ export function Memories() {
 
             {/* Emotion Filter - Horizontal scroll on mobile for better touch targets */}
             <div className="flex items-center justify-start md:justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              <span className="text-paper/40 text-sm mr-2 whitespace-nowrap flex-shrink-0">Filter by emotion:</span>
+              <span className="text-paper/70 text-sm mr-2 whitespace-nowrap flex-shrink-0">Filter by emotion:</span>
               <button
                 onClick={() => setSelectedEmotion(null)}
                 className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all whitespace-nowrap min-h-[44px] md:min-h-0 flex-shrink-0 ${
                   selectedEmotion === null
                     ? 'bg-white/20 text-paper font-medium'
-                    : 'glass text-paper/50 hover:text-paper'
+                    : 'glass text-paper/65 hover:text-paper'
                 }`}
               >
                 All
@@ -561,7 +561,7 @@ export function Memories() {
                     className={`px-4 py-2.5 md:px-3 md:py-1.5 rounded-full text-sm transition-all flex items-center gap-1.5 whitespace-nowrap min-h-[44px] md:min-h-0 flex-shrink-0 ${
                       selectedEmotion === emotion.value
                         ? emotion.color + ' font-medium'
-                        : 'glass text-paper/50 hover:text-paper'
+                        : 'glass text-paper/65 hover:text-paper'
                     }`}
                   >
                     <Icon size={14} />
@@ -623,18 +623,18 @@ export function Memories() {
                             />
                             <div className="w-full h-full items-center justify-center hidden">
                               {memory.type === 'VIDEO' ? (
-                                <Video size={40} className="text-paper/60" />
+                                <Video size={40} className="text-paper/70" />
                               ) : (
-                                <Image size={40} className="text-paper/60" />
+                                <Image size={40} className="text-paper/70" />
                               )}
                             </div>
                           </>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             {memory.type === 'VIDEO' ? (
-                              <Video size={40} className="text-paper/60" />
+                              <Video size={40} className="text-paper/70" />
                             ) : (
-                              <Image size={40} className="text-paper/60" />
+                              <Image size={40} className="text-paper/70" />
                             )}
                           </div>
                         )}
@@ -651,7 +651,7 @@ export function Memories() {
                             ? memory.title 
                             : `${memory.type === 'VIDEO' ? 'Video' : 'Photo'} - ${new Date(memory.createdAt).toLocaleDateString()}`}
                         </div>
-                        <div className="text-paper/50 text-sm">{new Date(memory.createdAt).toLocaleDateString()}</div>
+                        <div className="text-paper/65 text-sm">{new Date(memory.createdAt).toLocaleDateString()}</div>
                       </div>
 
                       {/* Type badge */}
@@ -670,9 +670,9 @@ export function Memories() {
                         {memory.fileUrl ? (
                           <img src={memory.fileUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
                         ) : memory.type === 'VIDEO' ? (
-                          <Video size={24} className="text-paper/60" />
+                          <Video size={24} className="text-paper/70" />
                         ) : (
-                          <Image size={24} className="text-paper/60" />
+                          <Image size={24} className="text-paper/70" />
                         )}
                       </div>
                       <div className="flex-1 text-left">
@@ -682,9 +682,9 @@ export function Memories() {
                             : `${memory.type === 'VIDEO' ? 'Video' : 'Photo'} - ${new Date(memory.createdAt).toLocaleDateString()}`}
                         </div>
                         {memory.description && (
-                          <div className="text-paper/50 text-sm truncate">{memory.description}</div>
+                          <div className="text-paper/65 text-sm truncate">{memory.description}</div>
                         )}
-                        <div className="text-paper/60 text-xs mt-1">{new Date(memory.createdAt).toLocaleDateString()}</div>
+                        <div className="text-paper/70 text-xs mt-1">{new Date(memory.createdAt).toLocaleDateString()}</div>
                       </div>
                       <span className={`badge ${memory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
                         {memory.type}
@@ -701,12 +701,12 @@ export function Memories() {
               className="text-center py-20"
             >
               <div className="w-24 h-24 rounded-full glass flex items-center justify-center mx-auto mb-6">
-                <Image size={40} className="text-paper/60" />
+                <Image size={40} className="text-paper/70" />
               </div>
               {memories?.memories?.length > 0 ? (
                 <>
                   <h3 className="text-xl font-light mb-2">No memories match your filters</h3>
-                  <p className="text-paper/50 mb-6">Try adjusting the year, month, or emotion filter</p>
+                  <p className="text-paper/65 mb-6">Try adjusting the year, month, or emotion filter</p>
                   <button 
                     onClick={() => {
                       setSelectedMonth(null);
@@ -720,7 +720,7 @@ export function Memories() {
               ) : (
                 <>
                   <h3 className="text-xl font-light mb-2">No memories yet</h3>
-                  <p className="text-paper/50 mb-6">Start preserving your precious moments</p>
+                  <p className="text-paper/65 mb-6">Start preserving your precious moments</p>
                   <button onClick={() => setShowUploadModal(true)} className="btn btn-primary">
                     <Plus size={18} />
                     Upload Your First Memory
@@ -751,7 +751,7 @@ export function Memories() {
             >
               <button
                 onClick={() => setSelectedMemory(null)}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper z-10"
+                className="absolute top-4 right-4 w-10 h-10 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper z-10"
               >
                 <X size={20} />
               </button>
@@ -772,10 +772,10 @@ export function Memories() {
 
               <h2 className="text-2xl font-light mb-2">{selectedMemory.title}</h2>
               {selectedMemory.description && (
-                <p className="text-paper/60 mb-4">{selectedMemory.description}</p>
+                <p className="text-paper/70 mb-4">{selectedMemory.description}</p>
               )}
 
-              <div className="flex items-center gap-4 text-sm text-paper/50 mb-6">
+              <div className="flex items-center gap-4 text-sm text-paper/65 mb-6">
                 <span className={`badge ${selectedMemory.type === 'VIDEO' ? 'badge-danger' : 'badge-gold'}`}>
                   {selectedMemory.type}
                 </span>
@@ -784,7 +784,7 @@ export function Memories() {
 
               {selectedMemory.recipients?.length > 0 && (
                 <div className="mb-6">
-                  <div className="text-sm text-paper/50 mb-2">Shared with:</div>
+                  <div className="text-sm text-paper/65 mb-2">Shared with:</div>
                   <div className="flex flex-wrap gap-2">
                     {selectedMemory.recipients.map((r: any) => (
                       <span key={r.familyMember.id} className="badge">{r.familyMember.name}</span>
@@ -836,7 +836,7 @@ export function Memories() {
                 <h2 className="text-xl font-light">Add Memory</h2>
                 <button
                   onClick={() => setShowUploadModal(false)}
-                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper"
+                  className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper"
                 >
                   <X size={16} />
                 </button>
@@ -871,23 +871,23 @@ export function Memories() {
                           e.stopPropagation();
                           setForm(prev => ({ ...prev, file: null }));
                         }}
-                        className="text-paper/50 hover:text-blood"
+                        className="text-paper/65 hover:text-blood"
                       >
                         <X size={16} />
                       </button>
                     </div>
                   ) : (
                     <>
-                      <Upload size={32} className="text-paper/60 mx-auto mb-3" />
-                      <p className="text-paper/50">Click to upload photo or video</p>
-                      <p className="text-paper/60 text-sm mt-1">Max 50MB</p>
+                      <Upload size={32} className="text-paper/70 mx-auto mb-3" />
+                      <p className="text-paper/65">Click to upload photo or video</p>
+                      <p className="text-paper/70 text-sm mt-1">Max 50MB</p>
                     </>
                   )}
                 </div>
 
                 {/* Title */}
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Title *</label>
+                  <label className="block text-sm text-paper/65 mb-2">Title *</label>
                   <input
                     type="text"
                     value={form.title}
@@ -899,7 +899,7 @@ export function Memories() {
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">Description (optional)</label>
+                  <label className="block text-sm text-paper/65 mb-2">Description (optional)</label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -910,7 +910,7 @@ export function Memories() {
 
                 {/* Memory Date - for historic memories */}
                 <div>
-                  <label className="block text-sm text-paper/50 mb-2">When was this memory from? (optional)</label>
+                  <label className="block text-sm text-paper/65 mb-2">When was this memory from? (optional)</label>
                   <input
                     type="date"
                     value={form.memoryDate}
@@ -918,12 +918,12 @@ export function Memories() {
                     max={new Date().toISOString().split('T')[0]}
                     className="input"
                   />
-                  <p className="text-xs text-paper/40 mt-1">Leave empty to use today's date</p>
+                  <p className="text-xs text-paper/70 mt-1">Leave empty to use today's date</p>
                 </div>
 
                                 {/* Recipients */}
                                 <div>
-                                  <label className="block text-sm text-paper/50 mb-2">Share with family</label>
+                                  <label className="block text-sm text-paper/65 mb-2">Share with family</label>
                                   <div className="flex flex-wrap gap-2">
                                     {family?.map((member: any) => (
                                       <button
@@ -943,7 +943,7 @@ export function Memories() {
                                     <button
                                       type="button"
                                       onClick={() => setShowAddFamilyModal(true)}
-                                      className="badge cursor-pointer transition-all border-dashed hover:border-gold/50 text-paper/50 hover:text-paper"
+                                      className="badge cursor-pointer transition-all border-dashed hover:border-gold/50 text-paper/65 hover:text-paper"
                                     >
                                       <Plus size={12} />
                                       Add Family Member
@@ -1011,7 +1011,7 @@ export function Memories() {
                       <h2 className="text-xl font-light">Edit Memory</h2>
                       <button
                         onClick={() => setShowEditModal(false)}
-                        className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/50 hover:text-paper"
+                        className="w-8 h-8 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper"
                       >
                         <X size={16} />
                       </button>
@@ -1019,7 +1019,7 @@ export function Memories() {
 
                     <div className="space-y-5">
                       <div>
-                        <label className="block text-sm text-paper/50 mb-2">Title *</label>
+                        <label className="block text-sm text-paper/65 mb-2">Title *</label>
                         <input
                           type="text"
                           value={editForm.title}
@@ -1030,7 +1030,7 @@ export function Memories() {
                       </div>
 
                       <div>
-                        <label className="block text-sm text-paper/50 mb-2">Description (optional)</label>
+                        <label className="block text-sm text-paper/65 mb-2">Description (optional)</label>
                         <textarea
                           value={editForm.description}
                           onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
