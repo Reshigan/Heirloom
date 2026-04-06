@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS gifts (
   recipient_email TEXT,
   recipient_phone TEXT,
   recipient_user_id TEXT,
-  personal_note TEXT,
+  personal_message TEXT,
   token TEXT UNIQUE NOT NULL,
   unlock_date TEXT,
   claimed_at TEXT,
@@ -105,12 +105,14 @@ CREATE TABLE IF NOT EXISTS book_orders (
 
 -- Legacy Score Cache
 CREATE TABLE IF NOT EXISTS legacy_scores (
-  user_id TEXT PRIMARY KEY,
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
   score INTEGER NOT NULL DEFAULT 0,
   completed_items TEXT NOT NULL DEFAULT '[]',
   computed_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+CREATE INDEX IF NOT EXISTS idx_legacy_scores_user ON legacy_scores(user_id);
 
 -- Prompt tracking (for weekly emails)
 CREATE TABLE IF NOT EXISTS sent_prompts (

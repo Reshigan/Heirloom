@@ -8,9 +8,11 @@ import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 
 export const giftsV2Routes = new Hono<AppEnv>();
+// Protected gifts routes (require auth) - mounted under protectedApp
+export const giftsV2ProtectedRoutes = new Hono<AppEnv>();
 
-// Send a memory as a gift
-giftsV2Routes.post('/send', async (c) => {
+// Send a memory as a gift (requires auth)
+giftsV2ProtectedRoutes.post('/send', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   const now = new Date().toISOString();

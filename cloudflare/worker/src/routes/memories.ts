@@ -79,6 +79,49 @@ memoriesRoutes.get('/', async (c) => {
   });
 });
 
+// Get memories with geolocation data for map view
+memoriesRoutes.get('/map', async (c) => {
+  const userId = c.get('userId');
+  const type = c.req.query('type');
+
+  const memories: any[] = [];
+
+  // Get geotagged memories
+  if (!type || type === 'memory') {
+    const result = await c.env.DB.prepare(`
+      SELECT id, title, 'memory' as type, latitude, longitude, location_name, created_at
+      FROM memories WHERE user_id = ? AND latitude IS NOT NULL AND longitude IS NOT NULL
+      ORDER BY created_at DESC
+    `).bind(userId).all();
+    memories.push(...result.results);
+  }
+
+  // Get geotagged voice recordings
+  if (!type || type === 'voice') {
+    const result = await c.env.DB.prepare(`
+      SELECT id, title, 'voice' as type, latitude, longitude, location_name, created_at
+      FROM voice_recordings WHERE user_id = ? AND latitude IS NOT NULL AND longitude IS NOT NULL
+      ORDER BY created_at DESC
+    `).bind(userId).all();
+    memories.push(...result.results);
+  }
+
+  // Get geotagged letters
+  if (!type || type === 'letter') {
+    const result = await c.env.DB.prepare(`
+      SELECT id, subject as title, 'letter' as type, latitude, longitude, location_name, created_at
+      FROM letters WHERE user_id = ? AND latitude IS NOT NULL AND longitude IS NOT NULL
+      ORDER BY created_at DESC
+    `).bind(userId).all();
+    memories.push(...result.results);
+  }
+
+  // Sort by date descending
+  memories.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  return c.json({ memories });
+});
+
 // Get memory stats
 memoriesRoutes.get('/stats/summary', async (c) => {
   const userId = c.get('userId');

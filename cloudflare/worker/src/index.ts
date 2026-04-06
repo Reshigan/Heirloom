@@ -43,8 +43,10 @@ import { partnerRoutes } from './routes/partners';
 import { socialImportRoutes } from './routes/social-import';
 import { exportRoutes } from './routes/export';
 import { capsulesRoutes } from './routes/capsules';
-import { giftsV2Routes } from './routes/gifts-v2';
+import { giftsV2Routes, giftsV2ProtectedRoutes } from './routes/gifts-v2';
 import { engagementV2Routes } from './routes/engagement-v2';
+import { socialRoutes } from './routes/social';
+import { processSocialQueue } from './crons/social-posting';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts } from './jobs/adoption-jobs';
@@ -101,6 +103,10 @@ export interface Env {
   
   // Feature flags
   CRON_ENABLED?: string;
+  
+  // Social Posting Engine (Postiz)
+  POSTIZ_URL?: string;
+  POSTIZ_API_KEY?: string;
   
   // Social Media OAuth (for importing photos)
   FACEBOOK_CLIENT_ID?: string;
@@ -737,7 +743,9 @@ protectedApp.route('/export', exportRoutes);
 
 // Heirloom v2 Protected Routes
 protectedApp.route('/capsules', capsulesRoutes);
-protectedApp.route('/engagement-v2', engagementV2Routes);
+protectedApp.route('/engagement', engagementV2Routes);
+protectedApp.route('/gifts', giftsV2ProtectedRoutes);
+protectedApp.route('/admin/social', socialRoutes);
 
 app.route('/api', protectedApp);
 
@@ -875,10 +883,15 @@ export default {
       console.log('Twice-daily jobs complete.');
       
     } else if (cronType === '*/5 * * * *') {
-      // ========== EVERY 5 MINUTES - Push Notification Processing ==========
+      // ========== EVERY 5 MINUTES - Push Notifications + Social Posting ==========
       console.log('Processing push notification queue...');
       const pushResult = await processPushNotificationQueue(env);
       console.log(`Push notifications - processed: ${pushResult.processed}, sent: ${pushResult.sent}, failed: ${pushResult.failed}, skipped: ${pushResult.skipped}`);
+      
+      // Social posting engine
+      console.log('Processing social posting queue...');
+      const socialResult = await processSocialQueue(env);
+      console.log(`Social posts - processed: ${socialResult.processed}, published: ${socialResult.published}, failed: ${socialResult.failed}`);
     }
   },
 };
