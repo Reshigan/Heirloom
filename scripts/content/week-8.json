@@ -1,0 +1,136 @@
+{
+  "week": 8,
+  "startDate": "2026-06-01",
+  "posts": [
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "E2E Encryption",
+        "captions": {
+          "tiktok": "End-to-end encryption explained in 30 seconds: Your content is encrypted on YOUR device. Only YOU hold the key. We can't read it. Hackers can't read it. Nobody can. Your memories. Your keys. Your rule...\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "End-to-end encryption explained in 30 seconds: Your content is encrypted on YOUR device. Only YOU hold the key. We can't read it. Hackers can't read it. Nobody can. Your memories. Your keys. Your rules.\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "End-to-end encryption explained in 30 seconds: Your content is encrypted on YOUR device. Only YOU hold the key. We can't read it. Hackers can't read it. Nobody can. Your memories. Your keys. Your rules.\n\nStart free → heirloom.blue",
+          "twitter": "End-to-end encryption explained in 30 seconds: Your content is encrypted on YOUR device. Only YOU hold the key. We can't read it. Hackers can't read it. Nobody can. Your memories. Your keys. Your rule...\n\nheirloom.blue",
+          "linkedin": "End-to-end encryption explained in 30 seconds: Your content is encrypted on YOUR device. Only YOU hold the key. We can't read it. Hackers can't read it. Nobody can. Your memories. Your keys. Your rules.\n\nStart free → heirloom.blue",
+          "youtube_title": "E2E Encryption | Heirloom",
+          "youtube_description": "End-to-end encryption explained in 30 seconds: Your content is encrypted on YOUR device. Only YOU hold the key. We can't read it. Hackers can't read it. Nobody can. Your memories. Your keys. Your rule...\n\nStart free → https://heirloom.blue",
+          "threads": "End-to-end encryption explained in 30 seconds: Your content is encrypted on YOUR device. Only YOU hold the key. We can't read it. Hackers can't read it. Nobody can. Your memories. Your keys. Your rule...\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w8-mon/w8-mon.mp4"
+      },
+      "pillar": "educational"
+    },
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "Dead Man's Switch",
+        "captions": {
+          "tiktok": "The Dead Man's Switch: How your family gets your memories after you're gone. You set a check-in schedule. If you stop checking in... Your trusted contacts verify. Then your family receives everything ...\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "The Dead Man's Switch: How your family gets your memories after you're gone. You set a check-in schedule. If you stop checking in... Your trusted contacts verify. Then your family receives everything you preserved. Automatic. Secure. Dignified.\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "The Dead Man's Switch: How your family gets your memories after you're gone. You set a check-in schedule. If you stop checking in... Your trusted contacts verify. Then your family receives everything you preserved. Automatic. Secure. Dignified.\n\nStart free → heirloom.blue",
+          "twitter": "The Dead Man's Switch: How your family gets your memories after you're gone. You set a check-in schedule. If you stop checking in... Your trusted contacts verify. Then your family receives everything ...\n\nheirloom.blue",
+          "linkedin": "The Dead Man's Switch: How your family gets your memories after you're gone. You set a check-in schedule. If you stop checking in... Your trusted contacts verify. Then your family receives everything you preserved. Automatic. Secure. Dignified.\n\nStart free → heirloom.blue",
+          "youtube_title": "Dead Man's Switch | Heirloom",
+          "youtube_description": "The Dead Man's Switch: How your family gets your memories after you're gone. You set a check-in schedule. If you stop checking in... Your trusted contacts verify. Then your family receives everything ...\n\nStart free → https://heirloom.blue",
+          "threads": "The Dead Man's Switch: How your family gets your memories after you're gone. You set a check-in schedule. If you stop checking in... Your trusted contacts verify. Then your family receives everything ...\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w8-tue/w8-tue.mp4"
+      },
+      "pillar": "emotional"
+    },
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "Zero Knowledge",
+        "captions": {
+          "tiktok": "Zero-knowledge architecture: We can't see your content. Nobody can. Your device encrypts. Your key decrypts. Even if our servers were breached... your memories stay safe.\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "Zero-knowledge architecture: We can't see your content. Nobody can. Your device encrypts. Your key decrypts. Even if our servers were breached... your memories stay safe.\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "Zero-knowledge architecture: We can't see your content. Nobody can. Your device encrypts. Your key decrypts. Even if our servers were breached... your memories stay safe.\n\nStart free → heirloom.blue",
+          "twitter": "Zero-knowledge architecture: We can't see your content. Nobody can. Your device encrypts. Your key decrypts. Even if our servers were breached... your memories stay safe.\n\nheirloom.blue",
+          "linkedin": "Zero-knowledge architecture: We can't see your content. Nobody can. Your device encrypts. Your key decrypts. Even if our servers were breached... your memories stay safe.\n\nStart free → heirloom.blue",
+          "youtube_title": "Zero Knowledge | Heirloom",
+          "youtube_description": "Zero-knowledge architecture: We can't see your content. Nobody can. Your device encrypts. Your key decrypts. Even if our servers were breached... your memories stay safe.\n\nStart free → https://heirloom.blue",
+          "threads": "Zero-knowledge architecture: We can't see your content. Nobody can. Your device encrypts. Your key decrypts. Even if our servers were breached... your memories stay safe.\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w8-wed/w8-wed.mp4"
+      },
+      "pillar": "demo"
+    },
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "Trust Question",
+        "captions": {
+          "tiktok": "Would you trust a platform with your family's most precious memories? What would it take? Comment below ⬇️\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "Would you trust a platform with your family's most precious memories? What would it take? Comment below ⬇️\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "Would you trust a platform with your family's most precious memories? What would it take? Comment below ⬇️\n\nStart free → heirloom.blue",
+          "twitter": "Would you trust a platform with your family's most precious memories? What would it take? Comment below ⬇️\n\nheirloom.blue",
+          "linkedin": "Would you trust a platform with your family's most precious memories? What would it take? Comment below ⬇️\n\nStart free → heirloom.blue",
+          "youtube_title": "Trust Question | Heirloom",
+          "youtube_description": "Would you trust a platform with your family's most precious memories? What would it take? Comment below ⬇️\n\nStart free → https://heirloom.blue",
+          "threads": "Would you trust a platform with your family's most precious memories? What would it take? Comment below ⬇️\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w8-thu/w8-thu.mp4"
+      },
+      "pillar": "engagement"
+    },
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "Your Data, Your Family",
+        "captions": {
+          "tiktok": "Your data belongs to your family. Not to us. Not to advertisers. Not to AI. End-to-end encrypted. Zero knowledge. Yours forever.\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "Your data belongs to your family. Not to us. Not to advertisers. Not to AI. End-to-end encrypted. Zero knowledge. Yours forever.\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "Your data belongs to your family. Not to us. Not to advertisers. Not to AI. End-to-end encrypted. Zero knowledge. Yours forever.\n\nStart free → heirloom.blue",
+          "twitter": "Your data belongs to your family. Not to us. Not to advertisers. Not to AI. End-to-end encrypted. Zero knowledge. Yours forever.\n\nheirloom.blue",
+          "linkedin": "Your data belongs to your family. Not to us. Not to advertisers. Not to AI. End-to-end encrypted. Zero knowledge. Yours forever.\n\nStart free → heirloom.blue",
+          "youtube_title": "Your Data, Your Family | Heirloom",
+          "youtube_description": "Your data belongs to your family. Not to us. Not to advertisers. Not to AI. End-to-end encrypted. Zero knowledge. Yours forever.\n\nStart free → https://heirloom.blue",
+          "threads": "Your data belongs to your family. Not to us. Not to advertisers. Not to AI. End-to-end encrypted. Zero knowledge. Yours forever.\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w8-fri/w8-fri.mp4"
+      },
+      "pillar": "viral"
+    }
+  ]
+}

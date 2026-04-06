@@ -1,12 +1,33 @@
 /**
  * Social Posting Admin Routes
  * Admin endpoints for managing the social content calendar
+ * Protected by admin session auth (not user JWT)
  */
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 
 export const socialRoutes = new Hono<AppEnv>();
+
+// Admin authentication middleware (validates admin session tokens from KV)
+socialRoutes.use('*', async (c, next) => {
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Admin authentication required' }, 401);
+  }
+
+  const token = authHeader.substring(7);
+  const adminSession = await c.env.KV.get(`admin:session:${token}`);
+  if (!adminSession) {
+    return c.json({ error: 'Invalid or expired admin session' }, 401);
+  }
+
+  const session = JSON.parse(adminSession);
+  c.set('adminId', session.adminId);
+  c.set('adminRole', session.role);
+
+  await next();
+});
 
 // POST /bulk-load - Load posts for a week from the content calendar
 socialRoutes.post('/bulk-load', async (c) => {
