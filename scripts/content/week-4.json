@@ -1,0 +1,136 @@
+{
+  "week": 4,
+  "startDate": "REPLACE_WITH_START_DATE",
+  "posts": [
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "How It Works (60s)",
+        "captions": {
+          "tiktok": "How Heirloom works in 60 seconds: ❶ Record your voice ❷ Write time-locked letters ❸ Upload precious photos ❹ Set delivery triggers ❺ End-to-end encrypted Your family receives everything. On your terms...\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "How Heirloom works in 60 seconds: ❶ Record your voice ❷ Write time-locked letters ❸ Upload precious photos ❹ Set delivery triggers ❺ End-to-end encrypted Your family receives everything. On your terms.\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "How Heirloom works in 60 seconds: ❶ Record your voice ❷ Write time-locked letters ❸ Upload precious photos ❹ Set delivery triggers ❺ End-to-end encrypted Your family receives everything. On your terms.\n\nStart free → heirloom.blue",
+          "twitter": "How Heirloom works in 60 seconds: ❶ Record your voice ❷ Write time-locked letters ❸ Upload precious photos ❹ Set delivery triggers ❺ End-to-end encrypted Your family receives everything. On your terms...\n\nheirloom.blue",
+          "linkedin": "How Heirloom works in 60 seconds: ❶ Record your voice ❷ Write time-locked letters ❸ Upload precious photos ❹ Set delivery triggers ❺ End-to-end encrypted Your family receives everything. On your terms.\n\nStart free → heirloom.blue",
+          "youtube_title": "How It Works (60s) | Heirloom",
+          "youtube_description": "How Heirloom works in 60 seconds: ❶ Record your voice ❷ Write time-locked letters ❸ Upload precious photos ❹ Set delivery triggers ❺ End-to-end encrypted Your family receives everything. On your terms...\n\nStart free → https://heirloom.blue",
+          "threads": "How Heirloom works in 60 seconds: ❶ Record your voice ❷ Write time-locked letters ❸ Upload precious photos ❹ Set delivery triggers ❺ End-to-end encrypted Your family receives everything. On your terms...\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w4-mon/w4-mon.mp4"
+      },
+      "pillar": "demo"
+    },
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "Mother's Recording",
+        "captions": {
+          "tiktok": "I recorded my mother 6 months before she passed. My daughter plays it every night. She never met her grandmother. But she knows her voice.\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "I recorded my mother 6 months before she passed. My daughter plays it every night. She never met her grandmother. But she knows her voice.\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "I recorded my mother 6 months before she passed. My daughter plays it every night. She never met her grandmother. But she knows her voice.\n\nStart free → heirloom.blue",
+          "twitter": "I recorded my mother 6 months before she passed. My daughter plays it every night. She never met her grandmother. But she knows her voice.\n\nheirloom.blue",
+          "linkedin": "I recorded my mother 6 months before she passed. My daughter plays it every night. She never met her grandmother. But she knows her voice.\n\nStart free → heirloom.blue",
+          "youtube_title": "Mother's Recording | Heirloom",
+          "youtube_description": "I recorded my mother 6 months before she passed. My daughter plays it every night. She never met her grandmother. But she knows her voice.\n\nStart free → https://heirloom.blue",
+          "threads": "I recorded my mother 6 months before she passed. My daughter plays it every night. She never met her grandmother. But she knows her voice.\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w4-tue/w4-tue.mp4"
+      },
+      "pillar": "emotional"
+    },
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "Heirloom vs StoryWorth",
+        "captions": {
+          "tiktok": "Heirloom vs StoryWorth Voice recording? Heirloom: Yes StoryWorth: No Time-locked delivery? Heirloom: Yes StoryWorth: No End-to-end encryption? Heirloom: Yes StoryWorth: No Free tier? Heirloom: Yes Sto...\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "Heirloom vs StoryWorth Voice recording? Heirloom: Yes StoryWorth: No Time-locked delivery? Heirloom: Yes StoryWorth: No End-to-end encryption? Heirloom: Yes StoryWorth: No Free tier? Heirloom: Yes StoryWorth: $99/year\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "Heirloom vs StoryWorth Voice recording? Heirloom: Yes StoryWorth: No Time-locked delivery? Heirloom: Yes StoryWorth: No End-to-end encryption? Heirloom: Yes StoryWorth: No Free tier? Heirloom: Yes StoryWorth: $99/year\n\nStart free → heirloom.blue",
+          "twitter": "Heirloom vs StoryWorth Voice recording? Heirloom: Yes StoryWorth: No Time-locked delivery? Heirloom: Yes StoryWorth: No End-to-end encryption? Heirloom: Yes StoryWorth: No Free tier? Heirloom: Yes Sto...\n\nheirloom.blue",
+          "linkedin": "Heirloom vs StoryWorth Voice recording? Heirloom: Yes StoryWorth: No Time-locked delivery? Heirloom: Yes StoryWorth: No End-to-end encryption? Heirloom: Yes StoryWorth: No Free tier? Heirloom: Yes StoryWorth: $99/year\n\nStart free → heirloom.blue",
+          "youtube_title": "Heirloom vs StoryWorth | Heirloom",
+          "youtube_description": "Heirloom vs StoryWorth Voice recording? Heirloom: Yes StoryWorth: No Time-locked delivery? Heirloom: Yes StoryWorth: No End-to-end encryption? Heirloom: Yes StoryWorth: No Free tier? Heirloom: Yes Sto...\n\nStart free → https://heirloom.blue",
+          "threads": "Heirloom vs StoryWorth Voice recording? Heirloom: Yes StoryWorth: No Time-locked delivery? Heirloom: Yes StoryWorth: No End-to-end encryption? Heirloom: Yes StoryWorth: No Free tier? Heirloom: Yes Sto...\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w4-wed/w4-wed.mp4"
+      },
+      "pillar": "educational"
+    },
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "Tag Someone",
+        "captions": {
+          "tiktok": "Tag someone who should record their grandparents. Before it's too late.\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "Tag someone who should record their grandparents. Before it's too late.\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "Tag someone who should record their grandparents. Before it's too late.\n\nStart free → heirloom.blue",
+          "twitter": "Tag someone who should record their grandparents. Before it's too late.\n\nheirloom.blue",
+          "linkedin": "Tag someone who should record their grandparents. Before it's too late.\n\nStart free → heirloom.blue",
+          "youtube_title": "Tag Someone | Heirloom",
+          "youtube_description": "Tag someone who should record their grandparents. Before it's too late.\n\nStart free → https://heirloom.blue",
+          "threads": "Tag someone who should record their grandparents. Before it's too late.\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w4-thu/w4-thu.mp4"
+      },
+      "pillar": "engagement"
+    },
+    {
+      "platforms": [
+        "tiktok",
+        "instagram",
+        "facebook",
+        "twitter",
+        "linkedin",
+        "youtube",
+        "threads"
+      ],
+      "content": {
+        "title": "Every 6 Seconds",
+        "captions": {
+          "tiktok": "someone loses a grandparent. a voice disappears forever. Don't let yours be next.\n\nStart free → link in bio\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #grieftok #familystories",
+          "instagram": "someone loses a grandparent. a voice disappears forever. Don't let yours be next.\n\nStart free → heirloom.blue\n\n#heirloom #familylegacy #preservememories #voicerecording #timecapsule #digitalmemories #familystories #legacy",
+          "facebook": "someone loses a grandparent. a voice disappears forever. Don't let yours be next.\n\nStart free → heirloom.blue",
+          "twitter": "someone loses a grandparent. a voice disappears forever. Don't let yours be next.\n\nheirloom.blue",
+          "linkedin": "someone loses a grandparent. a voice disappears forever. Don't let yours be next.\n\nStart free → heirloom.blue",
+          "youtube_title": "Every 6 Seconds | Heirloom",
+          "youtube_description": "someone loses a grandparent. a voice disappears forever. Don't let yours be next.\n\nStart free → https://heirloom.blue",
+          "threads": "someone loses a grandparent. a voice disappears forever. Don't let yours be next.\n\nStart free → heirloom.blue"
+        },
+        "video_key": "social-assets/w4-fri/w4-fri.mp4"
+      },
+      "pillar": "viral"
+    }
+  ]
+}
