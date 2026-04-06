@@ -21,7 +21,7 @@ interface Capsule {
   created_at: string;
 }
 
-function CapsuleCard({ capsule, onClick }: { capsule: Capsule; onClick: () => void }) {
+function CapsuleCard({ capsule, onClick, isSelected }: { capsule: Capsule; onClick: () => void; isSelected?: boolean }) {
   const status: CapsuleStatus = capsule.opened_at ? 'unlocked' : capsule.sealed_at ? 'sealed' : 'open';
   const unlockDate = new Date(capsule.unlock_date);
   const now = new Date();
@@ -31,7 +31,7 @@ function CapsuleCard({ capsule, onClick }: { capsule: Capsule; onClick: () => vo
   return (
     <motion.button
       onClick={onClick}
-      className="w-full text-left p-6 rounded-2xl glass border border-paper/10 hover:border-gold/30 transition-all group"
+      className={`w-full text-left p-6 rounded-2xl glass border transition-all group ${isSelected ? 'border-gold/50 ring-1 ring-gold/20' : 'border-paper/10 hover:border-gold/30'}`}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
     >
@@ -81,6 +81,7 @@ function CapsuleCard({ capsule, onClick }: { capsule: Capsule; onClick: () => vo
 export function TimeCapsule() {
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedCapsule, setSelectedCapsule] = useState<string | null>(null);
   const [newCapsule, setNewCapsule] = useState({
     title: '',
     description: '',
@@ -155,6 +156,7 @@ export function TimeCapsule() {
               <CapsuleCard
                 key={capsule.id}
                 capsule={capsule}
+                isSelected={selectedCapsule === capsule.id}
                 onClick={() => setSelectedCapsule(capsule.id)}
               />
             ))}
