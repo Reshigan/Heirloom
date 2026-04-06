@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
-import { CustomCursor } from './components/CustomCursor';
+// CustomCursor removed per v2 spec (accessibility)
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { EternalBackground } from './components/EternalBackground';
 import { ComfortSettings, ComfortSettingsButton, getComfortPreferences, applyComfortPreferences } from './components/ComfortSettings';
@@ -59,6 +59,18 @@ const Memorials = lazy(() => import('./pages/Memorials').then(m => ({ default: m
 const Milestones = lazy(() => import('./pages/Milestones').then(m => ({ default: m.Milestones })));
 const MemoryCards = lazy(() => import('./pages/MemoryCards').then(m => ({ default: m.MemoryCards })));
 const CardView = lazy(() => import('./pages/CardView').then(m => ({ default: m.CardView })));
+
+// Heirloom v2 pages
+const OnboardingWizardPage = lazy(() => import('./pages/OnboardingWizardPage').then(m => ({ default: m.OnboardingWizardPage })));
+const InterviewMode = lazy(() => import('./pages/InterviewMode').then(m => ({ default: m.InterviewMode })));
+const TimeCapsulePage = lazy(() => import('./pages/TimeCapsule').then(m => ({ default: m.TimeCapsule })));
+const MemoryMap = lazy(() => import('./pages/MemoryMap').then(m => ({ default: m.MemoryMap })));
+const BookBuilder = lazy(() => import('./pages/BookBuilder').then(m => ({ default: m.BookBuilder })));
+const FamilyFeed = lazy(() => import('./pages/FamilyFeed').then(m => ({ default: m.FamilyFeed })));
+const OnThisDay = lazy(() => import('./pages/OnThisDay').then(m => ({ default: m.OnThisDay })));
+const StoryWorthAlternative = lazy(() => import('./pages/StoryWorthAlternative').then(m => ({ default: m.StoryWorthAlternative })));
+const GiftAMemory = lazy(() => import('./pages/GiftAMemory').then(m => ({ default: m.GiftAMemory })));
+const GiftReceive = lazy(() => import('./pages/GiftReceive').then(m => ({ default: m.GiftReceive })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,7 +136,7 @@ export default function App() {
                 <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                   <PushNotificationHandler />
                   <EternalBackground />
-                  <CustomCursor />
+                  {/* CustomCursor removed per v2 spec */}
           
           {/* Comfort Settings - accessible from any page */}
           <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
@@ -149,6 +161,8 @@ export default function App() {
                                                             <Route path="/gift/success" element={<GiftSuccess />} />
                                                             <Route path="/gold/redeem" element={<GoldLegacyRedeem />} />
                                                             <Route path="/card/:id" element={<CardView />} />
+          <Route path="/gift-memory/:token" element={<GiftReceive />} />
+          <Route path="/compare/storyworth" element={<StoryWorthAlternative />} />
           <Route
             path="/login"
             element={
@@ -377,6 +391,16 @@ export default function App() {
                                                                                                         </ProtectedRoute>
                                                                                                       }
                                                                                                     />
+
+                                                                                                    {/* Heirloom v2 Protected Routes */}
+          <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizardPage /></ProtectedRoute>} />
+          <Route path="/interview" element={<ProtectedRoute><InterviewMode /></ProtectedRoute>} />
+          <Route path="/time-capsules" element={<ProtectedRoute><TimeCapsulePage /></ProtectedRoute>} />
+          <Route path="/memory-map" element={<ProtectedRoute><MemoryMap /></ProtectedRoute>} />
+          <Route path="/book-builder" element={<ProtectedRoute><BookBuilder /></ProtectedRoute>} />
+          <Route path="/family-feed" element={<ProtectedRoute><FamilyFeed /></ProtectedRoute>} />
+          <Route path="/on-this-day" element={<ProtectedRoute><OnThisDay /></ProtectedRoute>} />
+          <Route path="/gift-a-memory" element={<ProtectedRoute><GiftAMemory /></ProtectedRoute>} />
 
                                                                                                                                                                 {/* Admin routes */}
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />

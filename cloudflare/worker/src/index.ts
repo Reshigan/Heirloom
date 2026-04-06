@@ -42,6 +42,9 @@ import { influencerRoutes } from './routes/influencers';
 import { partnerRoutes } from './routes/partners';
 import { socialImportRoutes } from './routes/social-import';
 import { exportRoutes } from './routes/export';
+import { capsulesRoutes } from './routes/capsules';
+import { giftsV2Routes } from './routes/gifts-v2';
+import { engagementV2Routes } from './routes/engagement-v2';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts } from './jobs/adoption-jobs';
@@ -651,6 +654,24 @@ app.route('/api/announcements', announcementsRoutes);
 // Engagement routes (mix of public and protected endpoints)
 app.route('/api/engagement', engagementRoutes);
 
+// Heirloom v2 public routes
+app.route('/api/gifts', giftsV2Routes);
+app.get('/api/public/stats', async (c) => {
+  // Proxy to engagement-v2 public stats
+  try {
+    const memoriesCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM memories').first();
+    const voicesCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM voice_recordings').first();
+    const lettersCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM letters').first();
+    const usersCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM users').first();
+    return c.json({
+      memories_preserved: ((memoriesCount?.count as number) || 0) + ((voicesCount?.count as number) || 0) + ((lettersCount?.count as number) || 0),
+      families_connected: (usersCount?.count as number) || 0,
+    });
+  } catch {
+    return c.json({ memories_preserved: 0, families_connected: 0 });
+  }
+});
+
 // Protected routes (auth required)
 const protectedApp = new Hono<AppEnv>();
 
@@ -713,6 +734,10 @@ protectedApp.route('/memory-cards', memoryCardsRoutes);
 protectedApp.route('/push', pushNotificationRoutes);
 protectedApp.route('/import', socialImportRoutes);
 protectedApp.route('/export', exportRoutes);
+
+// Heirloom v2 Protected Routes
+protectedApp.route('/capsules', capsulesRoutes);
+protectedApp.route('/engagement-v2', engagementV2Routes);
 
 app.route('/api', protectedApp);
 

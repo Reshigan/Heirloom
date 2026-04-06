@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { ArrowRight, Pen, Mic, Image, Shield, Clock, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey, Heart, Gift, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger } from '../components/Icons';
+import { ArrowRight, Pen, Mic, Image, Shield, Clock, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey, Heart, Gift, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger, Trophy } from '../components/Icons';
 import { InfinityMark } from '../components/Logo';
 
 export function Landing() {
@@ -18,11 +18,14 @@ export function Landing() {
   
   const features = [
     { icon: Image, title: 'Photo Memories', desc: 'Upload and organize photos with context and stories for each moment. End-to-end encrypted.' },
-    { icon: Mic, title: 'Voice Stories', desc: 'Record your voice with guided prompts. Your stories, your voice, preserved forever.' },
+    { icon: Mic, title: 'Voice Stories & Interview Mode', desc: 'Record your voice with guided prompts, or use Interview Mode with AI follow-up questions.' },
     { icon: Pen, title: 'Heartfelt Letters', desc: 'Write letters delivered immediately, on a specific date, or after you\'re gone.' },
-    { icon: Clock, title: 'Dead Man\'s Switch', desc: 'Automatic content release to loved ones with multi-contact verification.' },
-    { icon: Shield, title: 'Legacy Contacts', desc: 'Trusted contacts verify your passing before posthumous content delivery.' },
+    { icon: Clock, title: 'Time Capsules', desc: 'Seal memories with family, set a future unlock date, and open them together when the time comes.' },
+    { icon: Gift, title: 'Gift a Memory', desc: 'Send a memory to someone special. They receive an email to unwrap your gift and join Heirloom.' },
     { icon: Lock, title: 'E2E Encryption', desc: 'Zero-knowledge architecture. Only you and your beneficiaries can decrypt.' },
+    { icon: Shield, title: 'Dead Man\'s Switch', desc: 'Automatic content release to loved ones with multi-contact verification.' },
+    { icon: Trophy, title: 'Legacy Score', desc: 'Track your progress building a complete digital legacy. AI-powered scoring across 10 dimensions.' },
+    { icon: StoryArtifact, title: 'Printed Memory Books', desc: 'Turn your memories into beautiful printed books. Select, customize, and order with one click.' },
   ];
   
   // New Pricing: $4.99 / $9.99 / $19.99 with 14-day free trial
@@ -371,9 +374,9 @@ export function Landing() {
           
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
                   {[
-                    { value: '10,000+', label: 'Families Preserving Memories' },
-                    { value: '250,000+', label: 'Memories Captured' },
-                    { value: '50,000+', label: 'Letters Written' },
+                    { value: '10,000+', label: 'Families Connected' },
+                    { value: '250,000+', label: 'Memories Preserved' },
+                    { value: '50,000+', label: 'Letters & Voice Recordings' },
                     { value: '45+', label: 'Countries Represented' },
                   ].map((stat, i) => (
                     <motion.div
@@ -566,6 +569,30 @@ export function Landing() {
         </div>
       </section>
       
+      {/* StoryWorth Comparison CTA */}
+      <section className="py-24 px-6 md:px-12 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent" />
+        <div className="max-w-4xl mx-auto relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="card border-gold/20 text-center"
+          >
+            <h3 className="text-2xl md:text-3xl font-light mb-4">Switching from StoryWorth?</h3>
+            <p className="text-paper/50 mb-6 max-w-2xl mx-auto">
+              Heirloom offers everything StoryWorth does — plus voice recordings, zero-knowledge encryption,
+              posthumous delivery, and a family memory map. See the full comparison.
+            </p>
+            <Link to="/compare/storyworth" className="btn btn-secondary border-gold/30 text-gold hover:bg-gold/10">
+              Compare Heirloom vs StoryWorth
+              <ArrowRight size={16} />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-32 px-6 md:px-12 relative">
         <div className="max-w-3xl mx-auto text-center">
@@ -584,10 +611,16 @@ export function Landing() {
             <p className="text-xl text-paper/50 mb-12">
               Join thousands of families who trust Heirloom with their most precious memories.
             </p>
-            <Link to="/signup" className="btn btn-primary text-lg px-10 py-5 group">
-              Start Your Legacy Today
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/signup" className="btn btn-primary text-lg px-10 py-5 group">
+                Start Your Legacy Today
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link to="/gift-a-memory" className="btn btn-secondary text-lg px-8 py-5 border-gold/30 text-gold hover:bg-gold/10">
+                <Gift size={20} />
+                Gift a Memory
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>
