@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, X, ArrowRight, Heart, Shield, Mic, Clock, Sparkles, Users, Lock } from '../components/Icons';
+import { Check, X, ArrowRight, Mic, Clock, Lock } from '../components/Icons';
 import { Logo } from '../components/Logo';
 
 const features = [

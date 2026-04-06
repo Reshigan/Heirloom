@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+// MemoryMap page
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Loader2, Image, Mic, Pen, Filter, X } from '../components/Icons';
+import { Loader2, Image, Mic, Pen } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { EmptyState } from '../components/EmptyState';
 import { memoriesApi } from '../services/api';

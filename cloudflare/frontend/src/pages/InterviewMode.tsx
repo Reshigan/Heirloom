@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Pause, Stop, ArrowLeft, Sparkles, Loader2, Play, X, Check } from '../components/Icons';
+import { Mic, Pause, Stop, ArrowLeft, Sparkles, Loader2, Play, Check } from '../components/Icons';
 import { voiceApi, aiApi } from '../services/api';
 
 const SILENCE_THRESHOLD = 0.01;
-const SILENCE_DURATION_MS = 3000;
 
 interface TranscriptSegment {
   text: string;

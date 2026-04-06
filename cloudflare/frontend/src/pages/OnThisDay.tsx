@@ -1,8 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Image, Mic, Pen, Calendar, Heart, ArrowLeft, ArrowRight } from '../components/Icons';
+import { Loader2, Image, Mic, Pen, Calendar, Heart } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { EmptyState } from '../components/EmptyState';
 import { engagementApi } from '../services/api';
@@ -18,7 +16,6 @@ interface OnThisDayMemory {
 }
 
 export function OnThisDay() {
-  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: ['on-this-day'],

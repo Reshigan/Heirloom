@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Clock, Lock, Users, ArrowLeft, Loader2, Check, X, Mail, Image, Mic, Pen, Sparkles } from '../components/Icons';
+import { Plus, Clock, Lock, Users, Loader2, Check, X, Image, Sparkles } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { EmptyState } from '../components/EmptyState';
 import { capsulesApi } from '../services/api';
@@ -80,10 +79,8 @@ function CapsuleCard({ capsule, onClick }: { capsule: Capsule; onClick: () => vo
 }
 
 export function TimeCapsule() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedCapsule, setSelectedCapsule] = useState<string | null>(null);
   const [newCapsule, setNewCapsule] = useState({
     title: '',
     description: '',

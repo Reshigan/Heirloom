@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { ArrowLeft, ArrowRight, Check, Loader2, Image, Pen, Mic, Sparkles, X } from '../components/Icons';
+import { ArrowLeft, ArrowRight, Check, Loader2, Image, Pen, Mic, Sparkles } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { memoriesApi, lettersApi, voiceApi, exportApi } from '../services/api';
 
@@ -50,10 +50,6 @@ export function BookBuilder() {
   const { data: voices } = useQuery({
     queryKey: ['voices-for-book'],
     queryFn: () => voiceApi.getAll({ limit: 100 }).then((r) => r.data),
-  });
-
-  const previewMutation = useMutation({
-    mutationFn: () => exportApi.bookPreview(config),
   });
 
   const orderMutation = useMutation({

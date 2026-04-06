@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Heart, Loader2, ArrowRight, Gift, Sparkles, Mail, Check, Image, Mic, Pen } from '../components/Icons';
+import { Heart, Loader2, Gift, Check, Image, Mic, Pen } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { giftsApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
@@ -82,8 +82,6 @@ export function GiftAMemory() {
     }
     return [];
   };
-
-  const [sent, setSent] = useState(false);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
