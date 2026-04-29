@@ -48,6 +48,8 @@ const StoryArtifact = lazy(() => import('./pages/StoryArtifact').then(m => ({ de
 const LifeEvents = lazy(() => import('./pages/LifeEvents').then(m => ({ default: m.LifeEvents })));
 const RecipientExperience = lazy(() => import('./pages/RecipientExperience').then(m => ({ default: m.RecipientExperience })));
 const CreatorSignup = lazy(() => import('./pages/CreatorSignup').then(m => ({ default: m.CreatorSignup })));
+const Founder = lazy(() => import('./pages/Founder').then(m => ({ default: m.Founder })));
+const FounderWelcome = lazy(() => import('./pages/FounderWelcome').then(m => ({ default: m.FounderWelcome })));
 const MemoryRoom = lazy(() => import('./pages/MemoryRoom').then(m => ({ default: m.MemoryRoom })));
 const StoryView = lazy(() => import('./pages/StoryView').then(m => ({ default: m.StoryView })));
 const PersonPage = lazy(() => import('./pages/PersonPage').then(m => ({ default: m.PersonPage })));
@@ -159,6 +161,8 @@ export default function App() {
                               <Route path="/terms" element={<Terms />} />
                               <Route path="/contact" element={<Contact />} />
                                                             <Route path="/creators" element={<CreatorSignup />} />
+                                                            <Route path="/founder" element={<Founder />} />
+                                                            <Route path="/founder/welcome" element={<FounderWelcome />} />
                                                             <Route path="/memory-room/:token" element={<MemoryRoom />} />
                                                             <Route path="/story/:token" element={<StoryView />} />
                                                             <Route path="/inherit/:token" element={<Inherit />} />

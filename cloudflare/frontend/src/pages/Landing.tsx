@@ -1,660 +1,385 @@
-import { useRef } from 'react';
+/**
+ * Landing — the new "thousand-year thread" marketing page.
+ *
+ * Adapted from /frontend/src/pages/Landing.tsx (Family Thread positioning)
+ * to cloudflare/frontend's existing design tokens:
+ *   - font-body (Cormorant) replaces Newsreader for serif
+ *   - paper-N opacity utilities (paper-65, paper-70, paper-30, etc.)
+ *     replace the paper/65 etc. forms
+ *   - border-paper-15 replaces border-rule
+ *   - existing .btn .btn-primary .btn-secondary classes are reused
+ *
+ * Same composition. Same content. Same FutureDate live-ticking detail.
+ */
+
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { ArrowRight, Pen, Mic, Image, Shield, Clock, Lock, Users, Sparkles, Check, ShieldCheck, KeyRound, FileKey, Heart, Gift, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger, Trophy } from '../components/Icons';
-import { InfinityMark } from '../components/Logo';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import { FutureDate } from '../components/landing/FutureDate';
+
+const PILLARS = [
+  {
+    eyebrow: 'I',
+    title: 'A thread, not a profile.',
+    body: "One archive your whole family writes into across generations. Append-only — what you write today is what your great-granddaughter reads in 2120.",
+  },
+  {
+    eyebrow: 'II',
+    title: 'Time-locked entries.',
+    body: "Lock an entry for your granddaughter's 18th birthday. Or 50 years from today. Or until the day of your own funeral. Even we can't read it until then.",
+  },
+  {
+    eyebrow: 'III',
+    title: 'Cross-generational.',
+    body: "Your daughter adds to your grandmother's entries. Your grandson asks the archive what it remembers about a kitchen on Kingston Avenue in 1962. Stories compound.",
+  },
+  {
+    eyebrow: 'IV',
+    title: 'Outlives the company.',
+    body: "Mirrored to IPFS. Held by a separately-incorporated successor non-profit. Exportable in an open format any time, by any member. Your thread survives if we don't.",
+  },
+];
+
+const STEPS = [
+  { n: '01', title: 'Open a thread', body: 'A thread belongs to your family, not to you. Anyone in the bloodline can be granted authorship over time.' },
+  { n: '02', title: 'Write the first entry', body: "A photo with the story behind it. Mom's spaghetti recipe before nobody can read her handwriting. The first one is the hardest. The rest get easier." },
+  { n: '03', title: 'Lock for whoever, whenever', body: 'Set an entry to release on a specific date. Or when your granddaughter turns eighteen. Or fifty years from today. Or on your funeral.' },
+  { n: '04', title: 'It outlasts you, and us', body: 'IPFS pins. A successor non-profit. Open-format export, one click. No vendor lock-in. The thread continues after you, after us, after the company.' },
+];
+
+const PLANS = [
+  {
+    name: 'Reader',
+    price: 'Free',
+    cadence: 'forever',
+    features: ["Read your family's threads", 'Up to 10 entries / year', 'Voice, photo, letter — every format', 'Time-locked entries you receive', 'No deletion. No expiry. Ever.'],
+    cta: 'Open a thread',
+    to: '/signup',
+  },
+  {
+    name: 'Family',
+    price: '$15',
+    cadence: '/month per family',
+    features: ['Unlimited entries, unlimited members', 'Time-lock by date · age · event', 'Cross-generational comments', 'The Living Book — print on demand', 'Family-only encrypted, even from us'],
+    cta: 'Start the thread',
+    to: '/signup',
+    feature: true,
+  },
+  {
+    name: 'Founder',
+    price: '$999',
+    cadence: 'lifetime',
+    features: ['Everything in Family, forever', 'Funds the successor non-profit', 'Name engraved in the continuity record', 'Quarterly call with the founder', 'First 100 only'],
+    cta: 'Become a Founder',
+    to: '/founder',
+  },
+];
+
+function Eyebrow({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={`font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold ${className}`}>
+      {children}
+    </p>
+  );
+}
 
 export function Landing() {
-  const heroRef = useRef(null);
-  const featuresRef = useRef(null);
-  const pricingRef = useRef(null);
-  
-  const { scrollYProgress } = useScroll();
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], [0, -50]);
-  
-  const featuresInView = useInView(featuresRef, { once: true, margin: "-100px" });
-  const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" });
-  
-  const features = [
-    { icon: Image, title: 'Photo Memories', desc: 'Upload and organize photos with context and stories for each moment. End-to-end encrypted.' },
-    { icon: Mic, title: 'Voice Stories & Interview Mode', desc: 'Record your voice with guided prompts, or use Interview Mode with AI follow-up questions.' },
-    { icon: Pen, title: 'Heartfelt Letters', desc: 'Write letters delivered immediately, on a specific date, or after you\'re gone.' },
-    { icon: Clock, title: 'Time Capsules', desc: 'Seal memories with family, set a future unlock date, and open them together when the time comes.' },
-    { icon: Gift, title: 'Gift a Memory', desc: 'Send a memory to someone special. They receive an email to unwrap your gift and join Heirloom.' },
-    { icon: Lock, title: 'E2E Encryption', desc: 'Zero-knowledge architecture. Only you and your beneficiaries can decrypt.' },
-    { icon: Shield, title: 'Dead Man\'s Switch', desc: 'Automatic content release to loved ones with multi-contact verification.' },
-    { icon: Trophy, title: 'Legacy Score', desc: 'Track your progress building a complete digital legacy. AI-powered scoring across 10 dimensions.' },
-    { icon: StoryArtifact, title: 'Printed Memory Books', desc: 'Turn your memories into beautiful printed books. Select, customize, and order with one click.' },
-  ];
-  
-  // New Pricing: $4.99 / $9.99 / $19.99 with 14-day free trial
-  const plans = [
-    { 
-      name: 'Starter', 
-      price: '$4.99', 
-      period: '/month',
-      yearlyPrice: '$49.99/year',
-      features: ['5GB storage', '1 user account', '50 memories/month', 'AI memory prompts', 'Email support', 'PDF export'],
-      popular: false 
-    },
-    { 
-      name: 'Family', 
-      price: '$9.99', 
-      period: '/month',
-      yearlyPrice: '$99.99/year',
-      features: ['50GB storage', 'Up to 5 family members', 'Unlimited memories', 'AI insights', 'Priority support', 'Video montage', 'Family tree'],
-      popular: true 
-    },
-    { 
-      name: 'Legacy', 
-      price: '$19.99', 
-      period: '/month',
-      yearlyPrice: '$199.99/year',
-      features: ['500GB storage', 'Unlimited family', 'Unlimited memories', 'AI Avatar (coming soon)', 'Dedicated support', 'API access', 'Physical memory book'],
-      popular: false 
-    },
-  ];
-  
-  // Zero-knowledge privacy features
-  const privacyFeatures = [
-    { icon: Lock, title: 'End-to-End Encryption', desc: 'Your memories are encrypted on your device before upload. We never see your content.' },
-    { icon: KeyRound, title: 'Zero-Knowledge Architecture', desc: 'We cannot access, read, or share your memories. Only you and your chosen recipients hold the keys.' },
-    { icon: FileKey, title: 'Client-Side Encryption', desc: 'Encryption happens in your browser. Your data is unreadable to us, even in transit.' },
-    { icon: ShieldCheck, title: 'No Data Mining', desc: 'We don\'t analyze, sell, or monetize your memories. Your privacy is our promise.' },
-  ];
-
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-      
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50">
-        <div className="absolute inset-0 glass-subtle border-b border-white/[0.04]" />
-        <div className="relative max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <motion.div
-              className="text-gold"
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            >
-              <InfinityMark size={28} />
-            </motion.div>
-            <span className="text-lg tracking-[0.2em] text-paper/80">Heirloom</span>
+    <main className="min-h-screen bg-void text-paper antialiased">
+      {/* Top mark */}
+      <header className="px-6 md:px-12 pt-8 md:pt-10">
+        <nav className="max-w-6xl mx-auto flex items-center justify-between">
+          <Link
+            to="/"
+            className="flex items-baseline gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void rounded"
+          >
+            <span className="font-body text-3xl text-gold leading-none">∞</span>
+            <span className="text-[0.7rem] tracking-[0.34em] uppercase text-paper-70 group-hover:text-paper transition-colors">
+              Heirloom
+            </span>
           </Link>
-          
-                    <div className="flex items-center gap-4 md:gap-6">
-                      <Link to="/gift" className="flex items-center gap-1.5 text-paper/80 hover:text-gold transition-colors font-medium text-sm md:text-base">
-                        <Gift size={16} />
-                        <span className="hidden sm:inline">Gift a Subscription</span>
-                        <span className="sm:hidden">Gift</span>
-                      </Link>
-                      <Link to="/login" className="text-paper/80 hover:text-gold transition-colors font-medium text-sm md:text-base">
-                        Sign In
-                      </Link>
-                      <Link to="/signup" className="btn btn-primary text-sm md:text-base">
-                        Start Free Trial
-                      </Link>
-                    </div>
-        </div>
-      </nav>
-      
-      {/* Hero */}
-      <section ref={heroRef} className="min-h-screen flex items-center justify-center px-6 pt-24 relative">
-        <motion.div 
-          className="text-center max-w-4xl relative z-10"
-          style={{ opacity: heroOpacity, y: heroY }}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 glass-subtle rounded-full mb-8">
-              <Sparkles size={16} className="text-gold" />
-              <span className="text-sm text-paper/70 tracking-wider">14-DAY FREE TRIAL</span>
-            </div>
-          </motion.div>
-          
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light leading-[1.1] mb-8"
-          >
-            Your memories deserve
-            <br />
-            to live <em className="relative">
-              forever
-              <motion.span
-                className="absolute -bottom-2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 1, delay: 0.8 }}
-              />
-            </em>
-          </motion.h1>
-          
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="text-xl md:text-2xl text-paper/65 mb-12 max-w-2xl mx-auto leading-relaxed"
-          >
-            A sanctuary for your life's precious moments. Capture photos, record your voice, 
-            write letters to loved ones — delivered on your terms, even after you're gone.
-          </motion.p>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link to="/signup" className="btn btn-primary text-lg px-8 py-4 group">
-              Begin Your Legacy
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+          <div className="flex items-center gap-7 text-sm">
+            <Link to="/creators" className="text-paper-50 hover:text-paper transition-colors hidden md:inline">
+              For creators
             </Link>
-            <a href="#features" className="btn btn-secondary text-lg px-8 py-4 border-paper/40 text-paper hover:border-gold hover:text-gold">
-              Discover More
-            </a>
+            <Link to="/login" className="text-paper-50 hover:text-paper transition-colors hidden md:inline">
+              Sign in
+            </Link>
+            <Link to="/signup" className="btn btn-primary">
+              Open a thread
+            </Link>
+          </div>
+        </nav>
+      </header>
+
+      {/* Hero */}
+      <section className="px-6 md:px-12 pt-24 md:pt-40 pb-28 md:pb-40">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <Eyebrow className="mb-8">The family thread</Eyebrow>
           </motion.div>
-          
-          {/* Trust badges */}
+
+          <motion.h1
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+            className="font-body font-light leading-[1.04] tracking-[-0.022em]"
+            style={{ fontSize: 'clamp(2.75rem, 6vw, 4.75rem)' }}
+          >
+            Start your family's<br />
+            <em className="not-italic text-gold">thousand-year</em> thread.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.25 }}
+            className="mt-10 max-w-prose text-paper-70 leading-relaxed font-light"
+            style={{ fontSize: 'clamp(1.125rem, 1.5vw, 1.375rem)' }}
+          >
+            Write today. Lock entries for descendants who don't exist yet. Read what came before. The thread continues after you, after us, after the company.
+          </motion.p>
+
+          {/* Live-ticking date — ambient marketing for the time-lock primitive */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-8 mt-16 text-paper/70"
+            transition={{ duration: 0.7, delay: 0.5 }}
+            className="mt-12 inline-flex items-center gap-3 pl-4 pr-5 py-2.5 border border-paper-15 rounded-full"
+            aria-label="Example time-lock — entry written today opening 30 years from now"
           >
-            {[
-              { icon: Lock, text: 'E2E Encrypted' },
-              { icon: Shield, text: 'Zero Knowledge' },
-              { icon: Users, text: '10K+ Families' },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-2">
-                <Icon size={18} />
-                <span className="text-sm">{text}</span>
-              </div>
-            ))}
-          </motion.div>
-        </motion.div>
-        
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-12 left-1/2 -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-        >
-          <motion.div
-            className="w-6 h-10 border border-paper/20 rounded-full flex justify-center pt-2"
-            animate={{ y: [0, 5, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <motion.div
-              className="w-1 h-2 bg-gold rounded-full"
-              animate={{ y: [0, 8, 0], opacity: [1, 0.3, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
+            <span
+              className="inline-block rounded-full bg-gold"
+              aria-hidden
+              style={{ width: 8, height: 8, boxShadow: '0 0 12px rgba(212,168,83,0.6)' }}
             />
+            <span className="text-paper-30 text-xs tracking-[0.2em] uppercase">an entry written tonight</span>
+            <FutureDate yearsAhead={30} />
           </motion.div>
-        </motion.div>
-      </section>
-      
-      {/* Features */}
-      <section ref={featuresRef} id="features" className="py-32 px-6 md:px-12 relative">
-        <div className="max-w-7xl mx-auto">
+
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={featuresInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="mt-14 flex flex-wrap items-center gap-5"
           >
-            <span className="text-gold tracking-[0.3em] text-sm">FEATURES</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">
-              Everything you need to preserve your legacy
-            </h2>
+            <Link to="/signup" className="btn btn-primary text-base">
+              Open a thread — free forever
+              <ArrowRight size={18} />
+            </Link>
+            <a
+              href="#how"
+              className="text-paper-60 hover:text-paper transition-colors text-sm tracking-wide"
+            >
+              How it works <span aria-hidden>↓</span>
+            </a>
           </motion.div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 40 }}
-                animate={featuresInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="card group"
+        </div>
+      </section>
+
+      <hr className="border-paper-15 mx-6 md:mx-12" />
+
+      {/* Pillars */}
+      <section className="px-6 md:px-12 py-24 md:py-36">
+        <div className="max-w-6xl mx-auto">
+          <Eyebrow className="mb-6">What it is</Eyebrow>
+          <h2
+            className="font-body font-light max-w-prose mb-20 leading-[1.1] tracking-[-0.014em]"
+            style={{ fontSize: 'clamp(2.25rem, 4vw, 3.25rem)' }}
+          >
+            A new kind of family archive — built to be read by people who don't exist yet.
+          </h2>
+          <div className="grid md:grid-cols-2 gap-x-16 gap-y-14">
+            {PILLARS.map((p, i) => (
+              <motion.article
+                key={p.eyebrow}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.6, delay: i * 0.05 }}
+                className="border-l border-paper-15 pl-7"
               >
-                <div className="w-14 h-14 glass rounded-xl flex items-center justify-center mb-5 group-hover:bg-gold/10 transition-colors">
-                  <feature.icon size={24} className="text-gold/70 group-hover:text-gold transition-colors" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-xl font-medium mb-3">{feature.title}</h3>
-                <p className="text-paper/65 leading-relaxed">{feature.desc}</p>
-              </motion.div>
+                <p className="font-mono text-xs tracking-[0.3em] text-gold mb-3">{p.eyebrow}</p>
+                <h3 className="font-body font-light text-2xl md:text-3xl mb-4 leading-snug">{p.title}</h3>
+                <p className="text-paper-65 leading-relaxed max-w-prose">{p.body}</p>
+              </motion.article>
             ))}
           </div>
         </div>
       </section>
-      
-      {/* Advanced Features */}
-      <section className="py-32 px-6 md:px-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent" />
-        
-        <div className="max-w-7xl mx-auto relative">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-20"
+
+      <hr className="border-paper-15 mx-6 md:mx-12" />
+
+      {/* How it works */}
+      <section id="how" className="px-6 md:px-12 py-24 md:py-36">
+        <div className="max-w-4xl mx-auto">
+          <Eyebrow className="mb-6">Steps</Eyebrow>
+          <h2
+            className="font-body font-light mb-16 leading-[1.1] tracking-[-0.014em]"
+            style={{ fontSize: 'clamp(2.25rem, 4vw, 3.25rem)' }}
           >
-            <span className="text-gold tracking-[0.3em] text-sm">ADVANCED</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">
-              Powerful tools for your legacy
-            </h2>
-            <p className="text-paper/65 mt-4 max-w-2xl mx-auto">
-              Go beyond simple storage with intelligent features designed to make your legacy meaningful and impactful.
-            </p>
-          </motion.div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            {[
-              { 
-                icon: LegacyPlaybook, 
-                title: 'Legacy Playbook', 
-                desc: 'A guided checklist organized into five categories—People, Stories, Gratitude, Practical, and Wisdom—to help you build a complete and meaningful legacy.',
-                link: '/legacy-plan'
-              },
-              { 
-                icon: RecipientJourney, 
-                title: 'Recipient Experience', 
-                desc: 'Control how your loved ones receive your legacy with staged content releases and a Family Memory Room where they can contribute their own memories.',
-                link: '/recipient-experience'
-              },
-              { 
-                icon: StoryArtifact, 
-                title: 'Story Artifacts', 
-                desc: 'Transform your photos and voice recordings into beautiful 60-120 second micro-documentaries with AI-powered story generation and cinematic themes.',
-                link: '/story-artifacts'
-              },
-              { 
-                icon: LifeEventTrigger, 
-                title: 'Life Event Triggers', 
-                desc: 'Schedule content delivery for life\'s milestones—graduations, weddings, first child, and more. Your words arrive exactly when they\'re needed most.',
-                link: '/life-events'
-              },
-            ].map((feature, i) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 40 }}
+            Simple, on the surface.<br />Built to last underneath.
+          </h2>
+          <ol className="space-y-12">
+            {STEPS.map((s, i) => (
+              <motion.li
+                key={s.n}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="card group hover:border-gold/30 transition-all"
+                transition={{ duration: 0.5, delay: i * 0.05 }}
+                className="grid md:grid-cols-[80px_1fr] gap-6 md:gap-12 items-baseline"
               >
-                <div className="flex items-start gap-5">
-                  <div className="w-16 h-16 glass rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-gold/10 transition-colors">
-                    <feature.icon size={28} className="text-gold/70 group-hover:text-gold transition-colors" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-medium mb-2">{feature.title}</h3>
-                    <p className="text-paper/65 leading-relaxed mb-4">{feature.desc}</p>
-                    <Link 
-                      to={feature.link} 
-                      className="inline-flex items-center gap-2 text-gold/70 hover:text-gold transition-colors text-sm"
-                    >
-                      Learn more <ArrowRight size={14} />
-                    </Link>
-                  </div>
+                <span className="font-mono text-paper-30 text-sm tracking-[0.2em]">{s.n}</span>
+                <div>
+                  <h3 className="font-body text-xl md:text-2xl mb-2">{s.title}</h3>
+                  <p className="text-paper-65 leading-relaxed max-w-prose">{s.body}</p>
                 </div>
-              </motion.div>
+              </motion.li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
-      
-      {/* How it works */}
-      <section className="py-32 px-6 md:px-12 relative">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-20">
-            <span className="text-gold tracking-[0.3em] text-sm">HOW IT WORKS</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">Simple. Secure. Forever.</h2>
-          </div>
-          
-          <div className="space-y-0">
-            {[
-              { step: '01', title: 'Create Your Sanctuary', desc: 'Sign up and set up your encrypted vault. Your content is protected from the moment it\'s created.' },
-              { step: '02', title: 'Preserve Your Memories', desc: 'Upload photos, record voice messages, write letters. Every moment is encrypted before leaving your device.' },
-              { step: '03', title: 'Set Your Wishes', desc: 'Choose when and how your content is delivered. Immediately, on a specific date, or after you\'re gone.' },
-              { step: '04', title: 'Rest Assured', desc: 'The dead man\'s switch monitors your check-ins. Your legacy contacts verify your passing before release.' },
-            ].map((item, i) => (
-              <motion.div
-                key={item.step}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6 }}
-                className={`flex items-start gap-8 ${i % 2 === 0 ? '' : 'flex-row-reverse text-right'}`}
-              >
-                <div className={`flex-shrink-0 w-20 h-20 rounded-full glass flex items-center justify-center ${i % 2 === 0 ? '' : 'ml-auto'}`}>
-                  <span className="text-2xl text-gold font-light">{item.step}</span>
-                </div>
-                <div className="flex-1 pb-16 border-l border-gold/20 pl-8" style={{ marginLeft: i % 2 === 0 ? 0 : 'auto', marginRight: i % 2 === 0 ? 'auto' : 0 }}>
-                  <h3 className="text-2xl font-light mb-2">{item.title}</h3>
-                  <p className="text-paper/65">{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-            {/* Social Proof - Platform Stats */}
-            <section className="py-24 px-6 md:px-12 relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent" />
-        
-              <div className="max-w-6xl mx-auto relative">
-                <motion.div
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
-                  className="text-center mb-16"
-                >
-                  <span className="text-gold tracking-[0.3em] text-sm">TRUSTED BY FAMILIES WORLDWIDE</span>
-                  <h2 className="text-4xl md:text-5xl font-light mt-4">Join a Growing Community</h2>
-                </motion.div>
-          
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-                  {[
-                    { value: '10,000+', label: 'Families Connected' },
-                    { value: '250,000+', label: 'Memories Preserved' },
-                    { value: '50,000+', label: 'Letters & Voice Recordings' },
-                    { value: '45+', label: 'Countries Represented' },
-                  ].map((stat, i) => (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: i * 0.1 }}
-                      className="text-center"
-                    >
-                      <div className="text-3xl md:text-4xl font-light text-gold mb-2">{stat.value}</div>
-                      <div className="text-sm text-paper/65">{stat.label}</div>
-                    </motion.div>
-                  ))}
-                </div>
-          
-                <div className="grid md:grid-cols-3 gap-6">
-                  {[
-                    {
-                      quote: "Heirloom gave me a way to share my grandmother's stories with my children. It's like she's still with us.",
-                      author: "Sarah M.",
-                      role: "Mother of 3, California"
-                    },
-                    {
-                      quote: "After my diagnosis, I wanted to leave something meaningful. Now my kids will have my voice, my stories, forever.",
-                      author: "Michael R.",
-                      role: "Father, Texas"
-                    },
-                    {
-                      quote: "We use it as a family to collect memories from all generations. It's become our digital family heirloom.",
-                      author: "The Chen Family",
-                      role: "Multi-generational, New York"
-                    },
-                  ].map((testimonial, i) => (
-                    <motion.div
-                      key={testimonial.author}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: i * 0.1 }}
-                      className="card"
-                    >
-                      <p className="text-paper/70 italic mb-4">"{testimonial.quote}"</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold font-medium">
-                          {testimonial.author.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm">{testimonial.author}</div>
-                          <div className="text-xs text-paper/70">{testimonial.role}</div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </section>
-      
-            {/* Pricing */}
-            <section ref={pricingRef} id="pricing" className="py-32 px-6 md:px-12 relative">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/50 to-transparent" />
-        
-        <div className="max-w-6xl mx-auto relative">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={pricingInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-20"
+
+      <hr className="border-paper-15 mx-6 md:mx-12" />
+
+      {/* Pricing */}
+      <section className="px-6 md:px-12 py-24 md:py-36">
+        <div className="max-w-6xl mx-auto">
+          <Eyebrow className="mb-6">Pricing</Eyebrow>
+          <h2
+            className="font-body font-light mb-3 leading-[1.1] tracking-[-0.014em]"
+            style={{ fontSize: 'clamp(2.25rem, 4vw, 3.25rem)' }}
           >
-            <span className="text-gold tracking-[0.3em] text-sm">PRICING</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">Simple, transparent pricing</h2>
-            <p className="text-paper/65 mt-4">Start with a 14-day free trial. Full Family tier access. Cancel anytime.</p>
-          </motion.div>
-          
+            Per family, not per seat.
+          </h2>
+          <p className="text-paper-60 max-w-prose mb-16 text-lg">
+            One subscription covers your whole bloodline. Free forever for readers. The Founder tier funds the successor non-profit and is capped at the first hundred families.
+          </p>
           <div className="grid md:grid-cols-3 gap-6">
-            {plans.map((plan, i) => (
+            {PLANS.map((p) => (
               <motion.div
-                key={plan.name}
-                initial={{ opacity: 0, y: 40 }}
-                animate={pricingInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className={`card relative ${plan.popular ? 'border-gold/30 scale-105' : ''}`}
+                key={p.name}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className={`p-8 rounded-xl flex flex-col border ${
+                  p.feature ? 'border-gold-40 bg-gold-05' : 'border-paper-15 bg-paper-04'
+                }`}
               >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="px-4 py-1 bg-gold text-void text-xs tracking-wider rounded-full font-medium">
-                      MOST POPULAR
-                    </span>
-                  </div>
-                )}
-                
-                <h3 className="text-xl font-medium mb-2">{plan.name}</h3>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-4xl text-gold">{plan.price}</span>
-                  <span className="text-paper/70">{plan.period}</span>
+                <h3 className="font-body text-2xl mb-1">{p.name}</h3>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="font-body text-4xl">{p.price}</span>
+                  <span className="text-paper-50 text-sm">{p.cadence}</span>
                 </div>
-                <div className="text-sm text-paper/70 mb-6">or {plan.yearlyPrice} (save 17%)</div>
-                
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-3 text-paper/70">
-                      <Check size={16} className="text-gold flex-shrink-0" />
-                      {feature}
+                <ul className="mt-7 mb-8 space-y-2.5 text-paper-70 text-[15px]">
+                  {p.features.map((f) => (
+                    <li key={f} className="flex gap-3">
+                      <span className="text-gold flex-shrink-0 mt-1">·</span>
+                      <span>{f}</span>
                     </li>
                   ))}
                 </ul>
-                
                 <Link
-                  to="/signup"
-                  className={`btn w-full justify-center ${plan.popular ? 'btn-primary' : 'btn-secondary'}`}
+                  to={p.to}
+                  className={`btn mt-auto w-full justify-center ${p.feature ? 'btn-primary' : 'btn-secondary'}`}
                 >
-                  Start Free Trial
+                  {p.cta}
                 </Link>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
-      
-      {/* True Zero-Knowledge Privacy */}
-      <section className="py-32 px-6 md:px-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-void-elevated/30 to-transparent" />
-        
-        <div className="max-w-6xl mx-auto relative">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+
+      <hr className="border-paper-15 mx-6 md:mx-12" />
+
+      {/* Continuity */}
+      <section className="px-6 md:px-12 py-24 md:py-36">
+        <div className="max-w-4xl mx-auto">
+          <Eyebrow className="mb-6">Continuity</Eyebrow>
+          <h2
+            className="font-body font-light mb-8 leading-[1.1] tracking-[-0.014em]"
+            style={{ fontSize: 'clamp(2.25rem, 4vw, 3.25rem)' }}
           >
-            <span className="text-gold tracking-[0.3em] text-sm">TRUE ZERO-KNOWLEDGE</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">We Can't See Your Memories. Ever.</h2>
-            <p className="text-paper/65 mt-4 max-w-2xl mx-auto">
-              Your memories are encrypted on your device before they ever leave it. We have zero access to your content — not our engineers, not our servers, not anyone. Only you and your chosen recipients hold the keys.
-            </p>
-          </motion.div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {privacyFeatures.map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="card text-center"
-              >
-                <div className="w-14 h-14 mx-auto mb-5 rounded-full glass flex items-center justify-center">
-                  <item.icon size={24} className="text-gold" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-lg font-medium mb-2">{item.title}</h3>
-                <p className="text-paper/65 text-sm leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-16 card border-gold/20"
-          >
-            <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-              <div className="w-20 h-20 rounded-full glass flex items-center justify-center flex-shrink-0">
-                <Shield size={36} className="text-gold" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-medium mb-2">Our Zero-Knowledge Promise</h3>
-                <p className="text-paper/70 leading-relaxed">
-                  Unlike other platforms that store your data in readable form, Heirloom uses client-side encryption. Your memories are encrypted in your browser using AES-256 before upload. We store only encrypted blobs — meaningless without your keys. We cannot read, analyze, or share your content. We cannot comply with data requests because we literally cannot decrypt your memories. This is true zero-knowledge architecture.
-                </p>
-              </div>
+            Built to <em className="not-italic text-gold">outlast the company.</em>
+          </h2>
+          <p className="text-lg text-paper-70 leading-relaxed max-w-prose mb-12">
+            Every digital-legacy startup has died and taken users' content with it. We make that an architectural impossibility.
+          </p>
+          <dl className="grid md:grid-cols-3 gap-x-10 gap-y-10">
+            <div>
+              <dt className="font-body text-xl mb-2">Decentralized backups</dt>
+              <dd className="text-paper-60 leading-relaxed text-[15px]">
+                Every Thread snapshot pinned to IPFS across multiple independent providers. Your archive exists outside our infrastructure, by design.
+              </dd>
             </div>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-8 text-center"
-          >
-            <div className="inline-flex items-center gap-3 px-6 py-3 glass-subtle rounded-full">
-              <Lock size={18} className="text-gold" />
-              <span className="text-paper/70 text-sm">AES-256 encryption • Client-side encryption • No data mining • Privacy by design</span>
+            <div>
+              <dt className="font-body text-xl mb-2">Successor non-profit</dt>
+              <dd className="text-paper-60 leading-relaxed text-[15px]">
+                A separately incorporated 501(c)(3) holds an irrevocable license to operate the archive if Heirloom dissolves. Funded by Founder pledges.
+              </dd>
             </div>
-          </motion.div>
-        </div>
-      </section>
-      
-      {/* StoryWorth Comparison CTA */}
-      <section className="py-24 px-6 md:px-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent" />
-        <div className="max-w-4xl mx-auto relative">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="card border-gold/20 text-center"
-          >
-            <h3 className="text-2xl md:text-3xl font-light mb-4">Switching from StoryWorth?</h3>
-            <p className="text-paper/65 mb-6 max-w-2xl mx-auto">
-              Heirloom offers everything StoryWorth does — plus voice recordings, zero-knowledge encryption,
-              posthumous delivery, and a family memory map. See the full comparison.
-            </p>
-            <Link to="/compare/storyworth" className="btn btn-secondary border-gold/30 text-gold hover:bg-gold/10">
-              Compare Heirloom vs StoryWorth
-              <ArrowRight size={16} />
-            </Link>
-          </motion.div>
+            <div>
+              <dt className="font-body text-xl mb-2">Open-format export</dt>
+              <dd className="text-paper-60 leading-relaxed text-[15px]">
+                One click downloads your full thread as JSON + media files. The export schema is published, versioned, stable. No vendor lock-in.
+              </dd>
+            </div>
+          </dl>
+          <p className="mt-14 text-sm text-paper-50">
+            See{' '}
+            <a
+              href="/api/archive/audit"
+              className="underline decoration-paper-30 underline-offset-4 hover:text-paper transition-colors"
+            >
+              the public continuity audit
+            </a>{' '}
+            — pin status updated weekly.
+          </p>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-32 px-6 md:px-12 relative">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+      <hr className="border-paper-15 mx-6 md:mx-12" />
+
+      {/* Closing */}
+      <section className="px-6 md:px-12 py-32 md:py-44 text-center">
+        <div className="max-w-3xl mx-auto">
+          <Eyebrow className="mb-6">Begin</Eyebrow>
+          <h2
+            className="font-body font-light mb-8 leading-tight tracking-[-0.018em]"
+            style={{ fontSize: 'clamp(2.75rem, 5.5vw, 4.25rem)' }}
           >
-            <div className="w-20 h-20 mx-auto mb-8 rounded-full glass flex items-center justify-center animate-glow">
-              <Heart size={32} className="text-gold" />
-            </div>
-            <h2 className="text-4xl md:text-5xl font-light mb-6">
-              Your stories matter. Preserve them.
-            </h2>
-            <p className="text-xl text-paper/65 mb-12">
-              Join thousands of families who trust Heirloom with their most precious memories.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/signup" className="btn btn-primary text-lg px-10 py-5 group">
-                Start Your Legacy Today
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link to="/gift-a-memory" className="btn btn-secondary text-lg px-8 py-5 border-gold/30 text-gold hover:bg-gold/10">
-                <Gift size={20} />
-                Gift a Memory
-              </Link>
-            </div>
-          </motion.div>
+            The first entry is the hardest one.
+          </h2>
+          <p
+            className="text-paper-65 mb-12 max-w-prose mx-auto leading-relaxed"
+            style={{ fontSize: 'clamp(1.125rem, 1.5vw, 1.375rem)' }}
+          >
+            Open a thread tonight. Lock it for whoever you want, whenever you want. The thread is yours — and your great-granddaughter's — forever.
+          </p>
+          <Link to="/signup" className="btn btn-primary text-base">
+            Open a thread — free forever <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
-      
-      {/* Footer */}
-      <footer className="py-12 px-6 md:px-12 border-t border-white/[0.04]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-            <div className="flex items-center gap-3">
-              <span className="text-xl text-gold">∞</span>
-              <span className="tracking-[0.15em] text-paper/70">HEIRLOOM</span>
-            </div>
-            <div className="flex gap-8 text-sm text-paper/70">
-              <Link to="/gift" className="hover:text-gold transition-colors">Gift Cards</Link>
-              <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
-              <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
-              <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">Contact</a>
-            </div>
+
+      <footer className="border-t border-paper-15 px-6 md:px-12 py-10">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-baseline gap-3">
+            <span className="text-xl text-gold">∞</span>
+            <span className="text-[0.65rem] tracking-[0.34em] uppercase text-paper-50">Heirloom</span>
           </div>
-          
-          {/* Contact Details */}
-          <div className="border-t border-white/[0.04] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-paper/70 text-center md:text-left">
-              <p className="mb-1">
-                <a href="mailto:support@heirloom.blue" className="hover:text-gold transition-colors">support@heirloom.blue</a>
-              </p>
-              <p>131 Continental Dr Suite 305, Newark, DE 19713, US</p>
-            </div>
-            <div className="text-sm text-paper/65">
-              © {new Date().getFullYear()} Heirloom. All rights reserved.
-            </div>
+          <div className="flex gap-7 text-sm text-paper-50">
+            <Link to="/creators" className="hover:text-paper transition-colors">Creators</Link>
+            <Link to="/privacy" className="hover:text-paper transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-paper transition-colors">Terms</Link>
+            <a href="/api/archive/audit" className="hover:text-paper transition-colors">Audit</a>
           </div>
+          <div className="text-xs font-mono text-paper-30">© {new Date().getFullYear()}</div>
         </div>
       </footer>
-    </div>
+    </main>
   );
 }
