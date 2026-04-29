@@ -185,6 +185,7 @@ app.get('/', (c) => {
   return c.json({
     name: 'Heirloom API',
     version: '1.0.0',
+    build_marker: 'family-thread-2026-04-29',
     status: 'healthy',
     environment: c.env.ENVIRONMENT,
     timestamp: new Date().toISOString(),
