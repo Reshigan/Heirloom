@@ -185,7 +185,6 @@ app.get('/', (c) => {
   return c.json({
     name: 'Heirloom API',
     version: '1.0.0',
-    build_marker: 'family-thread-2026-04-29',
     status: 'healthy',
     environment: c.env.ENVIRONMENT,
     timestamp: new Date().toISOString(),
@@ -712,8 +711,15 @@ const PUBLIC_API_PREFIXES = [
   '/api/book-orders/webhook', // Lulu webhook (HMAC verified)
 ];
 
-// JWT middleware for protected routes.
-// Bypass version: v3 (debug — uses absolute URL pathname).
+// JWT middleware for protected routes. Bypasses for paths in
+// PUBLIC_API_PREFIXES so /api/archive, /api/founders/count etc. are
+// reachable without an Authorization header — those routes live on the
+// public `app` instance but Hono's middleware on the parent /api mount
+// still intercepts them.
+//
+// Hono's c.req.path returns a path RELATIVE to the mount point inside a
+// sub-app, so we check both the relative and the absolute URL pathname
+// against every prefix variant.
 protectedApp.use('*', async (c, next) => {
   const reqPath = c.req.path;
   const urlPath = (() => {
@@ -731,11 +737,6 @@ protectedApp.use('*', async (c, next) => {
   }
 
   const authHeader = c.req.header('Authorization');
-  // Debug: stamp every Unauthorized response so we can confirm
-  // which build is serving (delete once verified).
-  c.header('X-Heirloom-Auth-Bypass', 'v3');
-  c.header('X-Heirloom-Path-Seen', reqPath);
-  c.header('X-Heirloom-URL-Seen', urlPath);
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return c.json({ error: 'Unauthorized' }, 401);
