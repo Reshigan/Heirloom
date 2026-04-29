@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, ArrowRight, Users, Clock } from 'lucide-react';
+import { Loader2, Plus, ArrowRight } from 'lucide-react';
 import { threadsApi, type Thread } from '../services/api';
 
 export function Threads() {
@@ -38,101 +38,115 @@ export function Threads() {
   };
 
   return (
-    <main className="min-h-screen bg-void text-paper px-6 md:px-12 py-12 md:py-20">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-12 md:mb-16">
-          <p className="text-gold tracking-[0.3em] text-xs mb-3">YOUR THREADS</p>
-          <h1 className="font-serif text-4xl md:text-5xl text-paper leading-tight">
-            The threads your family writes into.
+    <main className="min-h-screen bg-void text-paper">
+      <header className="px-6 md:px-12 pt-12 md:pt-20 pb-12">
+        <div className="max-w-5xl mx-auto">
+          <p className="eyebrow mb-5">Your threads</p>
+          <h1
+            className="font-serif font-light text-display-xl tracking-tight leading-[1.06]"
+            style={{ fontVariationSettings: '"opsz" 56' }}
+          >
+            The threads your<br />family writes into.
           </h1>
-          <p className="text-paper/60 mt-4 max-w-xl leading-relaxed">
-            A Thread belongs to your family, not to you. Members come and go across generations. Entries can be added, never deleted.
+          <p className="mt-7 max-w-prose text-paper/65 text-body-lg leading-relaxed">
+            A thread belongs to your family, not to you. Members come and go across generations. Entries can be added — never deleted.
           </p>
-        </header>
+        </div>
+      </header>
 
-        {threads === null ? (
-          <div className="py-16 flex items-center justify-center text-paper/40">
-            <Loader2 size={20} className="animate-spin" />
-          </div>
-        ) : threads.length === 0 && !creating ? (
-          <EmptyState onStart={() => setCreating(true)} />
-        ) : (
-          <ul className="grid md:grid-cols-2 gap-5 mb-10">
-            {threads.map((t, i) => (
-              <ThreadCard key={t.id} thread={t} index={i} />
-            ))}
-          </ul>
-        )}
+      <hr className="border-rule mx-6 md:mx-12" />
 
-        {creating ? (
-          <motion.form
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            onSubmit={submit}
-            className="rounded-xl border border-gold/20 bg-paper/[0.02] p-7 space-y-5"
-            aria-label="Open a new thread"
-          >
-            <h2 className="font-serif text-2xl">Open a new thread</h2>
-            <div>
-              <label htmlFor="thread-name" className="block text-xs uppercase tracking-[0.2em] text-paper/40 mb-2">
-                Name
-              </label>
-              <input
-                id="thread-name"
-                type="text"
-                required
-                autoFocus
-                maxLength={200}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="The Mahmood Family Thread"
-                className="w-full bg-void/40 border border-paper/10 rounded-lg px-4 py-3 text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/20 transition"
-              />
+      <section className="px-6 md:px-12 py-16">
+        <div className="max-w-5xl mx-auto">
+          {threads === null ? (
+            <div className="py-16 flex items-center justify-center text-paper/40">
+              <Loader2 size={20} className="animate-spin" />
             </div>
-            <div>
-              <label htmlFor="thread-dedication" className="block text-xs uppercase tracking-[0.2em] text-paper/40 mb-2">
-                Dedication — optional
-              </label>
-              <input
-                id="thread-dedication"
-                type="text"
-                maxLength={300}
-                value={dedication}
-                onChange={(e) => setDedication(e.target.value)}
-                placeholder="For those who came before, and those who come after."
-                className="w-full bg-void/40 border border-paper/10 rounded-lg px-4 py-3 text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/20 transition"
-              />
-            </div>
-            {error ? <p role="alert" className="text-sm text-blood">{error}</p> : null}
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setCreating(false)}
-                className="px-5 py-3 text-paper/60 hover:text-paper transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-paper/30"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={submitting || !name.trim()}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-void font-medium rounded-lg hover:bg-gold-bright transition-colors disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 focus:ring-offset-void"
-              >
-                {submitting ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-                {submitting ? 'Opening…' : 'Open thread'}
-              </button>
-            </div>
-          </motion.form>
-        ) : threads && threads.length > 0 ? (
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="inline-flex items-center gap-2 px-5 py-3 border border-paper/15 hover:border-gold/40 rounded-lg text-paper/80 hover:text-paper transition-colors focus:outline-none focus:ring-2 focus:ring-gold/40"
-          >
-            <Plus size={16} /> Open another thread
-          </button>
-        ) : null}
-      </div>
+          ) : threads.length === 0 && !creating ? (
+            <EmptyState onStart={() => setCreating(true)} />
+          ) : (
+            <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-6 mb-12">
+              {threads.map((t, i) => (
+                <ThreadCard key={t.id} thread={t} index={i} />
+              ))}
+            </ul>
+          )}
+
+          {creating ? (
+            <motion.form
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              onSubmit={submit}
+              className="border border-gold/30 rounded-xl p-8 md:p-10"
+              aria-label="Open a new thread"
+            >
+              <p className="eyebrow mb-3">Open a new thread</p>
+              <h2 className="font-serif text-3xl mb-8">Name it for the family.</h2>
+
+              <div className="space-y-6 max-w-prose">
+                <div>
+                  <label htmlFor="thread-name" className="block text-xs uppercase tracking-[0.22em] text-paper/45 mb-2">
+                    Name
+                  </label>
+                  <input
+                    id="thread-name"
+                    type="text"
+                    required
+                    autoFocus
+                    maxLength={200}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="The Mahmood Family Thread"
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="thread-dedication" className="block text-xs uppercase tracking-[0.22em] text-paper/45 mb-2">
+                    Dedication — optional
+                  </label>
+                  <input
+                    id="thread-dedication"
+                    type="text"
+                    maxLength={300}
+                    value={dedication}
+                    onChange={(e) => setDedication(e.target.value)}
+                    placeholder="For those who came before, and those who come after."
+                    className="input"
+                  />
+                </div>
+                {error ? <p role="alert" className="text-blood-light text-sm">{error}</p> : null}
+              </div>
+
+              <div className="flex justify-end gap-3 pt-8 mt-8 border-t border-rule">
+                <button
+                  type="button"
+                  onClick={() => setCreating(false)}
+                  className="btn btn-ghost"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting || !name.trim()}
+                  className="btn btn-primary"
+                >
+                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                  {submitting ? 'Opening…' : 'Open thread'}
+                </button>
+              </div>
+            </motion.form>
+          ) : threads && threads.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => setCreating(true)}
+              className="btn btn-secondary"
+            >
+              <Plus size={16} /> Open another thread
+            </button>
+          ) : null}
+        </div>
+      </section>
     </main>
   );
 }
@@ -142,32 +156,36 @@ function ThreadCard({ thread, index }: { thread: Thread; index: number }) {
     <motion.li
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: Math.min(index * 0.06, 0.4), ease: 'easeOut' }}
+      transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
     >
       <Link
         to={`/threads/${thread.id}`}
-        className="block rounded-xl border border-paper/10 hover:border-gold/30 bg-paper/[0.02] hover:bg-paper/[0.04] p-6 transition-colors group focus:outline-none focus:ring-2 focus:ring-gold/40"
+        className="block group p-8 border border-rule rounded-xl hover:border-rule-strong bg-paper/[0.015] hover:bg-paper/[0.04] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
       >
-        <div className="flex items-start justify-between mb-4">
-          <h2 className="font-serif text-xl text-paper leading-tight">{thread.name}</h2>
+        <div className="flex items-start justify-between mb-5">
+          <h2 className="font-serif font-normal text-2xl text-paper leading-tight">{thread.name}</h2>
           <ArrowRight size={18} className="text-paper/30 group-hover:text-gold group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" />
         </div>
         {thread.dedication ? (
-          <p className="text-paper/50 italic text-sm mb-4 leading-relaxed">{thread.dedication}</p>
+          <p className="font-serif italic text-paper/55 text-[15px] mb-6 leading-relaxed">
+            {thread.dedication}
+          </p>
         ) : null}
-        <dl className="flex items-center gap-5 text-xs text-paper/40 font-mono">
-          <div className="flex items-center gap-1.5">
-            <Clock size={12} aria-hidden="true" />
+        <dl className="flex items-center gap-5 timestamp">
+          <div className="flex items-center gap-2">
             <dt className="sr-only">Entries</dt>
             <dd>{thread.entry_count ?? 0} entries</dd>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Users size={12} aria-hidden="true" />
+          <span className="text-paper/20">·</span>
+          <div className="flex items-center gap-2">
             <dt className="sr-only">Members</dt>
             <dd>{thread.member_count ?? 0} members</dd>
           </div>
           {thread.role && thread.role !== 'READER' ? (
-            <span className="text-gold/70 uppercase tracking-wider text-[10px]">{thread.role.toLowerCase()}</span>
+            <>
+              <span className="text-paper/20">·</span>
+              <span className="text-gold/80 uppercase tracking-[0.18em] text-[10px]">{thread.role.toLowerCase()}</span>
+            </>
           ) : null}
         </dl>
       </Link>
@@ -180,20 +198,17 @@ function EmptyState({ onStart }: { onStart: () => void }) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="rounded-xl border border-paper/10 bg-paper/[0.02] p-10 md:p-14 text-center"
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      className="text-center py-20"
     >
-      <h2 className="font-serif text-2xl md:text-3xl text-paper mb-4">
+      <span className="seal mx-auto mb-10 block" aria-hidden>∞</span>
+      <h2 className="font-serif font-light text-display-md text-paper/90 mb-5">
         Your thread is waiting.
       </h2>
-      <p className="text-paper/60 max-w-lg mx-auto leading-relaxed mb-8">
+      <p className="text-paper/55 max-w-prose mx-auto leading-relaxed mb-10 text-body-lg">
         Open one. Add the first entry — it can be one sentence. The thread is yours forever, your great-granddaughter's after that.
       </p>
-      <button
-        type="button"
-        onClick={onStart}
-        className="inline-flex items-center gap-2 px-6 py-3.5 bg-gold text-void font-medium rounded-lg hover:bg-gold-bright transition-colors focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 focus:ring-offset-void"
-      >
+      <button type="button" onClick={onStart} className="btn btn-primary text-base px-7 py-4">
         <Plus size={16} /> Open your first thread
       </button>
     </motion.div>

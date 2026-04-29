@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Send, Loader2, Sparkles } from 'lucide-react';
+import { Send, Loader2, ChevronDown } from 'lucide-react';
 import { threadsApi, type CreateEntryInput, type LockType, type ThreadMember } from '../../services/api';
 import { encryptEntryBody } from '../../utils/threadCrypto';
 
@@ -63,10 +63,6 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
     setError(null);
 
     try {
-      // AES-GCM encrypt the body under the thread's family key (see
-      // utils/threadCrypto.ts). MVP stores the key in localStorage; the
-      // production design escrows it under each member's account-derived
-      // public key. Cipher + IV + auth tag travel as base64 strings.
       const envelope = await encryptEntryBody(threadId, body.trim());
       const payload: CreateEntryInput = {
         title: title.trim() || undefined,
@@ -77,9 +73,6 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
       };
 
       if (lockKind !== 'NONE') {
-        // Same encryption note: encrypted_key will be the actual escrowed
-        // wrap once the keystore is wired. Placeholder for now so the
-        // schema constraints don't fail.
         payload.unlock = {
           lock_type: lockKind,
           encrypted_key: 'pending',
@@ -107,14 +100,19 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full text-left px-6 py-5 rounded-xl border border-paper/10 hover:border-gold/30 bg-paper/[0.02] hover:bg-paper/[0.04] transition-colors group focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 focus:ring-offset-void"
+        className="w-full text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 rounded-xl"
       >
-        <span className="font-serif text-xl text-paper/80 group-hover:text-paper transition-colors">
-          Add an entry
-        </span>
-        <span className="block text-paper/40 text-sm mt-1">
-          The first one is the hardest. Write one sentence and it gets easier.
-        </span>
+        <div className="border border-rule group-hover:border-rule-strong rounded-xl px-7 py-6 transition-colors flex items-baseline justify-between">
+          <span>
+            <span className="font-serif font-light text-2xl text-paper/85 group-hover:text-paper transition-colors">
+              Add an entry
+            </span>
+            <span className="block text-paper/45 text-sm mt-1.5">
+              The first one is the hardest. Write one sentence. It gets easier.
+            </span>
+          </span>
+          <ChevronDown size={16} className="text-paper/30 group-hover:text-gold transition-colors" />
+        </div>
       </button>
     );
   }
@@ -123,13 +121,13 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
     <motion.form
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       onSubmit={submit}
-      className="rounded-xl border border-paper/10 bg-paper/[0.02] p-6 space-y-5"
+      className="border border-gold/30 rounded-xl p-7 md:p-9 space-y-7"
       aria-label="Compose a new thread entry"
     >
       <div>
-        <label className="block text-xs uppercase tracking-[0.2em] text-paper/40 mb-2" htmlFor="entry-title">
+        <label className="block text-xs uppercase tracking-[0.22em] text-paper/45 mb-2.5" htmlFor="entry-title">
           Title — optional
         </label>
         <input
@@ -139,21 +137,21 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
           onChange={(e) => setTitle(e.target.value)}
           maxLength={200}
           placeholder="The night the power went out"
-          className="w-full bg-void/40 border border-paper/10 rounded-lg px-4 py-3 text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/20 transition"
+          className="input"
         />
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="block text-xs uppercase tracking-[0.2em] text-paper/40" htmlFor="entry-body">
+        <div className="flex items-center justify-between mb-2.5">
+          <label className="block text-xs uppercase tracking-[0.22em] text-paper/45" htmlFor="entry-body">
             What you want to say
           </label>
           <button
             type="button"
             onClick={() => setShowPrompts((v) => !v)}
-            className="text-xs text-gold/70 hover:text-gold flex items-center gap-1.5"
+            className="text-xs text-gold/80 hover:text-gold transition-colors"
           >
-            <Sparkles size={12} /> {showPrompts ? 'Hide prompts' : 'Need a prompt?'}
+            {showPrompts ? 'Hide prompts' : 'Need a prompt?'}
           </button>
         </div>
         <AnimatePresence>
@@ -162,14 +160,14 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-3 grid sm:grid-cols-2 gap-2 overflow-hidden"
+              className="mb-4 grid sm:grid-cols-2 gap-2 overflow-hidden"
             >
               {prompts.map((p) => (
                 <li key={p.id}>
                   <button
                     type="button"
-                    onClick={() => setBody((current) => current ? `${current}\n\n${p.prompt_text}` : p.prompt_text)}
-                    className="w-full text-left text-sm text-paper/60 hover:text-paper bg-paper/[0.03] hover:bg-paper/[0.06] rounded-lg px-3 py-2 transition-colors"
+                    onClick={() => setBody((current) => (current ? `${current}\n\n${p.prompt_text}` : p.prompt_text))}
+                    className="w-full text-left font-serif italic text-[15px] text-paper/65 hover:text-paper bg-paper/[0.015] hover:bg-paper/[0.05] rounded-lg px-4 py-3 leading-snug transition-colors"
                   >
                     {p.prompt_text}
                   </button>
@@ -181,36 +179,35 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
         <textarea
           id="entry-body"
           required
-          rows={8}
+          rows={9}
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Start anywhere. A meal you remember. The first time you held your child. A story your grandfather told you that nobody else would have remembered."
-          className="w-full bg-void/40 border border-paper/10 rounded-lg px-4 py-3 text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/20 transition resize-y leading-relaxed"
+          className="input font-serif text-body-lg leading-[1.7] resize-y"
+          style={{ fontVariationSettings: '"opsz" 14' }}
         />
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs uppercase tracking-[0.2em] text-paper/40 mb-2" htmlFor="entry-era">
-            Era — optional
-          </label>
-          <input
-            id="entry-era"
-            type="number"
-            inputMode="numeric"
-            min={1800}
-            max={new Date().getFullYear()}
-            value={eraYear}
-            onChange={(e) => setEraYear(e.target.value)}
-            placeholder="1962"
-            className="w-full bg-void/40 border border-paper/10 rounded-lg px-4 py-3 text-paper placeholder:text-paper/30 focus:outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/20 transition"
-          />
-        </div>
+      <div>
+        <label className="block text-xs uppercase tracking-[0.22em] text-paper/45 mb-2.5" htmlFor="entry-era">
+          Era — optional
+        </label>
+        <input
+          id="entry-era"
+          type="number"
+          inputMode="numeric"
+          min={1800}
+          max={new Date().getFullYear()}
+          value={eraYear}
+          onChange={(e) => setEraYear(e.target.value)}
+          placeholder="1962"
+          className="input max-w-[12rem]"
+        />
       </div>
 
-      <fieldset className="space-y-3">
-        <legend className="text-xs uppercase tracking-[0.2em] text-paper/40 flex items-center gap-2">
-          <Lock size={12} /> When does it unlock?
+      <fieldset className="space-y-4">
+        <legend className="text-xs uppercase tracking-[0.22em] text-paper/45 mb-1">
+          When does it unlock?
         </legend>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {LOCK_OPTIONS.map((opt) => {
@@ -218,10 +215,10 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
             return (
               <label
                 key={opt.value}
-                className={`cursor-pointer rounded-lg border px-4 py-3 transition-colors text-sm focus-within:ring-2 focus-within:ring-gold/40 ${
+                className={`cursor-pointer rounded-lg border px-4 py-3.5 transition-colors text-sm focus-within:ring-2 focus-within:ring-gold/40 ${
                   selected
-                    ? 'border-gold/50 bg-gold/[0.06] text-paper'
-                    : 'border-paper/10 bg-paper/[0.02] text-paper/70 hover:border-paper/20'
+                    ? 'border-gold/55 bg-gold/[0.05] text-paper'
+                    : 'border-rule bg-paper/[0.015] text-paper/72 hover:border-rule-strong'
                 }`}
               >
                 <input
@@ -233,7 +230,7 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
                   className="sr-only"
                 />
                 <span className="block font-medium">{opt.label}</span>
-                <span className="block text-xs text-paper/40 mt-1">{opt.help}</span>
+                <span className="block text-xs text-paper/45 mt-1 leading-snug">{opt.help}</span>
               </label>
             );
           })}
@@ -241,7 +238,7 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
 
         {lockKind === 'DATE' ? (
           <div>
-            <label className="block text-xs uppercase tracking-[0.2em] text-paper/40 mb-2" htmlFor="lock-date">
+            <label className="block text-xs uppercase tracking-[0.22em] text-paper/45 mb-2.5" htmlFor="lock-date">
               Unlock date
             </label>
             <input
@@ -251,7 +248,7 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
               value={unlockDate}
               onChange={(e) => setUnlockDate(e.target.value)}
               min={new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)}
-              className="bg-void/40 border border-paper/10 rounded-lg px-4 py-3 text-paper focus:outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/20 transition"
+              className="input max-w-[16rem]"
             />
           </div>
         ) : null}
@@ -259,7 +256,7 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
         {lockKind === 'AGE' ? (
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs uppercase tracking-[0.2em] text-paper/40 mb-2" htmlFor="lock-age-member">
+              <label className="block text-xs uppercase tracking-[0.22em] text-paper/45 mb-2.5" htmlFor="lock-age-member">
                 For whom
               </label>
               <select
@@ -267,7 +264,7 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
                 required
                 value={targetMemberId}
                 onChange={(e) => setTargetMemberId(e.target.value)}
-                className="w-full bg-void/40 border border-paper/10 rounded-lg px-4 py-3 text-paper focus:outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/20 transition"
+                className="input"
               >
                 <option value="">Choose a member…</option>
                 {members.map((m) => (
@@ -278,7 +275,7 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
               </select>
             </div>
             <div>
-              <label className="block text-xs uppercase tracking-[0.2em] text-paper/40 mb-2" htmlFor="lock-age-years">
+              <label className="block text-xs uppercase tracking-[0.22em] text-paper/45 mb-2.5" htmlFor="lock-age-years">
                 When they turn
               </label>
               <input
@@ -290,33 +287,27 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
                 value={ageYears}
                 onChange={(e) => setAgeYears(e.target.value)}
                 placeholder="18"
-                className="w-full bg-void/40 border border-paper/10 rounded-lg px-4 py-3 text-paper focus:outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/20 transition"
+                className="input"
               />
             </div>
           </div>
         ) : null}
       </fieldset>
 
-      {error ? (
-        <p role="alert" className="text-sm text-blood">{error}</p>
-      ) : null}
+      {error ? <p role="alert" className="text-sm text-blood-light">{error}</p> : null}
 
-      <div className="flex items-center justify-end gap-3 pt-2">
+      <div className="flex items-center justify-end gap-3 pt-6 border-t border-rule">
         <button
           type="button"
           onClick={() => {
             reset();
             setOpen(false);
           }}
-          className="px-5 py-3 text-paper/60 hover:text-paper transition-colors focus:outline-none focus:ring-2 focus:ring-paper/30 rounded-lg"
+          className="btn btn-ghost"
         >
           Cancel
         </button>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-void font-medium rounded-lg hover:bg-gold-bright transition-colors disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:ring-offset-2 focus:ring-offset-void"
-        >
+        <button type="submit" disabled={submitting} className="btn btn-primary">
           {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           {submitting ? 'Saving…' : 'Add to thread'}
         </button>

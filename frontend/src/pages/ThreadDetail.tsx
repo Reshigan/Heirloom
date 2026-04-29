@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, Users } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { threadsApi, type Thread, type ThreadEntry, type ThreadMember } from '../services/api';
 import { EntryCard } from '../components/thread/EntryCard';
 import { EntryComposer } from '../components/thread/EntryComposer';
@@ -14,25 +14,33 @@ export function ThreadDetail() {
   const [entries, setEntries] = useState<ThreadEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [justAddedFirst, setJustAddedFirst] = useState(false);
 
-  const refresh = useCallback(async () => {
-    if (!id) return;
-    try {
-      const [t, m, e] = await Promise.all([
-        threadsApi.get(id),
-        threadsApi.members(id),
-        threadsApi.entries(id, { limit: 100 }),
-      ]);
-      setThread(t.data.thread);
-      setMembership(t.data.membership);
-      setMembers(m.data.members);
-      setEntries(e.data.entries);
-    } catch (err: any) {
-      setError(err?.response?.data?.error ?? 'Could not load thread');
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const refresh = useCallback(
+    async (markFirst = false) => {
+      if (!id) return;
+      try {
+        const [t, m, e] = await Promise.all([
+          threadsApi.get(id),
+          threadsApi.members(id),
+          threadsApi.entries(id, { limit: 100 }),
+        ]);
+        setThread(t.data.thread);
+        setMembership(t.data.membership);
+        setMembers(m.data.members);
+        setEntries(e.data.entries);
+        if (markFirst && e.data.entries.length === 1) {
+          setJustAddedFirst(true);
+          setTimeout(() => setJustAddedFirst(false), 6000);
+        }
+      } catch (err: any) {
+        setError(err?.response?.data?.error ?? 'Could not load thread');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id],
+  );
 
   useEffect(() => {
     refresh();
@@ -48,82 +56,132 @@ export function ThreadDetail() {
 
   if (error || !thread) {
     return (
-      <main className="min-h-screen bg-void text-paper px-6 py-20">
-        <div className="max-w-2xl mx-auto text-center">
-          <h1 className="font-serif text-2xl mb-4">{error ?? 'Thread not found.'}</h1>
+      <main className="min-h-screen bg-void text-paper px-6 py-24">
+        <div className="max-w-prose mx-auto text-center">
+          <h1 className="font-serif text-3xl mb-6">{error ?? 'Thread not found.'}</h1>
           <Link to="/threads" className="text-gold hover:text-gold-bright">← Back to your threads</Link>
         </div>
       </main>
     );
   }
 
-  const canWrite = membership?.role === 'FOUNDER' || membership?.role === 'SUCCESSOR' || membership?.role === 'AUTHOR';
+  const canWrite =
+    membership?.role === 'FOUNDER' || membership?.role === 'SUCCESSOR' || membership?.role === 'AUTHOR';
   const memberByMemberId = new Map(members.map((m) => [m.id, m]));
+  const isEmpty = entries.length === 0;
 
   return (
-    <main className="min-h-screen bg-void text-paper px-6 md:px-12 py-10 md:py-16">
-      <div className="max-w-3xl mx-auto">
-        <Link
-          to="/threads"
-          className="inline-flex items-center gap-2 text-paper/50 hover:text-paper transition-colors mb-8 focus:outline-none focus:ring-2 focus:ring-gold/40 rounded"
-        >
-          <ArrowLeft size={16} /> All threads
-        </Link>
+    <main className="min-h-screen bg-void text-paper">
+      {/* Top bar */}
+      <header className="px-6 md:px-12 pt-8 md:pt-10 pb-6 border-b border-rule">
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
+          <Link
+            to="/threads"
+            className="inline-flex items-center gap-2 text-paper/55 hover:text-paper transition-colors text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 rounded"
+          >
+            <ArrowLeft size={14} /> All threads
+          </Link>
+          <span className="font-mono text-xs text-paper/40">
+            {entries.length} {entries.length === 1 ? 'entry' : 'entries'} · {members.length} {members.length === 1 ? 'member' : 'members'}
+          </span>
+        </div>
+      </header>
 
-        <header className="mb-12">
-          <p className="text-gold tracking-[0.3em] text-xs mb-3">THE THREAD</p>
-          <h1 className="font-serif text-3xl md:text-5xl text-paper leading-tight">{thread.name}</h1>
+      <section className="px-6 md:px-12 py-16 md:py-24">
+        <div className="max-w-3xl mx-auto">
+          <p className="eyebrow mb-5">The thread</p>
+          <h1
+            className="font-serif font-light text-display-xl tracking-tight leading-[1.05]"
+            style={{ fontVariationSettings: '"opsz" 64' }}
+          >
+            {thread.name}
+          </h1>
           {thread.dedication ? (
-            <p className="text-paper/60 italic mt-4 max-w-xl leading-relaxed">{thread.dedication}</p>
+            <p className="font-serif italic text-paper/65 text-body-xl mt-7 max-w-prose leading-relaxed">
+              {thread.dedication}
+            </p>
           ) : null}
-          <div className="flex flex-wrap items-center gap-5 mt-6 text-xs font-mono text-paper/40">
-            <span>{entries.length} entries</span>
-            <span>{members.length} members</span>
-            <span>Default visibility — {thread.default_visibility.toLowerCase()}</span>
-            {membership?.role ? (
-              <span className="text-gold/70 uppercase tracking-wider">{membership.role.toLowerCase()}</span>
-            ) : null}
+          {membership?.role && membership.role !== 'READER' ? (
+            <p className="mt-7 inline-block text-[0.65rem] tracking-[0.28em] uppercase text-gold/85">
+              You are {membership.role.toLowerCase()}
+            </p>
+          ) : null}
+        </div>
+      </section>
+
+      <hr className="border-rule mx-6 md:mx-12" />
+
+      {canWrite ? (
+        <section className="px-6 md:px-12 py-12 md:py-14" aria-label="Add an entry">
+          <div className="max-w-3xl mx-auto">
+            <EntryComposer threadId={thread.id} members={members} onCreated={() => refresh(true)} />
           </div>
-        </header>
-
-        {canWrite ? (
-          <section className="mb-12" aria-label="Add an entry">
-            <EntryComposer threadId={thread.id} members={members} onCreated={refresh} />
-          </section>
-        ) : (
-          <section className="mb-12 rounded-xl border border-paper/10 bg-paper/[0.02] p-5 text-paper/50 text-sm flex items-center gap-3">
-            <Users size={16} />
+        </section>
+      ) : (
+        <section className="px-6 md:px-12 py-12 md:py-14">
+          <div className="max-w-3xl mx-auto text-center text-paper/55 text-sm">
             You're a reader on this thread. Authorship can be granted by a Founder or Successor.
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        <section aria-label="Thread entries" className="relative">
-          {entries.length === 0 ? (
+      <hr className="border-rule mx-6 md:mx-12" />
+
+      {/* Timeline */}
+      <section aria-label="Thread entries" className="px-6 md:px-12 py-16 md:py-24 relative">
+        <div className="max-w-3xl mx-auto relative">
+          {isEmpty ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-              className="rounded-xl border border-paper/10 bg-paper/[0.02] p-10 text-center"
+              transition={{ duration: 0.7 }}
+              className="text-center py-20"
             >
-              <h2 className="font-serif text-xl text-paper mb-3">Empty thread.</h2>
-              <p className="text-paper/50 max-w-md mx-auto leading-relaxed">
-                The first entry is always the hardest. Write one sentence. Lock it for whoever you want.
+              <span className="seal mx-auto mb-8" aria-hidden>∞</span>
+              <h2 className="font-serif font-light text-3xl text-paper/85 mb-4">
+                The thread is waiting.
+              </h2>
+              <p className="text-paper/55 max-w-prose mx-auto leading-relaxed">
+                The first entry is the hardest. Write one sentence. Lock it for whoever you want.
               </p>
             </motion.div>
           ) : (
-            <ol className="relative">
-              {entries.map((entry, i) => {
-                const author = memberByMemberId.get(entry.author_member_id);
-                return (
-                  <li key={entry.id}>
-                    <EntryCard entry={entry} index={i} authorName={author?.display_name} />
-                  </li>
-                );
-              })}
-            </ol>
+            <>
+              {/* Ceremonial banner shown briefly when first entry is added */}
+              {justAddedFirst ? (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="mb-12 text-center"
+                  role="status"
+                >
+                  <p className="eyebrow text-gold mb-2">First entry</p>
+                  <p className="font-serif italic text-paper/85 text-xl">This is where the thread begins.</p>
+                </motion.div>
+              ) : null}
+
+              {/* The literal thread — single hairline rail running the full
+                  height of the timeline. Entry markers (dots / seals) are
+                  placed by EntryCard at left:0 -translate-x-1/2 over this
+                  rail. */}
+              <div className="thread-rail" aria-hidden />
+
+              <ol className="relative">
+                {entries.map((entry, i) => {
+                  const author = memberByMemberId.get(entry.author_member_id);
+                  return (
+                    <li key={entry.id}>
+                      <EntryCard entry={entry} index={i} authorName={author?.display_name} />
+                    </li>
+                  );
+                })}
+              </ol>
+            </>
           )}
-        </section>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }

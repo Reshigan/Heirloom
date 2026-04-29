@@ -1,50 +1,35 @@
-import { motion } from 'framer-motion';
-import { Lock, Calendar, Cake, Heart, Users, GitBranch } from 'lucide-react';
 import type { LockType } from '../../services/api';
 
 const LABELS: Record<LockType, string> = {
-  DATE: 'Locked until a specific date',
-  AGE: 'Unlocks at a milestone age',
+  DATE: 'Sealed until a date',
+  AGE: 'Sealed until a milestone age',
   AUTHOR_DEATH: 'Sealed until verified passing',
-  RECIPIENT_EVENT: 'Locked to a life event',
-  GENERATION: 'For a future generation',
-};
-
-const ICONS: Record<LockType, typeof Lock> = {
-  DATE: Calendar,
-  AGE: Cake,
-  AUTHOR_DEATH: Heart,
-  RECIPIENT_EVENT: Users,
-  GENERATION: GitBranch,
+  RECIPIENT_EVENT: 'Sealed for a life event',
+  GENERATION: 'Sealed for a future generation',
 };
 
 interface Props {
   lockType: LockType;
-  /** Optional resolution date or label, e.g. "opens 2050-01-01" or "when she turns 18" */
   detail?: string;
-  /** Pulse softly to signal "still locked" */
   pulse?: boolean;
 }
 
-export function TimeLockBadge({ lockType, detail, pulse = true }: Props) {
-  const Icon = ICONS[lockType];
+/**
+ * Inline mark for a time-locked entry. The seal is the canonical visual
+ * primitive (defined in globals.css); this component just frames it with
+ * the lock label + optional detail line.
+ */
+export function TimeLockBadge({ lockType, detail }: Props) {
   const label = LABELS[lockType];
-
   return (
-    <motion.span
+    <span
       role="status"
       aria-label={`${label}${detail ? `: ${detail}` : ''}`}
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold/25 bg-gold/[0.04] text-gold/80 text-xs tracking-wide"
-      animate={
-        pulse
-          ? { boxShadow: ['0 0 0 0 rgba(201,169,89,0)', '0 0 0 6px rgba(201,169,89,0.08)', '0 0 0 0 rgba(201,169,89,0)'] }
-          : undefined
-      }
-      transition={pulse ? { duration: 2.4, repeat: Infinity, ease: 'easeInOut' } : undefined}
+      className="inline-flex items-baseline gap-3 text-paper/65 text-sm"
     >
-      <Icon size={14} strokeWidth={1.6} aria-hidden="true" />
+      <span className="inline-flex items-center justify-center seal" style={{ width: 18, height: 18, fontSize: 10 }} aria-hidden>∞</span>
       <span>{label}</span>
-      {detail ? <span className="text-gold/50">— {detail}</span> : null}
-    </motion.span>
+      {detail ? <span className="text-paper/40">— {detail}</span> : null}
+    </span>
   );
 }

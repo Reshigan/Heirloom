@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
-import { CustomCursor } from './components/CustomCursor';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { SkipToContent, CreateFAB } from './components/ui';
 
@@ -76,7 +75,6 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <SkipToContent />
-          <CustomCursor />
           <MobileFAB />
           <Routes>
           {/* Public routes */}
