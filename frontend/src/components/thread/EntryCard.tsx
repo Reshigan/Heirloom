@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ThreadEntry } from '../../services/api';
 import { TimeLockBadge } from './TimeLockBadge';
+import { decryptEntryBody, hasThreadKey } from '../../utils/threadCrypto';
 
 interface Props {
   entry: ThreadEntry;
@@ -38,6 +39,29 @@ function parseTags(json: string | null): { type: string; label: string }[] {
 export function EntryCard({ entry, index = 0, authorName }: Props) {
   const tags = useMemo(() => parseTags(entry.tags_json), [entry.tags_json]);
   const isLocked = !!entry.pending_lock;
+  const [decryptedBody, setDecryptedBody] = useState<string | null>(null);
+  const [decryptionPending, setDecryptionPending] = useState(false);
+  const keyAvailable = hasThreadKey(entry.thread_id);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (isLocked || !entry.body_ciphertext || !keyAvailable) return;
+    setDecryptionPending(true);
+    decryptEntryBody(entry.thread_id, {
+      body_ciphertext: entry.body_ciphertext,
+      body_iv: entry.body_iv,
+      body_auth_tag: entry.body_auth_tag,
+    })
+      .then((plain) => {
+        if (!cancelled) setDecryptedBody(plain);
+      })
+      .finally(() => {
+        if (!cancelled) setDecryptionPending(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isLocked, entry.body_ciphertext, entry.body_iv, entry.body_auth_tag, entry.thread_id, keyAvailable]);
 
   return (
     <motion.article
@@ -86,12 +110,21 @@ export function EntryCard({ entry, index = 0, authorName }: Props) {
       ) : null}
 
       {entry.body_ciphertext && !isLocked ? (
-        // The decrypted body is rendered server-side or client-side after key
-        // unwrap — for now we surface the locked state explicitly. When we
-        // wire encryption, replace this with the decrypted plaintext.
-        <p className="text-paper/70 leading-relaxed whitespace-pre-wrap">
-          <em className="text-paper/40">[Encrypted body — decryption layer pending]</em>
-        </p>
+        decryptedBody !== null ? (
+          <p className="text-paper/80 leading-relaxed whitespace-pre-wrap">{decryptedBody}</p>
+        ) : decryptionPending ? (
+          <p className="text-paper/40 leading-relaxed">
+            <em>Decrypting…</em>
+          </p>
+        ) : !keyAvailable ? (
+          <p className="text-paper/40 leading-relaxed text-sm">
+            <em>Encrypted on another device. Import the family key from a member who has it to read.</em>
+          </p>
+        ) : (
+          <p className="text-paper/40 leading-relaxed text-sm">
+            <em>Body could not be decrypted with the current key.</em>
+          </p>
+        )
       ) : null}
 
       {isLocked ? (

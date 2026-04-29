@@ -130,18 +130,24 @@ export function Record() {
 
     const uploadMutation = useMutation({
     mutationFn: async (data: { blob: Blob; form: typeof form }) => {
-      const file = new File([data.blob], 'recording.webm', { type: 'audio/webm' });
-      
+      // Re-encode to Opus 64kbps if the recording came in higher-bitrate
+      // (some browsers default to 96-128kbps WebM). Speech is transparent
+      // at 64kbps and saves ~30% of storage. compressVoice falls back to
+      // the original if encoding fails.
+      const { compressVoice } = await import('../utils/mediaCompression');
+      const compressed = await compressVoice(data.blob);
+      const file = new File([compressed.blob], 'recording.webm', { type: compressed.format });
+
       const { data: urlData } = await voiceApi.getUploadUrl({
         filename: file.name,
         contentType: file.type,
       });
-      
+
       // Upload the file to R2 storage
       const uploadResponse = await fetch(urlData.uploadUrl, {
         method: 'PUT',
         body: file,
-        headers: { 
+        headers: {
           'Content-Type': file.type,
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },

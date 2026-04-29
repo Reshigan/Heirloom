@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Send, Loader2, Sparkles } from 'lucide-react';
 import { threadsApi, type CreateEntryInput, type LockType, type ThreadMember } from '../../services/api';
+import { encryptEntryBody } from '../../utils/threadCrypto';
 
 interface Props {
   threadId: string;
@@ -62,14 +63,16 @@ export function EntryComposer({ threadId, members, onCreated }: Props) {
     setError(null);
 
     try {
-      // NOTE: encryption layer is pending. For now we send body in plaintext
-      // via body_ciphertext — the server treats it as opaque. When the
-      // family-key envelope is wired, encrypt here before sending.
+      // AES-GCM encrypt the body under the thread's family key (see
+      // utils/threadCrypto.ts). MVP stores the key in localStorage; the
+      // production design escrows it under each member's account-derived
+      // public key. Cipher + IV + auth tag travel as base64 strings.
+      const envelope = await encryptEntryBody(threadId, body.trim());
       const payload: CreateEntryInput = {
         title: title.trim() || undefined,
-        body_ciphertext: body.trim(),
-        body_iv: 'pending',
-        body_auth_tag: 'pending',
+        body_ciphertext: envelope.body_ciphertext,
+        body_iv: envelope.body_iv,
+        body_auth_tag: envelope.body_auth_tag,
         era_year: eraYear ? parseInt(eraYear, 10) : undefined,
       };
 
