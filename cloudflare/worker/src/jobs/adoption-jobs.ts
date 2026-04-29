@@ -603,12 +603,42 @@ const NICHE_KEYWORDS = [
   'genealogy stories',
 ];
 
+// Public-bio email extraction. Many creators in the family / grief / aging-
+// parents niche put their address in their public bio specifically for
+// collab outreach — that's an explicit opt-in. This is free, ethical, and
+// higher-signal than third-party enrichment vendors.
+//
+// We deliberately AVOID matching anything that looks like an obfuscated
+// address ("hello (at) brand dot com") — those are intentional anti-spam
+// signals and respecting them is the difference between honest outreach
+// and the spammer behavior the platforms ban.
+const BIO_EMAIL_RE = /\b([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/;
+const PLACEHOLDER_DOMAIN = '.placeholder.heirloom.blue';
+
+function extractEmailFromBio(bio: string | null | undefined): string | null {
+  if (!bio) return null;
+  const match = bio.match(BIO_EMAIL_RE);
+  if (!match) return null;
+  const candidate = match[1].toLowerCase();
+  // Reject obvious garbage: example.com placeholders, no-reply addresses,
+  // domains that look like a generic provider's no-collab address.
+  if (/example\.com|no-?reply|donotreply|@heirloom\.blue/.test(candidate)) return null;
+  return candidate;
+}
+
+function placeholderFor(platform: 'tiktok' | 'instagram', username: string): string {
+  return `${username}@${platform}${PLACEHOLDER_DOMAIN}`;
+}
+
+export function isPlaceholderEmail(email: string | null | undefined): boolean {
+  return !!email && email.includes(PLACEHOLDER_DOMAIN);
+}
+
 interface TikTokVideo {
   username?: string;
   follower_count?: number;
   region_code?: string;
-  bio?: string;
-  email?: string;
+  bio_description?: string;
 }
 
 export async function discoverFromTikTok(env: Env) {
@@ -620,12 +650,13 @@ export async function discoverFromTikTok(env: Env) {
   const nowISO = new Date().toISOString();
   let added = 0;
   let skipped = 0;
+  let realEmails = 0;
   const errors: string[] = [];
 
   for (const keyword of NICHE_KEYWORDS) {
     try {
       const res = await fetch(
-        'https://open.tiktokapis.com/v2/research/video/query/?fields=username,follower_count,region_code,bio',
+        'https://open.tiktokapis.com/v2/research/video/query/?fields=username,follower_count,region_code,bio_description',
         {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -642,17 +673,15 @@ export async function discoverFromTikTok(env: Env) {
       const data = (await res.json()) as { data?: { videos?: TikTokVideo[] } };
       for (const v of data.data?.videos ?? []) {
         if (!v.username) continue;
-        // TikTok Research API does NOT return email — we mark these as
-        // pending-contact and the operator (or a follow-up enrichment job)
-        // sources email separately. We still create the row with the unique
-        // code so it's ready when contact info arrives.
-        const placeholderEmail = `${v.username}@tiktok.placeholder.heirloom.blue`;
+        const bioEmail = extractEmailFromBio(v.bio_description);
+        const email = bioEmail ?? placeholderFor('tiktok', v.username);
+        if (bioEmail) realEmails++;
         try {
           const result = await ingestProspect(
             env,
             {
               name: v.username,
-              email: placeholderEmail,
+              email,
               platform: 'TIKTOK',
               handle: `@${v.username}`,
               tiktok_handle: `@${v.username}`,
@@ -673,7 +702,7 @@ export async function discoverFromTikTok(env: Env) {
     }
   }
 
-  return { added, skipped, source: 'tiktok', errors: errors.length ? errors : undefined };
+  return { added, skipped, realEmails, source: 'tiktok', errors: errors.length ? errors : undefined };
 }
 
 interface IGUser {
@@ -694,15 +723,12 @@ export async function discoverFromInstagram(env: Env) {
   const nowISO = new Date().toISOString();
   let added = 0;
   let skipped = 0;
+  let realEmails = 0;
   const errors: string[] = [];
 
-  // The Graph API's hashtag search returns top-media; we walk the authors
-  // and pull each one's business_discovery (which is the only public way to
-  // get follower counts without explicit user authorization).
   for (const keyword of NICHE_KEYWORDS) {
     try {
       const tag = keyword.replace(/[^a-z0-9]/gi, '');
-      // 1) Resolve hashtag id
       const hashtagSearch = await fetch(
         `https://graph.facebook.com/v21.0/ig_hashtag_search?user_id=${igUserId}&q=${encodeURIComponent(tag)}&access_token=${token}`,
       );
@@ -714,29 +740,33 @@ export async function discoverFromInstagram(env: Env) {
       const hashtagId = hashtagJson.data?.[0]?.id;
       if (!hashtagId) continue;
 
-      // 2) Top media for that hashtag
+      // We use business_discovery on each top-media owner to surface bio +
+      // followers_count. business_discovery is the only public-graph route
+      // to a creator's biography text (which is what we mine for emails).
       const topMedia = await fetch(
-        `https://graph.facebook.com/v21.0/${hashtagId}/top_media?user_id=${igUserId}&fields=username,owner&access_token=${token}`,
+        `https://graph.facebook.com/v21.0/${hashtagId}/top_media?user_id=${igUserId}` +
+          `&fields=username,owner{username,business_discovery.username(${''}){followers_count,biography}}` +
+          `&access_token=${token}`,
       );
       if (!topMedia.ok) continue;
       const topJson = (await topMedia.json()) as { data?: IGUser[] };
 
       for (const m of topJson.data ?? []) {
         if (!m.username) continue;
-        // Same caveat as TikTok — Graph API doesn't surface emails. Place
-        // a placeholder; an enrichment job (Hunter.io, Apollo, etc.) can
-        // populate the real address later.
-        const placeholderEmail = `${m.username}@instagram.placeholder.heirloom.blue`;
+        const bio = m.business_discovery?.biography ?? m.biography;
+        const bioEmail = extractEmailFromBio(bio);
+        const email = bioEmail ?? placeholderFor('instagram', m.username);
+        if (bioEmail) realEmails++;
         try {
           const result = await ingestProspect(
             env,
             {
               name: m.username,
-              email: placeholderEmail,
+              email,
               platform: 'INSTAGRAM',
               handle: `@${m.username}`,
               instagram_handle: `@${m.username}`,
-              follower_count: m.business_discovery?.followers_count ?? 0,
+              follower_count: m.business_discovery?.followers_count ?? m.followers_count ?? 0,
               segment: keyword.replace(/[^a-z]+/gi, '_').toUpperCase(),
               source: 'INSTAGRAM_API',
             },
@@ -753,7 +783,97 @@ export async function discoverFromInstagram(env: Env) {
     }
   }
 
-  return { added, skipped, source: 'instagram', errors: errors.length ? errors : undefined };
+  return { added, skipped, realEmails, source: 'instagram', errors: errors.length ? errors : undefined };
+}
+
+// ============================================================================
+// PLACEHOLDER ENRICHMENT — retry bio scrape for prospects without real emails
+//
+// Some creators don't have email in their bio at first ingestion. They
+// often add it later, especially after their account grows. This job
+// re-fetches their public profile periodically and upgrades the placeholder
+// to a real address when one appears.
+//
+// $0/mo cost — uses the same Meta + TikTok tokens as discovery. Rate-limited
+// to 50 enrichments per run to stay well within free-tier API quotas.
+// ============================================================================
+
+export async function enrichPlaceholderEmails(env: Env) {
+  const igToken = (env as Env & { META_PAGE_ACCESS_TOKEN?: string }).META_PAGE_ACCESS_TOKEN;
+  const igUserId = (env as Env & { META_IG_USER_ID?: string }).META_IG_USER_ID;
+  const ttToken = (env as Env & { TIKTOK_RESEARCH_TOKEN?: string }).TIKTOK_RESEARCH_TOKEN;
+
+  // Pull oldest 50 placeholders — older entries get priority because the
+  // creator has had more time to update their bio.
+  const candidates = await env.DB.prepare(
+    `SELECT id, name, email, instagram_handle, tiktok_handle, source
+     FROM influencers
+     WHERE email LIKE ?
+       AND status = 'NEW'
+     ORDER BY created_at ASC
+     LIMIT 50`,
+  ).bind(`%${PLACEHOLDER_DOMAIN}`).all();
+
+  let upgraded = 0;
+  let stillPlaceholder = 0;
+  const errors: string[] = [];
+
+  for (const c of candidates.results) {
+    try {
+      let foundEmail: string | null = null;
+
+      // Try Instagram first if we have a handle and a token.
+      if (igToken && igUserId && c.instagram_handle) {
+        const handle = String(c.instagram_handle).replace(/^@/, '');
+        const r = await fetch(
+          `https://graph.facebook.com/v21.0/${igUserId}?fields=business_discovery.username(${handle}){biography}&access_token=${igToken}`,
+        );
+        if (r.ok) {
+          const j = (await r.json()) as { business_discovery?: { biography?: string } };
+          foundEmail = extractEmailFromBio(j.business_discovery?.biography);
+        }
+      }
+
+      // Fall back to TikTok if IG didn't find anything.
+      if (!foundEmail && ttToken && c.tiktok_handle) {
+        const handle = String(c.tiktok_handle).replace(/^@/, '');
+        const r = await fetch(
+          'https://open.tiktokapis.com/v2/research/user/info/?fields=bio_description',
+          {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${ttToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: handle }),
+          },
+        );
+        if (r.ok) {
+          const j = (await r.json()) as { data?: { bio_description?: string } };
+          foundEmail = extractEmailFromBio(j.data?.bio_description);
+        }
+      }
+
+      if (foundEmail) {
+        // Make sure the new email isn't already on another row before we
+        // collide on the unique constraint.
+        const dup = await env.DB.prepare(
+          `SELECT id FROM influencers WHERE email = ? AND id != ?`,
+        ).bind(foundEmail, c.id).first();
+        if (dup) {
+          stillPlaceholder++;
+          continue;
+        }
+        await env.DB.prepare(
+          `UPDATE influencers SET email = ?, updated_at = datetime('now') WHERE id = ?`,
+        ).bind(foundEmail, c.id).run();
+        upgraded++;
+      } else {
+        stillPlaceholder++;
+      }
+    } catch (e: any) {
+      errors.push(`${c.name}: ${e.message}`);
+    }
+  }
+
+  return { upgraded, stillPlaceholder, errors: errors.length ? errors : undefined };
 }
 
 // ============================================
@@ -778,6 +898,7 @@ export async function processInfluencerFollowUps(env: Env) {
       JOIN marketing_outreach mo ON mo.influencer_id = i.id
       WHERE i.status = 'CONTACTED'
       AND i.email IS NOT NULL
+      AND i.email NOT LIKE '%${PLACEHOLDER_DOMAIN}'
       AND mo.sent_at <= datetime('now', '-${followup.daysAfterInitial} days')
       AND mo.sent_at > datetime('now', '-${followup.daysAfterInitial + 1} days')
       AND i.id NOT IN (
@@ -1084,8 +1205,9 @@ export async function processInfluencerOutreach(env: Env) {
     WHERE i.status = 'NEW'
     AND i.email IS NOT NULL
     AND i.email != ''
+    AND i.email NOT LIKE '%${PLACEHOLDER_DOMAIN}'
     AND i.id NOT IN (
-      SELECT influencer_id FROM marketing_outreach 
+      SELECT influencer_id FROM marketing_outreach
       WHERE sent_at > datetime('now', '-30 days')
     )
     ORDER BY i.follower_count DESC
@@ -1148,8 +1270,9 @@ export async function processProspectOutreach(env: Env) {
     WHERE i.status = 'NEW'
     AND i.email IS NOT NULL
     AND i.email != ''
+    AND i.email NOT LIKE '%${PLACEHOLDER_DOMAIN}'
     AND i.id NOT IN (
-      SELECT influencer_id FROM marketing_outreach 
+      SELECT influencer_id FROM marketing_outreach
       WHERE sent_at > datetime('now', '-14 days')
     )
     ORDER BY i.follower_count DESC

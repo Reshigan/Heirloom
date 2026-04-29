@@ -50,7 +50,7 @@ import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
-import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram } from './jobs/adoption-jobs';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram, enrichPlaceholderEmails } from './jobs/adoption-jobs';
 import { processPushNotificationQueue, cleanupOldNotifications } from './services/pushSender';
 
 // Types
@@ -838,6 +838,14 @@ export default {
       console.log('Discovering creators on Instagram…');
       const igResult = await discoverFromInstagram(env);
       console.log(`Instagram: ${igResult.added} added, ${igResult.skipped} skipped${igResult.reason ? ` (${igResult.reason})` : ''}`);
+
+      // Re-scan public bios of prospects we couldn't find an email for at
+      // discovery time. Many creators add a contact email later as their
+      // account grows; this upgrades placeholder rows to real addresses
+      // before outreach fires.
+      console.log('Enriching placeholder emails from public bios…');
+      const enrichResult = await enrichPlaceholderEmails(env);
+      console.log(`Bio enrichment: ${enrichResult.upgraded} upgraded, ${enrichResult.stillPlaceholder} still placeholder`);
       
       console.log('Processing influencer outreach...');
       const influencerResult = await processInfluencerOutreach(env);
