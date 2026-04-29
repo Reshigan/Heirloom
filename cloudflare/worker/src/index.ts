@@ -713,8 +713,21 @@ const PUBLIC_API_PREFIXES = [
 
 // JWT middleware for protected routes
 protectedApp.use('*', async (c, next) => {
-  const fullPath = new URL(c.req.url).pathname;
-  if (PUBLIC_API_PREFIXES.some((p) => fullPath === p || fullPath === p.replace(/\/$/, '') || fullPath.startsWith(p))) {
+  // Check every path form Hono might give us inside a mounted sub-app:
+  // c.req.path can be relative (with /api stripped), c.req.url is the
+  // full URL string. Match against both with and without /api prefix.
+  const reqPath = c.req.path;
+  const urlPath = (() => {
+    try { return new URL(c.req.url).pathname; } catch { return reqPath; }
+  })();
+  const candidates = [reqPath, urlPath, `/api${reqPath}`].filter(Boolean);
+  const isPublic = PUBLIC_API_PREFIXES.some((p) => {
+    const variants = [p, p.replace(/\/$/, ''), p.replace(/^\/api/, '')];
+    return candidates.some((path) =>
+      variants.some((v) => v && (path === v || path.startsWith(v + '/') || path === v)),
+    );
+  });
+  if (isPublic) {
     return next();
   }
 
