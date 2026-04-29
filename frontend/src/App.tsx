@@ -27,6 +27,7 @@ import { NotFound } from './pages/NotFound';
 import { Threads } from './pages/Threads';
 import { ThreadDetail } from './pages/ThreadDetail';
 import { Inbox } from './pages/Inbox';
+import { Hearth } from './pages/Hearth';
 import { CreatorProgram } from './pages/CreatorProgram';
 import { Influencer } from './pages/Influencer';
 import { Founder } from './pages/Founder';
@@ -81,6 +82,10 @@ export default function App() {
           <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
+          {/* Hearth prototype — public for review only, not yet linked
+              from primary nav. /hearth shows three sample family members
+              + an auto-unfolding time-locked bundle. */}
+          <Route path="/hearth" element={<Hearth />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/inherit/:token" element={<Inherit />} />
