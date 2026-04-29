@@ -80,7 +80,7 @@ async function main() {
   
   const user = await prisma.user.create({
     data: {
-      email: 'demo@heirloom.app',
+      email: 'demo@heirloom.blue',
       passwordHash,
       firstName: 'Sarah',
       lastName: 'Johnson',
@@ -385,7 +385,7 @@ async function main() {
   const adminPasswordHash = await bcrypt.hash('admin123456', 12);
   const adminUser = await prisma.adminUser.create({
     data: {
-      email: 'admin@heirloom.app',
+      email: 'admin@heirloom.blue',
       passwordHash: adminPasswordHash,
       firstName: 'Admin',
       lastName: 'User',
@@ -463,8 +463,8 @@ async function main() {
   console.log('========================================\n');
   console.log(`
 Summary:
-- 1 demo user (demo@heirloom.app / demo123456)
-- 1 admin user (admin@heirloom.app / admin123456)
+- 1 demo user (demo@heirloom.blue / demo123456)
+- 1 admin user (admin@heirloom.blue / admin123456)
 - ${familyMembers.length} family members
 - ${memoriesData.length} memories spanning 10 years with images
 - ${voiceRecordingsData.length} voice recordings
@@ -474,8 +474,8 @@ Summary:
 - 3 legacy contacts
 - 3 sample coupons
 
-Demo credentials: demo@heirloom.app / demo123456
-Admin credentials: admin@heirloom.app / admin123456
+Demo credentials: demo@heirloom.blue / demo123456
+Admin credentials: admin@heirloom.blue / admin123456
   `);
 }
 

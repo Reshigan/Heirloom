@@ -7,7 +7,7 @@
 // We generate the page CATALOG (relation × occasion × angle) in pure JS, then
 // fill the question lists via Claude. Output is static HTML files in
 // marketing/automation/seo-output/, suitable for deployment to a subdomain
-// (e.g. questions.heirloom.app) via Cloudflare Pages or Vercel.
+// (e.g. questions.heirloom.blue) via Cloudflare Pages or Vercel.
 //
 // One-shot generation (run once, then incremental updates). Not part of the
 // daily cron.
@@ -19,7 +19,9 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { BRAND_VOICE_SYSTEM_PROMPT } from "./voice.js";
 
-const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-opus-4-7";
+// Sonnet 4.6 default — more than enough quality for SEO landing pages,
+// at ~$0.005/page generated.
+const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 const OUT_DIR = path.resolve(process.cwd(), "seo-output");
 
 const RELATIONS = [
@@ -133,7 +135,7 @@ function renderHTML(page: SeoPage): string {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(page.title)} — Heirloom</title>
   <meta name="description" content="${escapeHtml(page.metaDescription)}">
-  <link rel="canonical" href="https://questions.heirloom.app/${page.slug}">
+  <link rel="canonical" href="https://questions.heirloom.blue/${page.slug}">
   <meta property="og:title" content="${escapeHtml(page.title)}">
   <meta property="og:description" content="${escapeHtml(page.metaDescription)}">
   <meta property="og:type" content="article">
@@ -154,7 +156,7 @@ function renderHTML(page: SeoPage): string {
 ${questionsList}
     </ol>
     <div class="outro">${paragraphs(page.outro)}</div>
-    <a href="https://heirloom.app/signup?ref=seo&slug=${page.slug}" class="cta">Save these answers in Heirloom — free, no card</a>
+    <a href="https://heirloom.blue/signup?ref=seo&slug=${page.slug}" class="cta">Save these answers in Heirloom — free, no card</a>
   </main>
 </body>
 </html>`;
@@ -178,7 +180,7 @@ ${items}
 }
 
 function buildSitemap(pages: SeoPage[]): string {
-  const urls = pages.map((p) => `  <url><loc>https://questions.heirloom.app/${p.slug}</loc></url>`).join("\n");
+  const urls = pages.map((p) => `  <url><loc>https://questions.heirloom.blue/${p.slug}</loc></url>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls}

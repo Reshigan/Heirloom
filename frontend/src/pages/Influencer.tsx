@@ -307,12 +307,12 @@ export function Influencer() {
                       <div className="mt-4 pt-4 border-t border-paper/10">
                         <p className="text-paper/50 text-sm mb-2">Your Landing Page</p>
                         <a
-                          href={`https://heirloom.app/p/${influencer.landingPageSlug}`}
+                          href={`https://heirloom.blue/p/${influencer.landingPageSlug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gold hover:underline flex items-center gap-2"
                         >
-                          heirloom.app/p/{influencer.landingPageSlug}
+                          heirloom.blue/p/{influencer.landingPageSlug}
                           <ExternalLink size={16} />
                         </a>
                       </div>

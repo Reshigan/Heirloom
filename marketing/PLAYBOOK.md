@@ -63,7 +63,7 @@ A **massive launch is built, not announced.** Big-bang product launches don't wo
 - Create the SEO content moat: 50 long-tail "questions to ask [grandma/dad/mom]" pages, programmatically generated via the automation in this repo. Each page is a list of 30–80 questions + a soft CTA "save these answers in Heirloom — free, no card." This is Promptly Journals' moat; it's defensible because it compounds.
 - Create the autonomous social engine (this repo's `marketing/automation/`).
 - Set up Google Search Console, GA4, Meta Pixel, TikTok Pixel.
-- Sign up: Ayrshare ($149/mo for posting API), Beehiiv (free tier), Bannerbear ($49/mo for templated images), Anthropic API ($0/mo + usage).
+- API access: Anthropic (~$3/mo at our volume on Sonnet 4.6), Meta Business app + LinkedIn Developer + Pinterest Developer + Bluesky app password (all free, ~1-2 weeks for app reviews). Beehiiv free tier. **Total marketing-stack cost: ~$3/mo.** TikTok and X stay in queue mode (operator pastes manually 2 min/day) until paid tiers are worth it or app reviews land.
 
 ### Days 15–45: Warm-list build
 
@@ -194,16 +194,29 @@ Once the brand has 6 months of organic content, creators come inbound. Maintain 
 
 ## 5. The Autonomous Content Engine
 
-Built in `marketing/automation/`. See its README for the architecture. In short:
+Two layers, both already built in this repo:
 
-1. **Themes**: `themes.ts` defines a 52-week rolling calendar — weekly theme, seasonal context, target relation/audience.
-2. **Generation**: `generate.ts` calls Claude API to produce a source post per theme, in the brand voice defined above.
-3. **Variants**: `variants.ts` produces per-platform variants (caption length, hashtags, image dimensions).
-4. **Posting**: `post.ts` ships variants to Ayrshare for multi-platform delivery.
-5. **Orchestration**: `run.ts` is the entrypoint, called daily by `.github/workflows/social-autopost.yml`.
-6. **Metrics**: `metrics.ts` (scaffolded) pulls back engagement and feeds the next generation.
+### Layer A — Existing Postiz scheduler (`cloudflare/worker/src/crons/social-posting.ts`)
 
-This system is designed to run with **zero ongoing operator effort** once API keys are in place. The only human-in-the-loop work is approving creator partnerships and writing the occasional founder essay. Everything else compounds on its own.
+A Cloudflare Worker cron runs every 5 minutes, picks up posts from the D1 `social_posts` table, and ships them via a Postiz instance. Pre-written week-N.json content is bulk-loaded by week. This is the production scheduling/publishing layer — **don't touch it**, hand off content to it.
+
+### Layer B — New Claude content generator (`marketing/automation/`)
+
+Daily content generator that produces brand-voiced source posts + per-platform variants from the 52-week theme calendar. Replaces the static week-N.json approach with dynamic generation.
+
+Architecture:
+
+1. **Themes** (`themes.ts`): 52-week rolling calendar + 4 seasonal overrides (Mother's / Father's / Grandparents / Christmas).
+2. **Generation** (`generate.ts`): Sonnet 4.6 produces one source post per day in the brand voice from `voice.ts`.
+3. **Variants** (`variants.ts`): single Sonnet 4.6 call produces 6–10 platform variants.
+4. **Posting** (`post.ts`): direct platform APIs (Meta / LinkedIn / Pinterest / Bluesky — all free) + queue-mode fallback (TikTok / X / Threads / YT Shorts → operator pastes from webhook).
+5. **Orchestration** (`run.ts`): single CLI, daily cron via GitHub Actions.
+
+### Integration plan (next phase)
+
+Layer B should hand off to Layer A: instead of `post.ts` calling platform APIs directly, write generated variants to the D1 `social_posts` table via the existing `/api/social/bulk-load` admin route. Then Layer A's cron picks them up and publishes via Postiz. Single posting pipeline, two content sources.
+
+Cost: ~$3/mo (Anthropic Sonnet only). Operator time: ~5 min/day for queue-mode platforms (TikTok, X) until app reviews land.
 
 ---
 
@@ -221,15 +234,29 @@ Things in the current setup that should stop:
 
 ---
 
-## 7. Decisions still needed (from you)
+## 7. Decisions made
 
-These are blocking and need your call before I build them:
+1. **Domain**: heirloom.blue.
+2. **API budget**: ~$3/mo (Sonnet 4.6) + free direct platform APIs. No Ayrshare, no Bannerbear.
+3. **Print-on-demand**: Lulu Direct API (no MOQ, hardcover, white-label fulfillment).
+4. **Email prompt loop**: extend existing nodemailer/SMTP stack — no new vendor.
+5. **Visual**: keep dark-gold for the logged-in app; warm light theme via CSS variable override on marketing/gift surfaces (single domain, two voices).
+6. **Creator budget**: $5K for first wave (25 micro-creators × $200) — operator action, not a code change.
 
-1. **Gift-flow backend**: integrate with a print-on-demand book partner (e.g. Lulu, Blurb, Bookmundi API) for the year-end keepsake? Or partner with Storyworth's book printer? Cost: ~$25–40/book at volume.
-2. **Email prompt loop**: build in-house with Postmark + cron, or use Customer.io / Loops? Recommendation: Loops ($49/mo) for speed.
-3. **Visual rebrand for marketing pages**: keep current dark-gold for app, build a separate warm-light marketing site? Or unify?
-4. **API budget**: Ayrshare is $149/mo, Bannerbear $49/mo, Anthropic API ~$50/mo at expected volume = ~$250/mo for the autonomous engine. Approve?
-5. **Creator budget**: $5K for first wave (25 creators × $200 each)?
-6. **Domain**: heirloom.app vs heirloom.blue vs something gift-forward (e.g. mystorybook.gift)?
+## 8. What still needs to be built (Phase 3)
 
-Once these are answered, the rest can be built and run autonomously.
+Most gift/social infrastructure already exists in `cloudflare/worker/`:
+- `routes/gift-vouchers.ts` — gift voucher purchase + redemption
+- `routes/gifts-v2.ts` — send memory as gift (viral loop)
+- `routes/social.ts` + `crons/social-posting.ts` — Postiz-backed scheduling
+- `routes/marketing.ts` — marketing endpoints
+- `routes/recipient-experience.ts` — recipient flow
+- `routes/story-artifacts.ts` — keepsake output products
+
+What's still missing for the gift-as-wedge playbook:
+
+1. **Story-prompt loop for gift recipients** — weekly question email triggered when someone redeems a gift voucher. Storyworth's killer mechanic. Build on top of existing gift-vouchers redemption hook.
+2. **Lulu Direct integration** — year-end book printing service that compiles a recipient's prompt responses into a hardcover. Pure pay-per-print, no monthly cost.
+3. **"Year of stories" gift product** — a specific gift-voucher SKU positioned as "give a year of weekly story prompts + the printed book." Copy + tier addition.
+4. **Layer A ↔ Layer B integration** — wire `marketing/automation/` output into the existing `social_posts` D1 queue via the `/api/social/bulk-load` route.
+5. **Onboarding rewrite** — defer encryption setup + dead-man-switch until after first action.

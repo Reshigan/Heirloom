@@ -201,8 +201,8 @@ PATCH /api/billing/currency        - Update preferred currency
 # Server
 NODE_ENV=production
 PORT=3001
-API_URL=https://api.heirloom.app
-FRONTEND_URL=https://heirloom.app
+API_URL=https://api.heirloom.blue
+FRONTEND_URL=https://heirloom.blue
 
 # Database
 DATABASE_URL=postgresql://...
@@ -225,7 +225,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Email
 SMTP_HOST=...
-EMAIL_FROM=noreply@heirloom.app
+EMAIL_FROM=noreply@heirloom.blue
 
 # Encryption (generate with: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))")
 ENCRYPTION_MASTER_KEY=...

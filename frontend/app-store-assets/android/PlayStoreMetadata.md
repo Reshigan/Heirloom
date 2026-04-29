@@ -4,7 +4,7 @@
 
 ### Basic Info
 - **App Name:** Heirloom - Your Memories, Forever
-- **Package Name:** blue.heirloom.app
+- **Package Name:** blue.heirloom.blue
 - **Default Language:** English (United States)
 - **App Category:** Lifestyle
 - **Tags:** memories, legacy, family, photos, voice recording, letters
@@ -134,7 +134,7 @@ Same as phone but 1600x2560
 Yes - Account required to use the app
 
 ### Demo Account for Review
-- **Email:** demo@heirloom.app
+- **Email:** demo@heirloom.blue
 - **Password:** demo123456
 
 ### Special Instructions for Reviewers

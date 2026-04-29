@@ -49,17 +49,25 @@ jobs:
         working-directory: marketing/automation
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-opus-4-7' }}
-          AYRSHARE_API_KEY: ${{ secrets.AYRSHARE_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-6' }}
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+          META_PAGE_ID: ${{ vars.META_PAGE_ID }}
+          META_IG_USER_ID: ${{ vars.META_IG_USER_ID }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_AUTHOR_URN: ${{ vars.LINKEDIN_AUTHOR_URN }}
+          PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
+          PINTEREST_BOARD_ID: ${{ vars.PINTEREST_BOARD_ID }}
+          BLUESKY_HANDLE: ${{ vars.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          QUEUE_WEBHOOK_URL: ${{ secrets.QUEUE_WEBHOOK_URL }}
           PLATFORMS: ${{ vars.PLATFORMS || 'instagram,tiktok,pinterest,facebook,linkedin,x' }}
-          DRY_RUN: ${{ github.event.inputs.mode == 'preview' && '1' || '' }}
         run: npm run ${{ github.event.inputs.mode || 'daily' }}
 
       - name: Commit output
         if: github.event.inputs.mode != 'metrics'
         run: |
           git config user.name "heirloom-autopost[bot]"
-          git config user.email "noreply@heirloom.app"
+          git config user.email "noreply@heirloom.blue"
           git add marketing/automation/output || true
           git diff --staged --quiet || git commit -m "chore(autopost): $(date -u +%Y-%m-%d)"
           git push || true

@@ -13,7 +13,8 @@ import { z } from "zod";
 import { SourcePost } from "./generate.js";
 import { BRAND_VOICE_SYSTEM_PROMPT, PLATFORM_GUIDELINES, PlatformKey } from "./voice.js";
 
-const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-opus-4-7";
+// See generate.ts — Sonnet 4.6 default for cost.
+const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 
 const variantSchema = z.object({
   platform: z.enum([

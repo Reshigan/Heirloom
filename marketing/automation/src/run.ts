@@ -83,7 +83,7 @@ async function postAll(source?: SourcePost): Promise<void> {
   const results = await Promise.all(variants.map((v) => post({ variant: v })));
 
   for (const r of results) {
-    const tag = r.dryRun ? "DRY" : r.ok ? "OK" : "FAIL";
+    const tag = r.mode === "queue" ? "QUEUE" : r.ok ? "OK" : "FAIL";
     console.log(`[post] ${tag} ${r.platform}${r.error ? ` — ${r.error}` : ""}`);
   }
 
@@ -91,7 +91,13 @@ async function postAll(source?: SourcePost): Promise<void> {
 }
 
 async function preview(): Promise<void> {
-  process.env.DRY_RUN = "1";
+  // Force queue-mode by clearing platform credentials. post() already routes
+  // to queue when tokens are missing; this just makes it explicit for the
+  // local preview command.
+  delete process.env.META_PAGE_ACCESS_TOKEN;
+  delete process.env.LINKEDIN_ACCESS_TOKEN;
+  delete process.env.PINTEREST_ACCESS_TOKEN;
+  delete process.env.BLUESKY_HANDLE;
   const source = await generate();
   await postAll(source);
   console.log(`\n[preview] complete — see output/${new Date().toISOString().slice(0, 10)}/`);

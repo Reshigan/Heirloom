@@ -5,17 +5,24 @@ Daily content generation + multi-platform posting. Runs unattended via GitHub Ac
 ## Architecture
 
 ```
-┌──────────────┐    ┌────────────┐    ┌────────────┐    ┌──────────┐    ┌────────┐
-│ themes.ts    │ →  │ generate.ts│ →  │ variants.ts│ →  │ post.ts  │ →  │Ayrshare│
-│ 52-week +    │    │ Claude API │    │ Claude API │    │ REST API │    │ → 10   │
-│ seasonal     │    │ source post│    │ per-platfm │    │ or DRY   │    │ networks│
-└──────────────┘    └────────────┘    └────────────┘    └──────────┘    └────────┘
-                                                              ↑
-                                                        ┌─────┴────┐
-                                                        │metrics.ts│
-                                                        │ feedback │
-                                                        └──────────┘
+┌──────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────────┐
+│ themes.ts    │ →  │ generate.ts│ →  │ variants.ts│ →  │ post.ts        │
+│ 52-week +    │    │ Sonnet 4.6 │    │ Sonnet 4.6 │    │ direct API     │
+│ seasonal     │    │ source post│    │ per-platfm │    │ + queue        │
+└──────────────┘    └────────────┘    └────────────┘    └───────┬────────┘
+                                                                │
+                                          ┌─────────────────────┼─────────────────────┐
+                                          ▼                     ▼                     ▼
+                                  ┌─────────────┐       ┌─────────────┐       ┌──────────────┐
+                                  │ Meta Graph  │       │ LinkedIn    │       │ Queue mode   │
+                                  │ FB + IG     │       │ Pinterest   │       │ output/ +    │
+                                  │ (free)      │       │ Bluesky     │       │ webhook      │
+                                  └─────────────┘       │ (free)      │       │ (TikTok, X,  │
+                                                        └─────────────┘       │ Threads, YT) │
+                                                                              └──────────────┘
 ```
+
+Single entrypoint: `src/run.ts`.
 
 Single entrypoint: `src/run.ts`. Subcommands: `generate`, `post`, `daily`, `preview`, `metrics`.
 
@@ -33,10 +40,14 @@ npm run preview       # dry-run, writes to output/, no posts go out
 | Variable | Required | Notes |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | yes | content generation |
-| `ANTHROPIC_MODEL` | no | default `claude-opus-4-7` |
-| `AYRSHARE_API_KEY` | no in DRY_RUN | omit to run in mock mode |
+| `ANTHROPIC_MODEL` | no | default `claude-sonnet-4-6` (~$3/mo at this volume) |
+| `META_PAGE_ACCESS_TOKEN` + `META_PAGE_ID` | optional | enable direct FB posting |
+| `META_IG_USER_ID` | optional | enable direct IG posting (also needs META_PAGE_ACCESS_TOKEN) |
+| `LINKEDIN_ACCESS_TOKEN` + `LINKEDIN_AUTHOR_URN` | optional | enable direct LinkedIn posting |
+| `PINTEREST_ACCESS_TOKEN` + `PINTEREST_BOARD_ID` | optional | enable direct Pinterest posting |
+| `BLUESKY_HANDLE` + `BLUESKY_APP_PASSWORD` | optional | enable direct Bluesky posting |
+| `QUEUE_WEBHOOK_URL` | optional | Discord/Slack webhook for queue-mode notifications |
 | `PLATFORMS` | no | comma-separated, default `instagram,tiktok,pinterest,facebook,linkedin,x` |
-| `DRY_RUN` | no | `1` to skip posting, write to `output/` only |
 
 ## Run modes
 
@@ -99,10 +110,26 @@ Wire your chosen image service into `post.ts` `postToAyrshare(input)` — set `i
 
 ## Costs (monthly, expected)
 
-- Anthropic API: ~$30 (1 daily generation × 6 variants × 30 days, with prompt caching)
-- Ayrshare: $149 (business tier)
-- Bannerbear / Placid: $49 (when wired in)
-- GitHub Actions: $0 (within free tier for public repos; ~$5/mo for private)
-- **Total: ~$230/mo for fully autonomous multi-platform daily content**
+| Item | Cost | Notes |
+|---|---|---|
+| Anthropic API (Sonnet 4.6) | ~$3 | 1 daily generation, prompt caching enabled |
+| Anthropic API (Haiku 4.5) | ~$0.25 | swap if you want even cheaper, quality drop is small |
+| Meta Graph API | $0 | free, requires app review (~1 week) |
+| LinkedIn / Pinterest / Bluesky API | $0 | free |
+| TikTok Content Posting API | $0 | free, requires app review (~6 weeks) |
+| X v2 API | $200 | paid only — default queue mode skips this |
+| GitHub Actions | $0 | within free tier |
+| **Total fully running** | **~$3** | Sonnet + free direct APIs + queue for TikTok/X |
 
-Human time required: zero, once running. Operator should review `output/` weekly to spot drift.
+Human time once running: ~5 min/day to paste queue items into TikTok and X (until app reviews land), then zero.
+
+## Free path setup (recommended)
+
+1. Anthropic API key (~$3/mo at this volume).
+2. Meta Business app → connect Facebook Page + Instagram Business account → request `pages_manage_posts` and `instagram_content_publish` permissions. ~1 week review.
+3. LinkedIn Developer app → request `w_organization_social` scope.
+4. Pinterest developer app → connect business account.
+5. Bluesky app password (no review needed).
+6. Discord webhook (or Slack incoming webhook) for queue-mode notifications. Free.
+7. Wait for app reviews (Meta/LinkedIn/Pinterest typically 1–14 days).
+8. Until reviews are in: queue mode posts to webhook → operator pastes manually. ~5 min/day.

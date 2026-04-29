@@ -11,7 +11,11 @@ import { z } from "zod";
 import { Theme } from "./themes.js";
 import { BRAND_VOICE_SYSTEM_PROMPT } from "./voice.js";
 
-const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-opus-4-7";
+// Default to Sonnet 4.6 — quality is more than enough for marketing copy,
+// and at this volume (1 daily run, ~250K input + ~120K output tokens/mo)
+// cost is roughly $3-5/mo at sonnet pricing. Switch to claude-haiku-4-5
+// for ~$0.25/mo, or claude-opus-4-7 for ~$13/mo if quality drift appears.
+const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 
 const sourcePostSchema = z.object({
   hook: z.string().min(5).max(200),

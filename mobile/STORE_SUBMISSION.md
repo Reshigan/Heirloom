@@ -3,8 +3,8 @@
 ## App Information
 
 - **App Name:** Heirloom
-- **Bundle ID (iOS):** com.heirloom.app
-- **Package Name (Android):** com.heirloom.app
+- **Bundle ID (iOS):** com.heirloom.blue
+- **Package Name (Android):** com.heirloom.blue
 - **Version:** 1.0.0
 - **Build Number:** 1
 

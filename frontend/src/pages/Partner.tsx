@@ -310,12 +310,12 @@ export function Partner() {
                     <div className="mt-4 pt-4 border-t border-paper/10">
                       <p className="text-paper/50 text-sm mb-2">Referral Link</p>
                       <a
-                        href={`https://heirloom.app/partner/${partner.partnerCode}`}
+                        href={`https://heirloom.blue/partner/${partner.partnerCode}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-gold hover:underline flex items-center gap-2"
                       >
-                        heirloom.app/partner/{partner.partnerCode}
+                        heirloom.blue/partner/{partner.partnerCode}
                         <ExternalLink size={16} />
                       </a>
                     </div>
