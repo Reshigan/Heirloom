@@ -21,16 +21,10 @@ import { Billing } from './pages/Billing';
 import { Letters } from './pages/Letters';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
-import Wrapped from './pages/Wrapped';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
-import { Referral } from './pages/Referral';
-import { Influencer } from './pages/Influencer';
-import { Partner } from './pages/Partner';
-import { Import } from './pages/Import';
-import { Export } from './pages/Export';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -191,55 +185,6 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
-                                        <Route
-                                          path="/wrapped"
-                                          element={
-                                            <ProtectedRoute>
-                                              <Wrapped />
-                                            </ProtectedRoute>
-                                          }
-                                        />
-                                        <Route
-                                          path="/referral"
-                                          element={
-                                            <ProtectedRoute>
-                                              <Referral />
-                                            </ProtectedRoute>
-                                          }
-                                        />
-                                        <Route
-                                          path="/influencer"
-                                          element={
-                                            <ProtectedRoute>
-                                              <Influencer />
-                                            </ProtectedRoute>
-                                          }
-                                        />
-                                        <Route
-                                          path="/partner"
-                                          element={
-                                            <ProtectedRoute>
-                                              <Partner />
-                                            </ProtectedRoute>
-                                          }
-                                        />
-                                        <Route
-                                          path="/import"
-                                          element={
-                                            <ProtectedRoute>
-                                              <Import />
-                                            </ProtectedRoute>
-                                          }
-                                        />
-                                        <Route
-                                          path="/export"
-                                          element={
-                                            <ProtectedRoute>
-                                              <Export />
-                                            </ProtectedRoute>
-                                          }
-                                        />
-
                                         {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

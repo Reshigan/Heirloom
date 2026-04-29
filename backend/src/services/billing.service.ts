@@ -181,19 +181,19 @@ export const billingService = {
     if (!user) return;
 
     await emailService.sendTrialWarning(user.email, user.firstName, daysLeft);
-    
+
     await prisma.notification.create({
       data: {
         userId,
         type: 'TRIAL_WARNING',
-        title: `Trial expires in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`,
-        message: `Upgrade now to keep your memories safe. Your content will be deleted when the trial ends.`,
+        title: `Premium trial ends in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`,
+        message: `Your premium trial is ending. You'll be moved to the free plan — your memories stay safe either way.`,
       },
     });
   },
 
   /**
-   * Expire trial and delete content
+   * Expire trial — demote to FREE tier. Content is preserved.
    */
   async expireTrial(userId: string): Promise<void> {
     const user = await prisma.user.findUnique({
@@ -206,57 +206,24 @@ export const billingService = {
     await prisma.subscription.update({
       where: { userId },
       data: {
-        status: 'CANCELLED',
+        status: 'ACTIVE',
         tier: 'FREE',
+        trialEndsAt: null,
       },
     });
 
-    await this.deleteUserContent(userId);
     await emailService.sendTrialExpired(user.email, user.firstName);
 
     await prisma.notification.create({
       data: {
         userId,
         type: 'TRIAL_EXPIRED',
-        title: 'Your trial has ended',
-        message: 'Your free trial has expired and your content has been removed. Upgrade anytime to start preserving your memories again.',
+        title: 'You\'re now on the free plan',
+        message: 'Your premium trial has ended. Your memories are preserved — you\'ve been moved to the free plan. Upgrade anytime for more storage and features.',
       },
     });
 
-    logger.info(`Trial expired for user ${userId}, content deleted`);
-  },
-
-  /**
-   * Delete all user content (for trial expiration)
-   */
-  async deleteUserContent(userId: string): Promise<void> {
-    const { storageService } = await import('./storage.service');
-
-    const memories = await prisma.memory.findMany({
-      where: { userId },
-      select: { fileKey: true },
-    });
-
-    const voiceRecordings = await prisma.voiceRecording.findMany({
-      where: { userId },
-      select: { fileKey: true },
-    });
-
-    const keysToDelete = [
-      ...memories.filter(m => m.fileKey).map(m => m.fileKey!),
-      ...voiceRecordings.map(v => v.fileKey),
-    ];
-
-    if (keysToDelete.length > 0) {
-      await storageService.deleteFiles(keysToDelete);
-    }
-
-    await prisma.memory.deleteMany({ where: { userId } });
-    await prisma.letter.deleteMany({ where: { userId } });
-    await prisma.voiceRecording.deleteMany({ where: { userId } });
-    await prisma.familyMember.deleteMany({ where: { userId } });
-
-    logger.info(`Deleted all content for user ${userId}`);
+    logger.info(`Trial expired for user ${userId}, demoted to FREE (content preserved)`);
   },
 
   /**

@@ -26,31 +26,33 @@ export function Landing() {
     { icon: Lock, title: 'E2E Encryption', desc: 'Zero-knowledge architecture. Only you and your beneficiaries can decrypt.' },
   ];
   
-  // Mass-Adoption Pricing: $1 / $2 / $5
   const plans = [
-    { 
-      name: 'Starter', 
-      price: '$1', 
-      period: '/month',
-      yearlyPrice: '$10/year',
-      features: ['500MB storage', '3 voice recordings/month', '5 letters/month', '50 photos', '2 family members'],
-      popular: false 
+    {
+      name: 'Free',
+      price: '$0',
+      period: 'forever',
+      yearlyPrice: 'No card needed',
+      features: ['1GB storage', '50 photos', '15 minutes of voice', '10 letters', '5 family members', 'Posthumous delivery included'],
+      popular: false,
+      cta: 'Start free',
     },
-    { 
-      name: 'Family', 
-      price: '$2', 
+    {
+      name: 'Family',
+      price: '$9.99',
       period: '/month',
-      yearlyPrice: '$20/year',
-      features: ['5GB storage', '20 voice recordings/month', 'Unlimited letters', 'Unlimited photos', '10 family members', '2 min video messages', 'Family tree'],
-      popular: true 
+      yearlyPrice: '$99/year (save 17%)',
+      features: ['25GB storage', 'Unlimited photos & letters', '3 hours of voice', 'Unlimited recipients', 'Weekly story prompts', 'Year-end keepsake book ($20 off)'],
+      popular: true,
+      cta: 'Try Family',
     },
-    { 
-      name: 'Forever', 
-      price: '$5', 
-      period: '/month',
-      yearlyPrice: '$50/year',
-      features: ['25GB storage', 'Unlimited voice', 'Unlimited letters', 'Unlimited photos', 'Unlimited family', '10 min video', 'AI transcription', 'Priority support'],
-      popular: false 
+    {
+      name: 'Gift a year',
+      price: '$99',
+      period: 'one-time',
+      yearlyPrice: 'Includes printed book',
+      features: ['1 year of Family plan', 'Weekly prompts emailed to them', 'You get the printed book at year-end', 'Perfect for parents & grandparents', 'No subscription, no auto-renew'],
+      popular: false,
+      cta: 'Buy as a gift',
     },
   ];
 
@@ -159,9 +161,9 @@ export function Landing() {
             className="flex flex-wrap items-center justify-center gap-8 mt-16 text-paper/40"
           >
             {[
-              { icon: Lock, text: 'E2E Encrypted' },
-              { icon: Shield, text: 'Zero Knowledge' },
-              { icon: Users, text: '10K+ Families' },
+              { icon: Lock, text: 'End-to-end encrypted' },
+              { icon: Heart, text: 'Free forever, no card needed' },
+              { icon: Users, text: 'Free plan included' },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-2">
                 <Icon size={18} />
@@ -316,7 +318,7 @@ export function Landing() {
                   to="/signup"
                   className={`btn w-full justify-center ${plan.popular ? 'btn-primary' : 'btn-secondary'}`}
                 >
-                  Start Free Trial
+                  {plan.cta}
                 </Link>
               </motion.div>
             ))}
@@ -387,7 +389,7 @@ export function Landing() {
           >
             <div className="inline-flex items-center gap-3 px-6 py-3 glass-subtle rounded-full">
               <Lock size={18} className="text-gold" />
-              <span className="text-paper/60 text-sm">SOC 2 Type II Compliant • GDPR Ready • HIPAA Compatible</span>
+              <span className="text-paper/60 text-sm">GDPR-aligned • Encrypted in transit and at rest • Open about how it works</span>
             </div>
           </motion.div>
         </div>
@@ -406,13 +408,13 @@ export function Landing() {
               <Heart size={32} className="text-gold" />
             </div>
             <h2 className="text-4xl md:text-5xl font-light mb-6">
-              Your stories matter. Preserve them.
+              The small things matter. Save one today.
             </h2>
             <p className="text-xl text-paper/50 mb-12">
-              Join thousands of families who trust Heirloom with their most precious memories.
+              30 seconds. One letter, one story, one photo. The free plan is yours forever.
             </p>
             <Link to="/signup" className="btn btn-primary text-lg px-10 py-5 group">
-              Start Your Legacy Today
+              Start free — no card needed
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </motion.div>

@@ -64,16 +64,15 @@ export const emailService = {
   async sendWelcome(email: string, name: string): Promise<void> {
     await this.send(email, 'Welcome to Heirloom', `
       <h2>Welcome, ${name}</h2>
-      <p>Thank you for joining Heirloom. You've taken the first step in preserving your most precious memories for generations to come.</p>
-      <p>Your <span class="gold">14-day free trial</span> has begun. During this time, you'll have access to all features.</p>
-      <p>Here's what you can do:</p>
+      <p>You're in. Heirloom is for preserving the small things that matter — a recipe, a story, a voice — so they last past you.</p>
+      <p>Start with one tiny thing today. It can be 30 seconds.</p>
       <ul>
-        <li>Upload photos and videos with stories</li>
-        <li>Record your voice with guided prompts</li>
-        <li>Write letters to loved ones</li>
-        <li>Set up posthumous delivery</li>
+        <li><strong>Write one letter</strong> to someone you love</li>
+        <li><strong>Record one story</strong> in your own voice</li>
+        <li><strong>Save one photo</strong> with the story behind it</li>
       </ul>
-      <a href="${env.FRONTEND_URL}/dashboard" class="button">Enter Your Vault</a>
+      <p>You're on the free plan, with room to grow. We'll never delete what you preserve.</p>
+      <a href="${env.FRONTEND_URL}/dashboard" class="button">Start with one thing</a>
     `);
   },
 
@@ -99,25 +98,24 @@ export const emailService = {
 
   // Trial emails
   async sendTrialWarning(email: string, name: string, daysLeft: number): Promise<void> {
-    await this.send(email, `Your trial expires in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`, `
-      <h2>Your trial is ending soon</h2>
+    await this.send(email, `Your premium trial ends in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`, `
+      <h2>Your premium trial is ending</h2>
       <p>Hi ${name},</p>
-      <p>Your Heirloom free trial expires in <span class="gold">${daysLeft} day${daysLeft > 1 ? 's' : ''}</span>.</p>
-      <div class="urgent">
-        <strong>Important:</strong> When your trial ends, all your content (photos, recordings, letters) will be permanently deleted.
-      </div>
-      <p>Upgrade now to keep your memories safe forever.</p>
-      <a href="${env.FRONTEND_URL}/settings?tab=subscription" class="button">Upgrade Now</a>
+      <p>Your Heirloom premium trial ends in <span class="gold">${daysLeft} day${daysLeft > 1 ? 's' : ''}</span>.</p>
+      <p>When it ends, you'll be moved to the free plan automatically — <strong>your memories are safe either way</strong>. We never delete what you've preserved.</p>
+      <p>If you'd like to keep premium features (more storage, unlimited letters, voice, video), upgrade anytime.</p>
+      <a href="${env.FRONTEND_URL}/settings?tab=subscription" class="button">Stay Premium</a>
     `);
   },
 
   async sendTrialExpired(email: string, name: string): Promise<void> {
-    await this.send(email, 'Your trial has ended', `
-      <h2>Your free trial has ended</h2>
+    await this.send(email, 'You\'re now on the free plan', `
+      <h2>Welcome to the free plan</h2>
       <p>Hi ${name},</p>
-      <p>Your Heirloom free trial has expired, and your content has been removed from our servers.</p>
-      <p>You can still subscribe anytime to start preserving your memories again.</p>
-      <a href="${env.FRONTEND_URL}/settings?tab=subscription" class="button">Subscribe Now</a>
+      <p>Your premium trial has ended. You've been moved to the free plan — <strong>your memories are still here, safe and sound</strong>.</p>
+      <p>The free plan gives you 1GB of storage, 50 memories, 10 letters, and 15 minutes of voice recording. Plenty to keep going.</p>
+      <p>If you ever want more, upgrade anytime.</p>
+      <a href="${env.FRONTEND_URL}/dashboard" class="button">Open Your Vault</a>
     `);
   },
 
