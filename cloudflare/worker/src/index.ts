@@ -48,6 +48,7 @@ import { threadsRoutes } from './routes/threads';
 import { engagementV2Routes } from './routes/engagement-v2';
 import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
+import { resolveTimeLocks } from './crons/time-locks';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram, enrichPlaceholderEmails } from './jobs/adoption-jobs';
@@ -846,6 +847,13 @@ export default {
       console.log('Enriching placeholder emails from public bios…');
       const enrichResult = await enrichPlaceholderEmails(env);
       console.log(`Bio enrichment: ${enrichResult.upgraded} upgraded, ${enrichResult.stillPlaceholder} still placeholder`);
+
+      // Family-Thread time-lock resolution. Releases entries whose DATE,
+      // AGE, or GENERATION conditions have matured. AUTHOR_DEATH and
+      // RECIPIENT_EVENT locks have separate verification flows.
+      console.log('Resolving Thread time-locks…');
+      const lockResult = await resolveTimeLocks(env);
+      console.log(`Time-locks resolved — date:${lockResult.resolvedDate} age:${lockResult.resolvedAge} gen:${lockResult.resolvedGeneration} notifications:${lockResult.notifications}`);
       
       console.log('Processing influencer outreach...');
       const influencerResult = await processInfluencerOutreach(env);
