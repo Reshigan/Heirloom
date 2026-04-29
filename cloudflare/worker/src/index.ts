@@ -49,6 +49,8 @@ import { engagementV2Routes } from './routes/engagement-v2';
 import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
 import { resolveTimeLocks } from './crons/time-locks';
+import { processArchivePinning } from './crons/archive-pinning';
+import { archiveRoutes } from './routes/archive';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram, enrichPlaceholderEmails } from './jobs/adoption-jobs';
@@ -310,6 +312,8 @@ app.route('/api/gift-vouchers', giftVoucherRoutes);
 app.route('/api/referral', referralRoutes);
 app.route('/api/influencer', influencerRoutes);
 app.route('/api/partner', partnerRoutes);
+// Public continuity audit — anyone can see pin status. THREAD.md Pillar 5.
+app.route('/api/archive', archiveRoutes);
 
 // Public contact form endpoint (rate limited to prevent abuse)
 app.post('/api/contact', async (c) => {
@@ -880,18 +884,25 @@ export default {
     } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
       // ========== WEEKLY JOBS (Sunday midnight UTC) ==========
       console.log('Running weekly jobs...');
-      
+
       // Dead Man's Switch weekly reminders
       await sendReminderEmails(env);
-      
+
       // Weekly engagement nudges
       await sendPostReminderEmails(env);
-      
+
       // Weekly content prompts for active users
       console.log('Sending weekly content prompts...');
       const promptResult = await sendContentPrompts(env);
       console.log(`Content prompts sent: ${promptResult.sent}`);
-      
+
+      // Family-Thread continuity guarantee: weekly snapshot pinning to IPFS
+      // via Web3.Storage + Pinata. No-op for any provider whose token isn't
+      // configured. See /THREAD.md Pillar 5.
+      console.log('Pinning Thread snapshots to IPFS…');
+      const pinResult = await processArchivePinning(env);
+      console.log(`Archive pinning — pinned:${pinResult.pinned} failed:${pinResult.failed} verified:${pinResult.verified} verifyFailed:${pinResult.verifyFailed}`);
+
       console.log('Weekly jobs complete.');
       
     } else if (cronType === '0 */12 * * *') {
