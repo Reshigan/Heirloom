@@ -25,6 +25,8 @@ import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
+import { Threads } from './pages/Threads';
+import { ThreadDetail } from './pages/ThreadDetail';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,7 +48,8 @@ function MobileFAB() {
   const { isAuthenticated } = useAuthStore();
   
   const hiddenPaths = ['/login', '/signup', '/forgot-password', '/reset-password', '/', '/admin/login', '/admin/dashboard', '/compose', '/record'];
-  const shouldHide = hiddenPaths.some(path => location.pathname === path || location.pathname.startsWith('/inherit/'));
+  const shouldHide = hiddenPaths.some(path => location.pathname === path || location.pathname.startsWith('/inherit/'))
+    || location.pathname === '/threads' || location.pathname.startsWith('/threads/');
   
   if (!isAuthenticated || shouldHide) return null;
   
@@ -182,6 +185,24 @@ export default function App() {
                       element={
                         <ProtectedRoute>
                           <Letters />
+                        </ProtectedRoute>
+                      }
+                    />
+                    {/* The Family Thread — world-first multi-generational
+                        archive primitive. See /THREAD.md. */}
+                    <Route
+                      path="/threads"
+                      element={
+                        <ProtectedRoute>
+                          <Threads />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/threads/:id"
+                      element={
+                        <ProtectedRoute>
+                          <ThreadDetail />
                         </ProtectedRoute>
                       }
                     />

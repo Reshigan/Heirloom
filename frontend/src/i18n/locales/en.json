@@ -45,6 +45,7 @@
   "nav": {
     "home": "Home",
     "vault": "Vault",
+    "threads": "Threads",
     "dashboard": "Dashboard",
     "memories": "Memories",
     "write": "Write",
