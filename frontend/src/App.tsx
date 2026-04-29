@@ -26,6 +26,7 @@ import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
 import { Threads } from './pages/Threads';
 import { ThreadDetail } from './pages/ThreadDetail';
+import { Inbox } from './pages/Inbox';
 import { CreatorProgram } from './pages/CreatorProgram';
 import { Influencer } from './pages/Influencer';
 import { Founder } from './pages/Founder';
@@ -49,7 +50,7 @@ function MobileFAB() {
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
   
-  const hiddenPaths = ['/login', '/signup', '/forgot-password', '/reset-password', '/', '/admin/login', '/admin/dashboard', '/compose', '/record'];
+  const hiddenPaths = ['/login', '/signup', '/forgot-password', '/reset-password', '/', '/admin/login', '/admin/dashboard', '/compose', '/record', '/inbox', '/founder', '/creators'];
   const shouldHide = hiddenPaths.some(path => location.pathname === path || location.pathname.startsWith('/inherit/'))
     || location.pathname === '/threads' || location.pathname.startsWith('/threads/');
   
@@ -210,6 +211,14 @@ export default function App() {
                       element={
                         <ProtectedRoute>
                           <ThreadDetail />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/inbox"
+                      element={
+                        <ProtectedRoute>
+                          <Inbox />
                         </ProtectedRoute>
                       }
                     />

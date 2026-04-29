@@ -615,6 +615,42 @@ export const threadsApi = {
       '/threads/starter-prompts',
       { params },
     ),
+
+  // Time-Locked Inbox — entries waiting to open + entries that just opened.
+  // Across every thread the caller is a member of.
+  inboxUpcoming: (days = 90) =>
+    api.get<{
+      upcoming: {
+        unlock_id: string;
+        lock_type: LockType;
+        unlock_date: string | null;
+        age_years: number | null;
+        target_member_id: string | null;
+        entry_id: string;
+        entry_title: string | null;
+        thread_id: string;
+        thread_name: string;
+        target_name: string | null;
+        target_birth_date: string | null;
+      }[];
+      days: number;
+    }>('/threads/inbox/upcoming', { params: { days } }),
+
+  inboxRecent: (days = 30) =>
+    api.get<{
+      recent: {
+        unlock_id: string;
+        lock_type: LockType;
+        resolved_at: string;
+        resolution_note: string | null;
+        entry_id: string;
+        entry_title: string | null;
+        thread_id: string;
+        thread_name: string;
+        entry_created_at: string;
+      }[];
+      days: number;
+    }>('/threads/inbox/recent', { params: { days } }),
 };
 
 export default api;

@@ -489,6 +489,79 @@ threadsRoutes.get('/:id/successors', async (c) => {
 });
 
 // ============================================================================
+// TIME-LOCKED INBOX — entries waiting to open for the current viewer
+//
+// Two surfaces:
+//   - inbox/upcoming: locks resolving in the next N days (default 90)
+//   - inbox/recent:   locks that have opened in the last N days (default 30)
+//
+// Across all threads the caller is a member of. Single round-trip; stable
+// shape suitable for the frontend ribbon at the top of /inbox.
+// ============================================================================
+
+threadsRoutes.get('/inbox/upcoming', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Authentication required' }, 401);
+  const days = Math.min(Math.max(parseInt(c.req.query('days') ?? '90', 10) || 90, 1), 365);
+
+  const rows = await c.env.DB.prepare(
+    `SELECT u.id as unlock_id, u.lock_type, u.unlock_date, u.age_years, u.target_member_id,
+            e.id as entry_id, e.title as entry_title, e.thread_id,
+            t.name as thread_name,
+            tm_target.display_name as target_name, tm_target.birth_date as target_birth_date,
+            tm_caller.role as caller_role, tm_caller.generation_offset as caller_generation
+     FROM entry_unlocks u
+     INNER JOIN thread_entries e ON e.id = u.entry_id
+     INNER JOIN threads t ON t.id = e.thread_id
+     INNER JOIN thread_members tm_caller
+       ON tm_caller.thread_id = t.id
+       AND tm_caller.user_id = ?
+       AND tm_caller.revoked_at IS NULL
+     LEFT JOIN thread_members tm_target ON tm_target.id = u.target_member_id
+     WHERE u.resolved_at IS NULL
+       AND (
+         (u.lock_type = 'DATE' AND u.unlock_date IS NOT NULL
+            AND date(u.unlock_date) BETWEEN date('now') AND date('now', '+' || ? || ' days'))
+         OR
+         (u.lock_type = 'AGE' AND tm_target.birth_date IS NOT NULL)
+         OR
+         u.lock_type IN ('GENERATION', 'AUTHOR_DEATH', 'RECIPIENT_EVENT')
+       )
+     ORDER BY
+       CASE u.lock_type WHEN 'DATE' THEN 0 ELSE 1 END,
+       u.unlock_date ASC
+     LIMIT 50`,
+  ).bind(userId, days).all();
+
+  return c.json({ upcoming: rows.results, days });
+});
+
+threadsRoutes.get('/inbox/recent', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Authentication required' }, 401);
+  const days = Math.min(Math.max(parseInt(c.req.query('days') ?? '30', 10) || 30, 1), 180);
+
+  const rows = await c.env.DB.prepare(
+    `SELECT u.id as unlock_id, u.lock_type, u.resolved_at, u.resolution_note,
+            e.id as entry_id, e.title as entry_title, e.thread_id, e.created_at as entry_created_at,
+            t.name as thread_name
+     FROM entry_unlocks u
+     INNER JOIN thread_entries e ON e.id = u.entry_id
+     INNER JOIN threads t ON t.id = e.thread_id
+     INNER JOIN thread_members tm
+       ON tm.thread_id = t.id
+       AND tm.user_id = ?
+       AND tm.revoked_at IS NULL
+     WHERE u.resolved_at IS NOT NULL
+       AND u.resolved_at >= datetime('now', '-' || ? || ' days')
+     ORDER BY u.resolved_at DESC
+     LIMIT 50`,
+  ).bind(userId, days).all();
+
+  return c.json({ recent: rows.results, days });
+});
+
+// ============================================================================
 // STARTER PROMPTS — for "I don't know what to write"
 // ============================================================================
 

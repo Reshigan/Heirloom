@@ -5,6 +5,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { threadsApi, type Thread, type ThreadEntry, type ThreadMember } from '../services/api';
 import { EntryCard } from '../components/thread/EntryCard';
 import { EntryComposer } from '../components/thread/EntryComposer';
+import { MembersPanel } from '../components/thread/MembersPanel';
 
 export function ThreadDetail() {
   const { id } = useParams<{ id: string }>();
@@ -111,14 +112,25 @@ export function ThreadDetail() {
 
       <hr className="border-rule mx-6 md:mx-12" />
 
+      <section className="px-6 md:px-12 py-10 md:py-12" aria-label="Members">
+        <div className="max-w-3xl mx-auto">
+          <MembersPanel
+            threadId={thread.id}
+            members={members}
+            callerRole={membership?.role ?? null}
+            onChanged={refresh}
+          />
+        </div>
+      </section>
+
       {canWrite ? (
-        <section className="px-6 md:px-12 py-12 md:py-14" aria-label="Add an entry">
+        <section className="px-6 md:px-12 pt-2 pb-12 md:pb-14" aria-label="Add an entry">
           <div className="max-w-3xl mx-auto">
             <EntryComposer threadId={thread.id} members={members} onCreated={() => refresh(true)} />
           </div>
         </section>
       ) : (
-        <section className="px-6 md:px-12 py-12 md:py-14">
+        <section className="px-6 md:px-12 pt-2 pb-12 md:pb-14">
           <div className="max-w-3xl mx-auto text-center text-paper/55 text-sm">
             You're a reader on this thread. Authorship can be granted by a Founder or Successor.
           </div>

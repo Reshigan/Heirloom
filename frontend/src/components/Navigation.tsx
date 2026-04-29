@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Image, Pen, Mic, Users, Settings, LogOut, GitBranch, Menu, X } from 'lucide-react';
+import { Home, Image, Pen, Mic, Users, Settings, LogOut, GitBranch, Inbox as InboxIcon, Menu, X } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
@@ -11,6 +11,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 const navItems = [
   { path: '/dashboard', icon: Home, labelKey: 'nav.vault' },
   { path: '/threads', icon: GitBranch, labelKey: 'nav.threads' },
+  { path: '/inbox', icon: InboxIcon, labelKey: 'nav.inbox' },
   { path: '/memories', icon: Image, labelKey: 'nav.memories' },
   { path: '/compose', icon: Pen, labelKey: 'nav.write' },
   { path: '/record', icon: Mic, labelKey: 'nav.record' },
