@@ -697,10 +697,26 @@ app.get('/api/public/stats', async (c) => {
 // Protected routes (auth required)
 const protectedApp = new Hono<AppEnv>();
 
+// Public paths that live under /api but are mounted on `app` directly.
+// Because protectedApp is also mounted at /api as a sub-app, its
+// `use('*', auth)` middleware would otherwise intercept these. We let
+// them through here.
+const PUBLIC_API_PREFIXES = [
+  '/api/archive/',           // continuity audit (THREAD.md Pillar 5)
+  '/api/founders/count',     // public pledge counter
+  '/api/founders/pledge',    // public pledge intake
+  '/api/book-orders/webhook', // Lulu webhook (HMAC verified)
+];
+
 // JWT middleware for protected routes
 protectedApp.use('*', async (c, next) => {
+  const path = c.req.path;
+  if (PUBLIC_API_PREFIXES.some((p) => path === p || path.startsWith(p))) {
+    return next();
+  }
+
   const authHeader = c.req.header('Authorization');
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
