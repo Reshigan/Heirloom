@@ -51,6 +51,8 @@ import { processSocialQueue } from './crons/social-posting';
 import { resolveTimeLocks } from './crons/time-locks';
 import { processArchivePinning } from './crons/archive-pinning';
 import { archiveRoutes } from './routes/archive';
+import { bookOrderRoutes, bookOrderProtectedRoutes } from './routes/books';
+import { syncOpenPrintJobs } from './services/book';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram, enrichPlaceholderEmails } from './jobs/adoption-jobs';
@@ -314,6 +316,8 @@ app.route('/api/influencer', influencerRoutes);
 app.route('/api/partner', partnerRoutes);
 // Public continuity audit — anyone can see pin status. THREAD.md Pillar 5.
 app.route('/api/archive', archiveRoutes);
+// Lulu Direct webhook (no auth — uses HMAC signature instead).
+app.route('/api/book-orders', bookOrderRoutes);
 
 // Public contact form endpoint (rate limited to prevent abuse)
 app.post('/api/contact', async (c) => {
@@ -758,6 +762,9 @@ protectedApp.route('/gifts', giftsV2ProtectedRoutes);
 // The Family Thread — world-first multi-generational archive primitive.
 // See /THREAD.md and /cloudflare/migrations/0036_family_thread.sql.
 protectedApp.route('/threads', threadsRoutes);
+// Living Book ordering (mounts under /api so paths are /api/threads/:id/book
+// and /api/book-orders/:id). Webhook is public, see app.route() above.
+protectedApp.route('/', bookOrderProtectedRoutes);
 
 app.route('/api', protectedApp);
 
@@ -902,6 +909,11 @@ export default {
       console.log('Pinning Thread snapshots to IPFS…');
       const pinResult = await processArchivePinning(env);
       console.log(`Archive pinning — pinned:${pinResult.pinned} failed:${pinResult.failed} verified:${pinResult.verified} verifyFailed:${pinResult.verifyFailed}`);
+
+      // Lulu Direct backstop — sync open print jobs in case webhook is down.
+      console.log('Syncing open Lulu print jobs…');
+      const luluResult = await syncOpenPrintJobs(env);
+      console.log(`Lulu sync: ${luluResult.updated} orders updated`);
 
       console.log('Weekly jobs complete.');
       
