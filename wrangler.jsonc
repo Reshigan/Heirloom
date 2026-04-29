@@ -78,14 +78,20 @@
   // ("$CLOUDFLARE_ZONE_ID" was a literal string, not an env reference).
 
   // Cron triggers — see cloudflare/worker/src/index.ts scheduled() for
-  // job dispatch by cron expression. Daily 09:00 UTC, weekly Sunday
-  // 00:00 UTC, twice-daily 12-hour, every 5 minutes.
+  // job dispatch by cron expression. We keep this set intentionally
+  // minimal:
+  //   - "0 9 * * *"   daily 09:00 UTC: discovery + outreach + bio
+  //                   enrichment + time-lock resolution
+  //   - "0 0 * * SUN" weekly Sunday 00:00 UTC: archive pinning, post
+  //                   reminders, content prompts, lulu sync
+  // Sub-daily crons (the social-posting 5-min and twice-daily AI
+  // prompt cache) require Workers Paid — leave them out until billing
+  // upgrades. The handlers in index.ts gracefully skip when a cron
+  // isn't fired.
   "triggers": {
     "crons": [
       "0 9 * * *",
-      "0 0 * * 0",
-      "0 */12 * * *",
-      "*/5 * * * *"
+      "0 0 * * SUN"
     ]
   }
 }
