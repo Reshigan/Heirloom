@@ -1,0 +1,65 @@
+name: Social autopost
+
+# Daily autonomous content engine.
+# See marketing/PLAYBOOK.md and marketing/automation/README.md.
+#
+# Triggers:
+#   - daily at 14:00 UTC (~10am ET, peak engagement window for US audience)
+#   - manual: workflow_dispatch with optional `mode` input
+
+on:
+  schedule:
+    - cron: "0 14 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run mode"
+        type: choice
+        required: true
+        default: preview
+        options:
+          - preview
+          - daily
+          - metrics
+
+concurrency:
+  group: social-autopost
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: marketing/automation/package.json
+
+      - name: Install
+        working-directory: marketing/automation
+        run: npm install --no-audit --no-fund
+
+      - name: Run
+        working-directory: marketing/automation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-opus-4-7' }}
+          AYRSHARE_API_KEY: ${{ secrets.AYRSHARE_API_KEY }}
+          PLATFORMS: ${{ vars.PLATFORMS || 'instagram,tiktok,pinterest,facebook,linkedin,x' }}
+          DRY_RUN: ${{ github.event.inputs.mode == 'preview' && '1' || '' }}
+        run: npm run ${{ github.event.inputs.mode || 'daily' }}
+
+      - name: Commit output
+        if: github.event.inputs.mode != 'metrics'
+        run: |
+          git config user.name "heirloom-autopost[bot]"
+          git config user.email "noreply@heirloom.app"
+          git add marketing/automation/output || true
+          git diff --staged --quiet || git commit -m "chore(autopost): $(date -u +%Y-%m-%d)"
+          git push || true
