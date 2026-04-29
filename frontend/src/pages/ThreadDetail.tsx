@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { threadsApi, type Thread, type ThreadEntry, type ThreadMember } from '../services/api';
 import { EntryCard } from '../components/thread/EntryCard';
@@ -9,6 +9,9 @@ import { MembersPanel } from '../components/thread/MembersPanel';
 
 export function ThreadDetail() {
   const { id } = useParams<{ id: string }>();
+  const [params, setParams] = useSearchParams();
+  const isFirstThread = params.get('first') === '1';
+  const composerRef = useRef<HTMLDivElement | null>(null);
   const [thread, setThread] = useState<Thread | null>(null);
   const [membership, setMembership] = useState<ThreadMember | null>(null);
   const [members, setMembers] = useState<ThreadMember[]>([]);
@@ -16,6 +19,7 @@ export function ThreadDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [justAddedFirst, setJustAddedFirst] = useState(false);
+  const [showFirstWelcome, setShowFirstWelcome] = useState(isFirstThread);
 
   const refresh = useCallback(
     async (markFirst = false) => {
@@ -46,6 +50,24 @@ export function ThreadDetail() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // First-thread welcome: scroll the composer into view, then strip the
+  // `?first=1` query param so a refresh doesn't replay the welcome. The
+  // banner itself is dismissed automatically when the user submits an
+  // entry (justAddedFirst handles that path).
+  useEffect(() => {
+    if (!isFirstThread || loading) return;
+    const t = setTimeout(() => {
+      composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+    const t2 = setTimeout(() => {
+      setParams({}, { replace: true });
+    }, 1000);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(t2);
+    };
+  }, [isFirstThread, loading, setParams]);
 
   if (loading) {
     return (
@@ -125,8 +147,41 @@ export function ThreadDetail() {
 
       {canWrite ? (
         <section className="px-6 md:px-12 pt-2 pb-12 md:pb-14" aria-label="Add an entry">
-          <div className="max-w-3xl mx-auto">
-            <EntryComposer threadId={thread.id} members={members} onCreated={() => refresh(true)} />
+          <div ref={composerRef} className="max-w-3xl mx-auto">
+            <AnimatePresence>
+              {showFirstWelcome ? (
+                <motion.div
+                  key="first-welcome"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  className="mb-8 overflow-hidden text-center"
+                  role="status"
+                >
+                  <p className="eyebrow text-gold mb-3">your first thread</p>
+                  <p className="font-serif italic text-paper/85 text-xl md:text-2xl leading-snug max-w-prose mx-auto">
+                    The first entry is the hardest one.<br />
+                    A sentence is enough — the thread is patient.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowFirstWelcome(false)}
+                    className="mt-5 text-paper/40 hover:text-paper/75 transition-colors text-xs tracking-wide focus:outline-none"
+                  >
+                    dismiss
+                  </button>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+            <EntryComposer
+              threadId={thread.id}
+              members={members}
+              onCreated={() => {
+                refresh(true);
+                setShowFirstWelcome(false);
+              }}
+            />
           </div>
         </section>
       ) : (

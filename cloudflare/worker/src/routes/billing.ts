@@ -1014,7 +1014,7 @@ billingRoutes.post('/webhook', async (c) => {
         object: {
           id: string;
           customer_email?: string;
-          metadata?: { user_id?: string; tier?: string; billing_cycle?: string; type?: string; voucher_code?: string };
+          metadata?: { user_id?: string; tier?: string; billing_cycle?: string; type?: string; voucher_code?: string; pledge_id?: string };
           subscription?: string;
           payment_intent?: string;
         };
@@ -1028,6 +1028,57 @@ billingRoutes.post('/webhook', async (c) => {
               const session = event.data.object;
               const metadataType = session.metadata?.type;
         
+              // Handle Founder pledge checkout — atomically mark PAID and
+              // assign the next pledge_number (1..100). Send Founder
+              // welcome email.
+              if (metadataType === 'founder_pledge') {
+                const pledgeId = session.metadata?.pledge_id;
+                if (pledgeId) {
+                  try {
+                    await c.env.DB.prepare(
+                      `UPDATE founder_pledges
+                       SET status = 'PAID',
+                           paid_at = ?,
+                           pledge_number = (
+                             SELECT COALESCE(MAX(pledge_number), 0) + 1
+                             FROM founder_pledges
+                             WHERE status IN ('PAID', 'ENGRAVED')
+                           ),
+                           stripe_session_id = COALESCE(stripe_session_id, ?),
+                           updated_at = ?
+                       WHERE id = ? AND status = 'PLEDGED'`,
+                    ).bind(now, session.id, now, pledgeId).run();
+
+                    const pledge = await c.env.DB.prepare(
+                      `SELECT name, email, family_name, pledge_number FROM founder_pledges WHERE id = ?`,
+                    ).bind(pledgeId).first<{ name: string; email: string; family_name: string | null; pledge_number: number | null }>();
+
+                    if (pledge?.email && pledge.pledge_number) {
+                      const numStr = String(pledge.pledge_number).padStart(3, '0');
+                      await sendEmail(c.env, {
+                        from: 'Heirloom <noreply@heirloom.blue>',
+                        to: pledge.email,
+                        subject: `Welcome, Founder #${numStr}`,
+                        html: `
+                          <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 32px; line-height: 1.7; color: #1a1410;">
+                            <p style="font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #b07a4a;">Founder · ${numStr} of 100</p>
+                            <h2 style="font-weight: 300; font-size: 28px; margin: 8px 0 24px;">Thank you, ${(pledge.name || '').split(' ')[0]}.</h2>
+                            <p>Your pledge is paid. ${pledge.family_name ? `The ${pledge.family_name} family ` : 'Your family '}now has lifetime Family-tier access on Heirloom.</p>
+                            <p>Your name will appear in the continuity record we file with the successor non-profit at incorporation. We'll send you a copy when it's filed.</p>
+                            <p>You'll get a calendar invite within the week for the first quarterly Founder call.</p>
+                            <p>For now: <a href="https://heirloom.blue/threads" style="color: #b07a4a;">open your family's first thread</a>. The first entry is the hardest.</p>
+                            <p style="margin-top: 32px;">— The Heirloom team</p>
+                          </div>
+                        `,
+                      }, 'FOUNDER_WELCOME');
+                    }
+                  } catch (err) {
+                    console.error('Founder pledge webhook error', err);
+                  }
+                }
+                break;
+              }
+
               // Handle gift voucher checkout
               if (metadataType === 'gift_voucher') {
                 const voucherCode = session.metadata?.voucher_code;

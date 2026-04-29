@@ -705,9 +705,10 @@ const protectedApp = new Hono<AppEnv>();
 // We use the absolute URL pathname (not c.req.path, which inside a
 // mounted sub-app is the *relative* path with the /api prefix stripped).
 const PUBLIC_API_PREFIXES = [
-  '/api/archive/',           // continuity audit (THREAD.md Pillar 5)
-  '/api/founders/count',     // public pledge counter
-  '/api/founders/pledge',    // public pledge intake
+  '/api/archive/',            // continuity audit (THREAD.md Pillar 5)
+  '/api/founders/count',      // public pledge counter
+  '/api/founders/pledge',     // public pledge intake
+  '/api/founders/by-session', // public lookup post-Stripe-checkout
   '/api/book-orders/webhook', // Lulu webhook (HMAC verified)
 ];
 

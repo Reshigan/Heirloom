@@ -36,12 +36,20 @@ export function Founder() {
         already_pledged?: boolean;
         message?: string;
         cap_reached?: boolean;
+        checkout_url?: string | null;
       }>('/founders/pledge', {
         name: name.trim(),
         email: email.trim(),
         family_name: familyName.trim() || undefined,
         notes: notes.trim() || undefined,
       });
+      // If we got a Stripe Checkout URL back, redirect there to complete
+      // payment. The webhook handles PAID transition + pledge-number
+      // assignment + welcome email.
+      if (res.data.checkout_url) {
+        window.location.href = res.data.checkout_url;
+        return;
+      }
       setDone({
         message: res.data.message ?? 'Thank you. We will be in touch within two business days.',
       });

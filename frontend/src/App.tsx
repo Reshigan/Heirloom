@@ -1,36 +1,54 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { SkipToContent, CreateFAB } from './components/ui';
 
-// Pages
+// EAGER (first paint, critical path) — import inline.
 import { Landing } from './pages/Landing';
-import { Login } from './pages/Login';
-import { Signup } from './pages/Signup';
-import { ForgotPassword } from './pages/ForgotPassword';
-import { ResetPassword } from './pages/ResetPassword';
-import { Dashboard } from './pages/Dashboard';
-import { Memories } from './pages/Memories';
-import { Compose } from './pages/Compose';
-import { Record } from './pages/Record';
-import { Family } from './pages/Family';
-import { Settings } from './pages/Settings';
-import { Billing } from './pages/Billing';
-import { Letters } from './pages/Letters';
-import { AdminLogin } from './pages/AdminLogin';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { Privacy } from './pages/Privacy';
-import { Terms } from './pages/Terms';
-import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
-import { Threads } from './pages/Threads';
-import { ThreadDetail } from './pages/ThreadDetail';
-import { Inbox } from './pages/Inbox';
-import { Hearth } from './pages/Hearth';
-import { CreatorProgram } from './pages/CreatorProgram';
-import { Influencer } from './pages/Influencer';
-import { Founder } from './pages/Founder';
+
+// LAZY (everything else) — split into per-route chunks. The first paint
+// of `/` ships only Landing + framework. Logged-in surfaces and the
+// Hearth (which carries the canvas particle system) load on demand.
+const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })));
+const Signup = lazy(() => import('./pages/Signup').then((m) => ({ default: m.Signup })));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then((m) => ({ default: m.ForgotPassword })));
+const ResetPassword = lazy(() => import('./pages/ResetPassword').then((m) => ({ default: m.ResetPassword })));
+const Dashboard = lazy(() => import('./pages/Dashboard').then((m) => ({ default: m.Dashboard })));
+const Memories = lazy(() => import('./pages/Memories').then((m) => ({ default: m.Memories })));
+const Compose = lazy(() => import('./pages/Compose').then((m) => ({ default: m.Compose })));
+const Record = lazy(() => import('./pages/Record').then((m) => ({ default: m.Record })));
+const Family = lazy(() => import('./pages/Family').then((m) => ({ default: m.Family })));
+const Settings = lazy(() => import('./pages/Settings').then((m) => ({ default: m.Settings })));
+const Billing = lazy(() => import('./pages/Billing').then((m) => ({ default: m.Billing })));
+const Letters = lazy(() => import('./pages/Letters').then((m) => ({ default: m.Letters })));
+const AdminLogin = lazy(() => import('./pages/AdminLogin').then((m) => ({ default: m.AdminLogin })));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
+const Privacy = lazy(() => import('./pages/Privacy').then((m) => ({ default: m.Privacy })));
+const Terms = lazy(() => import('./pages/Terms').then((m) => ({ default: m.Terms })));
+const Inherit = lazy(() => import('./pages/Inherit').then((m) => ({ default: m.Inherit })));
+const Threads = lazy(() => import('./pages/Threads').then((m) => ({ default: m.Threads })));
+const ThreadDetail = lazy(() => import('./pages/ThreadDetail').then((m) => ({ default: m.ThreadDetail })));
+const Inbox = lazy(() => import('./pages/Inbox').then((m) => ({ default: m.Inbox })));
+const Hearth = lazy(() => import('./pages/Hearth').then((m) => ({ default: m.Hearth })));
+const CreatorProgram = lazy(() => import('./pages/CreatorProgram').then((m) => ({ default: m.CreatorProgram })));
+const Influencer = lazy(() => import('./pages/Influencer').then((m) => ({ default: m.Influencer })));
+const Founder = lazy(() => import('./pages/Founder').then((m) => ({ default: m.Founder })));
+const FounderWelcome = lazy(() => import('./pages/FounderWelcome').then((m) => ({ default: m.FounderWelcome })));
+
+// Minimal fallback shown while a chunk loads. Matches the page's warm
+// near-black surface so there's no flash of light.
+function RouteFallback() {
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ background: '#0e0e0c' }}
+      aria-hidden
+    />
+  );
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,6 +97,7 @@ export default function App() {
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <SkipToContent />
           <MobileFAB />
+          <Suspense fallback={<RouteFallback />}>
           <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
@@ -95,6 +114,10 @@ export default function App() {
           {/* Founder pledge — first 100 families, $999 lifetime, funds the
               successor non-profit. See THREAD.md Pillar 5. */}
           <Route path="/founder" element={<Founder />} />
+          {/* Post-Stripe-checkout landing — public so Stripe's redirect
+              doesn't bounce off auth. Polls /api/founders/by-session
+              until the webhook flips the row to PAID. */}
+          <Route path="/founder/welcome" element={<FounderWelcome />} />
           <Route
             path="/login"
             element={
@@ -244,6 +267,7 @@ export default function App() {
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

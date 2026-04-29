@@ -61,6 +61,50 @@ founderRoutes.post('/pledge', async (c) => {
      VALUES (?, ?, ?, ?, ?, 'PLEDGED')`,
   ).bind(id, name, email, familyName, notes).run();
 
+  // Create Stripe Checkout session for the $999 one-time pledge.
+  // The webhook (billing.ts) listens for 'founder_pledge' metadata and
+  // marks PAID + assigns pledge_number atomically.
+  let checkoutUrl: string | null = null;
+  const stripeKey = (c.env as AppEnv['Bindings'] & { STRIPE_SECRET_KEY?: string }).STRIPE_SECRET_KEY;
+  if (stripeKey) {
+    try {
+      const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${stripeKey}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          mode: 'payment',
+          customer_email: email,
+          success_url: `${c.env.APP_URL}/founder/welcome?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${c.env.APP_URL}/founder?canceled=1`,
+          'line_items[0][price_data][currency]': 'usd',
+          'line_items[0][price_data][unit_amount]': String(PLEDGE_AMOUNT_USD * 100),
+          'line_items[0][price_data][product_data][name]': 'Heirloom Founder pledge',
+          'line_items[0][price_data][product_data][description]':
+            'Lifetime Family-tier access for your bloodline. Funds the successor non-profit. Name engraved in the continuity record.',
+          'line_items[0][quantity]': '1',
+          'metadata[type]': 'founder_pledge',
+          'metadata[pledge_id]': id,
+          'payment_intent_data[metadata][type]': 'founder_pledge',
+          'payment_intent_data[metadata][pledge_id]': id,
+        }),
+      });
+      if (stripeRes.ok) {
+        const session = (await stripeRes.json()) as { id: string; url: string };
+        checkoutUrl = session.url;
+        await c.env.DB.prepare(
+          `UPDATE founder_pledges SET stripe_session_id = ?, updated_at = datetime('now') WHERE id = ?`,
+        ).bind(session.id, id).run();
+      } else {
+        console.error('Stripe Checkout creation failed', await stripeRes.text());
+      }
+    } catch (err) {
+      console.error('Stripe Checkout error', err);
+    }
+  }
+
   // Notify admin.
   const adminEmail = (c.env as AppEnv['Bindings'] & { ADMIN_NOTIFICATION_EMAIL?: string }).ADMIN_NOTIFICATION_EMAIL ?? 'admin@heirloom.blue';
   try {
@@ -107,7 +151,33 @@ founderRoutes.post('/pledge', async (c) => {
     console.error('founder pledge ack failed', err);
   }
 
-  return c.json({ ok: true, id, status: 'PLEDGED' });
+  return c.json({
+    ok: true,
+    id,
+    status: 'PLEDGED',
+    checkout_url: checkoutUrl,
+    message: checkoutUrl
+      ? 'Redirecting to secure checkout for the lifetime pledge.'
+      : 'Pledge received. We will be in touch within two business days with payment instructions.',
+  });
+});
+
+// Public: lookup the pledge by Stripe session id. Used by /founder/welcome
+// to surface the Founder number once the webhook has processed the
+// payment. Returns minimal info — just enough to render the welcome page.
+founderRoutes.get('/by-session', async (c) => {
+  const sessionId = c.req.query('session_id');
+  if (!sessionId) return c.json({ ok: false, error: 'session_id required' }, 400);
+  const row = await c.env.DB.prepare(
+    `SELECT pledge_number, status, family_name FROM founder_pledges WHERE stripe_session_id = ?`,
+  ).bind(sessionId).first<{ pledge_number: number | null; status: string; family_name: string | null }>();
+  if (!row) return c.json({ ok: false, status: 'NOT_FOUND' });
+  return c.json({
+    ok: true,
+    pledge_number: row.pledge_number,
+    status: row.status,
+    family_name: row.family_name,
+  });
 });
 
 founderRoutes.get('/count', async (c) => {

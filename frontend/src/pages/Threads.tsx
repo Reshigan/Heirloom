@@ -30,7 +30,12 @@ export function Threads() {
         name: name.trim(),
         dedication: dedication.trim() || undefined,
       });
-      navigate(`/threads/${res.data.thread.id}`);
+      // First thread the user has ever opened? Send them to the detail
+      // page in "first entry" mode — the composer opens immediately
+      // and a quiet welcome line appears above it. Subsequent threads
+      // skip the welcome.
+      const isFirst = (threads ?? []).length === 0;
+      navigate(`/threads/${res.data.thread.id}${isFirst ? '?first=1' : ''}`);
     } catch (err: any) {
       setError(err?.response?.data?.error ?? 'Could not create thread');
       setSubmitting(false);
