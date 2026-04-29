@@ -27,6 +27,8 @@ import { Inherit } from './pages/Inherit';
 import { NotFound } from './pages/NotFound';
 import { Threads } from './pages/Threads';
 import { ThreadDetail } from './pages/ThreadDetail';
+import { CreatorProgram } from './pages/CreatorProgram';
+import { Influencer } from './pages/Influencer';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,6 +84,9 @@ export default function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/inherit/:token" element={<Inherit />} />
+          {/* Public creator program — drives the influencer wedge described
+              in marketing/PLAYBOOK.md §3 Loop A. */}
+          <Route path="/creators" element={<CreatorProgram />} />
           <Route
             path="/login"
             element={
@@ -203,6 +208,16 @@ export default function App() {
                       element={
                         <ProtectedRoute>
                           <ThreadDetail />
+                        </ProtectedRoute>
+                      }
+                    />
+                    {/* Influencer dashboard — for creators already in the
+                        program. Public application surface is at /creators. */}
+                    <Route
+                      path="/influencer"
+                      element={
+                        <ProtectedRoute>
+                          <Influencer />
                         </ProtectedRoute>
                       }
                     />

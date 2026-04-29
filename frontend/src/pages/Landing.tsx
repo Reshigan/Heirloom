@@ -432,6 +432,7 @@ export function Landing() {
             <span className="tracking-[0.15em] text-paper/60">HEIRLOOM</span>
           </div>
           <div className="flex gap-8 text-sm text-paper/40">
+            <Link to="/creators" className="hover:text-gold transition-colors">Creators</Link>
             <Link to="/privacy" className="hover:text-gold transition-colors">Privacy</Link>
             <Link to="/terms" className="hover:text-gold transition-colors">Terms</Link>
             <Link to="/contact" className="hover:text-gold transition-colors">Contact</Link>

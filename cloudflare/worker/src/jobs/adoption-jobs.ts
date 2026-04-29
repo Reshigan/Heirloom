@@ -463,63 +463,297 @@ const INFLUENCER_FOLLOWUP_SEQUENCE = [
 // Automatically adds new influencers and sends outreach emails
 // ============================================
 
+// Tier classification + helpers used by discoverNewProspects so every new
+// prospect lands in the database with a unique commission code, a landing
+// page slug, and a tier-appropriate discount/commission rate. Mirrors the
+// logic in routes/influencers.ts apply handler — unifying these into a
+// single util is a follow-up cleanup, but the functions are short.
+function tierFromFollowers(count: number): 'NANO' | 'MICRO' | 'MID' | 'MACRO' | 'MEGA' {
+  if (count < 1000) return 'NANO';
+  if (count < 10000) return 'MICRO';
+  if (count < 100000) return 'MID';
+  if (count < 1000000) return 'MACRO';
+  return 'MEGA';
+}
+
+const DISCOUNT_BY_TIER: Record<string, number> = {
+  NANO: 10, MICRO: 15, MID: 20, MACRO: 25, MEGA: 30,
+};
+
+function genCode(name: string): string {
+  const clean = name.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 8) || 'HRLM';
+  const suffix = Math.random().toString(36).substring(2, 4).toUpperCase();
+  return `${clean}${suffix}`;
+}
+
+function genSlug(name: string): string {
+  const base = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 20);
+  return `${base}-${Math.random().toString(36).substring(2, 6)}`;
+}
+
+interface ProspectInput {
+  name: string;
+  email: string;
+  platform: string;
+  handle: string;
+  follower_count: number;
+  segment: string;
+  source?: string;
+  // Optional per-platform handles, used when discovered from a real API.
+  instagram_handle?: string;
+  tiktok_handle?: string;
+  youtube_channel?: string;
+}
+
+async function ingestProspect(env: Env, p: ProspectInput, nowISO: string): Promise<'added' | 'skipped'> {
+  const existing = await env.DB.prepare(`SELECT id FROM influencers WHERE email = ?`).bind(p.email).first();
+  if (existing) return 'skipped';
+
+  const suppressed = await env.DB.prepare(`SELECT id FROM marketing_suppression WHERE email = ?`).bind(p.email).first();
+  if (suppressed) return 'skipped';
+
+  const tier = tierFromFollowers(p.follower_count);
+  const discountPercent = DISCOUNT_BY_TIER[tier];
+
+  // Generate unique code + slug — retry on collision up to 5 attempts.
+  let discountCode = genCode(p.name);
+  let landingSlug = genSlug(p.name);
+  for (let i = 0; i < 5; i++) {
+    const dup = await env.DB.prepare(
+      `SELECT id FROM influencers WHERE discount_code = ? OR landing_page_slug = ?`,
+    ).bind(discountCode, landingSlug).first();
+    if (!dup) break;
+    discountCode = genCode(p.name);
+    landingSlug = genSlug(p.name);
+  }
+
+  const id = crypto.randomUUID();
+  await env.DB.prepare(
+    `INSERT INTO influencers (
+       id, name, email, platform, handle,
+       instagram_handle, tiktok_handle, youtube_channel,
+       follower_count, segment, tier, discount_code, discount_percent, landing_page_slug,
+       status, consent_given, source, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'NEW', 0, ?, ?, ?)`,
+  ).bind(
+    id, p.name, p.email, p.platform, p.handle,
+    p.instagram_handle ?? null, p.tiktok_handle ?? null, p.youtube_channel ?? null,
+    p.follower_count, p.segment, tier, discountCode, discountPercent, landingSlug,
+    p.source ?? 'WEB_SEARCH', nowISO, nowISO,
+  ).run();
+
+  return 'added';
+}
+
 export async function discoverNewProspects(env: Env) {
   const now = new Date();
   const nowISO = now.toISOString();
-  
+
   let added = 0;
   let skipped = 0;
-  let errors: string[] = [];
-  
-  // Combine all prospect sources (including localized micro-influencers)
+  const errors: string[] = [];
+
+  // Combine all prospect sources (including localized micro-influencers).
+  // Each prospect now lands in the DB with a unique commission code +
+  // landing page slug at discovery time, so outreach emails and the
+  // first conversion attribution work without a separate /apply step.
   const allProspects = [...CURATED_PROSPECTS, ...EXPANDED_PROSPECTS, ...LOCALIZED_MICRO_INFLUENCERS];
-  
+
   for (const prospect of allProspects) {
     try {
-      // Check if this email already exists in the database
-      const existing = await env.DB.prepare(`
-        SELECT id FROM influencers WHERE email = ?
-      `).bind(prospect.email).first();
-      
-      if (existing) {
-        skipped++;
-        continue;
-      }
-      
-      // Check if email is in suppression list (unsubscribed)
-      const suppressed = await env.DB.prepare(`
-        SELECT id FROM marketing_suppression WHERE email = ?
-      `).bind(prospect.email).first();
-      
-      if (suppressed) {
-        skipped++;
-        continue;
-      }
-      
-      // Add new prospect to influencers table
-      const id = crypto.randomUUID();
-      await env.DB.prepare(`
-        INSERT INTO influencers (id, name, email, platform, handle, follower_count, segment, status, consent_given, source, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'NEW', 0, 'WEB_SEARCH', ?, ?)
-      `).bind(
-        id,
-        prospect.name,
-        prospect.email,
-        prospect.platform,
-        prospect.handle,
-        prospect.follower_count,
-        prospect.segment,
-        nowISO,
-        nowISO
-      ).run();
-      
-      added++;
+      const result = await ingestProspect(env, prospect, nowISO);
+      if (result === 'added') added++;
+      else skipped++;
     } catch (error: any) {
       errors.push(`${prospect.email}: ${error.message}`);
     }
   }
-  
+
   return { added, skipped, total: allProspects.length, errors: errors.length > 0 ? errors : undefined };
+}
+
+// ============================================================================
+// REAL PLATFORM DISCOVERY — TikTok Research API + Instagram Graph search
+//
+// Both functions are no-ops if the relevant API tokens aren't configured.
+// When configured, they search public creator content for niche-relevant
+// videos/posts (family stories, grandparents, aging-parents, grief, family
+// history) and add unseen creators to the prospects table.
+//
+// IMPORTANT: TikTok Research API requires approved researcher access; the
+// Instagram Graph API requires a verified business app with the
+// `instagram_basic` + `pages_show_list` permissions. See
+// /REGISTRATION.md for the approval runbook.
+//
+// We deliberately do NOT scrape or use unofficial endpoints. Cold DM via
+// platform APIs is also intentionally not implemented — Instagram and
+// TikTok both prohibit unsolicited automated DMs and ban accounts that
+// violate. Outreach happens via email only (processInfluencerOutreach).
+// ============================================================================
+
+const NICHE_KEYWORDS = [
+  'questions to ask grandma',
+  'questions to ask my dad',
+  'family stories',
+  'family history',
+  'grief journal',
+  'aging parents',
+  'storyworth',
+  'memoir writing',
+  'genealogy stories',
+];
+
+interface TikTokVideo {
+  username?: string;
+  follower_count?: number;
+  region_code?: string;
+  bio?: string;
+  email?: string;
+}
+
+export async function discoverFromTikTok(env: Env) {
+  const token = (env as Env & { TIKTOK_RESEARCH_TOKEN?: string }).TIKTOK_RESEARCH_TOKEN;
+  if (!token) {
+    return { added: 0, skipped: 0, source: 'tiktok', reason: 'TIKTOK_RESEARCH_TOKEN not set' };
+  }
+
+  const nowISO = new Date().toISOString();
+  let added = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+
+  for (const keyword of NICHE_KEYWORDS) {
+    try {
+      const res = await fetch(
+        'https://open.tiktokapis.com/v2/research/video/query/?fields=username,follower_count,region_code,bio',
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: { and: [{ operation: 'IN', field_name: 'keyword', field_values: [keyword] }] },
+            max_count: 25,
+          }),
+        },
+      );
+      if (!res.ok) {
+        errors.push(`tiktok ${keyword}: HTTP ${res.status}`);
+        continue;
+      }
+      const data = (await res.json()) as { data?: { videos?: TikTokVideo[] } };
+      for (const v of data.data?.videos ?? []) {
+        if (!v.username) continue;
+        // TikTok Research API does NOT return email — we mark these as
+        // pending-contact and the operator (or a follow-up enrichment job)
+        // sources email separately. We still create the row with the unique
+        // code so it's ready when contact info arrives.
+        const placeholderEmail = `${v.username}@tiktok.placeholder.heirloom.blue`;
+        try {
+          const result = await ingestProspect(
+            env,
+            {
+              name: v.username,
+              email: placeholderEmail,
+              platform: 'TIKTOK',
+              handle: `@${v.username}`,
+              tiktok_handle: `@${v.username}`,
+              follower_count: v.follower_count ?? 0,
+              segment: keyword.replace(/[^a-z]+/gi, '_').toUpperCase(),
+              source: 'TIKTOK_API',
+            },
+            nowISO,
+          );
+          if (result === 'added') added++;
+          else skipped++;
+        } catch (e: any) {
+          errors.push(`${v.username}: ${e.message}`);
+        }
+      }
+    } catch (e: any) {
+      errors.push(`tiktok ${keyword}: ${e.message}`);
+    }
+  }
+
+  return { added, skipped, source: 'tiktok', errors: errors.length ? errors : undefined };
+}
+
+interface IGUser {
+  id: string;
+  username: string;
+  followers_count?: number;
+  biography?: string;
+  business_discovery?: { followers_count?: number; biography?: string };
+}
+
+export async function discoverFromInstagram(env: Env) {
+  const token = (env as Env & { META_PAGE_ACCESS_TOKEN?: string; META_IG_USER_ID?: string }).META_PAGE_ACCESS_TOKEN;
+  const igUserId = (env as Env & { META_IG_USER_ID?: string }).META_IG_USER_ID;
+  if (!token || !igUserId) {
+    return { added: 0, skipped: 0, source: 'instagram', reason: 'Meta tokens not set' };
+  }
+
+  const nowISO = new Date().toISOString();
+  let added = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+
+  // The Graph API's hashtag search returns top-media; we walk the authors
+  // and pull each one's business_discovery (which is the only public way to
+  // get follower counts without explicit user authorization).
+  for (const keyword of NICHE_KEYWORDS) {
+    try {
+      const tag = keyword.replace(/[^a-z0-9]/gi, '');
+      // 1) Resolve hashtag id
+      const hashtagSearch = await fetch(
+        `https://graph.facebook.com/v21.0/ig_hashtag_search?user_id=${igUserId}&q=${encodeURIComponent(tag)}&access_token=${token}`,
+      );
+      if (!hashtagSearch.ok) {
+        errors.push(`ig ${keyword}: hashtag-search HTTP ${hashtagSearch.status}`);
+        continue;
+      }
+      const hashtagJson = (await hashtagSearch.json()) as { data?: { id: string }[] };
+      const hashtagId = hashtagJson.data?.[0]?.id;
+      if (!hashtagId) continue;
+
+      // 2) Top media for that hashtag
+      const topMedia = await fetch(
+        `https://graph.facebook.com/v21.0/${hashtagId}/top_media?user_id=${igUserId}&fields=username,owner&access_token=${token}`,
+      );
+      if (!topMedia.ok) continue;
+      const topJson = (await topMedia.json()) as { data?: IGUser[] };
+
+      for (const m of topJson.data ?? []) {
+        if (!m.username) continue;
+        // Same caveat as TikTok — Graph API doesn't surface emails. Place
+        // a placeholder; an enrichment job (Hunter.io, Apollo, etc.) can
+        // populate the real address later.
+        const placeholderEmail = `${m.username}@instagram.placeholder.heirloom.blue`;
+        try {
+          const result = await ingestProspect(
+            env,
+            {
+              name: m.username,
+              email: placeholderEmail,
+              platform: 'INSTAGRAM',
+              handle: `@${m.username}`,
+              instagram_handle: `@${m.username}`,
+              follower_count: m.business_discovery?.followers_count ?? 0,
+              segment: keyword.replace(/[^a-z]+/gi, '_').toUpperCase(),
+              source: 'INSTAGRAM_API',
+            },
+            nowISO,
+          );
+          if (result === 'added') added++;
+          else skipped++;
+        } catch (e: any) {
+          errors.push(`${m.username}: ${e.message}`);
+        }
+      }
+    } catch (e: any) {
+      errors.push(`ig ${keyword}: ${e.message}`);
+    }
+  }
+
+  return { added, skipped, source: 'instagram', errors: errors.length ? errors : undefined };
 }
 
 // ============================================

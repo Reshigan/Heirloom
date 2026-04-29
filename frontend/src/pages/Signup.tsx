@@ -48,7 +48,10 @@ export function Signup() {
 
     try {
       await register(form.email, form.password, form.firstName, form.lastName);
-      navigate('/dashboard');
+      // First action after signup is opening the family thread, not the
+      // dashboard. Encryption setup, dead-man's-switch, etc., are surfaced
+      // later as nudges from settings — they shouldn't block first value.
+      navigate('/threads');
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
     } finally {

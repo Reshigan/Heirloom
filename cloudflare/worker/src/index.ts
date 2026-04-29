@@ -50,7 +50,7 @@ import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
-import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts } from './jobs/adoption-jobs';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram } from './jobs/adoption-jobs';
 import { processPushNotificationQueue, cleanupOldNotifications } from './services/pushSender';
 
 // Types
@@ -828,6 +828,16 @@ export default {
       console.log('Discovering new influencers from viral list...');
       const discoveryResult = await discoverNewProspects(env);
       console.log(`Influencers discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
+
+      // Real platform discovery — no-ops if API keys aren't configured.
+      // See REGISTRATION.md for the manual setup runbook.
+      console.log('Discovering creators on TikTok…');
+      const tiktokResult = await discoverFromTikTok(env);
+      console.log(`TikTok: ${tiktokResult.added} added, ${tiktokResult.skipped} skipped${tiktokResult.reason ? ` (${tiktokResult.reason})` : ''}`);
+
+      console.log('Discovering creators on Instagram…');
+      const igResult = await discoverFromInstagram(env);
+      console.log(`Instagram: ${igResult.added} added, ${igResult.skipped} skipped${igResult.reason ? ` (${igResult.reason})` : ''}`);
       
       console.log('Processing influencer outreach...');
       const influencerResult = await processInfluencerOutreach(env);
