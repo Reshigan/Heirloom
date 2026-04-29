@@ -18,41 +18,41 @@ export function Landing() {
   const pricingInView = useInView(pricingRef, { once: true, margin: "-100px" });
   
   const features = [
-    { icon: Image, title: 'Photo Memories', desc: 'Upload and organize photos with context and stories for each moment. End-to-end encrypted.' },
-    { icon: Mic, title: 'Voice Stories', desc: 'Record your voice with guided prompts. Your stories, your voice, preserved forever.' },
-    { icon: Pen, title: 'Heartfelt Letters', desc: 'Write letters delivered immediately, on a specific date, or after you\'re gone.' },
-    { icon: Clock, title: 'Dead Man\'s Switch', desc: 'Automatic content release to loved ones with multi-contact verification.' },
-    { icon: Shield, title: 'Legacy Contacts', desc: 'Trusted contacts verify your passing before posthumous content delivery.' },
-    { icon: Lock, title: 'E2E Encryption', desc: 'Zero-knowledge architecture. Only you and your beneficiaries can decrypt.' },
+    { icon: Users, title: 'A thread, not a profile', desc: 'One archive your whole family writes into across generations. Append-only — what you write is what they read in 2120.' },
+    { icon: Clock, title: 'Time-locked entries', desc: 'Lock an entry for your granddaughter\'s 18th birthday. Or 50 years from today. Even we can\'t read it until then.' },
+    { icon: Mic, title: 'Voice, photo, letter', desc: 'Capture how it actually sounded. The recipe behind the photo. The story you\'ve never told straight through.' },
+    { icon: Pen, title: 'Cross-generational dialogue', desc: 'Your daughter adds to your grandmother\'s entries. Your grandson asks the archive what it remembers. Stories compound.' },
+    { icon: ShieldCheck, title: 'Outlasts the company', desc: 'IPFS pinning + a successor non-profit + open-format export. Your thread survives if we don\'t.' },
+    { icon: Image, title: 'The Living Book', desc: 'Print any subset of the thread as a hardcover, on demand. Birthdays, anniversaries, funerals. As many copies as your family needs.' },
   ];
   
   const plans = [
     {
-      name: 'Free',
-      price: '$0',
+      name: 'Reader',
+      price: 'Free',
       period: 'forever',
       yearlyPrice: 'No card needed',
-      features: ['1GB storage', '50 photos', '15 minutes of voice', '10 letters', '5 family members', 'Posthumous delivery included'],
+      features: ['Read your family\'s threads', 'Up to 10 entries per year', 'Voice, photo, letter — all formats', 'Time-locked entries you receive', 'No deletion, no expiry, ever'],
       popular: false,
-      cta: 'Start free',
+      cta: 'Open a thread',
     },
     {
       name: 'Family',
-      price: '$9.99',
-      period: '/month',
-      yearlyPrice: '$99/year (save 17%)',
-      features: ['25GB storage', 'Unlimited photos & letters', '3 hours of voice', 'Unlimited recipients', 'Weekly story prompts', 'Year-end keepsake book ($20 off)'],
+      price: '$15',
+      period: '/month per family',
+      yearlyPrice: '$150/year — covers everyone',
+      features: ['Unlimited entries, unlimited members', 'Time-lock by date / age / event', 'Cross-generational comments', 'The Living Book (Lulu print)', 'Family-only encrypted, even from us'],
       popular: true,
-      cta: 'Try Family',
+      cta: 'Start the thread',
     },
     {
-      name: 'Gift a year',
-      price: '$99',
-      period: 'one-time',
-      yearlyPrice: 'Includes printed book',
-      features: ['1 year of Family plan', 'Weekly prompts emailed to them', 'You get the printed book at year-end', 'Perfect for parents & grandparents', 'No subscription, no auto-renew'],
+      name: 'Founder',
+      price: '$999',
+      period: 'lifetime',
+      yearlyPrice: 'One-time, no recurring',
+      features: ['Everything in Family, forever', 'Funds the successor non-profit', 'Name engraved in continuity record', 'Quarterly call with the founder', 'First 100 only'],
       popular: false,
-      cta: 'Buy as a gift',
+      cta: 'Become a Founder',
     },
   ];
 
@@ -203,10 +203,13 @@ export function Landing() {
             transition={{ duration: 0.8 }}
             className="text-center mb-20"
           >
-            <span className="text-gold tracking-[0.3em] text-sm">FEATURES</span>
+            <span className="text-gold tracking-[0.3em] text-sm">THE THREAD</span>
             <h2 className="text-4xl md:text-5xl font-light mt-4">
-              Everything you need to preserve your legacy
+              A new kind of family archive
             </h2>
+            <p className="text-paper/50 mt-4 max-w-2xl mx-auto">
+              Not a profile. Not a book. A perpetual thread your family writes into across generations.
+            </p>
           </motion.div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -239,10 +242,10 @@ export function Landing() {
           
           <div className="space-y-0">
             {[
-              { step: '01', title: 'Create Your Sanctuary', desc: 'Sign up and set up your encrypted vault. Your content is protected from the moment it\'s created.' },
-              { step: '02', title: 'Preserve Your Memories', desc: 'Upload photos, record voice messages, write letters. Every moment is encrypted before leaving your device.' },
-              { step: '03', title: 'Set Your Wishes', desc: 'Choose when and how your content is delivered. Immediately, on a specific date, or after you\'re gone.' },
-              { step: '04', title: 'Rest Assured', desc: 'The dead man\'s switch monitors your check-ins. Your legacy contacts verify your passing before release.' },
+              { step: '01', title: 'Open a thread', desc: 'A thread belongs to your family, not to you. Name it, add the first members. Anyone in the bloodline can be granted authorship over time.' },
+              { step: '02', title: 'Write the first entry', desc: 'A photo with the story behind it. A voice recording while making tea. A letter to no one in particular. The first one is the hardest.' },
+              { step: '03', title: 'Lock for whoever, whenever', desc: 'Set an entry to open on a specific date. Or when your granddaughter turns 18. Or 50 years from today. Even we can\'t read it until then.' },
+              { step: '04', title: 'It outlasts you, and us', desc: 'The thread is mirrored to decentralized storage. A successor non-profit takes over if we don\'t. Your family can export it any time, in an open format. No vendor lock-in.' },
             ].map((item, i) => (
               <motion.div
                 key={item.step}
@@ -277,8 +280,8 @@ export function Landing() {
             className="text-center mb-20"
           >
             <span className="text-gold tracking-[0.3em] text-sm">PRICING</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">Simple, transparent pricing</h2>
-            <p className="text-paper/50 mt-4">Start with a 14-day free trial. No credit card required.</p>
+            <h2 className="text-4xl md:text-5xl font-light mt-4">Per family, not per seat</h2>
+            <p className="text-paper/50 mt-4">One subscription covers your whole bloodline. Free forever for readers.</p>
           </motion.div>
           
           <div className="grid md:grid-cols-3 gap-6">
@@ -338,10 +341,10 @@ export function Landing() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <span className="text-gold tracking-[0.3em] text-sm">SECURITY</span>
-            <h2 className="text-4xl md:text-5xl font-light mt-4">Military-Grade Encryption</h2>
+            <span className="text-gold tracking-[0.3em] text-sm">CONTINUITY</span>
+            <h2 className="text-4xl md:text-5xl font-light mt-4">Built to outlast the company</h2>
             <p className="text-paper/50 mt-4 max-w-2xl mx-auto">
-              Your memories are protected with the same encryption standards used by governments and financial institutions worldwide.
+              Every digital-legacy startup has died and taken users' content with it. We make that an architectural impossibility.
             </p>
           </motion.div>
           
@@ -349,18 +352,18 @@ export function Landing() {
             {[
               {
                 icon: ShieldCheck,
-                title: 'AES-256 Encryption',
-                desc: 'Your data is encrypted with AES-256, the gold standard used by the U.S. government for classified information. Virtually unbreakable.',
+                title: 'Decentralized backups',
+                desc: 'Every thread snapshot is pinned to IPFS across multiple independent providers. Your archive exists outside our infrastructure, by design.',
               },
               {
                 icon: KeyRound,
-                title: 'Zero-Knowledge Architecture',
-                desc: 'We never see your data. Your encryption keys are derived from your password and never leave your device. Not even we can access your content.',
+                title: 'Successor non-profit',
+                desc: 'A separately incorporated 501(c)(3) holds an irrevocable license to operate the archive if Heirloom dissolves. Funded by Founder pledges.',
               },
               {
                 icon: FileKey,
-                title: 'End-to-End Encrypted',
-                desc: 'From the moment you create content to when your loved ones receive it, everything is encrypted. No middleman can ever read your memories.',
+                title: 'Open-format export, anytime',
+                desc: 'One click downloads your full thread as JSON + media files. The export schema is published, versioned, and stable. No vendor lock-in.',
               },
             ].map((item, i) => (
               <motion.div
@@ -389,7 +392,7 @@ export function Landing() {
           >
             <div className="inline-flex items-center gap-3 px-6 py-3 glass-subtle rounded-full">
               <Lock size={18} className="text-gold" />
-              <span className="text-paper/60 text-sm">GDPR-aligned • Encrypted in transit and at rest • Open about how it works</span>
+              <span className="text-paper/60 text-sm">Family-only encrypted • Append-only audit trail • Continuity guarantees published openly</span>
             </div>
           </motion.div>
         </div>
@@ -408,13 +411,13 @@ export function Landing() {
               <Heart size={32} className="text-gold" />
             </div>
             <h2 className="text-4xl md:text-5xl font-light mb-6">
-              The small things matter. Save one today.
+              The first entry is the hardest.
             </h2>
             <p className="text-xl text-paper/50 mb-12">
-              30 seconds. One letter, one story, one photo. The free plan is yours forever.
+              Open a thread today. Lock it for whoever you want, whenever you want. The thread is yours — and your great-granddaughter's — forever.
             </p>
             <Link to="/signup" className="btn btn-primary text-lg px-10 py-5 group">
-              Start free — no card needed
+              Open a thread — free forever
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </motion.div>

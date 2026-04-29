@@ -44,6 +44,7 @@ import { socialImportRoutes } from './routes/social-import';
 import { exportRoutes } from './routes/export';
 import { capsulesRoutes } from './routes/capsules';
 import { giftsV2Routes, giftsV2ProtectedRoutes } from './routes/gifts-v2';
+import { threadsRoutes } from './routes/threads';
 import { engagementV2Routes } from './routes/engagement-v2';
 import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
@@ -748,6 +749,10 @@ protectedApp.route('/export', exportRoutes);
 protectedApp.route('/capsules', capsulesRoutes);
 protectedApp.route('/engagement', engagementV2Routes);
 protectedApp.route('/gifts', giftsV2ProtectedRoutes);
+
+// The Family Thread — world-first multi-generational archive primitive.
+// See /THREAD.md and /cloudflare/migrations/0036_family_thread.sql.
+protectedApp.route('/threads', threadsRoutes);
 
 app.route('/api', protectedApp);
 

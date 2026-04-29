@@ -1,262 +1,211 @@
 # Heirloom Launch & Growth Playbook
 
-This is the operating doc. If a marketing decision isn't covered here, ask. If a tactic isn't producing, pull it.
+This is the operating doc. The product is defined in [`/THREAD.md`](../THREAD.md) — read that first. This doc covers positioning, launch sequencing, and growth loops.
 
 ---
 
 ## 1. Positioning
 
-### What's broken
+### What Heirloom is
 
-The current positioning is **"plan your death, deliver memories after you die."** The buyer pays today for an event 30 years away with no compounding loop. That positioning has killed every digital-legacy startup of the last decade — Eter9 (creepy AI immortality), SafeBeyond (death-only utility), MyWishes (admin focus, no monetization). The category graveyard is consistent and the cause is structural: people don't sign up to plan their death.
+A perpetual, append-only, multi-generational family thread. Started by someone alive today; written into by everyone in the bloodline; read by descendants 50, 100, 200 years from now. Entries can be time-locked to release on dates, ages, or events. The archive is committed to outliving the company.
 
-The single positioning shift that has worked in this category, repeatedly, is **gift-as-wedge**. Storyworth ($30M+ ARR, ~2023 figure), Remento ($4.4M seed 2023), and Promptly Journals all sell the same thing: *"give your parent a year of stories, get a printed book at the end."* The buyer (adult child) gets immediate emotional payoff. The user (parent) gets weekly prompts that are easy to engage with. The artifact (book) is the viral object that pulls in siblings. Posthumous delivery is a quiet trust feature in the footer — never the headline.
+This is **world-first**. No combination of perpetual + multi-author + multi-generational + time-locked + cross-company-survival has been built. See [THREAD.md §1–2](../THREAD.md) for the full architectural premise.
 
-### Repositioning
+### What Heirloom is not
 
-**Old headline:** *"Preserve your memories for generations."*
-**New headline:** *"Give your parent a year of stories. Get the book."*
+- **Not Storyworth / Remento / Promptly Journals** — those are single-author, finite, terminal projects. One year, one book.
+- **Not Ancestry / MyHeritage** — those are genealogical data. No story, no voice, no continuity beyond names.
+- **Not Cake / Empathy** — those are end-of-life logistics (wills, funerals, bills). Admin, not memory.
+- **Not Eter9 / HereAfter / StoryFile** — those are AI ghosts of dead people. Uncanny, ethically fraught, abandoned.
 
-**Old hero:** the user planning their own death.
-**New hero:** the adult child preserving their parent's voice.
+If a marketing draft sounds like it would fit any of those products, rewrite it. The Thread is the differentiator and must be on the surface of every message.
 
-**Old wedge:** 14-day trial → $11.99/mo subscription → eventual death.
-**New wedge:** $99 gift purchase → year of weekly prompts → printed hardcover at year-end → ~30% upsell to subscription.
+### Headline
 
-**Posthumous delivery, encryption, dead-man's switch** stay in the product. They become trust features ("your stories stay yours, even after you're gone") not the marketing surface. They are reassurance, not the sales argument.
+> **Start your family's thousand-year thread.**
+
+### Sub
+
+> Write today. Lock entries for descendants who don't exist yet. Read what came before. The thread continues after you, after us, after the company.
 
 ### Audience
 
-Primary: **adult children, 35–60, mostly women, with at least one living parent over 65.** They live on Pinterest, Facebook (yes still), Instagram Reels, and TikTok in that order of intent depth. They search "questions to ask grandma," "interview my dad," "Mother's Day gift for mom who has everything."
+Not "people planning their death" (the failed framing of every dead competitor). Not "adult children buying gifts" (the Storyworth wedge — finite, derivative).
 
-Secondary (much smaller): people facing terminal diagnosis, new parents writing letters, estate planners as a B2B2C channel.
+The Thread audience is **family-keepers** — people who feel the weight of being the one in their family who could carry the stories forward. They tend to be:
 
-Tertiary (don't optimize for): the original framing — middle-aged user planning their own death. Keep them welcome but don't write copy for them.
+- Adults 35–65 with at least one living parent or grandparent
+- People who've recently lost an older relative and felt the hole
+- People who've inherited a box of letters or photos and don't know what to do with it
+- Genealogists and family historians (already organized; want better tools)
+- New parents who feel the asymmetry of "my child won't know my grandmother"
+
+Across all of them, the unifying psychology is: *I am the bridge between people who came before and people who come after, and I don't want the chain to break in my generation.*
 
 ### Brand voice
 
-Today's voice: funeral-home goth (Void, Blood, Sanctuary, animated infinity, dark UI on gold). This signals "death" to a buyer who wants warmth.
+Specific, present-tense, plain. Not motivational. Not somber. Treats the reader as the family-keeper described above — competent, slightly burdened by responsibility, looking for tools that meet the gravity of the task.
 
-Target voice: **warm, plain, present-tense, specific.** Examples below — keep them in the automation prompt library.
+> ✘ *"Preserve your memories for generations."*
+> ✓ *"The thread your family writes today, your great-granddaughter reads in 2120."*
 
-> ✘ *"Your stories matter. Preserve them for generations."*
-> ✓ *"Mom's spaghetti recipe. Dad's army stories. Your grandma's voice. Save one this weekend."*
+> ✘ *"End-to-end encryption protects your stories."*
+> ✓ *"What you write is yours. Lock it for 50 years if you want — even we can't read it."*
 
-> ✘ *"End-to-end encrypted, zero-knowledge architecture."*
-> ✓ *"What you record is yours. Always."*
+> ✘ *"Start your legacy journey."*
+> ✓ *"Open the thread. Add the first entry. The hardest one is the first."*
 
-> ✘ *"Configure your dead man's switch."*
-> ✓ *"Decide who gets what, when. Adjust anytime."*
+The brand voice file (`marketing/automation/src/voice.ts`) enforces this on every generated piece of content. Update it there first if the voice shifts.
 
-The dark visual identity can stay for the logged-in product (it's actually a nice differentiator from the saccharine competition). The marketing surface — landing page, ads, social — needs the warm voice.
+### Why "thousand-year"
+
+The number is deliberately too long to feel like marketing copy. A century would feel measured. A thousand years signals the actual ambition: that this is built to outlast the family member who started it, the company that hosts it, and the technology platform it currently runs on. Used sparingly — once on the headline and once in the founder pitch. Never on every page.
 
 ---
 
 ## 2. The 90-Day Launch Sequence
 
-A **massive launch is built, not announced.** Big-bang product launches don't work in this category — the buying decision is emotional and slow. What works is a 90-day compound: warm list → creator seeding → press → paid amplification, each amplifying the previous.
+Build, don't announce. The buying decision is emotional and slow; nobody converts on a Product Hunt post for a multi-generational archive. The 90-day arc compounds: foundation → warm-list → press wave → opening cohort.
 
-### Days 1–14: Foundation
+### Days 1–14 — Foundation
 
-- Ship Phase 1 fixes (done) + Phase 2 (gift flow + onboarding rewrite)
-- Stand up a Beehiiv newsletter with referral milestones. Goal: 5K subs by day 90.
-- Create the SEO content moat: 50 long-tail "questions to ask [grandma/dad/mom]" pages, programmatically generated via the automation in this repo. Each page is a list of 30–80 questions + a soft CTA "save these answers in Heirloom — free, no card." This is Promptly Journals' moat; it's defensible because it compounds.
-- Create the autonomous social engine (this repo's `marketing/automation/`).
-- Set up Google Search Console, GA4, Meta Pixel, TikTok Pixel.
-- API access: Anthropic (~$3/mo at our volume on Sonnet 4.6), Meta Business app + LinkedIn Developer + Pinterest Developer + Bluesky app password (all free, ~1-2 weeks for app reviews). Beehiiv free tier. **Total marketing-stack cost: ~$3/mo.** TikTok and X stay in queue mode (operator pastes manually 2 min/day) until paid tiers are worth it or app reviews land.
+- Ship Phase 1 (done) + Phase 3 (Thread schema, member roles, time-lock primitive — in progress).
+- Stand up the marketing site at heirloom.blue — the warm light theme described in [THREAD.md UI standard](../THREAD.md#uiux-standard--pixel-perfect-not-good-enough). One page. The headline above. A single CTA: "Open a Thread." No pricing on the homepage; pricing lives on a separate page.
+- Stand up [`questions.heirloom.blue`](https://questions.heirloom.blue) — the SEO content moat. Programmatic landing pages generated by `marketing/automation/src/seo.ts`. 200+ pages within the first month, compounding from there.
+- Beehiiv newsletter, free tier. The first three issues are essays from the Founder, not product updates: (1) "Why we're building for a hundred years," (2) "What we're committing to about continuity," (3) "The first entry is the hardest." Goal: 1K subs in 30 days, 5K by day 90.
+- The autonomous content engine in `marketing/automation/` runs daily, queue-mode for now until app reviews land.
+- Apply for Meta Business app review, LinkedIn Developer app, Pinterest Developer app. Bluesky doesn't need review.
+- Set up Cloudflare Web Analytics (privacy-respecting; no GA, no Meta Pixel — that signals values to the audience).
+- Sign up Anthropic API ($3/mo), Pinata IPFS pinning ($20/mo), Web3.Storage (free tier), domain SSL. Total marketing/infra: under $50/mo at this stage.
 
-### Days 15–45: Warm-list build
+### Days 15–45 — Warm-list build, no public launch yet
 
-- Daily TikTok + Instagram Reels via the automation engine (themes below). Goal: 100K cumulative views, 3K followers.
-- Pinterest pin daily, leveraging the SEO moat. Goal: 100 pins, 50K monthly viewers.
-- Identify 80 micro-creators (10K–200K followers) in grief / family / grandparent niches. Reach out via DM with a personalized "I built this because…" pitch. Offer: $200/post + free lifetime Family plan + custom referral link.
-- Submit founder story to: WIRED (death tech beat), The Atlantic, NYT Styles, Fast Company, Modern Loss newsletter. Pitch human story, not features.
+- Daily content from the autonomous engine. Theme calendar in `marketing/automation/src/themes.ts` re-pointed at Thread positioning (see Phase 3.4 below).
+- Pinterest pin daily — high save rate in this niche, builds evergreen traffic.
+- Founder writes one Substack-style essay per week. Topics: continuity, generational asymmetry, why the category has failed, what a perpetual archive costs to operate. These are syndicated to the Beehiiv newsletter and posted as TikTok/Reels narration.
+- Outreach to 100 micro-creators in grief / family / aging-parents niches. Pitch is *not* "post about this product" — it's "we'll open a Thread for your family, free, lifetime, in exchange for one honest video about the experience." This selects for creators who actually use the thing. Goal: 25 yes responses.
 - Reddit narrative posts (carefully) on r/AskOldPeople, r/AgingParents, r/Genealogy, r/GriefSupport. Soft mentions only. No ads.
+- Apply to be covered by Modern Loss, Letters of Note, The Sunday Long Read, Anne Helen Petersen's *Culture Study*. Pitch: founder essay on the world-first concept.
 
-### Days 46–75: Creator wave
+### Days 46–75 — Creator wave, press embargo
 
-- 30 of the 80 creators post in a 3-week window. Stagger so something hits the algorithm every 1–2 days.
-- Reuse top-performing creator clips as **TikTok Spark Ads + Meta Advantage+** campaigns. Budget: $5K test, scale winners. Expected CPI for this audience: $4–8 install, $12–25 paid conversion.
-- Newsletter sponsorships: Letters of Note, Modern Loss, Anne Helen Petersen's *Culture Study*, The Sunday Long Read. CPM ~$40–80, expect 3–5x podcast conversion.
-- Beehiiv referral milestones launch: refer 3 → free month, refer 10 → free year, refer 25 → printed book at year-end.
+- 25 creators publish their honest videos in a 3-week window. We don't direct the message — they tell their family's experience. This is structurally different from paid creator marketing where everyone reads the same script.
+- Repurpose top organic clips as Meta Advantage+ campaigns once Meta app review lands. Budget cap: $5K test, scale winners.
+- Press embargo on a long-form piece. Pitch to: WIRED (death-tech beat), The Atlantic, NYT Styles, Fast Company. The angle is *not* "another memory app" — it's "the first product designed to outlive the company that built it" and "what does a 100-year UX commitment look like."
+- Two things land in the same week: the press piece + a Hacker News discussion (founder posts the architectural commitment essay). The HN discussion is the credibility pump for the technical audience.
 
-### Days 76–90: Product Hunt + press
+### Days 76–90 — Opening cohort
 
-- Product Hunt launch on a Tuesday or Wednesday (best traffic days). Goal: top 3 product of the day. Coordinate with hunters Chris Messina, Kevin William David, Aaron O'Leary.
-- Press embargo lifted same day. WIRED / Atlantic / Fast Company piece(s) drop.
-- Reddit AMA on r/AgingParents or r/GriefSupport, day-of.
-- Push paid amplification budget to $20K/mo, hold for 30 days, evaluate.
+- We don't do a Product Hunt launch in the standard sense. Product Hunt converts poorly for emotional categories and signals "another SaaS" to our audience. We do something different: an **Opening Cohort** of the first 100 Founder Threads, announced as a ceremony rather than a launch.
+- The Opening Cohort gets: $999 Founder pricing (lifetime), name engraved in the continuity record (a real, physical record that will be part of the successor non-profit's founding documents), and quarterly calls with the founder. Fixed at 100.
+- Members of the Opening Cohort become organic ambassadors. Most have 50–500 family/friend network reach. The first viral moment is when they tell their families.
+- AMA on r/AgingParents and a guest essay in Modern Loss the same week.
+- Paid amplification cap: $20K/mo, sustained for 60 days, then evaluated.
 
 ### Success criteria at day 90
 
-- 10K signups, 2K active weekly users.
-- 500 gift purchases ($49.5K rev).
-- 50 paid subscriptions ($500 MRR — small but predicts the curve).
 - 5K newsletter subs.
-- SEO: ranking for 30+ long-tail "questions to ask" queries.
-- Top 3 creator partnerships generating organic content month-over-month.
+- 200 active Threads (= families using the product).
+- 100 Founder pledges ($99,900 revenue, all funneled into the successor non-profit's seed fund).
+- SEO ranking on 30+ "questions to ask [relation]" long-tail queries.
+- 1 named press piece, 1 HN front-page discussion.
+- Beehiiv referrals running organically.
 
-If by day 90 you don't have ≥300 gift purchases, the wedge isn't working — pause paid, dig into the gift-flow funnel.
+If by day 90 we don't have ≥50 Founder pledges, the world-first positioning isn't landing. Don't escalate spend; investigate which part of the message isn't reaching the buyer.
 
 ---
 
-## 3. The Sustained Growth Loops (Months 4–12)
+## 3. Sustained Growth Loops
 
-Launch isn't growth. After day 90, the system needs to be self-perpetuating. Five compounding loops:
+Five loops, each compounding independently. The Thread architecture makes them stronger than they would be for any competitor.
 
-### Loop A — Gift-as-referral
+### Loop A — Multi-generational pull-in
 
-Every gift purchase pulls in 1 user (the giver) + 1 active user (the recipient) + 3–10 passive impressions (siblings, kids, friends who see the printed book at Thanksgiving). **This is the core loop. Optimize the gift flow above all else.**
+Every Thread has multiple authors and even more readers. When a Founder adds a member, that member typically adds 2–5 more (their kids, their siblings, their parents). After 12 months, an active Thread has 6–12 members. Each member is a ~4% conversion vector for opening their own Thread for *their* in-laws / parents / grandparents.
 
-Levers: gift-flow conversion rate, prompt-to-answer rate, year-end book opt-in rate, sibling-add prompt at end of year.
+This loop is not present in Storyworth (one buyer, one recipient, no further spread). It's the Thread's structural advantage.
 
-### Loop B — Email prompt loop (Storyworth's killer mechanic)
+Levers: invitation friction, member-onboarding clarity, the "open your own Thread" prompt at month 6 of an existing membership.
 
-Every Family-plan user (or gift recipient) gets a weekly question email. Answer rate at Storyworth is reportedly 40–60%. After 52 weeks, the answers compile into a book. We add voice + photo, which Storyworth doesn't.
+### Loop B — Time-lock virality
 
-Build status: scaffolding pending in Phase 2. This is the second-most-important thing after gift flow.
+A time-locked entry is a *future* delivery. When an author writes "for my granddaughter on her 18th birthday" and that day arrives — whether 5 or 20 years later — the recipient gets an email, opens a beautifully rendered, family-context-rich page, and reads something written for them by someone who isn't here anymore.
+
+That moment is share-worthy. Not in a marketing-funnel sense — in the sense that the recipient *will tell their family*. The Thread is *designed* to produce these moments at scale, distributed across the next 50 years.
+
+Storyworth produces a book; the book sits on a shelf. The Thread produces deliveries every year, forever.
 
 ### Loop C — SEO content moat
 
-200+ programmatic "questions to ask [relation] before [event]" pages. Compounds at ~10–15% MoM organic search growth for the first 18 months in this niche. Promptly Journals has 50K+/mo organic from this strategy. Generated by `marketing/automation/`.
+Same as before: 200+ programmatic "questions to ask [relation]" pages at `questions.heirloom.blue`, generated by `marketing/automation/src/seo.ts`, compounding at ~10–15% MoM organic for the first 18 months. This is straightforward and works. Repurpose the prompts also as Pinterest pins and YouTube Shorts.
 
-### Loop D — Seasonal peaks
+### Loop D — Continuity credibility
 
-Four annual peaks: **Mother's Day (May), Father's Day (June), Grandparents Day (Sept), Christmas (Dec).** Storyworth does 60%+ of revenue around these four. Plan 4-week paid pushes around each + dedicated landing pages.
+The "we will outlast the company" claim, when made specifically (IPFS pinning, successor non-profit, open-format export), generates inbound press, community trust, and a genuine moat. Every competitor's death is our marketing — *what if Heirloom does what they didn't?* We answer the question architecturally.
 
-Calendar baked into `marketing/automation/themes.ts`.
+Levers: publish the continuity audit dashboard publicly. Show pin status, snapshot counts, last verification time. Operating in the open is the proof.
 
-### Loop E — UGC + creator partnerships
+### Loop E — Annual artifact
 
-Once the brand has 6 months of organic content, creators come inbound. Maintain a $5–10K/mo creator budget for the top 20 partners. Repurpose the best clips as Spark Ads.
+The **Living Book** — a print-on-demand subset rendering of a Thread, via Lulu — is the family's artifact. Printed when requested (births, milestones, holidays), not annually like Storyworth. Each printing is also a viral moment because it shows up at family gatherings and people ask about it. Lulu integration: pure pay-per-print, no monthly cost.
 
----
-
-## 4. Channel Specifics
-
-### TikTok
-
-- Format: talking-head with voiceover-of-grandparent over family photos. The "questions to ask your grandma before she dies" tag has 500M+ cumulative views.
-- Cadence: 1/day from the brand account, 30/month from creator partners.
-- Expected CPM organic: $0. Expected CPM Spark Ads: $8–15. Expected CPI: $4–8.
-
-### Pinterest
-
-- Format: vertical 1000×1500 pin, "50 questions to ask your dad before it's too late" + branded footer. High save rate, evergreen traffic.
-- Cadence: 3/day, 90/month.
-- Expected: 50K monthly viewers within 6 months for a consistent poster.
-
-### Instagram Reels
-
-- Mirror the TikTok output. Expected reach is ~30% of TikTok in this niche.
-
-### YouTube Shorts
-
-- Repurpose all TikTok content. YouTube Shorts CPM is rising; worth posting.
-
-### YouTube long-form
-
-- Once a month: 15–30 min "I interviewed my [parent/grandparent]" video. Lower volume, very high intent. Drives email signups.
-
-### Newsletter (Beehiiv)
-
-- Weekly. Question of the week + one user story. Referral milestones are the growth lever.
-
-### Substack guest posts
-
-- Don't build your own Substack from zero. Guest-post or sponsor: Modern Loss, Letters of Note, Anne Helen Petersen, grief writers.
-
-### Reddit
-
-- Organic narrative posts only, never ads. Subs: r/AskOldPeople, r/GriefSupport, r/Genealogy, r/AgingParents, r/Parenting.
-
-### Twitter/X
-
-- Lowest priority. Use for press relays + founder thought leadership only. Don't optimize.
-
-### LinkedIn
-
-- B2B2C only. Reach out to estate planners, hospice orgs, funeral homes, financial advisors. Empathy went hard here with insurance partnerships (MetLife, NY Life).
-
-### Facebook
-
-- Boomer audience for Meta ads. Family-history Facebook groups (with permission) for organic.
-
-### Meta paid
-
-- 60–70% of paid budget. Advantage+ campaigns + Spark Ads boosting top organic creator content.
-
-### Google Search
-
-- 20–30% of paid budget. Bid on "gift for parents," "gift for grandparents," "interview my [relation]," "Mother's Day gift," etc.
+Note: the artifact is downstream of the archive, not the headline. Don't market the book as the product. Market the Thread; the book is the thing that comes out of it.
 
 ---
 
-## 5. The Autonomous Content Engine
+## 4. The Autonomous Content Engine
 
-Two layers, both already built in this repo:
+Two layers, both already in this repo:
 
-### Layer A — Existing Postiz scheduler (`cloudflare/worker/src/crons/social-posting.ts`)
+### Layer A — Postiz scheduler (existing)
 
-A Cloudflare Worker cron runs every 5 minutes, picks up posts from the D1 `social_posts` table, and ships them via a Postiz instance. Pre-written week-N.json content is bulk-loaded by week. This is the production scheduling/publishing layer — **don't touch it**, hand off content to it.
+`cloudflare/worker/src/crons/social-posting.ts` runs every 5 minutes, picks up scheduled posts from the D1 `social_posts` table, ships them via Postiz. Free, self-hostable. Already wired into the worker's cron config. We don't touch this.
 
-### Layer B — New Claude content generator (`marketing/automation/`)
+### Layer B — Claude content generator (new)
 
-Daily content generator that produces brand-voiced source posts + per-platform variants from the 52-week theme calendar. Replaces the static week-N.json approach with dynamic generation.
+`marketing/automation/` produces brand-voiced source posts + per-platform variants from the 52-week theme calendar.
 
-Architecture:
+- `themes.ts`: 52-week rolling calendar + 4 seasonal overrides (Mother's / Father's / Grandparents / Christmas).
+- `voice.ts`: brand voice guidelines, updated for Thread positioning.
+- `generate.ts` / `variants.ts`: Sonnet 4.6, ~$3/mo at our volume.
+- `post.ts`: direct platform APIs (Meta / LinkedIn / Pinterest / Bluesky — free) + queue-mode fallback (TikTok / X / Threads / YT Shorts).
+- `seo.ts`: `questions.heirloom.blue` static-site generator.
 
-1. **Themes** (`themes.ts`): 52-week rolling calendar + 4 seasonal overrides (Mother's / Father's / Grandparents / Christmas).
-2. **Generation** (`generate.ts`): Sonnet 4.6 produces one source post per day in the brand voice from `voice.ts`.
-3. **Variants** (`variants.ts`): single Sonnet 4.6 call produces 6–10 platform variants.
-4. **Posting** (`post.ts`): direct platform APIs (Meta / LinkedIn / Pinterest / Bluesky — all free) + queue-mode fallback (TikTok / X / Threads / YT Shorts → operator pastes from webhook).
-5. **Orchestration** (`run.ts`): single CLI, daily cron via GitHub Actions.
+The two layers will integrate in Phase 3.4: Layer B writes generated variants into the D1 `social_posts` table via the existing `/api/social/bulk-load` admin route; Layer A's cron picks them up.
 
-### Integration plan (next phase)
-
-Layer B should hand off to Layer A: instead of `post.ts` calling platform APIs directly, write generated variants to the D1 `social_posts` table via the existing `/api/social/bulk-load` admin route. Then Layer A's cron picks them up and publishes via Postiz. Single posting pipeline, two content sources.
-
-Cost: ~$3/mo (Anthropic Sonnet only). Operator time: ~5 min/day for queue-mode platforms (TikTok, X) until app reviews land.
+Cost: ~$3/mo (Anthropic Sonnet only). Operator time once running: ~5 min/day for queue-mode platforms (TikTok, X) until app reviews land.
 
 ---
 
-## 6. What to stop doing
-
-Things in the current setup that should stop:
-
-- **Stop calling it a 14-day free trial.** It's a free plan with optional premium. (Done in Phase 1.)
-- **Stop deleting trial-expiry content.** (Done in Phase 1.)
-- **Stop fabricating trust signals** ("10K+ Families," "SOC 2 Type II Compliant"). Replace with truthful ones or remove. (Done in Phase 1.)
-- **Stop building features.** The product has 25+ pages. Cut to the core loop until the gift flow converts.
-- **Stop leading with encryption.** It's a trust feature, not a sales argument. Move it to the FAQ.
-- **Stop the "death planning" frame.** Until the gift wedge is profitable, posthumous delivery is a footer trust signal, not a hero.
-- **Stop the funeral-goth visual identity in marketing.** Keep it in the logged-in app. Marketing surface needs warmth.
-
----
-
-## 7. Decisions made
+## 5. Decisions made
 
 1. **Domain**: heirloom.blue.
 2. **API budget**: ~$3/mo (Sonnet 4.6) + free direct platform APIs. No Ayrshare, no Bannerbear.
-3. **Print-on-demand**: Lulu Direct API (no MOQ, hardcover, white-label fulfillment).
-4. **Email prompt loop**: extend existing nodemailer/SMTP stack — no new vendor.
-5. **Visual**: keep dark-gold for the logged-in app; warm light theme via CSS variable override on marketing/gift surfaces (single domain, two voices).
-6. **Creator budget**: $5K for first wave (25 micro-creators × $200) — operator action, not a code change.
+3. **Print-on-demand**: Lulu Direct API (no MOQ, hardcover, white-label).
+4. **Email infrastructure**: existing Resend integration in cloudflare/worker — no new vendor.
+5. **Visual**: dark-gold for the logged-in archive, warm-light for marketing surfaces. Single domain, two themes via CSS variables.
+6. **Pricing model**: per-family, not per-user. Free / Family $15/mo / Founder $999 lifetime.
+7. **Continuity stack**: Pinata + Web3.Storage + R2 archival, plus a Delaware 501(c)(3) successor non-profit incorporated within 12 months of public launch.
+8. **Creator strategy**: free Founder Threads in exchange for honest video, not paid posts.
 
-## 8. What still needs to be built (Phase 3)
+## 6. Phase 3 build status
 
-Most gift/social infrastructure already exists in `cloudflare/worker/`:
-- `routes/gift-vouchers.ts` — gift voucher purchase + redemption
-- `routes/gifts-v2.ts` — send memory as gift (viral loop)
-- `routes/social.ts` + `crons/social-posting.ts` — Postiz-backed scheduling
-- `routes/marketing.ts` — marketing endpoints
-- `routes/recipient-experience.ts` — recipient flow
-- `routes/story-artifacts.ts` — keepsake output products
+What's been built (this branch, `pivot/adoption-fixes`):
+- Phase 1: free tier permanent + usable, no content deletion, copy fixes, fabricated trust signals removed.
+- Phase 2: autonomous content engine + SEO moat generator + GitHub Actions cron.
+- Phase 2.5: free-mode automation (Sonnet 4.6, direct platform APIs, queue fallback) + heirloom.blue domain.
+- Phase 3.1: `THREAD.md` architectural premise.
+- Phase 3.2: `cloudflare/migrations/0036_family_thread.sql` Thread schema.
 
-What's still missing for the gift-as-wedge playbook:
+What's next:
+- 3.3: Update brand voice + Landing copy to Thread positioning.
+- 3.4: Wire `marketing/automation/` output into D1 `social_posts` queue (Layer B → Layer A integration).
+- 3.5: Thread routes scaffold (`cloudflare/worker/src/routes/threads.ts`).
+- 3.6: Thread frontend — pixel-perfect to the standard in [THREAD.md UI section](../THREAD.md#uiux-standard--pixel-perfect-not-good-enough).
+- 3.7: Time-lock cron — daily job that resolves DATE-locks and AGE-locks.
+- 3.8: Pinata IPFS pinning service for archive_pins.
+- 3.9: Lulu Direct integration for the Living Book.
+- 3.10: Founder pledge purchase flow (extending existing gift-vouchers infra).
 
-1. **Story-prompt loop for gift recipients** — weekly question email triggered when someone redeems a gift voucher. Storyworth's killer mechanic. Build on top of existing gift-vouchers redemption hook.
-2. **Lulu Direct integration** — year-end book printing service that compiles a recipient's prompt responses into a hardcover. Pure pay-per-print, no monthly cost.
-3. **"Year of stories" gift product** — a specific gift-voucher SKU positioned as "give a year of weekly story prompts + the printed book." Copy + tier addition.
-4. **Layer A ↔ Layer B integration** — wire `marketing/automation/` output into the existing `social_posts` D1 queue via the `/api/social/bulk-load` route.
-5. **Onboarding rewrite** — defer encryption setup + dead-man-switch until after first action.
+Each is its own commit. None ships until it meets the UI/UX bar.
