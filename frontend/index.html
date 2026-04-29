@@ -3,19 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Heirloom" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Newsreader: optical-sized variable serif. Sized for prose, not decoration.
-         Inter: humanist UI sans.
-         JetBrains Mono: archival timestamps + member-numbers. -->
+    <!-- Newsreader: optical-sized variable serif. Inter: humanist UI sans.
+         JetBrains Mono: archival timestamps + member numbers. -->
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes" />
     <meta name="description" content="Heirloom — the family thread that outlives all of us. Append-only, multi-generational, time-locked." />
-    <meta name="theme-color" content="#0e0e0c" />
+    <meta name="theme-color" content="#0e0e0c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0e0e0c" media="(prefers-color-scheme: light)" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:title" content="Heirloom — your family's thousand-year thread" />
+    <meta property="og:description" content="Write today. Lock entries for descendants who don't exist yet. The thread continues after you, after us, after the company." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://heirloom.blue/" />
+    <meta property="og:image" content="https://heirloom.blue/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>Heirloom — your family's thousand-year thread</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // PWA service worker registration. Only on https or localhost.
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {
+            /* registration failure is non-blocking */
+          });
+        });
+      }
+    </script>
   </body>
 </html>
