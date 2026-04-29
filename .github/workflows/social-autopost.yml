@@ -60,6 +60,11 @@ jobs:
           BLUESKY_HANDLE: ${{ vars.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
           QUEUE_WEBHOOK_URL: ${{ secrets.QUEUE_WEBHOOK_URL }}
+          # Layer B → Layer A handoff. When set, the daily generator POSTs
+          # variants to the worker queue, which Postiz then publishes. See
+          # marketing/PLAYBOOK.md §4.
+          HEIRLOOM_API_URL: ${{ vars.HEIRLOOM_API_URL || 'https://api.heirloom.blue' }}
+          HEIRLOOM_ADMIN_TOKEN: ${{ secrets.HEIRLOOM_ADMIN_TOKEN }}
           PLATFORMS: ${{ vars.PLATFORMS || 'instagram,tiktok,pinterest,facebook,linkedin,x' }}
         run: npm run ${{ github.event.inputs.mode || 'daily' }}
 
