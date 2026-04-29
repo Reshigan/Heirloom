@@ -1,7 +1,12 @@
 # Heirloom - Cloudflare Workers Configuration
 # https://heirloom.blue
 
-name = "heirloom-api"
+# IMPORTANT: name MUST match the worker bound to api.heirloom.blue/*.
+# That binding (per /zones/.../workers/routes) is on script "heirloom",
+# not "heirloom-api". Earlier deploys uploaded to "heirloom-api" — a
+# parallel worker with no route — which is why production never picked
+# up changes from this branch. See DEPLOY.md and the Phase-15 commit.
+name = "heirloom"
 main = "worker/src/index.ts"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
@@ -75,7 +80,7 @@ ADMIN_NOTIFICATION_EMAIL = "reshigan@vantax.co.za"
 # ============================================
 
 [env.staging]
-name = "heirloom-api-staging"
+name = "heirloom-staging"
 vars = { ENVIRONMENT = "staging", APP_URL = "https://staging.heirloom.blue" }
 
 [[env.staging.d1_databases]]
@@ -92,7 +97,7 @@ binding = "KV"
 id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 [env.development]
-name = "heirloom-api-dev"
+name = "heirloom-dev"
 vars = { ENVIRONMENT = "development", APP_URL = "http://localhost:3000" }
 
 # ============================================
