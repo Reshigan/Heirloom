@@ -28,6 +28,7 @@ import { Threads } from './pages/Threads';
 import { ThreadDetail } from './pages/ThreadDetail';
 import { CreatorProgram } from './pages/CreatorProgram';
 import { Influencer } from './pages/Influencer';
+import { Founder } from './pages/Founder';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,6 +86,9 @@ export default function App() {
           {/* Public creator program — drives the influencer wedge described
               in marketing/PLAYBOOK.md §3 Loop A. */}
           <Route path="/creators" element={<CreatorProgram />} />
+          {/* Founder pledge — first 100 families, $999 lifetime, funds the
+              successor non-profit. See THREAD.md Pillar 5. */}
+          <Route path="/founder" element={<Founder />} />
           <Route
             path="/login"
             element={

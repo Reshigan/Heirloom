@@ -53,6 +53,7 @@ import { processArchivePinning } from './crons/archive-pinning';
 import { archiveRoutes } from './routes/archive';
 import { bookOrderRoutes, bookOrderProtectedRoutes } from './routes/books';
 import { syncOpenPrintJobs } from './services/book';
+import { founderRoutes } from './routes/founders';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram, enrichPlaceholderEmails } from './jobs/adoption-jobs';
@@ -318,6 +319,8 @@ app.route('/api/partner', partnerRoutes);
 app.route('/api/archive', archiveRoutes);
 // Lulu Direct webhook (no auth — uses HMAC signature instead).
 app.route('/api/book-orders', bookOrderRoutes);
+// Founder pledge intake — public form, idempotent on email.
+app.route('/api/founders', founderRoutes);
 
 // Public contact form endpoint (rate limited to prevent abuse)
 app.post('/api/contact', async (c) => {
