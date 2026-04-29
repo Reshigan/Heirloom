@@ -711,11 +711,9 @@ const PUBLIC_API_PREFIXES = [
   '/api/book-orders/webhook', // Lulu webhook (HMAC verified)
 ];
 
-// JWT middleware for protected routes
+// JWT middleware for protected routes.
+// Bypass version: v3 (debug — uses absolute URL pathname).
 protectedApp.use('*', async (c, next) => {
-  // Check every path form Hono might give us inside a mounted sub-app:
-  // c.req.path can be relative (with /api stripped), c.req.url is the
-  // full URL string. Match against both with and without /api prefix.
   const reqPath = c.req.path;
   const urlPath = (() => {
     try { return new URL(c.req.url).pathname; } catch { return reqPath; }
@@ -732,6 +730,11 @@ protectedApp.use('*', async (c, next) => {
   }
 
   const authHeader = c.req.header('Authorization');
+  // Debug: stamp every Unauthorized response so we can confirm
+  // which build is serving (delete once verified).
+  c.header('X-Heirloom-Auth-Bypass', 'v3');
+  c.header('X-Heirloom-Path-Seen', reqPath);
+  c.header('X-Heirloom-URL-Seen', urlPath);
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return c.json({ error: 'Unauthorized' }, 401);
