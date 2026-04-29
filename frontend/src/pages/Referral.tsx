@@ -47,7 +47,7 @@ export function Referral() {
   });
 
   const referralCode = referralData?.code || '';
-  const referralLink = `https://heirloom.app/ref/${referralCode}`;
+  const referralLink = `https://heirloom.blue/ref/${referralCode}`;
   const stats = referralData?.stats || { clicks: 0, signups: 0, conversions: 0, rewardsEarned: 0 };
   const referrals = referralsData?.referrals || [];
 

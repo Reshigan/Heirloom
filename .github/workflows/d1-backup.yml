@@ -29,8 +29,7 @@ jobs:
 
       - name: Create backup
         env:
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           # Generate backup filename with timestamp
@@ -40,10 +39,9 @@ jobs:
           echo "Creating D1 backup: $BACKUP_FILE"
           
           # Export D1 database to SQL
-          # Note: This requires CLOUDFLARE_API_KEY and CLOUDFLARE_EMAIL secrets to be set
+          # Requires CLOUDFLARE_API_TOKEN (scoped) and CLOUDFLARE_ACCOUNT_ID secrets.
           wrangler d1 export heirloom-db --output="$BACKUP_FILE" || {
-            echo "Warning: D1 export failed. This may be due to missing API credentials."
-            echo "Please ensure CLOUDFLARE_API_KEY and CLOUDFLARE_EMAIL secrets are set."
+            echo "Warning: D1 export failed. Verify CLOUDFLARE_API_TOKEN has D1 Write permission."
             exit 0
           }
           
@@ -55,8 +53,7 @@ jobs:
 
       - name: Upload to R2 (if configured)
         env:
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           if [ -f "$BACKUP_FILE" ]; then
@@ -78,8 +75,7 @@ jobs:
 
       - name: Cleanup old backups in R2
         env:
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           echo "Cleaning up backups older than 30 days..."

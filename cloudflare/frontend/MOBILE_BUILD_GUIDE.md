@@ -90,7 +90,7 @@ Replace the placeholder icons in `ios/App/App/Assets.xcassets/AppIcon.appiconset
 
 In App Store Connect (https://appstoreconnect.apple.com):
 
-1. Create a new app with bundle ID: `blue.heirloom.app`
+1. Create a new app with bundle ID: `blue.heirloom.blue`
 2. Fill in app information:
    - App Name: Heirloom
    - Subtitle: Preserve Your Family Legacy
@@ -189,13 +189,13 @@ Content:
     "apps": [],
     "details": [
       {
-        "appID": "TEAM_ID.blue.heirloom.app",
+        "appID": "TEAM_ID.blue.heirloom.blue",
         "paths": ["/gift/redeem/*", "/gold/redeem/*", "/verify-email/*", "/reset-password/*", "/inherit/*", "/referral/*", "/memory-cards/*", "/memorial/*", "/streaks", "/challenges"]
       }
     ]
   },
   "webcredentials": {
-    "apps": ["TEAM_ID.blue.heirloom.app"]
+    "apps": ["TEAM_ID.blue.heirloom.blue"]
   }
 }
 ```
@@ -214,7 +214,7 @@ Content:
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "blue.heirloom.app",
+      "package_name": "blue.heirloom.blue",
       "sha256_cert_fingerprints": ["YOUR_SHA256_FINGERPRINT"]
     }
   }

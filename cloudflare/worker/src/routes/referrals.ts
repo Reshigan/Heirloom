@@ -84,7 +84,7 @@ referralRoutes.get('/my-code', async (c) => {
   
   return c.json({
     code: referralCode?.code,
-    referralLink: `https://heirloom.app/ref/${referralCode?.code}`,
+    referralLink: `https://heirloom.blue/ref/${referralCode?.code}`,
     rewards: {
       referrerRewardType: referralCode?.referrer_reward_type,
       referrerRewardValue: referralCode?.referrer_reward_value,
@@ -154,7 +154,7 @@ referralRoutes.post('/customize-code', async (c) => {
   return c.json({ 
     success: true, 
     code: newCode,
-    referralLink: `https://heirloom.app/ref/${newCode}`,
+    referralLink: `https://heirloom.blue/ref/${newCode}`,
   });
 });
 

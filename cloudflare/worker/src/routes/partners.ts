@@ -423,7 +423,7 @@ partnerRoutes.get('/dashboard', partnerAuth, async (c) => {
       contactName: partner.contact_name,
       contactEmail: partner.contact_email,
       partnerCode: partner.partner_code,
-      qrLandingPage: `https://heirloom.app/p/${partner.partner_code}`,
+      qrLandingPage: `https://heirloom.blue/p/${partner.partner_code}`,
       wholesaleDiscount: partner.wholesale_discount_percent,
       referralCommission: partner.referral_commission_percent,
       status: partner.status,

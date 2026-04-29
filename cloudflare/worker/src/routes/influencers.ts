@@ -365,7 +365,7 @@ influencerRoutes.get('/dashboard', influencerAuth, async (c) => {
       tier: influencer.tier,
       discountCode: influencer.discount_code,
       discountPercent: influencer.discount_percent,
-      landingPageUrl: `https://heirloom.app/ref/${influencer.landing_page_slug}`,
+      landingPageUrl: `https://heirloom.blue/ref/${influencer.landing_page_slug}`,
       status: influencer.status,
     },
     stats: {

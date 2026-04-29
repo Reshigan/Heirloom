@@ -45,6 +45,8 @@
   "nav": {
     "home": "Home",
     "vault": "Vault",
+    "threads": "Threads",
+    "inbox": "Inbox",
     "dashboard": "Dashboard",
     "memories": "Memories",
     "write": "Write",
@@ -77,10 +79,10 @@
       "rememberMe": "Remember me",
       "noAccount": "Don't have an account?",
       "hasAccount": "Already have an account?",
-      "createAccount": "Create Account",
+      "createAccount": "Open your family's thread",
       "welcomeBack": "Welcome back",
-      "loginSubtitle": "Sign in to continue preserving your family's legacy",
-      "signupSubtitle": "Start preserving your family's precious memories today",
+      "loginSubtitle": "Sign in to your thread.",
+      "signupSubtitle": "30 seconds to open it. The first entry can be one sentence.",
       "firstName": "First Name",
       "lastName": "Last Name",
       "termsAgree": "I agree to the Terms of Service and Privacy Policy",
@@ -90,13 +92,14 @@
     },
     "landing": {
       "hero": {
-        "title": "Preserve Your Family's",
-        "titleLine2": "Most Precious",
-        "titleHighlight": "Memories",
-        "subtitle": "Create lasting memories, write heartfelt letters, and build a digital heirloom for generations to come.",
-        "cta": "Start Your Legacy",
-        "ctaSecondary": "Learn More",
-        "trial": "14-day free trial • No credit card required"
+        "title": "Start your family's",
+        "titleLine2": "thousand-year",
+        "titleHighlight": "thread",
+        "subtitle": "Write today. Lock entries for descendants who don't exist yet. Read what came before. The thread continues after you, after us, after the company.",
+        "cta": "Open a thread",
+        "ctaSecondary": "How it works",
+        "learnMore": "How it works",
+        "trial": "Free forever • No card needed • Your archive outlives the company"
       },
     "features": {
       "title": "Everything You Need to Preserve Memories",

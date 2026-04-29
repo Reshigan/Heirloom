@@ -5,8 +5,8 @@ This document contains all the metadata, descriptions, and compliance informatio
 ## App Identity
 
 **App Name:** Heirloom
-**Bundle ID (iOS):** blue.heirloom.app
-**Package Name (Android):** blue.heirloom.app
+**Bundle ID (iOS):** blue.heirloom.blue
+**Package Name (Android):** blue.heirloom.blue
 **Version:** 1.1.0
 **Build Number:** 2
 
@@ -391,7 +391,7 @@ Host at: `https://heirloom.blue/.well-known/apple-app-site-association`
     "apps": [],
     "details": [
       {
-        "appID": "TEAM_ID.blue.heirloom.app",
+        "appID": "TEAM_ID.blue.heirloom.blue",
         "paths": [
           "/gift/redeem/*",
           "/gold/redeem/*",
@@ -408,7 +408,7 @@ Host at: `https://heirloom.blue/.well-known/apple-app-site-association`
     ]
   },
   "webcredentials": {
-    "apps": ["TEAM_ID.blue.heirloom.app"]
+    "apps": ["TEAM_ID.blue.heirloom.blue"]
   }
 }
 ```
@@ -425,7 +425,7 @@ Host at: `https://heirloom.blue/.well-known/assetlinks.json`
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "blue.heirloom.app",
+      "package_name": "blue.heirloom.blue",
       "sha256_cert_fingerprints": ["YOUR_SHA256_FINGERPRINT"]
     }
   }

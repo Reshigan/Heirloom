@@ -56,7 +56,7 @@ export function AdminLogin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="input pl-10"
-                placeholder="admin@heirloom.app"
+                placeholder="admin@heirloom.blue"
                 required
               />
             </div>

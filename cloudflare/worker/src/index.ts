@@ -44,12 +44,19 @@ import { socialImportRoutes } from './routes/social-import';
 import { exportRoutes } from './routes/export';
 import { capsulesRoutes } from './routes/capsules';
 import { giftsV2Routes, giftsV2ProtectedRoutes } from './routes/gifts-v2';
+import { threadsRoutes } from './routes/threads';
 import { engagementV2Routes } from './routes/engagement-v2';
 import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
+import { resolveTimeLocks } from './crons/time-locks';
+import { processArchivePinning } from './crons/archive-pinning';
+import { archiveRoutes } from './routes/archive';
+import { bookOrderRoutes, bookOrderProtectedRoutes } from './routes/books';
+import { syncOpenPrintJobs } from './services/book';
+import { founderRoutes } from './routes/founders';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
 import { sendEmail } from './utils/email';
-import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts } from './jobs/adoption-jobs';
+import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram, enrichPlaceholderEmails } from './jobs/adoption-jobs';
 import { processPushNotificationQueue, cleanupOldNotifications } from './services/pushSender';
 
 // Types
@@ -308,6 +315,12 @@ app.route('/api/gift-vouchers', giftVoucherRoutes);
 app.route('/api/referral', referralRoutes);
 app.route('/api/influencer', influencerRoutes);
 app.route('/api/partner', partnerRoutes);
+// Public continuity audit — anyone can see pin status. THREAD.md Pillar 5.
+app.route('/api/archive', archiveRoutes);
+// Lulu Direct webhook (no auth — uses HMAC signature instead).
+app.route('/api/book-orders', bookOrderRoutes);
+// Founder pledge intake — public form, idempotent on email.
+app.route('/api/founders', founderRoutes);
 
 // Public contact form endpoint (rate limited to prevent abuse)
 app.post('/api/contact', async (c) => {
@@ -749,6 +762,13 @@ protectedApp.route('/capsules', capsulesRoutes);
 protectedApp.route('/engagement', engagementV2Routes);
 protectedApp.route('/gifts', giftsV2ProtectedRoutes);
 
+// The Family Thread — world-first multi-generational archive primitive.
+// See /THREAD.md and /cloudflare/migrations/0036_family_thread.sql.
+protectedApp.route('/threads', threadsRoutes);
+// Living Book ordering (mounts under /api so paths are /api/threads/:id/book
+// and /api/book-orders/:id). Webhook is public, see app.route() above.
+protectedApp.route('/', bookOrderProtectedRoutes);
+
 app.route('/api', protectedApp);
 
 // ============================================
@@ -823,6 +843,31 @@ export default {
       console.log('Discovering new influencers from viral list...');
       const discoveryResult = await discoverNewProspects(env);
       console.log(`Influencers discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
+
+      // Real platform discovery — no-ops if API keys aren't configured.
+      // See REGISTRATION.md for the manual setup runbook.
+      console.log('Discovering creators on TikTok…');
+      const tiktokResult = await discoverFromTikTok(env);
+      console.log(`TikTok: ${tiktokResult.added} added, ${tiktokResult.skipped} skipped${tiktokResult.reason ? ` (${tiktokResult.reason})` : ''}`);
+
+      console.log('Discovering creators on Instagram…');
+      const igResult = await discoverFromInstagram(env);
+      console.log(`Instagram: ${igResult.added} added, ${igResult.skipped} skipped${igResult.reason ? ` (${igResult.reason})` : ''}`);
+
+      // Re-scan public bios of prospects we couldn't find an email for at
+      // discovery time. Many creators add a contact email later as their
+      // account grows; this upgrades placeholder rows to real addresses
+      // before outreach fires.
+      console.log('Enriching placeholder emails from public bios…');
+      const enrichResult = await enrichPlaceholderEmails(env);
+      console.log(`Bio enrichment: ${enrichResult.upgraded} upgraded, ${enrichResult.stillPlaceholder} still placeholder`);
+
+      // Family-Thread time-lock resolution. Releases entries whose DATE,
+      // AGE, or GENERATION conditions have matured. AUTHOR_DEATH and
+      // RECIPIENT_EVENT locks have separate verification flows.
+      console.log('Resolving Thread time-locks…');
+      const lockResult = await resolveTimeLocks(env);
+      console.log(`Time-locks resolved — date:${lockResult.resolvedDate} age:${lockResult.resolvedAge} gen:${lockResult.resolvedGeneration} notifications:${lockResult.notifications}`);
       
       console.log('Processing influencer outreach...');
       const influencerResult = await processInfluencerOutreach(env);
@@ -849,18 +894,30 @@ export default {
     } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
       // ========== WEEKLY JOBS (Sunday midnight UTC) ==========
       console.log('Running weekly jobs...');
-      
+
       // Dead Man's Switch weekly reminders
       await sendReminderEmails(env);
-      
+
       // Weekly engagement nudges
       await sendPostReminderEmails(env);
-      
+
       // Weekly content prompts for active users
       console.log('Sending weekly content prompts...');
       const promptResult = await sendContentPrompts(env);
       console.log(`Content prompts sent: ${promptResult.sent}`);
-      
+
+      // Family-Thread continuity guarantee: weekly snapshot pinning to IPFS
+      // via Web3.Storage + Pinata. No-op for any provider whose token isn't
+      // configured. See /THREAD.md Pillar 5.
+      console.log('Pinning Thread snapshots to IPFS…');
+      const pinResult = await processArchivePinning(env);
+      console.log(`Archive pinning — pinned:${pinResult.pinned} failed:${pinResult.failed} verified:${pinResult.verified} verifyFailed:${pinResult.verifyFailed}`);
+
+      // Lulu Direct backstop — sync open print jobs in case webhook is down.
+      console.log('Syncing open Lulu print jobs…');
+      const luluResult = await syncOpenPrintJobs(env);
+      console.log(`Lulu sync: ${luluResult.updated} orders updated`);
+
       console.log('Weekly jobs complete.');
       
     } else if (cronType === '0 */12 * * *') {

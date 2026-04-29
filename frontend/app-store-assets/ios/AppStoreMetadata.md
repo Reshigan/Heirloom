@@ -5,7 +5,7 @@
 ### Basic Info
 - **App Name:** Heirloom
 - **Subtitle:** Your Memories, Forever
-- **Bundle ID:** blue.heirloom.app
+- **Bundle ID:** blue.heirloom.blue
 - **SKU:** HEIRLOOM001
 - **Primary Language:** English (U.S.)
 - **Category:** Lifestyle
@@ -94,7 +94,7 @@ https://heirloom.blue/privacy
 - **Email:** reshigan@vantax.co.za
 
 ### Demo Account
-- **Username:** demo@heirloom.app
+- **Username:** demo@heirloom.blue
 - **Password:** demo123456
 
 ### Notes for Review

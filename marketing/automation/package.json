@@ -1,0 +1,26 @@
+{
+  "name": "heirloom-marketing-automation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Autonomous content generation + multi-platform posting for Heirloom. Runs daily via GitHub Actions. See ../PLAYBOOK.md.",
+  "type": "module",
+  "scripts": {
+    "generate": "tsx src/run.ts generate",
+    "post": "tsx src/run.ts post",
+    "daily": "tsx src/run.ts daily",
+    "preview": "tsx src/run.ts preview",
+    "metrics": "tsx src/run.ts metrics",
+    "seo:build": "tsx src/seo.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.91.0",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

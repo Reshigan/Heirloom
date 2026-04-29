@@ -500,4 +500,157 @@ export const exportApi = {
   getExportHistory: () => api.get('/export/history'),
 };
 
+// =============================================================================
+// THE FAMILY THREAD — world-first multi-generational archive primitive
+// See /THREAD.md and cloudflare/worker/src/routes/threads.ts
+// =============================================================================
+
+export type ThreadVisibility = 'PRIVATE' | 'FAMILY' | 'DESCENDANTS' | 'HISTORIAN';
+export type ThreadRole = 'FOUNDER' | 'SUCCESSOR' | 'AUTHOR' | 'READER' | 'PLACEHOLDER';
+export type LockType = 'DATE' | 'AGE' | 'AUTHOR_DEATH' | 'RECIPIENT_EVENT' | 'GENERATION';
+
+export interface Thread {
+  id: string;
+  name: string;
+  dedication: string | null;
+  default_visibility: ThreadVisibility;
+  plan: 'FREE' | 'FAMILY' | 'FOUNDER';
+  status: 'ACTIVE' | 'FROZEN' | 'ARCHIVED';
+  role?: ThreadRole;
+  generation_offset?: number;
+  entry_count?: number;
+  member_count?: number;
+  created_at: string;
+}
+
+export interface ThreadMember {
+  id: string;
+  display_name: string;
+  email: string | null;
+  relation_label: string | null;
+  role: ThreadRole;
+  age_gate_years: number | null;
+  target_role: 'AUTHOR' | 'READER' | null;
+  generation_offset: number;
+  parent_member_id: string | null;
+  granted_at: string;
+}
+
+export interface ThreadEntry {
+  id: string;
+  thread_id: string;
+  author_member_id: string;
+  title: string | null;
+  body_ciphertext: string | null;
+  body_iv: string | null;
+  body_auth_tag: string | null;
+  voice_recording_id: string | null;
+  memory_id: string | null;
+  visibility: ThreadVisibility;
+  era_label: string | null;
+  era_year: number | null;
+  mutable_until: string;
+  pending_lock: LockType | null;
+  tags_json: string | null;
+  created_at: string;
+}
+
+export interface CreateEntryInput {
+  title?: string;
+  body_ciphertext?: string;
+  body_iv?: string;
+  body_auth_tag?: string;
+  voice_recording_id?: string;
+  memory_id?: string;
+  visibility?: ThreadVisibility;
+  era_label?: string;
+  era_year?: number;
+  tags?: { type: 'PERSON' | 'PLACE' | 'DATE' | 'ERA' | 'TOPIC'; label: string; member_id?: string; year_value?: number }[];
+  unlock?: {
+    lock_type: LockType;
+    unlock_date?: string;
+    age_years?: number;
+    target_member_id?: string;
+    event_label?: string;
+    target_generation?: number;
+    encrypted_key: string;
+  };
+}
+
+export const threadsApi = {
+  list: () => api.get<{ threads: Thread[] }>('/threads'),
+  get: (id: string) => api.get<{ thread: Thread; membership: ThreadMember }>(`/threads/${id}`),
+  create: (data: { name: string; dedication?: string; default_visibility?: ThreadVisibility }) =>
+    api.post<{ thread: Thread; membership: { id: string; role: ThreadRole } }>('/threads', data),
+
+  members: (id: string) => api.get<{ members: ThreadMember[] }>(`/threads/${id}/members`),
+  addMember: (
+    id: string,
+    data: {
+      display_name: string;
+      email?: string;
+      relation_label?: string;
+      role: Exclude<ThreadRole, 'FOUNDER'>;
+      age_gate_years?: number;
+      target_role?: 'AUTHOR' | 'READER';
+      birth_date?: string;
+      parent_member_id?: string;
+      generation_offset?: number;
+    },
+  ) => api.post<{ member: { id: string; role: ThreadRole; display_name: string } }>(`/threads/${id}/members`, data),
+
+  entries: (id: string, params?: { ancestor?: string; era?: string; limit?: number; offset?: number }) =>
+    api.get<{ entries: ThreadEntry[] }>(`/threads/${id}/entries`, { params }),
+  createEntry: (id: string, data: CreateEntryInput) =>
+    api.post<{ entry: { id: string; visibility: ThreadVisibility; mutable_until: string } }>(`/threads/${id}/entries`, data),
+  comment: (threadId: string, entryId: string, data: { ciphertext: string; iv: string; auth_tag: string }) =>
+    api.post<{ comment: { id: string } }>(`/threads/${threadId}/entries/${entryId}/comments`, data),
+
+  successors: (id: string) => api.get(`/threads/${id}/successors`),
+  designateSuccessor: (id: string, data: { successor_member_id: string; rank?: number }) =>
+    api.post(`/threads/${id}/successors`, data),
+
+  starterPrompts: (params?: { audience?: string; category?: string }) =>
+    api.get<{ prompts: { id: string; prompt_text: string; category: string; suggested_audience: string }[] }>(
+      '/threads/starter-prompts',
+      { params },
+    ),
+
+  // Time-Locked Inbox — entries waiting to open + entries that just opened.
+  // Across every thread the caller is a member of.
+  inboxUpcoming: (days = 90) =>
+    api.get<{
+      upcoming: {
+        unlock_id: string;
+        lock_type: LockType;
+        unlock_date: string | null;
+        age_years: number | null;
+        target_member_id: string | null;
+        entry_id: string;
+        entry_title: string | null;
+        thread_id: string;
+        thread_name: string;
+        target_name: string | null;
+        target_birth_date: string | null;
+      }[];
+      days: number;
+    }>('/threads/inbox/upcoming', { params: { days } }),
+
+  inboxRecent: (days = 30) =>
+    api.get<{
+      recent: {
+        unlock_id: string;
+        lock_type: LockType;
+        resolved_at: string;
+        resolution_note: string | null;
+        entry_id: string;
+        entry_title: string | null;
+        thread_id: string;
+        thread_name: string;
+        entry_created_at: string;
+      }[];
+      days: number;
+    }>('/threads/inbox/recent', { params: { days } }),
+};
+
 export default api;

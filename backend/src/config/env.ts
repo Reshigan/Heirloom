@@ -48,27 +48,30 @@ const envSchema = z.object({
 export const env = envSchema.parse(process.env);
 
 // Subscription tier limits
+// FREE tier is permanent and usable — chosen so a real family can get value
+// without paying. Conversion comes from gift purchases + storage upgrades, not
+// from gating basic preservation behind a paywall.
 export const TIER_LIMITS = {
   FREE: {
-    maxMemories: 10,
-    maxLetters: 3,
-    maxRecipients: 2,
-    maxVoiceMinutes: 5,
-    maxStorageMB: 100,
-  },
-  ESSENTIAL: {
-    maxMemories: 100,
-    maxLetters: 20,
+    maxMemories: 50,
+    maxLetters: 10,
     maxRecipients: 5,
-    maxVoiceMinutes: 30,
+    maxVoiceMinutes: 15,
     maxStorageMB: 1024,
   },
+  ESSENTIAL: {
+    maxMemories: 500,
+    maxLetters: 100,
+    maxRecipients: 15,
+    maxVoiceMinutes: 60,
+    maxStorageMB: 5120,
+  },
   FAMILY: {
-    maxMemories: -1, // unlimited
+    maxMemories: -1,
     maxLetters: -1,
     maxRecipients: -1,
-    maxVoiceMinutes: 60,
-    maxStorageMB: 10240,
+    maxVoiceMinutes: 180,
+    maxStorageMB: 25600,
   },
   LEGACY: {
     maxMemories: -1,
@@ -79,17 +82,21 @@ export const TIER_LIMITS = {
   },
 } as const;
 
-// Pricing in USD cents
+// Pricing in USD cents — Storyworth-inspired: gift purchase is the primary
+// wedge, monthly subscription is secondary. See marketing/POSITIONING.md.
 export const PRICING = {
   ESSENTIAL: {
-    monthly: 299, // $2.99
-    yearly: 2990, // $29.90 (2 months free)
+    monthly: 499,
+    yearly: 4900,
   },
   FAMILY: {
-    monthly: 1199, // $11.99
-    yearly: 11990, // $119.90 (2 months free)
+    monthly: 999,
+    yearly: 9900,
   },
   LEGACY: {
-    yearly: 29900, // $299.00
+    yearly: 19900,
+  },
+  GIFT_YEAR: {
+    once: 9900,
   },
 } as const;

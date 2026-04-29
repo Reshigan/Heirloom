@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.heirloom.app",
+      "bundleIdentifier": "com.heirloom.blue",
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "Heirloom needs camera access to capture photos for your memories.",
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0a0c10"
       },
-      "package": "com.heirloom.app",
+      "package": "com.heirloom.blue",
       "versionCode": 1,
       "edgeToEdgeEnabled": true,
       "permissions": [

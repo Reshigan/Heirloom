@@ -80,7 +80,7 @@ services:
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:-placeholder}
       SMTP_PASS: ${SMTP_PASS:-placeholder}
-      EMAIL_FROM: ${EMAIL_FROM:-noreply@heirloom.app}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@heirloom.blue}
       ENCRYPTION_MASTER_KEY: ${ENCRYPTION_MASTER_KEY:-heirloom_encryption_master_key_32_chars_min_dev}
       TINYLLM_BASE_URL: ${TINYLLM_BASE_URL:-http://host.docker.internal:11434}
       TINYLLM_API_KEY: ${TINYLLM_API_KEY:-ollama}

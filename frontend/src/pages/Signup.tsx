@@ -48,7 +48,10 @@ export function Signup() {
 
     try {
       await register(form.email, form.password, form.firstName, form.lastName);
-      navigate('/dashboard');
+      // First action after signup is opening the family thread, not the
+      // dashboard. Encryption setup, dead-man's-switch, etc., are surfaced
+      // later as nudges from settings — they shouldn't block first value.
+      navigate('/threads');
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
     } finally {
@@ -57,81 +60,25 @@ export function Signup() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-12">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-
-      {/* Floating particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(50)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-gold/30"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 0.8, 0],
-            }}
-            transition={{
-              duration: 10 + Math.random() * 10,
-              repeat: Infinity,
-              delay: Math.random() * 10,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Signup Card */}
+    <div className="min-h-screen bg-void text-paper px-6 py-16 flex items-center justify-center">
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-md"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md"
       >
-        {/* Card glow */}
-        <div className="absolute -inset-4 bg-gold/5 blur-3xl rounded-full" />
-        
-        <div className="card glass-strong relative">
-          {/* Glass shine */}
-          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white/[0.08] to-transparent rounded-t-2xl pointer-events-none" />
-          
-          <div className="relative">
-            {/* Logo */}
-            <motion.div 
-              className="text-center mb-8"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Link to="/" className="inline-block">
-                <motion.div
-                  className="text-5xl text-gold mb-2"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-                >
-                  ∞
-                </motion.div>
-                <span className="text-lg tracking-[0.2em] text-paper/60">HEIRLOOM</span>
-              </Link>
-            </motion.div>
+        <div className="text-center mb-12">
+          <Link to="/" className="inline-flex flex-col items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 rounded">
+            <span className="font-serif text-4xl text-gold leading-none">∞</span>
+            <span className="text-[0.7rem] tracking-[0.34em] uppercase text-paper/55 group-hover:text-paper transition-colors">Heirloom</span>
+          </Link>
+        </div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-                            <h1 className="text-2xl font-light text-center mb-2">{t('auth.createAccount')}</h1>
-                            <p className="text-paper/50 text-center mb-8">{t('auth.signupSubtitle')}</p>
-            </motion.div>
+        <div className="border border-rule rounded-xl p-8 md:p-10">
+          <div className="mb-8">
+            <h1 className="font-serif font-light text-3xl mb-3 leading-tight">{t('auth.createAccount')}</h1>
+            <p className="text-paper/55 text-[15px] leading-relaxed">{t('auth.signupSubtitle')}</p>
+          </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {errors.submit && (
@@ -261,14 +208,13 @@ export function Signup() {
               </p>
             </form>
 
-            <div className="mt-8 text-center">
-                            <p className="text-paper/50">
-                              {t('auth.hasAccount')}{' '}
-                              <Link to="/login" className="text-gold hover:text-gold-bright transition-colors">
-                                {t('auth.login')}
-                              </Link>
-                            </p>
-            </div>
+          <div className="mt-8 pt-6 border-t border-rule text-center">
+            <p className="text-paper/55 text-sm">
+              {t('auth.hasAccount')}{' '}
+              <Link to="/login" className="text-gold hover:text-gold-bright transition-colors">
+                {t('auth.login')}
+              </Link>
+            </p>
           </div>
         </div>
       </motion.div>

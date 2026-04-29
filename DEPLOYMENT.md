@@ -47,8 +47,8 @@ cp .env.example .env
 ```env
 NODE_ENV=production
 PORT=3001
-API_URL=https://api.heirloom.app
-FRONTEND_URL=https://heirloom.app
+API_URL=https://api.heirloom.blue
+FRONTEND_URL=https://heirloom.blue
 ```
 
 #### Database
@@ -186,7 +186,7 @@ Before deploying to production:
 
 ### Health Checks
 
-- API Health: `https://api.heirloom.app/health`
+- API Health: `https://api.heirloom.blue/health`
 - Worker Status: Check Cloudflare Workers dashboard
 - Database: Monitor connection pool and query performance
 
