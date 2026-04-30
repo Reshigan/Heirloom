@@ -66,8 +66,8 @@ export function Streaks() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-light mb-2">Memory Streaks</h1>
-          <p className="text-paper/70">Build your legacy one day at a time</p>
+          <h1 className="text-3xl md:text-4xl font-light mb-2">Thread Streaks</h1>
+          <p className="text-paper/70">One entry at a time, your family thread keeps going</p>
         </motion.div>
 
         {streakLoading ? (

@@ -2,15 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import api from '../services/api';
-
-interface PledgeCount {
-  paid: number;
-  pledged: number;
-  cap: number;
-  remaining: number;
-  pledge_amount_usd: number;
-}
+import { foundersApi, type FounderCount } from '../services/api';
 
 function Eyebrow({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
@@ -61,7 +53,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub: string
 }
 
 export function Founder() {
-  const [count, setCount] = useState<PledgeCount | null>(null);
+  const [count, setCount] = useState<FounderCount | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [familyName, setFamilyName] = useState('');
@@ -71,8 +63,8 @@ export function Founder() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api
-      .get<PledgeCount>('/founders/count')
+    foundersApi
+      .count()
       .then((r) => setCount(r.data))
       .catch(() => undefined);
   }, []);
@@ -82,13 +74,7 @@ export function Founder() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await api.post<{
-        ok: boolean;
-        already_pledged?: boolean;
-        message?: string;
-        cap_reached?: boolean;
-        checkout_url?: string | null;
-      }>('/founders/pledge', {
+      const res = await foundersApi.pledge({
         name: name.trim(),
         email: email.trim(),
         family_name: familyName.trim() || undefined,

@@ -57,7 +57,7 @@ export function OnThisDay() {
           <EmptyState
             icon={Calendar}
             title="No memories on this day yet"
-            subtitle="As you build your legacy over time, you'll see your memories from previous years appear here on the same date."
+            subtitle="As your thread accumulates over the years, entries written on this date in earlier years will surface here."
           />
         ) : (
           <div className="space-y-6">

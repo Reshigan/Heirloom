@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
+import { mirrorIntoDefaultThread } from '../services/threadMesh';
 
 export const capsulesRoutes = new Hono<AppEnv>();
 
@@ -92,6 +93,13 @@ capsulesRoutes.post('/', async (c) => {
     INSERT INTO time_capsules (id, creator_id, title, description, unlock_date, cover_style, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(id, userId, body.title, body.description || null, body.unlock_date, body.cover_style || 'default', now, now).run();
+
+  // Dual-write: capsules become a thread entry with a DATE unlock so the
+  // unified time-locked inbox surfaces them alongside thread-native entries.
+  await mirrorIntoDefaultThread(c.env, userId, {
+    title: body.title,
+    dateLock: body.unlock_date,
+  });
 
   return c.json({ id, success: true }, 201);
 });

@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
+import { getOrCreateDefaultThread } from '../services/threadMesh';
 
 export const authRoutes = new Hono<AppEnv>();
 
@@ -423,7 +424,17 @@ authRoutes.get('/me', async (c) => {
       const trialEnd = new Date(user.trial_ends_at as string);
       trialDaysRemaining = Math.max(0, Math.ceil((trialEnd.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
     }
-    
+
+    // Surface the user's default thread (lazy-create on first /me hit).
+    // Best-effort — never block the auth response if the thread layer fails.
+    let defaultThreadId: string | null = null;
+    try {
+      const t = await getOrCreateDefaultThread(c.env, user.id as string);
+      defaultThreadId = t?.threadId ?? null;
+    } catch (err) {
+      console.error('[auth/me] default thread bootstrap failed', err);
+    }
+
     return c.json({
       id: user.id,
       email: user.email,
@@ -433,6 +444,7 @@ authRoutes.get('/me', async (c) => {
       emailVerified: !!user.email_verified,
       twoFactorEnabled: !!user.two_factor_enabled,
       preferredCurrency: user.preferred_currency,
+      defaultThreadId,
       subscription: {
         tier: user.tier,
         status: user.status,

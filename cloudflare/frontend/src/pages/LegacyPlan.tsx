@@ -143,9 +143,9 @@ export function LegacyPlan() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="font-display text-4xl md:text-5xl mb-4">Legacy Playbook</h1>
+          <h1 className="font-display text-4xl md:text-5xl mb-4">Thread Plan</h1>
           <p className="text-paper/70 max-w-xl mx-auto">
-            Your personal guide to preserving what matters most. Complete these items to build a meaningful legacy.
+            A structured guide for what to write into your family thread first. Work through these so the people who come after you have something to read.
           </p>
         </motion.div>
 

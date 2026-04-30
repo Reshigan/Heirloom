@@ -74,6 +74,8 @@ const OnThisDay = lazy(() => import('./pages/OnThisDay').then(m => ({ default: m
 const StoryWorthAlternative = lazy(() => import('./pages/StoryWorthAlternative').then(m => ({ default: m.StoryWorthAlternative })));
 const GiftAMemory = lazy(() => import('./pages/GiftAMemory').then(m => ({ default: m.GiftAMemory })));
 const GiftReceive = lazy(() => import('./pages/GiftReceive').then(m => ({ default: m.GiftReceive })));
+const Threads = lazy(() => import('./pages/Threads').then(m => ({ default: m.Threads })));
+const ThreadDetail = lazy(() => import('./pages/ThreadDetail').then(m => ({ default: m.ThreadDetail })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -412,6 +414,8 @@ export default function App() {
           <Route path="/family-feed" element={<ProtectedRoute><FamilyFeed /></ProtectedRoute>} />
           <Route path="/on-this-day" element={<ProtectedRoute><OnThisDay /></ProtectedRoute>} />
           <Route path="/gift-a-memory" element={<ProtectedRoute><GiftAMemory /></ProtectedRoute>} />
+          <Route path="/threads" element={<ProtectedRoute><Threads /></ProtectedRoute>} />
+          <Route path="/threads/:id" element={<ProtectedRoute><ThreadDetail /></ProtectedRoute>} />
 
                                                                                                                                                                 {/* Admin routes */}
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />

@@ -11,6 +11,8 @@ export interface User {
   emailVerified: boolean;
   twoFactorEnabled: boolean;
   preferredCurrency?: string;
+  /** ID of the user's default Family Thread. Lazy-created server-side on /auth/me. */
+  defaultThreadId?: string | null;
 }
 
 interface ConsentData {

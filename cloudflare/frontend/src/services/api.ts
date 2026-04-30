@@ -574,4 +574,249 @@ export const marketingApi = {
   refreshStats: () => adminAxios.post('/marketing/stats/refresh'),
 };
 
+// ============================================================================
+// Family Thread API — the append-only, multi-generational primitive.
+// Schema: cloudflare/migrations/0036_family_thread.sql
+// Worker:  cloudflare/worker/src/routes/threads.ts
+// ============================================================================
+
+export type ThreadVisibility = 'PRIVATE' | 'FAMILY' | 'DESCENDANTS' | 'HISTORIAN';
+export type ThreadRole = 'FOUNDER' | 'SUCCESSOR' | 'AUTHOR' | 'READER' | 'PLACEHOLDER';
+export type ThreadLockType = 'DATE' | 'AGE' | 'AUTHOR_DEATH' | 'RECIPIENT_EVENT' | 'GENERATION';
+
+export interface ThreadSummary {
+  id: string;
+  name: string;
+  dedication: string | null;
+  plan: 'FREE' | 'FAMILY' | 'FOUNDER';
+  status: 'ACTIVE' | 'ARCHIVED';
+  default_visibility: ThreadVisibility;
+  role: ThreadRole;
+  generation_offset: number;
+  entry_count: number;
+  member_count: number;
+  created_at: string;
+}
+
+export interface ThreadMember {
+  id: string;
+  display_name: string;
+  email: string | null;
+  relation_label: string | null;
+  role: ThreadRole;
+  age_gate_years: number | null;
+  target_role: 'AUTHOR' | 'READER' | null;
+  generation_offset: number;
+  parent_member_id: string | null;
+  granted_at: string;
+}
+
+export interface ThreadEntry {
+  id: string;
+  thread_id: string;
+  author_member_id: string;
+  title: string | null;
+  body_ciphertext: string | null;
+  body_iv: string | null;
+  body_auth_tag: string | null;
+  voice_recording_id: string | null;
+  memory_id: string | null;
+  visibility: ThreadVisibility;
+  era_label: string | null;
+  era_year: number | null;
+  mutable_until: string;
+  created_at: string;
+  tags_json: string | null;
+  pending_lock: ThreadLockType | null;
+}
+
+export interface UpcomingUnlock {
+  unlock_id: string;
+  lock_type: ThreadLockType;
+  unlock_date: string | null;
+  age_years: number | null;
+  target_member_id: string | null;
+  entry_id: string;
+  entry_title: string | null;
+  thread_id: string;
+  thread_name: string;
+  target_name: string | null;
+  target_birth_date: string | null;
+  caller_role: ThreadRole;
+  caller_generation: number;
+}
+
+export const threadsApi = {
+  list: () => api.get<{ threads: ThreadSummary[] }>('/threads'),
+  get: (id: string) => api.get<{ thread: ThreadSummary; membership: ThreadMember }>(`/threads/${id}`),
+  create: (data: { name: string; dedication?: string; default_visibility?: ThreadVisibility }) =>
+    api.post<{ thread: ThreadSummary; membership: { id: string; role: ThreadRole } }>('/threads', data),
+
+  // Members
+  listMembers: (threadId: string) => api.get<{ members: ThreadMember[] }>(`/threads/${threadId}/members`),
+  addMember: (
+    threadId: string,
+    data: {
+      display_name: string;
+      email?: string;
+      relation_label?: string;
+      role: Exclude<ThreadRole, 'FOUNDER'>;
+      age_gate_years?: number;
+      target_role?: 'AUTHOR' | 'READER';
+      birth_date?: string;
+      parent_member_id?: string;
+      generation_offset?: number;
+    },
+  ) => api.post<{ member: { id: string; role: ThreadRole; display_name: string } }>(`/threads/${threadId}/members`, data),
+
+  // Entries
+  listEntries: (
+    threadId: string,
+    params?: { ancestor?: string; era?: string; limit?: number; offset?: number },
+  ) => api.get<{ entries: ThreadEntry[] }>(`/threads/${threadId}/entries`, { params }),
+  createEntry: (
+    threadId: string,
+    data: {
+      title?: string;
+      body_ciphertext?: string;
+      body_iv?: string;
+      body_auth_tag?: string;
+      voice_recording_id?: string;
+      memory_id?: string;
+      visibility?: ThreadVisibility;
+      era_label?: string;
+      era_year?: number;
+      tags?: { type: 'PERSON' | 'PLACE' | 'DATE' | 'ERA' | 'TOPIC'; label: string; member_id?: string; year_value?: number }[];
+      unlock?: {
+        lock_type: ThreadLockType;
+        unlock_date?: string;
+        age_years?: number;
+        target_member_id?: string;
+        event_label?: string;
+        target_generation?: number;
+        encrypted_key: string;
+      };
+    },
+  ) => api.post<{ entry: { id: string; visibility: ThreadVisibility; mutable_until: string } }>(`/threads/${threadId}/entries`, data),
+  addComment: (
+    threadId: string,
+    entryId: string,
+    data: { ciphertext: string; iv: string; auth_tag: string },
+  ) => api.post<{ comment: { id: string } }>(`/threads/${threadId}/entries/${entryId}/comments`, data),
+
+  // Successor designations
+  listSuccessors: (threadId: string) => api.get(`/threads/${threadId}/successors`),
+  designateSuccessor: (threadId: string, data: { successor_member_id: string; rank?: number }) =>
+    api.post(`/threads/${threadId}/successors`, data),
+
+  // Time-locked inbox (cross-thread, scoped to caller)
+  upcomingUnlocks: (days = 90) =>
+    api.get<{ upcoming: UpcomingUnlock[]; days: number }>('/threads/inbox/upcoming', { params: { days } }),
+  recentUnlocks: (days = 30) =>
+    api.get<{ recent: any[]; days: number }>('/threads/inbox/recent', { params: { days } }),
+
+  // Starter prompts ("I don't know what to write")
+  starterPrompts: (params?: { audience?: string; category?: string }) =>
+    api.get<{ prompts: { id: string; prompt_text: string; category: string; suggested_audience: string; era_hint: string | null }[] }>(
+      '/threads/starter-prompts',
+      { params },
+    ),
+
+  // Living Book — order a printed book of the thread
+  orderBook: (
+    threadId: string,
+    data: {
+      ship_to: {
+        name: string;
+        line1: string;
+        line2?: string;
+        city: string;
+        state_code?: string;
+        country_code: string;
+        postcode: string;
+        phone_number: string;
+        email: string;
+      };
+      entry_filter?: { from?: string; to?: string; member_ids?: string[]; era_year?: number };
+    },
+  ) => api.post<{ book_order: { id: string; status: string }; note: string }>(`/threads/${threadId}/book`, data),
+};
+
+// ============================================================================
+// Founder pledge API — first 100 families, $999 lifetime.
+// Public surface (no auth required).
+// ============================================================================
+
+export interface FounderCount {
+  paid: number;
+  pledged: number;
+  cap: number;
+  remaining: number;
+  pledge_amount_usd: number;
+}
+
+export interface FounderPledgeStatus {
+  ok: boolean;
+  pledge_number?: number | null;
+  status?: string;
+  family_name?: string | null;
+}
+
+export const foundersApi = {
+  count: () => api.get<FounderCount>('/founders/count'),
+  pledge: (data: { name: string; email: string; family_name?: string; notes?: string }) =>
+    api.post<{
+      ok: boolean;
+      id?: string;
+      already_pledged?: boolean;
+      status?: string;
+      message?: string;
+      cap_reached?: boolean;
+      checkout_url?: string | null;
+    }>('/founders/pledge', data),
+  bySession: (sessionId: string) =>
+    api.get<FounderPledgeStatus>('/founders/by-session', { params: { session_id: sessionId } }),
+};
+
+// ============================================================================
+// Archive API — public continuity audit (IPFS pin status).
+// ============================================================================
+
+export interface ArchiveAudit {
+  summary: {
+    total_pins: number;
+    threads_pinned: number;
+    total_bytes_pinned: number;
+    total_entries_archived: number;
+  };
+  providers: { provider: string; pins: number; most_recent: string }[];
+  freshness: { verified_last_week: number; verification_failed: number };
+  commitment: string;
+  audit_generated_at: string;
+}
+
+export const archiveApi = {
+  audit: () => api.get<ArchiveAudit>('/archive/audit'),
+};
+
+// ============================================================================
+// Books API — order status read for the Living Book.
+// (Ordering happens via threadsApi.orderBook.)
+// ============================================================================
+
+export interface BookOrder {
+  id: string;
+  status: 'PENDING' | 'COMPILING' | 'PRINTING' | 'SHIPPED' | 'FAILED';
+  lulu_status: string | null;
+  tracking_url: string | null;
+  total_cents: number | null;
+  currency: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export const booksApi = {
+  getOrder: (id: string) => api.get<{ book_order: BookOrder }>(`/book-orders/${id}`),
+};
+
 export default api;

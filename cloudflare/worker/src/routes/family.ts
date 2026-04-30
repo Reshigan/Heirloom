@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { mirrorFamilyMemberIntoDefaultThread } from '../services/threadMesh';
 
 export const familyRoutes = new Hono<AppEnv>();
 
@@ -146,7 +147,15 @@ familyRoutes.post('/', async (c) => {
     INSERT INTO family_members (id, user_id, name, relationship, email, phone, birth_date, notes, avatar_url, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(id, userId, name, relationship, email || null, phone || null, birthDate || null, notes || null, avatarUrl || null, now, now).run();
-  
+
+  // Dual-write: also mirror as a thread member (READER role by default).
+  await mirrorFamilyMemberIntoDefaultThread(c.env, userId, {
+    displayName: name,
+    email: email || null,
+    relationLabel: relationship || null,
+    birthDate: birthDate || null,
+  });
+
   const member = await c.env.DB.prepare(`
     SELECT * FROM family_members WHERE id = ?
   `).bind(id).first();

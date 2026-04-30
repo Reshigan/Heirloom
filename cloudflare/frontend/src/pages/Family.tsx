@@ -289,7 +289,7 @@ export function Family() {
             className="text-center mb-16"
           >
             <h1 className="text-4xl md:text-5xl font-light mb-2">Your Family <em>Constellation</em></h1>
-            <p className="text-paper/65">The people who matter most to you</p>
+            <p className="text-paper/65">The people in your thread — past, present, and the descendants you're writing for</p>
           </motion.div>
 
           {/* Constellation View - outer relative wrapper for positioning */}

@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { generateLetterSuggestion, classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
+import { mirrorIntoDefaultThread } from '../services/threadMesh';
 
 export const lettersRoutes = new Hono<AppEnv>();
 
@@ -253,7 +254,13 @@ lettersRoutes.post('/', async (c) => {
     INSERT INTO letters (id, user_id, title, salutation, body, signature, delivery_trigger, scheduled_date, encrypted, encryption_iv, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, deliveryTrigger || 'IMMEDIATE', scheduledDate || null, encrypted ? 1 : 0, encryption_iv || null, now, now).run();
-  
+
+  // Dual-write into the Family Thread; SCHEDULED letters get a DATE unlock.
+  await mirrorIntoDefaultThread(c.env, userId, {
+    title: title || salutation || null,
+    dateLock: deliveryTrigger === 'SCHEDULED' ? scheduledDate || null : null,
+  });
+
   if (recipientIds && recipientIds.length > 0) {
     await c.env.DB.batch(
       recipientIds.map((recipientId: string) =>

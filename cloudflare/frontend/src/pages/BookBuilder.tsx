@@ -97,8 +97,8 @@ export function BookBuilder() {
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-32 max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Memory Book</h1>
-          <p className="text-paper/65 font-serif">Turn your digital legacy into a beautiful printed book</p>
+          <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Living Book</h1>
+          <p className="text-paper/65 font-serif">Print your family thread as a hardback. Keepsake for the shelf; the thread keeps going.</p>
         </div>
 
         {/* Progress steps */}

@@ -2,14 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import api from '../services/api';
-
-interface PledgeStatus {
-  ok: boolean;
-  pledge_number?: number | null;
-  status?: string;
-  family_name?: string | null;
-}
+import { foundersApi, type FounderPledgeStatus } from '../services/api';
 
 /**
  * /founder/welcome — landing after Stripe Checkout success.
@@ -20,7 +13,7 @@ interface PledgeStatus {
 export function FounderWelcome() {
   const [params] = useSearchParams();
   const sessionId = params.get('session_id');
-  const [status, setStatus] = useState<PledgeStatus | null>(null);
+  const [status, setStatus] = useState<FounderPledgeStatus | null>(null);
   const [tries, setTries] = useState(0);
 
   useEffect(() => {
@@ -31,9 +24,7 @@ export function FounderWelcome() {
     let cancelled = false;
     const tick = async () => {
       try {
-        const res = await api.get<PledgeStatus>('/founders/by-session', {
-          params: { session_id: sessionId },
-        });
+        const res = await foundersApi.bySession(sessionId);
         if (cancelled) return;
         if (res.data.status === 'PAID' || res.data.status === 'ENGRAVED') {
           setStatus(res.data);

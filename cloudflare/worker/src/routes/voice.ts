@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { mirrorIntoDefaultThread } from '../services/threadMesh';
 
 export const voiceRoutes = new Hono<AppEnv>();
 
@@ -353,7 +354,14 @@ voiceRoutes.post('/', async (c) => {
       INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(id, userId, title, description || null, fileUrl || null, fileKey || null, duration || null, fileSize || null, transcript || null, emotion || null, createdAt, now).run();
-  
+
+  // Dual-write into the Family Thread.
+  await mirrorIntoDefaultThread(c.env, userId, {
+    voiceRecordingId: id,
+    title,
+    eraYear: recordingDate ? new Date(recordingDate).getUTCFullYear() : null,
+  });
+
   // Add recipients
   if (recipientIds && recipientIds.length > 0) {
     for (const recipientId of recipientIds) {

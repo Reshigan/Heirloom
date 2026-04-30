@@ -6,7 +6,7 @@ import {
   Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles, Gift, Copy, Heart, Lock, Download, Users, Eye
 } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
-import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi, referralApi } from '../services/api';
+import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi, referralApi, threadsApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
 import { PlatformTour, usePlatformTour } from '../components/PlatformTour';
 import { WhatsNewNotification } from '../components/WhatsNewNotification';
@@ -142,6 +142,12 @@ export function Dashboard() {
         const { data: inboxData } = useQuery({
           queryKey: ['inbox'],
           queryFn: () => settingsApi.getInbox().then(r => r.data),
+        });
+
+        // Family Thread — upcoming time-locked unlocks across all threads.
+        const { data: upcomingUnlocks } = useQuery({
+          queryKey: ['threads', 'upcoming-unlocks'],
+          queryFn: () => threadsApi.upcomingUnlocks(90).then(r => r.data).catch(() => null),
         });
 
     const [showNewFeaturesNotification, setShowNewFeaturesNotification] = useState(true);
@@ -403,7 +409,46 @@ export function Dashboard() {
 
             {/* Main Content */}
             <main className="relative z-10 px-6 md:px-12 py-8 md:py-16 max-w-[1400px] mx-auto">
-        
+
+              {/* Upcoming time-locked unlocks across all family threads */}
+              {upcomingUnlocks && upcomingUnlocks.upcoming.length > 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="mb-10 border border-gold-40 rounded-xl px-5 py-4 bg-void-surface/60"
+                  role="status"
+                >
+                  <div className="flex items-start gap-4 flex-wrap">
+                    <Lock size={16} className="text-gold mt-1 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold/80 mb-2">
+                        Time-locked · {upcomingUnlocks.upcoming.length} opening soon
+                      </p>
+                      <p className="text-paper text-sm leading-relaxed">
+                        {upcomingUnlocks.upcoming.slice(0, 1).map((u) => {
+                          const when = u.unlock_date ? new Date(u.unlock_date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : null;
+                          return (
+                            <span key={u.unlock_id}>
+                              {u.entry_title ?? 'An entry'} in <em className="text-gold not-italic">{u.thread_name}</em>
+                              {when ? ` — opens ${when}` : ''}
+                              {u.target_name ? ` for ${u.target_name}` : ''}
+                            </span>
+                          );
+                        })}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/threads')}
+                      className="text-gold hover:text-gold-bright text-sm whitespace-nowrap"
+                    >
+                      View threads
+                    </button>
+                  </div>
+                </motion.div>
+              ) : null}
+
               {/* Hero Section */}
         <motion.section
           initial={{ opacity: 0, y: 30 }}
@@ -425,7 +470,7 @@ export function Dashboard() {
                       </div>
                     )}
           <p className="text-paper/70 text-lg font-light max-w-lg mx-auto mb-6">
-            Every moment you preserve becomes eternal. What will you create today?
+            Your family's thread continues. What do you want to write into it today?
           </p>
           
           <motion.button
@@ -587,7 +632,7 @@ export function Dashboard() {
                 <span className="legacy-tier-name">{scoreTier}</span>
               </div>
               <p className="legacy-desc">
-                {scoreTierDescription || 'Continue preserving memories to build your legacy and unlock new tiers.'}
+                {scoreTierDescription || 'Keep adding to your family thread to build the continuity record and unlock new tiers.'}
               </p>
             </div>
           </div>
@@ -768,7 +813,7 @@ export function Dashboard() {
                   <h3 className="text-xl font-medium mb-2">Share Heirloom, Get Rewarded</h3>
                   <p className="text-paper/65 text-sm mb-4">
                     For every friend who joins using your link, you both get an extra month free. 
-                    Help families preserve their memories while extending your own subscription.
+                    Invite other families to start their own thread — and extend your own subscription while you do.
                   </p>
                   <div className="flex flex-col sm:flex-row items-center gap-3">
                     <div className="flex items-center gap-2 px-4 py-2 bg-void-elevated rounded-lg border border-paper/10">
@@ -787,7 +832,7 @@ export function Dashboard() {
                       <button
                         onClick={() => {
                           const url = referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`;
-                          const text = "I've been using Heirloom to preserve my family's memories. Join me and we both get an extra month free!";
+                          const text = "I've been using Heirloom to start my family's thread — append-only, time-locked, built to outlive us. Join me and we both get an extra month free.";
                           window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
                           referralApi.trackShare('twitter');
                         }}
@@ -808,7 +853,7 @@ export function Dashboard() {
                       <button
                         onClick={() => {
                           const url = referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`;
-                          const text = "I've been using Heirloom to preserve my family's memories. Join me and we both get an extra month free!";
+                          const text = "I've been using Heirloom to start my family's thread — append-only, time-locked, built to outlive us. Join me and we both get an extra month free.";
                           window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
                           referralApi.trackShare('whatsapp');
                         }}

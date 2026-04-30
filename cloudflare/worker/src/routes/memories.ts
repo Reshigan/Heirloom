@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
+import { mirrorIntoDefaultThread } from '../services/threadMesh';
 
 export const memoriesRoutes = new Hono<AppEnv>();
 
@@ -362,7 +363,14 @@ memoriesRoutes.post('/', async (c) => {
       INSERT INTO memories (id, user_id, type, title, description, file_url, file_key, file_size, mime_type, metadata, encrypted, encryption_iv, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), encrypted ? 1 : 0, encryption_iv || null, createdAt, now).run();
-  
+
+  // Dual-write into the Family Thread (best-effort; never blocks the legacy write).
+  await mirrorIntoDefaultThread(c.env, userId, {
+    memoryId: id,
+    title,
+    eraYear: memoryDate ? new Date(memoryDate).getUTCFullYear() : null,
+  });
+
   if (recipientIds && recipientIds.length > 0) {
     await c.env.DB.batch(
       recipientIds.map((recipientId: string) =>

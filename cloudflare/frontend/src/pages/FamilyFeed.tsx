@@ -51,7 +51,7 @@ export function FamilyFeed() {
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-32 max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Family Feed</h1>
-          <p className="text-paper/65 font-serif">See what your family has been preserving</p>
+          <p className="text-paper/65 font-serif">New entries from across your family thread</p>
         </div>
 
         {isLoading ? (
@@ -62,7 +62,7 @@ export function FamilyFeed() {
           <EmptyState
             icon={Users}
             title="Your family feed is quiet"
-            subtitle="When your family members add memories, voice recordings, or letters, they'll appear here. Invite your family to start building your legacy together."
+            subtitle="When other members of your family thread add entries — memories, recordings, letters — they'll surface here. Invite them to start writing."
             actionLabel="Invite Family"
             onAction={() => navigate('/family')}
           />
