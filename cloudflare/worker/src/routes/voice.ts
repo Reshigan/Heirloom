@@ -5,7 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
-import { mirrorIntoDefaultThread } from '../services/threadMesh';
+import { mirrorIntoDefaultThread, mirrorVoiceUpdate, mirrorVoiceDelete } from '../services/threadMesh';
 
 export const voiceRoutes = new Hono<AppEnv>();
 
@@ -422,11 +422,15 @@ voiceRoutes.patch('/:id', async (c) => {
     now, 
     recordingId
   ).run();
-  
+
+  if (title !== undefined) {
+    await mirrorVoiceUpdate(c.env, recordingId, { title });
+  }
+
   const recording = await c.env.DB.prepare(`
     SELECT * FROM voice_recordings WHERE id = ?
   `).bind(recordingId).first();
-  
+
   return c.json({
     id: recording?.id,
     title: recording?.title,
@@ -463,7 +467,9 @@ voiceRoutes.delete('/:id', async (c) => {
   await c.env.DB.prepare(`
     DELETE FROM voice_recordings WHERE id = ?
   `).bind(recordingId).run();
-  
+
+  await mirrorVoiceDelete(c.env, recordingId);
+
   return c.body(null, 204);
 });
 

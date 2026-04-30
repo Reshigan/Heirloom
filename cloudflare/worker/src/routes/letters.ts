@@ -6,7 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { generateLetterSuggestion, classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
-import { mirrorIntoDefaultThread } from '../services/threadMesh';
+import { mirrorIntoDefaultThread, mirrorLetterUpdate, mirrorLetterDelete } from '../services/threadMesh';
 
 export const lettersRoutes = new Hono<AppEnv>();
 
@@ -351,10 +351,14 @@ lettersRoutes.patch('/:id', async (c) => {
     );
   }
   
+  if (title !== undefined || salutation !== undefined) {
+    await mirrorLetterUpdate(c.env, letterId, { title, salutation });
+  }
+
   const letter = await c.env.DB.prepare(`
     SELECT * FROM letters WHERE id = ?
   `).bind(letterId).first();
-  
+
   return c.json({
     id: letter?.id,
     title: letter?.title,
@@ -438,6 +442,8 @@ lettersRoutes.delete('/:id', async (c) => {
   await c.env.DB.prepare(`
     DELETE FROM letters WHERE id = ?
   `).bind(letterId).run();
-  
+
+  await mirrorLetterDelete(c.env, letterId);
+
   return c.body(null, 204);
 });

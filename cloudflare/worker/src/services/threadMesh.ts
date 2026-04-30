@@ -158,6 +158,85 @@ interface MirrorMemberOptions {
  * read access to FAMILY-visibility entries; they don't write). Promote later
  * via the thread members UI when ready.
  */
+/**
+ * Best-effort: when a legacy memory/voice/letter is updated, propagate
+ * scalar fields (currently just title) onto the matching thread_entries
+ * row found via the FK pointer. Letters use a deterministic id mapping
+ * since thread_entries doesn't have a letter_id column — we encoded the
+ * relationship as id = 'lt' || letter.id during dual-write and backfill.
+ */
+export async function mirrorMemoryUpdate(env: Env, memoryId: string, opts: { title?: string | null }): Promise<void> {
+  try {
+    if (opts.title === undefined) return;
+    await env.DB.prepare(
+      `UPDATE thread_entries SET title = ?, updated_at = datetime('now') WHERE memory_id = ?`,
+    ).bind(opts.title, memoryId).run();
+  } catch (err) {
+    console.error('[threadMesh] mirrorMemoryUpdate failed', err);
+  }
+}
+
+export async function mirrorVoiceUpdate(env: Env, voiceId: string, opts: { title?: string | null }): Promise<void> {
+  try {
+    if (opts.title === undefined) return;
+    await env.DB.prepare(
+      `UPDATE thread_entries SET title = ?, updated_at = datetime('now') WHERE voice_recording_id = ?`,
+    ).bind(opts.title, voiceId).run();
+  } catch (err) {
+    console.error('[threadMesh] mirrorVoiceUpdate failed', err);
+  }
+}
+
+export async function mirrorLetterUpdate(env: Env, letterId: string, opts: { title?: string | null; salutation?: string | null }): Promise<void> {
+  try {
+    const title = opts.title ?? opts.salutation;
+    if (title === undefined) return;
+    await env.DB.prepare(
+      `UPDATE thread_entries SET title = ?, updated_at = datetime('now') WHERE id = ?`,
+    ).bind(title, `lt${letterId}`).run();
+  } catch (err) {
+    console.error('[threadMesh] mirrorLetterUpdate failed', err);
+  }
+}
+
+/**
+ * Best-effort: when a legacy entity is deleted, mark the matching
+ * thread_entries row as visibility-revoked. We don't hard-delete because
+ * threads are append-only; revocation hides the row from reads.
+ *
+ * For memories/voice we use the FK; for letters/capsules we use the
+ * deterministic id pattern from the dual-write/backfill.
+ */
+export async function mirrorMemoryDelete(env: Env, memoryId: string): Promise<void> {
+  try {
+    await env.DB.prepare(
+      `UPDATE thread_entries SET visibility_revoked_at = datetime('now'), updated_at = datetime('now') WHERE memory_id = ?`,
+    ).bind(memoryId).run();
+  } catch (err) {
+    console.error('[threadMesh] mirrorMemoryDelete failed', err);
+  }
+}
+
+export async function mirrorVoiceDelete(env: Env, voiceId: string): Promise<void> {
+  try {
+    await env.DB.prepare(
+      `UPDATE thread_entries SET visibility_revoked_at = datetime('now'), updated_at = datetime('now') WHERE voice_recording_id = ?`,
+    ).bind(voiceId).run();
+  } catch (err) {
+    console.error('[threadMesh] mirrorVoiceDelete failed', err);
+  }
+}
+
+export async function mirrorLetterDelete(env: Env, letterId: string): Promise<void> {
+  try {
+    await env.DB.prepare(
+      `UPDATE thread_entries SET visibility_revoked_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`,
+    ).bind(`lt${letterId}`).run();
+  } catch (err) {
+    console.error('[threadMesh] mirrorLetterDelete failed', err);
+  }
+}
+
 export async function mirrorFamilyMemberIntoDefaultThread(
   env: Env,
   userId: string | undefined,

@@ -6,7 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
-import { mirrorIntoDefaultThread } from '../services/threadMesh';
+import { mirrorIntoDefaultThread, mirrorMemoryUpdate, mirrorMemoryDelete } from '../services/threadMesh';
 
 export const memoriesRoutes = new Hono<AppEnv>();
 
@@ -416,14 +416,18 @@ memoriesRoutes.patch('/:id', async (c) => {
   const now = new Date().toISOString();
   
   await c.env.DB.prepare(`
-    UPDATE memories 
+    UPDATE memories
     SET title = COALESCE(?, title),
         description = COALESCE(?, description),
         metadata = COALESCE(?, metadata),
         updated_at = ?
     WHERE id = ?
   `).bind(title, description, metadata ? JSON.stringify(metadata) : null, now, memoryId).run();
-  
+
+  if (title !== undefined) {
+    await mirrorMemoryUpdate(c.env, memoryId, { title });
+  }
+
   const memory = await c.env.DB.prepare(`
     SELECT * FROM memories WHERE id = ?
   `).bind(memoryId).first();
@@ -463,7 +467,9 @@ memoriesRoutes.delete('/:id', async (c) => {
   await c.env.DB.prepare(`
     DELETE FROM memories WHERE id = ?
   `).bind(memoryId).run();
-  
+
+  await mirrorMemoryDelete(c.env, memoryId);
+
   return c.body(null, 204);
 });
 

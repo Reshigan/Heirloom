@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Loader2, Lock } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
-import { threadsApi, type ThreadVisibility } from '../services/api';
+import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../services/api';
 
 /**
  * /threads/:id/compose — write an entry directly to a specific thread.
@@ -25,7 +25,12 @@ export function ThreadCompose() {
   const [body, setBody] = useState('');
   const [visibility, setVisibility] = useState<ThreadVisibility>('FAMILY');
   const [enableLock, setEnableLock] = useState(false);
+  const [lockType, setLockType] = useState<ThreadLockType>('DATE');
   const [lockDate, setLockDate] = useState('');
+  const [lockTargetMemberId, setLockTargetMemberId] = useState('');
+  const [lockAgeYears, setLockAgeYears] = useState<number | ''>('');
+  const [lockEventLabel, setLockEventLabel] = useState('');
+  const [lockGeneration, setLockGeneration] = useState<number | ''>('');
   const [error, setError] = useState<string | null>(null);
 
   const { data: detail } = useQuery({
@@ -34,6 +39,13 @@ export function ThreadCompose() {
     enabled: !!threadId,
   });
 
+  const { data: membersData } = useQuery({
+    queryKey: ['thread', threadId, 'members'],
+    queryFn: () => threadsApi.listMembers(threadId).then((r) => r.data),
+    enabled: !!threadId,
+  });
+  const members = membersData?.members ?? [];
+
   const create = useMutation({
     mutationFn: () => {
       const payload: Parameters<typeof threadsApi.createEntry>[1] = {
@@ -41,12 +53,24 @@ export function ThreadCompose() {
         body_ciphertext: body.trim(),
         visibility,
       };
-      if (enableLock && lockDate) {
-        payload.unlock = {
-          lock_type: 'DATE',
-          unlock_date: lockDate,
+      if (enableLock) {
+        const unlock: NonNullable<typeof payload.unlock> = {
+          lock_type: lockType,
           encrypted_key: '',
         };
+        if (lockType === 'DATE') unlock.unlock_date = lockDate;
+        if (lockType === 'AGE') {
+          unlock.target_member_id = lockTargetMemberId;
+          unlock.age_years = typeof lockAgeYears === 'number' ? lockAgeYears : parseInt(String(lockAgeYears), 10);
+        }
+        if (lockType === 'RECIPIENT_EVENT') {
+          unlock.target_member_id = lockTargetMemberId;
+          unlock.event_label = lockEventLabel.trim();
+        }
+        if (lockType === 'GENERATION') {
+          unlock.target_generation = typeof lockGeneration === 'number' ? lockGeneration : parseInt(String(lockGeneration), 10);
+        }
+        payload.unlock = unlock;
       }
       return threadsApi.createEntry(threadId, payload).then((r) => r.data);
     },
@@ -96,9 +120,23 @@ export function ThreadCompose() {
                 setError('Write something — even a sentence.');
                 return;
               }
-              if (enableLock && !lockDate) {
-                setError('Pick the date the entry should open, or turn the lock off.');
-                return;
+              if (enableLock) {
+                if (lockType === 'DATE' && !lockDate) {
+                  setError('Pick the date the entry should open, or turn the lock off.');
+                  return;
+                }
+                if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
+                  setError('Pick a member and an age for the age-gate lock.');
+                  return;
+                }
+                if (lockType === 'RECIPIENT_EVENT' && (!lockTargetMemberId || !lockEventLabel.trim())) {
+                  setError('Pick a member and describe the event the lock waits for.');
+                  return;
+                }
+                if (lockType === 'GENERATION' && !lockGeneration) {
+                  setError('Pick the generation the entry should wait for.');
+                  return;
+                }
               }
               create.mutate();
             }}
@@ -168,18 +206,130 @@ export function ThreadCompose() {
                 </div>
               </label>
               {enableLock ? (
-                <div className="mt-4 pl-7">
-                  <label htmlFor="t-lock" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                    Open on
-                  </label>
-                  <input
-                    id="t-lock"
-                    type="date"
-                    min={today}
-                    value={lockDate}
-                    onChange={(e) => setLockDate(e.target.value)}
-                    className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
-                  />
+                <div className="mt-4 pl-7 space-y-4">
+                  <div>
+                    <label htmlFor="t-lock-type" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                      Lock type
+                    </label>
+                    <select
+                      id="t-lock-type"
+                      value={lockType}
+                      onChange={(e) => setLockType(e.target.value as ThreadLockType)}
+                      className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                    >
+                      <option value="DATE">A specific date</option>
+                      <option value="AGE">When someone reaches an age</option>
+                      <option value="RECIPIENT_EVENT">When an event happens (wedding, first child…)</option>
+                      <option value="GENERATION">When a generation exists in the thread</option>
+                    </select>
+                  </div>
+
+                  {lockType === 'DATE' ? (
+                    <div>
+                      <label htmlFor="t-lock-date" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                        Open on
+                      </label>
+                      <input
+                        id="t-lock-date"
+                        type="date"
+                        min={today}
+                        value={lockDate}
+                        onChange={(e) => setLockDate(e.target.value)}
+                        className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                      />
+                    </div>
+                  ) : null}
+
+                  {lockType === 'AGE' ? (
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="t-lock-member" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                          Recipient
+                        </label>
+                        <select
+                          id="t-lock-member"
+                          value={lockTargetMemberId}
+                          onChange={(e) => setLockTargetMemberId(e.target.value)}
+                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                        >
+                          <option value="">— Pick a thread member —</option>
+                          {members.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.display_name} {m.relation_label ? `(${m.relation_label})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label htmlFor="t-lock-age" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                          Open at age
+                        </label>
+                        <input
+                          id="t-lock-age"
+                          type="number"
+                          min={1}
+                          max={120}
+                          value={lockAgeYears}
+                          onChange={(e) => setLockAgeYears(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {lockType === 'RECIPIENT_EVENT' ? (
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="t-lock-event-member" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                          Recipient
+                        </label>
+                        <select
+                          id="t-lock-event-member"
+                          value={lockTargetMemberId}
+                          onChange={(e) => setLockTargetMemberId(e.target.value)}
+                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                        >
+                          <option value="">— Pick a thread member —</option>
+                          {members.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.display_name} {m.relation_label ? `(${m.relation_label})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label htmlFor="t-lock-event" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                          Event
+                        </label>
+                        <input
+                          id="t-lock-event"
+                          type="text"
+                          value={lockEventLabel}
+                          onChange={(e) => setLockEventLabel(e.target.value)}
+                          placeholder="wedding, first_child, graduation"
+                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md placeholder:text-paper/30 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {lockType === 'GENERATION' ? (
+                    <div>
+                      <label htmlFor="t-lock-gen" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                        Open once a member of generation N exists in the thread
+                      </label>
+                      <input
+                        id="t-lock-gen"
+                        type="number"
+                        min={1}
+                        max={6}
+                        value={lockGeneration}
+                        onChange={(e) => setLockGeneration(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                        className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                      />
+                      <p className="text-[0.65rem] text-paper/40 mt-1.5">+1 = your kids · +2 = grandkids · +3 = great-grandkids</p>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </div>
