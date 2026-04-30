@@ -146,7 +146,7 @@ export function Letters() {
           className="mb-8"
         >
           <h1 className="text-4xl font-light mb-2">Your Letters</h1>
-          <p className="text-paper/70">Messages waiting to be delivered to your loved ones</p>
+          <p className="text-paper/70">Sealed entries on your thread, waiting for the date you set</p>
         </motion.div>
 
         {/* Search and Filters */}

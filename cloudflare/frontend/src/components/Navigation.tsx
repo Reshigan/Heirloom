@@ -10,15 +10,16 @@ import { useThemeStore } from '../stores/themeStore';
 
 const navItems = [
   { path: '/dashboard', icon: Home, label: 'Vault' },
+  { path: '/threads', icon: LegacyPlaybook, label: 'Thread' },
   { path: '/memories', icon: Image, label: 'Memories' },
   { path: '/compose', icon: Pen, label: 'Write' },
   { path: '/record', icon: Mic, label: 'Record' },
   { path: '/family', icon: Users, label: 'Family' },
-  { path: '/wrapped', icon: Sparkles, label: 'Wrapped' },
 ];
 
 const advancedFeatures = [
-  { path: '/legacy-plan', icon: LegacyPlaybook, label: 'Legacy Playbook', description: 'Guided checklist for your legacy' },
+  { path: '/wrapped', icon: Sparkles, label: 'Wrapped', description: 'Year in review' },
+  { path: '/legacy-plan', icon: LegacyPlaybook, label: 'Thread Plan', description: 'Guided checklist for what to write to the thread' },
   { path: '/recipient-experience', icon: RecipientJourney, label: 'Recipient Experience', description: 'Staged releases & memory room' },
   { path: '/story-artifacts', icon: StoryArtifact, label: 'Story Artifacts', description: 'Create micro-documentaries' },
   { path: '/life-events', icon: LifeEventTrigger, label: 'Life Events', description: 'Milestone-based triggers' },

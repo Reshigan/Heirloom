@@ -367,7 +367,7 @@ export function Memories() {
                         animate={{ opacity: 1, y: 0 }}
                       >
                         <h1 className="text-4xl md:text-5xl font-light mb-2">Your <em>Memories</em></h1>
-                        <p className="text-paper/65">Moments worth preserving forever</p>
+                        <p className="text-paper/65">Moments you've added to your family thread</p>
                       </motion.div>
 
                       <motion.div

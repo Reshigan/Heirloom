@@ -1,12 +1,41 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Clock, Lock, Users, Loader2, Check, X, Image, Sparkles } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { EmptyState } from '../components/EmptyState';
-import { capsulesApi } from '../services/api';
+import { capsulesApi, threadsApi } from '../services/api';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
+
+function ThreadComposeBanner() {
+  const { data } = useQuery({
+    queryKey: ['threads', 'list'],
+    queryFn: () => threadsApi.list().then((r) => r.data).catch(() => null),
+  });
+  const featured = data?.threads?.[0];
+  if (!featured) return null;
+  return (
+    <div className="mb-8 border border-gold/30 rounded-xl px-5 py-4 bg-void-surface/40 flex items-start gap-4 flex-wrap">
+      <Lock size={16} className="text-gold mt-1 shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold/80 mb-1">
+          Now part of your family thread
+        </p>
+        <p className="text-paper text-sm leading-relaxed">
+          Time-locked entries are now first-class on the thread. New writes go there alongside everything else; existing capsules keep working below.
+        </p>
+      </div>
+      <Link
+        to={`/threads/${featured.id}/compose`}
+        className="text-gold hover:text-gold-bright text-sm whitespace-nowrap"
+      >
+        Write a locked entry →
+      </Link>
+    </div>
+  );
+}
 
 interface Capsule {
   id: string;
@@ -120,6 +149,10 @@ export function TimeCapsule() {
       <Navigation />
 
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-32 max-w-5xl mx-auto">
+        {/* Time-locked entries are now first-class on the family thread.
+            Capsules remain functional but new flows route through there. */}
+        <ThreadComposeBanner />
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

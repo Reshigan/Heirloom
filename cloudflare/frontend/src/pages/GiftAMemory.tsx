@@ -97,7 +97,7 @@ export function GiftAMemory() {
             <Gift size={28} className="text-gold" />
           </div>
           <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Gift a Memory</h1>
-          <p className="text-paper/65 font-serif">Send a piece of your legacy to someone you love</p>
+          <p className="text-paper/65 font-serif">Send something from your thread — or invite them to start their own</p>
         </div>
 
         {sendMutation.isSuccess ? (
