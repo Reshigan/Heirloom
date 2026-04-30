@@ -150,6 +150,13 @@ export function Dashboard() {
           queryFn: () => threadsApi.upcomingUnlocks(90).then(r => r.data).catch(() => null),
         });
 
+        // Family Thread — list (lightweight; first one is featured on the dashboard).
+        const { data: threadList } = useQuery({
+          queryKey: ['threads', 'list'],
+          queryFn: () => threadsApi.list().then(r => r.data).catch(() => null),
+        });
+        const featuredThread = threadList?.threads?.[0];
+
     const [showNewFeaturesNotification, setShowNewFeaturesNotification] = useState(true);
 
     const newFeaturesNotification = notificationsData?.recentNotifications?.find(
@@ -483,6 +490,51 @@ export function Dashboard() {
             Leave a 60-Second Message
           </motion.button>
         </motion.section>
+
+        {/* Family Thread — featured card above the sanctuary grid */}
+        {featuredThread ? (
+          <motion.section
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            className="mb-12 md:mb-16"
+          >
+            <button
+              onClick={() => navigate(`/threads/${featuredThread.id}`)}
+              className="w-full text-left border border-gold/30 hover:border-gold/60 rounded-2xl px-7 py-6 bg-gradient-to-r from-void-surface/80 to-void-surface/40 transition-colors group"
+            >
+              <div className="flex items-baseline justify-between gap-6 flex-wrap">
+                <div className="flex-1 min-w-0">
+                  <p className="font-mono text-[0.65rem] tracking-[0.32em] uppercase text-gold mb-2">
+                    Your family thread
+                  </p>
+                  <h2 className="font-body text-2xl md:text-3xl text-paper truncate">{featuredThread.name}</h2>
+                  {featuredThread.dedication ? (
+                    <p className="text-paper/55 text-sm mt-1 line-clamp-1">{featuredThread.dedication}</p>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-6 text-xs text-paper/55">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Edit3 size={13} /> {featuredThread.entry_count} {featuredThread.entry_count === 1 ? 'entry' : 'entries'}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Users size={13} /> {featuredThread.member_count}
+                  </span>
+                  <span className="text-gold opacity-70 group-hover:opacity-100 transition-opacity">Open →</span>
+                </div>
+              </div>
+            </button>
+            {threadList && threadList.threads.length > 1 ? (
+              <button
+                type="button"
+                onClick={() => navigate('/threads')}
+                className="text-paper/50 hover:text-paper text-xs mt-3 ml-2"
+              >
+                View all {threadList.threads.length} threads →
+              </button>
+            ) : null}
+          </motion.section>
+        ) : null}
 
         {/* Sanctuary Grid - Four Sacred Objects */}
         <motion.section

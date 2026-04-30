@@ -1,13 +1,23 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Lock, Users, Loader2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Lock, Users, Loader2, Plus, ArrowRight, UserPlus } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
-import { threadsApi } from '../services/api';
+import { threadsApi, type ThreadRole } from '../services/api';
 
 export function ThreadDetail() {
   const { id } = useParams<{ id: string }>();
   const threadId = id ?? '';
+  const queryClient = useQueryClient();
+
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteName, setInviteName] = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRelation, setInviteRelation] = useState('');
+  const [inviteRole, setInviteRole] = useState<Exclude<ThreadRole, 'FOUNDER'>>('READER');
+  const [inviteGen, setInviteGen] = useState<number>(0);
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   const { data: detail, isLoading, error } = useQuery({
     queryKey: ['thread', threadId],
@@ -26,6 +36,35 @@ export function ThreadDetail() {
     queryFn: () => threadsApi.listEntries(threadId, { limit: 100 }).then((r) => r.data),
     enabled: !!threadId,
   });
+
+  const invite = useMutation({
+    mutationFn: () =>
+      threadsApi
+        .addMember(threadId, {
+          display_name: inviteName.trim(),
+          email: inviteEmail.trim() || undefined,
+          relation_label: inviteRelation.trim() || undefined,
+          role: inviteRole,
+          generation_offset: inviteGen,
+        })
+        .then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['thread', threadId, 'members'] });
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
+      setInviteOpen(false);
+      setInviteName('');
+      setInviteEmail('');
+      setInviteRelation('');
+      setInviteRole('READER');
+      setInviteGen(0);
+      setInviteError(null);
+    },
+    onError: (err: { response?: { data?: { error?: string } }; message?: string }) => {
+      setInviteError(err?.response?.data?.error ?? err?.message ?? 'Could not add member.');
+    },
+  });
+
+  const canInvite = detail?.membership.role === 'FOUNDER' || detail?.membership.role === 'SUCCESSOR';
 
   if (isLoading) {
     return (
@@ -101,10 +140,126 @@ export function ThreadDetail() {
               <Lock size={13} /> default visibility · {thread.default_visibility.toLowerCase()}
             </span>
           </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              to={`/threads/${threadId}/compose`}
+              className="btn btn-primary"
+            >
+              <Plus size={16} /> Add entry <ArrowRight size={14} />
+            </Link>
+            {canInvite ? (
+              <button
+                type="button"
+                onClick={() => setInviteOpen((v) => !v)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-paper-15 hover:border-gold-40 text-paper/80 hover:text-paper transition-colors text-sm"
+              >
+                <UserPlus size={14} /> {inviteOpen ? 'Close' : 'Invite member'}
+              </button>
+            ) : null}
+          </div>
         </motion.header>
 
         <section className="mb-14">
           <h2 className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold mb-5">Members</h2>
+
+          {inviteOpen && canInvite ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setInviteError(null);
+                if (!inviteName.trim()) {
+                  setInviteError('Display name is required.');
+                  return;
+                }
+                invite.mutate();
+              }}
+              className="border border-gold-40 rounded-xl p-5 mb-5 bg-void-surface/40"
+            >
+              <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold mb-4">Invite a member</p>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="m-name" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                    Display name
+                  </label>
+                  <input
+                    id="m-name"
+                    value={inviteName}
+                    onChange={(e) => setInviteName(e.target.value)}
+                    placeholder="Aunt Faiza"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-3 py-2 rounded-md placeholder:text-paper/30 transition-colors text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="m-email" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                    Email — optional
+                  </label>
+                  <input
+                    id="m-email"
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder="faiza@example.com"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-3 py-2 rounded-md placeholder:text-paper/30 transition-colors text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="m-rel" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                    Relation
+                  </label>
+                  <input
+                    id="m-rel"
+                    value={inviteRelation}
+                    onChange={(e) => setInviteRelation(e.target.value)}
+                    placeholder="aunt, son, grandchild"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-3 py-2 rounded-md placeholder:text-paper/30 transition-colors text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="m-role" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                    Role
+                  </label>
+                  <select
+                    id="m-role"
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value as typeof inviteRole)}
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-3 py-2 rounded-md transition-colors text-sm"
+                  >
+                    <option value="READER">Reader — can read, can't write</option>
+                    <option value="AUTHOR">Author — can read and add entries</option>
+                    <option value="SUCCESSOR">Successor — inherits if you step away</option>
+                    <option value="PLACEHOLDER">Placeholder — descendant who doesn't exist yet</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="m-gen" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
+                    Generation offset
+                  </label>
+                  <input
+                    id="m-gen"
+                    type="number"
+                    min={-3}
+                    max={5}
+                    value={inviteGen}
+                    onChange={(e) => setInviteGen(parseInt(e.target.value, 10) || 0)}
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-3 py-2 rounded-md transition-colors text-sm"
+                  />
+                  <p className="text-[0.65rem] text-paper/40 mt-1.5">0 = same as you · +1 = your kids · -1 = your parents</p>
+                </div>
+              </div>
+              {inviteError ? <p role="alert" className="text-blood text-sm mt-4">{inviteError}</p> : null}
+              <div className="flex items-center gap-3 mt-5">
+                <button type="submit" disabled={invite.isPending || !inviteName.trim()} className="btn btn-primary">
+                  {invite.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
+                  {invite.isPending ? 'Adding…' : 'Add member'}
+                </button>
+                <button type="button" onClick={() => setInviteOpen(false)} className="text-paper/60 hover:text-paper text-sm">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : null}
+
           {memberRows.length === 0 ? (
             <p className="text-paper/50 text-sm">Just you so far.</p>
           ) : (
