@@ -250,6 +250,41 @@ threadsRoutes.get('/:id/members', async (c) => {
   return c.json({ members: rows.results });
 });
 
+// POST /api/threads/:id/members/:memberId/revoke — revoke a member's
+// access. Append-only: we set revoked_at, never delete the row, so
+// past attribution on entries they authored is preserved.
+//
+// Allowed: FOUNDER and SUCCESSOR roles. Forbidden: revoking the
+// FOUNDER themselves (use a separate transfer flow for that, not yet
+// built — Founders can't be removed; only succeeded).
+threadsRoutes.post('/:id/members/:memberId/revoke', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Authentication required' }, 401);
+
+  const threadId = c.req.param('id');
+  const memberId = c.req.param('memberId');
+
+  const caller = await getMembership(c.env, threadId, userId);
+  if (!caller) return c.json({ error: 'Not a member of this thread' }, 403);
+  if (caller.role !== 'FOUNDER' && caller.role !== 'SUCCESSOR') {
+    return c.json({ error: 'Only Founders and Successors can revoke membership' }, 403);
+  }
+
+  const target = await c.env.DB.prepare(
+    `SELECT id, role FROM thread_members WHERE id = ? AND thread_id = ? AND revoked_at IS NULL`,
+  ).bind(memberId, threadId).first<{ id: string; role: Role }>();
+  if (!target) return c.json({ error: 'Member not found or already revoked' }, 404);
+  if (target.role === 'FOUNDER') {
+    return c.json({ error: 'Cannot revoke the Founder. Founders are succeeded, not removed.' }, 403);
+  }
+
+  await c.env.DB.prepare(
+    `UPDATE thread_members SET revoked_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`,
+  ).bind(memberId).run();
+
+  return c.json({ ok: true, member_id: memberId, revoked_at: new Date().toISOString() });
+});
+
 // ============================================================================
 // ENTRIES
 // ============================================================================

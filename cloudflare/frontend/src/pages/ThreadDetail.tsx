@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Lock, Users, Loader2, Plus, ArrowRight, UserPlus } from 'lucide-react';
+import { ArrowLeft, BookOpen, Lock, Users, Loader2, Plus, ArrowRight, UserPlus, X, Crown } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { threadsApi, type ThreadRole } from '../services/api';
 
@@ -37,6 +37,12 @@ export function ThreadDetail() {
     enabled: !!threadId,
   });
 
+  const { data: successors } = useQuery({
+    queryKey: ['thread', threadId, 'successors'],
+    queryFn: () => threadsApi.listSuccessors(threadId).then((r) => r.data),
+    enabled: !!threadId,
+  });
+
   const invite = useMutation({
     mutationFn: () =>
       threadsApi
@@ -65,6 +71,23 @@ export function ThreadDetail() {
   });
 
   const canInvite = detail?.membership.role === 'FOUNDER' || detail?.membership.role === 'SUCCESSOR';
+  const canGovern = canInvite;
+
+  const revoke = useMutation({
+    mutationFn: (memberId: string) => threadsApi.revokeMember(threadId, memberId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['thread', threadId, 'members'] });
+      queryClient.invalidateQueries({ queryKey: ['thread', threadId, 'successors'] });
+    },
+  });
+
+  const designate = useMutation({
+    mutationFn: (memberIdAndRank: { successor_member_id: string; rank: number }) =>
+      threadsApi.designateSuccessor(threadId, memberIdAndRank),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['thread', threadId, 'successors'] });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -277,11 +300,71 @@ export function ThreadDetail() {
                       {m.relation_label}{m.relation_label && m.email ? ' · ' : ''}{m.email}
                     </p>
                   ) : null}
+                  {canGovern && m.role !== 'FOUNDER' ? (
+                    <div className="flex items-center gap-3 mt-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm(`Revoke ${m.display_name}'s membership? Their past entries stay attributed to them; they lose future access.`)) {
+                            revoke.mutate(m.id);
+                          }
+                        }}
+                        disabled={revoke.isPending}
+                        className="inline-flex items-center gap-1 text-xs text-paper/45 hover:text-blood transition-colors"
+                      >
+                        <X size={11} /> Revoke
+                      </button>
+                      {m.role !== 'SUCCESSOR' && m.role !== 'PLACEHOLDER' ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            designate.mutate({ successor_member_id: m.id, rank: (successors?.successors.length ?? 0) + 1 })
+                          }
+                          disabled={designate.isPending}
+                          className="inline-flex items-center gap-1 text-xs text-paper/45 hover:text-gold transition-colors"
+                        >
+                          <Crown size={11} /> Make successor
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </li>
               ))}
             </ul>
           )}
         </section>
+
+        {/* Successor chain — only show when there are successors OR the caller can govern */}
+        {(successors?.successors.length ?? 0) > 0 || canGovern ? (
+          <section className="mb-14">
+            <h2 className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold mb-2">Successors</h2>
+            <p className="text-paper/55 text-sm leading-relaxed mb-5 max-w-prose">
+              The line of inheritance for this thread. If the Founder steps away or dies, the highest-ranked active Successor takes over founder rights — keeping the thread going without breaking continuity.
+            </p>
+            {successors?.successors.length ? (
+              <ol className="space-y-2">
+                {successors.successors.map((s) => (
+                  <li
+                    key={s.id}
+                    className="flex items-baseline justify-between gap-3 border border-paper-15 rounded-lg px-4 py-3 bg-void-surface/40"
+                  >
+                    <div className="flex items-baseline gap-3">
+                      <span className="font-mono text-[0.65rem] text-gold/70 w-6">#{s.rank}</span>
+                      <span className="font-body text-base">{s.display_name}</span>
+                    </div>
+                    <span className="font-mono text-[0.6rem] tracking-[0.22em] uppercase text-paper/45">
+                      {s.role.toLowerCase()}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-paper/50 text-sm">
+                None designated yet. Use “Make successor” on a member above to start the chain.
+              </p>
+            )}
+          </section>
+        ) : null}
 
         <section>
           <h2 className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold mb-5">Entries</h2>

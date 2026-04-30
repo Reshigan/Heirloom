@@ -668,6 +668,8 @@ export const threadsApi = {
       generation_offset?: number;
     },
   ) => api.post<{ member: { id: string; role: ThreadRole; display_name: string } }>(`/threads/${threadId}/members`, data),
+  revokeMember: (threadId: string, memberId: string) =>
+    api.post<{ ok: boolean; member_id: string; revoked_at: string }>(`/threads/${threadId}/members/${memberId}/revoke`),
 
   // Entries
   listEntries: (
@@ -705,9 +707,22 @@ export const threadsApi = {
   ) => api.post<{ comment: { id: string } }>(`/threads/${threadId}/entries/${entryId}/comments`, data),
 
   // Successor designations
-  listSuccessors: (threadId: string) => api.get(`/threads/${threadId}/successors`),
+  listSuccessors: (threadId: string) =>
+    api.get<{
+      successors: {
+        id: string;
+        thread_id: string;
+        successor_member_id: string;
+        rank: number;
+        designated_at: string;
+        designated_by_member_id: string | null;
+        revoked_at: string | null;
+        display_name: string;
+        role: ThreadRole;
+      }[];
+    }>(`/threads/${threadId}/successors`),
   designateSuccessor: (threadId: string, data: { successor_member_id: string; rank?: number }) =>
-    api.post(`/threads/${threadId}/successors`, data),
+    api.post<{ designation: { id: string; rank: number } }>(`/threads/${threadId}/successors`, data),
 
   // Time-locked inbox (cross-thread, scoped to caller)
   upcomingUnlocks: (days = 90) =>
