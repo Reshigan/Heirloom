@@ -36,46 +36,48 @@ interface Warmth {
 }
 
 function warmthForHour(h: number): Warmth {
+  // Intensities cranked up so the motion is perceptible without being
+  // distracting. The page should feel lived-in within the first second.
   if (h < 5)
     return {
-      r: 212, g: 158, b: 92, alpha: 0.045,
-      cursor: { r: 240, g: 188, b: 122, alpha: 0.12 },
-      vignette: 0.22, blob: 0.06,
+      r: 212, g: 158, b: 92, alpha: 0.10,
+      cursor: { r: 240, g: 188, b: 122, alpha: 0.28 },
+      vignette: 0.28, blob: 0.14,
     };
   if (h < 8)
     return {
-      r: 244, g: 198, b: 132, alpha: 0.06,
-      cursor: { r: 250, g: 215, b: 160, alpha: 0.15 },
-      vignette: 0.16, blob: 0.07,
+      r: 244, g: 198, b: 132, alpha: 0.13,
+      cursor: { r: 250, g: 215, b: 160, alpha: 0.32 },
+      vignette: 0.20, blob: 0.16,
     };
   if (h < 11)
     return {
-      r: 250, g: 222, b: 168, alpha: 0.05,
-      cursor: { r: 252, g: 232, b: 188, alpha: 0.14 },
-      vignette: 0.10, blob: 0.06,
+      r: 250, g: 222, b: 168, alpha: 0.11,
+      cursor: { r: 252, g: 232, b: 188, alpha: 0.30 },
+      vignette: 0.14, blob: 0.14,
     };
   if (h < 16)
     return {
-      r: 252, g: 240, b: 210, alpha: 0.025,
-      cursor: { r: 254, g: 244, b: 220, alpha: 0.10 },
-      vignette: 0.08, blob: 0.04,
+      r: 252, g: 230, b: 196, alpha: 0.08,
+      cursor: { r: 254, g: 240, b: 210, alpha: 0.26 },
+      vignette: 0.12, blob: 0.12,
     };
   if (h < 19)
     return {
-      r: 244, g: 192, b: 130, alpha: 0.07,
-      cursor: { r: 250, g: 210, b: 150, alpha: 0.16 },
-      vignette: 0.14, blob: 0.07,
+      r: 244, g: 192, b: 130, alpha: 0.14,
+      cursor: { r: 250, g: 210, b: 150, alpha: 0.34 },
+      vignette: 0.18, blob: 0.16,
     };
   if (h < 22)
     return {
-      r: 232, g: 168, b: 100, alpha: 0.085,
-      cursor: { r: 244, g: 192, b: 130, alpha: 0.18 },
-      vignette: 0.20, blob: 0.08,
+      r: 232, g: 168, b: 100, alpha: 0.17,
+      cursor: { r: 244, g: 192, b: 130, alpha: 0.38 },
+      vignette: 0.26, blob: 0.18,
     };
   return {
-    r: 212, g: 158, b: 92, alpha: 0.07,
-    cursor: { r: 240, g: 184, b: 118, alpha: 0.16 },
-    vignette: 0.24, blob: 0.07,
+    r: 212, g: 158, b: 92, alpha: 0.14,
+    cursor: { r: 240, g: 184, b: 118, alpha: 0.34 },
+    vignette: 0.32, blob: 0.16,
   };
 }
 
@@ -87,7 +89,9 @@ export function AmbientField() {
     w: 0,
     h: 0,
     dpr: 1,
-    cursor: { x: 0.5, y: 0.5, targetX: 0.5, targetY: 0.5, active: false },
+    // Halo on by default — anchored at the centre — so the lamplight
+    // is visible immediately, before the user moves the cursor.
+    cursor: { x: 0.5, y: 0.5, targetX: 0.5, targetY: 0.5, active: true },
     warmth: warmthForHour(new Date().getHours()),
     lastWarmthMin: -1,
     rafId: 0,
@@ -136,12 +140,13 @@ export function AmbientField() {
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('visibilitychange', onVisibility);
 
-    // Cheap pseudo-noise for slow blob positions. Smooth, stable.
+    // Pseudo-noise for blob positions. Cycle ~12s end-to-end so the
+    // motion is visible during a normal session without being busy.
     function nx(t: number, phase: number) {
-      return 0.5 + 0.5 * Math.sin(t / 9000 + phase) * Math.cos(t / 14000 + phase * 0.7);
+      return 0.5 + 0.5 * Math.sin(t / 4200 + phase) * Math.cos(t / 6800 + phase * 0.7);
     }
     function ny(t: number, phase: number) {
-      return 0.5 + 0.5 * Math.cos(t / 11000 + phase * 1.3) * Math.sin(t / 17000 + phase * 0.5);
+      return 0.5 + 0.5 * Math.cos(t / 5400 + phase * 1.3) * Math.sin(t / 8200 + phase * 0.5);
     }
 
     function frame(t: number) {
@@ -160,9 +165,9 @@ export function AmbientField() {
       cursor.x += (cursor.targetX - cursor.x) * ease;
       cursor.y += (cursor.targetY - cursor.y) * ease;
 
-      // Pointer parallax — small offset opposite the cursor.
-      const px = (cursor.x - 0.5) * 24;
-      const py = (cursor.y - 0.5) * 18;
+      // Pointer parallax — visible offset opposite the cursor.
+      const px = (cursor.x - 0.5) * 56;
+      const py = (cursor.y - 0.5) * 42;
 
       // 1. Paper base
       ctx.fillStyle = PAPER;
@@ -204,18 +209,26 @@ export function AmbientField() {
       }
       ctx.globalCompositeOperation = 'source-over';
 
-      // 4. Cursor lamplight — only when the cursor has been moved at least once
-      if (cursor.active) {
-        const cxp = cursor.x * w + px * 0.2;
-        const cyp = cursor.y * h + py * 0.2;
-        const radius = Math.max(w, h) * 0.28;
-        const cg = ctx.createRadialGradient(cxp, cyp, 0, cxp, cyp, radius);
-        cg.addColorStop(0, `rgba(${warmth.cursor.r}, ${warmth.cursor.g}, ${warmth.cursor.b}, ${warmth.cursor.alpha})`);
-        cg.addColorStop(0.6, `rgba(${warmth.cursor.r}, ${warmth.cursor.g}, ${warmth.cursor.b}, ${warmth.cursor.alpha * 0.3})`);
-        cg.addColorStop(1, `rgba(${warmth.cursor.r}, ${warmth.cursor.g}, ${warmth.cursor.b}, 0)`);
-        ctx.fillStyle = cg;
-        ctx.fillRect(0, 0, w, h);
-      }
+      // 4. Cursor lamplight — a real lamp under the reader's hand.
+      // Visible immediately on first paint (we initialise active=true so
+      // the halo is centred until the user moves).
+      const cxp = cursor.x * w + px * 0.2;
+      const cyp = cursor.y * h + py * 0.2;
+      // Two stacked halos: a tight bright pool, plus a wide soft warmth.
+      const tightR = Math.max(w, h) * 0.18;
+      const tightG = ctx.createRadialGradient(cxp, cyp, 0, cxp, cyp, tightR);
+      tightG.addColorStop(0, `rgba(${warmth.cursor.r}, ${warmth.cursor.g}, ${warmth.cursor.b}, ${warmth.cursor.alpha})`);
+      tightG.addColorStop(1, `rgba(${warmth.cursor.r}, ${warmth.cursor.g}, ${warmth.cursor.b}, 0)`);
+      ctx.fillStyle = tightG;
+      ctx.fillRect(0, 0, w, h);
+
+      const wideR = Math.max(w, h) * 0.45;
+      const wideG = ctx.createRadialGradient(cxp, cyp, 0, cxp, cyp, wideR);
+      wideG.addColorStop(0, `rgba(${warmth.cursor.r}, ${warmth.cursor.g}, ${warmth.cursor.b}, ${warmth.cursor.alpha * 0.45})`);
+      wideG.addColorStop(0.6, `rgba(${warmth.cursor.r}, ${warmth.cursor.g}, ${warmth.cursor.b}, ${warmth.cursor.alpha * 0.15})`);
+      wideG.addColorStop(1, `rgba(${warmth.cursor.r}, ${warmth.cursor.g}, ${warmth.cursor.b}, 0)`);
+      ctx.fillStyle = wideG;
+      ctx.fillRect(0, 0, w, h);
 
       // 5. Vignette — last layer, darkens edges
       const vg = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.75);
