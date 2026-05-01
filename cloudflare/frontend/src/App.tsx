@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { useThemeStore } from './stores/themeStore';
@@ -166,6 +166,53 @@ function PushNotificationHandler() {
   return null;
 }
 
+/**
+ * RouteChrome — the cross-app chrome (EternalBackground, ComfortSettings,
+ * Suspense fallback) plus a per-route shape for it.
+ *
+ * /v3/* explicitly rejects the v1/v2 "ethereal vault" aesthetic
+ * (see src/v3/DESIGN.md). On those routes we skip EternalBackground
+ * and ComfortSettings entirely and render a bone-coloured Suspense
+ * fallback so there's no flash of the dark backdrop while a chunk
+ * loads.
+ */
+function RouteChrome({
+  children,
+  showComfortSettings,
+  setShowComfortSettings,
+}: {
+  children: React.ReactNode;
+  showComfortSettings: boolean;
+  setShowComfortSettings: (v: boolean) => void;
+}) {
+  const { pathname } = useLocation();
+  const isV3 = pathname.startsWith('/v3');
+
+  return (
+    <>
+      {!isV3 ? (
+        <>
+          <EternalBackground />
+          <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
+          <ComfortSettings isOpen={showComfortSettings} onClose={() => setShowComfortSettings(false)} />
+        </>
+      ) : null}
+      <Suspense
+        fallback={
+          <div
+            style={{
+              minHeight: '100vh',
+              backgroundColor: isV3 ? '#F4EFE6' : 'transparent',
+            }}
+          />
+        }
+      >
+        {children}
+      </Suspense>
+    </>
+  );
+}
+
 export default function App() {
   const [showComfortSettings, setShowComfortSettings] = useState(false);
   const { theme } = useThemeStore();
@@ -187,18 +234,12 @@ export default function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                  <PushNotificationHandler />
-                  <EternalBackground />
-                  {/* CustomCursor removed per v2 spec */}
-          
-          {/* Comfort Settings - accessible from any page */}
-          <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
-          <ComfortSettings 
-            isOpen={showComfortSettings} 
-            onClose={() => setShowComfortSettings(false)} 
-          />
-          <Suspense fallback={<div style={{ minHeight: '100vh' }} />}>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <PushNotificationHandler />
+          <RouteChrome
+            showComfortSettings={showComfortSettings}
+            setShowComfortSettings={setShowComfortSettings}
+          >
           <Routes>
           {/* Public routes */}
                     <Route path="/" element={<Landing />} />
@@ -515,7 +556,7 @@ export default function App() {
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
           </Routes>
-          </Suspense>
+          </RouteChrome>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>
