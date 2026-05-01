@@ -96,6 +96,25 @@ const V3FamilyFeed = lazy(() => import('./v3/pages/FamilyFeed').then(m => ({ def
 const V3OnThisDay = lazy(() => import('./v3/pages/OnThisDay').then(m => ({ default: m.OnThisDay })));
 const V3Family = lazy(() => import('./v3/pages/Family').then(m => ({ default: m.Family })));
 const V3Successors = lazy(() => import('./v3/pages/Successors').then(m => ({ default: m.Successors })));
+const V3Write = lazy(() => import('./v3/pages/Write').then(m => ({ default: m.Write })));
+const V3Record = lazy(() => import('./v3/pages/Record').then(m => ({ default: m.Record })));
+const V3Letter = lazy(() => import('./v3/pages/Letter').then(m => ({ default: m.Letter })));
+const V3Capsule = lazy(() => import('./v3/pages/Capsule').then(m => ({ default: m.Capsule })));
+const V3LifeEvents = lazy(() => import('./v3/pages/LifeEvents').then(m => ({ default: m.LifeEvents })));
+const V3Milestones = lazy(() => import('./v3/pages/Milestones').then(m => ({ default: m.Milestones })));
+const V3Memorials = lazy(() => import('./v3/pages/Memorials').then(m => ({ default: m.Memorials })));
+const V3Artifacts = lazy(() => import('./v3/pages/Artifacts').then(m => ({ default: m.Artifacts })));
+const V3Book = lazy(() => import('./v3/pages/Book').then(m => ({ default: m.Book })));
+const V3Gift = lazy(() => import('./v3/pages/Gift').then(m => ({ default: m.Gift })));
+const V3Cards = lazy(() => import('./v3/pages/Cards').then(m => ({ default: m.Cards })));
+const V3Recipient = lazy(() => import('./v3/pages/Recipient').then(m => ({ default: m.Recipient })));
+const V3Plan = lazy(() => import('./v3/pages/Plan').then(m => ({ default: m.Plan })));
+const V3Streaks = lazy(() => import('./v3/pages/Streaks').then(m => ({ default: m.Streaks })));
+const V3Wrapped = lazy(() => import('./v3/pages/Wrapped').then(m => ({ default: m.Wrapped })));
+const V3Future = lazy(() => import('./v3/pages/Future').then(m => ({ default: m.Future })));
+const V3Settings = lazy(() => import('./v3/pages/Settings').then(m => ({ default: m.Settings })));
+const V3Billing = lazy(() => import('./v3/pages/Billing').then(m => ({ default: m.Billing })));
+const V3Archive = lazy(() => import('./v3/pages/Archive').then(m => ({ default: m.Archive })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -462,32 +481,32 @@ export default function App() {
           <Route path="/v3/feed" element={<V3FamilyFeed />} />
           <Route path="/v3/onthisday" element={<V3OnThisDay />} />
           {/* Writing */}
-          <Route path="/v3/write" element={<V3ComingSoon title="New entry" />} />
-          <Route path="/v3/record" element={<V3ComingSoon title="Record voice" />} />
-          <Route path="/v3/letter" element={<V3ComingSoon title="Write a letter" />} />
-          <Route path="/v3/capsule" element={<V3ComingSoon title="Time capsule" />} />
+          <Route path="/v3/write" element={<V3Write />} />
+          <Route path="/v3/record" element={<V3Record />} />
+          <Route path="/v3/letter" element={<V3Letter />} />
+          <Route path="/v3/capsule" element={<V3Capsule />} />
           {/* People */}
           <Route path="/v3/family" element={<V3Family />} />
           <Route path="/v3/successors" element={<V3Successors />} />
           {/* Records */}
-          <Route path="/v3/lifeevents" element={<V3ComingSoon title="Life events" />} />
-          <Route path="/v3/milestones" element={<V3ComingSoon title="Milestones" />} />
-          <Route path="/v3/memorials" element={<V3ComingSoon title="Memorials" />} />
-          <Route path="/v3/artifacts" element={<V3ComingSoon title="Story artifacts" />} />
-          <Route path="/v3/book" element={<V3ComingSoon title="Living book" />} />
+          <Route path="/v3/lifeevents" element={<V3LifeEvents />} />
+          <Route path="/v3/milestones" element={<V3Milestones />} />
+          <Route path="/v3/memorials" element={<V3Memorials />} />
+          <Route path="/v3/artifacts" element={<V3Artifacts />} />
+          <Route path="/v3/book" element={<V3Book />} />
           {/* Send */}
-          <Route path="/v3/gift" element={<V3ComingSoon title="Gift a memory" />} />
-          <Route path="/v3/cards" element={<V3ComingSoon title="Memory cards" />} />
-          <Route path="/v3/recipient" element={<V3ComingSoon title="Recipient experience" />} />
+          <Route path="/v3/gift" element={<V3Gift />} />
+          <Route path="/v3/cards" element={<V3Cards />} />
+          <Route path="/v3/recipient" element={<V3Recipient />} />
           {/* Reflect */}
-          <Route path="/v3/plan" element={<V3ComingSoon title="Thread plan" />} />
-          <Route path="/v3/streaks" element={<V3ComingSoon title="Streaks" />} />
-          <Route path="/v3/wrapped" element={<V3ComingSoon title="Wrapped" />} />
-          <Route path="/v3/future" element={<V3ComingSoon title="Future letter" />} />
+          <Route path="/v3/plan" element={<V3Plan />} />
+          <Route path="/v3/streaks" element={<V3Streaks />} />
+          <Route path="/v3/wrapped" element={<V3Wrapped />} />
+          <Route path="/v3/future" element={<V3Future />} />
           {/* Account */}
-          <Route path="/v3/settings" element={<V3ComingSoon title="Settings" />} />
-          <Route path="/v3/billing" element={<V3ComingSoon title="Billing" />} />
-          <Route path="/v3/archive" element={<V3ComingSoon title="Archive audit" />} />
+          <Route path="/v3/settings" element={<V3Settings />} />
+          <Route path="/v3/billing" element={<V3Billing />} />
+          <Route path="/v3/archive" element={<V3Archive />} />
 
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
