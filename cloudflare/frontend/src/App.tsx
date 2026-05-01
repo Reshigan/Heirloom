@@ -86,6 +86,16 @@ const V3FounderWelcome = lazy(() => import('./v3/pages/FounderWelcome').then(m =
 const V3Login = lazy(() => import('./v3/pages/Login').then(m => ({ default: m.Login })));
 const V3Signup = lazy(() => import('./v3/pages/Signup').then(m => ({ default: m.Signup })));
 const V3ComingSoon = lazy(() => import('./v3/pages/ComingSoon').then(m => ({ default: m.ComingSoon })));
+const V3Home = lazy(() => import('./v3/pages/Home').then(m => ({ default: m.Home })));
+const V3Thread = lazy(() => import('./v3/pages/Thread').then(m => ({ default: m.Thread })));
+const V3Threads = lazy(() => import('./v3/pages/Threads').then(m => ({ default: m.Threads })));
+const V3Memories = lazy(() => import('./v3/pages/Memories').then(m => ({ default: m.Memories })));
+const V3Letters = lazy(() => import('./v3/pages/Letters').then(m => ({ default: m.Letters })));
+const V3Voice = lazy(() => import('./v3/pages/Voice').then(m => ({ default: m.Voice })));
+const V3FamilyFeed = lazy(() => import('./v3/pages/FamilyFeed').then(m => ({ default: m.FamilyFeed })));
+const V3OnThisDay = lazy(() => import('./v3/pages/OnThisDay').then(m => ({ default: m.OnThisDay })));
+const V3Family = lazy(() => import('./v3/pages/Family').then(m => ({ default: m.Family })));
+const V3Successors = lazy(() => import('./v3/pages/Successors').then(m => ({ default: m.Successors })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -443,22 +453,22 @@ export default function App() {
           <Route path="/v3/signup" element={<V3Signup />} />
           <Route path="/v3/forgot" element={<V3ComingSoon title="Forgot password" />} />
           {/* Reading */}
-          <Route path="/v3/home" element={<V3ComingSoon title="Today" />} />
-          <Route path="/v3/thread" element={<V3ComingSoon title="The thread" />} />
-          <Route path="/v3/threads" element={<V3ComingSoon title="All threads" />} />
-          <Route path="/v3/memories" element={<V3ComingSoon title="Memories" />} />
-          <Route path="/v3/letters" element={<V3ComingSoon title="Letters" />} />
-          <Route path="/v3/voice" element={<V3ComingSoon title="Voice" />} />
-          <Route path="/v3/feed" element={<V3ComingSoon title="Family feed" />} />
-          <Route path="/v3/onthisday" element={<V3ComingSoon title="On this day" />} />
+          <Route path="/v3/home" element={<V3Home />} />
+          <Route path="/v3/thread" element={<V3Thread />} />
+          <Route path="/v3/threads" element={<V3Threads />} />
+          <Route path="/v3/memories" element={<V3Memories />} />
+          <Route path="/v3/letters" element={<V3Letters />} />
+          <Route path="/v3/voice" element={<V3Voice />} />
+          <Route path="/v3/feed" element={<V3FamilyFeed />} />
+          <Route path="/v3/onthisday" element={<V3OnThisDay />} />
           {/* Writing */}
           <Route path="/v3/write" element={<V3ComingSoon title="New entry" />} />
           <Route path="/v3/record" element={<V3ComingSoon title="Record voice" />} />
           <Route path="/v3/letter" element={<V3ComingSoon title="Write a letter" />} />
           <Route path="/v3/capsule" element={<V3ComingSoon title="Time capsule" />} />
           {/* People */}
-          <Route path="/v3/family" element={<V3ComingSoon title="Family" />} />
-          <Route path="/v3/successors" element={<V3ComingSoon title="Successors" />} />
+          <Route path="/v3/family" element={<V3Family />} />
+          <Route path="/v3/successors" element={<V3Successors />} />
           {/* Records */}
           <Route path="/v3/lifeevents" element={<V3ComingSoon title="Life events" />} />
           <Route path="/v3/milestones" element={<V3ComingSoon title="Milestones" />} />
