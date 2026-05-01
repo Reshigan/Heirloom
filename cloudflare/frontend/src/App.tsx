@@ -78,6 +78,15 @@ const Threads = lazy(() => import('./pages/Threads').then(m => ({ default: m.Thr
 const ThreadDetail = lazy(() => import('./pages/ThreadDetail').then(m => ({ default: m.ThreadDetail })));
 const ThreadCompose = lazy(() => import('./pages/ThreadCompose').then(m => ({ default: m.ThreadCompose })));
 
+// v3 redesign — parallel route tree. See cloudflare/frontend/src/v3/DESIGN.md
+const V3Landing = lazy(() => import('./v3/pages/Landing').then(m => ({ default: m.Landing })));
+const V3Sitemap = lazy(() => import('./v3/pages/Sitemap').then(m => ({ default: m.Sitemap })));
+const V3Founder = lazy(() => import('./v3/pages/Founder').then(m => ({ default: m.Founder })));
+const V3FounderWelcome = lazy(() => import('./v3/pages/FounderWelcome').then(m => ({ default: m.FounderWelcome })));
+const V3Login = lazy(() => import('./v3/pages/Login').then(m => ({ default: m.Login })));
+const V3Signup = lazy(() => import('./v3/pages/Signup').then(m => ({ default: m.Signup })));
+const V3ComingSoon = lazy(() => import('./v3/pages/ComingSoon').then(m => ({ default: m.ComingSoon })));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -423,6 +432,52 @@ export default function App() {
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+          {/* v3 redesign prototype — light-mode-first, library-not-vault.
+              See cloudflare/frontend/src/v3/DESIGN.md for the spec. */}
+          <Route path="/v3" element={<V3Landing />} />
+          <Route path="/v3/sitemap" element={<V3Sitemap />} />
+          <Route path="/v3/founder" element={<V3Founder />} />
+          <Route path="/v3/founder/welcome" element={<V3FounderWelcome />} />
+          <Route path="/v3/login" element={<V3Login />} />
+          <Route path="/v3/signup" element={<V3Signup />} />
+          <Route path="/v3/forgot" element={<V3ComingSoon title="Forgot password" />} />
+          {/* Reading */}
+          <Route path="/v3/home" element={<V3ComingSoon title="Today" />} />
+          <Route path="/v3/thread" element={<V3ComingSoon title="The thread" />} />
+          <Route path="/v3/threads" element={<V3ComingSoon title="All threads" />} />
+          <Route path="/v3/memories" element={<V3ComingSoon title="Memories" />} />
+          <Route path="/v3/letters" element={<V3ComingSoon title="Letters" />} />
+          <Route path="/v3/voice" element={<V3ComingSoon title="Voice" />} />
+          <Route path="/v3/feed" element={<V3ComingSoon title="Family feed" />} />
+          <Route path="/v3/onthisday" element={<V3ComingSoon title="On this day" />} />
+          {/* Writing */}
+          <Route path="/v3/write" element={<V3ComingSoon title="New entry" />} />
+          <Route path="/v3/record" element={<V3ComingSoon title="Record voice" />} />
+          <Route path="/v3/letter" element={<V3ComingSoon title="Write a letter" />} />
+          <Route path="/v3/capsule" element={<V3ComingSoon title="Time capsule" />} />
+          {/* People */}
+          <Route path="/v3/family" element={<V3ComingSoon title="Family" />} />
+          <Route path="/v3/successors" element={<V3ComingSoon title="Successors" />} />
+          {/* Records */}
+          <Route path="/v3/lifeevents" element={<V3ComingSoon title="Life events" />} />
+          <Route path="/v3/milestones" element={<V3ComingSoon title="Milestones" />} />
+          <Route path="/v3/memorials" element={<V3ComingSoon title="Memorials" />} />
+          <Route path="/v3/artifacts" element={<V3ComingSoon title="Story artifacts" />} />
+          <Route path="/v3/book" element={<V3ComingSoon title="Living book" />} />
+          {/* Send */}
+          <Route path="/v3/gift" element={<V3ComingSoon title="Gift a memory" />} />
+          <Route path="/v3/cards" element={<V3ComingSoon title="Memory cards" />} />
+          <Route path="/v3/recipient" element={<V3ComingSoon title="Recipient experience" />} />
+          {/* Reflect */}
+          <Route path="/v3/plan" element={<V3ComingSoon title="Thread plan" />} />
+          <Route path="/v3/streaks" element={<V3ComingSoon title="Streaks" />} />
+          <Route path="/v3/wrapped" element={<V3ComingSoon title="Wrapped" />} />
+          <Route path="/v3/future" element={<V3ComingSoon title="Future letter" />} />
+          {/* Account */}
+          <Route path="/v3/settings" element={<V3ComingSoon title="Settings" />} />
+          <Route path="/v3/billing" element={<V3ComingSoon title="Billing" />} />
+          <Route path="/v3/archive" element={<V3ComingSoon title="Archive audit" />} />
 
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />

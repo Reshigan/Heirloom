@@ -51,11 +51,31 @@ export default {
         // STATUS COLORS
         emerald: '#5ab88a',
         sapphire: '#64a0dc',
+
+        // ── v3 design tokens (light-mode-first; library, not vault) ──
+        // See cloudflare/frontend/src/v3/DESIGN.md for rationale.
+        bone: {
+          DEFAULT: '#F4EFE6',
+          2: '#EAE3D4',
+        },
+        ink: '#1B1815',
+        char: '#66615A',
+        edge: '#D5CCBA',
+        mark: {
+          DEFAULT: '#92602B',
+          deep: '#6E481E',
+          tint: '#E2D2B6',
+        },
+        'blood-v3': '#8C2C2C',
       },
       fontFamily: {
         display: ['Cinzel', 'serif'],
         body: ['Cormorant', 'Georgia', 'serif'],
         hand: ['Caveat', 'cursive'],
+        // v3 — Newsreader is a Google Font designed for long-form reading.
+        // Used everywhere serif on /v3/*. JetBrains Mono for labels.
+        news: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+        v3mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       transitionTimingFunction: {
         'ease-out': 'cubic-bezier(0.16, 1, 0.3, 1)',
