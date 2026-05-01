@@ -14,6 +14,7 @@ import {
   onNotificationAction,
   removePushNotificationListeners,
 } from './services/pushNotificationService';
+import { clearChunkReloadFlag } from './lib/chunkReload';
 
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
@@ -178,6 +179,9 @@ export default function App() {
   useEffect(() => {
     const prefs = getComfortPreferences();
     applyComfortPreferences(prefs);
+    // We rendered successfully — clear the chunk-reload flag so a
+    // future stale-chunk event triggers a fresh reload attempt.
+    clearChunkReloadFlag();
   }, []);
   
   return (
