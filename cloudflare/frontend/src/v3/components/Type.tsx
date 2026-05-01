@@ -14,25 +14,31 @@ export function Eyebrow({ children, className = '' }: { children: ReactNode; cla
   );
 }
 
-/** Rule — a single hairline. The default divider in v3. */
-export function Rule({ className = '' }: { className?: string }) {
-  return <hr className={`border-0 border-t border-edge ${className}`} />;
+/**
+ * Rule — a single hairline. The default divider in v3.
+ * When `expand` is true, the rule animates in from the left.
+ */
+export function Rule({ className = '', expand = false }: { className?: string; expand?: boolean }) {
+  return <hr className={`border-0 border-t border-edge ${expand ? 'sanctuary-rule-expand' : ''} ${className}`} />;
 }
 
 /**
  * Display headline. Render at the size the page calls for; the component
- * just enforces the type face, leading, kerning, and balance.
+ * just enforces the type face, leading, kerning, and balance. By default
+ * the headline fades in like ink — set `ink={false}` to disable.
  */
 export function Display({
   children,
   size = 2,
   className = '',
   style,
+  ink = true,
 }: {
   children: ReactNode;
   size?: 1 | 2 | 3;
   className?: string;
   style?: CSSProperties;
+  ink?: boolean;
 }) {
   const sizeClass =
     size === 1
@@ -41,8 +47,17 @@ export function Display({
         ? 'text-[clamp(2.25rem,5vw,3.75rem)] leading-[1.05] tracking-[-0.018em]'
         : 'text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.1] tracking-[-0.014em]';
   return (
-    <h1 className={`font-news font-light text-ink ${sizeClass} ${className}`} style={{ textWrap: 'balance', ...style }}>
-      {children}
+    <h1
+      className={`font-news font-light text-ink ${sizeClass} ${ink ? 'sanctuary-inkwash' : ''} ${className}`}
+      style={{ textWrap: 'balance', ...style }}
+    >
+      {ink ? (
+        <span className="sanctuary-inkwash-line" style={{ ['--i' as string]: 0 } as CSSProperties}>
+          {children}
+        </span>
+      ) : (
+        children
+      )}
     </h1>
   );
 }

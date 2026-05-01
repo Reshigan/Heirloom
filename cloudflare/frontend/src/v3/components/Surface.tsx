@@ -1,17 +1,25 @@
 import type { ReactNode } from 'react';
+import { PageTransition } from '../sanctuary/PageTransition';
+import '../sanctuary/sanctuary.css';
 
 /**
- * v3 page wrapper. Establishes the bone background, ink text color,
- * Newsreader as the default face, and a 24px (mobile) / 48px (desktop)
- * gutter. No decorative backgrounds — light comes from outside the page.
+ * v3 page wrapper.
+ *
+ * The atmosphere (AmbientField canvas, paper grain) is hoisted above
+ * Surface — see RouteChrome in src/App.tsx — so it persists across
+ * route changes instead of remounting per page. Surface itself is
+ * transparent: the canvas IS the paper.
+ *
+ * Each Surface wraps its children in PageTransition so navigations
+ * settle over 600ms.
  */
 export function Surface({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`min-h-screen bg-bone text-ink font-news antialiased ${className}`}
-      style={{ fontFeatureSettings: '"liga", "kern", "onum"' }}
+      className={`sanctuary-surface relative min-h-screen text-ink font-news antialiased ${className}`}
+      style={{ fontFeatureSettings: '"liga", "kern", "onum"', zIndex: 10 }}
     >
-      {children}
+      <PageTransition>{children}</PageTransition>
     </div>
   );
 }

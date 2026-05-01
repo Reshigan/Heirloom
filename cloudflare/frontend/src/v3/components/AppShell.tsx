@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { BreathingMark } from '../sanctuary/BreathingMark';
 
 /**
  * App shell — the chrome around every authenticated v3 surface.
@@ -80,33 +81,38 @@ const groups: { title: string; links: { to: string; label: string }[] }[] = [
 export function AppShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   return (
-    <div className="min-h-screen bg-bone text-ink font-news antialiased">
+    <div className="min-h-screen text-ink font-news antialiased">
       <div className="flex">
         {/* Left rail (desktop) */}
-        <aside className="hidden md:flex md:flex-col md:w-[240px] md:shrink-0 md:h-screen md:sticky md:top-0 border-r border-edge px-6 py-8 overflow-y-auto">
-          <Link
-            to="/v3"
-            className="font-v3mono text-[0.7rem] tracking-[0.34em] uppercase text-ink hover:text-mark transition-colors mb-10"
-          >
-            Heirloom
-          </Link>
+        <aside className="hidden md:flex md:flex-col md:w-[240px] md:shrink-0 md:h-screen md:sticky md:top-0 border-r border-edge px-6 py-8 overflow-y-auto bg-bone/30 backdrop-blur-[2px]">
+          <div className="mb-10">
+            <BreathingMark />
+          </div>
           <nav className="flex-1 space-y-7">
             {groups.map((g) => (
               <div key={g.title}>
                 <p className="font-v3mono text-[0.625rem] tracking-[0.3em] uppercase text-mark/80 mb-2">{g.title}</p>
                 <ul className="space-y-1.5">
-                  {g.links.map((l) => (
-                    <li key={l.to}>
-                      <Link
-                        to={l.to}
-                        className={`block font-news text-[0.9375rem] transition-colors ${
-                          pathname === l.to ? 'text-mark' : 'text-ink hover:text-mark'
-                        }`}
-                      >
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
+                  {g.links.map((l) => {
+                    const active = pathname === l.to;
+                    return (
+                      <li key={l.to}>
+                        <Link
+                          to={l.to}
+                          className={`block font-news text-[0.9375rem] transition-colors duration-300 ${
+                            active ? 'text-mark' : 'text-ink hover:text-mark'
+                          }`}
+                          style={
+                            active
+                              ? { borderLeft: '1px solid currentColor', paddingLeft: '8px', marginLeft: '-9px' }
+                              : undefined
+                          }
+                        >
+                          {l.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
@@ -114,7 +120,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="pt-8 mt-8 border-t border-edge">
             <Link
               to="/v3/sitemap"
-              className="font-v3mono text-[0.625rem] tracking-[0.3em] uppercase text-char hover:text-mark transition-colors"
+              className="sanctuary-drawline font-v3mono text-[0.625rem] tracking-[0.3em] uppercase text-char hover:text-mark transition-colors"
             >
               All surfaces
             </Link>
@@ -122,11 +128,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         {/* Mobile top bar */}
-        <div className="md:hidden flex items-center justify-between border-b border-edge px-6 h-[60px] w-full sticky top-0 bg-bone z-10">
-          <Link to="/v3" className="font-v3mono text-[0.7rem] tracking-[0.34em] uppercase">
-            Heirloom
-          </Link>
-          <Link to="/v3/sitemap" className="font-v3mono text-[0.625rem] tracking-[0.3em] uppercase text-mark">
+        <div className="md:hidden flex items-center justify-between border-b border-edge px-6 h-[60px] w-full sticky top-0 bg-bone/85 backdrop-blur-[3px] z-20">
+          <BreathingMark />
+          <Link to="/v3/sitemap" className="sanctuary-drawline font-v3mono text-[0.625rem] tracking-[0.3em] uppercase text-mark">
             Navigate
           </Link>
         </div>

@@ -43,11 +43,11 @@ export function LinkV3({
 
 function cls(variant: 'primary' | 'ghost' | 'link'): string {
   if (variant === 'primary') {
-    return 'inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-ink text-bone font-news text-[0.95rem] tracking-[0.005em] hover:bg-mark-deep transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+    return 'inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-ink text-bone font-news text-[0.95rem] tracking-[0.005em] hover:bg-mark-deep transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed';
   }
   if (variant === 'ghost') {
-    return 'inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-ink text-ink font-news text-[0.95rem] tracking-[0.005em] hover:bg-ink hover:text-bone transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+    return 'inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-ink text-ink font-news text-[0.95rem] tracking-[0.005em] hover:bg-ink hover:text-bone transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed';
   }
-  // link
-  return 'font-news text-mark hover:text-mark-deep underline underline-offset-[3px] decoration-1 decoration-mark/40 hover:decoration-mark transition-colors';
+  // link — uses sanctuary-drawline (underline draws in on hover)
+  return 'sanctuary-drawline font-news text-mark hover:text-mark-deep transition-colors';
 }

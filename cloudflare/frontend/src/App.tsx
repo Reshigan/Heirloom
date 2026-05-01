@@ -15,6 +15,8 @@ import {
   removePushNotificationListeners,
 } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
+import { AmbientField } from './v3/sanctuary/AmbientField';
+import './v3/sanctuary/sanctuary.css';
 
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
@@ -196,13 +198,20 @@ function RouteChrome({
           <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
           <ComfortSettings isOpen={showComfortSettings} onClose={() => setShowComfortSettings(false)} />
         </>
-      ) : null}
+      ) : (
+        // v3 sanctuary atmosphere: persists across route changes.
+        // Sits beneath the route content (z:0). Paper grain is z:1.
+        <>
+          <AmbientField />
+          <div className="sanctuary-grain" aria-hidden />
+        </>
+      )}
       <Suspense
         fallback={
           <div
             style={{
               minHeight: '100vh',
-              backgroundColor: isV3 ? '#F4EFE6' : 'transparent',
+              backgroundColor: isV3 ? 'transparent' : 'transparent',
             }}
           />
         }
