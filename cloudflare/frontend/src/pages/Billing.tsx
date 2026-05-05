@@ -1,416 +1,290 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  ArrowLeft, Check, Clock, 
-  CreditCard, Loader2, AlertTriangle, X, Zap
-} from '../components/Icons';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
-import { Navigation } from '../components/Navigation';
-import { PLANS } from '../config/pricing';
+import { AppFrame } from '../loom/components/AppFrame';
+
+/**
+ * Billing — Loom-native rewrite.
+ *
+ * Three blocks:
+ *   1. Current plan card with renewal date and the card on file
+ *   2. Tier strip (Reader free / Family / Founder $999) with a single
+ *      "current plan" marker; links go through billingApi.checkout
+ *   3. Stripe portal link for managing card / receipts
+ *
+ * Same billingApi calls as before. The tier names match the Loom
+ * Marketing copy: free / Family / Founder.
+ */
+
+const TIERS: {
+  key: string;
+  name: string;
+  price: string;
+  sub: string;
+  bullets: string[];
+  cta: string;
+  to?: string;
+}[] = [
+  {
+    key: 'STARTER',
+    name: 'Reader',
+    price: 'free',
+    sub: 'forever',
+    bullets: [
+      'read & contribute to threads you\'re invited to',
+      'no new threads, no time-locks',
+      'everything still encrypted in browser',
+    ],
+    cta: 'current plan',
+  },
+  {
+    key: 'FAMILY',
+    name: 'Family',
+    price: '$15',
+    sub: '/ month',
+    bullets: [
+      'start your own thread',
+      'set time-locks, designate successors',
+      'up to 6 keepers, one weft',
+    ],
+    cta: 'choose family',
+  },
+  {
+    key: 'FOREVER',
+    name: 'Founder · first 100',
+    price: '$999',
+    sub: 'lifetime',
+    bullets: [
+      'lifetime Family-tier for your bloodline',
+      'name engraved in the continuity record',
+      'funds the successor non-profit',
+    ],
+    cta: 'become a founder',
+    to: '/founder',
+  },
+];
 
 export function Billing() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
 
   const { data: subscription } = useQuery({
     queryKey: ['subscription'],
-    queryFn: () => billingApi.getSubscription().then(r => r.data),
+    queryFn: () => billingApi.getSubscription().then((r) => r.data).catch(() => null),
   });
 
-  const subscribeMutation = useMutation({
-    mutationFn: (planId: string) => billingApi.subscribe(planId, billingCycle),
-    onSuccess: (data) => {
-      // Redirect to Stripe checkout
-      if (data.data.checkoutUrl) {
-        window.location.href = data.data.checkoutUrl;
-      }
+  const checkout = useMutation({
+    mutationFn: (tier: string) =>
+      billingApi.checkout({ tier, billingCycle: 'monthly' }).then((r) => r.data),
+    onSuccess: (data: any) => {
+      if (data?.url) window.location.href = data.url;
+      setBusy(null);
+    },
+    onError: () => setBusy(null),
+  });
+
+  const portal = useMutation({
+    mutationFn: () => billingApi.portal().then((r) => r.data),
+    onSuccess: (data: any) => {
+      if (data?.url) window.location.href = data.url;
     },
   });
 
-  const cancelMutation = useMutation({
-    mutationFn: () => billingApi.cancel(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-      setShowConfirmModal(false);
-    },
-  });
-
-  const handleSelectPlan = (planId: string) => {
-    setSelectedPlan(planId);
-    subscribeMutation.mutate(planId);
-  };
-
-  const isCurrentPlan = (planId: string) => subscription?.tier === planId;
-  const isTrialing = subscription?.status === 'TRIALING';
-  const trialDaysLeft = subscription?.trialDaysRemaining || 0;
-
-  // Memoize floating particles to prevent re-randomization on every render (BUG-007 fix)
-  const floatingParticles = useMemo(() => 
-    [...Array(30)].map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      duration: 12 + Math.random() * 8,
-      delay: Math.random() * 8,
-    })), 
-  []);
+  const currentTier = (subscription?.tier ?? 'STARTER') as string;
+  const renews = subscription?.currentPeriodEnd ?? null;
+  const status = subscription?.status ?? null;
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-
-      <Navigation />
-
-      {/* Floating particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {floatingParticles.map((particle) => (
-          <motion.div
-            key={particle.id}
-            className="absolute w-1 h-1 rounded-full bg-gold/30"
-            style={{
-              left: particle.left,
-              top: particle.top,
-            }}
-            animate={{
-              y: [0, -80, 0],
-              opacity: [0, 0.6, 0],
-            }}
-            transition={{
-              duration: particle.duration,
-              repeat: Infinity,
-              delay: particle.delay,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Header */}
-      <header className="relative z-20 px-6 md:px-12 py-6">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <motion.button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors"
-            whileHover={{ x: -4 }}
-          >
-            <ArrowLeft size={20} />
-            <span>Back to Dashboard</span>
-          </motion.button>
-
-          <motion.div 
-            className="flex items-center gap-3"
-            whileHover={{ scale: 1.02 }}
-          >
-            <motion.span 
-              className="text-3xl text-gold"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            >
-              ∞
-            </motion.span>
-            <span className="text-xl tracking-[0.15em] text-paper/80">Heirloom</span>
-          </motion.div>
-        </div>
+    <AppFrame>
+      <header style={{ marginBottom: 40 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+          Billing
+        </p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        >
+          The cost of being kept.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
+        >
+          A thread costs almost nothing. A loom that lasts fifty years costs a little more.
+        </p>
       </header>
 
-      <main className="relative z-10 px-6 md:px-12 py-8 max-w-7xl mx-auto">
-        {/* Trial Warning */}
-        <AnimatePresence>
-          {isTrialing && trialDaysLeft <= 7 && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="mb-8 p-4 bg-gold/10 border border-gold/30 rounded-xl flex items-center gap-4"
-            >
-              <AlertTriangle className="text-gold flex-shrink-0" size={24} />
-              <div className="flex-1">
-                <p className="font-medium">Your trial ends in {trialDaysLeft} days</p>
-                <p className="text-sm text-paper/70">Choose a plan to continue preserving your legacy</p>
-              </div>
-              <Clock className="text-gold/50" size={20} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Page Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl md:text-5xl font-light mb-4">Choose Your Legacy</h1>
-          <p className="text-paper/70 text-lg max-w-2xl mx-auto">
-            Preserve what matters most. Every plan includes our iron-clad security 
-            and the promise to protect your memories for generations.
+      {/* Current plan card */}
+      <section
+        style={{
+          marginBottom: 56,
+          padding: '28px 36px',
+          border: '1px solid var(--loom-rule-warm)',
+          background: 'rgba(176,122,74,0.04)',
+          display: 'flex',
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          gap: 24,
+          flexWrap: 'wrap',
+        }}
+      >
+        <div>
+          <p className="loom-eyebrow" style={{ fontSize: 10, marginBottom: 8, color: 'var(--loom-warm)' }}>
+            current plan
           </p>
-        </motion.div>
-
-        {/* Billing Toggle */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex justify-center mb-12"
-        >
-          <div className="glass rounded-full p-1 flex items-center gap-1">
-            <button
-              onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-all ${
-                billingCycle === 'monthly'
-                  ? 'bg-gold text-void-deep'
-                  : 'text-paper/70 hover:text-paper'
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBillingCycle('yearly')}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
-                billingCycle === 'yearly'
-                  ? 'bg-gold text-void-deep'
-                  : 'text-paper/70 hover:text-paper'
-              }`}
-            >
-              Yearly
-              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
-                Save 17%
-              </span>
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Plans Grid */}
-        <div className="grid sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-          {PLANS.map((plan, index) => {
-            const Icon = plan.icon;
-            const isCurrent = isCurrentPlan(plan.id);
-            const price = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
-            
-            return (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + index * 0.1 }}
-                className={`relative card ${
-                  plan.popular ? 'border-gold/50 shadow-gold' : ''
-                } ${isCurrent ? 'ring-2 ring-gold/50' : ''}`}
+          <p
+            className="loom-serif"
+            style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', margin: 0, fontStyle: 'italic' }}
+          >
+            {labelFor(currentTier)}
+            {status && status !== 'ACTIVE' ? (
+              <span
+                className="loom-mono"
+                style={{ marginLeft: 14, fontSize: 11, color: 'var(--loom-bone-faint)', fontStyle: 'normal' }}
               >
-                {/* Popular Badge */}
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="badge badge-gold flex items-center gap-1">
-                      <Zap size={12} />
-                      Most Popular
-                    </span>
-                  </div>
-                )}
+                · {status.toLowerCase()}
+              </span>
+            ) : null}
+          </p>
+        </div>
+        <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)', letterSpacing: '0.04em', textAlign: 'right' }}>
+          {renews ? <p style={{ margin: 0 }}>renews {new Date(renews).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</p> : null}
+          <button
+            type="button"
+            onClick={() => portal.mutate()}
+            disabled={portal.isPending}
+            style={{
+              marginTop: 8,
+              background: 'transparent',
+              border: 0,
+              cursor: 'pointer',
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--loom-warm)',
+            }}
+          >
+            {portal.isPending ? 'opening…' : 'manage card →'}
+          </button>
+        </div>
+      </section>
 
-                {/* Current Plan Badge */}
-                {isCurrent && (
-                  <div className="absolute -top-3 right-4">
-                    <span className="badge badge-success">Current Plan</span>
-                  </div>
-                )}
-
-                <div className="mb-6">
-                  <div className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center mb-4">
-                    <Icon className="text-gold" size={28} />
-                  </div>
-                  <h3 className="text-2xl font-light mb-1">{plan.name}</h3>
-                  <p className="text-paper/65 text-sm">{plan.description}</p>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-light">${price}</span>
-                    <span className="text-paper/65">
-                      /{billingCycle === 'yearly' ? 'year' : 'month'}
-                    </span>
-                  </div>
-                  {billingCycle === 'yearly' && (
-                    <p className="text-sm text-green-400 mt-1">
-                      ${(plan.yearlyPrice / 12).toFixed(2)}/month billed annually
-                    </p>
-                  )}
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm">
-                      <Check className="text-gold flex-shrink-0 mt-0.5" size={16} />
-                      <span className="text-paper/80">{feature}</span>
+      {/* Tier strip */}
+      <section style={{ marginBottom: 56 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 18 }}>
+          Plans
+        </p>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 1,
+            background: 'var(--loom-rule)',
+            border: '1px solid var(--loom-rule)',
+          }}
+        >
+          {TIERS.map((t) => {
+            const isCurrent = t.key === currentTier;
+            const featured = t.key === 'FAMILY' && !isCurrent;
+            return (
+              <div
+                key={t.key}
+                style={{
+                  background: featured ? 'var(--loom-ink-card)' : 'var(--loom-ink)',
+                  padding: '32px 28px',
+                  display: 'grid',
+                  gridTemplateRows: 'auto auto auto 1fr auto',
+                  gap: 14,
+                  minHeight: 360,
+                }}
+              >
+                <p className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.2em', color: 'var(--loom-warm)', textTransform: 'uppercase', margin: 0 }}>
+                  {t.name}
+                </p>
+                <p className="loom-serif" style={{ fontSize: 44, fontWeight: 200, color: 'var(--loom-bone)', margin: 0, lineHeight: 1, letterSpacing: '-0.02em' }}>
+                  {t.price}
+                  <span className="loom-mono" style={{ marginLeft: 8, fontSize: 12, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
+                    {t.sub}
+                  </span>
+                </p>
+                <hr className="loom-hairline" style={{ margin: '4px 0' }} />
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
+                  {t.bullets.map((b) => (
+                    <li
+                      key={b}
+                      style={{
+                        position: 'relative',
+                        paddingLeft: 16,
+                        fontFamily: "'Newsreader', serif",
+                        fontSize: 14,
+                        color: 'var(--loom-bone-dim)',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      <span style={{ position: 'absolute', left: 4, top: -2, color: 'var(--loom-warm)', fontSize: 16 }}>·</span>
+                      {b}
                     </li>
                   ))}
                 </ul>
-
-                <motion.button
-                  onClick={() => !isCurrent && handleSelectPlan(plan.id)}
-                  disabled={isCurrent || subscribeMutation.isPending}
-                  className={`w-full py-4 rounded-xl font-medium transition-all ${
-                    isCurrent
-                      ? 'bg-paper/10 text-paper/65 cursor-not-allowed'
-                      : plan.popular
-                      ? 'btn btn-primary'
-                      : 'btn btn-secondary'
-                  }`}
-                  whileHover={!isCurrent ? { scale: 1.02 } : {}}
-                  whileTap={!isCurrent ? { scale: 0.98 } : {}}
-                >
-                  {subscribeMutation.isPending && selectedPlan === plan.id ? (
-                    <Loader2 className="animate-spin mx-auto" size={20} />
-                  ) : isCurrent ? (
-                    'Current Plan'
-                  ) : (
-                    `Choose ${plan.name}`
-                  )}
-                </motion.button>
-              </motion.div>
+                {isCurrent ? (
+                  <p className="loom-mono" style={{ margin: 0, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}>
+                    ∞ &nbsp; current plan
+                  </p>
+                ) : t.to ? (
+                  <Link to={t.to} className="loom-btn" style={{ textDecoration: 'none', textAlign: 'center', width: '100%' }}>
+                    {t.cta}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBusy(t.key);
+                      checkout.mutate(t.key);
+                    }}
+                    disabled={busy === t.key}
+                    className={featured ? 'loom-btn' : 'loom-btn-ghost'}
+                    style={{ width: '100%' }}
+                  >
+                    {busy === t.key ? 'opening…' : t.cta}
+                  </button>
+                )}
+              </div>
             );
           })}
         </div>
+      </section>
 
-        {/* Current Subscription Info */}
-        {subscription && subscription.status !== 'TRIALING' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="card max-w-2xl mx-auto"
-          >
-            <h3 className="text-xl mb-4 flex items-center gap-2">
-              <CreditCard size={20} className="text-gold" />
-              Current Subscription
-            </h3>
-            
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <p className="text-sm text-paper/65">Plan</p>
-                <p className="font-medium">{subscription.tier}</p>
-              </div>
-              <div>
-                <p className="text-sm text-paper/65">Status</p>
-                <p className={`font-medium ${
-                  subscription.status === 'ACTIVE' ? 'text-green-400' : 'text-yellow-400'
-                }`}>
-                  {subscription.status}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-paper/65">Current Period Ends</p>
-                <p className="font-medium">
-                  {subscription.currentPeriodEnd 
-                    ? new Date(subscription.currentPeriodEnd).toLocaleDateString()
-                    : 'N/A'
-                  }
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-paper/65">Auto-Renew</p>
-                <p className="font-medium">
-                  {subscription.cancelAtPeriodEnd ? 'No' : 'Yes'}
-                </p>
-              </div>
-            </div>
-
-            {!subscription.cancelAtPeriodEnd && (
-              <button
-                onClick={() => setShowConfirmModal(true)}
-                className="text-sm text-blood hover:text-blood-light transition-colors"
-              >
-                Cancel Subscription
-              </button>
-            )}
-          </motion.div>
-        )}
-
-        {/* FAQ Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-16 text-center"
-        >
-          <h2 className="text-2xl mb-4">Questions?</h2>
-          <p className="text-paper/70 mb-6">
-            Our team is here to help you choose the right plan for your legacy.
-          </p>
-          <button className="btn btn-ghost">
-            Contact Support
-          </button>
-        </motion.div>
-      </main>
-
-      {/* Cancel Confirmation Modal */}
-      <AnimatePresence>
-        {showConfirmModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-backdrop"
-            onClick={() => setShowConfirmModal(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="modal"
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="absolute top-4 right-4 text-paper/65 hover:text-paper transition-colors"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-blood/20 flex items-center justify-center mx-auto mb-4">
-                  <AlertTriangle className="text-blood" size={32} />
-                </div>
-                <h3 className="text-2xl mb-2">Cancel Subscription?</h3>
-                <p className="text-paper/70 mb-6">
-                  Your memories will remain safe, but you'll lose access to premium features 
-                  at the end of your current billing period.
-                </p>
-
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={() => setShowConfirmModal(false)}
-                    className="btn btn-secondary"
-                  >
-                    Keep My Plan
-                  </button>
-                  <button
-                    onClick={() => cancelMutation.mutate()}
-                    disabled={cancelMutation.isPending}
-                    className="btn btn-danger"
-                  >
-                    {cancelMutation.isPending ? (
-                      <Loader2 className="animate-spin" size={20} />
-                    ) : (
-                      'Yes, Cancel'
-                    )}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+      <p
+        className="loom-mono"
+        style={{
+          fontSize: 10,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: 'var(--loom-bone-faint)',
+          textAlign: 'center',
+          margin: 0,
+        }}
+      >
+        ∞ &nbsp; receipts and card management open in a Stripe portal · invoices live there
+      </p>
+    </AppFrame>
   );
+}
+
+function labelFor(tier: string): string {
+  switch (tier) {
+    case 'STARTER':
+    case 'FREE':
+      return 'Reader · free';
+    case 'ESSENTIAL':
+      return 'Essential';
+    case 'FAMILY':
+      return 'Family · $15/month';
+    case 'FOREVER':
+    case 'LEGACY':
+      return 'Founder · lifetime';
+    default:
+      return tier;
+  }
 }

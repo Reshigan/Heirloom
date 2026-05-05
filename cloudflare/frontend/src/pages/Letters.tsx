@@ -1,478 +1,189 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Plus, Search, Mail, Clock, CheckCircle, AlertCircle,
-  Edit, Trash2, Send, Calendar, Users, X
-} from '../components/Icons';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { lettersApi } from '../services/api';
-import { Logo } from '../components/Logo';
-
-type DeliveryTrigger = 'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS';
-type FilterType = 'all' | 'drafts' | 'scheduled' | 'sent';
+import { AppFrame } from '../loom/components/AppFrame';
 
 interface Letter {
   id: string;
-  title: string;
+  title?: string | null;
+  salutation?: string | null;
   body: string;
-  deliveryTrigger: DeliveryTrigger;
-  scheduledDate?: string;
-  sealedAt?: string;
-  recipients: { id: string; name: string; relationship: string }[];
-  createdAt: string;
-  updatedAt: string;
+  delivery_trigger?: string;
+  scheduled_date?: string | null;
+  sealed_at?: string | null;
+  created_at: string;
 }
 
-const DELIVERY_LABELS: Record<DeliveryTrigger, { label: string; icon: typeof Clock; color: string }> = {
-  IMMEDIATE: { label: 'Send Now', icon: Send, color: 'text-green-400' },
-  SCHEDULED: { label: 'Scheduled', icon: Calendar, color: 'text-blue-400' },
-  POSTHUMOUS: { label: 'After I\'m Gone', icon: Clock, color: 'text-gold' },
-};
-
+/**
+ * Letters — Loom-native rewrite.
+ *
+ * A list of sealed and unsealed letters. Sealed letters carry the ∞
+ * mark and the open date in the left rail; unsealed (drafts) show a
+ * "draft" small-caps tag. Body excerpt only when not sealed.
+ */
 export function Letters() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState<FilterType>('all');
-  const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [letterToDelete, setLetterToDelete] = useState<string | null>(null);
-
-  const { data: letters, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['letters'],
-    queryFn: async () => {
-      const response = await lettersApi.getAll();
-      // API returns {data: [...], pagination: {...}}, extract the array
-      const result = response.data;
-      return Array.isArray(result) ? result : (result?.data || []);
-    },
+    queryFn: () => lettersApi.getAll({ limit: 200 }).then((r) => r.data).catch(() => null),
   });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => lettersApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['letters'] });
-      setShowDeleteModal(false);
-      setLetterToDelete(null);
-    },
-  });
-
-  const filteredLetters = letters?.filter((letter: Letter) => {
-    const matchesSearch = letter.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      letter.body?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (filter === 'all') return matchesSearch;
-    if (filter === 'drafts') return matchesSearch && !letter.sealedAt;
-    if (filter === 'scheduled') return matchesSearch && letter.deliveryTrigger === 'SCHEDULED';
-    if (filter === 'sent') return matchesSearch && letter.sealedAt;
-    
-    return matchesSearch;
-  }) || [];
-
-  const handleDeleteClick = (id: string) => {
-    setLetterToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+  const letters: Letter[] = (data?.letters ?? data ?? []) as Letter[];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
+    <AppFrame>
+      <header style={{ marginBottom: 40 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+          Letters · {letters.length} {letters.length === 1 ? 'letter' : 'letters'}
+        </p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        >
+          Sealed against time.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
+        >
+          Letters are entries with a future open. Body encrypted at rest; the recipient and the
+          date are public; the rest opens when the lock resolves.
+        </p>
+      </header>
+
+      <div style={{ display: 'flex', gap: 24, paddingBottom: 14, marginBottom: 28, borderBottom: '1px solid var(--loom-rule)' }}>
+        <span style={{ flex: 1 }} />
+        <Link
+          to="/compose"
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 10,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--loom-warm)',
+            textDecoration: 'none',
+          }}
+        >
+          write a letter →
+        </Link>
       </div>
 
-      {/* Floating particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(25)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-gold/20"
+      {isLoading ? (
+        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+          Loading…
+        </p>
+      ) : letters.length === 0 ? (
+        <Empty />
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {letters.map((l) => (
+            <LetterRow key={l.id} letter={l} />
+          ))}
+        </ul>
+      )}
+    </AppFrame>
+  );
+}
+
+function LetterRow({ letter }: { letter: Letter }) {
+  const sealed = !!letter.sealed_at;
+  const opens =
+    letter.scheduled_date ?? letter.sealed_at ?? letter.created_at;
+  return (
+    <li style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}>
+      <article style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 32, alignItems: 'baseline' }}>
+        <div>
+          <p
+            className="loom-mono"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              margin: 0,
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              color: 'var(--loom-warm)',
+              textTransform: 'uppercase',
             }}
-            animate={{
-              y: [0, -60, 0],
-              opacity: [0, 0.5, 0],
-            }}
-            transition={{
-              duration: 10 + Math.random() * 5,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Header */}
-            <header className="relative z-20 px-6 md:px-12 py-6">
-              <div className="flex items-center justify-between max-w-7xl mx-auto">
-                <Logo size="md" />
-
-                {/* Only show Write Letter button if user has existing letters */}
-                {letters && letters.length > 0 && (
-                  <motion.button
-                    onClick={() => navigate('/compose')}
-                    className="btn btn-primary flex items-center gap-2"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Plus size={18} />
-                    Write Letter
-                  </motion.button>
-                )}
-              </div>
-            </header>
-
-      <main className="relative z-10 px-6 md:px-12 py-8 max-w-7xl mx-auto">
-        {/* Page Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-4xl font-light mb-2">Your Letters</h1>
-          <p className="text-paper/70">Sealed entries on your thread, waiting for the date you set</p>
-        </motion.div>
-
-        {/* Search and Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-col md:flex-row gap-4 mb-8"
-        >
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" size={18} />
-            <input
-              type="text"
-              placeholder="Search letters..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="input pl-12"
-            />
-          </div>
-          
-          <div className="flex gap-2">
-            {(['all', 'drafts', 'scheduled', 'sent'] as FilterType[]).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-lg text-sm capitalize transition-all ${
-                  filter === f
-                    ? 'bg-gold text-void-deep'
-                    : 'glass text-paper/70 hover:text-paper'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Letters Grid */}
-        {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="card animate-pulse">
-                <div className="h-4 bg-paper/10 rounded w-3/4 mb-4" />
-                <div className="h-3 bg-paper/10 rounded w-full mb-2" />
-                <div className="h-3 bg-paper/10 rounded w-2/3" />
-              </div>
-            ))}
-          </div>
-                ) : filteredLetters.length === 0 ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="max-w-2xl mx-auto"
-                  >
-                    {/* First Letter Guide */}
-                    <div className="card glass-strong">
-                      <div className="text-center mb-8">
-                        <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-6">
-                          <Mail className="text-gold" size={40} />
-                        </div>
-                        <h2 className="text-2xl font-light mb-2">Write Your First Letter</h2>
-                        <p className="text-paper/70">
-                          A letter is a timeless gift. Here's how to get started.
-                        </p>
-                      </div>
-
-                      <div className="space-y-6 mb-8">
-                        <div className="flex gap-4">
-                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">1</div>
-                          <div>
-                            <h4 className="font-medium mb-1">Choose Your Recipient</h4>
-                            <p className="text-paper/70 text-sm">Who do you want to receive this letter? A child, partner, friend, or future self?</p>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-4">
-                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">2</div>
-                          <div>
-                            <h4 className="font-medium mb-1">Share What Matters</h4>
-                            <p className="text-paper/70 text-sm">Write about memories, life lessons, hopes for them, or simply say what you've always wanted to say.</p>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-4">
-                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 text-gold font-medium">3</div>
-                          <div>
-                            <h4 className="font-medium mb-1">Choose When to Deliver</h4>
-                            <p className="text-paper/70 text-sm">Send it now, schedule for a special date, or have it delivered after you're gone.</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-paper/5 rounded-xl p-4 mb-8">
-                        <p className="text-paper/70 text-sm italic">
-                          "The best letters come from the heart. Don't worry about being perfect — just be yourself."
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={() => navigate('/compose')}
-                        className="btn btn-primary w-full"
-                      >
-                        <Edit size={18} />
-                        Start Writing
-                      </button>
-                    </div>
-                  </motion.div>
-                ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence>
-              {filteredLetters.map((letter: Letter, index: number) => {
-                const delivery = DELIVERY_LABELS[letter.deliveryTrigger];
-                const DeliveryIcon = delivery.icon;
-                
-                return (
-                  <motion.div
-                    key={letter.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="card group cursor-pointer"
-                    onClick={() => setSelectedLetter(letter)}
-                  >
-                    {/* Letter Preview */}
-                    <div className="relative">
-                      {/* Status Badge */}
-                      <div className="absolute -top-2 -right-2">
-                        {letter.sealedAt ? (
-                          <span className="badge badge-success flex items-center gap-1">
-                            <CheckCircle size={12} />
-                            Sealed
-                          </span>
-                        ) : (
-                          <span className="badge flex items-center gap-1">
-                            <Edit size={12} />
-                            Draft
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="mb-4">
-                        <h3 className="text-lg font-medium mb-1 group-hover:text-gold transition-colors">
-                          {letter.title || 'Untitled Letter'}
-                        </h3>
-                        <p className="text-paper/65 text-sm line-clamp-2">
-                          {letter.body?.substring(0, 100) || 'No content'}...
-                        </p>
-                      </div>
-
-                      {/* Recipients */}
-                      {letter.recipients?.length > 0 && (
-                        <div className="flex items-center gap-2 mb-4">
-                          <Users size={14} className="text-paper/70" />
-                          <span className="text-sm text-paper/70">
-                            {letter.recipients.map(r => r.name).join(', ')}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Delivery Info */}
-                      <div className="flex items-center justify-between">
-                        <div className={`flex items-center gap-2 text-sm ${delivery.color}`}>
-                          <DeliveryIcon size={14} />
-                          <span>{delivery.label}</span>
-                        </div>
-                        <span className="text-xs text-paper/70">
-                          {formatDate(letter.updatedAt)}
-                        </span>
-                      </div>
-
-                      {/* Scheduled Date */}
-                      {letter.deliveryTrigger === 'SCHEDULED' && letter.scheduledDate && (
-                        <div className="mt-2 text-xs text-paper/65">
-                          Delivers: {formatDate(letter.scheduledDate)}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="flex gap-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/compose?edit=${letter.id}`);
-                          }}
-                          className="p-2 rounded-lg glass hover:bg-gold/20 transition-colors"
-                        >
-                          <Edit size={14} className="text-paper/70" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClick(letter.id);
-                          }}
-                          className="p-2 rounded-lg glass hover:bg-blood/20 transition-colors"
-                        >
-                          <Trash2 size={14} className="text-paper/70" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Hover glow */}
-                    <div className="absolute -inset-4 rounded-3xl bg-gold/0 group-hover:bg-gold/5 transition-colors blur-xl pointer-events-none" />
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-        )}
-      </main>
-
-      {/* Letter Preview Modal */}
-      <AnimatePresence>
-        {selectedLetter && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-backdrop"
-            onClick={() => setSelectedLetter(null)}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="modal max-w-2xl"
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedLetter(null)}
-                className="absolute top-4 right-4 text-paper/65 hover:text-paper transition-colors"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="mb-6">
-                <h2 className="text-2xl font-light mb-2">
-                  {selectedLetter.title || 'Untitled Letter'}
-                </h2>
-                <div className="flex items-center gap-4 text-sm text-paper/65">
-                  <span>Created {formatDate(selectedLetter.createdAt)}</span>
-                  {selectedLetter.recipients?.length > 0 && (
-                    <span>To: {selectedLetter.recipients.map(r => r.name).join(', ')}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Letter Content */}
-              <div className="bg-paper-aged/5 rounded-xl p-6 mb-6 max-h-96 overflow-y-auto">
-                <p className="text-paper/90 whitespace-pre-wrap font-serif leading-relaxed">
-                  {selectedLetter.body}
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3 justify-end">
-                <button
-                  onClick={() => {
-                    setSelectedLetter(null);
-                    navigate(`/compose?edit=${selectedLetter.id}`);
-                  }}
-                  className="btn btn-secondary"
-                >
-                  <Edit size={16} />
-                  Edit
-                </button>
-                {!selectedLetter.sealedAt && (
-                  <button className="btn btn-primary">
-                    <Send size={16} />
-                    Seal & Send
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {showDeleteModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-backdrop"
-            onClick={() => setShowDeleteModal(false)}
+            {sealed ? '∞ sealed' : 'draft'}
+          </p>
+          <p
+            className="loom-mono"
+            style={{
+              margin: '6px 0 0',
+              fontSize: 11,
+              letterSpacing: '0.04em',
+              color: 'var(--loom-bone-faint)',
+            }}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="modal"
-              onClick={e => e.stopPropagation()}
+            {opens ? formatDate(opens) : ''}
+          </p>
+        </div>
+        <div>
+          <h3
+            className="loom-serif"
+            style={{
+              fontSize: 22,
+              fontWeight: 300,
+              color: 'var(--loom-bone)',
+              margin: '0 0 6px',
+              lineHeight: 1.25,
+            }}
+          >
+            {sealed ? <span style={{ color: 'var(--loom-warm)', marginRight: 8 }} aria-hidden>∞</span> : null}
+            {letter.title ?? letter.salutation ?? 'Untitled letter'}
+          </h3>
+          {!sealed && letter.body ? (
+            <p
+              className="loom-body"
+              style={{
+                fontSize: 15,
+                color: 'var(--loom-bone-dim)',
+                margin: 0,
+                lineHeight: 1.7,
+                fontStyle: 'italic',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
             >
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-blood/20 flex items-center justify-center mx-auto mb-4">
-                  <AlertCircle className="text-blood" size={32} />
-                </div>
-                <h3 className="text-2xl mb-2">Delete Letter?</h3>
-                <p className="text-paper/70 mb-6">
-                  This action cannot be undone. The letter will be permanently removed.
-                </p>
+              {letter.body}
+            </p>
+          ) : null}
+          {sealed ? (
+            <p
+              className="loom-body"
+              style={{ margin: 0, fontSize: 14, fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}
+            >
+              Sealed. Will open on the date you set.
+            </p>
+          ) : null}
+        </div>
+      </article>
+    </li>
+  );
+}
 
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={() => setShowDeleteModal(false)}
-                    className="btn btn-secondary"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => letterToDelete && deleteMutation.mutate(letterToDelete)}
-                    disabled={deleteMutation.isPending}
-                    className="btn btn-danger"
-                  >
-                    {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+function Empty() {
+  return (
+    <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center' }}>
+      <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+        No letters yet
+      </p>
+      <h2
+        className="loom-serif"
+        style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 18px' }}
+      >
+        The best letters are written for someone you'll never meet.
+      </h2>
+      <Link to="/compose" className="loom-btn" style={{ textDecoration: 'none' }}>
+        write a letter
+      </Link>
     </div>
   );
+}
+
+function formatDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch {
+    return iso;
+  }
 }

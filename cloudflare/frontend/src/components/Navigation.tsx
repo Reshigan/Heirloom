@@ -1,373 +1,371 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import clsx from 'clsx';
-import { Logo } from './Logo';
 import { useAuthStore } from '../stores/authStore';
-import { Home, Image, Pen, Mic, Users, Settings, LogOut, Sparkles, Menu, X, ChevronDown, LegacyPlaybook, RecipientJourney, StoryArtifact, LifeEventTrigger, Gift, Clock, Heart, Trophy, Sun, Moon } from './Icons';
-import { MobileBottomNav } from './MobileBottomNav';
-import { useThemeStore } from '../stores/themeStore';
+import { useLoomTheme } from '../loom/theme';
 
-const navItems = [
-  { path: '/dashboard', icon: Home, label: 'Vault' },
-  { path: '/threads', icon: LegacyPlaybook, label: 'Thread' },
-  { path: '/memories', icon: Image, label: 'Memories' },
-  { path: '/compose', icon: Pen, label: 'Write' },
-  { path: '/record', icon: Mic, label: 'Record' },
-  { path: '/family', icon: Users, label: 'Family' },
+/**
+ * Navigation — Loom-native top bar for authenticated surfaces.
+ *
+ * Same component name + default export as the v1/v2 Navigation, so
+ * any page that imports `<Navigation />` automatically picks up the
+ * new chrome. Newer pages should use the AppFrame component (which
+ * renders this nav inside a content column) instead of importing
+ * Navigation directly.
+ *
+ * Layout: ∞heirloom mark on the left, six primary tabs in the middle,
+ * a "More" dropdown for the long tail, vault/paper toggle and a user
+ * menu on the right. No icons in the primary nav — type only, mono
+ * caps with locked tracking.
+ */
+const PRIMARY: { to: string; label: string; matchPrefix?: boolean }[] = [
+  { to: '/dashboard', label: 'Today' },
+  { to: '/threads', label: 'Threads', matchPrefix: true },
+  { to: '/memories', label: 'Memories' },
+  { to: '/letters', label: 'Letters' },
+  { to: '/record', label: 'Record' },
+  { to: '/family', label: 'Family', matchPrefix: true },
 ];
 
-const advancedFeatures = [
-  { path: '/wrapped', icon: Sparkles, label: 'Wrapped', description: 'Year in review' },
-  { path: '/legacy-plan', icon: LegacyPlaybook, label: 'Thread Plan', description: 'Guided checklist for what to write to the thread' },
-  { path: '/recipient-experience', icon: RecipientJourney, label: 'Recipient Experience', description: 'Staged releases & memory room' },
-  { path: '/story-artifacts', icon: StoryArtifact, label: 'Story Artifacts', description: 'Create micro-documentaries' },
-  { path: '/life-events', icon: LifeEventTrigger, label: 'Life Events', description: 'Milestone-based triggers' },
-  { path: '/interview', icon: Mic, label: 'Interview Mode', description: 'Guided interview recording' },
-  { path: '/time-capsules', icon: Clock, label: 'Time Capsules', description: 'Seal memories for the future' },
-  { path: '/gift-a-memory', icon: Gift, label: 'Gift a Memory', description: 'Send a memory to someone special' },
-  { path: '/family-feed', icon: Heart, label: 'Family Feed', description: 'Activity from your family' },
-  { path: '/on-this-day', icon: Sparkles, label: 'On This Day', description: 'Memories from years past' },
-  { path: '/book-builder', icon: StoryArtifact, label: 'Book Builder', description: 'Create a printed memory book' },
-  { path: '/memory-map', icon: Trophy, label: 'Memory Map', description: 'See memories on a map' },
+const MORE: { to: string; label: string }[] = [
+  { to: '/compose', label: 'Write a memory' },
+  { to: '/quick', label: 'Quick wizard' },
+  { to: '/time-capsules', label: 'Time capsules' },
+  { to: '/family-feed', label: 'Family feed' },
+  { to: '/on-this-day', label: 'On this day' },
+  { to: '/streaks', label: 'Streaks' },
+  { to: '/challenges', label: 'Challenges' },
+  { to: '/wrapped', label: 'Wrapped' },
+  { to: '/legacy-plan', label: 'Thread plan' },
+  { to: '/life-events', label: 'Life events' },
+  { to: '/milestones', label: 'Milestones' },
+  { to: '/memorials', label: 'Memorials' },
+  { to: '/story-artifacts', label: 'Story artifacts' },
+  { to: '/book-builder', label: 'Living book' },
+  { to: '/memory-cards', label: 'Memory cards' },
+  { to: '/memory-map', label: 'Memory map' },
+  { to: '/gift-a-memory', label: 'Gift a memory' },
+  { to: '/gift-subscriptions', label: 'Gift a subscription' },
+  { to: '/recipient-experience', label: 'Recipient preview' },
+  { to: '/future-letter', label: 'Future letter' },
+  { to: '/interview', label: 'Interview mode' },
+  { to: '/referrals', label: 'Referrals' },
+  { to: '/settings', label: 'Settings' },
+  { to: '/billing', label: 'Billing' },
 ];
 
 export function Navigation() {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const { user, logout } = useAuthStore();
-  const { theme, toggleTheme } = useThemeStore();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [advancedDropdownOpen, setAdvancedDropdownOpen] = useState(false);
-  const advancedDropdownRef = useRef<HTMLDivElement>(null);
-  
-  // Check if current path is an advanced feature
-  const isAdvancedFeatureActive = advancedFeatures.some(f => location.pathname === f.path);
-  
-  // Close advanced dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (advancedDropdownRef.current && !advancedDropdownRef.current.contains(event.target as Node)) {
-        setAdvancedDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-  
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-  
-  // Close mobile menu on resize to desktop
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  
-  // Fix bug #21: Handle empty firstName/lastName safely
+  const { theme, setTheme } = useLoomTheme();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const initials = user
-    ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || '??'
-    : '??';
-  
+    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞'
+    : '∞';
+
+  const isActive = (to: string, prefix?: boolean) =>
+    pathname === to || (prefix === true && pathname.startsWith(to + '/'));
+
   return (
-    <>
-      {/* Skip Navigation Link (BUG-019 fix) */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[1001] focus:px-4 focus:py-2 focus:bg-gold focus:text-void focus:rounded-lg focus:outline-none"
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 30,
+        height: 60,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 0,
+        padding: '0 24px',
+        borderBottom: '1px solid var(--loom-rule)',
+        background: 'color-mix(in srgb, var(--loom-ink) 78%, transparent)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+      }}
+    >
+      <Link to="/dashboard" className="loom-mark" style={{ textDecoration: 'none' }}>
+        <span className="infmark">∞</span>heirloom
+      </Link>
+
+      {/* Desktop primary nav */}
+      <nav
+        style={{
+          display: 'flex',
+          gap: 24,
+          marginLeft: 36,
+          flex: 1,
+        }}
+        className="hidden md:flex"
       >
-        Skip to main content
-      </a>
-      
-    <nav className="fixed top-0 left-0 right-0 z-[1000] px-6 md:px-12 py-4 md:py-6" role="navigation" aria-label="Main navigation">
-      {/* Gradient background with glass effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-void-abyss/95 via-void-abyss/80 to-transparent backdrop-blur-sm pointer-events-none" />
-      
-      <div className="relative flex items-center justify-between max-w-7xl mx-auto">
-        {/* Logo */}
-        <Logo size="md" />
-        
-        {/* Nav links - desktop */}
-        <div className="hidden md:flex items-center gap-6 lg:gap-8">
-          {navItems.map(({ path, icon: Icon, label }) => {
-            const isActive = location.pathname === path;
-            
-            return (
-              <Link
-                key={path}
-                to={path}
-                className={clsx(
-                  'relative flex items-center gap-2 py-2 font-display text-xs tracking-[0.15em] uppercase transition-all duration-300',
-                  isActive 
-                    ? 'text-gold' 
-                    : 'text-paper-50 hover:text-paper-90'
-                )}
-              >
-                <Icon size={16} strokeWidth={1.5} />
-                <span>{label}</span>
-                
-                {isActive && (
-                  <motion.div
-                    className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent"
-                    layoutId="nav-underline"
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-          
-          {/* Advanced Features Dropdown */}
-          <div className="relative" ref={advancedDropdownRef}>
-            <button
-              onClick={() => setAdvancedDropdownOpen(!advancedDropdownOpen)}
-              className={clsx(
-                'relative flex items-center gap-2 py-2 font-display text-xs tracking-[0.15em] uppercase transition-all duration-300',
-                isAdvancedFeatureActive 
-                  ? 'text-gold' 
-                  : 'text-paper-50 hover:text-paper-90'
-              )}
+        {PRIMARY.map((p) => {
+          const active = isActive(p.to, p.matchPrefix);
+          return (
+            <Link
+              key={p.to}
+              to={p.to}
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 11,
+                fontWeight: 500,
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+                color: active ? 'var(--loom-bone)' : 'var(--loom-bone-faint)',
+                textDecoration: 'none',
+                padding: '4px 0',
+                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                whiteSpace: 'nowrap',
+              }}
             >
-              <Sparkles size={16} strokeWidth={1.5} />
-              <span>Advanced</span>
-              <ChevronDown 
-                size={14} 
-                className={clsx('transition-transform duration-200', advancedDropdownOpen && 'rotate-180')} 
-              />
-              
-              {isAdvancedFeatureActive && (
-                <motion.div
-                  className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent"
-                  layoutId="nav-underline-advanced"
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                />
-              )}
-            </button>
-            
-            <AnimatePresence>
-              {advancedDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute top-full left-0 mt-2 w-64 bg-void-deep/95 backdrop-blur-xl border border-gold-20 rounded-xl shadow-2xl shadow-void-abyss/50 overflow-hidden z-50"
+              {p.label}
+            </Link>
+          );
+        })}
+
+        <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            onClick={() => setMoreOpen((v) => !v)}
+            onBlur={() => setTimeout(() => setMoreOpen(false), 200)}
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: '0.32em',
+              textTransform: 'uppercase',
+              color: 'var(--loom-bone-faint)',
+              background: 'transparent',
+              border: 0,
+              cursor: 'pointer',
+              padding: '4px 0',
+            }}
+          >
+            More ▾
+          </button>
+          {moreOpen ? (
+            <div
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 14px)',
+                left: 0,
+                minWidth: 240,
+                background: 'var(--loom-ink-card)',
+                border: '1px solid var(--loom-rule)',
+                padding: '6px 0',
+                zIndex: 50,
+                boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
+                maxHeight: 480,
+                overflowY: 'auto',
+              }}
+            >
+              {MORE.map((m) => (
+                <Link
+                  key={m.to}
+                  to={m.to}
+                  onClick={() => setMoreOpen(false)}
+                  style={{
+                    display: 'block',
+                    padding: '9px 16px',
+                    fontFamily: "'Newsreader', serif",
+                    fontSize: 14,
+                    color: pathname === m.to ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                    fontStyle: pathname === m.to ? 'italic' : 'normal',
+                    textDecoration: 'none',
+                  }}
                 >
-                  {advancedFeatures.map(({ path, icon: Icon, label, description }) => {
-                    const isActive = location.pathname === path;
-                    return (
-                      <Link
-                        key={path}
-                        to={path}
-                        onClick={() => setAdvancedDropdownOpen(false)}
-                        className={clsx(
-                          'flex items-start gap-3 px-4 py-3 transition-all duration-200',
-                          isActive 
-                            ? 'bg-gold-10 text-gold' 
-                            : 'text-paper-70 hover:bg-paper-04 hover:text-paper'
-                        )}
-                      >
-                        <div className={clsx(
-                          'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5',
-                          isActive ? 'bg-gold/20 text-gold' : 'bg-paper-08 text-paper-50'
-                        )}>
-                          <Icon size={18} strokeWidth={1.5} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-display text-xs tracking-[0.1em] uppercase">{label}</div>
-                          <div className="text-xs text-paper-40 mt-0.5">{description}</div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  {m.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </nav>
+
+      {/* Mobile burger */}
+      <button
+        type="button"
+        onClick={() => setMobileOpen((v) => !v)}
+        className="md:hidden"
+        style={{
+          marginLeft: 'auto',
+          marginRight: 12,
+          background: 'transparent',
+          border: 0,
+          color: 'var(--loom-bone)',
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 11,
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+        }}
+      >
+        {mobileOpen ? 'close' : 'menu'}
+      </button>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginLeft: 'auto' }} className="hidden md:flex">
+        <span className="loom-theme-pill">
+          <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')} type="button">
+            vault
+          </button>
+          <button className={theme === 'light' ? 'on' : ''} onClick={() => setTheme('light')} type="button">
+            paper
+          </button>
+        </span>
+
+        {user ? (
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              onClick={() => setUserOpen((v) => !v)}
+              onBlur={() => setTimeout(() => setUserOpen(false), 200)}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: 'transparent',
+                border: '1px solid var(--loom-rule)',
+                color: 'var(--loom-bone)',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                letterSpacing: '0.04em',
+                cursor: 'pointer',
+              }}
+            >
+              {initials}
+            </button>
+            {userOpen ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  minWidth: 220,
+                  background: 'var(--loom-ink-card)',
+                  border: '1px solid var(--loom-rule)',
+                  padding: 8,
+                  zIndex: 50,
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
+                }}
+              >
+                <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--loom-rule)', marginBottom: 6 }}>
+                  <p style={{ margin: 0, fontFamily: "'Newsreader', serif", fontSize: 14, color: 'var(--loom-bone)' }}>
+                    {user.firstName} {user.lastName}
+                  </p>
+                  <p
+                    style={{
+                      margin: '2px 0 0',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 10,
+                      color: 'var(--loom-bone-faint)',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {user.email}
+                  </p>
+                </div>
+                <Link to="/settings" style={menuItemStyle} onClick={() => setUserOpen(false)}>
+                  Settings
+                </Link>
+                <Link to="/billing" style={menuItemStyle} onClick={() => setUserOpen(false)}>
+                  Billing
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserOpen(false);
+                    logout();
+                  }}
+                  style={{
+                    ...menuItemStyle,
+                    background: 'transparent',
+                    border: 0,
+                    width: '100%',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Mobile dropdown panel */}
+      {mobileOpen ? (
+        <div
+          className="md:hidden"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            background: 'var(--loom-ink-card)',
+            borderBottom: '1px solid var(--loom-rule)',
+            padding: '12px 24px 20px',
+            zIndex: 40,
+          }}
+        >
+          {[...PRIMARY, ...MORE].map((m) => (
+            <Link
+              key={m.to}
+              to={m.to}
+              onClick={() => setMobileOpen(false)}
+              style={{
+                display: 'block',
+                padding: '10px 0',
+                fontFamily: "'Newsreader', serif",
+                fontSize: 16,
+                color: pathname === m.to ? 'var(--loom-warm)' : 'var(--loom-bone)',
+                textDecoration: 'none',
+                borderBottom: '1px solid var(--loom-rule)',
+              }}
+            >
+              {m.label}
+            </Link>
+          ))}
+          <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="loom-theme-pill">
+              <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')} type="button">
+                vault
+              </button>
+              <button className={theme === 'light' ? 'on' : ''} onClick={() => setTheme('light')} type="button">
+                paper
+              </button>
+            </span>
+            {user ? (
+              <button
+                type="button"
+                onClick={() => logout()}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--loom-rule)',
+                  color: 'var(--loom-bone)',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  padding: '8px 14px',
+                  cursor: 'pointer',
+                }}
+              >
+                Sign out
+              </button>
+            ) : null}
           </div>
         </div>
-        
-        {/* User menu - desktop */}
-        <div className="hidden md:flex items-center gap-3">
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg text-paper-50 hover:text-gold hover:bg-gold-10 transition-all duration-300"
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
-          </button>
-          
-          <Link
-            to="/settings"
-            className={clsx(
-              'p-2 rounded-lg transition-all duration-300',
-              location.pathname === '/settings' 
-                ? 'text-gold bg-gold-10' 
-                : 'text-paper-50 hover:text-paper-90 hover:bg-paper-04'
-            )}
-            aria-label="Settings"
-          >
-            <Settings size={18} strokeWidth={1.5} aria-hidden="true" />
-          </Link>
-          
-          {/* Avatar */}
-          <Link
-            to="/settings"
-            className="w-9 h-9 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void-abyss text-xs font-display font-medium tracking-wide shadow-lg shadow-gold/20"
-          >
-            {initials}
-          </Link>
-          
-          <button
-            onClick={logout}
-            className="p-2 rounded-lg text-paper-50 hover:text-blood hover:bg-blood/10 transition-all duration-300"
-            aria-label="Sign out"
-          >
-            <LogOut size={18} strokeWidth={1.5} aria-hidden="true" />
-          </button>
-        </div>
-        
-        {/* Mobile menu button */}
-        <button
-          className="md:hidden p-2 rounded-lg text-paper-70 hover:text-gold hover:bg-gold-10 transition-all duration-300"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-      
-      {/* Mobile menu drawer */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            {/* Backdrop - z-[9998] to be below drawer but above everything else */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-void-abyss/90 backdrop-blur-md z-[9998] md:hidden"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-            
-            {/* Drawer - z-[9999] to be above backdrop */}
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-void-deep/95 backdrop-blur-xl border-l border-gold-20 z-[9999] md:hidden flex flex-col shadow-2xl shadow-void-abyss/50"
-            >
-              {/* Close button */}
-              <div className="flex justify-end p-4">
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-lg text-paper-50 hover:text-gold hover:bg-gold-10 transition-all duration-300"
-                  aria-label="Close menu"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-              
-              {/* User info */}
-              <div className="px-6 pb-6 border-b border-paper-08">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void-abyss font-display font-medium text-lg shadow-lg shadow-gold/30">
-                    {initials}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-paper font-display text-lg tracking-wide truncate">{user?.firstName} {user?.lastName}</div>
-                    <div className="text-paper-50 text-sm truncate">{user?.email}</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Nav links */}
-              <nav className="flex-1 py-6 overflow-y-auto">
-                {navItems.map(({ path, icon: Icon, label }) => {
-                  const isActive = location.pathname === path;
-                  return (
-                    <Link
-                      key={path}
-                      to={path}
-                      className={clsx(
-                        'flex items-center gap-4 px-6 py-4 font-display text-sm tracking-[0.1em] uppercase transition-all duration-300',
-                        isActive 
-                          ? 'text-gold bg-gold-10 border-r-2 border-gold' 
-                          : 'text-paper-70 hover:text-paper hover:bg-paper-04'
-                      )}
-                    >
-                      <Icon size={20} strokeWidth={1.5} />
-                      <span>{label}</span>
-                    </Link>
-                  );
-                })}
-                
-                {/* Advanced Features Section */}
-                <div className="px-6 py-3 mt-2 border-t border-paper-08">
-                  <p className="text-xs tracking-[0.15em] text-paper-40 uppercase mb-2">Advanced Features</p>
-                </div>
-                {advancedFeatures.map(({ path, icon: Icon, label }) => {
-                  const isActive = location.pathname === path;
-                  return (
-                    <Link
-                      key={path}
-                      to={path}
-                      className={clsx(
-                        'flex items-center gap-4 px-6 py-4 font-display text-sm tracking-[0.1em] uppercase transition-all duration-300',
-                        isActive 
-                          ? 'text-gold bg-gold-10 border-r-2 border-gold' 
-                          : 'text-paper-70 hover:text-paper hover:bg-paper-04'
-                      )}
-                    >
-                      <Icon size={20} strokeWidth={1.5} />
-                      <span>{label}</span>
-                    </Link>
-                  );
-                })}
-                
-                {/* Settings link */}
-                <div className="px-6 py-3 mt-2 border-t border-paper-08">
-                  <p className="text-xs tracking-[0.15em] text-paper-40 uppercase mb-2">Account</p>
-                </div>
-                <Link
-                  to="/settings"
-                  className={clsx(
-                    'flex items-center gap-4 px-6 py-4 font-display text-sm tracking-[0.1em] uppercase transition-all duration-300',
-                    location.pathname === '/settings' 
-                      ? 'text-gold bg-gold-10 border-r-2 border-gold' 
-                      : 'text-paper-70 hover:text-paper hover:bg-paper-04'
-                  )}
-                >
-                  <Settings size={20} strokeWidth={1.5} />
-                  <span>Settings</span>
-                </Link>
-              </nav>
-              
-              {/* Logout button */}
-              <div className="p-6 border-t border-paper-08">
-                <button
-                  onClick={logout}
-                  className="flex items-center justify-center gap-3 w-full px-4 py-3 text-blood font-display text-sm tracking-[0.1em] uppercase hover:bg-blood/10 rounded-lg transition-all duration-300 border border-blood/30"
-                >
-                  <LogOut size={18} strokeWidth={1.5} />
-                  <span>Sign out</span>
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </nav>
-    
-    {/* Mobile Bottom Navigation */}
-    <MobileBottomNav onMenuClick={() => setMobileMenuOpen(true)} />
-    </>
+      ) : null}
+    </header>
   );
 }
+
+const menuItemStyle: React.CSSProperties = {
+  display: 'block',
+  padding: '8px 12px',
+  fontFamily: "'Newsreader', serif",
+  fontSize: 14,
+  color: 'var(--loom-bone-dim)',
+  textDecoration: 'none',
+};

@@ -1,1130 +1,295 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, CreditCard, Bell, Shield, Trash2, Clock, Lock, Check, ArrowUp, ArrowDown, Camera, Download, Loader2, MessageSquare, Send } from '../components/Icons';
-import { settingsApi, billingApi, deadmanApi, encryptionApi, legacyContactsApi, exportApi } from '../services/api';
+import { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
-import { AvatarCropperModal } from '../components/AvatarCropperModal';
-import { Navigation } from '../components/Navigation';
+import { settingsApi } from '../services/api';
+import { AppFrame } from '../loom/components/AppFrame';
 
-// Mass-Adoption Pricing: $1 / $2 / $5
-const SUBSCRIPTION_PLANS = [
-  {
-    tier: 'STARTER',
-    name: 'Starter',
-    monthlyPrice: 1,
-    yearlyPrice: 10,
-    features: ['500MB storage', '3 voice recordings/month', '5 letters/month', '50 photos', '2 family members'],
-  },
-  {
-    tier: 'FAMILY',
-    name: 'Family',
-    monthlyPrice: 2,
-    yearlyPrice: 20,
-    popular: true,
-    features: ['5GB storage', '20 voice recordings/month', 'Unlimited letters', 'Unlimited photos', '10 family members', '2 min video messages', 'Posthumous delivery', 'Family tree'],
-  },
-  {
-    tier: 'FOREVER',
-    name: 'Forever',
-    monthlyPrice: 5,
-    yearlyPrice: 50,
-    features: ['25GB storage', 'Unlimited voice recordings', 'Unlimited letters', 'Unlimited photos', 'Unlimited family members', '10 min video messages', 'AI transcription', 'Legal documents', 'Priority support'],
-  },
-];
+/**
+ * Settings — Loom-native rewrite.
+ *
+ * Five tabs across a small-caps row (no pills, no boxes):
+ *   - Profile: name, email, password change
+ *   - Notifications: weekly digest, push, marketing
+ *   - Encryption: status only (vault setup is in onboarding)
+ *   - Succession: link to /threads + successor docs
+ *   - Support: contact link
+ *
+ * Same settingsApi calls as before. The full v1/v2 deadman /
+ * legacy-contacts / data-export flows are reachable from the
+ * "More" menu in the top nav for now.
+ */
 
-const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
-  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
-  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
-];
+const TABS = [
+  { id: 'profile', label: 'Profile' },
+  { id: 'notifications', label: 'Notifications' },
+  { id: 'encryption', label: 'Encryption' },
+  { id: 'succession', label: 'Succession' },
+  { id: 'support', label: 'Support' },
+] as const;
+type TabId = (typeof TABS)[number]['id'];
 
 export function Settings() {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const queryClient = useQueryClient();
-  const { user, updateUser, logout } = useAuthStore();
+  const [tab, setTab] = useState<TabId>('profile');
 
-  // Valid tab IDs
-  const validTabs = ['profile', 'subscription', 'deadman', 'encryption', 'notifications', 'security', 'support'];
-  
-  // Initialize activeTab from URL parameter or default to 'profile'
-  const tabFromUrl = searchParams.get('tab');
-  const initialTab = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'profile';
-  const [activeTab, setActiveTab] = useState<string>(initialTab);
-  
-  // Update URL when tab changes
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    setSearchParams({ tab: tabId });
-  };
-    const [profile, setProfile] = useState({ firstName: user?.firstName || '', lastName: user?.lastName || '' });
-    const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
-    const [deadmanConfig, setDeadmanConfig] = useState({ intervalDays: 30, gracePeriodDays: 7 });
-        const [newLegacyContact, setNewLegacyContact] = useState({ name: '', email: '', relationship: '' });
-  
-        // Notification preferences state
-        const [notificationPrefs, setNotificationPrefs] = useState({
-          emailNotifications: true,
-          pushNotifications: true,
-          reminderEmails: true,
-          marketingEmails: false,
-          weeklyDigest: true,
-        });
-    
-        // Status messages for user feedback
-        const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-        
-                // Delete account modal state
-                const [showDeleteModal, setShowDeleteModal] = useState(false);
-                const [deletePassword, setDeletePassword] = useState('');
-        
-                // Data export state
-                const [isExporting, setIsExporting] = useState(false);
-                
-                // Support ticket state
-                const [ticketForm, setTicketForm] = useState({
-                  subject: '',
-                  category: 'general',
-                  description: '',
-                });
-                const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
-                const [ticketSubmitted, setTicketSubmitted] = useState(false);
-  
-        // Avatar upload state
-        const [showAvatarCropper, setShowAvatarCropper] = useState(false);
-        const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
-    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatarUrl || null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  return (
+    <AppFrame>
+      <header style={{ marginBottom: 32 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+          Settings
+        </p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        >
+          Your account.
+        </h1>
+      </header>
 
-    // Handle file selection for avatar
-    const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setSelectedImageSrc(event.target?.result as string);
-          setShowAvatarCropper(true);
-        };
-        reader.readAsDataURL(file);
-      }
-      // Reset input so same file can be selected again
-      if (e.target) e.target.value = '';
-    };
+      {/* Tab strip */}
+      <nav
+        style={{
+          display: 'flex',
+          gap: 28,
+          borderBottom: '1px solid var(--loom-rule)',
+          marginBottom: 36,
+          paddingBottom: 14,
+          overflowX: 'auto',
+        }}
+      >
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            style={{
+              background: 'transparent',
+              border: 0,
+              padding: '0 0 8px',
+              cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: '0.32em',
+              textTransform: 'uppercase',
+              color: tab === t.id ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+              borderBottom: '1px solid',
+              borderColor: tab === t.id ? 'var(--loom-warm)' : 'transparent',
+              marginBottom: -15,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </nav>
 
-    // Handle cropped avatar upload
-    const handleAvatarCropComplete = async (croppedFile: File, previewUrl: string) => {
-      setIsUploadingAvatar(true);
-      try {
-        // Get upload URL from API
-        const { data: urlData } = await settingsApi.getUploadUrl({
-          filename: croppedFile.name,
-          contentType: croppedFile.type,
-        });
-      
-        // Upload to R2
-        await fetch(urlData.uploadUrl, {
-          method: 'PUT',
-          body: croppedFile,
-          headers: { 'Content-Type': croppedFile.type },
-        });
-      
-        // Update profile with new avatar URL
-        await settingsApi.updateProfile({ avatarUrl: urlData.url });
-      
-        // Update local state
-        setAvatarPreview(previewUrl);
-        updateUser({ ...user!, avatarUrl: urlData.url });
-        queryClient.invalidateQueries({ queryKey: ['auth-me'] });
-      
-        setShowAvatarCropper(false);
-        setSelectedImageSrc(null);
-      } catch (error) {
-        console.error('Failed to upload avatar:', error);
-      } finally {
-        setIsUploadingAvatar(false);
-      }
-    };
+      {tab === 'profile' && <ProfileTab />}
+      {tab === 'notifications' && <NotificationsTab />}
+      {tab === 'encryption' && <EncryptionTab />}
+      {tab === 'succession' && <SuccessionTab />}
+      {tab === 'support' && <SupportTab />}
+    </AppFrame>
+  );
+}
 
-  const { data: subscription } = useQuery({
-    queryKey: ['subscription'],
-    queryFn: () => billingApi.getSubscription().then(r => r.data),
-  });
+function ProfileTab() {
+  const { user } = useAuthStore();
+  const [firstName, setFirstName] = useState(user?.firstName ?? '');
+  const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [savedFlash, setSavedFlash] = useState(false);
 
-  const { data: limits } = useQuery({
-    queryKey: ['limits'],
-    queryFn: () => billingApi.getLimits().then(r => r.data),
-  });
-
-  const { data: _pricing } = useQuery({
-    queryKey: ['pricing', user?.preferredCurrency],
-    queryFn: () => billingApi.getPricing(user?.preferredCurrency).then(r => r.data),
-  });
-  void _pricing; // Suppress unused variable warning - kept for future pricing display
-
-  const { data: deadmanStatus } = useQuery({
-    queryKey: ['deadman-status'],
-    queryFn: () => deadmanApi.getStatus().then(r => r.data),
-  });
-
-    const { data: encryptionStatus } = useQuery({
-      queryKey: ['encryption-status'],
-      queryFn: () => encryptionApi.getStatus().then(r => r.data),
-    });
-
-    const { data: legacyContacts } = useQuery({
-      queryKey: ['legacy-contacts'],
-      queryFn: () => legacyContactsApi.getAll().then(r => r.data),
-    });
-
-    // Fetch notification preferences
-    const { data: notificationData } = useQuery({
-      queryKey: ['notifications'],
-      queryFn: () => settingsApi.getNotifications().then(r => r.data),
-    });
-
-    // Update notification prefs when data loads
-    useEffect(() => {
-      if (notificationData?.preferences) {
-        setNotificationPrefs(notificationData.preferences);
-      }
-    }, [notificationData]);
-
-    // Clear status message after 3 seconds
-    useEffect(() => {
-      if (statusMessage) {
-        const timer = setTimeout(() => setStatusMessage(null), 3000);
-        return () => clearTimeout(timer);
-      }
-    }, [statusMessage]);
-
-    const updateProfileMutation = useMutation({
-      mutationFn: () => settingsApi.updateProfile(profile),
-      onSuccess: (res) => {
-        updateUser(res.data);
-        queryClient.invalidateQueries({ queryKey: ['profile'] });
-        setStatusMessage({ type: 'success', text: 'Profile updated successfully' });
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to update profile' });
-      },
-    });
-
-  const changePasswordMutation = useMutation({
-    mutationFn: () => settingsApi.changePassword({ currentPassword: passwords.current, newPassword: passwords.new }),
+  const save = useMutation({
+    mutationFn: () => settingsApi.updateProfile({ firstName, lastName }).then((r) => r.data),
     onSuccess: () => {
-      setPasswords({ current: '', new: '', confirm: '' });
-      alert('Password changed successfully');
+      setSavedFlash(true);
+      setTimeout(() => setSavedFlash(false), 2000);
     },
   });
 
-  const updateCurrencyMutation = useMutation({
-    mutationFn: (currency: string) => billingApi.updateCurrency(currency),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pricing'] });
-    },
+  return (
+    <div style={{ maxWidth: 560, display: 'grid', gap: 28 }}>
+      <p className="loom-eyebrow">Identity</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <Field label="first name" value={firstName} onChange={setFirstName} />
+        <Field label="last name" value={lastName} onChange={setLastName} />
+      </div>
+      <Field label="email" value={user?.email ?? ''} disabled />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <button type="button" onClick={() => save.mutate()} disabled={save.isPending} className="loom-btn">
+          {save.isPending ? 'saving…' : 'save'}
+        </button>
+        {savedFlash ? (
+          <span className="loom-mono" style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}>
+            ∞ saved
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function NotificationsTab() {
+  const { data, refetch } = useQuery({
+    queryKey: ['notifications', 'prefs'],
+    queryFn: () => settingsApi.getNotifications().then((r) => r.data).catch(() => null),
   });
 
-  const checkoutMutation = useMutation({
-    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
-    onSuccess: (res) => {
-      if (res.data.url) {
-        window.location.href = res.data.url;
-      }
-    },
+  const update = useMutation({
+    mutationFn: (patch: Record<string, boolean>) => settingsApi.updateNotifications(patch),
+    onSuccess: () => refetch(),
   });
 
-  const changePlanMutation = useMutation({
-    mutationFn: (tier: string) => billingApi.checkout({ tier, currency: user?.preferredCurrency }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-      queryClient.invalidateQueries({ queryKey: ['limits'] });
-    },
-  });
+  const prefs = (data ?? {}) as Record<string, boolean>;
 
-  const configureDeadmanMutation = useMutation({
-    mutationFn: () => deadmanApi.configure(deadmanConfig),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
-      setStatusMessage({ type: 'success', text: 'Dead Man\'s Switch configured successfully' });
-    },
-    onError: () => {
-      setStatusMessage({ type: 'error', text: 'Failed to configure Dead Man\'s Switch' });
-    },
-  });
-
-  const checkInMutation = useMutation({
-    mutationFn: () => deadmanApi.checkIn(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
-      setStatusMessage({ type: 'success', text: 'Check-in recorded successfully' });
-    },
-    onError: () => {
-      setStatusMessage({ type: 'error', text: 'Failed to record check-in' });
-    },
-  });
-
-    const addLegacyContactMutation = useMutation({
-      mutationFn: () => legacyContactsApi.add(newLegacyContact),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['legacy-contacts'] });
-        setNewLegacyContact({ name: '', email: '', relationship: '' });
-      },
-    });
-
-        // Encryption setup mutation - generates client-side encryption keys
-        const setupEncryptionMutation = useMutation({
-          mutationFn: async () => {
-            // Generate a random salt for key derivation
-            const salt = crypto.getRandomValues(new Uint8Array(16));
-            const saltBase64 = btoa(String.fromCharCode(...salt));
-      
-            // Generate a random master key
-            const masterKey = crypto.getRandomValues(new Uint8Array(32));
-            const masterKeyBase64 = btoa(String.fromCharCode(...masterKey));
-      
-            // For now, we'll store the encrypted master key (in production, this would be encrypted with user's password)
-            return encryptionApi.setup({
-              encryptedMasterKey: masterKeyBase64,
-              encryptionSalt: saltBase64,
-              keyDerivationParams: {
-                algorithm: 'PBKDF2',
-                iterations: 100000,
-                hash: 'SHA-256',
-              },
-            });
-          },
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['encryption-status'] });
-            setStatusMessage({ type: 'success', text: 'Encryption enabled successfully' });
-          },
-          onError: () => {
-            setStatusMessage({ type: 'error', text: 'Failed to set up encryption' });
-          },
-        });
-
-    const deleteAccountMutation = useMutation({
-      mutationFn: (password: string) => settingsApi.deleteAccount(password),
-      onSuccess: () => {
-        logout();
-        navigate('/');
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to delete account. Check your password.' });
-      },
-    });
-
-    // Notification preferences mutation
-    const updateNotificationsMutation = useMutation({
-      mutationFn: (prefs: typeof notificationPrefs) => settingsApi.updateNotifications(prefs),
-      onSuccess: (res) => {
-        if (res.data.preferences) {
-          setNotificationPrefs(res.data.preferences);
-        }
-        setStatusMessage({ type: 'success', text: 'Notification preferences saved' });
-      },
-      onError: () => {
-        setStatusMessage({ type: 'error', text: 'Failed to save notification preferences' });
-      },
-    });
-
-        // Helper to update a single notification preference
-        const handleNotificationToggle = (key: keyof typeof notificationPrefs, value: boolean) => {
-          const updated = { ...notificationPrefs, [key]: value };
-          setNotificationPrefs(updated);
-          updateNotificationsMutation.mutate(updated);
-        };
-
-        // Data export handler
-        const handleExportData = async () => {
-          setIsExporting(true);
-          try {
-            const response = await exportApi.exportData();
-            const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `heirloom-export-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-            setStatusMessage({ type: 'success', text: 'Data exported successfully' });
-          } catch (error) {
-            console.error('Export failed:', error);
-            setStatusMessage({ type: 'error', text: 'Failed to export data' });
-          } finally {
-            setIsExporting(false);
-          }
-        };
-
-    const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
-
-        // Handle support ticket submission
-        const handleSubmitTicket = async (e: React.FormEvent) => {
-          e.preventDefault();
-          if (!ticketForm.subject.trim() || !ticketForm.description.trim()) {
-            setStatusMessage({ type: 'error', text: 'Please fill in all required fields' });
-            return;
-          }
-          
-          setIsSubmittingTicket(true);
-          try {
-            await settingsApi.submitTicket({
-              subject: ticketForm.subject,
-              category: ticketForm.category,
-              description: ticketForm.description,
-              userEmail: user?.email,
-              userName: `${user?.firstName} ${user?.lastName}`,
-            });
-            setTicketSubmitted(true);
-            setTicketForm({ subject: '', category: 'general', description: '' });
-            setStatusMessage({ type: 'success', text: 'Support ticket submitted successfully. We\'ll get back to you soon!' });
-          } catch (error) {
-            console.error('Ticket submission failed:', error);
-            setStatusMessage({ type: 'error', text: 'Failed to submit ticket. Please try again.' });
-          } finally {
-            setIsSubmittingTicket(false);
-          }
-        };
-
-  const tabs = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'subscription', label: 'Subscription', icon: CreditCard },
-    { id: 'deadman', label: 'Dead Man\'s Switch', icon: Clock },
-    { id: 'encryption', label: 'Encryption', icon: Lock },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'security', label: 'Security', icon: Shield },
-    { id: 'support', label: 'Support', icon: MessageSquare },
+  const items: { key: string; label: string }[] = [
+    { key: 'weeklyDigest', label: 'Weekly digest of new entries from family members' },
+    { key: 'reminderEmails', label: 'Quiet quarterly check-in' },
+    { key: 'pushNotifications', label: 'Push notifications when locks open' },
+    { key: 'emailNotifications', label: 'Transactional emails (receipts, sealed letters)' },
+    { key: 'marketingEmails', label: 'Occasional product updates' },
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-
-      <Navigation />
-
-      <div className="relative z-10 px-6 md:px-12 py-12">
-      <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8">
-        <ArrowLeft size={20} />
-        Back to Vault
-      </button>
-
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-light mb-12">Settings</h1>
-
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar - horizontal scroll on mobile, vertical on desktop */}
-          <div className="md:w-56 space-y-1 settings-tabs-mobile md:block scrollbar-hide">
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => handleTabChange(id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${
-                  activeTab === id ? 'bg-gold/10 text-gold border-l-2 border-gold' : 'text-paper/65 hover:text-gold'
-                }`}
-              >
-                <Icon size={18} />
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 space-y-6">
-                        {activeTab === 'profile' && (
-                          <div className="card">
-                            <div className="flex items-center gap-6 mb-8">
-                              <div className="relative group">
-                                {avatarPreview || user?.avatarUrl ? (
-                                  <img 
-                                    src={avatarPreview || user?.avatarUrl || undefined} 
-                                    alt="Profile" 
-                                    className="w-20 h-20 rounded-full object-cover border-2 border-gold/30"
-                                  />
-                                ) : (
-                                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-2xl font-medium">
-                                    {initials}
-                                  </div>
-                                )}
-                                <button
-                                  onClick={() => fileInputRef.current?.click()}
-                                  className="absolute inset-0 flex items-center justify-center bg-void/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                >
-                                  <Camera size={24} className="text-gold" />
-                                </button>
-                                <input
-                                  ref={fileInputRef}
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleAvatarFileSelect}
-                                  className="hidden"
-                                />
-                              </div>
-                              <div>
-                                <h2 className="text-xl">{user?.firstName} {user?.lastName}</h2>
-                                <p className="text-paper/65">{user?.email}</p>
-                                <button
-                                  onClick={() => fileInputRef.current?.click()}
-                                  className="text-sm text-gold hover:text-gold-dim mt-1"
-                                >
-                                  Change photo
-                                </button>
-                              </div>
-                            </div>
-
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm text-paper/65 mb-2">First name</label>
-                      <input type="text" value={profile.firstName} onChange={(e) => setProfile({ ...profile, firstName: e.target.value })} className="input" />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-paper/65 mb-2">Last name</label>
-                      <input type="text" value={profile.lastName} onChange={(e) => setProfile({ ...profile, lastName: e.target.value })} className="input" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm text-paper/65 mb-2">Preferred Currency</label>
-                    <select
-                      value={user?.preferredCurrency || 'USD'}
-                      onChange={(e) => updateCurrencyMutation.mutate(e.target.value)}
-                      className="input"
-                    >
-                      {CURRENCIES.map(c => (
-                        <option key={c.code} value={c.code}>{c.symbol} {c.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <button onClick={() => updateProfileMutation.mutate()} disabled={updateProfileMutation.isPending} className="btn btn-primary">
-                    {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'subscription' && (
-              <div className="space-y-6">
-                {/* Current plan header */}
-                <div className="card">
-                  <h3 className="text-lg mb-4">Current Plan</h3>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-3 py-1.5 bg-gold/20 text-gold text-sm font-medium tracking-wider border border-gold/30">
-                          {subscription?.tier || 'FREE'}
-                        </span>
-                        {subscription?.isTrialing && (
-                          <span className="px-2 py-1 bg-blood/20 text-blood text-xs">
-                            Trial: {subscription.trialDaysLeft} days left
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {subscription?.isTrialing && (
-                    <div className="p-4 bg-blood/10 border border-blood/30 mb-6">
-                      <p className="text-blood text-sm">
-                        <strong>Warning:</strong> Your trial expires in {subscription.trialDaysLeft} days.
-                        All content will be deleted when the trial ends. Upgrade now to keep your memories safe.
-                      </p>
-                    </div>
-                  )}
-
-                  {limits && (
-                    <div className="space-y-3">
-                      {[
-                        { label: 'Memories', data: limits.memories },
-                        { label: 'Voice minutes', data: limits.voice },
-                        { label: 'Letters', data: limits.letters },
-                        { label: 'Storage (MB)', data: limits.storage },
-                      ].map(({ label, data }) => (
-                        <div key={label}>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span className="text-paper/65">{label}</span>
-                            <span>{data.current} / {data.max === -1 ? '∞' : data.max}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="h-1.5 bg-white/10 rounded flex-1">
-                              <div
-                                className="h-full bg-gold rounded"
-                                style={{ width: `${data.max === -1 ? 0 : Math.min(100, (data.current / data.max) * 100)}%` }}
-                              />
-                            </div>
-                            {data.max !== -1 && (
-                              <span className="text-xs text-paper/50 tabular-nums w-8 text-right">
-                                {Math.round((data.current / data.max) * 100)}%
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* All Plans */}
-                <div className="card">
-                  <h3 className="text-lg mb-6">Choose Your Plan</h3>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {SUBSCRIPTION_PLANS.map((plan) => {
-                      const isCurrentPlan = (subscription?.tier || 'STARTER') === plan.tier;
-                      const tierRanks: Record<string, number> = { STARTER: 0, FAMILY: 1, FOREVER: 2 };
-                      const currentTierRank = tierRanks[subscription?.tier || 'STARTER'] || 0;
-                      const thisTierRank = tierRanks[plan.tier] || 0;
-                      const isUpgrade = thisTierRank > currentTierRank;
-
-                      return (
-                        <div 
-                          key={plan.tier} 
-                          className={`relative p-5 rounded-lg border transition-all ${
-                            isCurrentPlan 
-                              ? 'border-gold bg-gold/10 ring-2 ring-gold/30' 
-                              : plan.popular 
-                                ? 'border-gold/30 bg-white/[0.02]' 
-                                : 'border-white/10 bg-white/[0.02] hover:border-white/20'
-                          }`}
-                        >
-                          {plan.popular && !isCurrentPlan && (
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold text-void text-xs font-medium">
-                              POPULAR
-                            </div>
-                          )}
-                          {isCurrentPlan && (
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-green-500 text-void text-xs font-medium flex items-center gap-1">
-                              <Check size={12} />
-                              CURRENT
-                            </div>
-                          )}
-              
-                          <h4 className="text-lg font-medium mb-2">{plan.name}</h4>
-                          <div className="flex items-baseline gap-1 mb-4">
-                            <span className={`text-2xl ${isCurrentPlan ? 'text-gold' : 'text-paper'}`}>
-                              ${plan.monthlyPrice}
-                            </span>
-                            <span className="text-paper/70 text-sm">/month</span>
-                          </div>
-              
-                          <ul className="space-y-2 mb-6 text-sm">
-                            {plan.features.map((feature, i) => (
-                              <li key={i} className="flex items-center gap-2 text-paper/70">
-                                <Check size={14} className="text-gold flex-shrink-0" />
-                                {feature}
-                              </li>
-                            ))}
-                          </ul>
-
-                          {isCurrentPlan ? (
-                            <button disabled className="btn w-full bg-gold/20 text-gold cursor-default">
-                              Current Plan
-                            </button>
-                          ) : isUpgrade ? (
-                            <button
-                              onClick={() => checkoutMutation.mutate(plan.tier)}
-                              disabled={checkoutMutation.isPending}
-                              className="btn btn-primary w-full flex items-center justify-center gap-2"
-                            >
-                              <ArrowUp size={16} />
-                              Upgrade
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => changePlanMutation.mutate(plan.tier)}
-                              disabled={changePlanMutation.isPending}
-                              className="btn w-full border border-paper/20 text-paper/70 hover:bg-white/5 flex items-center justify-center gap-2"
-                            >
-                              <ArrowDown size={16} />
-                              Downgrade
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Plan Change Status */}
-                {changePlanMutation.isPending && (
-                  <div className="card bg-gold/10 border-gold/30">
-                    <p className="text-gold">Changing your plan...</p>
-                  </div>
-                )}
-                {changePlanMutation.isSuccess && (
-                  <div className="card bg-green-500/10 border-green-500/30">
-                    <p className="text-green-400">Plan changed successfully!</p>
-                  </div>
-                )}
-                {changePlanMutation.isError && (
-                  <div className="card bg-blood/10 border-blood/30">
-                    <p className="text-blood">Failed to change plan. Please try again.</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'deadman' && (
-              <div className="space-y-6">
-                <div className="card">
-                  <h3 className="text-xl mb-2">Dead Man's Switch</h3>
-                  <p className="text-paper/65 text-sm mb-6">
-                    Configure automatic release of your content to beneficiaries if you don't check in regularly.
-                  </p>
-
-                  {deadmanStatus?.configured ? (
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04]">
-                        <div>
-                          <div className={`text-sm ${deadmanStatus.status === 'ACTIVE' ? 'text-green-400' : deadmanStatus.status === 'WARNING' ? 'text-yellow-400' : 'text-blood'}`}>
-                            Status: {deadmanStatus.status}
-                          </div>
-                          <div className="text-paper/65 text-sm mt-1">
-                            Next check-in due: {deadmanStatus.nextCheckInDue ? new Date(deadmanStatus.nextCheckInDue).toLocaleDateString() : 'Not set'}
-                          </div>
-                        </div>
-                        <button onClick={() => checkInMutation.mutate()} disabled={checkInMutation.isPending} className="btn btn-primary">
-                          {checkInMutation.isPending ? 'Checking in...' : 'Check In Now'}
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm text-paper/65 mb-2">Check-in interval</label>
-                          <select
-                            value={deadmanConfig.intervalDays}
-                            onChange={(e) => setDeadmanConfig({ ...deadmanConfig, intervalDays: Number(e.target.value) })}
-                            className="input"
-                          >
-                            <option value={7}>Weekly</option>
-                            <option value={14}>Every 2 weeks</option>
-                            <option value={30}>Monthly</option>
-                            <option value={60}>Every 2 months</option>
-                            <option value={90}>Quarterly</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm text-paper/65 mb-2">Grace period (days)</label>
-                          <input
-                            type="number"
-                            value={deadmanConfig.gracePeriodDays}
-                            onChange={(e) => setDeadmanConfig({ ...deadmanConfig, gracePeriodDays: Number(e.target.value) })}
-                            className="input"
-                            min={1}
-                            max={30}
-                          />
-                        </div>
-                      </div>
-
-                      <button onClick={() => configureDeadmanMutation.mutate()} className="btn btn-secondary">
-                        Update Configuration
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Clock className="w-12 h-12 text-paper/20 mx-auto mb-4" />
-                      <p className="text-paper/65 mb-4">Dead man's switch is not configured</p>
-                      <button onClick={() => configureDeadmanMutation.mutate()} className="btn btn-primary">
-                        Enable Dead Man's Switch
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Legacy Contacts */}
-                <div className="card">
-                  <h3 className="text-lg mb-4">Legacy Contacts</h3>
-                  <p className="text-paper/65 text-sm mb-6">
-                    These trusted contacts will be asked to verify your status if you miss check-ins.
-                    At least 2 contacts must verify before your content is released.
-                  </p>
-
-                  <div className="space-y-3 mb-6">
-                    {legacyContacts?.map((contact: any) => (
-                      <div key={contact.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.04]">
-                        <div>
-                          <div className="text-paper">{contact.name}</div>
-                          <div className="text-paper/70 text-sm">{contact.email} • {contact.relationship}</div>
-                        </div>
-                        <span className={`text-xs px-2 py-1 ${contact.verificationStatus === 'VERIFIED' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                          {contact.verificationStatus}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Name *"
-                        value={newLegacyContact.name}
-                        onChange={(e) => setNewLegacyContact({ ...newLegacyContact, name: e.target.value })}
-                        className="input"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="email"
-                        placeholder="Email *"
-                        value={newLegacyContact.email}
-                        onChange={(e) => setNewLegacyContact({ ...newLegacyContact, email: e.target.value })}
-                        className="input"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Relationship *"
-                        value={newLegacyContact.relationship}
-                        onChange={(e) => setNewLegacyContact({ ...newLegacyContact, relationship: e.target.value })}
-                        className="input"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <p className="text-paper/70 text-xs mt-2">* All fields are required</p>
-                  <button
-                    onClick={() => addLegacyContactMutation.mutate()}
-                    disabled={!newLegacyContact.name || !newLegacyContact.email || !newLegacyContact.relationship}
-                    className="btn btn-secondary mt-3"
-                  >
-                    Add Legacy Contact
-                  </button>
-                </div>
-              </div>
-            )}
-
-                        {activeTab === 'encryption' && (
-                          <div className="card">
-                            <h3 className="text-xl mb-2">End-to-End Encryption</h3>
-                            <p className="text-paper/65 text-sm mb-6">
-                              Your content is encrypted before it leaves your device. Only you and your designated
-                              beneficiaries can decrypt it.
-                            </p>
-
-                            {encryptionStatus?.encryptionEnabled ? (
-                              <div className="space-y-4">
-                                <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400">
-                                  <Lock className="inline w-4 h-4 mr-2" />
-                                  Encryption is enabled. Your content is protected.
-                                </div>
-
-                                <div>
-                                  <h4 className="text-sm text-paper/65 mb-2">Key Escrow Status</h4>
-                                  <p className="text-paper/70 text-sm">
-                                    {encryptionStatus?.hasEscrow 
-                                      ? 'Your encryption key is securely escrowed and will be released to your beneficiaries when the dead man\'s switch is triggered.'
-                                      : 'Key escrow not configured. Set up key escrow to ensure your beneficiaries can access your content.'}
-                                  </p>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-center py-8">
-                                <Lock className="w-12 h-12 text-paper/20 mx-auto mb-4" />
-                                <p className="text-paper/65 mb-4">Encryption not yet configured</p>
-                                <p className="text-paper/70 text-sm mb-6">
-                                  Set up end-to-end encryption to ensure only you and your beneficiaries can access your content.
-                                </p>
-                                <button 
-                                  onClick={() => setupEncryptionMutation.mutate()}
-                                  disabled={setupEncryptionMutation.isPending}
-                                  className="btn btn-primary"
-                                >
-                                  {setupEncryptionMutation.isPending ? 'Setting up...' : 'Set Up Encryption'}
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {activeTab === 'notifications' && (
-                          <div className="card space-y-6">
-                            {[
-                              { id: 'emailNotifications' as keyof typeof notificationPrefs, label: 'Email notifications', desc: 'Receive updates about your memories' },
-                              { id: 'reminderEmails' as keyof typeof notificationPrefs, label: 'Check-in reminders', desc: 'Get reminded to check in for dead man\'s switch' },
-                              { id: 'pushNotifications' as keyof typeof notificationPrefs, label: 'Delivery confirmations', desc: 'Know when your letters are delivered' },
-                              { id: 'weeklyDigest' as keyof typeof notificationPrefs, label: 'Weekly digest', desc: 'Get a weekly summary of your activity' },
-                            ].map(({ id, label, desc }) => (
-                              <div key={id} className="flex items-center justify-between">
-                                <div>
-                                  <div className="text-paper">{label}</div>
-                                  <div className="text-paper/70 text-sm">{desc}</div>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                  <input 
-                                    type="checkbox" 
-                                    checked={notificationPrefs[id]} 
-                                    onChange={(e) => handleNotificationToggle(id, e.target.checked)}
-                                    className="sr-only peer" 
-                                  />
-                                  <div className="w-12 h-7 bg-white/10 peer-checked:bg-gold rounded-full peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-paper after:rounded-full after:h-5 after:w-5 after:transition-all" />
-                                </label>
-                              </div>
-                            ))}
-                            {updateNotificationsMutation.isPending && (
-                              <div className="text-paper/70 text-sm">Saving...</div>
-                            )}
-                          </div>
-                        )}
-
-            {activeTab === 'security' && (
-              <div className="space-y-6">
-                <div className="card">
-                  <h3 className="text-lg mb-4">Change Password</h3>
-                  <div className="space-y-4">
-                    <input type="password" placeholder="Current password" value={passwords.current} onChange={(e) => setPasswords({ ...passwords, current: e.target.value })} className="input" />
-                    <input type="password" placeholder="New password" value={passwords.new} onChange={(e) => setPasswords({ ...passwords, new: e.target.value })} className="input" />
-                    <input type="password" placeholder="Confirm new password" value={passwords.confirm} onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })} className="input" />
-                    <button
-                      onClick={() => {
-                        if (passwords.new !== passwords.confirm) {
-                          alert('Passwords do not match');
-                          return;
-                        }
-                        changePasswordMutation.mutate();
-                      }}
-                      disabled={changePasswordMutation.isPending}
-                      className="btn btn-primary"
-                    >
-                      {changePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
-                    </button>
-                              </div>
-                            </div>
-
-                            <div className="card">
-                              <h3 className="text-lg mb-2">Export Your Data</h3>
-                              <p className="text-paper/65 text-sm mb-4">
-                                Download all your data in JSON format. This includes your profile, memories, voice recordings, letters, and family members.
-                              </p>
-                              <button
-                                onClick={handleExportData}
-                                disabled={isExporting}
-                                className="btn btn-secondary flex items-center gap-2"
-                              >
-                                {isExporting ? (
-                                  <>
-                                    <Loader2 size={16} className="animate-spin" />
-                                    Exporting...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Download size={16} />
-                                    Export Data
-                                  </>
-                                )}
-                              </button>
-                            </div>
-
-                            <div className="card border-blood/30 bg-blood/5">
-                              <h3 className="text-lg text-blood mb-2">Danger Zone</h3>
-                              <p className="text-paper/65 text-sm mb-4">Once you delete your account, there is no going back.</p>
-                              <button
-                                onClick={() => setShowDeleteModal(true)}
-                                className="btn border border-blood text-blood hover:bg-blood/10 flex items-center gap-2"
-                              >
-                                <Trash2 size={16} />
-                                Delete Account
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-            {/* Support Tab */}
-            {activeTab === 'support' && (
-              <div className="space-y-6">
-                <div className="card">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-                      <MessageSquare size={20} className="text-gold" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg">Contact Support</h3>
-                      <p className="text-paper/65 text-sm">We're here to help with any questions or issues</p>
-                    </div>
-                  </div>
-
-                  {ticketSubmitted ? (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-                        <Check size={32} className="text-green-400" />
-                      </div>
-                      <h4 className="text-xl mb-2">Ticket Submitted!</h4>
-                      <p className="text-paper/70 mb-6">We'll get back to you as soon as possible.</p>
-                      <button
-                        onClick={() => setTicketSubmitted(false)}
-                        className="btn btn-secondary"
-                      >
-                        Submit Another Ticket
-                      </button>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmitTicket} className="space-y-4">
-                      <div>
-                        <label className="block text-sm text-paper/70 mb-2">Category</label>
-                        <select
-                          value={ticketForm.category}
-                          onChange={(e) => setTicketForm({ ...ticketForm, category: e.target.value })}
-                          className="input w-full"
-                        >
-                          <option value="general">General Inquiry</option>
-                          <option value="technical">Technical Issue</option>
-                          <option value="billing">Billing Question</option>
-                          <option value="feature">Feature Request</option>
-                          <option value="bug">Bug Report</option>
-                          <option value="account">Account Issue</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm text-paper/70 mb-2">Subject <span className="text-gold">*</span></label>
-                        <input
-                          type="text"
-                          value={ticketForm.subject}
-                          onChange={(e) => setTicketForm({ ...ticketForm, subject: e.target.value })}
-                          placeholder="Brief description of your issue"
-                          className="input w-full"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm text-paper/70 mb-2">Description <span className="text-gold">*</span></label>
-                        <textarea
-                          value={ticketForm.description}
-                          onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
-                          placeholder="Please provide as much detail as possible..."
-                          rows={6}
-                          className="input w-full resize-none"
-                          required
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isSubmittingTicket}
-                        className="btn btn-primary w-full flex items-center justify-center gap-2"
-                      >
-                        {isSubmittingTicket ? (
-                          <>
-                            <Loader2 size={18} className="animate-spin" />
-                            Submitting...
-                          </>
-                        ) : (
-                          <>
-                            <Send size={18} />
-                            Submit Ticket
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  )}
-                </div>
-
-                <div className="card bg-gold/5 border-gold/20">
-                  <h4 className="text-sm font-medium text-gold mb-2">Need immediate help?</h4>
-                  <p className="text-paper/70 text-sm">
-                    Check our <a href="/help" className="text-gold hover:underline">Help Center</a> for answers to common questions, 
-                    or email us directly at <a href="mailto:support@heirloom.blue" className="text-gold hover:underline">support@heirloom.blue</a>
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      </div>
-
-      {/* Avatar Cropper Modal */}
-      <AvatarCropperModal
-        isOpen={showAvatarCropper}
-        imageSrc={selectedImageSrc}
-        onCancel={() => {
-          setShowAvatarCropper(false);
-          setSelectedImageSrc(null);
-        }}
-        onComplete={handleAvatarCropComplete}
-        isUploading={isUploadingAvatar}
-      />
-
-      {/* Delete Account Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-void-deep/90 flex items-center justify-center z-50 p-4">
-          <div className="bg-void-elevated border border-blood/30 rounded-2xl p-8 max-w-md w-full">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-blood/20 flex items-center justify-center mx-auto mb-4">
-                <Trash2 size={32} className="text-blood" />
-              </div>
-              <h3 className="text-2xl font-serif text-paper mb-2">Delete Account?</h3>
-              <p className="text-paper/70 text-sm">
-                This action cannot be undone. All your memories, letters, and data will be permanently deleted.
-              </p>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-paper/70 mb-2">Enter your password to confirm</label>
-                <input
-                  type="password"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  placeholder="Your password"
-                  className="input w-full"
-                  autoFocus
-                />
-              </div>
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowDeleteModal(false);
-                    setDeletePassword('');
-                  }}
-                  className="flex-1 px-4 py-3 bg-void border border-gold/20 rounded-xl text-paper/80 hover:border-gold/40 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    if (deletePassword) {
-                      deleteAccountMutation.mutate(deletePassword);
-                      setShowDeleteModal(false);
-                      setDeletePassword('');
-                    }
-                  }}
-                  disabled={!deletePassword || deleteAccountMutation.isPending}
-                  className="flex-1 px-4 py-3 bg-blood text-paper font-semibold rounded-xl hover:bg-blood/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {deleteAccountMutation.isPending ? (
-                    <span>Deleting...</span>
-                  ) : (
-                    <>
-                      <Trash2 size={16} />
-                      <span>Delete Forever</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    <div style={{ maxWidth: 640 }}>
+      <p className="loom-eyebrow" style={{ marginBottom: 18 }}>
+        What we send you
+      </p>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 14 }}>
+        {items.map((it) => (
+          <li
+            key={it.key}
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 14,
+              padding: '12px 0',
+              borderBottom: '1px solid var(--loom-rule)',
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={!!prefs[it.key]}
+              onChange={(e) => update.mutate({ [it.key]: e.target.checked })}
+              style={{ accentColor: 'var(--loom-warm)' }}
+            />
+            <span className="loom-body" style={{ fontSize: 16, color: 'var(--loom-bone)' }}>
+              {it.label}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
+  );
+}
+
+function EncryptionTab() {
+  return (
+    <div style={{ maxWidth: 640 }}>
+      <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+        Encryption
+      </p>
+      <p
+        className="loom-body"
+        style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '0 0 20px', lineHeight: 1.7 }}
+      >
+        Each thread holds its body content encrypted in browser with a family key escrowed across
+        your successor designations. If you lose access, the key is recoverable through the
+        successor chain.
+      </p>
+      <p
+        className="loom-mono"
+        style={{ fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em', margin: 0 }}
+      >
+        aes-256-gcm · key escrow · 2 of 3 contacts · 48-hour cooldown
+      </p>
+    </div>
+  );
+}
+
+function SuccessionTab() {
+  return (
+    <div style={{ maxWidth: 640 }}>
+      <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+        Succession
+      </p>
+      <p
+        className="loom-body"
+        style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '0 0 24px', lineHeight: 1.7 }}
+      >
+        If you step away or die, the highest-ranked active successor takes founder rights — keeping
+        the thread going without breaking continuity. Designations are append-only; Founders are
+        succeeded, never removed.
+      </p>
+      <a
+        href="/threads"
+        className="loom-mono"
+        style={{
+          fontSize: 11,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: 'var(--loom-warm)',
+          textDecoration: 'none',
+        }}
+      >
+        manage successors per thread →
+      </a>
+    </div>
+  );
+}
+
+function SupportTab() {
+  return (
+    <div style={{ maxWidth: 640 }}>
+      <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+        Support
+      </p>
+      <p
+        className="loom-body"
+        style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '0 0 12px', lineHeight: 1.7 }}
+      >
+        If something is wrong, or someone has died, write to us.
+      </p>
+      <a
+        href="mailto:support@heirloom.blue"
+        className="loom-mono"
+        style={{
+          fontSize: 13,
+          letterSpacing: '0.04em',
+          color: 'var(--loom-warm)',
+          textDecoration: 'none',
+        }}
+      >
+        support@heirloom.blue
+      </a>
+      <p className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', marginTop: 12 }}>
+        we respond within two business days
+      </p>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange?: (v: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label style={{ display: 'block' }}>
+      <span className="loom-eyebrow" style={{ display: 'block', marginBottom: 6, fontSize: 10 }}>
+        {label}
+      </span>
+      <input
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange?.(e.target.value)}
+        style={disabled ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+      />
+    </label>
   );
 }

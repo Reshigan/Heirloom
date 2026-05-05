@@ -1,1074 +1,430 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Bell, Shield, Clock, Crown, X, Check, Loader2, RefreshCw, Mic, Edit3, Share2, HelpCircle, Sparkles, Gift, Copy, Heart, Lock, Download, Users, Eye
-} from '../components/Icons';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
-import { billingApi, memoriesApi, familyApi, deadmanApi, aiApi, settingsApi, referralApi, threadsApi } from '../services/api';
-import { Navigation } from '../components/Navigation';
-import { PlatformTour, usePlatformTour } from '../components/PlatformTour';
-import { WhatsNewNotification } from '../components/WhatsNewNotification';
+import {
+  billingApi,
+  memoriesApi,
+  familyApi,
+  threadsApi,
+  type ThreadSummary,
+  type UpcomingUnlock,
+} from '../services/api';
+import { AppFrame } from '../loom/components/AppFrame';
 
-// Sanctuary Object Icons as SVG components
-const MemoriesIcon = () => (
-  <svg viewBox="0 0 72 72" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-full h-full">
-    <rect x="8" y="12" width="56" height="48" rx="4"/>
-    <circle cx="24" cy="32" r="6" fill="currentColor" fillOpacity="0.3"/>
-    <path d="M8 48l16-12 12 8 20-16 8 8"/>
-    <rect x="4" y="16" width="56" height="48" rx="4" strokeOpacity="0.3"/>
-    <rect x="12" y="8" width="56" height="48" rx="4" strokeOpacity="0.15"/>
-  </svg>
-);
-
-const LettersIcon = () => (
-  <svg viewBox="0 0 72 72" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-full h-full">
-    <rect x="8" y="8" width="56" height="56" rx="4"/>
-    <path d="M16 24h40M16 34h40M16 44h28" strokeOpacity="0.4"/>
-    <path d="M58 52c0-12-8-16-12-16s-10 4-14 12" strokeWidth="2"/>
-    <circle cx="58" cy="52" r="2" fill="currentColor"/>
-  </svg>
-);
-
-const VoiceIcon = () => (
-  <svg viewBox="0 0 72 72" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-full h-full">
-    <rect x="26" y="8" width="20" height="32" rx="10"/>
-    <path d="M14 32v4a22 22 0 0044 0v-4"/>
-    <path d="M36 58v8M28 66h16"/>
-    <path d="M20 24h8M44 24h8M20 32h8M44 32h8" strokeOpacity="0.4"/>
-  </svg>
-);
-
-const FamilyIcon = () => (
-  <svg viewBox="0 0 72 72" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-full h-full">
-    <circle cx="36" cy="16" r="8"/>
-    <circle cx="16" cy="52" r="7"/>
-    <circle cx="36" cy="52" r="7"/>
-    <circle cx="56" cy="52" r="7"/>
-    <path d="M36 24v12M36 36l-20 9M36 36l20 9"/>
-  </svg>
-);
-
-const CornerMark = () => (
-  <svg viewBox="0 0 24 24" className="w-full h-full" stroke="currentColor" strokeWidth="1" fill="none">
-    <path d="M2 12V2h10"/>
-  </svg>
-);
-
+/**
+ * Dashboard — Loom-native rewrite.
+ *
+ * Shape:
+ *   - eyebrow: "Today · {weekday} · {date}"
+ *   - greeting: "Welcome back, {firstName}."
+ *   - subheading: line about the thread state ("3 new entries, 2 locks
+ *     opening soon"), pulled from real data
+ *   - featured-thread row (your primary thread; entry/member counts;
+ *     deep-link to /threads/:id)
+ *   - upcoming-unlocks ribbon when there are time-locked entries
+ *     opening in the next 90 days
+ *   - three actions: Write to your thread / Read your thread / Invite a member
+ *   - quiet stats footer (memories, family, plan)
+ *
+ * Single column, 1180px max. Hairline rules. No sanctuary tiles, no
+ * legacy-score orb, no constellation backdrop.
+ */
 export function Dashboard() {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const queryClient = useQueryClient();
-  
-    const [showTrialWarning, setShowTrialWarning] = useState(true);
-    const [showNotifications, setShowNotifications] = useState(false);
-    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-    const [aiPrompt, setAiPrompt] = useState<string | null>(null);
-    const [isLoadingPrompt, setIsLoadingPrompt] = useState(false);
+  const navigate = useNavigate();
 
-    // Memoize floating particles to prevent re-randomization on every render
-    // This fixes the "flashing" issue where particles would jump to new positions
-    // Reduced count on mobile for better performance
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const particleCount = isMobile ? 8 : 20;
-    const floatingParticles = useMemo(() => 
-      [...Array(particleCount)].map((_, i) => ({
-        id: i,
-        width: 2 + Math.random() * 2,
-        height: 2 + Math.random() * 2,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        duration: isMobile ? 20 + Math.random() * 10 : 15 + Math.random() * 10,
-        delay: Math.random() * 10,
-      })), 
-    [particleCount, isMobile]);
+  const { data: threadList } = useQuery({
+    queryKey: ['threads', 'list'],
+    queryFn: () => threadsApi.list().then((r) => r.data).catch(() => null),
+  });
+  const featured: ThreadSummary | undefined = threadList?.threads?.[0];
 
-    // Platform Tour - use user-scoped key so tour only shows once per user
-    const { isOpen: isTourOpen, hasCompletedTour, openTour, closeTour, completeTour } = usePlatformTour(user?.id);
-
-    // Show tour automatically on first visit
-    useEffect(() => {
-      if (!hasCompletedTour) {
-        // Small delay to let the page load first
-        const timer = setTimeout(() => openTour(), 1000);
-        return () => clearTimeout(timer);
-      }
-    }, [hasCompletedTour, openTour]);
-
-    // Queries
-  const { data: subscription } = useQuery({
-    queryKey: ['subscription'],
-    queryFn: () => billingApi.getSubscription().then(r => r.data),
+  const { data: upcoming } = useQuery({
+    queryKey: ['threads', 'upcoming-unlocks'],
+    queryFn: () => threadsApi.upcomingUnlocks(90).then((r) => r.data).catch(() => null),
   });
 
-  const { data: rawStats } = useQuery({
-    queryKey: ['memories-stats'],
-    queryFn: () => memoriesApi.getStats().then(r => r.data),
+  const { data: stats } = useQuery({
+    queryKey: ['memories', 'stats'],
+    queryFn: () => memoriesApi.getStats?.().then((r: any) => r.data).catch(() => null) ?? null,
   });
-
-  const stats = rawStats ? {
-    totalMemories: rawStats.total || 0,
-    totalLetters: rawStats.byType?.letters || 0,
-    totalVoiceMinutes: rawStats.byType?.voice || 0,
-  } : undefined;
 
   const { data: family } = useQuery({
     queryKey: ['family'],
-    queryFn: () => familyApi.getAll().then(r => r.data),
+    queryFn: () => familyApi.getAll().then((r) => r.data).catch(() => null),
   });
 
-  const { data: deadmanStatus } = useQuery({
-    queryKey: ['deadman-status'],
-    queryFn: () => deadmanApi.getStatus().then(r => r.data),
+  const { data: subscription } = useQuery({
+    queryKey: ['subscription'],
+    queryFn: () => billingApi.getSubscription().then((r) => r.data).catch(() => null),
   });
 
-    const { data: legacyScore } = useQuery({
-      queryKey: ['legacy-score'],
-      queryFn: () => aiApi.getLegacyScore().then(r => r.data),
-    });
+  const today = new Date();
+  const weekday = today.toLocaleDateString(undefined, { weekday: 'long' });
+  const date = today.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
 
-        const { data: notificationsData } = useQuery({
-          queryKey: ['notifications'],
-          queryFn: () => settingsApi.getNotifications().then(r => r.data),
-        });
+  const upcomingCount = upcoming?.upcoming?.length ?? 0;
+  const headlineSub =
+    upcomingCount > 0
+      ? `${upcomingCount} ${upcomingCount === 1 ? 'lock' : 'locks'} opening in the next ninety days. The thread continues.`
+      : 'The thread is yours to read; whatever you write today will be there for them.';
 
-        const { data: referralData } = useQuery({
-          queryKey: ['my-referral'],
-          queryFn: () => referralApi.getMyReferral().then(r => r.data),
-        });
-
-        // Family Echo Inbox - messages from recipients
-        const { data: inboxData } = useQuery({
-          queryKey: ['inbox'],
-          queryFn: () => settingsApi.getInbox().then(r => r.data),
-        });
-
-        // Family Thread — upcoming time-locked unlocks across all threads.
-        const { data: upcomingUnlocks } = useQuery({
-          queryKey: ['threads', 'upcoming-unlocks'],
-          queryFn: () => threadsApi.upcomingUnlocks(90).then(r => r.data).catch(() => null),
-        });
-
-        // Family Thread — list (lightweight; first one is featured on the dashboard).
-        const { data: threadList } = useQuery({
-          queryKey: ['threads', 'list'],
-          queryFn: () => threadsApi.list().then(r => r.data).catch(() => null),
-        });
-        const featuredThread = threadList?.threads?.[0];
-
-    const [showNewFeaturesNotification, setShowNewFeaturesNotification] = useState(true);
-
-    const newFeaturesNotification = notificationsData?.recentNotifications?.find(
-      (n: { type: string; read: boolean }) => n.type === 'NEW_FEATURES_DEC_2024' && !n.read
-    );
-
-    const dismissNewFeaturesNotification = async (notificationId: string) => {
-      try {
-        await settingsApi.markNotificationRead(notificationId);
-        queryClient.invalidateQueries({ queryKey: ['notifications'] });
-        setShowNewFeaturesNotification(false);
-      } catch (error) {
-        console.error('Failed to dismiss notification:', error);
-        setShowNewFeaturesNotification(false);
-      }
-    };
-
-    const checkInMutation = useMutation({
-    mutationFn: () => deadmanApi.checkIn(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deadman-status'] });
-      showToast('Check-in successful', 'success');
-    },
-  });
-
-  const showToast = (message: string, type: 'success' | 'error') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  // Load AI prompt on mount
-  useEffect(() => {
-    const loadPrompt = async () => {
-      setIsLoadingPrompt(true);
-      try {
-        const response = await aiApi.getPrompt();
-        setAiPrompt(response.data?.prompt || "What's a childhood memory that shaped who you are today?");
-      } catch (error) {
-        console.error('Failed to load AI prompt:', error);
-        setAiPrompt("What's a childhood memory that shaped who you are today?");
-      }
-      setIsLoadingPrompt(false);
-    };
-    loadPrompt();
-  }, []);
-
-  const refreshPrompt = async () => {
-    setIsLoadingPrompt(true);
-    try {
-      const response = await aiApi.getPrompt();
-      setAiPrompt(response.data?.prompt || "What moment are you most grateful for this year?");
-    } catch (error) {
-      console.error('Failed to refresh AI prompt:', error);
-      setAiPrompt("What moment are you most grateful for this year?");
-    }
-    setIsLoadingPrompt(false);
-  };
-
-    const isTrialing = subscription?.status === 'TRIALING';
-    const trialDaysLeft = subscription?.trialDaysRemaining || 0;
-    const familyCount = Array.isArray(family) ? family.length : (family?.data?.length || 0);
-    const isGoldLegacy = subscription?.tier === 'FOREVER' || subscription?.billingCycle === 'lifetime';
-
-  // Calculate legacy score percentage
-  const scorePercent = legacyScore?.score || 0;
-  const scoreTier = typeof legacyScore?.tier === 'object' ? legacyScore.tier.name : (legacyScore?.tier || 'Just Started');
-  const scoreTierDescription = typeof legacyScore?.tier === 'object' ? legacyScore.tier.description : legacyScore?.description;
+  const familyCount = Array.isArray(family) ? family.length : (family?.length ?? 0);
+  const memoryCount = stats?.totalMemories ?? 0;
+  const tier = subscription?.tier ?? 'STARTER';
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Eternal Background */}
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
-
-      {/* Floating Particles - using memoized values to prevent flashing on re-render */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {floatingParticles.map((particle) => (
-          <motion.div
-            key={particle.id}
-            className="absolute rounded-full bg-gold/30"
-            style={{
-              width: particle.width,
-              height: particle.height,
-              left: particle.left,
-              top: particle.top,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 0.5, 0],
-            }}
-            transition={{
-              duration: particle.duration,
-              repeat: Infinity,
-              delay: particle.delay,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
-      </div>
-
-      <Navigation />
-
-      {/* Toast - with aria-live for accessibility (BUG-021 fix) - positioned above mobile bottom nav */}
-      <div aria-live="polite" aria-atomic="true" className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 px-4 w-full max-w-md">
-        <AnimatePresence>
-          {toast && (
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              role="alert"
-              className={`px-6 py-4 rounded-xl glass-strong flex items-center gap-3 ${
-                toast.type === 'success' ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'
-              }`}
-            >
-              {toast.type === 'success' ? <Check className="text-green-400" size={20} aria-hidden="true" /> : <X className="text-red-400" size={20} aria-hidden="true" />}
-              <span>{toast.message}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Header Controls */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-20 px-6 md:px-12 pt-20 md:pt-24"
-      >
-        <div className="flex items-center justify-end max-w-7xl mx-auto">
-          <div className="flex items-center gap-4">
-            {/* Dead Man's Switch Status */}
-            {deadmanStatus?.enabled && (
-              <motion.button
-                onClick={() => checkInMutation.mutate()}
-                disabled={checkInMutation.isPending}
-                className={`px-4 py-2 rounded-lg glass flex items-center gap-2 text-sm transition-all ${
-                  deadmanStatus.needsCheckIn ? 'border border-blood/50 text-blood' : 'text-green-400'
-                }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {checkInMutation.isPending ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <Shield size={16} />
-                )}
-                {deadmanStatus.needsCheckIn ? 'Check In Required' : 'Protected'}
-              </motion.button>
-            )}
-
-            {/* Notifications */}
-            <div className="relative">
-              <motion.button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="w-12 h-12 rounded-full glass flex items-center justify-center text-paper/65 hover:text-paper transition-colors relative border border-paper/10"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Bell size={20} />
-                {isTrialing && (
-                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-blood rounded-full" />
-                )}
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </motion.header>
-
-            {/* Trial Warning Banner - Don't show for Gold Legacy members */}
-            <AnimatePresence>
-              {isTrialing && showTrialWarning && !isGoldLegacy && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="relative z-10 px-6 md:px-12 mt-4"
-          >
-            <div className="max-w-7xl mx-auto">
-              <div className="glass border border-gold/20 rounded-xl p-4 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-                    <Clock size={20} className="text-gold" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{trialDaysLeft} days left in your trial</p>
-                    <p className="text-sm text-paper/65">Upgrade now to keep your memories forever</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <motion.button
-                    onClick={() => navigate('/settings?tab=subscription')}
-                    className="btn btn-primary btn-sm"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Crown size={16} />
-                    Upgrade
-                  </motion.button>
-                  <button
-                    onClick={() => setShowTrialWarning(false)}
-                    className="text-paper/70 hover:text-paper transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* New Features Notification Banner */}
-            <AnimatePresence>
-              {newFeaturesNotification && showNewFeaturesNotification && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="relative z-10 px-6 md:px-12 mt-4"
-                >
-                  <div className="max-w-7xl mx-auto">
-                    <div className="glass border border-gold/30 rounded-xl p-4 flex items-center justify-between bg-gradient-to-r from-gold/10 to-transparent">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-                          <Sparkles size={20} className="text-gold" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gold">New Features Available!</p>
-                          <p className="text-sm text-paper/70">Legacy Playbook, Story Artifacts, Life Events & more</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <motion.button
-                          onClick={() => openTour()}
-                          className="btn btn-primary btn-sm"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <HelpCircle size={16} />
-                          Take Tour
-                        </motion.button>
-                        <button
-                          onClick={() => dismissNewFeaturesNotification(newFeaturesNotification.id)}
-                          className="text-paper/70 hover:text-paper transition-colors"
-                        >
-                          <X size={20} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Main Content */}
-            <main className="relative z-10 px-6 md:px-12 py-8 md:py-16 max-w-[1400px] mx-auto">
-
-              {/* Upcoming time-locked unlocks across all family threads */}
-              {upcomingUnlocks && upcomingUnlocks.upcoming.length > 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="mb-10 border border-gold-40 rounded-xl px-5 py-4 bg-void-surface/60"
-                  role="status"
-                >
-                  <div className="flex items-start gap-4 flex-wrap">
-                    <Lock size={16} className="text-gold mt-1 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold/80 mb-2">
-                        Time-locked · {upcomingUnlocks.upcoming.length} opening soon
-                      </p>
-                      <p className="text-paper text-sm leading-relaxed">
-                        {upcomingUnlocks.upcoming.slice(0, 1).map((u) => {
-                          const when = u.unlock_date ? new Date(u.unlock_date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : null;
-                          return (
-                            <span key={u.unlock_id}>
-                              {u.entry_title ?? 'An entry'} in <em className="text-gold not-italic">{u.thread_name}</em>
-                              {when ? ` — opens ${when}` : ''}
-                              {u.target_name ? ` for ${u.target_name}` : ''}
-                            </span>
-                          );
-                        })}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => navigate('/threads')}
-                      className="text-gold hover:text-gold-bright text-sm whitespace-nowrap"
-                    >
-                      View threads
-                    </button>
-                  </div>
-                </motion.div>
-              ) : null}
-
-              {/* Hero Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-16 md:mb-20"
+    <AppFrame>
+      {/* Header */}
+      <header style={{ marginBottom: 56 }}>
+        <p
+          className="loom-eyebrow"
+          style={{ marginBottom: 18 }}
         >
-          <p className="text-sm tracking-[0.2em] text-paper/70 uppercase mb-4">Your Sanctuary Awaits</p>
-                    <h1 className="font-display text-4xl md:text-5xl font-normal tracking-wide mb-5">
-                      Welcome back, <em className="font-body italic text-gold">{user?.firstName || 'Friend'}</em>
-                    </h1>
-                    {isGoldLegacy && (
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4" style={{
-                        background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(184, 134, 11, 0.1) 100%)',
-                        border: '1px solid rgba(212, 175, 55, 0.4)',
-                      }}>
-                        <span className="text-lg" style={{ color: '#D4AF37' }}>∞</span>
-                        <span className="text-sm font-medium tracking-wider" style={{ color: '#D4AF37' }}>GOLD LEGACY MEMBER</span>
-                      </div>
-                    )}
-          <p className="text-paper/70 text-lg font-light max-w-lg mx-auto mb-6">
-            Your family's thread continues. What do you want to write into it today?
-          </p>
-          
-          <motion.button
-            onClick={() => navigate('/quick')}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gold text-void font-medium hover:bg-gold/90 transition-all"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Sparkles size={18} />
-            Leave a 60-Second Message
-          </motion.button>
-        </motion.section>
+          Today · {weekday} · {date}
+        </p>
+        <h1
+          className="loom-h2"
+          style={{
+            fontSize: 'clamp(40px, 5vw, 64px)',
+            fontWeight: 300,
+            margin: '0 0 18px',
+          }}
+        >
+          Welcome back, <em style={{ fontStyle: 'italic', color: 'var(--loom-warm)' }}>{user?.firstName ?? 'reader'}</em>.
+        </h1>
+        <p
+          className="loom-body"
+          style={{
+            fontSize: 19,
+            color: 'var(--loom-bone-dim)',
+            maxWidth: 640,
+            margin: 0,
+            lineHeight: 1.6,
+            fontStyle: 'italic',
+          }}
+        >
+          {headlineSub}
+        </p>
+      </header>
 
-        {/* Family Thread — featured card above the sanctuary grid */}
-        {featuredThread ? (
-          <motion.section
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="mb-12 md:mb-16"
-          >
+      {/* Upcoming unlocks ribbon */}
+      {upcoming && upcoming.upcoming.length > 0 ? (
+        <UnlockRibbon items={upcoming.upcoming.slice(0, 1)} count={upcomingCount} />
+      ) : null}
+
+      {/* Featured thread */}
+      {featured ? <FeaturedThread thread={featured} threadCount={threadList?.threads?.length ?? 1} /> : <NoThreadYet />}
+
+      {/* Three actions */}
+      <section style={{ marginTop: 56 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 24 }}>
+          Today's three
+        </p>
+        <hr className="loom-hairline" style={{ marginBottom: 28 }} />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 1,
+            background: 'var(--loom-rule)',
+            border: '1px solid var(--loom-rule)',
+          }}
+        >
+          {[
+            {
+              num: '01',
+              title: 'Write a memory',
+              line: 'Add an entry to the thread. The loom will tell you what it rhymes with.',
+              cta: 'open the composer →',
+              to: '/compose',
+            },
+            {
+              num: '02',
+              title: 'Record a voice memo',
+              line: 'A few minutes of you, talking. Transcribed, kept, passed on.',
+              cta: 'open the recorder →',
+              to: '/record',
+            },
+            {
+              num: '03',
+              title: 'Invite a member',
+              line: 'Living kin or a placeholder for a descendant who is not yet of age.',
+              cta: 'open the family →',
+              to: '/family',
+            },
+          ].map((a) => (
             <button
-              onClick={() => navigate(`/threads/${featuredThread.id}`)}
-              className="w-full text-left border border-gold/30 hover:border-gold/60 rounded-2xl px-7 py-6 bg-gradient-to-r from-void-surface/80 to-void-surface/40 transition-colors group"
+              key={a.num}
+              type="button"
+              onClick={() => navigate(a.to)}
+              style={{
+                background: 'var(--loom-ink)',
+                border: 0,
+                padding: '32px 28px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'grid',
+                gridTemplateRows: 'auto 1fr auto',
+                gap: 14,
+                minHeight: 220,
+                transition: 'background 220ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--loom-ink-card)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--loom-ink)')}
             >
-              <div className="flex items-baseline justify-between gap-6 flex-wrap">
-                <div className="flex-1 min-w-0">
-                  <p className="font-mono text-[0.65rem] tracking-[0.32em] uppercase text-gold mb-2">
-                    Your family thread
-                  </p>
-                  <h2 className="font-body text-2xl md:text-3xl text-paper truncate">{featuredThread.name}</h2>
-                  {featuredThread.dedication ? (
-                    <p className="text-paper/55 text-sm mt-1 line-clamp-1">{featuredThread.dedication}</p>
-                  ) : null}
-                </div>
-                <div className="flex items-center gap-6 text-xs text-paper/55">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Edit3 size={13} /> {featuredThread.entry_count} {featuredThread.entry_count === 1 ? 'entry' : 'entries'}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Users size={13} /> {featuredThread.member_count}
-                  </span>
-                  <span className="text-gold opacity-70 group-hover:opacity-100 transition-opacity">Open →</span>
-                </div>
-              </div>
-            </button>
-            {threadList && threadList.threads.length > 1 ? (
-              <button
-                type="button"
-                onClick={() => navigate('/threads')}
-                className="text-paper/50 hover:text-paper text-xs mt-3 ml-2"
+              <span
+                className="loom-mono"
+                style={{ fontSize: 11, letterSpacing: '0.2em', color: 'var(--loom-warm)' }}
               >
-                View all {threadList.threads.length} threads →
-              </button>
-            ) : null}
-          </motion.section>
-        ) : null}
-
-        {/* Sanctuary Grid - Four Sacred Objects */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-          className="mb-16 md:mb-20"
-        >
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {/* Memories */}
-            <motion.button
-              onClick={() => navigate('/memories')}
-              className="sanctuary-object group"
-              whileHover={{ y: -8 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="sanctuary-corner sanctuary-corner--tl"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--tr"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--bl"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--br"><CornerMark /></div>
-              <div className="sanctuary-content">
-                <div className="sanctuary-symbol text-gold group-hover:scale-110 transition-transform duration-500">
-                  <MemoriesIcon />
-                </div>
-                <h3 className="sanctuary-title group-hover:text-gold transition-colors">Memories</h3>
-                <p className="sanctuary-count">{stats?.totalMemories ? `${stats.totalMemories} preserved` : 'Add your first memory'}</p>
-              </div>
-            </motion.button>
-
-            {/* Letters */}
-            <motion.button
-              onClick={() => navigate('/compose')}
-              className="sanctuary-object group"
-              whileHover={{ y: -8 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="sanctuary-corner sanctuary-corner--tl"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--tr"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--bl"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--br"><CornerMark /></div>
-              <div className="sanctuary-content">
-                <div className="sanctuary-symbol text-gold group-hover:scale-110 transition-transform duration-500">
-                  <LettersIcon />
-                </div>
-                <h3 className="sanctuary-title group-hover:text-gold transition-colors">Letters</h3>
-                <p className="sanctuary-count">{stats?.totalLetters ? `${stats.totalLetters} written` : 'Write your first letter'}</p>
-              </div>
-            </motion.button>
-
-            {/* Voice */}
-            <motion.button
-              onClick={() => navigate('/record')}
-              className="sanctuary-object group"
-              whileHover={{ y: -8 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="sanctuary-corner sanctuary-corner--tl"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--tr"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--bl"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--br"><CornerMark /></div>
-              <div className="sanctuary-content">
-                <div className="sanctuary-symbol text-gold group-hover:scale-110 transition-transform duration-500">
-                  <VoiceIcon />
-                </div>
-                <h3 className="sanctuary-title group-hover:text-gold transition-colors">Voice</h3>
-                <p className="sanctuary-count">{stats?.totalVoiceMinutes ? `${stats.totalVoiceMinutes} minutes` : 'Record your voice'}</p>
-              </div>
-            </motion.button>
-
-            {/* Family */}
-            <motion.button
-              onClick={() => navigate('/family')}
-              className="sanctuary-object group"
-              whileHover={{ y: -8 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="sanctuary-corner sanctuary-corner--tl"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--tr"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--bl"><CornerMark /></div>
-              <div className="sanctuary-corner sanctuary-corner--br"><CornerMark /></div>
-              <div className="sanctuary-content">
-                <div className="sanctuary-symbol text-gold group-hover:scale-110 transition-transform duration-500">
-                  <FamilyIcon />
-                </div>
-                <h3 className="sanctuary-title group-hover:text-gold transition-colors">Family</h3>
-                <p className="sanctuary-count">{familyCount ? `${familyCount} connected` : 'Add family members'}</p>
-              </div>
-            </motion.button>
-          </div>
-        </motion.section>
-
-        {/* Legacy Score Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-          className="mb-16 md:mb-20"
-        >
-          <div className="legacy-card">
-            {/* Share Button */}
-            <button className="legacy-share">
-              <Share2 size={18} />
-            </button>
-
-            {/* Legacy Orb with Ring */}
-            <div className="legacy-orb">
-              <div className="legacy-orb-glow" />
-              <div className="legacy-ring-container">
-                <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
-                  <defs>
-                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#e8c878"/>
-                      <stop offset="100%" stopColor="#9c7a3c"/>
-                    </linearGradient>
-                  </defs>
-                  <circle 
-                    cx="80" cy="80" r="70" 
-                    fill="none" 
-                    stroke="rgba(235, 230, 220, 0.08)" 
-                    strokeWidth="3"
-                  />
-                  <circle 
-                    cx="80" cy="80" r="70" 
-                    fill="none" 
-                    stroke="url(#goldGradient)" 
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeDasharray="440"
-                    strokeDashoffset={440 - (440 * scorePercent) / 100}
-                    className="transition-all duration-1000 ease-out"
-                    style={{ filter: 'drop-shadow(0 0 8px rgba(212, 168, 83, 0.4))' }}
-                  />
-                </svg>
-              </div>
-              <div className="legacy-value">
-                <span className="font-display text-4xl md:text-5xl tracking-wide">{scorePercent}</span>
-                <span className="text-xs tracking-[0.2em] text-paper/65 uppercase mt-1">Score</span>
-              </div>
-            </div>
-
-            {/* Legacy Info */}
-            <div className="legacy-info">
-              <div className="legacy-tier">
-                <div className="legacy-tier-badge">
-                  <Shield size={24} />
-                </div>
-                <span className="legacy-tier-name">{scoreTier}</span>
-              </div>
-              <p className="legacy-desc">
-                {scoreTierDescription || 'Keep adding to your family thread to build the continuity record and unlock new tiers.'}
-              </p>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* For The People You Love - Viral Driver Features with Emotional Appeal */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
-          className="mb-16 md:mb-20"
-        >
-          <div className="text-center mb-8">
-            <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold mb-2">For the People You Love Most</h2>
-            <p className="text-sm text-paper/70 max-w-lg mx-auto">These tools help you leave something real behind—stories, voice, and presence for the moments that matter.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <motion.button
-              onClick={() => navigate('/legacy-plan')}
-              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-gold/20 hover:border-gold/40"
-              whileHover={{ y: -4 }}
-            >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gold/20 flex items-center justify-center text-gold mb-3 group-hover:scale-110 transition-transform">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
-                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                </svg>
-              </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Make Sure They Don't Lose Your Stories</h3>
-              <p className="text-xs text-paper/70 mb-3">A simple plan for the memories your family will one day wish they had.</p>
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Start my plan <span className="text-gold/70">→</span></span>
-            </motion.button>
-
-            <motion.button
-              onClick={() => navigate('/story-artifacts')}
-              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-gold/20 hover:border-gold/40"
-              whileHover={{ y: -4 }}
-            >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gold/20 flex items-center justify-center text-gold mb-3 group-hover:scale-110 transition-transform">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
-                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
-                  <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>
-                </svg>
-              </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Turn Memories Into Something They Can Rewatch</h3>
-              <p className="text-xs text-paper/70 mb-3">A tribute they can keep—your voice, your photos, your meaning.</p>
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Create a tribute <span className="text-gold/70">→</span></span>
-            </motion.button>
-
-            <motion.button
-              onClick={() => navigate('/life-events')}
-              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-gold/20 hover:border-gold/40"
-              whileHover={{ y: -4 }}
-            >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gold/20 flex items-center justify-center text-gold mb-3 group-hover:scale-110 transition-transform">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <path d="M16 2v4M8 2v4M3 10h18"/>
-                  <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
-                </svg>
-              </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Be Present for Milestones—Even Years From Now</h3>
-              <p className="text-xs text-paper/70 mb-3">For the days you can't predict, but your love should still arrive.</p>
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Set a milestone <span className="text-gold/70">→</span></span>
-            </motion.button>
-
-            <motion.button
-              onClick={() => navigate('/recipient-experience')}
-              className="glass rounded-xl p-5 md:p-6 text-left hover:bg-paper/5 transition-all group border border-gold/20 hover:border-gold/40"
-              whileHover={{ y: -4 }}
-            >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gold/20 flex items-center justify-center text-gold mb-3 group-hover:scale-110 transition-transform">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 md:w-6 md:h-6">
-                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-                </svg>
-              </div>
-              <h3 className="font-medium text-sm md:text-base mb-1 group-hover:text-gold transition-colors">Invite Family to Help You Remember</h3>
-              <p className="text-xs text-paper/70 mb-3">Because the people you love carry pieces of your story too.</p>
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 text-xs text-gold group-hover:bg-gold/20 transition-colors">Invite someone <span className="text-gold/70">→</span></span>
-            </motion.button>
-          </div>
-        </motion.section>
-
-        {/* Family Echo Inbox - Messages from Recipients */}
-        {inboxData && inboxData.messages && inboxData.messages.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.48 }}
-            className="mb-16 md:mb-20"
-          >
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/20 border border-pink-500/30 mb-3">
-                <Heart size={16} className="text-pink-400" />
-                <span className="text-sm text-pink-300">
-                  {inboxData.unreadCount > 0 ? `${inboxData.unreadCount} new` : ''} Notes from Family
+                {a.num}
+              </span>
+              <h3
+                className="loom-serif"
+                style={{
+                  fontSize: 22,
+                  fontWeight: 300,
+                  color: 'var(--loom-bone)',
+                  lineHeight: 1.25,
+                  margin: 0,
+                }}
+              >
+                {a.title}
+              </h3>
+              <div>
+                <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 14px' }}>
+                  {a.line}
+                </p>
+                <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}>
+                  {a.cta}
                 </span>
               </div>
-              <h2 className="font-display text-xl md:text-2xl tracking-wide text-gold">Your Family Responded</h2>
-              <p className="text-sm text-paper/65 max-w-lg mx-auto mt-2">
-                The people you love have sent you notes about the memories you've shared.
-              </p>
-            </div>
-            <div className="space-y-4 max-w-2xl mx-auto">
-              {inboxData.messages.slice(0, 3).map((msg: any) => (
-                <motion.div
-                  key={msg.id}
-                  className={`glass rounded-xl p-5 border transition-all ${
-                    !msg.read_at ? 'border-pink-500/30 bg-pink-500/5' : 'border-paper/10'
-                  }`}
-                  whileHover={{ scale: 1.01 }}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500/30 to-purple-500/30 flex items-center justify-center text-lg font-medium flex-shrink-0">
-                      {msg.sender_name?.[0] || '?'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium">{msg.sender_name}</span>
-                        {msg.sender_relationship && (
-                          <span className="text-xs text-paper/70">({msg.sender_relationship})</span>
-                        )}
-                        {!msg.read_at && (
-                          <span className="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-xs">New</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        {msg.reaction_type === 'THANK_YOU' && (
-                          <span className="text-sm text-gold">Thank You</span>
-                        )}
-                        {msg.reaction_type === 'LOVE_THIS' && (
-                          <span className="text-sm text-pink-400">I Love This</span>
-                        )}
-                        {msg.reaction_type === 'REMEMBER_THIS' && (
-                          <span className="text-sm text-purple-400">I Remember This Too</span>
-                        )}
-                        {msg.reaction_type === 'CUSTOM' && (
-                          <span className="text-sm text-paper/65">Sent a note</span>
-                        )}
-                      </div>
-                      {msg.message && (
-                        <p className="text-paper/70 text-sm italic">"{msg.message}"</p>
-                      )}
-                      <p className="text-xs text-paper/65 mt-2">
-                        {new Date(msg.created_at).toLocaleDateString('en-US', { 
-                          month: 'short', day: 'numeric', year: 'numeric' 
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-              {inboxData.messages.length > 3 && (
-                <button
-                  onClick={() => navigate('/settings?tab=inbox')}
-                  className="w-full py-3 glass rounded-xl text-center text-paper/70 hover:text-gold transition-colors"
-                >
-                  View all {inboxData.messages.length} messages
-                </button>
-              )}
-            </div>
-          </motion.section>
-        )}
-
-        {/* Share & Earn Section - Referral Widget */}
-        {referralData && (
-          <motion.section
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-            className="mb-16 md:mb-20"
-          >
-            <div className="glass rounded-xl p-6 md:p-8 border border-gold/20">
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
-                  <Gift size={32} className="text-gold" />
-                </div>
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-xl font-medium mb-2">Share Heirloom, Get Rewarded</h3>
-                  <p className="text-paper/65 text-sm mb-4">
-                    For every friend who joins using your link, you both get an extra month free. 
-                    Invite other families to start their own thread — and extend your own subscription while you do.
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-center gap-3">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-void-elevated rounded-lg border border-paper/10">
-                      <span className="text-gold font-mono text-sm">{referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`}</span>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`);
-                          showToast('Link copied!', 'success');
-                        }}
-                        className="text-paper/65 hover:text-gold transition-colors"
-                      >
-                        <Copy size={16} />
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          const url = referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`;
-                          const text = "I've been using Heirloom to start my family's thread — append-only, time-locked, built to outlive us. Join me and we both get an extra month free.";
-                          window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-                          referralApi.trackShare('twitter');
-                        }}
-                        className="px-3 py-2 rounded-lg bg-[#1DA1F2]/20 text-[#1DA1F2] hover:bg-[#1DA1F2]/30 transition-colors text-sm"
-                      >
-                        Twitter
-                      </button>
-                      <button
-                        onClick={() => {
-                          const url = referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`;
-                          window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-                          referralApi.trackShare('facebook');
-                        }}
-                        className="px-3 py-2 rounded-lg bg-[#4267B2]/20 text-[#4267B2] hover:bg-[#4267B2]/30 transition-colors text-sm"
-                      >
-                        Facebook
-                      </button>
-                      <button
-                        onClick={() => {
-                          const url = referralData.url || `https://heirloom.blue/signup?ref=${referralData.code}`;
-                          const text = "I've been using Heirloom to start my family's thread — append-only, time-locked, built to outlive us. Join me and we both get an extra month free.";
-                          window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
-                          referralApi.trackShare('whatsapp');
-                        }}
-                        className="px-3 py-2 rounded-lg bg-[#25D366]/20 text-[#25D366] hover:bg-[#25D366]/30 transition-colors text-sm"
-                      >
-                        WhatsApp
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                {referralData.conversions > 0 && (
-                  <div className="text-center px-6 py-4 bg-gold/10 rounded-lg">
-                    <div className="text-3xl font-light text-gold">{referralData.conversions}</div>
-                    <div className="text-xs text-paper/65">Friends joined</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.section>
-        )}
-
-        {/* Trust & Security Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
-          className="mb-16 md:mb-20"
-        >
-          <div className="glass rounded-xl p-6 border border-paper/10">
-            <div className="flex items-center gap-3 mb-4">
-              <Shield size={20} className="text-gold" />
-              <h3 className="font-medium">Your Legacy is Protected</h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
-                <Lock size={16} className="text-green-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium">Encrypted</p>
-                  <p className="text-xs text-paper/65">Bank-level security</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
-                <Users size={16} className="text-blue-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium">You Control</p>
-                  <p className="text-xs text-paper/65">Who sees what</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
-                <Download size={16} className="text-purple-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium">Export</p>
-                  <p className="text-xs text-paper/65">Download anytime</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-paper/5 rounded-lg">
-                <Eye size={16} className="text-gold mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium">Preview</p>
-                  <p className="text-xs text-paper/65">See what they'll see</p>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate('/recipient-experience')}
-              className="mt-4 text-sm text-gold hover:text-gold/80 transition-colors flex items-center gap-1"
-            >
-              Preview recipient experience
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
             </button>
-          </div>
-        </motion.section>
+          ))}
+        </div>
+      </section>
 
-        {/* Reflection Card - AI Prompt */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-          className="mb-16 md:mb-20"
-        >
-          <div className="reflection-card">
-            {/* Decorative top line */}
-            <div className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
-            
-            <div className="reflection-header">
-              <div className="reflection-icon">
-                <svg viewBox="0 0 24 24" className="w-6 h-6" stroke="currentColor" strokeWidth="1.5" fill="none">
-                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                  <circle cx="12" cy="12" r="3" fill="currentColor" fillOpacity="0.3"/>
-                </svg>
-              </div>
-              <div className="reflection-meta">
-                <h3 className="font-display text-sm tracking-[0.12em] uppercase">Today's Reflection</h3>
-                <p className="text-xs text-paper/65 mt-1">Personalized by Heirloom AI</p>
-              </div>
-            </div>
-
-            <p className="reflection-prompt">
-              {isLoadingPrompt ? (
-                <span className="text-paper/65">Loading your personalized prompt...</span>
-              ) : (
-                `"${aiPrompt}"`
-              )}
-            </p>
-
-            <div className="reflection-actions">
-              <motion.button
-                onClick={() => navigate('/record')}
-                className="btn btn-record"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="pulse-dot" />
-                <Mic size={16} />
-                Record Answer
-              </motion.button>
-              <motion.button
-                onClick={() => navigate('/compose')}
-                className="btn btn-secondary"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Edit3 size={16} />
-                Write Instead
-              </motion.button>
-              <motion.button
-                onClick={refreshPrompt}
-                disabled={isLoadingPrompt}
-                className="btn btn-ghost"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <RefreshCw size={16} className={isLoadingPrompt ? 'animate-spin' : ''} />
-                New Prompt
-              </motion.button>
-            </div>
-          </div>
-        </motion.section>
-
-      </main>
-
-      {/* Help/Tour Button - Fixed position with safe area for mobile */}
-      <motion.button
-        onClick={openTour}
-        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 w-12 h-12 rounded-full glass flex items-center justify-center text-gold hover:text-gold/80 transition-colors border border-gold/30 hover:border-gold/50"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        title="Take a tour"
+      {/* Quiet stats footer */}
+      <section
+        style={{
+          marginTop: 64,
+          paddingTop: 28,
+          borderTop: '1px solid var(--loom-rule)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 32,
+        }}
       >
-        <HelpCircle size={24} />
-      </motion.button>
+        <Stat label="memories" value={String(memoryCount)} />
+        <Stat label="family" value={String(familyCount)} />
+        <Stat label="plan" value={tier.toLowerCase()} warm />
+        <Stat label="kept since" value={user?.id ? '2026' : '—'} />
+      </section>
+    </AppFrame>
+  );
+}
 
-      {/* Platform Tour Modal */}
-      <PlatformTour
-        isOpen={isTourOpen}
-        onClose={closeTour}
-        onComplete={completeTour}
-      />
+function FeaturedThread({ thread, threadCount }: { thread: ThreadSummary; threadCount: number }) {
+  return (
+    <section style={{ marginTop: 36 }}>
+      <p className="loom-eyebrow" style={{ marginBottom: 20 }}>
+        Your family thread
+      </p>
+      <Link
+        to={`/threads/${thread.id}`}
+        style={{
+          display: 'block',
+          padding: '32px 36px',
+          border: '1px solid var(--loom-rule)',
+          background: 'rgba(244,236,216,0.012)',
+          textDecoration: 'none',
+          transition: 'border-color 220ms cubic-bezier(0.16,1,0.3,1)',
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--loom-rule-warm)')}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--loom-rule)')}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            gap: 24,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h2
+              className="loom-h2"
+              style={{
+                fontSize: 28,
+                fontWeight: 300,
+                color: 'var(--loom-bone)',
+                margin: 0,
+                fontStyle: 'italic',
+              }}
+            >
+              {thread.name}
+            </h2>
+            {thread.dedication ? (
+              <p
+                className="loom-body"
+                style={{
+                  fontSize: 15,
+                  color: 'var(--loom-bone-dim)',
+                  margin: '6px 0 0',
+                  fontStyle: 'italic',
+                }}
+              >
+                {thread.dedication}
+              </p>
+            ) : null}
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              gap: 24,
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--loom-bone-faint)',
+            }}
+          >
+            <span>{thread.entry_count} {thread.entry_count === 1 ? 'entry' : 'entries'}</span>
+            <span>{thread.member_count} {thread.member_count === 1 ? 'member' : 'members'}</span>
+          </div>
+        </div>
+        <div
+          style={{
+            marginTop: 20,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+            paddingTop: 16,
+            borderTop: '1px solid var(--loom-rule)',
+          }}
+        >
+          <span
+            className="loom-mono"
+            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+          >
+            {thread.role.toLowerCase()} · gen {thread.generation_offset}
+          </span>
+          <span style={{ color: 'var(--loom-warm)', fontSize: 14 }}>open the thread →</span>
+        </div>
+      </Link>
+      {threadCount > 1 ? (
+        <p style={{ marginTop: 12, marginLeft: 4 }}>
+          <Link
+            to="/threads"
+            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+          >
+            view all {threadCount} threads →
+          </Link>
+        </p>
+      ) : null}
+    </section>
+  );
+}
 
-      {/* What's New Notification */}
-      <WhatsNewNotification />
+function NoThreadYet() {
+  return (
+    <section style={{ marginTop: 36 }}>
+      <p className="loom-eyebrow" style={{ marginBottom: 20 }}>
+        Your family thread
+      </p>
+      <div
+        style={{
+          padding: '40px 36px',
+          border: '1px solid var(--loom-rule)',
+          background: 'rgba(244,236,216,0.012)',
+        }}
+      >
+        <h2
+          className="loom-h2"
+          style={{
+            fontSize: 26,
+            fontWeight: 300,
+            color: 'var(--loom-bone)',
+            margin: '0 0 12px',
+            fontStyle: 'italic',
+          }}
+        >
+          The thread will be created on your first entry.
+        </h2>
+        <p
+          className="loom-body"
+          style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '0 0 24px', maxWidth: 580, lineHeight: 1.6 }}
+        >
+          Anything you write, record, or send goes into your family thread automatically. Members
+          can be added once the thread is started.
+        </p>
+        <Link to="/compose" className="loom-btn" style={{ textDecoration: 'none' }}>
+          write the first entry
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function UnlockRibbon({ items, count }: { items: UpcomingUnlock[]; count: number }) {
+  const lead = items[0];
+  const when = lead.unlock_date
+    ? new Date(lead.unlock_date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
+  return (
+    <div
+      style={{
+        marginBottom: 36,
+        padding: '20px 24px',
+        border: '1px solid var(--loom-rule-warm)',
+        background: 'rgba(176,122,74,0.04)',
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: 18,
+        flexWrap: 'wrap',
+      }}
+    >
+      <span
+        className="loom-mono"
+        style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
+      >
+        ∞ &nbsp; {count} {count === 1 ? 'lock opening' : 'locks opening'}
+      </span>
+      <span
+        className="loom-body"
+        style={{ flex: 1, fontSize: 15, color: 'var(--loom-bone)', minWidth: 280 }}
+      >
+        {lead.entry_title ?? 'An entry'} in <em style={{ color: 'var(--loom-warm)' }}>{lead.thread_name}</em>
+        {when ? ` — opens ${when}` : ''}
+        {lead.target_name ? ` for ${lead.target_name}` : ''}.
+      </span>
+      <Link to="/threads" style={{ color: 'var(--loom-warm)', fontSize: 14, whiteSpace: 'nowrap', textDecoration: 'none' }}>
+        view threads →
+      </Link>
+    </div>
+  );
+}
+
+function Stat({ label, value, warm }: { label: string; value: string; warm?: boolean }) {
+  return (
+    <div>
+      <p className="loom-eyebrow" style={{ fontSize: 10, marginBottom: 8 }}>
+        {label}
+      </p>
+      <p
+        className="loom-serif"
+        style={{
+          fontSize: 28,
+          fontWeight: 300,
+          color: warm ? 'var(--loom-warm)' : 'var(--loom-bone)',
+          margin: 0,
+          textTransform: warm ? 'capitalize' : 'none',
+        }}
+      >
+        {value}
+      </p>
     </div>
   );
 }
