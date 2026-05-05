@@ -67,6 +67,27 @@ export default {
           tint: '#E2D2B6',
         },
         'blood-v3': '#8C2C2C',
+
+        // ── Loom design tokens (vault dark + paper light, theme-driven) ──
+        // The product is a perpetual family loom. The AI is the invisible
+        // shuttle. The single accent is warm — the warmth of a sealed letter
+        // by lamplight. See cloudflare/frontend/src/loom/DESIGN.md.
+        // We deliberately use CSS variables (set per-theme in loom.css) so
+        // a single set of utility classes covers both vault and paper.
+        loom: {
+          ink: 'var(--loom-ink)',
+          'ink-card': 'var(--loom-ink-card)',
+          bone: 'var(--loom-bone)',
+          'bone-dim': 'var(--loom-bone-dim)',
+          'bone-faint': 'var(--loom-bone-faint)',
+          'bone-ghost': 'var(--loom-bone-ghost)',
+          rule: 'var(--loom-rule)',
+          'rule-warm': 'var(--loom-rule-warm)',
+          warm: 'var(--loom-warm)',
+          'warm-bright': 'var(--loom-warm-bright)',
+          'warm-dim': 'var(--loom-warm-dim)',
+          'warm-glow': 'var(--loom-warm-glow)',
+        },
       },
       fontFamily: {
         display: ['Cinzel', 'serif'],
@@ -76,6 +97,11 @@ export default {
         // Used everywhere serif on /v3/*. JetBrains Mono for labels.
         news: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
         v3mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        // Loom — same Newsreader serif (full opsz/weight range), Inter for
+        // UI/eyebrows/buttons, JetBrains Mono for archival metadata.
+        'loom-serif': ['Newsreader', 'Georgia', 'serif'],
+        'loom-ui': ['Inter', 'system-ui', 'sans-serif'],
+        'loom-mono': ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       transitionTimingFunction: {
         'ease-out': 'cubic-bezier(0.16, 1, 0.3, 1)',

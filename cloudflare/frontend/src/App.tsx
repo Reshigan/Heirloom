@@ -119,6 +119,12 @@ const V3Settings = lazy(() => import('./v3/pages/Settings').then(m => ({ default
 const V3Billing = lazy(() => import('./v3/pages/Billing').then(m => ({ default: m.Billing })));
 const V3Archive = lazy(() => import('./v3/pages/Archive').then(m => ({ default: m.Archive })));
 
+// The Loom — new third design direction. See cloudflare/frontend/src/loom/DESIGN.md.
+const LoomThreshold = lazy(() => import('./loom/pages/Threshold').then(m => ({ default: m.Threshold })));
+const LoomWeft = lazy(() => import('./loom/pages/Weft').then(m => ({ default: m.Weft })));
+const LoomComposer = lazy(() => import('./loom/pages/Composer').then(m => ({ default: m.Composer })));
+const LoomTiedOff = lazy(() => import('./loom/pages/TiedOff').then(m => ({ default: m.TiedOff })));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -189,29 +195,34 @@ function RouteChrome({
 }) {
   const { pathname } = useLocation();
   const isV3 = pathname.startsWith('/v3');
+  const isLoom = pathname.startsWith('/loom');
 
   return (
     <>
-      {!isV3 ? (
+      {!isV3 && !isLoom ? (
         <>
           <EternalBackground />
           <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
           <ComfortSettings isOpen={showComfortSettings} onClose={() => setShowComfortSettings(false)} />
         </>
-      ) : (
+      ) : null}
+      {isV3 ? (
         // v3 sanctuary atmosphere: persists across route changes.
         // Sits beneath the route content (z:0). Paper grain is z:1.
         <>
           <AmbientField />
           <div className="sanctuary-grain" aria-hidden />
         </>
-      )}
+      ) : null}
+      {/* Loom routes carry their own chrome (Frame component renders the
+          horizon glow + paper grain + shuttle inside each screen). No
+          extra background needed at the App level. */}
       <Suspense
         fallback={
           <div
             style={{
               minHeight: '100vh',
-              backgroundColor: isV3 ? 'transparent' : 'transparent',
+              backgroundColor: isLoom ? '#0e0e0c' : 'transparent',
             }}
           />
         }
@@ -561,6 +572,12 @@ export default function App() {
           <Route path="/v3/settings" element={<V3Settings />} />
           <Route path="/v3/billing" element={<V3Billing />} />
           <Route path="/v3/archive" element={<V3Archive />} />
+
+          {/* The Loom — third design direction. AI as invisible shuttle. */}
+          <Route path="/loom" element={<LoomThreshold />} />
+          <Route path="/loom/weft" element={<LoomWeft />} />
+          <Route path="/loom/compose" element={<LoomComposer />} />
+          <Route path="/loom/tied" element={<LoomTiedOff />} />
 
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />

@@ -1,0 +1,139 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { LoomShell } from '../components/LoomShell';
+import { Frame } from '../components/Frame';
+import { Loom } from '../components/Loom';
+
+/**
+ * Screen 01 — The Threshold
+ *
+ * The user's first arrival. The mark, the thesis, a fragment of weft
+ * that animates in beneath. From here every other screen is one click
+ * deep; we do not ask for an account, we do not ask for a name. The
+ * brand statement holds the page until the user is ready.
+ */
+export function Threshold() {
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setRevealed(true), 240);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <LoomShell>
+      <Frame
+        right={<span className="loom-mono loom-faint">est. 2026</span>}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'grid',
+            placeItems: 'center',
+            padding: '40px 120px',
+          }}
+        >
+          <div
+            style={{
+              textAlign: 'center',
+              width: '100%',
+              maxWidth: 880,
+              opacity: revealed ? 1 : 0,
+              transform: revealed ? 'translateY(0)' : 'translateY(8px)',
+              transition:
+                'opacity 1400ms cubic-bezier(0.16,1,0.3,1), transform 1400ms cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            <div className="loom-eyebrow" style={{ marginBottom: 32 }}>
+              a perpetual family loom · est. 2026
+            </div>
+            <div className="loom-display" style={{ fontSize: 96, marginBottom: 28 }}>
+              Heirloom
+            </div>
+            <div
+              className="loom-serif"
+              style={{
+                fontVariationSettings: "'opsz' 28",
+                fontStyle: 'italic',
+                fontSize: 22,
+                color: 'var(--loom-bone-dim)',
+                maxWidth: 640,
+                margin: '0 auto',
+                lineHeight: 1.6,
+                fontWeight: 300,
+              }}
+            >
+              Every life is a single thread.
+              <br />
+              Yours runs through the ones before you,
+              <br />
+              and into the ones who come after.
+            </div>
+
+            <div
+              style={{
+                width: 80,
+                height: 1,
+                background: 'var(--loom-warm)',
+                opacity: 0.6,
+                margin: '44px auto',
+              }}
+            />
+
+            {/* a fragment of weft as the brand's signature device */}
+            <div
+              style={{
+                maxWidth: 720,
+                margin: '0 auto',
+                opacity: revealed ? 1 : 0,
+                transition: 'opacity 2400ms cubic-bezier(0.16,1,0.3,1)',
+                transitionDelay: '600ms',
+              }}
+            >
+              <Loom
+                entries={[
+                  { year: 1958, month: 4, lane: 1, kind: 'letter' },
+                  { year: 1962, month: 7, lane: 2, kind: 'photo' },
+                  { year: 1971, month: 1, lane: 3, kind: 'voice' },
+                  { year: 1979, month: 9, lane: 0, kind: 'milestone' },
+                  { year: 1984, month: 6, lane: 2, kind: 'letter' },
+                  { year: 1991, month: 11, lane: 1, kind: 'photo' },
+                  { year: 1998, month: 3, lane: 4, kind: 'letter' },
+                  { year: 2004, month: 8, lane: 2, kind: 'memory' },
+                  { year: 2011, month: 2, lane: 1, kind: 'voice' },
+                  { year: 2018, month: 10, lane: 3, kind: 'photo' },
+                  { year: 2024, month: 5, lane: 2, kind: 'letter' },
+                  { year: 2026, month: 3, lane: 0, kind: 'milestone' },
+                  { year: 2031, month: 6, lane: 2, kind: 'letter', locked: true },
+                  { year: 2042, month: 1, lane: 3, kind: 'letter', locked: true },
+                  { year: 2058, month: 11, lane: 1, kind: 'letter', locked: true },
+                ]}
+                ligatures={[
+                  { from: 0, to: 6, show: revealed },
+                  { from: 2, to: 8, show: revealed },
+                  { from: 4, to: 10, show: revealed },
+                  { from: 7, to: 13, show: revealed },
+                ]}
+                startYear={1955}
+                endYear={2065}
+                height={140}
+              />
+            </div>
+
+            <div
+              className="loom-eyebrow"
+              style={{ marginTop: 60, opacity: 0.7, display: 'flex', justifyContent: 'center', gap: 24 }}
+            >
+              <Link to="/loom/weft" className="loom-btn" style={{ textDecoration: 'none' }}>
+                walk the loom
+              </Link>
+              <Link to="/loom/marketing" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
+                read the thesis
+              </Link>
+            </div>
+          </div>
+        </div>
+      </Frame>
+    </LoomShell>
+  );
+}
