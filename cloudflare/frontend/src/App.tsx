@@ -1,12 +1,8 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
-import { useThemeStore } from './stores/themeStore';
-// CustomCursor removed per v2 spec (accessibility)
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { EternalBackground } from './components/EternalBackground';
-import { ComfortSettings, ComfortSettingsButton, getComfortPreferences, applyComfortPreferences } from './components/ComfortSettings';
 import {
   isPushSupported,
   initializePushNotifications,
@@ -15,6 +11,9 @@ import {
   removePushNotificationListeners,
 } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
+import { useLoomTheme } from './loom/theme';
+import './loom/styles/loom.css';
+import './loom/styles/loom-bridge.css';
 
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
@@ -138,90 +137,48 @@ function PushNotificationHandler() {
 }
 
 /**
- * RouteChrome — the cross-app chrome (EternalBackground, ComfortSettings,
- * Suspense fallback) plus a per-route shape for it.
+ * LoomShellRoot — the .loom[data-theme] wrapper around the entire app.
  *
- * Two surface families:
- *   - Loom: / (the homepage marketing) + /loom/* (the eight-screen
- *     demo). These render their own chrome (Frame + horizon + grain)
- *     and use the .loom token system (vault/paper themes), so we skip
- *     EternalBackground entirely. Suspense fallback is loom-ink so
- *     chunk loads don't flash the wrong colour.
- *   - Legacy: everything else — auth (/login, /signup), the
- *     authenticated app (/dashboard, /memories, etc.), admin, legal.
- *     These keep the v1/v2 EternalBackground + ComfortSettings chrome.
+ * Two effects:
+ *   1. Establishes the Loom CSS variables (--loom-ink, --loom-bone,
+ *      --loom-warm, …) on every page in the tree. The bridge in
+ *      loom-bridge.css then re-themes legacy v1/v2 Tailwind utilities
+ *      (bg-void, text-paper, font-body, .btn-primary, .card, …) to
+ *      Loom values, so the entire app inherits the Loom palette and
+ *      type without each page being rewritten.
+ *   2. Drops the v1/v2 EternalBackground / ComfortSettings chrome
+ *      entirely — the Loom is the canonical design now.
+ *
+ * Theme persists via useLoomTheme (localStorage key "heirloom-theme"),
+ * so /loom/marketing's vault/paper toggle carries through to /dashboard
+ * and back.
  */
-function RouteChrome({
-  children,
-  showComfortSettings,
-  setShowComfortSettings,
-}: {
-  children: React.ReactNode;
-  showComfortSettings: boolean;
-  setShowComfortSettings: (v: boolean) => void;
-}) {
-  const { pathname } = useLocation();
-  // Loom-themed surfaces: the new homepage at / and the demo at /loom/*.
-  // Everything else (auth, dashboard, the authenticated app, admin, legal)
-  // keeps the legacy v1/v2 chrome (EternalBackground + ComfortSettings).
-  const isLoom = pathname === '/' || pathname.startsWith('/loom');
-
+function LoomShellRoot({ children }: { children: React.ReactNode }) {
+  const { theme } = useLoomTheme();
   return (
-    <>
-      {!isLoom ? (
-        <>
-          <EternalBackground />
-          <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
-          <ComfortSettings isOpen={showComfortSettings} onClose={() => setShowComfortSettings(false)} />
-        </>
-      ) : null}
-      {/* Loom surfaces carry their own chrome — the Frame renders the
-          horizon glow + paper grain + shuttle inside each screen, and the
-          Marketing page renders a fixed top nav. No extra background
-          needed at the App level. */}
+    <div className="loom" data-theme={theme} style={{ minHeight: '100vh' }}>
       <Suspense
-        fallback={
-          <div
-            style={{
-              minHeight: '100vh',
-              backgroundColor: isLoom ? '#0e0e0c' : 'transparent',
-            }}
-          />
-        }
+        fallback={<div style={{ minHeight: '100vh', backgroundColor: '#0e0e0c' }} />}
       >
         {children}
       </Suspense>
-    </>
+    </div>
   );
 }
 
 export default function App() {
-  const [showComfortSettings, setShowComfortSettings] = useState(false);
-  const { theme } = useThemeStore();
-  
-  // Apply theme to document
+  // Clear the chunk-reload flag once the app has mounted successfully so
+  // a future redeploy can recover stale tabs (see lib/chunkReload.ts).
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-  
-  // Apply saved comfort preferences on app load
-  useEffect(() => {
-    const prefs = getComfortPreferences();
-    applyComfortPreferences(prefs);
-    // We rendered successfully — clear the chunk-reload flag so a
-    // future stale-chunk event triggers a fresh reload attempt.
     clearChunkReloadFlag();
   }, []);
-  
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <PushNotificationHandler />
-          <RouteChrome
-            showComfortSettings={showComfortSettings}
-            setShowComfortSettings={setShowComfortSettings}
-          >
+          <LoomShellRoot>
           <Routes>
           {/* Public routes */}
           <Route path="/" element={<LoomMarketing />} />
@@ -503,7 +460,7 @@ export default function App() {
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
           </Routes>
-          </RouteChrome>
+          </LoomShellRoot>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

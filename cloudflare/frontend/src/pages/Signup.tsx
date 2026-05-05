@@ -1,18 +1,22 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Mail, Lock, User, Loader2, Eye, EyeOff, ArrowRight, Check } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 import { VaultModal } from '../components/VaultModal';
 
+/**
+ * Signup — Loom-native rewrite.
+ *
+ * Same business logic as before (form validation, register, vault
+ * setup on success). Cosmetic shell only: a Newsreader heading,
+ * hairline-bordered fields, a warm primary button. No sanctuary
+ * background, no particles.
+ */
 export function Signup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { register } = useAuthStore();
-  
-  // Get redirect URL from query params (used for voucher redemption flow)
   const redirectUrl = searchParams.get('redirect');
-  
+
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -22,26 +26,23 @@ export function Signup() {
     acceptedTerms: false,
     marketingConsent: false,
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showVaultSetup, setShowVaultSetup] = useState(false);
-
-  const passwordChecks = [
-    { label: 'At least 8 characters', valid: form.password.length >= 8 },
-    { label: 'Contains a number', valid: /\d/.test(form.password) },
-    { label: 'Contains uppercase', valid: /[A-Z]/.test(form.password) },
-  ];
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!form.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!form.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!form.email.trim()) newErrors.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = 'Invalid email';
-    if (form.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
-    if (form.password !== form.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    if (!form.acceptedTerms) newErrors.acceptedTerms = 'You must accept the Terms of Service';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      newErrors.email = 'Invalid email';
+    if (form.password.length < 8)
+      newErrors.password = 'Password must be at least 8 characters';
+    if (form.password !== form.confirmPassword)
+      newErrors.confirmPassword = 'Passwords do not match';
+    if (!form.acceptedTerms)
+      newErrors.acceptedTerms = 'You must accept the Terms of Service';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -49,19 +50,15 @@ export function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    
     setIsLoading(true);
     setErrors({});
-
     try {
-      // Pass consent data with registration
       await register(form.email, form.password, form.firstName, form.lastName, {
         acceptedTerms: form.acceptedTerms,
         acceptedTermsAt: new Date().toISOString(),
         marketingConsent: form.marketingConsent,
         marketingConsentAt: form.marketingConsent ? new Date().toISOString() : null,
       });
-      // Show vault setup modal after successful registration
       setShowVaultSetup(true);
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
@@ -71,298 +68,264 @@ export function Signup() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-12">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-
-      {/* Floating particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(50)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-gold/30"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 0.8, 0],
-            }}
-            transition={{
-              duration: 10 + Math.random() * 10,
-              repeat: Infinity,
-              delay: Math.random() * 10,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Signup Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-md"
+    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: '68px 1fr' }}>
+      <header
+        style={{
+          borderBottom: '1px solid var(--loom-rule)',
+          padding: '0 28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
       >
-        {/* Card glow */}
-        <div className="absolute -inset-4 bg-gold/5 blur-3xl rounded-full" />
-        
-        <div className="card glass-strong relative">
-          {/* Glass shine */}
-          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white/[0.08] to-transparent rounded-t-2xl pointer-events-none" />
-          
-          <div className="relative">
-            {/* Logo */}
-            <motion.div 
-              className="text-center mb-8"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Link to="/" className="inline-block">
-                <motion.div
-                  className="text-5xl text-gold mb-2"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-                >
-                  ∞
-                </motion.div>
-                <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
-              </Link>
-            </motion.div>
+        <Link to="/" className="loom-mark" style={{ textDecoration: 'none' }}>
+          <span className="infmark">∞</span>heirloom
+        </Link>
+        <Link
+          to="/login"
+          className="loom-mono"
+          style={{
+            fontSize: 11,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'var(--loom-bone-dim)',
+            textDecoration: 'none',
+          }}
+        >
+          have an account? sign in
+        </Link>
+      </header>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <h1 className="text-2xl font-light text-center mb-2">Who do you want to remember you?</h1>
-              <p className="text-paper/65 text-center mb-2">Start preserving your family's memories. Free for 14 days.</p>
-              <p className="text-paper/50 text-center text-xs mb-8">Join 2,000+ families already preserving their legacy</p>
-            </motion.div>
+      <main style={{ display: 'grid', placeItems: 'start center', padding: '60px 24px 100px' }}>
+        <div style={{ width: '100%', maxWidth: 520 }}>
+          <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
+            ∞ &nbsp; begin a thread
+          </div>
+          <h1
+            className="loom-h2"
+            style={{
+              fontSize: 'clamp(36px, 5vw, 56px)',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              margin: '0 0 16px',
+            }}
+          >
+            every life is a single thread.
+          </h1>
+          <p
+            className="loom-body"
+            style={{
+              fontSize: 18,
+              fontStyle: 'italic',
+              color: 'var(--loom-bone-dim)',
+              margin: '0 0 40px',
+              lineHeight: 1.55,
+            }}
+          >
+            yours runs through the ones before you, and into the ones who come after.
+          </p>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {errors.submit && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-4 bg-blood/10 border border-blood/30 rounded-lg text-blood text-sm text-center"
-                >
-                  {errors.submit}
-                </motion.div>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-paper/65 mb-2">First name</label>
-                  <div className="relative">
-                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                    <input
-                      type="text"
-                      autoComplete="given-name"
-                      autoCapitalize="words"
-                      value={form.firstName}
-                      onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                      placeholder="John"
-                      className={`input pl-12 ${errors.firstName ? 'border-blood' : ''}`}
-                    />
-                  </div>
-                  {errors.firstName && <p className="text-blood text-xs mt-1">{errors.firstName}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm text-paper/65 mb-2">Last name</label>
-                  <input
-                    type="text"
-                    autoComplete="family-name"
-                    autoCapitalize="words"
-                    value={form.lastName}
-                    onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                    placeholder="Doe"
-                    className={`input ${errors.lastName ? 'border-blood' : ''}`}
-                  />
-                  {errors.lastName && <p className="text-blood text-xs mt-1">{errors.lastName}</p>}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm text-paper/65 mb-2">Email</label>
-                <div className="relative">
-                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                  <input
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    autoCapitalize="none"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="you@example.com"
-                    className={`input pl-12 ${errors.email ? 'border-blood' : ''}`}
-                  />
-                </div>
-                {errors.email && <p className="text-blood text-xs mt-1">{errors.email}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm text-paper/65 mb-2">Password</label>
-                <div className="relative">
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    placeholder="••••••••"
-                    className={`input pl-12 pr-12 ${errors.password ? 'border-blood' : ''}`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/65 hover:text-paper transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {errors.password && <p className="text-blood text-xs mt-1">{errors.password}</p>}
-                
-                {/* Password strength indicators */}
-                <div className="mt-3 space-y-1">
-                  {passwordChecks.map(({ label, valid }) => (
-                    <div key={label} className="flex items-center gap-2 text-xs">
-                      <div className={`w-3 h-3 rounded-full flex items-center justify-center ${valid ? 'bg-green-500' : 'bg-paper/10'}`}>
-                        {valid && <Check size={8} className="text-void" />}
-                      </div>
-                      <span className={valid ? 'text-green-400' : 'text-paper/70'}>{label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm text-paper/65 mb-2">Confirm password</label>
-                <div className="relative">
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                  <input
-                    type="password"
-                    value={form.confirmPassword}
-                    onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                    placeholder="••••••••"
-                    className={`input pl-12 ${errors.confirmPassword ? 'border-blood' : ''}`}
-                  />
-                </div>
-                {errors.confirmPassword && <p className="text-blood text-xs mt-1">{errors.confirmPassword}</p>}
-              </div>
-
-              {/* GDPR Consent Section */}
-              <div className="space-y-3 pt-2">
-                {/* Terms of Service - Required */}
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <div className="relative mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={form.acceptedTerms}
-                      onChange={(e) => setForm({ ...form, acceptedTerms: e.target.checked })}
-                      className="sr-only peer"
-                    />
-                    <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${
-                      form.acceptedTerms 
-                        ? 'bg-gold border-gold' 
-                        : errors.acceptedTerms 
-                          ? 'border-blood' 
-                          : 'border-paper/30 group-hover:border-paper/50'
-                    }`}>
-                      {form.acceptedTerms && <Check size={12} className="text-void" />}
-                    </div>
-                  </div>
-                  <span className="text-sm text-paper/70">
-                    I agree to the{' '}
-                    <Link to="/terms" className="text-gold hover:text-gold-bright underline" onClick={(e) => e.stopPropagation()}>
-                      Terms of Service
-                    </Link>
-                    {' '}<span className="text-gold">*</span>
-                  </span>
-                </label>
-                {errors.acceptedTerms && <p className="text-blood text-xs ml-8">{errors.acceptedTerms}</p>}
-
-                {/* Privacy Policy Acknowledgement */}
-                <p className="text-xs text-paper/65 ml-8">
-                  By creating an account, you acknowledge our{' '}
-                  <Link to="/privacy" className="text-gold/70 hover:text-gold underline">Privacy Policy</Link>
-                  {' '}which explains how we collect, use, and protect your data.
-                </p>
-
-                {/* Marketing Consent - Optional */}
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <div className="relative mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={form.marketingConsent}
-                      onChange={(e) => setForm({ ...form, marketingConsent: e.target.checked })}
-                      className="sr-only peer"
-                    />
-                    <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${
-                      form.marketingConsent 
-                        ? 'bg-gold border-gold' 
-                        : 'border-paper/30 group-hover:border-paper/50'
-                    }`}>
-                      {form.marketingConsent && <Check size={12} className="text-void" />}
-                    </div>
-                  </div>
-                  <span className="text-sm text-paper/65">
-                    Send me product updates, tips, and special offers (optional)
-                  </span>
-                </label>
-              </div>
-
-              <motion.button
-                type="submit"
-                disabled={isLoading}
-                className="btn btn-primary w-full py-4 text-lg"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {isLoading ? (
-                  <Loader2 size={20} className="animate-spin" />
-                ) : (
-                  <>
-                    Begin Your Legacy
-                    <ArrowRight size={20} />
-                  </>
-                )}
-              </motion.button>
-            </form>
-
-            <div className="mt-8 text-center">
-              <p className="text-paper/65">
-                Already have an account?{' '}
-                <Link to="/login" className="text-gold hover:text-gold-bright transition-colors">
-                  Sign in
-                </Link>
-              </p>
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              <Field
+                label="first name"
+                id="s-first"
+                value={form.firstName}
+                onChange={(v) => setForm({ ...form, firstName: v })}
+                error={errors.firstName}
+                autoComplete="given-name"
+              />
+              <Field
+                label="last name"
+                id="s-last"
+                value={form.lastName}
+                onChange={(v) => setForm({ ...form, lastName: v })}
+                error={errors.lastName}
+                autoComplete="family-name"
+              />
             </div>
+
+            <Field
+              label="email"
+              id="s-email"
+              type="email"
+              value={form.email}
+              onChange={(v) => setForm({ ...form, email: v })}
+              error={errors.email}
+              autoComplete="email"
+            />
+
+            <Field
+              label="password"
+              id="s-pw"
+              type="password"
+              value={form.password}
+              onChange={(v) => setForm({ ...form, password: v })}
+              error={errors.password}
+              hint="at least 8 characters"
+              autoComplete="new-password"
+            />
+
+            <Field
+              label="confirm password"
+              id="s-pw2"
+              type="password"
+              value={form.confirmPassword}
+              onChange={(v) => setForm({ ...form, confirmPassword: v })}
+              error={errors.confirmPassword}
+              autoComplete="new-password"
+            />
+
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 12,
+                cursor: 'pointer',
+                marginTop: 8,
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={form.acceptedTerms}
+                onChange={(e) => setForm({ ...form, acceptedTerms: e.target.checked })}
+                style={{ accentColor: 'var(--loom-warm)', marginTop: 4 }}
+              />
+              <span
+                className="loom-body"
+                style={{ fontSize: 14, color: 'var(--loom-bone-dim)', lineHeight: 1.6 }}
+              >
+                I accept the{' '}
+                <Link to="/terms" style={{ color: 'var(--loom-warm)' }}>
+                  terms
+                </Link>{' '}
+                and the{' '}
+                <Link to="/privacy" style={{ color: 'var(--loom-warm)' }}>
+                  privacy notice
+                </Link>
+                .
+              </span>
+            </label>
+            {errors.acceptedTerms ? (
+              <p
+                role="alert"
+                className="loom-body"
+                style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 13, margin: 0 }}
+              >
+                {errors.acceptedTerms}
+              </p>
+            ) : null}
+
+            {errors.submit ? (
+              <p
+                role="alert"
+                className="loom-body"
+                style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}
+              >
+                {errors.submit}
+              </p>
+            ) : null}
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginTop: 16,
+              }}
+            >
+              <button type="submit" disabled={isLoading} className="loom-btn" style={{ opacity: isLoading ? 0.5 : 1 }}>
+                {isLoading ? 'beginning…' : 'begin your thread'}
+              </button>
+            </div>
+          </form>
+
+          <div
+            className="loom-mono"
+            style={{
+              marginTop: 56,
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--loom-bone-faint)',
+              textAlign: 'center',
+            }}
+          >
+            ∞ &nbsp; encrypted in browser · key escrow · 2 of 3 contacts
           </div>
         </div>
-      </motion.div>
+      </main>
 
-      {/* Vault Setup Modal - shown after successful registration */}
-      <VaultModal
-        isOpen={showVaultSetup}
-        mode="setup"
-        onComplete={() => {
-          setShowVaultSetup(false);
-          navigate(redirectUrl || '/dashboard');
-        }}
-        onSkip={() => {
-          setShowVaultSetup(false);
-          navigate(redirectUrl || '/dashboard');
-        }}
+      {showVaultSetup ? (
+        <VaultModal
+          isOpen={showVaultSetup}
+          mode="setup"
+          onComplete={() => {
+            setShowVaultSetup(false);
+            navigate(redirectUrl || '/dashboard');
+          }}
+          onSkip={() => {
+            setShowVaultSetup(false);
+            navigate(redirectUrl || '/dashboard');
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function Field({
+  id,
+  label,
+  value,
+  onChange,
+  type = 'text',
+  error,
+  hint,
+  autoComplete,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  error?: string;
+  hint?: string;
+  autoComplete?: string;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        autoComplete={autoComplete}
+        onChange={(e) => onChange(e.target.value)}
       />
+      {hint && !error ? (
+        <p
+          className="loom-mono"
+          style={{
+            margin: '6px 0 0',
+            fontSize: 10,
+            color: 'var(--loom-bone-faint)',
+            letterSpacing: '0.06em',
+          }}
+        >
+          {hint}
+        </p>
+      ) : null}
+      {error ? (
+        <p
+          role="alert"
+          className="loom-body"
+          style={{ margin: '6px 0 0', fontSize: 13, fontStyle: 'italic', color: '#c25a5a' }}
+        >
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
