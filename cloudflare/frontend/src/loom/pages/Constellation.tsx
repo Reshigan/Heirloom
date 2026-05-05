@@ -1,0 +1,286 @@
+import { Fragment, useState } from 'react';
+import { LoomShell } from '../components/LoomShell';
+import { Frame } from '../components/Frame';
+import { ELEANOR_KIN } from '../data/mock';
+
+/**
+ * Screen 08 — The Constellation
+ *
+ * Kin as parallel life-threads, all set against a single 1890–2070
+ * timeline. Each line is one life. Where lines overlap horizontally,
+ * the two people knew each other. Where the AI has found a resonance
+ * across generations, a warm vertical hairline crosses the lines.
+ *
+ * "you" is rendered in warm; the rest in bone. Past lives terminate
+ * at their death year (no glow); living lives fade out toward 2070.
+ */
+export function Constellation() {
+  const [hovered, setHovered] = useState<number | null>(null);
+  const minYear = 1890;
+  const maxYear = 2070;
+  const today = 2026;
+  const xOf = (y: number) => ((y - minYear) / (maxYear - minYear)) * 100;
+
+  return (
+    <LoomShell>
+      <Frame active="kin">
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            padding: '44px 80px 0',
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr auto',
+            gap: 28,
+          }}
+        >
+          <div>
+            <div className="loom-eyebrow">kin · five threads, four generations</div>
+            <div
+              className="loom-h2"
+              style={{
+                fontSize: 44,
+                marginTop: 12,
+                fontWeight: 300,
+                letterSpacing: '-0.014em',
+              }}
+            >
+              The Hartshorn line, woven
+            </div>
+            <div
+              className="loom-body loom-dim"
+              style={{ fontSize: 15, fontStyle: 'italic', marginTop: 6, maxWidth: 700 }}
+            >
+              each line is one life. where the lines overlap, you knew them. where they meet
+              vertically, the loom found a resonance — a phrase, a place, a habit shared across
+              generations.
+            </div>
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <div
+              style={{
+                position: 'absolute',
+                left: `${xOf(today)}%`,
+                top: 0,
+                bottom: 0,
+                width: 1,
+                background: 'var(--loom-warm)',
+                opacity: 0.4,
+              }}
+            />
+            <div
+              className="loom-mono"
+              style={{
+                position: 'absolute',
+                left: `${xOf(today)}%`,
+                transform: 'translateX(-50%)',
+                top: -18,
+                fontSize: 10,
+                color: 'var(--loom-warm)',
+              }}
+            >
+              today
+            </div>
+
+            {[1900, 1920, 1940, 1960, 1980, 2000, 2020, 2040, 2060].map((y) => (
+              <Fragment key={y}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `${xOf(y)}%`,
+                    top: 0,
+                    bottom: 0,
+                    width: 1,
+                    background: 'var(--loom-rule)',
+                  }}
+                />
+                <div
+                  className="loom-mono"
+                  style={{
+                    position: 'absolute',
+                    left: `${xOf(y)}%`,
+                    transform: 'translateX(-50%)',
+                    bottom: -18,
+                    fontSize: 9,
+                    color: 'var(--loom-bone-faint)',
+                  }}
+                >
+                  {y}
+                </div>
+              </Fragment>
+            ))}
+
+            {ELEANOR_KIN.map((k, i) => {
+              const top = 22 + i * 64;
+              const dead = k.died != null;
+              const endYear = k.died ?? today;
+              const isLit = hovered === i || k.you;
+              return (
+                <Fragment key={i}>
+                  <div
+                    onMouseEnter={() => setHovered(i)}
+                    onMouseLeave={() => setHovered(null)}
+                    style={{
+                      position: 'absolute',
+                      left: `${xOf(k.born)}%`,
+                      width: `${xOf(endYear) - xOf(k.born)}%`,
+                      top,
+                      height: k.you ? 3 : 2,
+                      background: k.you
+                        ? 'var(--loom-warm)'
+                        : isLit
+                          ? 'var(--loom-bone)'
+                          : 'var(--loom-bone-dim)',
+                      boxShadow: k.you ? '0 0 8px rgba(207,147,90,0.4)' : 'none',
+                      cursor: 'pointer',
+                      transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                  />
+                  {!dead ? (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: `${xOf(endYear)}%`,
+                        width: `${xOf(maxYear) - xOf(endYear)}%`,
+                        top,
+                        height: k.you ? 3 : 2,
+                        background: `linear-gradient(to right, ${
+                          k.you ? 'var(--loom-warm)' : 'var(--loom-bone-dim)'
+                        }, transparent)`,
+                        opacity: 0.4,
+                        pointerEvents: 'none',
+                      }}
+                    />
+                  ) : null}
+                  {k.picks.map((py, j) => (
+                    <div
+                      key={j}
+                      style={{
+                        position: 'absolute',
+                        left: `${xOf(py)}%`,
+                        top: top - 2,
+                        width: 4,
+                        height: 6,
+                        background: k.you ? 'var(--loom-warm-bright)' : 'var(--loom-bone)',
+                        transform: 'translateX(-50%)',
+                      }}
+                    />
+                  ))}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: `${xOf(k.born)}%`,
+                      top: top - 26,
+                      transform: 'translateX(-2px)',
+                      fontFamily: "'Newsreader', serif",
+                      fontVariationSettings: "'opsz' 28",
+                      fontSize: 15,
+                      fontWeight: 400,
+                      color: k.you
+                        ? 'var(--loom-warm)'
+                        : isLit
+                          ? 'var(--loom-bone)'
+                          : 'var(--loom-bone-dim)',
+                      fontStyle: k.you ? 'italic' : 'normal',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {k.name}
+                  </div>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: `${xOf(k.born)}%`,
+                      top: top + 8,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 9,
+                      letterSpacing: '0.04em',
+                      color: 'var(--loom-bone-faint)',
+                    }}
+                  >
+                    {k.born} — {k.died ?? '∞'}
+                  </div>
+                </Fragment>
+              );
+            })}
+
+            {[
+              { x: 1962, top: 22 + 1 * 64, bottom: 22 + 2 * 64 },
+              { x: 2019, top: 22 + 2 * 64, bottom: 22 + 3 * 64 },
+              { x: 2024, top: 22 + 2 * 64, bottom: 22 + 4 * 64 },
+            ].map((r, i) => (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${xOf(r.x)}%`,
+                  top: r.top,
+                  height: r.bottom - r.top,
+                  width: 1,
+                  background: 'var(--loom-warm)',
+                  opacity: 0.55,
+                }}
+              />
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: 36,
+              paddingTop: 24,
+              borderTop: '1px solid var(--loom-rule)',
+              alignItems: 'baseline',
+            }}
+          >
+            <LegendItem swatch="var(--loom-warm)" label="you" italic />
+            <LegendItem swatch="var(--loom-bone)" label="kin" />
+            <LegendItem
+              swatch="var(--loom-bone-dim)"
+              label="recorded life — first-hand or remembered"
+            />
+            <LegendItem
+              swatch="rgba(244,236,216,0.18)"
+              label="thread continues, beyond the loom's edge"
+            />
+            <div style={{ marginLeft: 'auto' }} className="loom-mono">
+              <span style={{ color: 'var(--loom-warm)', fontSize: 10 }}>∞</span>
+              <span
+                style={{ fontSize: 10, color: 'var(--loom-bone-dim)', marginLeft: 8 }}
+              >
+                3 resonances active
+              </span>
+            </div>
+          </div>
+        </div>
+      </Frame>
+    </LoomShell>
+  );
+}
+
+function LegendItem({
+  swatch,
+  label,
+  italic,
+}: {
+  swatch: string;
+  label: string;
+  italic?: boolean;
+}) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ width: 18, height: 2, background: swatch }} />
+      <span
+        className="loom-serif"
+        style={{
+          fontSize: 13,
+          color: 'var(--loom-bone-dim)',
+          fontStyle: italic ? 'italic' : 'normal',
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}

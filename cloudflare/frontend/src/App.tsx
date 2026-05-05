@@ -124,6 +124,11 @@ const LoomThreshold = lazy(() => import('./loom/pages/Threshold').then(m => ({ d
 const LoomWeft = lazy(() => import('./loom/pages/Weft').then(m => ({ default: m.Weft })));
 const LoomComposer = lazy(() => import('./loom/pages/Composer').then(m => ({ default: m.Composer })));
 const LoomTiedOff = lazy(() => import('./loom/pages/TiedOff').then(m => ({ default: m.TiedOff })));
+const LoomUnlock = lazy(() => import('./loom/pages/Unlock').then(m => ({ default: m.Unlock })));
+const LoomEcho = lazy(() => import('./loom/pages/Echo').then(m => ({ default: m.Echo })));
+const LoomReadingRoom = lazy(() => import('./loom/pages/ReadingRoom').then(m => ({ default: m.ReadingRoom })));
+const LoomConstellation = lazy(() => import('./loom/pages/Constellation').then(m => ({ default: m.Constellation })));
+const LoomMarketing = lazy(() => import('./loom/pages/Marketing').then(m => ({ default: m.Marketing })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -578,6 +583,11 @@ export default function App() {
           <Route path="/loom/weft" element={<LoomWeft />} />
           <Route path="/loom/compose" element={<LoomComposer />} />
           <Route path="/loom/tied" element={<LoomTiedOff />} />
+          <Route path="/loom/unlock" element={<LoomUnlock />} />
+          <Route path="/loom/echo" element={<LoomEcho />} />
+          <Route path="/loom/read" element={<LoomReadingRoom />} />
+          <Route path="/loom/kin" element={<LoomConstellation />} />
+          <Route path="/loom/marketing" element={<LoomMarketing />} />
 
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
