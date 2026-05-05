@@ -69,6 +69,7 @@ export function Frame({
         </nav>
         <span className="right">
           {right ?? <span className="loom-mono">2026·05·05 · 22:14</span>}
+          <DemoMenu />
           <ThemeToggle />
         </span>
       </div>
@@ -79,5 +80,44 @@ export function Frame({
         {showGrain ? <div className="loom-grain" /> : null}
       </div>
     </div>
+  );
+}
+
+/**
+ * DemoMenu — small dropdown that surfaces the contextual screens
+ * (Unlock, Echo, Reading Room, Marketing) which aren't in the main
+ * topbar nav. Lets a reviewer walk through all eight surfaces from
+ * any one of them; intentionally quiet — mono caps, no chrome.
+ */
+function DemoMenu() {
+  const { pathname } = useLocation();
+  const items = [
+    { to: '/loom', label: 'Threshold' },
+    { to: '/loom/weft', label: 'The Weft' },
+    { to: '/loom/compose', label: 'Composer' },
+    { to: '/loom/tied', label: 'Tied Off' },
+    { to: '/loom/unlock', label: 'The Unlock' },
+    { to: '/loom/echo', label: 'Echo' },
+    { to: '/loom/read', label: 'Reading Room' },
+    { to: '/loom/kin', label: 'Constellation' },
+    { to: '/loom/marketing', label: 'Marketing' },
+  ];
+  return (
+    <details className="loom-demo">
+      <summary>walk · {items.findIndex((i) => i.to === pathname) + 1}/9</summary>
+      <div className="loom-demo__menu">
+        {items.map((it, i) => (
+          <Link
+            key={it.to}
+            to={it.to}
+            className={pathname === it.to ? 'active' : ''}
+            style={{ textDecoration: 'none' }}
+          >
+            <span className="loom-demo__num">{String(i + 1).padStart(2, '0')}</span>
+            <span>{it.label}</span>
+          </Link>
+        ))}
+      </div>
+    </details>
   );
 }

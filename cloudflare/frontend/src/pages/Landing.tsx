@@ -99,6 +99,9 @@ export function Landing() {
             </span>
           </Link>
           <div className="flex items-center gap-7 text-sm">
+            <Link to="/loom" className="text-gold hover:text-gold-bright transition-colors hidden md:inline">
+              The Loom →
+            </Link>
             <Link to="/creators" className="text-paper-50 hover:text-paper transition-colors hidden md:inline">
               For creators
             </Link>

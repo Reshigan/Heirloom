@@ -10,6 +10,7 @@ import { Drawline } from '../sanctuary/Drawline';
 export function MarketingNav() {
   const { pathname } = useLocation();
   const links = [
+    { to: '/loom', label: 'The Loom' },
     { to: '/v3/founder', label: 'Founder' },
     { to: '/v3/login', label: 'Sign in' },
   ];
