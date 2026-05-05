@@ -130,7 +130,7 @@ function Header() {
             paper
           </button>
         </span>
-        <Link to="/loom" className="loom-btn" style={{ textDecoration: 'none' }}>
+        <Link to="/signup" className="loom-btn" style={{ textDecoration: 'none' }}>
           begin a thread
         </Link>
       </span>
@@ -185,11 +185,11 @@ function Hero() {
           across kin — and weaves them in.
         </p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 56 }}>
-          <Link to="/loom" className="loom-btn" style={{ textDecoration: 'none' }}>
+          <Link to="/signup" className="loom-btn" style={{ textDecoration: 'none' }}>
             begin your weft
           </Link>
-          <Link to="/loom/weft" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
-            see the loom →
+          <Link to="/loom" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
+            walk the demo →
           </Link>
         </div>
         <LivingLoom />
@@ -581,7 +581,7 @@ function UnlockSpotlight() {
             that moment is the recipient. Often, they share it.
           </p>
           <div style={{ marginTop: 40 }}>
-            <Link to="/loom/unlock" className="loom-btn" style={{ textDecoration: 'none' }}>
+            <Link to="/loom/unlock" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
               watch the unlock →
             </Link>
           </div>
@@ -727,6 +727,7 @@ function Pricing() {
         'content removed if unkept',
       ],
       cta: 'begin',
+      to: '/signup',
       featured: false,
     },
     {
@@ -740,6 +741,7 @@ function Pricing() {
         'full resonance engine',
       ],
       cta: 'choose',
+      to: '/signup',
       featured: false,
     },
     {
@@ -753,6 +755,7 @@ function Pricing() {
         'up to 6 keepers, one weft',
       ],
       cta: 'choose family',
+      to: '/signup',
       featured: true,
     },
     {
@@ -766,6 +769,7 @@ function Pricing() {
         'printed yearly volume · vellum-bound',
       ],
       cta: 'choose legacy',
+      to: '/founder',
       featured: false,
     },
   ];
@@ -889,12 +893,13 @@ function Pricing() {
                   </li>
                 ))}
               </ul>
-              <button
+              <Link
+                to={t.to}
                 className={t.featured ? 'loom-btn' : 'loom-btn-ghost'}
-                style={{ marginTop: 12, width: '100%' }}
+                style={{ marginTop: 12, width: '100%', textDecoration: 'none', textAlign: 'center' }}
               >
                 {t.cta}
-              </button>
+              </Link>
             </div>
           ))}
         </div>
@@ -932,7 +937,7 @@ function Footer() {
           <br />
           <em style={{ fontStyle: 'italic' }}>Today is a good day for it.</em>
         </h4>
-        <Link to="/loom" className="loom-btn" style={{ textDecoration: 'none' }}>
+        <Link to="/signup" className="loom-btn" style={{ textDecoration: 'none' }}>
           begin your weft &nbsp; →
         </Link>
       </div>

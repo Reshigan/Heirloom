@@ -15,10 +15,7 @@ import {
   removePushNotificationListeners,
 } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
-import { AmbientField } from './v3/sanctuary/AmbientField';
-import './v3/sanctuary/sanctuary.css';
 
-import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { NotFound } from './pages/NotFound';
@@ -50,7 +47,6 @@ const LegacyPlan = lazy(() => import('./pages/LegacyPlan').then(m => ({ default:
 const StoryArtifact = lazy(() => import('./pages/StoryArtifact').then(m => ({ default: m.StoryArtifact })));
 const LifeEvents = lazy(() => import('./pages/LifeEvents').then(m => ({ default: m.LifeEvents })));
 const RecipientExperience = lazy(() => import('./pages/RecipientExperience').then(m => ({ default: m.RecipientExperience })));
-const CreatorSignup = lazy(() => import('./pages/CreatorSignup').then(m => ({ default: m.CreatorSignup })));
 const Founder = lazy(() => import('./pages/Founder').then(m => ({ default: m.Founder })));
 const FounderWelcome = lazy(() => import('./pages/FounderWelcome').then(m => ({ default: m.FounderWelcome })));
 const MemoryRoom = lazy(() => import('./pages/MemoryRoom').then(m => ({ default: m.MemoryRoom })));
@@ -74,52 +70,14 @@ const MemoryMap = lazy(() => import('./pages/MemoryMap').then(m => ({ default: m
 const BookBuilder = lazy(() => import('./pages/BookBuilder').then(m => ({ default: m.BookBuilder })));
 const FamilyFeed = lazy(() => import('./pages/FamilyFeed').then(m => ({ default: m.FamilyFeed })));
 const OnThisDay = lazy(() => import('./pages/OnThisDay').then(m => ({ default: m.OnThisDay })));
-const StoryWorthAlternative = lazy(() => import('./pages/StoryWorthAlternative').then(m => ({ default: m.StoryWorthAlternative })));
 const GiftAMemory = lazy(() => import('./pages/GiftAMemory').then(m => ({ default: m.GiftAMemory })));
 const GiftReceive = lazy(() => import('./pages/GiftReceive').then(m => ({ default: m.GiftReceive })));
 const Threads = lazy(() => import('./pages/Threads').then(m => ({ default: m.Threads })));
 const ThreadDetail = lazy(() => import('./pages/ThreadDetail').then(m => ({ default: m.ThreadDetail })));
 const ThreadCompose = lazy(() => import('./pages/ThreadCompose').then(m => ({ default: m.ThreadCompose })));
 
-// v3 redesign — parallel route tree. See cloudflare/frontend/src/v3/DESIGN.md
-const V3Landing = lazy(() => import('./v3/pages/Landing').then(m => ({ default: m.Landing })));
-const V3Sitemap = lazy(() => import('./v3/pages/Sitemap').then(m => ({ default: m.Sitemap })));
-const V3Founder = lazy(() => import('./v3/pages/Founder').then(m => ({ default: m.Founder })));
-const V3FounderWelcome = lazy(() => import('./v3/pages/FounderWelcome').then(m => ({ default: m.FounderWelcome })));
-const V3Login = lazy(() => import('./v3/pages/Login').then(m => ({ default: m.Login })));
-const V3Signup = lazy(() => import('./v3/pages/Signup').then(m => ({ default: m.Signup })));
-const V3ComingSoon = lazy(() => import('./v3/pages/ComingSoon').then(m => ({ default: m.ComingSoon })));
-const V3Home = lazy(() => import('./v3/pages/Home').then(m => ({ default: m.Home })));
-const V3Thread = lazy(() => import('./v3/pages/Thread').then(m => ({ default: m.Thread })));
-const V3Threads = lazy(() => import('./v3/pages/Threads').then(m => ({ default: m.Threads })));
-const V3Memories = lazy(() => import('./v3/pages/Memories').then(m => ({ default: m.Memories })));
-const V3Letters = lazy(() => import('./v3/pages/Letters').then(m => ({ default: m.Letters })));
-const V3Voice = lazy(() => import('./v3/pages/Voice').then(m => ({ default: m.Voice })));
-const V3FamilyFeed = lazy(() => import('./v3/pages/FamilyFeed').then(m => ({ default: m.FamilyFeed })));
-const V3OnThisDay = lazy(() => import('./v3/pages/OnThisDay').then(m => ({ default: m.OnThisDay })));
-const V3Family = lazy(() => import('./v3/pages/Family').then(m => ({ default: m.Family })));
-const V3Successors = lazy(() => import('./v3/pages/Successors').then(m => ({ default: m.Successors })));
-const V3Write = lazy(() => import('./v3/pages/Write').then(m => ({ default: m.Write })));
-const V3Record = lazy(() => import('./v3/pages/Record').then(m => ({ default: m.Record })));
-const V3Letter = lazy(() => import('./v3/pages/Letter').then(m => ({ default: m.Letter })));
-const V3Capsule = lazy(() => import('./v3/pages/Capsule').then(m => ({ default: m.Capsule })));
-const V3LifeEvents = lazy(() => import('./v3/pages/LifeEvents').then(m => ({ default: m.LifeEvents })));
-const V3Milestones = lazy(() => import('./v3/pages/Milestones').then(m => ({ default: m.Milestones })));
-const V3Memorials = lazy(() => import('./v3/pages/Memorials').then(m => ({ default: m.Memorials })));
-const V3Artifacts = lazy(() => import('./v3/pages/Artifacts').then(m => ({ default: m.Artifacts })));
-const V3Book = lazy(() => import('./v3/pages/Book').then(m => ({ default: m.Book })));
-const V3Gift = lazy(() => import('./v3/pages/Gift').then(m => ({ default: m.Gift })));
-const V3Cards = lazy(() => import('./v3/pages/Cards').then(m => ({ default: m.Cards })));
-const V3Recipient = lazy(() => import('./v3/pages/Recipient').then(m => ({ default: m.Recipient })));
-const V3Plan = lazy(() => import('./v3/pages/Plan').then(m => ({ default: m.Plan })));
-const V3Streaks = lazy(() => import('./v3/pages/Streaks').then(m => ({ default: m.Streaks })));
-const V3Wrapped = lazy(() => import('./v3/pages/Wrapped').then(m => ({ default: m.Wrapped })));
-const V3Future = lazy(() => import('./v3/pages/Future').then(m => ({ default: m.Future })));
-const V3Settings = lazy(() => import('./v3/pages/Settings').then(m => ({ default: m.Settings })));
-const V3Billing = lazy(() => import('./v3/pages/Billing').then(m => ({ default: m.Billing })));
-const V3Archive = lazy(() => import('./v3/pages/Archive').then(m => ({ default: m.Archive })));
-
-// The Loom — new third design direction. See cloudflare/frontend/src/loom/DESIGN.md.
+// The Loom — the live marketing + design system.
+// See cloudflare/frontend/src/loom/DESIGN.md.
 const LoomThreshold = lazy(() => import('./loom/pages/Threshold').then(m => ({ default: m.Threshold })));
 const LoomWeft = lazy(() => import('./loom/pages/Weft').then(m => ({ default: m.Weft })));
 const LoomComposer = lazy(() => import('./loom/pages/Composer').then(m => ({ default: m.Composer })));
@@ -183,11 +141,15 @@ function PushNotificationHandler() {
  * RouteChrome — the cross-app chrome (EternalBackground, ComfortSettings,
  * Suspense fallback) plus a per-route shape for it.
  *
- * /v3/* explicitly rejects the v1/v2 "ethereal vault" aesthetic
- * (see src/v3/DESIGN.md). On those routes we skip EternalBackground
- * and ComfortSettings entirely and render a bone-coloured Suspense
- * fallback so there's no flash of the dark backdrop while a chunk
- * loads.
+ * Two surface families:
+ *   - Loom: / (the homepage marketing) + /loom/* (the eight-screen
+ *     demo). These render their own chrome (Frame + horizon + grain)
+ *     and use the .loom token system (vault/paper themes), so we skip
+ *     EternalBackground entirely. Suspense fallback is loom-ink so
+ *     chunk loads don't flash the wrong colour.
+ *   - Legacy: everything else — auth (/login, /signup), the
+ *     authenticated app (/dashboard, /memories, etc.), admin, legal.
+ *     These keep the v1/v2 EternalBackground + ComfortSettings chrome.
  */
 function RouteChrome({
   children,
@@ -199,29 +161,24 @@ function RouteChrome({
   setShowComfortSettings: (v: boolean) => void;
 }) {
   const { pathname } = useLocation();
-  const isV3 = pathname.startsWith('/v3');
-  const isLoom = pathname.startsWith('/loom');
+  // Loom-themed surfaces: the new homepage at / and the demo at /loom/*.
+  // Everything else (auth, dashboard, the authenticated app, admin, legal)
+  // keeps the legacy v1/v2 chrome (EternalBackground + ComfortSettings).
+  const isLoom = pathname === '/' || pathname.startsWith('/loom');
 
   return (
     <>
-      {!isV3 && !isLoom ? (
+      {!isLoom ? (
         <>
           <EternalBackground />
           <ComfortSettingsButton onClick={() => setShowComfortSettings(true)} />
           <ComfortSettings isOpen={showComfortSettings} onClose={() => setShowComfortSettings(false)} />
         </>
       ) : null}
-      {isV3 ? (
-        // v3 sanctuary atmosphere: persists across route changes.
-        // Sits beneath the route content (z:0). Paper grain is z:1.
-        <>
-          <AmbientField />
-          <div className="sanctuary-grain" aria-hidden />
-        </>
-      ) : null}
-      {/* Loom routes carry their own chrome (Frame component renders the
-          horizon glow + paper grain + shuttle inside each screen). No
-          extra background needed at the App level. */}
+      {/* Loom surfaces carry their own chrome — the Frame renders the
+          horizon glow + paper grain + shuttle inside each screen, and the
+          Marketing page renders a fixed top nav. No extra background
+          needed at the App level. */}
       <Suspense
         fallback={
           <div
@@ -267,11 +224,10 @@ export default function App() {
           >
           <Routes>
           {/* Public routes */}
-                    <Route path="/" element={<Landing />} />
+          <Route path="/" element={<LoomMarketing />} />
                               <Route path="/privacy" element={<Privacy />} />
                               <Route path="/terms" element={<Terms />} />
                               <Route path="/contact" element={<Contact />} />
-                                                            <Route path="/creators" element={<CreatorSignup />} />
                                                             <Route path="/founder" element={<Founder />} />
                                                             <Route path="/founder/welcome" element={<FounderWelcome />} />
                                                             <Route path="/memory-room/:token" element={<MemoryRoom />} />
@@ -284,7 +240,6 @@ export default function App() {
                                                             <Route path="/gold/redeem" element={<GoldLegacyRedeem />} />
                                                             <Route path="/card/:id" element={<CardView />} />
           <Route path="/gift-memory/:token" element={<GiftReceive />} />
-          <Route path="/compare/storyworth" element={<StoryWorthAlternative />} />
           <Route
             path="/login"
             element={
@@ -532,53 +487,9 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-          {/* v3 redesign prototype — light-mode-first, library-not-vault.
-              See cloudflare/frontend/src/v3/DESIGN.md for the spec. */}
-          <Route path="/v3" element={<V3Landing />} />
-          <Route path="/v3/sitemap" element={<V3Sitemap />} />
-          <Route path="/v3/founder" element={<V3Founder />} />
-          <Route path="/v3/founder/welcome" element={<V3FounderWelcome />} />
-          <Route path="/v3/login" element={<V3Login />} />
-          <Route path="/v3/signup" element={<V3Signup />} />
-          <Route path="/v3/forgot" element={<V3ComingSoon title="Forgot password" />} />
-          {/* Reading */}
-          <Route path="/v3/home" element={<V3Home />} />
-          <Route path="/v3/thread" element={<V3Thread />} />
-          <Route path="/v3/threads" element={<V3Threads />} />
-          <Route path="/v3/memories" element={<V3Memories />} />
-          <Route path="/v3/letters" element={<V3Letters />} />
-          <Route path="/v3/voice" element={<V3Voice />} />
-          <Route path="/v3/feed" element={<V3FamilyFeed />} />
-          <Route path="/v3/onthisday" element={<V3OnThisDay />} />
-          {/* Writing */}
-          <Route path="/v3/write" element={<V3Write />} />
-          <Route path="/v3/record" element={<V3Record />} />
-          <Route path="/v3/letter" element={<V3Letter />} />
-          <Route path="/v3/capsule" element={<V3Capsule />} />
-          {/* People */}
-          <Route path="/v3/family" element={<V3Family />} />
-          <Route path="/v3/successors" element={<V3Successors />} />
-          {/* Records */}
-          <Route path="/v3/lifeevents" element={<V3LifeEvents />} />
-          <Route path="/v3/milestones" element={<V3Milestones />} />
-          <Route path="/v3/memorials" element={<V3Memorials />} />
-          <Route path="/v3/artifacts" element={<V3Artifacts />} />
-          <Route path="/v3/book" element={<V3Book />} />
-          {/* Send */}
-          <Route path="/v3/gift" element={<V3Gift />} />
-          <Route path="/v3/cards" element={<V3Cards />} />
-          <Route path="/v3/recipient" element={<V3Recipient />} />
-          {/* Reflect */}
-          <Route path="/v3/plan" element={<V3Plan />} />
-          <Route path="/v3/streaks" element={<V3Streaks />} />
-          <Route path="/v3/wrapped" element={<V3Wrapped />} />
-          <Route path="/v3/future" element={<V3Future />} />
-          {/* Account */}
-          <Route path="/v3/settings" element={<V3Settings />} />
-          <Route path="/v3/billing" element={<V3Billing />} />
-          <Route path="/v3/archive" element={<V3Archive />} />
-
-          {/* The Loom — third design direction. AI as invisible shuttle. */}
+          {/* The Loom — the live marketing + canonical design system.
+              AI as invisible shuttle. Marketing is mounted at / (above);
+              the eight-screen demo lives here. */}
           <Route path="/loom" element={<LoomThreshold />} />
           <Route path="/loom/weft" element={<LoomWeft />} />
           <Route path="/loom/compose" element={<LoomComposer />} />
