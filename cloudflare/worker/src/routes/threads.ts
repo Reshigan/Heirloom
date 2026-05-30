@@ -408,10 +408,13 @@ threadsRoutes.get('/:id/entries', async (c) => {
   // Visibility filter — at the SQL layer for efficiency, then double-checked
   // by canRead per row. Note: PRIVATE entries require an explicit recipient
   // match (not yet implemented; treated as author-only for now).
+  // An author always sees their own entries — including ones they sealed for
+  // descendants (append-only: you can never lose your own words). Beyond that,
+  // gen-0 sees FAMILY; gen ≥ 1 also sees DESCENDANTS.
   const visibilityClause =
     member.generation_offset >= 1
-      ? `(visibility IN ('FAMILY', 'DESCENDANTS') OR (visibility = 'PRIVATE' AND author_member_id = ?))`
-      : `(visibility = 'FAMILY' OR (visibility = 'PRIVATE' AND author_member_id = ?))`;
+      ? `(visibility IN ('FAMILY', 'DESCENDANTS') OR author_member_id = ?)`
+      : `(visibility = 'FAMILY' OR author_member_id = ?)`;
 
   let sql = `SELECT e.*,
       (SELECT json_group_array(json_object('type', tag_type, 'label', label, 'member_id', member_id, 'year', year_value))

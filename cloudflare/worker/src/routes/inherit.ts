@@ -155,7 +155,7 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
       m.title,
       m.description,
       m.file_url,
-      m.file_type,
+      m.mime_type,
       m.emotion,
       m.created_at
     FROM memories m
@@ -195,7 +195,7 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
       title: m.title,
       description: m.description,
       fileUrl: m.file_url,
-      fileType: m.file_type,
+      fileType: m.mime_type,
       emotion: m.emotion,
       createdAt: m.created_at,
     })),

@@ -129,11 +129,13 @@ deadmanRoutes.post('/checkin', async (c) => {
     WHERE user_id = ?
   `).bind(now, now, userId).run();
   
-  // Record check-in history
+  // Record check-in history. Both user_id and checked_in_at are NOT NULL in the
+  // base schema (migration 0001); dead_man_switch_id/check_in_time were added by
+  // 0006. All five must be supplied or the row violates a NOT NULL constraint.
   await c.env.DB.prepare(`
-    INSERT INTO check_in_history (id, dead_man_switch_id, check_in_time, method, created_at)
-    VALUES (?, ?, ?, 'MANUAL', ?)
-  `).bind(crypto.randomUUID(), dms.id, now, now).run();
+    INSERT INTO check_in_history (id, user_id, dead_man_switch_id, checked_in_at, check_in_time, method, created_at)
+    VALUES (?, ?, ?, ?, ?, 'MANUAL', ?)
+  `).bind(crypto.randomUUID(), userId, dms.id, now, now, now).run();
   
   // Calculate next check-in due
   const intervalDays = dms.check_in_interval_days as number;
