@@ -24,6 +24,7 @@ import { settingsRoutes } from './routes/settings';
 import { adminRoutes } from './routes/admin';
 import { wrappedRoutes } from './routes/wrapped';
 import { inheritRoutes } from './routes/inherit';
+import { shareRoutes } from './routes/share';
 import { aiRoutes, generateAndCachePrompts } from './routes/ai';
 import { giftVoucherRoutes } from './routes/gift-vouchers';
 import { supportRoutes } from './routes/support';
@@ -311,6 +312,8 @@ app.use('/api/auth/*', async (c, next) => {
 app.route('/api/auth', authRoutes);
 app.route('/api/billing/webhook', billingRoutes);
 app.route('/api/inherit', inheritRoutes);
+// Public share surfaces (OG meta + SVG cards) — zero-budget viral reach.
+app.route('/api/share', shareRoutes);
 app.route('/api/gift-vouchers', giftVoucherRoutes);
 app.route('/api/referral', referralRoutes);
 app.route('/api/influencer', influencerRoutes);
