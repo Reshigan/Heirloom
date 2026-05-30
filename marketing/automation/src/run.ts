@@ -123,6 +123,22 @@ async function daily(): Promise<void> {
 }
 
 const cmd = process.argv[2] ?? "preview";
+
+// Commands that drive Claude for generation/variants. If the one hard
+// requirement (ANTHROPIC_API_KEY) is absent, the engine is simply dormant —
+// exit cleanly rather than red-failing the daily cron. Platform creds are
+// already optional (post() routes to the queue when tokens are missing), so a
+// dormant key is the only thing that should ever stop a run, and it stops it
+// quietly. Add the secret in repo settings to wake the engine.
+const NEEDS_CLAUDE = new Set(["generate", "daily", "preview", "post"]);
+if (NEEDS_CLAUDE.has(cmd) && !process.env.ANTHROPIC_API_KEY) {
+  console.log(
+    "[dormant] ANTHROPIC_API_KEY not set — marketing engine is idle. " +
+      "Add ANTHROPIC_API_KEY (and any platform secrets) to wake it. Nothing posted.",
+  );
+  process.exit(0);
+}
+
 const handlers: Record<string, () => Promise<void>> = {
   generate: async () => {
     await generate();
