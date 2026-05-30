@@ -172,7 +172,7 @@ export function AvatarCropperModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-start justify-center bg-void-deep/90 backdrop-blur-sm overflow-y-auto py-8"
+        className="fixed inset-0 z-[100] flex items-start justify-center bg-void-deep/90 overflow-y-auto py-8"
         onClick={onCancel}
       >
         <motion.div

@@ -358,45 +358,31 @@ THE ETERNAL BACKGROUND - A living, breathing void
   pointer-events: none;
 }
 
-/* ===== GLASSMORPHISM COMPONENTS ===== */
+/* ===== SOLID PANELS (formerly glassmorphism) =====
+ * STITCH_BRIEF §2.6 fails glassmorphism: no backdrop-blur, no saturate, no
+ * frost/highlight gradients. These legacy `.glass*` utilities are kept by name
+ * (33 call sites) but redefined as flat, solid panels — a faint bone surface
+ * raised off the ink, a single 1px hairline, and a brief-compliant radius
+ * (≤4px). The blur and the ::before/::after gradient films are gone. */
 .glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  background: rgba(244, 236, 216, 0.035);
+  border: 1px solid rgba(244, 236, 216, 0.10);
+  border-radius: 2px;
   position: relative;
   overflow: hidden;
 }
 
-.glass::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
-}
-
+.glass::before,
 .glass::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--frost) 0%, transparent 50%);
-  pointer-events: none;
+  content: none;
 }
 
 .glass-strong {
-  background: rgba(18, 21, 28, 0.85);
-  backdrop-filter: blur(30px) saturate(200%);
-  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  background: #131310;
 }
 
 .glass-subtle {
-  background: rgba(18, 21, 28, 0.5);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  background: rgba(244, 236, 216, 0.02);
 }
 
 /* Polished glass card (Eternal Premium) */
@@ -552,7 +538,6 @@ THE ETERNAL BACKGROUND - A living, breathing void
 
 .btn-secondary {
   background: var(--paper-04);
-  backdrop-filter: blur(12px);
   color: var(--paper);
   border: 1px solid rgba(255,255,255,0.15);
   box-shadow: inset 0 1px 0 0 var(--paper-08);
@@ -888,13 +873,6 @@ em {
   transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* Backdrop blur fallback */
-@supports not (backdrop-filter: blur(20px)) {
-  .glass, .card, .btn-secondary {
-    background: rgba(18, 21, 28, 0.95);
-  }
-}
-
 /* ===== REALISTIC TABLE/DESK ===== */
 .desk-surface {
   background: 
@@ -1207,8 +1185,7 @@ em {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(5, 6, 8, 0.8);
-  backdrop-filter: blur(8px);
+  background: rgba(5, 6, 8, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1217,19 +1194,16 @@ em {
 }
 
 .modal {
-  background: var(--glass-bg);
-  backdrop-filter: blur(30px);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
+  background: #131310;
+  border: 1px solid rgba(244, 236, 216, 0.10);
+  border-radius: 2px;
   padding: 32px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
   animation: slide-up 0.3s ease-out;
-  box-shadow: 
-    0 24px 48px -12px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 var(--glass-highlight);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.8);
 }
 
 /* Notification toast */
@@ -1241,10 +1215,9 @@ em {
   max-width: 400px;
   margin-left: auto;
   padding: 16px 24px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  background: #131310;
+  border: 1px solid rgba(244, 236, 216, 0.10);
+  border-radius: 2px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   animation: slide-in-right 0.3s ease-out;
   z-index: 1001;
@@ -1951,9 +1924,7 @@ select:focus-visible {
   left: 0;
   right: 0;
   z-index: 40;
-  background: rgba(8, 8, 12, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(8, 8, 12, 0.98);
   border-top: 1px solid rgba(235, 230, 220, 0.1);
   padding: 12px 16px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));

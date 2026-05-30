@@ -235,7 +235,7 @@ export function PlatformTour({ isOpen, onClose, onComplete }: PlatformTourProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50"
-            style={{ background: 'rgba(5, 6, 8, 0.9)', backdropFilter: 'blur(8px)' }}
+            style={{ background: 'rgba(5, 6, 8, 0.96)' }}
             onClick={onClose}
           />
 

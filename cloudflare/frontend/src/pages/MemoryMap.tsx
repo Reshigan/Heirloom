@@ -113,7 +113,7 @@ export function MemoryMap() {
 
             {/* Memory list sidebar */}
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-              <h3 className="font-serif text-lg text-paper mb-3 sticky top-0 bg-void/80 backdrop-blur-sm py-2">
+              <h3 className="font-serif text-lg text-paper mb-3 sticky top-0 bg-void/80 py-2">
                 {memories.length} Memories
               </h3>
               {memories.map((memory) => {

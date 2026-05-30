@@ -45,7 +45,7 @@ export function ContentLock({ children, isLocked, type = 'default' }: ContentLoc
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="absolute inset-0 flex flex-col items-center justify-center bg-void/60 backdrop-blur-sm rounded-xl z-10"
+        className="absolute inset-0 flex flex-col items-center justify-center bg-void/60 rounded-xl z-10"
       >
         <div className="text-center px-6 max-w-sm">
           <motion.div

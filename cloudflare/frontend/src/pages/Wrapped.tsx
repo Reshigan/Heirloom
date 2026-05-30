@@ -906,7 +906,7 @@ const Wrapped: React.FC = () => {
         >
           <ChevronLeft size={18} />
         </button>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-paper/30 bg-void-deep/50 backdrop-blur-sm">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-paper/30 bg-void-deep/50">
           <Calendar size={16} className="text-gold" />
           <span className="text-xl font-display text-gold">{selectedYear}</span>
         </div>
@@ -1032,7 +1032,7 @@ const Wrapped: React.FC = () => {
       {/* Back to Vault breadcrumb */}
       <button
         onClick={() => window.location.href = '/dashboard'}
-        className="absolute top-8 right-4 sm:right-8 flex items-center gap-2 px-3 py-2 text-paper/70 hover:text-gold transition-colors z-50 rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50 backdrop-blur-sm"
+        className="absolute top-8 right-4 sm:right-8 flex items-center gap-2 px-3 py-2 text-paper/70 hover:text-gold transition-colors z-50 rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50"
       >
         <ChevronLeft size={16} />
         <span className="text-sm font-medium">Back to Vault</span>
@@ -1042,7 +1042,7 @@ const Wrapped: React.FC = () => {
       <div className="absolute top-20 sm:top-8 right-4 sm:right-48 z-50">
         <button
           onClick={() => setShowShareMenu(!showShareMenu)}
-          className="flex items-center gap-2 px-3 py-2 text-paper/70 hover:text-gold transition-colors rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50 backdrop-blur-sm"
+          className="flex items-center gap-2 px-3 py-2 text-paper/70 hover:text-gold transition-colors rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50"
         >
           <Share2 size={16} />
           <span className="text-sm font-medium hidden sm:inline">Share</span>
@@ -1050,7 +1050,7 @@ const Wrapped: React.FC = () => {
         
         {/* Share menu dropdown */}
         {showShareMenu && (
-          <div className="absolute top-12 right-0 bg-void-deep/95 backdrop-blur-md border border-paper/20 rounded-xl p-2 min-w-[160px] shadow-xl">
+          <div className="absolute top-12 right-0 bg-void-deep/95 border border-paper/20 rounded-xl p-2 min-w-[160px] shadow-xl">
             <button
               onClick={() => handleShare('native')}
               className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"

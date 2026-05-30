@@ -81,9 +81,7 @@ function Header() {
         gridTemplateColumns: '1fr auto 1fr',
         alignItems: 'center',
         padding: '22px 56px',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        background: 'color-mix(in srgb, var(--loom-ink) 72%, transparent)',
+        background: 'color-mix(in srgb, var(--loom-ink) 97%, transparent)',
         borderBottom: '1px solid var(--loom-rule)',
       }}
     >

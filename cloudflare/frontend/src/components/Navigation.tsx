@@ -80,9 +80,7 @@ export function Navigation() {
         gap: 0,
         padding: '0 24px',
         borderBottom: '1px solid var(--loom-rule)',
-        background: 'color-mix(in srgb, var(--loom-ink) 78%, transparent)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
+        background: 'color-mix(in srgb, var(--loom-ink) 98%, transparent)',
       }}
     >
       <Link to="/dashboard" className="loom-mark" style={{ textDecoration: 'none' }}>

@@ -79,7 +79,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-void/95 backdrop-blur-xl"
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-void/95"
     >
       {/* Skip button */}
       <button
