@@ -1,0 +1,37 @@
+{
+  "name": "Heirloom — your family's thousand-year thread",
+  "short_name": "Heirloom",
+  "description": "A perpetual, append-only family thread. Write today. Lock entries for descendants who don't exist yet. Read what came before.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0e0e0c",
+  "theme_color": "#0e0e0c",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["lifestyle", "social", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add an entry",
+      "short_name": "Write",
+      "description": "Add a new entry to your family thread",
+      "url": "/compose?source=pwa-shortcut"
+    },
+    {
+      "name": "Your threads",
+      "short_name": "Threads",
+      "description": "Open the threads you belong to",
+      "url": "/threads?source=pwa-shortcut"
+    }
+  ]
+}

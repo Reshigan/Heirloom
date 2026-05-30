@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Heirloom — offline</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      html, body { margin: 0; height: 100%; background: #0e0e0c; color: #f4ecd8; }
+      body {
+        display: grid; place-items: center; text-align: center;
+        font-family: 'Newsreader', Georgia, serif; -webkit-font-smoothing: antialiased;
+      }
+      .mark { font-size: 64px; color: #b07a4a; line-height: 1; font-weight: 300; }
+      .eyebrow {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+        color: rgba(244, 236, 216, 0.45); margin-top: 28px;
+      }
+      h1 { font-weight: 300; font-size: 26px; margin: 14px 0 0; letter-spacing: -0.01em; }
+      p { color: rgba(244, 236, 216, 0.6); max-width: 30rem; line-height: 1.7; margin: 14px 24px 0; }
+      a {
+        display: inline-block; margin-top: 28px; color: #f4ecd8; text-decoration: none;
+        font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px;
+        letter-spacing: 0.08em; border-bottom: 1px solid #b07a4a; padding-bottom: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark">∞</div>
+      <div class="eyebrow">no connection</div>
+      <h1>The thread is still here.</h1>
+      <p>You're offline, so nothing new can load right now — but the thread waits. It always waits. Reconnect and it picks up exactly where it left off.</p>
+      <a href="/" onclick="location.reload()">try again →</a>
+    </main>
+  </body>
+</html>

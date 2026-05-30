@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Heirloom">
+  <!-- Maskable variant: the mark is pulled to ~62% of the canvas so it survives
+       the circle/squircle safe-zone crop. Full-bleed ink, flat bone mark. -->
+  <rect width="512" height="512" fill="#0e0e0c"/>
+  <g transform="translate(256 256) scale(0.76) translate(-256 -256)">
+    <path
+      d="M136 256 C136 206 176 166 236 166 C276 166 306 186 326 216 C346 186 376 166 416 166 C476 166 516 206 516 256 C516 306 476 346 416 346 C376 346 346 326 326 296 C306 326 276 346 236 346 C176 346 136 306 136 256 Z"
+      fill="none" stroke="#f4ecd8" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"
+      transform="translate(-70,0)"/>
+  </g>
+</svg>

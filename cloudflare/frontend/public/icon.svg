@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Heirloom">
-  <!-- The ∞ is the only mark (STITCH_BRIEF §1.5 / §2.6): bone on ink, flat.
-       No gradient, no glow filter, no decorative ring. -->
+  <!-- The mark is the only mark: a flat infinity in bone on ink.
+       STITCH_BRIEF §2.6 forbids gradients, glow filters and decorative rings —
+       the old favicon had all three. This is the constitution-true app icon. -->
   <rect width="512" height="512" fill="#0e0e0c"/>
   <path
     d="M136 256 C136 206 176 166 236 166 C276 166 306 186 326 216 C346 186 376 166 416 166 C476 166 516 206 516 256 C516 306 476 346 416 346 C376 346 346 326 326 296 C306 326 276 346 236 346 C176 346 136 306 136 256 Z"
