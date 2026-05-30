@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Lock, Users, Loader2, Plus, ArrowRight, UserPlus, X, Crown } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { threadsApi, type ThreadRole } from '../services/api';
 
 export function ThreadDetail() {
@@ -93,8 +93,8 @@ export function ThreadDetail() {
     return (
       <div className="min-h-screen bg-void text-paper antialiased">
         <Navigation />
-        <main className="pt-24 px-6 flex items-center justify-center text-paper/50">
-          <Loader2 size={20} className="animate-spin" />
+        <main className="pt-24 px-6 max-w-[220px] mx-auto">
+          <ProgressHair label="opening thread" />
         </main>
       </div>
     );
@@ -105,8 +105,8 @@ export function ThreadDetail() {
       <div className="min-h-screen bg-void text-paper antialiased">
         <Navigation />
         <main className="pt-24 px-6 md:px-12 max-w-3xl mx-auto">
-          <Link to="/threads" className="inline-flex items-center gap-2 text-paper/60 hover:text-paper text-sm mb-8">
-            <ArrowLeft size={14} /> All threads
+          <Link to="/threads" className="inline-block text-paper/60 hover:text-paper text-sm mb-8">
+            ← All threads
           </Link>
           <h1 className="font-body text-2xl mb-3">Thread not available.</h1>
           <p className="text-paper/65 leading-relaxed">
@@ -128,9 +128,9 @@ export function ThreadDetail() {
       <main id="main-content" className="pt-24 pb-16 px-6 md:px-12 max-w-5xl mx-auto">
         <Link
           to="/threads"
-          className="inline-flex items-center gap-2 text-paper/60 hover:text-paper text-sm mb-10"
+          className="inline-block text-paper/60 hover:text-paper text-sm mb-10"
         >
-          <ArrowLeft size={14} /> All threads
+          ← All threads
         </Link>
 
         <motion.header
@@ -152,16 +152,10 @@ export function ThreadDetail() {
             <p className="text-paper/70 mt-5 max-w-prose leading-relaxed text-lg">{thread.dedication}</p>
           ) : null}
 
-          <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 text-xs text-paper/55">
-            <span className="inline-flex items-center gap-2">
-              <BookOpen size={13} /> {entryRows.length} {entryRows.length === 1 ? 'entry' : 'entries'}
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Users size={13} /> {memberRows.length} {memberRows.length === 1 ? 'member' : 'members'}
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Lock size={13} /> default visibility · {thread.default_visibility.toLowerCase()}
-            </span>
+          <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-mono text-[0.7rem] tracking-[0.04em] text-paper/55">
+            <span>{entryRows.length} {entryRows.length === 1 ? 'entry' : 'entries'}</span>
+            <span>{memberRows.length} {memberRows.length === 1 ? 'member' : 'members'}</span>
+            <span>default visibility · {thread.default_visibility.toLowerCase()}</span>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -169,15 +163,15 @@ export function ThreadDetail() {
               to={`/threads/${threadId}/compose`}
               className="btn btn-primary"
             >
-              <Plus size={16} /> Add entry <ArrowRight size={14} />
+              Add entry →
             </Link>
             {canInvite ? (
               <button
                 type="button"
                 onClick={() => setInviteOpen((v) => !v)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-paper-15 hover:border-gold-40 text-paper/80 hover:text-paper transition-colors text-sm"
+                className="px-4 py-2 rounded-md border border-paper-15 hover:border-gold-40 text-paper/80 hover:text-paper transition-colors text-sm"
               >
-                <UserPlus size={14} /> {inviteOpen ? 'Close' : 'Invite member'}
+                {inviteOpen ? 'Close' : 'Invite member'}
               </button>
             ) : null}
           </div>
@@ -273,7 +267,6 @@ export function ThreadDetail() {
               {inviteError ? <p role="alert" className="text-blood text-sm mt-4">{inviteError}</p> : null}
               <div className="flex items-center gap-3 mt-5">
                 <button type="submit" disabled={invite.isPending || !inviteName.trim()} className="btn btn-primary">
-                  {invite.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
                   {invite.isPending ? 'Adding…' : 'Add member'}
                 </button>
                 <button type="button" onClick={() => setInviteOpen(false)} className="text-paper/60 hover:text-paper text-sm">
@@ -310,9 +303,9 @@ export function ThreadDetail() {
                           }
                         }}
                         disabled={revoke.isPending}
-                        className="inline-flex items-center gap-1 text-xs text-paper/45 hover:text-blood transition-colors"
+                        className="text-xs text-paper/45 hover:text-blood transition-colors"
                       >
-                        <X size={11} /> Revoke
+                        Revoke
                       </button>
                       {m.role !== 'SUCCESSOR' && m.role !== 'PLACEHOLDER' ? (
                         <button
@@ -321,9 +314,9 @@ export function ThreadDetail() {
                             designate.mutate({ successor_member_id: m.id, rank: (successors?.successors.length ?? 0) + 1 })
                           }
                           disabled={designate.isPending}
-                          className="inline-flex items-center gap-1 text-xs text-paper/45 hover:text-gold transition-colors"
+                          className="text-xs text-paper/45 hover:text-gold transition-colors"
                         >
-                          <Crown size={11} /> Make successor
+                          Make successor
                         </button>
                       ) : null}
                     </div>
@@ -395,9 +388,7 @@ export function ThreadDetail() {
                       {e.memory_id ? <span>· memory</span> : null}
                       {e.voice_recording_id ? <span>· voice</span> : null}
                       {e.pending_lock ? (
-                        <span className="text-gold/80 inline-flex items-center gap-1">
-                          <Lock size={11} /> {e.pending_lock.toLowerCase()} lock
-                        </span>
+                        <span className="text-gold/80">{e.pending_lock.toLowerCase()} lock</span>
                       ) : null}
                       {e.era_year ? <span>· {e.era_year}</span> : null}
                     </div>

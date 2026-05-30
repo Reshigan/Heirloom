@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, ArrowRight, Loader2, Users, BookOpen } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { threadsApi, type ThreadSummary } from '../services/api';
 
 export function Threads() {
@@ -62,8 +62,8 @@ export function Threads() {
         </motion.div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-20 text-paper/50">
-            <Loader2 size={20} className="animate-spin" />
+          <div className="py-20 max-w-[220px]">
+            <ProgressHair label="gathering threads" />
           </div>
         ) : (
           <>
@@ -83,16 +83,12 @@ export function Threads() {
                   ) : (
                     <div className="h-5" />
                   )}
-                  <div className="flex items-center gap-5 text-xs text-paper/50 mt-auto">
-                    <span className="inline-flex items-center gap-1.5">
-                      <BookOpen size={13} /> {t.entry_count} {t.entry_count === 1 ? 'entry' : 'entries'}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <Users size={13} /> {t.member_count} {t.member_count === 1 ? 'member' : 'members'}
-                    </span>
+                  <div className="flex items-center gap-5 font-mono text-[0.7rem] tracking-[0.04em] text-paper/50 mt-auto">
+                    <span>{t.entry_count} {t.entry_count === 1 ? 'entry' : 'entries'}</span>
+                    <span>{t.member_count} {t.member_count === 1 ? 'member' : 'members'}</span>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 text-gold text-sm mt-5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    open <ArrowRight size={14} />
+                  <span className="text-gold text-sm mt-5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    open →
                   </span>
                 </Link>
               ))}
@@ -102,9 +98,7 @@ export function Threads() {
                   onClick={() => setCreating(true)}
                   className="border border-dashed border-paper-15 hover:border-gold-40 rounded-xl p-6 text-left transition-colors"
                 >
-                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-paper-30 mb-4 text-paper/70">
-                    <Plus size={18} />
-                  </span>
+                  <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-paper/45 mb-4">＋ new</p>
                   <p className="font-body text-xl mb-1">Start a new thread</p>
                   <p className="text-paper/50 text-sm">For a different bloodline, an in-laws line, or a chosen family.</p>
                 </button>
@@ -145,7 +139,6 @@ export function Threads() {
                         disabled={create.isPending || !name.trim()}
                         className="btn btn-primary"
                       >
-                        {create.isPending ? <Loader2 size={16} className="animate-spin" /> : null}
                         {create.isPending ? 'Creating…' : 'Begin thread'}
                       </button>
                       <button

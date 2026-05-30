@@ -2202,3 +2202,35 @@ html {
     padding: 20px !important;
   }
 }
+
+/* ─── ProgressHair — the only loading affordance (STITCH_BRIEF §2.6, §8.1) ───
+   No spinners, ever. A 1px hairline that sweeps left→right on the loom cadence.
+   Bone on ink, one warm segment. Honours prefers-reduced-motion. */
+.progress-hair {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  overflow: hidden;
+  background: rgba(244, 236, 216, 0.12); /* bone, faint */
+}
+.progress-hair::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 38%;
+  background: #b07a4a; /* warm — the single emotional colour */
+  animation: progress-hair-sweep 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes progress-hair-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(364%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-hair::after {
+    animation: none;
+    width: 100%;
+    opacity: 0.5;
+  }
+}
