@@ -29,10 +29,14 @@ Applied emil-design-eng / frontend-design / taste / impeccable lenses against th
   yet built into the real authenticated product screens.
 - ☑ Flagged debt: global nav + avatar circles, fire/wax-seal Unlock (§2.6 literal-metaphor violation),
   `lucide-react` icons (product should have none but `∞`), spinners (should be hairline bars)
-- ☐ **REMAINS (large):** implement P0/P1 — Tapestry home, remove global nav/avatar, persistent Tapestry
-  edge + entry counter + Listener slot (§6.0), replace fire Unlock with the 720ms typographic dissolve,
-  strip icon library, swap spinners for hairline progress, apply the §2.7 dye palette inside cloth only.
-- **Note:** this is multi-day and benefits from the user's eye on each screen — recommend a dedicated pass.
+- ☑ **P0-3 done:** replaced the fire/wax Unlock with the 720ms typographic dissolve (`loom/pages/Unlock.tsx`).
+- ☑ **P0-5 done (component + canonical surfaces):** built `ui/ProgressHair` (1px hairline, reduced-motion safe);
+  wired into Threads + ThreadDetail.
+- ◐ **P0-4 partial:** `lucide-react` stripped from the two canonical Thread surfaces; 13 files remain.
+- ☐ **REMAINS (large):** P0-1 nav/avatar → Eyebrow+TapestryEdge; P0-2 Tapestry home + persistent edge +
+  append-only counter + Listener slot (§6.0); P0-4 rest (icon sweep); P0-5 rest (~65 spinners); P0-6
+  glassmorphism; §2.7 dye palette inside cloth only. (Tracked in UX_AUDIT.md → "Implementation progress".)
+- **Note:** the remaining items are wide/visual and benefit from the user's eye — recommend a dedicated pass.
 
 ## Phase 3 — Marketing platform readiness — ☑ DONE
 - ☑ Read the automation engine end-to-end (themes → generate → variants → post → run.ts)

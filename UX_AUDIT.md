@@ -257,3 +257,29 @@ build on:
 10. **Atmospheric warm "horizon" glow** breathing under every Loom screen blows the <3% warm budget.
 11. Healthy core: the **loom.css token + type system, `∞` discipline, and `SealedNote`** are brief-accurate — build the product on them, retire the v1/v2 bridge.
 12. **Verdict:** the marketing/demo is ~70% to brief and worth protecting; the *product* is ~25% — a re-skinned legacy SaaS app. Launch readiness against the constitution is **far**: the five invariants must be built into real product screens, not just the `/loom/*` walk-through.
+
+---
+
+## Implementation progress (this pass)
+
+Landed and build-green (`tsc && vite` exit 0), committed on `launch-readiness-pass`:
+
+- **P0-3 — Unlock ✅ done.** `loom/pages/Unlock.tsx` rewritten to the 720ms typographic
+  dissolve. Removed the fire-cord, wax-seal, sparks, radial "dim", every `boxShadow`,
+  `filter: blur`, gradient, and the floating-card `translateY/scale`. The artifact card is
+  now type-on-ink with one hairline + one warm accent.
+- **P0-5 — Spinners ✅ component built + canonical surfaces converted.** New
+  `components/ui/ProgressHair.tsx` (+ `.progress-hair` in `globals.css`, reduced-motion
+  safe) is the single loading affordance. Wired into `Threads.tsx` and `ThreadDetail.tsx`.
+- **P0-4 — Icons ◐ partial.** `lucide-react` fully removed from the two canonical Thread
+  surfaces (`Threads.tsx`, `ThreadDetail.tsx`) — labels are now type/mono, `∞`/`→`/`←` only.
+
+**Still open (next pass, in priority order):**
+- **P0-1** global nav/avatar removal → `Eyebrow` + `TapestryEdge` (touches `AppFrame`, every page).
+- **P0-2** real `Tapestry` home + persistent edge band + append-only counter.
+- **P0-4 (rest)** 13 remaining files still import `lucide-react`/local `Icons` (StoryArtifact,
+  LifeEvents, Founder, LegacyPlan, MemoryRoom, RecipientExperience, Contact, StoryView,
+  ThreadCompose, FounderWelcome, + `components/{FeatureOnboarding,WhatsNewNotification}`,
+  `ui/SuccessState`). Mechanical but wide — do as one sweep.
+- **P0-5 (rest)** ~65 other `animate-spin` sites tree-wide → `ProgressHair`.
+- **P0-6** glassmorphism (`backdrop-filter: blur`) on nav/marketing chrome.
