@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Film, ChevronLeft, ChevronRight, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import api from '../services/api';
 
 interface StoryData {
@@ -60,7 +61,7 @@ export function StoryView() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0c10] to-[#12151c] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#c9a959] border-t-transparent rounded-full" />
+        <ProgressHair label="loading…" width={180} />
       </div>
     );
   }

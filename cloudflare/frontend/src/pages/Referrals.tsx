@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Gift, Copy, Check, Mail, Plus, X, Trophy, Cloud } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { Navigation } from '../components/Navigation';
 import { familyReferralsApi } from '../services/api';
 
@@ -64,7 +65,7 @@ export function Referrals() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+            <ProgressHair label="loading…" width={180} />
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">

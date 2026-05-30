@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Eye, EyeOff, Shield, Loader2, Check, AlertTriangle } from './Icons';
+import { Lock, Eye, EyeOff, Shield, Check, AlertTriangle } from './Icons';
 import { encryptionService } from '../services/encryptionService';
 
 interface VaultModalProps {
@@ -236,7 +236,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                     whileTap={{ scale: 0.98 }}
                   >
                     {isLoading ? (
-                      <Loader2 size={20} className="animate-spin" />
+                      mode === 'setup' ? 'Enabling…' : 'Unlocking…'
                     ) : mode === 'setup' ? (
                       <>
                         <Shield size={20} />

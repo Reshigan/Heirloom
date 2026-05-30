@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { foundersApi, type FounderPledgeStatus } from '../services/api';
 
 /**
@@ -92,7 +93,7 @@ export function FounderWelcome() {
             <p className="text-paper-65 leading-relaxed">
               Stripe has us. We're waiting for the confirmation to land — usually a few seconds. If this page hasn't updated in a minute, your card is fine; check your email for the receipt and we'll be in touch.
             </p>
-            <Loader2 size={18} className="animate-spin text-paper-50 mx-auto mt-10" />
+            <ProgressHair label="confirming…" width={180} className="mx-auto mt-10" />
           </>
         )}
       </motion.div>

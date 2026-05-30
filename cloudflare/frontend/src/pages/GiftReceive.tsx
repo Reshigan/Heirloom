@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Gift, Loader2, Heart, ArrowRight, Sparkles } from '../components/Icons';
+import { Gift, Heart, ArrowRight, Sparkles } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { giftsApi } from '../services/api';
 
 interface GiftData {
@@ -55,7 +56,7 @@ export function GiftReceive() {
   if (loading) {
     return (
       <div className="min-h-screen bg-void flex items-center justify-center">
-        <Loader2 size={40} className="text-gold animate-spin" />
+        <ProgressHair label="loading…" width={180} />
       </div>
     );
   }
@@ -165,9 +166,7 @@ export function GiftReceive() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          {claiming ? (
-            <Loader2 size={18} className="animate-spin" />
-          ) : (
+          {claiming ? null : (
             <Heart size={18} />
           )}
           Unwrap Your Gift

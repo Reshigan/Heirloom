@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Bell, Plus, X, Trash2, Sparkles, Gift, Heart, Star, Clock } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { milestonesApi } from '../services/api';
 
 const milestoneTypes = [
@@ -124,7 +125,7 @@ export function Milestones() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+            <ProgressHair label="loading…" width={180} />
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">

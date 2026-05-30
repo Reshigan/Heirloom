@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Pause, Stop, ArrowLeft, Sparkles, Loader2, Play, Check } from '../components/Icons';
+import { Mic, Pause, Stop, ArrowLeft, Sparkles, Play, Check } from '../components/Icons';
 import { voiceApi, aiApi } from '../services/api';
 
 const SILENCE_THRESHOLD = 0.01;
@@ -248,7 +248,7 @@ export function InterviewMode() {
             disabled={isSaving}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gold/20 text-gold hover:bg-gold/30 transition-colors text-sm"
           >
-            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+            {isSaving ? null : <Check size={16} />}
             Save & Finish
           </button>
         )}
@@ -336,29 +336,23 @@ export function InterviewMode() {
               <motion.button
                 onClick={stopAndSave}
                 disabled={isSaving}
-                className="w-20 h-20 rounded-full bg-gradient-to-br from-blood to-blood/80 flex items-center justify-center shadow-lg shadow-blood/30"
+                title={isSaving ? 'Saving…' : 'Stop & save'}
+                className="w-20 h-20 rounded-full bg-gradient-to-br from-blood to-blood/80 flex items-center justify-center shadow-lg shadow-blood/30 disabled:opacity-50"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {isSaving ? (
-                  <Loader2 size={32} className="text-white animate-spin" />
-                ) : (
-                  <Stop size={32} className="text-white" />
-                )}
+                <Stop size={32} className="text-white" />
               </motion.button>
 
               <motion.button
                 onClick={generateFollowUp}
                 disabled={isGeneratingQuestion}
-                className="w-14 h-14 rounded-full bg-gold/20 flex items-center justify-center hover:bg-gold/30 transition-colors"
+                title={isGeneratingQuestion ? 'Thinking of a follow-up…' : 'Suggest a follow-up'}
+                className="w-14 h-14 rounded-full bg-gold/20 flex items-center justify-center hover:bg-gold/30 transition-colors disabled:opacity-50"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {isGeneratingQuestion ? (
-                  <Loader2 size={20} className="text-gold animate-spin" />
-                ) : (
-                  <Sparkles size={20} className="text-gold" />
-                )}
+                <Sparkles size={20} className="text-gold" />
               </motion.button>
             </>
           )}

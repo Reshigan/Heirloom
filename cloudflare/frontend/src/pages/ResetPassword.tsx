@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Loader2, Eye, EyeOff, CheckCircle, AlertCircle } from '../components/Icons';
+import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from '../components/Icons';
 import { authApi } from '../services/api';
 
 export function ResetPassword() {
@@ -236,11 +236,7 @@ export function ResetPassword() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {isLoading ? (
-                      <Loader2 size={20} className="animate-spin" />
-                    ) : (
-                      'Reset Password'
-                    )}
+                    {isLoading ? 'Resetting…' : 'Reset Password'}
                   </motion.button>
                 </form>
 

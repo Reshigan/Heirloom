@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Heart, Loader2, Gift, Check, Image, Mic, Pen } from '../components/Icons';
+import { Heart, Gift, Check, Image, Mic, Pen } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { giftsApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
@@ -246,11 +246,7 @@ export function GiftAMemory() {
                     disabled={!config.recipientEmail || !config.recipientName || sendMutation.isPending}
                     className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-gold to-gold-dim text-void font-medium text-sm disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98] transition-transform"
                   >
-                    {sendMutation.isPending ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <Heart size={16} />
-                    )}
+                    {sendMutation.isPending ? null : <Heart size={16} />}
                     Send Gift
                   </button>
                 </div>

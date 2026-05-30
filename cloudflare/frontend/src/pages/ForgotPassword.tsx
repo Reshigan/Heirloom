@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Loader2, ArrowLeft, CheckCircle } from '../components/Icons';
+import { Mail, ArrowLeft, CheckCircle } from '../components/Icons';
 import { authApi } from '../services/api';
 
 export function ForgotPassword() {
@@ -160,11 +160,7 @@ export function ForgotPassword() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {isLoading ? (
-                      <Loader2 size={20} className="animate-spin" />
-                    ) : (
-                      'Send Reset Link'
-                    )}
+                    {isLoading ? 'Sending…' : 'Send Reset Link'}
                   </motion.button>
                 </form>
 

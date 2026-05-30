@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Clock, Users, Share2, Tag, X } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { Navigation } from '../components/Navigation';
 import { challengesApi } from '../services/api';
 
@@ -89,7 +90,7 @@ export function Challenges() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+            <ProgressHair label="loading…" width={180} />
           </div>
         ) : (
           <div className="space-y-8">

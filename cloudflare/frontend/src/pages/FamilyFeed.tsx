@@ -1,7 +1,8 @@
 // FamilyFeed page
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Image, Mic, Pen, Heart, Clock, Users } from '../components/Icons';
+import { Image, Mic, Pen, Heart, Clock, Users } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { Navigation } from '../components/Navigation';
 import { EmptyState } from '../components/EmptyState';
 import { engagementApi } from '../services/api';
@@ -56,7 +57,7 @@ export function FamilyFeed() {
 
         {isLoading ? (
           <div className="flex justify-center py-16">
-            <Loader2 size={32} className="text-gold animate-spin" />
+            <ProgressHair label="loading…" width={180} />
           </div>
         ) : !items.length ? (
           <EmptyState

@@ -17,7 +17,7 @@ export function Privacy() {
         <div className="absolute inset-0 glass-subtle border-b border-white/[0.04]" />
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <span className="text-2xl text-gold inline-block animate-spin" style={{ animationDuration: '20s' }}>
+            <span className="text-2xl text-gold inline-block">
               ∞
             </span>
             <span className="text-lg tracking-[0.2em] text-paper/80">HEIRLOOM</span>

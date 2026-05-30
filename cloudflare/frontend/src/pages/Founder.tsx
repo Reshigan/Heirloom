@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { foundersApi, type FounderCount } from '../services/api';
 
 function Eyebrow({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -225,7 +225,6 @@ export function Founder() {
                   disabled={submitting || !name.trim() || !email.trim()}
                   className="btn btn-primary"
                 >
-                  {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
                   {submitting ? 'Submitting…' : 'Pledge'}
                   {!submitting ? <ArrowRight size={16} /> : null}
                 </button>

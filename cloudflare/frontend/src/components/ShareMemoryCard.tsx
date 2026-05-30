@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Share2, Check, Loader2, Sparkles } from './Icons';
+import { X, Share2, Check, Sparkles } from './Icons';
 import { memoryCardsApi } from '../services/api';
 
 interface ShareMemoryCardProps {
@@ -157,7 +157,7 @@ export function ShareMemoryCard({ memoryId, memoryTitle, isOpen, onClose }: Shar
                   className="btn btn-primary flex-1"
                 >
                   {isLoading ? (
-                    <Loader2 size={18} className="animate-spin" />
+                    'Generating…'
                   ) : (
                     <>
                       <Sparkles size={18} />

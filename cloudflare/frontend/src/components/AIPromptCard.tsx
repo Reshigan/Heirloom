@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, RefreshCw, Share2, Check, Loader2 } from './Icons';
+import { Sparkles, RefreshCw, Share2, Check } from './Icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
+import { ProgressHair } from './ui/ProgressHair';
 
 interface AIPromptCardProps {
   onUsePrompt?: (prompt: string) => void;
@@ -67,7 +68,7 @@ export function AIPromptCard({ onUsePrompt, className = '' }: AIPromptCardProps)
     return (
       <div className={`card glass-strong ${className}`}>
         <div className="flex items-center justify-center py-8">
-          <Loader2 size={24} className="animate-spin text-gold" />
+          <ProgressHair label="loading…" width={180} />
         </div>
       </div>
     );
@@ -95,7 +96,7 @@ export function AIPromptCard({ onUsePrompt, className = '' }: AIPromptCardProps)
           className="btn btn-primary flex-1"
         >
           {markUsedMutation.isPending ? (
-            <Loader2 size={18} className="animate-spin" />
+            'Using…'
           ) : (
             'Use This Prompt'
           )}
@@ -104,10 +105,10 @@ export function AIPromptCard({ onUsePrompt, className = '' }: AIPromptCardProps)
         <button
           onClick={handleRefresh}
           disabled={isFetching}
-          className="btn btn-secondary p-3"
-          title="Get new prompt"
+          className="btn btn-secondary p-3 disabled:opacity-40"
+          title={isFetching ? 'Finding a new prompt…' : 'Get new prompt'}
         >
-          <RefreshCw size={18} className={isFetching ? 'animate-spin' : ''} />
+          <RefreshCw size={18} />
         </button>
 
         <button

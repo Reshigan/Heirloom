@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Share2, Heart, Loader2 } from '../components/Icons';
+import { Share2, Heart } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import axios from 'axios';
 
 interface CardData {
@@ -80,7 +81,7 @@ export function CardView() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-void">
-        <Loader2 size={48} className="text-gold animate-spin" />
+        <ProgressHair label="loading…" width={180} />
       </div>
     );
   }

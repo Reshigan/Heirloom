@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import api, { familyApi, memoriesApi } from '../services/api';
 
 interface ReleaseSchedule {
@@ -236,7 +237,7 @@ export function RecipientExperience() {
         </div>
         <Navigation />
         <div className="flex items-center justify-center h-[60vh]">
-          <div className="animate-spin w-8 h-8 border-2 border-gold border-t-transparent rounded-full" />
+          <ProgressHair label="loading…" width={180} />
         </div>
       </div>
     );
@@ -1047,7 +1048,9 @@ export function RecipientExperience() {
                   className="w-full py-3 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {(addFamilyMutation.isPending || updateFamilyMutation.isPending) ? (
-                    <div className="animate-spin w-5 h-5 border-2 border-void border-t-transparent rounded-full" />
+                    <>
+                      {editingMember ? 'Saving…' : 'Adding…'}
+                    </>
                   ) : (
                     <>
                       {editingMember ? 'Save Changes' : 'Add Recipient'}
@@ -1127,7 +1130,7 @@ export function RecipientExperience() {
                       className="w-full py-3 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {sendInviteMutation.isPending ? (
-                        <div className="animate-spin w-5 h-5 border-2 border-void border-t-transparent rounded-full" />
+                        'Sending…'
                       ) : (
                         <>
                           <Send size={18} />
@@ -1192,7 +1195,7 @@ export function RecipientExperience() {
                     className="w-full py-3 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {sendTestEmailMutation.isPending ? (
-                      <div className="animate-spin w-5 h-5 border-2 border-void border-t-transparent rounded-full" />
+                      'Sending…'
                     ) : (
                       <>
                         <Send size={18} />

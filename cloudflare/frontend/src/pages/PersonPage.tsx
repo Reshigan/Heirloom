@@ -247,10 +247,11 @@ export function PersonPage() {
               </div>
               <button
                 onClick={() => refetchPrompts()}
-                className="p-2 glass rounded-lg hover:bg-gold/10 transition-colors"
-                title="Get new suggestions"
+                disabled={promptsLoading}
+                className="p-2 glass rounded-lg hover:bg-gold/10 transition-colors disabled:opacity-40"
+                title={promptsLoading ? 'Finding new suggestions…' : 'Get new suggestions'}
               >
-                <RefreshCw size={18} className={`text-paper/65 ${promptsLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw size={18} className="text-paper/65" />
               </button>
             </div>
 

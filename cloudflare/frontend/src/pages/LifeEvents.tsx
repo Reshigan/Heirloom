@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 // Quick Create wizard templates
@@ -307,7 +308,7 @@ export function LifeEvents() {
         </div>
         <Navigation />
         <div className="flex items-center justify-center h-[60vh]">
-          <div className="animate-spin w-8 h-8 border-2 border-gold border-t-transparent rounded-full" />
+          <ProgressHair label="loading…" width={180} />
         </div>
       </div>
     );
@@ -675,7 +676,7 @@ export function LifeEvents() {
                       className="w-full py-4 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {createMutation.isPending ? (
-                        <div className="animate-spin w-5 h-5 border-2 border-void border-t-transparent rounded-full" />
+                        'Creating…'
                       ) : (
                         <>
                           <Sparkles size={18} />

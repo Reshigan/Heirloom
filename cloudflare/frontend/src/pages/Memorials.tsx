@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, Plus, X, Download, Share2, Calendar, Grid } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { Navigation } from '../components/Navigation';
 import { memorialsApi } from '../services/api';
 
@@ -97,7 +98,7 @@ export function Memorials() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+            <ProgressHair label="loading…" width={180} />
           </div>
         ) : memorials && memorials.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

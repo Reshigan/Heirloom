@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { ArrowLeft, ArrowRight, Check, Loader2, Image, Pen, Mic, Sparkles } from '../components/Icons';
+import { ArrowLeft, ArrowRight, Check, Image, Pen, Mic, Sparkles } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { memoriesApi, lettersApi, voiceApi, exportApi } from '../services/api';
 
@@ -314,7 +314,7 @@ export function BookBuilder() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {orderMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                  {orderMutation.isPending ? null : <Sparkles size={18} />}
                   Place Order
                 </motion.button>
                 <p className="text-paper/65 text-xs mt-3">You&apos;ll be redirected to Stripe for secure payment</p>

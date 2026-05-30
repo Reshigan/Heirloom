@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Trophy, Star, TrendingUp, Loader2 } from './Icons';
+import { Trophy, Star, TrendingUp } from './Icons';
 import { useQuery } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
+import { ProgressHair } from './ui/ProgressHair';
 
 interface LegacyScoreProps {
   className?: string;
@@ -35,7 +36,7 @@ export function LegacyScore({ className = '', compact = false }: LegacyScoreProp
     return (
       <div className={`card ${className}`}>
         <div className="flex items-center justify-center py-8">
-          <Loader2 size={24} className="animate-spin text-gold" />
+          <ProgressHair label="loading…" width={180} />
         </div>
       </div>
     );

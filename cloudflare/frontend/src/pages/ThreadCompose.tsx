@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Loader2, Lock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Lock } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../services/api';
 
@@ -342,7 +342,6 @@ export function ThreadCompose() {
 
             <div className="flex items-center gap-3 pt-2">
               <button type="submit" disabled={create.isPending || !body.trim()} className="btn btn-primary">
-                {create.isPending ? <Loader2 size={16} className="animate-spin" /> : null}
                 {create.isPending ? 'Saving…' : 'Save to the thread'}
                 {!create.isPending ? <ArrowRight size={16} /> : null}
               </button>

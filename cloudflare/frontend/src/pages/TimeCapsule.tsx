@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Clock, Lock, Users, Loader2, Check, X, Image, Sparkles } from '../components/Icons';
+import { Plus, Clock, Lock, Users, Check, X, Image, Sparkles } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { EmptyState } from '../components/EmptyState';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { capsulesApi, threadsApi } from '../services/api';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
@@ -173,7 +174,7 @@ export function TimeCapsule() {
         {/* Capsule list */}
         {isLoading ? (
           <div className="flex justify-center py-16">
-            <Loader2 size={32} className="text-gold animate-spin" />
+            <ProgressHair label="loading…" width={180} />
           </div>
         ) : !capsules?.length ? (
           <EmptyState
@@ -286,7 +287,7 @@ export function TimeCapsule() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {createMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                  {createMutation.isPending ? null : <Sparkles size={16} />}
                   Create Capsule
                 </motion.button>
               </div>

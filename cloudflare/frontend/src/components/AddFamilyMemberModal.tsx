@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Users, Mail, Loader2 } from './Icons';
+import { X, User, Users, Mail } from './Icons';
 import { familyApi } from '../services/api';
 
 const RELATIONSHIPS = [
@@ -207,7 +207,6 @@ export function AddFamilyMemberModal({ isOpen, onClose, onCreated }: AddFamilyMe
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 size={18} className="animate-spin" />
                         Adding...
                       </>
                     ) : (

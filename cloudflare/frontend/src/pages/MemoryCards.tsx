@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Share2, Check, Loader2, Image, Sparkles, Calendar, Clock } from '../components/Icons';
+import { ArrowLeft, Share2, Check, Image, Sparkles, Calendar, Clock } from '../components/Icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoryCardsApi, memoriesApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
@@ -308,7 +308,6 @@ export function MemoryCards() {
                 >
                   {generateMutation.isPending ? (
                     <>
-                      <Loader2 size={20} className="animate-spin" />
                       Generating...
                     </>
                   ) : (

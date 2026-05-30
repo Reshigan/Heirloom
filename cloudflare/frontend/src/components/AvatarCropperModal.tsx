@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, ZoomOut, Upload, Loader2 } from './Icons';
+import { X, ZoomIn, ZoomOut, Upload } from './Icons';
 
 interface AvatarCropperModalProps {
   isOpen: boolean;
@@ -277,7 +277,6 @@ export function AvatarCropperModal({
             >
               {isUploading ? (
                 <>
-                  <Loader2 size={18} className="animate-spin" />
                   Uploading...
                 </>
               ) : (

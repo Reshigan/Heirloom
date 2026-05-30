@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  ChevronLeft, Mic, Edit3, User, Sparkles, 
-  Play, Calendar, Loader2, Heart, Clock, Gift, Star
+import {
+  ChevronLeft, Mic, Edit3, User, Sparkles,
+  Play, Calendar, Heart, Clock, Gift, Star
 } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { familyApi } from '../services/api';
 
 // Template options for quick start
@@ -253,7 +254,7 @@ export function QuickWizard() {
               
               {familyLoading ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 size={32} className="animate-spin text-gold" />
+                  <ProgressHair label="loading…" width={180} />
                 </div>
               ) : familyMembers.length === 0 ? (
                 <div className="text-center py-12">
@@ -464,7 +465,7 @@ export function QuickWizard() {
               
               {loadingPrompts ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 size={32} className="animate-spin text-gold" />
+                  <ProgressHair label="loading…" width={180} />
                 </div>
               ) : (
                 <div className="space-y-3">

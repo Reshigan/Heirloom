@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Image, Mic, Play, Pause, Clock, Calendar, AlertCircle, Loader2, ChevronRight, Lock, Search, MessageCircle, Send, X, Heart, Sparkles } from '../components/Icons';
+import { FileText, Image, Mic, Play, Pause, Clock, Calendar, AlertCircle, ChevronRight, Lock, Search, MessageCircle, Send, X, Heart, Sparkles } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 
 // @ts-ignore - Vite env types
 const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue';
@@ -293,7 +294,9 @@ export function Inherit() {
           animate={{ opacity: 1 }}
           className="text-center relative z-10"
         >
-          <Loader2 size={48} className="animate-spin text-gold mx-auto mb-4" />
+          <div className="flex justify-center mb-4">
+            <ProgressHair label="unlocking…" width={180} />
+          </div>
           <p className="text-paper/70">Unlocking memories...</p>
         </motion.div>
       </div>
@@ -398,7 +401,7 @@ export function Inherit() {
                       disabled={searchLoading || searchQuery.trim().length < 3}
                       className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-lg bg-gold text-void font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:bg-gold/90"
                     >
-                      {searchLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                      <Send size={18} />
                     </button>
                   </div>
                   <p className="text-xs text-paper/70 mt-2 text-center">
@@ -658,7 +661,9 @@ export function Inherit() {
                     >
                       {searchLoading ? (
                         <div className="card text-center py-12">
-                          <Loader2 size={48} className="animate-spin text-gold mx-auto mb-4" />
+                          <div className="flex justify-center mb-4">
+                            <ProgressHair label="searching…" width={180} />
+                          </div>
                           <p className="text-paper/70">Searching through memories...</p>
                         </div>
                       ) : searchError ? (
@@ -862,7 +867,6 @@ export function Inherit() {
                         >
                           {sendingReaction ? (
                             <>
-                              <Loader2 size={20} className="animate-spin" />
                               Sending...
                             </>
                           ) : (

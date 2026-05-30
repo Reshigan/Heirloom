@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Mail, User, MessageSquare, Send, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, Mail, User, MessageSquare, Send, Check } from 'lucide-react';
 
 export function Contact() {
   const [form, setForm] = useState({
@@ -165,7 +165,7 @@ export function Contact() {
               className="btn btn-primary w-full py-4 text-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
             >
               {isSubmitting ? (
-                <Loader2 size={20} className="animate-spin" />
+                'Sending…'
               ) : (
                 <>
                   Send Message

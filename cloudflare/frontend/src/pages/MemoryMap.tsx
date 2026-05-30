@@ -2,7 +2,8 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 // MemoryMap page
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Image, Mic, Pen } from '../components/Icons';
+import { Image, Mic, Pen } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { Navigation } from '../components/Navigation';
 import { EmptyState } from '../components/EmptyState';
 import { memoriesApi } from '../services/api';
@@ -80,7 +81,7 @@ export function MemoryMap() {
 
         {isLoading ? (
           <div className="flex justify-center py-16">
-            <Loader2 size={32} className="text-gold animate-spin" />
+            <ProgressHair label="loading…" width={180} />
           </div>
         ) : !memories.length ? (
           <EmptyState

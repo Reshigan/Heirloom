@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Calendar, Star, Zap, Cloud } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { streaksApi, challengesApi } from '../services/api';
 
 export function Streaks() {
@@ -72,7 +73,7 @@ export function Streaks() {
 
         {streakLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+            <ProgressHair label="loading…" width={180} />
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">

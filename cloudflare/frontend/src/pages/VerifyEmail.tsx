@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { CheckCircle, XCircle, Loader2, Mail } from '../components/Icons';
+import { CheckCircle, XCircle, Mail } from '../components/Icons';
 import { emailVerificationApi } from '../services/api';
+import { ProgressHair } from '../components/ui/ProgressHair';
 
 export function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -70,7 +71,7 @@ export function VerifyEmail() {
           
           <div className="relative">
             <Link to="/" className="inline-block mb-8">
-              <div className="text-5xl text-gold mb-2 inline-block animate-spin" style={{ animationDuration: '30s' }}>
+              <div className="text-5xl text-gold mb-2 inline-block">
                 ∞
               </div>
               <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
@@ -78,7 +79,9 @@ export function VerifyEmail() {
 
             {status === 'loading' && (
               <div className="py-8">
-                <Loader2 size={48} className="animate-spin text-gold mx-auto mb-4" />
+                <div className="flex justify-center mb-4">
+                  <ProgressHair label="verifying…" width={180} />
+                </div>
                 <p className="text-paper/70">Verifying your email...</p>
               </div>
             )}
@@ -107,7 +110,7 @@ export function VerifyEmail() {
                     className="btn btn-secondary w-full"
                   >
                     {isResending ? (
-                      <Loader2 size={20} className="animate-spin" />
+                      'Sending…'
                     ) : (
                       <>
                         <Mail size={20} />
@@ -145,7 +148,7 @@ export function VerifyEmail() {
                     className="btn btn-primary w-full"
                   >
                     {isResending ? (
-                      <Loader2 size={20} className="animate-spin" />
+                      'Sending…'
                     ) : (
                       <>
                         <Mail size={20} />

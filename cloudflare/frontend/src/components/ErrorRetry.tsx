@@ -1,4 +1,4 @@
-import { AlertCircle, RefreshCw } from './Icons';
+import { AlertCircle } from './Icons';
 
 interface ErrorRetryProps {
   message?: string;
@@ -18,7 +18,6 @@ export function ErrorRetry({ message = 'Something went wrong', onRetry, isRetryi
         disabled={isRetrying}
         className="btn btn-secondary inline-flex items-center gap-2"
       >
-        <RefreshCw size={16} className={isRetrying ? 'animate-spin' : ''} />
         {isRetrying ? 'Retrying…' : 'Try again'}
       </button>
     </div>

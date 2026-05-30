@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { Mic, Mail, Image, Family } from '../components/Icons';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api from '../services/api';
 
@@ -117,7 +118,7 @@ export function LegacyPlan() {
         </div>
         <Navigation />
         <div className="flex items-center justify-center h-[60vh]">
-          <div className="animate-spin w-8 h-8 border-2 border-gold border-t-transparent rounded-full" />
+          <ProgressHair label="loading…" width={180} />
         </div>
       </div>
     );

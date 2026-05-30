@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Loader2, Share2, Check, Clock, Heart } from '../components/Icons';
+import { ArrowLeft, Sparkles, Share2, Check, Clock, Heart } from '../components/Icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
@@ -169,7 +169,6 @@ export function FutureLetter() {
                 >
                   {generateMutation.isPending ? (
                     <>
-                      <Loader2 size={20} className="animate-spin" />
                       Generating Letter...
                     </>
                   ) : (

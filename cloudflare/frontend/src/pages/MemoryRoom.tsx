@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Image, Mic, FileText, Send, Users, X } from 'lucide-react';
+import { ProgressHair } from '../components/ui/ProgressHair';
 import api from '../services/api';
 
 interface RoomData {
@@ -78,7 +79,7 @@ export function MemoryRoom() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0c10] to-[#12151c] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#c9a959] border-t-transparent rounded-full" />
+        <ProgressHair label="loading…" width={180} />
       </div>
     );
   }
@@ -314,7 +315,7 @@ export function MemoryRoom() {
                     className="w-full py-3 bg-gradient-to-r from-[#c9a959] to-[#a08335] text-[#0a0c10] font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {contributeMutation.isPending ? (
-                      <div className="animate-spin w-5 h-5 border-2 border-[#0a0c10] border-t-transparent rounded-full" />
+                      'Sharing…'
                     ) : (
                       <>
                         <Send size={18} />
