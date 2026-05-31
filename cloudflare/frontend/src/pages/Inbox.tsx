@@ -33,6 +33,38 @@ interface RecentUnlock {
   thread_id: string;
   entry_created_at: string;
   thread_name: string;
+  dye?: string | null;
+}
+
+/**
+ * The natural-dye palette (§2.7) — the only place a dye color is allowed.
+ * We map a real `dye` value coming off an item to its CSS var; we NEVER
+ * invent one. If an item carries no dye (the current API does not surface
+ * one on sealed/recent unlocks), the lead cell renders empty — honest blank
+ * rather than a fabricated stripe.
+ */
+const DYE_VARS: Record<string, string> = {
+  madder: 'var(--dye-madder)',
+  cochineal: 'var(--dye-cochineal)',
+  kermes: 'var(--dye-kermes)',
+  saffron: 'var(--dye-saffron)',
+  weld: 'var(--dye-weld)',
+  walnut: 'var(--dye-walnut)',
+  oakgall: 'var(--dye-oakgall)',
+  woad: 'var(--dye-woad)',
+  indigo: 'var(--dye-indigo)',
+  iron: 'var(--dye-iron)',
+};
+
+/** A 14×2 dye swatch — rendered ONLY when a real dye value is present. */
+function DyeSwatch({ dye }: { dye?: string | null }) {
+  const color = dye ? DYE_VARS[dye.toLowerCase()] : undefined;
+  return (
+    <span
+      aria-hidden
+      style={{ width: 14, height: 2, alignSelf: 'center', background: color ?? 'transparent' }}
+    />
+  );
 }
 
 export function Inbox() {
@@ -133,7 +165,7 @@ function OpenedRow({ item, first }: { item: RecentUnlock; first: boolean }) {
     <li
       style={{
         display: 'grid',
-        gridTemplateColumns: '44px 1fr 200px',
+        gridTemplateColumns: '14px 44px 1fr 200px',
         gap: 24,
         padding: '22px 0',
         alignItems: 'baseline',
@@ -141,6 +173,7 @@ function OpenedRow({ item, first }: { item: RecentUnlock; first: boolean }) {
         borderBottom: '1px solid var(--loom-rule)',
       }}
     >
+      <DyeSwatch dye={item.dye} />
       <span
         aria-hidden
         className="loom-serif"
@@ -235,7 +268,7 @@ function SealedRow({ item, first }: { item: UpcomingUnlock; first: boolean }) {
     <li
       style={{
         display: 'grid',
-        gridTemplateColumns: '44px 1fr 1fr 1.1fr',
+        gridTemplateColumns: '14px 44px 1fr 1fr 1.1fr',
         gap: 24,
         padding: '22px 0',
         alignItems: 'baseline',
@@ -243,6 +276,7 @@ function SealedRow({ item, first }: { item: UpcomingUnlock; first: boolean }) {
         borderBottom: '1px solid var(--loom-rule)',
       }}
     >
+      <DyeSwatch dye={(item as UpcomingUnlock & { dye?: string | null }).dye} />
       <span
         aria-hidden
         className="loom-serif"

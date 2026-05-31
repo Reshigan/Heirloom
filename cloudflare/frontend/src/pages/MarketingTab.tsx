@@ -1,7 +1,45 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { marketingApi } from '../services/api';
 import { ProgressHair } from '../components/ui/ProgressHair';
+
+/* ── Inline status (replaces alert) ──────────────────────────────── */
+type StatusTone = 'ok' | 'err';
+function useInlineStatus() {
+  const [state, setState] = useState<{ msg: string; tone: StatusTone; key: number } | null>(null);
+  return {
+    state,
+    ok: (msg: string) => setState({ msg, tone: 'ok', key: Date.now() }),
+    err: (msg: string) => setState({ msg, tone: 'err', key: Date.now() }),
+    clear: () => setState(null),
+  };
+}
+type InlineStatusApi = ReturnType<typeof useInlineStatus>;
+
+function InlineStatus({ status }: { status: InlineStatusApi }) {
+  useEffect(() => {
+    if (!status.state) return;
+    const t = setTimeout(() => status.clear(), 4000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status.state?.key]);
+  if (!status.state) return null;
+  const warm = status.state.tone === 'ok';
+  return (
+    <div
+      role="status"
+      style={{
+        marginBottom: 20, padding: '8px 14px',
+        background: 'var(--loom-ink)',
+        border: `1px solid ${warm ? 'var(--loom-rule-warm)' : 'rgba(194,90,90,0.35)'}`,
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.04em',
+        color: warm ? 'var(--loom-warm)' : '#c25a5a',
+      }}
+    >
+      {status.state.msg}
+    </div>
+  );
+}
 
 const SEGMENTS = ['GENEALOGY', 'GRIEF', 'PARENTING', 'TECH', 'ESTATE_PLANNING', 'PODCAST', 'OTHER'];
 const PLATFORMS = ['INSTAGRAM', 'FACEBOOK', 'TIKTOK', 'LINKEDIN', 'TWITTER', 'EMAIL', 'ALL'];
@@ -91,6 +129,7 @@ const labelStyle: React.CSSProperties = {
 
 export function MarketingTab() {
   const queryClient = useQueryClient();
+  const status = useInlineStatus();
   const [activeSubTab, setActiveSubTab] = useState<'influencers' | 'campaigns' | 'content' | 'signups'>('influencers');
   const [showImportModal, setShowImportModal] = useState(false);
   const [showCampaignModal, setShowCampaignModal] = useState(false);
@@ -128,9 +167,10 @@ export function MarketingTab() {
     mutationFn: (influencers: any[]) => marketingApi.importInfluencers(influencers),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['marketing-influencers'] });
-      alert(`Imported ${data.data.imported} influencers, skipped ${data.data.skipped}`);
+      status.ok(`imported ${data.data.imported} threads · skipped ${data.data.skipped}`);
       setShowImportModal(false);
     },
+    onError: (error: any) => status.err(`import failed: ${error.response?.data?.error || error.message}`),
   });
 
   const approveSignupMutation = useMutation({
@@ -155,7 +195,7 @@ export function MarketingTab() {
         <div>
           <p className="loom-eyebrow" style={{ marginBottom: 10 }}>Marketing</p>
           <h2 className="loom-h2" style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}>
-            Outreach &amp; campaigns.
+            Outreach & campaigns.
           </h2>
         </div>
         <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
@@ -170,6 +210,8 @@ export function MarketingTab() {
           </button>
         </div>
       </div>
+
+      <InlineStatus status={status} />
 
       {/* Sub-tab nav */}
       <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--loom-rule)', marginBottom: 28 }}>
@@ -448,10 +490,11 @@ function ModalShell({ title, onClose, wide, children }: { title: string; onClose
           <h3 className="loom-h2" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: 0 }}>{title}</h3>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: 'var(--loom-bone-faint)', fontSize: 16, cursor: 'pointer', lineHeight: 1, padding: 4 }}
+            className="loom-mono"
+            style={{ background: 'none', border: 'none', color: 'var(--loom-bone-faint)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', lineHeight: 1, padding: 4 }}
             aria-label="Close"
           >
-            ✕
+            close
           </button>
         </div>
         {children}
@@ -551,6 +594,7 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
 /* ── CreateCampaignModal ─────────────────────────────────────────── */
 function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; influencers: any[] }) {
   const queryClient = useQueryClient();
+  const status = useInlineStatus();
   const [step, setStep] = useState<'setup' | 'compose' | 'review'>('setup');
   const [formData, setFormData] = useState({
     name: '',
@@ -586,11 +630,11 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['marketing-campaigns'] });
-      alert(`Campaign sent. ${data.data.sentCount} emails sent, ${data.data.failedCount} failed.`);
+      status.ok(`campaign sent · ${data.data.sentCount} sent · ${data.data.failedCount} failed`);
       onClose();
     },
     onError: (error: any) => {
-      alert(`Failed to send: ${error.response?.data?.error || error.message}`);
+      status.err(`failed to send: ${error.response?.data?.error || error.message}`);
     },
   });
 
@@ -614,6 +658,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
 
   return (
     <ModalShell title="New campaign." onClose={onClose} wide>
+      <InlineStatus status={status} />
       {/* Step indicators */}
       <div style={{ display: 'flex', gap: 20, marginBottom: 28 }}>
         {STEPS.map((s, i) => (
@@ -727,7 +772,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
               className="loom-btn"
               style={{ fontSize: 11, opacity: (!formData.subjectLine || !formData.bodyHtml) ? 0.4 : 1 }}
             >
-              Review &amp; Send
+              Review & Send
             </button>
           </div>
         </div>
@@ -781,6 +826,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
 /* ── AddInfluencerModal ──────────────────────────────────────────── */
 function AddInfluencerModal({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
+  const status = useInlineStatus();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -802,7 +848,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
       onClose();
     },
     onError: (error: any) => {
-      alert(`Failed to add: ${error.response?.data?.error || error.message}`);
+      status.err(`failed to add: ${error.response?.data?.error || error.message}`);
     },
   });
 
@@ -815,6 +861,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalShell title="Add thread." onClose={onClose}>
+      <InlineStatus status={status} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <Field label="Name *">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppFrame } from '../loom/components/AppFrame';
@@ -65,57 +65,50 @@ export function Threads() {
         </p>
       ) : (
         <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: 1,
-              marginBottom: 48,
-              border: '1px solid var(--loom-rule)',
-            }}
-          >
-            {threads.map((t) => (
-              <ThreadCard key={t.id} thread={t} />
-            ))}
-
-            {!creating ? (
-              <button
-                type="button"
-                onClick={() => setCreating(true)}
+          {threads.length > 0 ? (
+            <div style={{ marginBottom: 36 }}>
+              {/* column header — typeset mono, hairline-ruled */}
+              <div
                 style={{
-                  background: 'transparent',
-                  border: 0,
-                  padding: '32px 28px',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  borderLeft: threads.length > 0 ? '1px solid var(--loom-rule)' : 0,
-                  color: 'var(--loom-bone-faint)',
-                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 0.9fr 0.7fr 0.6fr 0.6fr',
+                  gap: 24,
+                  padding: '12px 0',
+                  borderBottom: '1px solid var(--loom-rule-warm)',
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone-dim)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone-faint)'; }}
               >
-                <p
-                  className="loom-mono"
-                  style={{ margin: '0 0 12px', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase' }}
-                >
-                  + begin a new thread
-                </p>
-                <p
-                  className="loom-serif"
-                  style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 300 }}
-                >
-                  Start a new thread
-                </p>
-                <p
-                  className="loom-body"
-                  style={{ margin: 0, fontSize: 14, color: 'var(--loom-bone-faint)', lineHeight: 1.6 }}
-                >
-                  For a different bloodline, an in-laws line, or a chosen family.
-                </p>
-              </button>
-            ) : null}
-          </div>
+                <span className="loom-mono" style={COL_HEAD}>thread</span>
+                <span className="loom-mono" style={COL_HEAD}>founded</span>
+                <span className="loom-mono" style={COL_HEAD}>your role</span>
+                <span className="loom-mono" style={{ ...COL_HEAD, textAlign: 'right' }}>members</span>
+                <span className="loom-mono" style={{ ...COL_HEAD, textAlign: 'right' }}>entries</span>
+              </div>
+              {threads.map((t) => (
+                <ThreadRow key={t.id} thread={t} />
+              ))}
+            </div>
+          ) : null}
+
+          {!creating ? (
+            <button
+              type="button"
+              onClick={() => setCreating(true)}
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                cursor: 'pointer',
+                marginBottom: 48,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 11,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'var(--loom-warm)',
+              }}
+            >
+              + begin a new thread →
+            </button>
+          ) : null}
 
           {creating ? (
             <div
@@ -244,63 +237,103 @@ export function Threads() {
   );
 }
 
-function ThreadCard({ thread }: { thread: ThreadSummary }) {
+const COL_HEAD: CSSProperties = {
+  fontSize: 10,
+  color: 'var(--loom-bone-faint)',
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+};
+
+/* ── One thread as a hairline-ruled mono table row (the design's ThreadsIndex) ── */
+function ThreadRow({ thread }: { thread: ThreadSummary }) {
+  const isFounder = thread.role === 'FOUNDER';
   return (
     <Link
       to={`/threads/${thread.id}`}
       style={{
-        display: 'block',
-        padding: '32px 28px',
+        display: 'grid',
+        gridTemplateColumns: '2fr 0.9fr 0.7fr 0.6fr 0.6fr',
+        gap: 24,
+        padding: '20px 0',
+        borderBottom: '1px solid var(--loom-rule)',
+        alignItems: 'baseline',
         textDecoration: 'none',
-        borderRight: '1px solid var(--loom-rule)',
-        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
       }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(244,236,216,0.02)'; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
     >
-      <p
+      {/* thread name (+ dedication as a quiet sub-line) */}
+      <div>
+        <span
+          className="loom-serif"
+          style={{ fontSize: 21, color: 'var(--loom-bone)', fontWeight: 400, letterSpacing: '-0.008em' }}
+        >
+          {thread.name}
+        </span>
+        {thread.dedication ? (
+          <span
+            className="loom-serif"
+            style={{
+              display: 'block',
+              fontStyle: 'italic',
+              fontSize: 13,
+              color: 'var(--loom-bone-dim)',
+              marginTop: 4,
+              maxWidth: '52ch',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {thread.dedication}
+          </span>
+        ) : null}
+      </div>
+
+      {/* founded — created_at */}
+      <span
+        className="loom-mono"
+        style={{ fontSize: 11, color: 'var(--loom-bone-dim)', letterSpacing: '0.06em' }}
+      >
+        {formatFounded(thread.created_at)}
+      </span>
+
+      {/* your role */}
+      <span
         className="loom-mono"
         style={{
-          margin: '0 0 12px',
           fontSize: 10,
-          letterSpacing: '0.28em',
+          color: isFounder ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+          letterSpacing: '0.22em',
           textTransform: 'uppercase',
-          color: 'var(--loom-warm)',
         }}
       >
-        {thread.role.toLowerCase()} · gen {thread.generation_offset}
-      </p>
-      <h2
-        className="loom-serif"
-        style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 300, color: 'var(--loom-bone)', lineHeight: 1.2 }}
-      >
-        {thread.name}
-      </h2>
-      {thread.dedication ? (
-        <p
-          className="loom-body"
-          style={{
-            margin: '0 0 20px',
-            fontSize: 14,
-            color: 'var(--loom-bone-dim)',
-            lineHeight: 1.65,
-            display: '-webkit-box',
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-        >
-          {thread.dedication}
-        </p>
-      ) : (
-        <div style={{ height: 20 }} />
-      )}
-      <p
+        {thread.role.toLowerCase()}
+      </span>
+
+      {/* members */}
+      <span
         className="loom-mono"
-        style={{ margin: 0, fontSize: 11, letterSpacing: '0.04em', color: 'var(--loom-bone-faint)' }}
+        style={{ fontSize: 13, color: 'var(--loom-bone-dim)', letterSpacing: '0.08em', textAlign: 'right' }}
       >
-        · {thread.entry_count} {thread.entry_count === 1 ? 'entry' : 'entries'} &nbsp;·&nbsp; {thread.member_count} {thread.member_count === 1 ? 'member' : 'members'}
-      </p>
+        {thread.member_count}
+      </span>
+
+      {/* entries */}
+      <span
+        className="loom-mono"
+        style={{ fontSize: 13, color: 'var(--loom-bone)', letterSpacing: '0.08em', textAlign: 'right' }}
+      >
+        {thread.entry_count.toLocaleString()}
+      </span>
     </Link>
   );
+}
+
+function formatFounded(iso: string): string {
+  try {
+    return new Date(iso)
+      .toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      .toLowerCase();
+  } catch {
+    return iso;
+  }
 }

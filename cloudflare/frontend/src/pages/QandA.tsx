@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { searchApi } from '../services/api';
 import { AppFrame } from '../loom/components/AppFrame';
 
@@ -32,7 +33,28 @@ interface SourceEntry {
   title: string | null;
   snippet: string | null;
   createdAt: string | null;
+  /** A real dye/category value off the entry, if the search result carries one. Never invented. */
+  dye?: string | null;
 }
+
+/**
+ * Natural-dye palette (§2.7) — the only place a dye color may appear.
+ * Mapped ONLY from a real `dye` value on a result; never fabricated. If a
+ * result has no dye (the current search API surfaces none), the lead cell
+ * stays an honest blank.
+ */
+const DYE_VARS: Record<string, string> = {
+  madder: 'var(--dye-madder)',
+  cochineal: 'var(--dye-cochineal)',
+  kermes: 'var(--dye-kermes)',
+  saffron: 'var(--dye-saffron)',
+  weld: 'var(--dye-weld)',
+  walnut: 'var(--dye-walnut)',
+  oakgall: 'var(--dye-oakgall)',
+  woad: 'var(--dye-woad)',
+  indigo: 'var(--dye-indigo)',
+  iron: 'var(--dye-iron)',
+};
 
 type AskState =
   | { phase: 'idle' }
@@ -67,6 +89,7 @@ export function QandA() {
         title: r.title ?? null,
         snippet: r.snippet ?? null,
         createdAt: r.createdAt ?? null,
+        dye: r.dye ?? r.category ?? null,
       }));
       setState({ phase: 'answered', question: query, sources });
     } catch {
@@ -309,13 +332,14 @@ export function QandA() {
 
 /* ── a single cited source entry ── */
 function Citation({ index, source }: { index: number; source: SourceEntry }) {
-  const href = sourceHref(source);
+  const to = sourceHref(source);
   const snippet = stripMarks(source.snippet);
+  const dyeColor = source.dye ? DYE_VARS[source.dye.toLowerCase()] : undefined;
   return (
     <li
       style={{
         display: 'grid',
-        gridTemplateColumns: '30px 96px 1fr 88px',
+        gridTemplateColumns: '30px 14px 96px 1fr 88px',
         gap: 14,
         padding: '12px 0',
         borderTop: '1px solid var(--loom-rule)',
@@ -325,14 +349,19 @@ function Citation({ index, source }: { index: number; source: SourceEntry }) {
       <span className="loom-mono" style={{ color: 'var(--loom-warm)', fontSize: 10.5 }}>
         [{index}]
       </span>
+      {/* dye swatch — colored only when a real dye is present, else honest blank */}
+      <span
+        aria-hidden
+        style={{ width: 14, height: 2, alignSelf: 'center', background: dyeColor ?? 'transparent' }}
+      />
       <span
         className="loom-mono"
         style={{ fontSize: 10.5, letterSpacing: '0.06em', color: 'var(--loom-bone-faint)' }}
       >
         {source.createdAt ? formatDate(source.createdAt) : '—'}
       </span>
-      <a
-        href={href}
+      <Link
+        to={to}
         className="loom-serif"
         style={{ fontSize: 14.5, color: 'var(--loom-bone)', fontWeight: 400, textDecoration: 'none' }}
       >
@@ -345,7 +374,7 @@ function Citation({ index, source }: { index: number; source: SourceEntry }) {
             {snippet}
           </span>
         ) : null}
-      </a>
+      </Link>
       <span
         className="loom-mono"
         style={{
@@ -362,7 +391,12 @@ function Citation({ index, source }: { index: number; source: SourceEntry }) {
   );
 }
 
-/* ── the only permitted "loading" affordance: a 1px shuttle bar ── */
+/* ── the only permitted "loading" affordance: a 1px warm hairline shuttle ──
+ * Uses a LOCAL keyframe scoped to the bar's own box (−100% → 250% of the
+ * 40%-wide shuttle) so it sweeps the full track, instead of the shared
+ * `loom-shuttle` keyframe which translates by viewport and would run mostly
+ * off-screen inside this narrow column. No spinner.
+ */
 function Shuttle() {
   return (
     <div
@@ -375,6 +409,12 @@ function Shuttle() {
       }}
       aria-label="Asking the thread"
     >
+      <style>{`
+        @keyframes qanda-shuttle {
+          0%   { transform: translateX(-100%); }
+          100% { transform: translateX(250%); }
+        }
+      `}</style>
       <div
         style={{
           position: 'absolute',
@@ -383,7 +423,7 @@ function Shuttle() {
           height: 1,
           width: '40%',
           background: 'color-mix(in srgb, var(--loom-warm) 40%, transparent)',
-          animation: 'loom-shuttle 1.4s var(--loom-ease) infinite',
+          animation: 'qanda-shuttle 1.4s var(--loom-ease) infinite',
         }}
       />
     </div>

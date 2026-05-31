@@ -1,54 +1,90 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLoomTheme } from '../theme';
 import '../styles/loom.css';
 
 /**
- * Marketing — long-form sales page for the Loom.
+ * Marketing — long-form sales page for Heirloom, mounted at `/`.
  *
- * Unlike the in-app screens, this page scrolls. It mirrors the
- * design-handoff marketing.html: hero with a living-loom canvas,
- * the thesis, the megafact, three primitives, the unlock spotlight,
- * a quote, four-tier pricing, and a CTA footer.
+ * Converged to the loom3 landing + adoption artboards
+ * (heirloom-landing.jsx / heirloom-adoption.jsx). The canonical product
+ * is the Family Thread: perpetual, append-only, multi-author,
+ * multi-generational, owned by a bloodline. The page leads with a real
+ * woven specimen cloth (the Okonkwo family thread), states the five
+ * pillars, the "what we are not" manifesto, the continuity pledge, an
+ * honest showcase, brief pricing, and a closing CTA.
  *
- * Set inside .loom for theme tokens and font scoping; body.overflow
- * is left alone so the page can scroll vertically.
+ * Set inside .loom for theme tokens and font scoping; body.overflow is
+ * left alone so the page can scroll vertically.
  */
-const HERO_PICKS = [
-  { y: 1962, m: 4, l: 1, k: 'photo' },
-  { y: 1968, m: 9, l: 2, k: 'letter' },
-  { y: 1971, m: 6, l: 0, k: 'milestone' },
-  { y: 1974, m: 3, l: 3, k: 'voice' },
-  { y: 1978, m: 11, l: 2, k: 'photo' },
-  { y: 1981, m: 7, l: 1, k: 'letter' },
-  { y: 1983, m: 5, l: 0, k: 'milestone' },
-  { y: 1986, m: 2, l: 3, k: 'photo' },
-  { y: 1989, m: 8, l: 2, k: 'letter' },
-  { y: 1992, m: 1, l: 4, k: 'voice' },
-  { y: 1995, m: 10, l: 1, k: 'photo' },
-  { y: 1998, m: 6, l: 2, k: 'letter' },
-  { y: 2001, m: 3, l: 3, k: 'memory' },
-  { y: 2004, m: 9, l: 0, k: 'milestone' },
-  { y: 2007, m: 4, l: 1, k: 'letter' },
-  { y: 2010, m: 11, l: 2, k: 'photo' },
-  { y: 2013, m: 7, l: 3, k: 'voice' },
-  { y: 2016, m: 5, l: 1, k: 'letter' },
-  { y: 2019, m: 8, l: 4, k: 'memory' },
-  { y: 2022, m: 2, l: 2, k: 'photo' },
-  { y: 2024, m: 6, l: 1, k: 'letter' },
-  { y: 2026, m: 5, l: 0, k: 'milestone', warm: true },
-  { y: 2031, m: 6, l: 2, k: 'letter', warm: true },
-  { y: 2042, m: 8, l: 1, k: 'letter', warm: true },
-  { y: 2055, m: 11, l: 3, k: 'letter', warm: true },
-  { y: 2068, m: 4, l: 2, k: 'letter', warm: true },
-];
 
-const HERO_RESONANCES: [number, number][] = [
-  [1, 8],
-  [3, 16],
-  [4, 18],
-  [11, 21],
-];
+// ── natural-dye palette (only used inside the woven cloth) ───────────────
+const DYE_VARS = [
+  '--dye-madder',
+  '--dye-cochineal',
+  '--dye-kermes',
+  '--dye-saffron',
+  '--dye-weld',
+  '--dye-walnut',
+  '--dye-oakgall',
+  '--dye-woad',
+  '--dye-indigo',
+  '--dye-iron',
+] as const;
+
+// reproducible PRNG so the specimen cloth paints identically every render
+function mulberry32(a: number) {
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+interface Pick {
+  frac: number; // 0..1 across the span
+  lane: number; // 0..lanes-1
+  dye: string;
+  warm: boolean; // sealed / future thread
+}
+
+function buildSpecimen(seed: number, count: number, lanes: number): Pick[] {
+  const rand = mulberry32(seed);
+  const picks: Pick[] = [];
+  for (let i = 0; i < count; i++) {
+    const r = rand();
+    // weighted dye distribution: mostly daily weld/walnut, occasional joy/grief
+    let dyeIdx: number;
+    if (r < 0.5) dyeIdx = 4; // weld (daily life)
+    else if (r < 0.62) dyeIdx = 5; // walnut (travel)
+    else if (r < 0.72) dyeIdx = 3; // saffron (achievement)
+    else if (r < 0.82) dyeIdx = 7; // woad (contemplation)
+    else if (r < 0.89) dyeIdx = 8; // indigo (memory)
+    else if (r < 0.94) dyeIdx = 0; // madder (joy)
+    else if (r < 0.97) dyeIdx = 2; // kermes (beginning)
+    else if (r < 0.99) dyeIdx = 1; // cochineal (grief)
+    else dyeIdx = 6; // oakgall (records)
+    picks.push({
+      frac: rand(),
+      lane: Math.floor(rand() * lanes),
+      dye: DYE_VARS[dyeIdx],
+      warm: false,
+    });
+  }
+  // a few sealed/future threads near the leading edge — these glow warm
+  for (let i = 0; i < 4; i++) {
+    picks.push({
+      frac: 0.9 + rand() * 0.09,
+      lane: Math.floor(rand() * lanes),
+      dye: '--dye-madder',
+      warm: true,
+    });
+  }
+  picks.sort((a, b) => a.frac - b.frac);
+  return picks;
+}
 
 export function Marketing() {
   const { theme } = useLoomTheme();
@@ -56,11 +92,11 @@ export function Marketing() {
     <div className="loom" data-theme={theme} style={{ minHeight: '100vh', overflowX: 'hidden' }}>
       <Header />
       <Hero />
-      <Thesis />
+      <WhatAThreadIs />
       <Megafact />
-      <ThreePrimitives />
-      <UnlockSpotlight />
-      <Quote />
+      <WhatWeAreNot />
+      <Showcase />
+      <ContinuityPledge />
       <Pricing />
       <Footer />
     </div>
@@ -85,56 +121,54 @@ function Header() {
         borderBottom: '1px solid var(--loom-rule)',
       }}
     >
-      <Link to="/loom" className="loom-mark" style={{ textDecoration: 'none' }}>
+      <Link to="/" className="loom-mark" style={{ textDecoration: 'none' }}>
         <span className="infmark">∞</span>heirloom
       </Link>
       <nav style={{ display: 'flex', gap: 36, justifyContent: 'center' }}>
         {[
-          { href: '#how', label: 'how it works' },
-          { href: '#unlock', label: 'the unlock' },
-          { href: '#kin', label: 'for families' },
-          { href: '#price', label: 'keeping' },
-        ].map((l) => (
-          <a
-            key={l.href}
-            href={l.href}
-            style={{
-              color: 'var(--loom-bone-dim)',
-              textDecoration: 'none',
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 12,
-              letterSpacing: '0.32em',
-              textTransform: 'uppercase',
-              fontWeight: 500,
-              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-            }}
-          >
-            {l.label}
-          </a>
-        ))}
+          { href: '#cloth', label: 'see the cloth', to: undefined },
+          { href: undefined, label: 'founder', to: '/founder' },
+          { href: '#price', label: 'pricing', to: undefined },
+          { href: undefined, label: 'sign in', to: '/login' },
+        ].map((l) =>
+          l.to ? (
+            <Link key={l.label} to={l.to} style={navLinkStyle}>
+              {l.label}
+            </Link>
+          ) : (
+            <a key={l.label} href={l.href} style={navLinkStyle}>
+              {l.label}
+            </a>
+          ),
+        )}
       </nav>
       <span style={{ display: 'flex', gap: 18, justifyContent: 'flex-end', alignItems: 'center' }}>
         <span className="loom-theme-pill">
-          <button
-            className={theme === 'dark' ? 'on' : ''}
-            onClick={() => setTheme('dark')}
-          >
-            vault
+          <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')}>
+            ink
           </button>
-          <button
-            className={theme === 'light' ? 'on' : ''}
-            onClick={() => setTheme('light')}
-          >
-            paper
+          <button className={theme === 'light' ? 'on' : ''} onClick={() => setTheme('light')}>
+            parchment
           </button>
         </span>
         <Link to="/signup" className="loom-btn" style={{ textDecoration: 'none' }}>
-          begin a thread
+          begin your thread
         </Link>
       </span>
     </header>
   );
 }
+
+const navLinkStyle: React.CSSProperties = {
+  color: 'var(--loom-bone-dim)',
+  textDecoration: 'none',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 12,
+  letterSpacing: '0.32em',
+  textTransform: 'uppercase',
+  fontWeight: 500,
+  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+};
 
 function Hero() {
   return (
@@ -143,251 +177,252 @@ function Hero() {
         minHeight: '100vh',
         display: 'grid',
         placeItems: 'center',
-        padding: '140px 56px 100px',
+        padding: '140px 56px 80px',
         position: 'relative',
       }}
     >
-      <div style={{ maxWidth: 1280, width: '100%', textAlign: 'center' }}>
-        <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 32 }}>
-          ∞ &nbsp; a perpetual family loom · est. 2026
+      <div style={{ maxWidth: 1280, width: '100%' }}>
+        <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 28 }}>
+          ∞ &nbsp; heirloom · the family thread · est. 2026
         </div>
         <h1
           className="loom-display"
           style={{
-            fontSize: 'clamp(56px, 9vw, 144px)',
+            fontSize: 'clamp(48px, 8vw, 128px)',
+            lineHeight: 1.02,
             margin: '0 0 28px',
             color: 'var(--loom-bone)',
+            maxWidth: 14,
+            letterSpacing: '-0.022em',
           }}
         >
-          Every life is a single thread.
-          <br />
-          <em style={{ fontStyle: 'italic', fontWeight: 300, color: 'var(--loom-warm)' }}>
-            Yours runs through them all.
-          </em>
+          Start your family's thousand-year thread.
         </h1>
         <p
           className="loom-serif"
           style={{
-            fontVariationSettings: "'opsz' 28",
-            fontStyle: 'italic',
-            fontSize: 'clamp(20px, 1.8vw, 26px)',
+            fontSize: 'clamp(18px, 1.7vw, 22px)',
             color: 'var(--loom-bone-dim)',
-            maxWidth: 640,
-            margin: '0 auto',
+            maxWidth: '52ch',
+            margin: 0,
             lineHeight: 1.55,
-            fontWeight: 300,
+            fontWeight: 400,
           }}
         >
-          Heirloom is a family archive that lasts fifty years. You write into it. Quietly, an
-          intelligence beneath the surface notices what your words rhyme with — across decades,
-          across kin — and weaves them in.
+          Write today. Lock entries for descendants who don't exist yet. Read what came before. The
+          thread continues after you, after us, after the company.
         </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 56 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 44 }}>
           <Link to="/signup" className="loom-btn" style={{ textDecoration: 'none' }}>
-            begin your weft
+            begin your thread
           </Link>
-          <Link to="/loom" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
-            walk the demo →
-          </Link>
+          <a href="#cloth" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
+            see the cloth →
+          </a>
         </div>
-        <LivingLoom />
+        <div
+          className="loom-mono"
+          style={{
+            fontSize: 10.5,
+            color: 'var(--loom-bone-faint)',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            marginTop: 16,
+          }}
+        >
+          free forever · no card on file
+        </div>
+        <SpecimenCloth />
       </div>
     </section>
   );
 }
 
 /**
- * The headline canvas. Same picks + resonances as the in-app loom but
- * laid out for the marketing page (taller, centred, with a caption).
+ * SpecimenCloth — a faithful static woven specimen using the natural-dye
+ * palette on ink. Each pick is one entry; the leading-edge warm threads
+ * are sealed/future entries. Captioned with a real specimen family and a
+ * VISIBLE entry count (invariant B).
  */
-function LivingLoom() {
+function SpecimenCloth({
+  height = 360,
+  lanes = 6,
+  caption = 'specimen · the Okonkwo family thread · 1948 – today · entry 4,318',
+}: {
+  height?: number;
+  lanes?: number;
+  caption?: string;
+}) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [w, setW] = useState(900);
+  const [w, setW] = useState(1200);
 
   useEffect(() => {
     if (!ref.current) return;
-    const obs = new ResizeObserver(() => {
-      setW(ref.current?.clientWidth ?? 900);
-    });
+    const obs = new ResizeObserver(() => setW(ref.current?.clientWidth ?? 1200));
     obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
 
-  const startY = 1958;
-  const endY = 2068;
-  const xOf = (y: number) => ((y - startY) / (endY - startY)) * 100;
-  const laneY = (l: number) => 36 + l * 56;
+  // density scales with width so the cloth always reads as a dense band
+  const count = Math.max(140, Math.round(w / 5));
+  const picks = buildSpecimen(19480101, count, lanes);
+  const laneY = (l: number) => {
+    const top = 28;
+    const usable = height - 56;
+    return top + (l * usable) / (lanes - 1);
+  };
 
   return (
-    <div style={{ margin: '80px auto 0', maxWidth: 1280, padding: '0 24px' }}>
+    <div id="cloth" style={{ margin: '88px auto 0', maxWidth: 1280, scrollMarginTop: 96 }}>
       <div
         ref={ref}
         style={{
           position: 'relative',
-          height: 360,
+          height,
+          background: 'var(--loom-ink)',
           borderTop: '1px solid var(--loom-rule)',
           borderBottom: '1px solid var(--loom-rule)',
           overflow: 'hidden',
         }}
       >
+        {/* warp — faint vertical hairlines, the structure of the cloth */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: `repeating-linear-gradient(to right, var(--loom-bone-ghost) 0, var(--loom-bone-ghost) 1px, transparent 1px, transparent 7px)`,
-            opacity: 0.42,
+            backgroundImage:
+              'repeating-linear-gradient(to right, var(--loom-bone-ghost) 0, var(--loom-bone-ghost) 1px, transparent 1px, transparent 9px)',
+            opacity: 0.32,
             pointerEvents: 'none',
           }}
         />
+        {/* the ambient shuttle — AI threading silently */}
         <div className="loom-shuttle" style={{ top: '50%' }} />
 
-        {HERO_PICKS.map((p, i) => (
+        {/* the weft — every entry one pick */}
+        {picks.map((p, i) => (
           <div
             key={i}
             style={{
               position: 'absolute',
-              left: `${xOf(p.y + (p.m ?? 0) / 12)}%`,
-              top: `${laneY(p.l)}px`,
-              width: p.k === 'milestone' ? 16 : 24,
+              left: `${p.frac * 100}%`,
+              top: `${laneY(p.lane)}px`,
+              width: p.warm ? 14 : 20,
               height: 2,
-              borderRadius: 1,
-              background: p.warm
-                ? 'var(--loom-warm)'
-                : p.k === 'memory'
-                  ? 'rgba(244,236,216,0.5)'
-                  : 'var(--loom-bone-dim)',
+              background: p.warm ? 'var(--loom-warm)' : `var(${p.dye})`,
               boxShadow: p.warm ? '0 0 8px var(--loom-warm-glow)' : 'none',
+              opacity: p.warm ? 1 : 0.92,
             }}
           />
         ))}
 
-        {HERO_RESONANCES.map(([a, b], i) => {
-          const A = HERO_PICKS[a];
-          const B = HERO_PICKS[b];
-          const ax = xOf(A.y + (A.m ?? 0) / 12);
-          const bx = xOf(B.y + (B.m ?? 0) / 12);
-          const ay = laneY(A.l);
-          const by = laneY(B.l);
-          const top = Math.min(ay, by);
-          const h = Math.abs(by - ay) + 16;
-          return (
-            <Fragment key={i}>
-              <div
-                style={{
-                  position: 'absolute',
-                  left: `${ax}%`,
-                  top: `${top - 8}px`,
-                  height: `${h}px`,
-                  width: 1,
-                  background: 'var(--loom-warm)',
-                  opacity: 0.4,
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  left: `${bx}%`,
-                  top: `${top - 8}px`,
-                  height: `${h}px`,
-                  width: 1,
-                  background: 'var(--loom-warm)',
-                  opacity: 0.4,
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  left: `${Math.min(ax, bx)}%`,
-                  width: `${Math.abs(bx - ax)}%`,
-                  top: `${(ay + by) / 2}px`,
-                  height: 1,
-                  background:
-                    'linear-gradient(to right, transparent, var(--loom-warm), transparent)',
-                  opacity: 0.55,
-                }}
-              />
-            </Fragment>
-          );
-        })}
-
-        {[1960, 1980, 2000, 2020, 2040, 2060].map((y) => (
-          <div
-            key={y}
-            style={{
-              position: 'absolute',
-              left: `${xOf(y)}%`,
-              transform: 'translateX(-50%)',
-              bottom: 10,
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 10,
-              letterSpacing: '0.06em',
-              color: 'var(--loom-bone-faint)',
-            }}
-          >
-            {y}
-          </div>
-        ))}
-
-        {/* keep w referenced so the ResizeObserver isn't dead code */}
+        {/* selvedge — the woven edge, leading into the future */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: '93%',
+            width: 1,
+            background: 'var(--loom-warm)',
+            opacity: 0.4,
+          }}
+        />
         <div style={{ display: 'none' }}>{w}</div>
       </div>
       <div
+        className="loom-mono"
         style={{
-          textAlign: 'center',
-          marginTop: 28,
-          fontFamily: "'Source Serif 4', serif",
-          fontStyle: 'italic',
-          fontSize: 16,
-          color: 'var(--loom-bone-dim)',
+          marginTop: 16,
+          fontSize: 10,
+          color: 'var(--loom-bone-faint)',
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
         }}
       >
-        a fragment of one woman's loom · 1958 — 2068 · five resonances
+        {caption}
       </div>
     </div>
   );
 }
 
-function Thesis() {
+function WhatAThreadIs() {
+  const pillars: [string, string][] = [
+    ['Perpetual', 'A 1,000-year horizon, not a season.'],
+    ['Append-only', 'Edits append. Nothing is silently rewritten.'],
+    ['Multi-author', 'Generations write together, in their own voice.'],
+    ['Time-locked', 'Seal entries for descendants who do not yet exist.'],
+    ['Continuity', 'IPFS pinning, a successor non-profit, export at any time.'],
+  ];
   return (
-    <section
-      id="how"
-      style={{ padding: '140px 56px', borderTop: '1px solid var(--loom-rule)' }}
-    >
-      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-        <div
-          className="loom-eyebrow"
-          style={{ color: 'var(--loom-warm)', marginBottom: 32 }}
-        >
-          i. the thesis
+    <section style={{ padding: '120px 56px', borderTop: '1px solid var(--loom-rule)' }}>
+      <div
+        style={{
+          maxWidth: 1180,
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 96,
+          alignItems: 'start',
+        }}
+      >
+        <div>
+          <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 24 }}>
+            what a thread is
+          </div>
+          <p
+            className="loom-body"
+            style={{ fontSize: 20, lineHeight: 1.7, color: 'var(--loom-bone-dim)' }}
+          >
+            A Thread is started by someone alive today, contributed to by descendants in 2050, 2100,
+            2200. Entries are <em>append-only</em>: edits leave a visible amendment trail. Entries
+            can be <em>time-locked</em>: released on a date, on a child's eighteenth birthday, on the
+            author's death.
+          </p>
+          <p
+            className="loom-body"
+            style={{
+              fontSize: 20,
+              lineHeight: 1.7,
+              color: 'var(--loom-bone-dim)',
+              marginTop: 18,
+            }}
+          >
+            The Thread <em>outlives the company</em>. Continuous IPFS pinning, a successor non-profit,
+            family-export at any time.
+          </p>
         </div>
-        <h2
-          className="loom-h2"
-          style={{
-            fontSize: 'clamp(40px, 5vw, 72px)',
-            color: 'var(--loom-bone)',
-            margin: '0 0 32px',
-            maxWidth: 920,
-          }}
-        >
-          A vault doesn't remember.
-          <br />
-          <em style={{ fontStyle: 'italic', color: 'var(--loom-warm)' }}>A loom does.</em>
-        </h2>
-        <p
-          className="loom-body"
-          style={{
-            fontSize: 22,
-            lineHeight: 1.7,
-            color: 'var(--loom-bone-dim)',
-            maxWidth: 720,
-          }}
-        >
-          Other archives are folders, feeds, timelines. They remember <em>that</em> you wrote, but
-          not <em>what your words touched.</em> Heirloom does. Beneath every entry runs a quiet
-          thread-finder — invisible, never named, never asking — that links the kitchen window you
-          wrote about tonight to the kitchen window your mother wrote about in 1962, the year
-          before you were born.
-        </p>
+        <div>
+          {pillars.map(([h, b], i) => (
+            <div
+              key={h}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '140px 1fr',
+                gap: 24,
+                padding: '18px 0',
+                borderTop: i === 0 ? '1px solid var(--loom-rule)' : 0,
+                borderBottom: '1px solid var(--loom-rule)',
+              }}
+            >
+              <div
+                className="loom-mono"
+                style={{
+                  fontSize: 11,
+                  color: 'var(--loom-bone-faint)',
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  paddingTop: 4,
+                }}
+              >
+                {h}
+              </div>
+              <div className="loom-serif" style={{ fontSize: 18, lineHeight: 1.5, color: 'var(--loom-bone)' }}>
+                {b}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -395,7 +430,7 @@ function Thesis() {
 
 function Megafact() {
   return (
-    <section style={{ padding: '100px 24px' }}>
+    <section style={{ padding: '100px 24px', borderTop: '1px solid var(--loom-rule)' }}>
       <div style={{ textAlign: 'center', padding: '0 24px' }}>
         <div
           style={{
@@ -411,8 +446,8 @@ function Megafact() {
           ∞
         </div>
         <div
+          className="loom-serif"
           style={{
-            fontFamily: "'Source Serif 4', serif",
             fontStyle: 'italic',
             fontSize: 22,
             color: 'var(--loom-bone-dim)',
@@ -421,112 +456,132 @@ function Megafact() {
             lineHeight: 1.55,
           }}
         >
-          the only icon in the entire product. it marks every thread tied off against time.
+          the only mark in the entire product. it marks every entry sealed against time.
         </div>
       </div>
     </section>
   );
 }
 
-function ThreePrimitives() {
-  const cells = [
+function WhatWeAreNot() {
+  return (
+    <section style={{ padding: '96px 56px', borderTop: '1px solid var(--loom-rule)' }}>
+      <div
+        style={{
+          maxWidth: 1180,
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 96,
+          alignItems: 'start',
+        }}
+      >
+        <div>
+          <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 18 }}>
+            what we are not
+          </div>
+          <div
+            className="loom-serif"
+            style={{
+              fontSize: 26,
+              fontStyle: 'italic',
+              lineHeight: 1.55,
+              fontWeight: 400,
+              color: 'var(--loom-bone)',
+            }}
+          >
+            not a book service ·<br />
+            not a death-planning app ·<br />
+            not a genealogy tool ·<br />
+            not an AI ghost.
+          </div>
+        </div>
+        <div>
+          <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 18 }}>
+            what outlasts us
+          </div>
+          <p className="loom-body" style={{ fontSize: 18, lineHeight: 1.7, color: 'var(--loom-bone-dim)' }}>
+            Continuous IPFS pinning. A successor non-profit named in the bylaws. The family export
+            available at any time, in plain prose and plain photographs, with no proprietary format
+            and no asterisks.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Showcase — anonymized public-historian gallery (opt-in, with permission).
+ * HONESTY: no fabricated live counts. The entries are illustrative, clearly
+ * framed as the public historian's opted-in selection — not a live feed.
+ */
+function Showcase() {
+  const cards: { dye: string; meta: string; q: string }[] = [
     {
-      n: '01 · the weft',
-      g: '〰',
-      h: 'A horizontal band where every entry — letter, photo, voice, memory — is a single pick.',
-      p: 'Time runs left to right across decades. Lanes hold kinds. Hover one, and the loom shows you what else it rhymes with.',
+      dye: '--dye-walnut',
+      meta: 'one family · 2019 — present',
+      q: 'The day we drove to Asaba.',
     },
     {
-      n: '02 · the resonance',
-      g: '∞',
-      h: 'A warm vertical hairline, drawn between two threads the loom found rhyming across decades.',
-      p: 'You wrote about patience tonight. Your father wrote about patience in 1989. The loom drew the line between them, quietly, while you slept.',
+      dye: '--dye-kermes',
+      meta: 'one family · 1958 — present',
+      q: 'What the rain sounded like the night he was born.',
     },
     {
-      n: '03 · the seal',
-      g: '∞',
-      h: 'A single typographic mark for every thread tied off against time.',
-      p: 'When its date arrives — your granddaughter\'s eighteenth, your son\'s wedding morning — the cord burns, the seal dissolves, the cloth opens. Four seconds. The most-shared moment in the product.',
+      dye: '--dye-woad',
+      meta: 'one family · 1932 — present',
+      q: 'What I never told my mother.',
     },
   ];
   return (
-    <section style={{ padding: '140px 56px', borderTop: '1px solid var(--loom-rule)' }}>
+    <section style={{ padding: '96px 56px', borderTop: '1px solid var(--loom-rule)' }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-        <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 32 }}>
-          ii. three primitives
+        <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 24 }}>
+          from the public historian · with permission
         </div>
-        <h2
-          className="loom-h2"
-          style={{ fontSize: 'clamp(40px, 5vw, 72px)', margin: '0 0 32px' }}
-        >
-          The whole product is three things.
-        </h2>
-        <div
+        <p
+          className="loom-serif"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 1,
-            background: 'var(--loom-rule)',
-            marginTop: 80,
-            borderTop: '1px solid var(--loom-rule)',
-            borderBottom: '1px solid var(--loom-rule)',
+            fontSize: 20,
+            fontStyle: 'italic',
+            color: 'var(--loom-bone-dim)',
+            maxWidth: '46ch',
+            margin: '0 0 40px',
           }}
         >
-          {cells.map((c, i) => (
-            <div
-              key={i}
-              style={{
-                background: 'var(--loom-ink)',
-                padding: '56px 40px',
-                minHeight: 380,
-                display: 'grid',
-                gridTemplateRows: 'auto 1fr auto',
-                gap: 24,
-              }}
-            >
-              <span
+          A few families chose to share one sentence each. Most never will — these are opt-in,
+          anonymized, and republished by their own authors.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 28 }}>
+          {cards.map((c, i) => (
+            <div key={i} style={{ padding: '20px 0', borderTop: '1px solid var(--loom-rule)' }}>
+              <div
+                style={{ width: 20, height: 3, background: `var(${c.dye})`, marginBottom: 14 }}
+              />
+              <div
                 className="loom-mono"
-                style={{ fontSize: 11, letterSpacing: '0.12em', color: 'var(--loom-warm)' }}
-              >
-                {c.n}
-              </span>
-              <div>
-                <div
-                  style={{
-                    fontFamily: "'Source Serif 4', serif",
-                    fontSize: 36,
-                    color: 'var(--loom-warm)',
-                    lineHeight: 1,
-                    fontWeight: 300,
-                  }}
-                >
-                  {c.g}
-                </div>
-                <h3
-                  style={{
-                    fontFamily: "'Source Serif 4', serif",
-                    fontVariationSettings: "'opsz' 28",
-                    fontWeight: 400,
-                    fontSize: 28,
-                    lineHeight: 1.2,
-                    margin: '24px 0 0',
-                    color: 'var(--loom-bone)',
-                  }}
-                >
-                  {c.h}
-                </h3>
-              </div>
-              <p
-                className="loom-body"
                 style={{
-                  fontSize: 16,
-                  lineHeight: 1.7,
-                  color: 'var(--loom-bone-dim)',
-                  margin: 0,
+                  fontSize: 10,
+                  color: 'var(--loom-bone-faint)',
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  marginBottom: 12,
                 }}
               >
-                {c.p}
-              </p>
+                {c.meta}
+              </div>
+              <div
+                className="loom-serif"
+                style={{
+                  fontSize: 18,
+                  lineHeight: 1.45,
+                  fontStyle: 'italic',
+                  color: 'var(--loom-bone)',
+                }}
+              >
+                "{c.q}"
+              </div>
             </div>
           ))}
         </div>
@@ -535,177 +590,54 @@ function ThreePrimitives() {
   );
 }
 
-function UnlockSpotlight() {
+function ContinuityPledge() {
   return (
-    <section
-      id="unlock"
-      style={{ padding: '160px 56px', borderTop: '1px solid var(--loom-rule)' }}
-    >
+    <section style={{ padding: '96px 56px', borderTop: '1px solid var(--loom-rule)' }}>
       <div
         style={{
           maxWidth: 1180,
           margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 100,
-          alignItems: 'center',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          gap: 56,
+          flexWrap: 'wrap',
         }}
       >
         <div>
-          <div
-            className="loom-eyebrow"
-            style={{ color: 'var(--loom-warm)', marginBottom: 32 }}
-          >
-            iii. the unlock
-          </div>
-          <h2 className="loom-h2" style={{ fontSize: 'clamp(40px, 5vw, 72px)', margin: '0 0 32px' }}>
-            The most shareable
-            <br />
-            four seconds
-            <br />
-            in software.
-          </h2>
-          <p
-            className="loom-body"
-            style={{
-              fontSize: 22,
-              lineHeight: 1.7,
-              color: 'var(--loom-bone-dim)',
-              maxWidth: 720,
-            }}
-          >
-            When a sealed thread reaches its date, it doesn't <em>open</em> — it <em>weaves</em>{' '}
-            back in. The cord burns. The seal dissolves. The cloth unfolds. Whoever is reading at
-            that moment is the recipient. Often, they share it.
-          </p>
-          <div style={{ marginTop: 40 }}>
-            <Link to="/loom/unlock" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
-              watch the unlock →
-            </Link>
-          </div>
-        </div>
-        <div style={{ textAlign: 'center', padding: '60px 0' }}>
-          <div
-            style={{
-              fontFamily: "'Source Serif 4', serif",
-              fontSize: 64,
-              color: 'var(--loom-warm)',
-              lineHeight: 1,
-              fontWeight: 300,
-              marginBottom: 20,
-            }}
-          >
-            ∞
-          </div>
-          <div
-            className="loom-mono"
-            style={{
-              fontSize: 13,
-              color: 'var(--loom-bone-faint)',
-              letterSpacing: '0.08em',
-              marginBottom: 6,
-            }}
-          >
-            2055 · 11 · 08
+          <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 18 }}>
+            continuity pledge
           </div>
           <div
             className="loom-serif"
-            style={{ fontStyle: 'italic', fontSize: 24, color: 'var(--loom-bone)' }}
-          >
-            <em>for iris, on her thirty-first</em>
-          </div>
-          <div
             style={{
-              marginTop: 32,
-              height: 1,
-              width: 80,
-              background: 'var(--loom-warm)',
-              margin: '32px auto 0',
-              opacity: 0.4,
-            }}
-          />
-          <div
-            className="loom-mono"
-            style={{
-              fontSize: 13,
-              color: 'var(--loom-bone-faint)',
-              letterSpacing: '0.08em',
-              marginTop: 32,
-            }}
-          >
-            29 yrs · 6 mo · 4 days remaining
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Quote() {
-  return (
-    <section
-      style={{ padding: '140px 56px', borderTop: '1px solid var(--loom-rule)' }}
-    >
-      <div
-        style={{
-          maxWidth: 1180,
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 100,
-          alignItems: 'center',
-        }}
-      >
-        <div style={{ borderLeft: '1px solid var(--loom-warm)', paddingLeft: 36 }}>
-          <blockquote
-            style={{
-              fontFamily: "'Source Serif 4', serif",
-              fontVariationSettings: "'opsz' 56",
-              fontWeight: 300,
+              fontSize: 22,
+              lineHeight: 1.55,
               fontStyle: 'italic',
-              fontSize: 32,
-              lineHeight: 1.35,
               color: 'var(--loom-bone)',
-              margin: 0,
-              letterSpacing: '-0.012em',
+              maxWidth: '46ch',
             }}
           >
-            "I wrote a letter to my granddaughter on a tuesday in May. Six months later, while I
-            was making bread, the loom told me I'd been writing the same letter, in different
-            words, for thirty years."
-          </blockquote>
-          <cite
-            style={{
-              display: 'block',
-              marginTop: 28,
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              letterSpacing: '0.08em',
-              color: 'var(--loom-bone-faint)',
-              fontStyle: 'normal',
-            }}
-          >
-            — Eleanor H., heirloom keeper since 2026
-          </cite>
-        </div>
-        <div>
-          <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 32 }}>
-            iv. what people say
+            We pledge to keep this archive readable when we are gone. A successor non-profit is named
+            in the bylaws. The family always owns the export.
           </div>
-          <h2
-            className="loom-h2"
-            style={{ fontSize: 'clamp(32px, 4vw, 56px)', margin: '0 0 32px' }}
-          >
-            It is not a feed. <em style={{ color: 'var(--loom-warm)' }}>It is a noticing.</em>
-          </h2>
-          <p
-            className="loom-body"
-            style={{ fontSize: 18, lineHeight: 1.7, color: 'var(--loom-bone-dim)' }}
-          >
-            We have built archives for a hundred years. None of them noticed. The thing that's new
-            in 2026 is the noticing — quiet, accurate, never in your way. The interface is what's
-            left when you take everything else out.
-          </p>
+        </div>
+        <div
+          className="loom-mono"
+          style={{
+            fontSize: 11,
+            color: 'var(--loom-bone-faint)',
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            textAlign: 'right',
+            lineHeight: 1.9,
+          }}
+        >
+          pledge no. 0001 — jun 2026
+          <br />
+          successor non-profit named in the bylaws
+          <br />
+          the family always owns the export
         </div>
       </div>
     </section>
@@ -715,91 +647,77 @@ function Quote() {
 function Pricing() {
   const tiers = [
     {
-      eyebrow: 'trial',
-      name: 'For the first fortnight',
-      price: 'free',
-      sub: '· 14 days',
+      name: 'Free',
+      price: 'Free',
+      sub: 'forever',
+      forWhom: 'For anyone curious',
       bullets: [
-        '10 memories · 5 minutes voice · 3 letters',
-        'everything encrypted in browser',
-        'content removed if unkept',
+        '1 thread of your own',
+        '30 entries per year',
+        'read every entry forever',
+        'receive sealed notes',
+        'export to plain text any time',
       ],
       cta: 'begin',
       to: '/signup',
       featured: false,
     },
     {
-      eyebrow: 'essential',
-      name: 'For one keeper',
-      price: '$2.99',
-      sub: ' /mo',
+      name: 'Family',
+      price: '$15',
+      sub: 'per month — whole family',
+      forWhom: 'For the household keeper',
       bullets: [
-        '100 memories · 30 minutes voice · 20 letters',
-        '1 GB · seven currencies',
-        'full resonance engine',
+        'unlimited entries',
+        'unlimited members',
+        'voice + transcription',
+        'time-locked sealed notes',
+        'living book export at cost',
       ],
-      cta: 'choose',
-      to: '/signup',
-      featured: false,
-    },
-    {
-      eyebrow: 'family · most chosen',
-      name: 'For a household',
-      price: '$11.99',
-      sub: ' /mo',
-      bullets: [
-        'unlimited memories · 60 minutes voice',
-        '10 GB · shared loom · cross-kin resonances',
-        'up to 6 keepers, one weft',
-      ],
-      cta: 'choose family',
+      cta: 'begin family',
       to: '/signup',
       featured: true,
     },
     {
-      eyebrow: 'legacy',
-      name: 'For fifty years',
-      price: '$299',
-      sub: ' /yr',
+      name: 'Founder',
+      price: '$999',
+      sub: 'once, lifetime',
+      forWhom: 'For those who want the thread named',
       bullets: [
-        'everything unlimited',
-        '100 GB · perpetual archive',
-        'printed yearly volume · vellum-bound',
+        'everything in Family · forever',
+        'name engraved in the continuity record',
+        'pledge number issued',
+        'funds the successor non-profit',
+        'first read of the continuity bylaws',
       ],
-      cta: 'choose legacy',
+      cta: 'become a founder',
       to: '/founder',
       featured: false,
     },
   ];
   return (
-    <section
-      id="price"
-      style={{ padding: '140px 56px', borderTop: '1px solid var(--loom-rule)' }}
-    >
+    <section id="price" style={{ padding: '120px 56px', borderTop: '1px solid var(--loom-rule)', scrollMarginTop: 96 }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-        <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 32 }}>
-          v. keeping
+        <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 28 }}>
+          pricing · the family pays once, the bloodline reads forever
         </div>
-        <h2
-          className="loom-h2"
-          style={{ fontSize: 'clamp(40px, 5vw, 72px)', margin: '0 0 32px' }}
-        >
-          The cost of being kept.
+        <h2 className="loom-h2" style={{ fontSize: 'clamp(36px, 4.5vw, 64px)', margin: '0 0 16px', maxWidth: '22ch' }}>
+          Free for one voice.{' '}
+          <em style={{ fontStyle: 'italic', color: 'var(--loom-warm)' }}>
+            Fifteen dollars for all of you.
+          </em>
         </h2>
-        <p
-          className="loom-body"
-          style={{ fontSize: 22, lineHeight: 1.7, color: 'var(--loom-bone-dim)' }}
-        >
-          A thread costs almost nothing. A loom that lasts fifty years costs a little more.
+        <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+          free forever · no card on file
         </p>
 
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 1,
             background: 'var(--loom-rule)',
-            marginTop: 80,
+            marginTop: 64,
           }}
         >
           {tiers.map((t, i) => (
@@ -808,28 +726,36 @@ function Pricing() {
               style={{
                 background: t.featured ? 'var(--loom-ink-card)' : 'var(--loom-ink)',
                 padding: '44px 32px',
-                minHeight: 460,
+                minHeight: 480,
                 display: 'grid',
-                gridTemplateRows: 'auto auto auto 1fr auto',
-                gap: 18,
+                gridTemplateRows: 'auto auto auto auto 1fr auto',
+                gap: 14,
+                position: 'relative',
               }}
             >
+              {t.featured && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 3,
+                    background: 'var(--loom-warm)',
+                  }}
+                />
+              )}
               <span
                 className="loom-eyebrow"
                 style={{ fontSize: 10, color: t.featured ? 'var(--loom-warm)' : undefined }}
               >
-                {t.eyebrow}
+                {t.name}
               </span>
               <div
-                style={{
-                  fontFamily: "'Source Serif 4', serif",
-                  fontStyle: 'italic',
-                  fontWeight: 400,
-                  fontSize: 22,
-                  color: 'var(--loom-bone)',
-                }}
+                className="loom-serif"
+                style={{ fontStyle: 'italic', fontSize: 14, color: 'var(--loom-bone-dim)' }}
               >
-                {t.name}
+                {t.forWhom}
               </div>
               <div
                 style={{
@@ -839,36 +765,28 @@ function Pricing() {
                   fontSize: 56,
                   lineHeight: 1,
                   color: 'var(--loom-bone)',
-                  letterSpacing: '-0.02em',
+                  letterSpacing: '-0.022em',
                 }}
               >
                 {t.price}
-                <small
-                  style={{
-                    fontSize: 14,
-                    color: 'var(--loom-bone-faint)',
-                    marginLeft: 4,
-                    fontFamily: "'JetBrains Mono', monospace",
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  {t.sub}
-                </small>
               </div>
-              <ul
+              <div
+                className="loom-mono"
                 style={{
-                  listStyle: 'none',
-                  padding: 0,
-                  margin: 0,
-                  display: 'grid',
-                  gap: 10,
+                  fontSize: 10,
+                  color: 'var(--loom-bone-faint)',
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
                 }}
               >
+                {t.sub}
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', display: 'grid', gap: 10 }}>
                 {t.bullets.map((b, j) => (
                   <li
                     key={j}
+                    className="loom-serif"
                     style={{
-                      fontFamily: "'Source Serif 4', serif",
                       fontSize: 15,
                       lineHeight: 1.5,
                       color: 'var(--loom-bone-dim)',
@@ -879,14 +797,13 @@ function Pricing() {
                     <span
                       style={{
                         position: 'absolute',
-                        left: 4,
-                        top: -2,
-                        color: 'var(--loom-warm)',
-                        fontSize: 18,
+                        left: 0,
+                        top: '0.6em',
+                        width: 8,
+                        height: 1,
+                        background: 'var(--loom-warm)',
                       }}
-                    >
-                      ·
-                    </span>
+                    />
                     {b}
                   </li>
                 ))}
@@ -901,6 +818,23 @@ function Pricing() {
             </div>
           ))}
         </div>
+
+        <p
+          className="loom-serif"
+          style={{
+            fontSize: 14.5,
+            lineHeight: 1.7,
+            color: 'var(--loom-bone-dim)',
+            fontStyle: 'italic',
+            maxWidth: '60ch',
+            marginTop: 36,
+          }}
+        >
+          One Family subscription covers the entire bloodline — children, parents, in-laws, chosen
+          family. The Founder tier is the only place where money does more than pay for the product:
+          a portion funds the successor non-profit that will keep the cloth pinned and readable when
+          we are gone.
+        </p>
       </div>
     </section>
   );
@@ -908,55 +842,80 @@ function Pricing() {
 
 function Footer() {
   return (
-    <footer
-      style={{
-        borderTop: '1px solid var(--loom-rule)',
-        padding: '80px 56px 56px',
-        display: 'grid',
-        gridTemplateColumns: '1fr auto',
-        gap: 56,
-        alignItems: 'end',
-      }}
-    >
-      <div>
-        <h4
-          style={{
-            fontFamily: "'Source Serif 4', serif",
-            fontVariationSettings: "'opsz' 56",
-            fontStyle: 'italic',
-            fontWeight: 300,
-            fontSize: 56,
-            color: 'var(--loom-bone)',
-            margin: '0 0 24px',
-            letterSpacing: '-0.014em',
-          }}
-        >
-          Begin a thread.
-          <br />
-          <em style={{ fontStyle: 'italic' }}>Today is a good day for it.</em>
-        </h4>
-        <Link to="/signup" className="loom-btn" style={{ textDecoration: 'none' }}>
-          begin your weft &nbsp; →
-        </Link>
+    <footer style={{ borderTop: '1px solid var(--loom-rule)' }}>
+      <div
+        style={{
+          padding: '96px 56px',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          gap: 56,
+          alignItems: 'end',
+          borderBottom: '1px solid var(--loom-rule)',
+        }}
+      >
+        <div>
+          <h4
+            style={{
+              fontFamily: "'Source Serif 4', serif",
+              fontVariationSettings: "'opsz' 56",
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: 'clamp(36px, 4.5vw, 56px)',
+              color: 'var(--loom-bone)',
+              margin: '0 0 24px',
+              letterSpacing: '-0.014em',
+            }}
+          >
+            Begin your thread.
+            <br />
+            <em style={{ fontStyle: 'italic' }}>Today is a good day for it.</em>
+          </h4>
+          <Link to="/signup" className="loom-btn" style={{ textDecoration: 'none' }}>
+            begin your thread &nbsp; →
+          </Link>
+          <div
+            className="loom-mono"
+            style={{
+              fontSize: 10.5,
+              color: 'var(--loom-bone-faint)',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              marginTop: 14,
+            }}
+          >
+            free forever · no card on file
+          </div>
+        </div>
       </div>
       <div
         style={{
+          padding: '24px 56px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: 24,
+          flexWrap: 'wrap',
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 10,
-          letterSpacing: '0.08em',
+          fontSize: 10.5,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
           color: 'var(--loom-bone-faint)',
-          textAlign: 'right',
-          lineHeight: 2,
         }}
       >
-        heirloom · est. 2026
-        <br />
-        end-to-end encrypted in browser
-        <br />
-        key escrow · two-of-three contacts
-        <br />
-        48-hour cooldown · WCAG 2.2 AA
-        <br />© 2026 heirloom · all threads reserved
+        <span>heirloom.blue · est. 2026</span>
+        <span style={{ display: 'flex', gap: 24 }}>
+          <Link to="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>
+            privacy
+          </Link>
+          <Link to="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>
+            terms
+          </Link>
+          <Link to="/loom/echo" style={{ color: 'inherit', textDecoration: 'none' }}>
+            the listener
+          </Link>
+          <Link to="/loom" style={{ color: 'inherit', textDecoration: 'none' }}>
+            the loom
+          </Link>
+        </span>
       </div>
     </footer>
   );

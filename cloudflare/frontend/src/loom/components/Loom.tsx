@@ -20,14 +20,25 @@ import { Fragment } from 'react';
 
 export type LoomKind = 'letter' | 'photo' | 'voice' | 'memory' | 'milestone';
 
+/**
+ * The 10-stop natural-dye palette is the ONLY sanctioned chroma in the
+ * app, and ONLY inside woven threads. Each entry's weft pick is dyed by
+ * its kind (or by an explicit `dye` override) so the cloth reads as
+ * coloured cloth, not bone-on-ink hairlines. Tokens live in globals.css.
+ */
+export type LoomDye =
+  | 'madder' | 'cochineal' | 'kermes' | 'saffron' | 'weld'
+  | 'walnut' | 'oakgall' | 'woad' | 'indigo' | 'iron';
+
 export interface LoomEntry {
   year: number;
   month?: number;        // 1–12
   lane: number;          // 0–4 typical
   kind: LoomKind;
-  locked?: boolean;
+  locked?: boolean;      // sealed / tied off — renders as a tethered ∞ peg
   title?: string;
   width?: number;        // px override for the pick
+  dye?: LoomDye;         // explicit dye override; otherwise keyed off kind
 }
 
 export interface LoomLigature {
@@ -47,16 +58,38 @@ interface LoomProps {
   showLigatures?: boolean;
   showYears?: boolean;
   ambientShuttle?: boolean;
+  /** warm "where we are now" hairline at this year (e.g. the present). */
+  nowYear?: number;
+  /**
+   * The always-visible append-only count (invariant B). When supplied,
+   * the woven-entry count rides the selvedge as a mono label. Pass the
+   * real count of woven (un-sealed) entries.
+   */
+  appendCount?: number;
 }
 
-function colorFor(kind: LoomKind): string {
-  switch (kind) {
-    case 'letter':    return 'var(--loom-bone)';
-    case 'photo':     return 'rgba(244,236,216,0.78)';
-    case 'voice':     return 'rgba(244,236,216,0.62)';
-    case 'memory':    return 'rgba(244,236,216,0.50)';
-    case 'milestone': return 'var(--loom-warm-bright)';
-  }
+/**
+ * Dye a weft pick by kind. The cloth carries dye chroma (the palette's
+ * only sanctioned home); milestones stay warm. An explicit `entry.dye`
+ * overrides the kind default.
+ */
+const DYE_FOR_KIND: Record<LoomKind, string> = {
+  letter:    'var(--dye-walnut)',
+  photo:     'var(--dye-saffron)',
+  voice:     'var(--dye-woad)',
+  memory:    'var(--dye-indigo)',
+  milestone: 'var(--loom-warm-bright)',
+};
+
+function colorFor(e: LoomEntry): string {
+  if (e.dye) return `var(--dye-${e.dye})`;
+  return DYE_FOR_KIND[e.kind];
+}
+
+/** Deterministic 0..1 jitter so the same thread renders identically. */
+function jitter(seed: number): number {
+  const t = Math.sin(seed * 12.9898) * 43758.5453;
+  return t - Math.floor(t);
 }
 
 export function Loom({
@@ -70,6 +103,8 @@ export function Loom({
   showLigatures = true,
   showYears = true,
   ambientShuttle = true,
+  nowYear,
+  appendCount,
 }: LoomProps) {
   const span = endYear - startYear;
   const yearToX = (y: number) => ((y - startYear) / span) * 100;
@@ -80,26 +115,112 @@ export function Loom({
     if (y % 5 === 0) yearTicks.push(y);
   }
 
+  // irregular hand-woven warp — a stack of vertical hairlines, each with
+  // its own jittered position and alpha, so the warp doesn't read as a
+  // flat repeating CSS fill.
+  const warpEvery = 7; // px
+  const warpCount = 180; // capped; the band scales to 100% width regardless
+  const warps: { left: number; alpha: number }[] = [];
+  for (let k = 0; k < warpCount; k += 1) {
+    const base = (k * warpEvery) / (warpCount * warpEvery);
+    const j = jitter(k * 1.7 + 3);
+    warps.push({
+      left: (base + (j - 0.5) * 0.0008) * 100,
+      alpha: 0.04 + jitter(k * 2.3 + 1) * 0.06,
+    });
+  }
+
+  // the warm "now" hairline position (invariant where-am-I marker)
+  const nowFrac =
+    nowYear != null ? Math.max(0, Math.min(1, (nowYear - startYear) / span)) : null;
+
+  // the selvedge sits at the present (or the far edge of the window)
+  const selvedgeLeft = (nowFrac ?? 1) * 100;
+
   return (
     <div className="loom-weft" style={{ width: '100%', height }}>
-      <div className="loom-weft__warp" />
+      {/* irregular warp — jittered vertical hairlines, not a flat fill */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        {warps.map((wp, k) => (
+          <div
+            key={k}
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              left: `${wp.left}%`,
+              width: 1,
+              background: `rgba(244,236,216,${wp.alpha.toFixed(3)})`,
+            }}
+          />
+        ))}
+      </div>
 
       {entries.map((e, i) => {
         const x = yearToX(e.year + (e.month ?? 0) / 12);
         const y = laneToY(e.lane);
-        const w = e.width ?? (e.kind === 'milestone' ? 18 : 28);
         const lit = highlight === i;
+
+        // sealed / tied-off entries are NOT a flat weft pick — they hover
+        // above their future seal position as a tethered ∞ peg (artboard).
+        if (e.locked) {
+          const pegTop = 4;
+          return (
+            <div
+              key={i}
+              onMouseEnter={() => onHover?.(i)}
+              onMouseLeave={() => onHover?.(null)}
+              title={e.title}
+              style={{
+                position: 'absolute',
+                left: `${x}%`,
+                top: pegTop,
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                cursor: 'pointer',
+                zIndex: 2,
+              }}
+            >
+              <span
+                className="loom-serif"
+                style={{
+                  fontSize: 14,
+                  lineHeight: 1,
+                  color: 'var(--loom-warm)',
+                  opacity: lit ? 1 : 0.85,
+                  transition: 'opacity var(--loom-dur-fast) var(--loom-ease)',
+                }}
+              >
+                ∞
+              </span>
+              {/* dashed tether down to the seal's lane position */}
+              <span
+                style={{
+                  width: 1,
+                  height: Math.max(8, y - pegTop - 6),
+                  background:
+                    'repeating-linear-gradient(to bottom, var(--loom-rule-warm) 0, var(--loom-rule-warm) 2px, transparent 2px, transparent 6px)',
+                  opacity: lit ? 0.9 : 0.5,
+                }}
+              />
+            </div>
+          );
+        }
+
+        const w = e.width ?? (e.kind === 'milestone' ? 18 : 28);
         return (
           <div
             key={i}
-            className={'loom-weft__pick' + (e.locked ? ' is-locked' : '')}
+            className="loom-weft__pick"
             onMouseEnter={() => onHover?.(i)}
             onMouseLeave={() => onHover?.(null)}
             style={{
               left: `${x}%`,
               top: `${y}px`,
               width: `${w}px`,
-              background: e.locked ? undefined : colorFor(e.kind),
+              background: colorFor(e),
               opacity: lit ? 1 : e.kind === 'memory' ? 0.6 : 0.85,
               height: lit ? 4 : 2,
             }}
@@ -152,6 +273,54 @@ export function Loom({
             {y}
           </span>
         ))}
+
+      {/* the warm "now" hairline — where the present sits on the cloth */}
+      {nowFrac != null ? (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: `${nowFrac * 100}%`,
+            width: 1,
+            background: 'var(--loom-warm)',
+            opacity: 0.9,
+            pointerEvents: 'none',
+          }}
+        />
+      ) : null}
+
+      {/* the selvedge + the always-visible append-only count (invariant B) */}
+      {appendCount != null ? (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: -2,
+            bottom: -2,
+            left: `${selvedgeLeft}%`,
+            width: 1,
+            background: 'var(--loom-rule)',
+            pointerEvents: 'none',
+          }}
+        >
+          <span
+            className="loom-mono"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 6,
+              fontSize: 9,
+              letterSpacing: '0.18em',
+              whiteSpace: 'nowrap',
+              color: 'var(--loom-warm)',
+            }}
+          >
+            ∞ {String(appendCount).padStart(3, '0')} woven
+          </span>
+        </div>
+      ) : null}
 
       {ambientShuttle ? <div className="loom-shuttle" style={{ top: '44%' }} /> : null}
     </div>

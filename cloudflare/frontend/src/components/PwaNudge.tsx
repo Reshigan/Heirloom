@@ -107,16 +107,18 @@ export function PwaNudge() {
 
   const copy = {
     install: {
-      eyebrow: 'Keep it close',
-      title: 'Install Heirloom',
-      body: 'Add the thread to your home screen — it opens full-screen, works offline, and is one tap from the next entry.',
+      eyebrow: 'Install on your phone',
+      title: 'Keep the thread one tap away',
+      body: 'Add Heirloom to your home screen — it opens full-screen, works offline, and is one tap from the next entry.',
+      reassurance: 'offline · daily prompt · no notifications until you ask',
       action: 'Install',
       run: onInstall,
     },
     ios: {
-      eyebrow: 'Keep it close',
-      title: 'Add to your home screen',
-      body: 'Tap the Share control, then “Add to Home Screen.” The thread opens full-screen, one tap from the next entry.',
+      eyebrow: 'Install on your phone',
+      title: 'Keep the thread one tap away',
+      body: 'Tap Share, then “Add to Home Screen.” The thread opens full-screen, one tap from the next entry.',
+      reassurance: 'offline · daily prompt · no notifications until you ask',
       action: null,
       run: undefined,
     },
@@ -124,6 +126,7 @@ export function PwaNudge() {
       eyebrow: 'Stay in the thread',
       title: 'Turn on thread reminders',
       body: 'A quiet nudge when it’s your turn to add, or when a sealed entry unlocks. No noise — only the thread.',
+      reassurance: null as string | null,
       action: 'Enable',
       run: onEnableNotify,
     },
@@ -207,6 +210,23 @@ export function PwaNudge() {
                 not now
               </button>
             </div>
+
+            {copy.reassurance ? (
+              <p
+                className="loom-mono"
+                style={{
+                  marginTop: 16,
+                  paddingTop: 12,
+                  borderTop: '1px solid var(--loom-rule)',
+                  fontSize: 9.5,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--loom-bone-faint)',
+                }}
+              >
+                {copy.reassurance}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

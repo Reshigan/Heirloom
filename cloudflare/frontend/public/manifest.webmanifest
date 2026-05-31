@@ -22,16 +22,16 @@
   ],
   "shortcuts": [
     {
-      "name": "Add an entry",
+      "name": "Write tonight's entry",
       "short_name": "Write",
-      "description": "Add a new entry to your family thread",
-      "url": "/compose?source=pwa-shortcut"
+      "description": "Add a new weft thread to your family cloth",
+      "url": "/loom/compose?source=pwa-shortcut"
     },
     {
-      "name": "Your threads",
-      "short_name": "Threads",
-      "description": "Open the threads you belong to",
-      "url": "/threads?source=pwa-shortcut"
+      "name": "Open the cloth",
+      "short_name": "Cloth",
+      "description": "Pan the woven tapestry of your family thread",
+      "url": "/loom/weft?source=pwa-shortcut"
     }
   ]
 }

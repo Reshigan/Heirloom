@@ -152,7 +152,7 @@ export function Record() {
     <AppFrame>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         <p className="loom-eyebrow" style={{ marginBottom: 18, color: 'var(--loom-warm)' }}>
-          ∿ &nbsp; voice · in your own voice
+          ∞ &nbsp; voice · in your own voice
         </p>
         <ComposerModes active="speak" />
 
@@ -195,7 +195,7 @@ export function Record() {
                 inset: 0,
                 border: '1px solid var(--loom-bone-dim)',
                 borderRadius: '50%',
-                animation: recordingState === 'recording' ? 'loom-breathe 2.6s ease-in-out infinite' : 'none',
+                animation: recordingState === 'recording' ? 'loom-breathe 1400ms var(--loom-ease) infinite' : 'none',
               }}
             />
             <span
@@ -204,7 +204,7 @@ export function Record() {
                 inset: 22,
                 border: '1px solid var(--loom-bone-ghost)',
                 borderRadius: '50%',
-                animation: recordingState === 'recording' ? 'loom-breathe 2.6s ease-in-out infinite 0.3s' : 'none',
+                animation: recordingState === 'recording' ? 'loom-breathe 1400ms var(--loom-ease) infinite 360ms' : 'none',
               }}
             />
             <span
@@ -214,7 +214,7 @@ export function Record() {
                 border: '1px solid var(--loom-bone-faint)',
                 borderRadius: '50%',
                 opacity: 0.5,
-                animation: recordingState === 'recording' ? 'loom-breathe 2.6s ease-in-out infinite 0.6s' : 'none',
+                animation: recordingState === 'recording' ? 'loom-breathe 1400ms var(--loom-ease) infinite 720ms' : 'none',
               }}
             />
             <span

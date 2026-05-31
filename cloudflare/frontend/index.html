@@ -44,6 +44,51 @@
     <meta name="twitter:image" content="https://heirloom.blue/og-image.png" />
   </head>
   <body>
+    <!-- Cold-boot splash — shown before React hydrates so a standalone
+         (home-screen) launch never flashes a blank #0e0e0c. ∞ on ink, a
+         hairline warm progress bar, Source Serif 4. No gradient glow.
+         Removed by main.tsx (or auto-fades) once the app mounts. -->
+    <style>
+      #hl-splash {
+        position: fixed; inset: 0; z-index: 2147483647;
+        background: #0e0e0c; color: #f4ecd8;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        font-family: 'Source Serif 4', Georgia, serif; -webkit-font-smoothing: antialiased;
+        transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      #hl-splash[data-leaving] { opacity: 0; pointer-events: none; }
+      #hl-splash .hl-splash-mark { font-size: 64px; line-height: 1; font-weight: 300; color: #b07a4a; }
+      #hl-splash .hl-splash-word { margin-top: 22px; font-size: 22px; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: rgba(244, 236, 216, 0.55); }
+      #hl-splash .hl-splash-track { position: absolute; bottom: 96px; left: 20%; right: 20%; height: 1px; background: rgba(176, 122, 74, 0.18); overflow: hidden; }
+      #hl-splash .hl-splash-fill { height: 1px; width: 30%; background: #b07a4a; animation: hl-splash-shuttle 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+      #hl-splash .hl-splash-label { position: absolute; bottom: 64px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(244, 236, 216, 0.32); }
+      @keyframes hl-splash-shuttle { 0% { transform: translateX(-110%); } 100% { transform: translateX(440%); } }
+      @media (prefers-reduced-motion: reduce) {
+        #hl-splash .hl-splash-fill { animation: none; width: 62%; }
+        #hl-splash { transition: none; }
+      }
+    </style>
+    <div id="hl-splash" aria-hidden="true">
+      <div class="hl-splash-mark">∞</div>
+      <div class="hl-splash-word">Heirloom</div>
+      <div class="hl-splash-track"><div class="hl-splash-fill"></div></div>
+      <div class="hl-splash-label">opening your cloth</div>
+    </div>
+    <script>
+      // Fade the splash once the app has had a tick to paint. main.tsx
+      // also removes #hl-splash on mount; this is the safety net so the
+      // splash never lingers if hydration is instant or scripting stalls.
+      (function () {
+        function leave() {
+          var s = document.getElementById('hl-splash');
+          if (!s) return;
+          s.setAttribute('data-leaving', '');
+          setTimeout(function () { if (s && s.parentNode) s.parentNode.removeChild(s); }, 420);
+        }
+        window.__hlSplashLeave = leave;
+        window.addEventListener('load', function () { setTimeout(leave, 600); });
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

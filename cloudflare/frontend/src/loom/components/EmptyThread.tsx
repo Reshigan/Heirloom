@@ -40,7 +40,8 @@ export function EmptyThread({
         <span style={{ color: 'var(--loom-warm)' }}>·</span> the loom &nbsp;·&nbsp; founded today
       </div>
 
-      {/* warp only — no weft yet */}
+      {/* warp only — no weft yet. The append-only count is 0 but still
+          present (invariant B): the counter exists from the first session. */}
       <div style={{ position: 'relative', opacity: 0.5 }}>
         <Loom
           entries={[]}
@@ -49,6 +50,7 @@ export function EmptyThread({
           height={220}
           showLigatures={false}
           ambientShuttle={false}
+          appendCount={0}
         />
       </div>
 
@@ -111,7 +113,7 @@ export function EmptyThread({
           }}
         >
           <button type="button" className="loom-btn" onClick={onWeave}>
-            weave the first thread →
+            weave the first thread
           </button>
           <span
             className="loom-mono"

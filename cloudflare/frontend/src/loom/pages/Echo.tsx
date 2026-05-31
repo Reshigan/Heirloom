@@ -284,54 +284,59 @@ function Mark({ children, on }: { children: ReactNode; on: boolean }) {
   );
 }
 
+/**
+ * The braid — three hairline dye strands running between the two letters.
+ * No SVG (§2.6): the braid is achieved with 1px DOM rules — thin warm
+ * verticals that draw to full height and warm on match, plus a dashed
+ * spine — so the resonance reads as woven thread, not a chart graphic.
+ */
 function Braid({ matched }: { matched: boolean }) {
+  const ease = 'cubic-bezier(0.16,1,0.3,1)';
   return (
-    <svg
-      width="80"
-      height="100%"
-      viewBox="0 0 80 400"
-      preserveAspectRatio="none"
+    <div
+      aria-hidden
       style={{
-        opacity: matched ? 0.85 : 0.18,
-        transition: 'opacity 1400ms cubic-bezier(0.16,1,0.3,1)',
+        position: 'relative',
+        width: 80,
+        height: '100%',
+        opacity: matched ? 0.85 : 0.22,
+        transition: `opacity 1400ms ${ease}`,
       }}
     >
-      {[0, 1, 2, 3, 4, 5].map((i) => {
-        const offset = i * 70;
-        return (
-          <path
-            key={i}
-            d={`M 0 ${offset} C 80 ${offset + 20}, 0 ${offset + 50}, 80 ${offset + 70}`}
-            stroke="var(--loom-warm)"
-            strokeWidth="1"
-            fill="none"
-            opacity={matched ? 0.6 : 0.3}
-          />
-        );
-      })}
-      <line
-        x1="40"
-        y1="0"
-        x2="40"
-        y2="400"
-        stroke="var(--loom-warm)"
-        strokeWidth="1"
-        opacity="0.6"
-        strokeDasharray="2 4"
+      {/* dashed spine — the warp the strands cross */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 'calc(50% - 0.5px)',
+          top: 0,
+          bottom: 0,
+          width: 1,
+          backgroundImage:
+            'repeating-linear-gradient(to bottom, var(--loom-warm) 0 2px, transparent 2px 6px)',
+          opacity: 0.6,
+        }}
       />
-      {matched
-        ? [80, 200, 320].map((y, i) => (
-            <circle key={i} cx="40" cy={y} r="3" fill="var(--loom-warm-bright)">
-              <animate
-                attributeName="r"
-                values="3;5;3"
-                dur="2.4s"
-                begin={`${i * 0.4}s`}
-                repeatCount="indefinite"
-              />
-            </circle>
-          ))
-        : null}
-    </svg>
+      {/* three dye strands — offset verticals that grow + warm on match */}
+      {[
+        { left: '26%', dye: 'var(--dye-indigo)', delay: '0ms' },
+        { left: '50%', dye: 'var(--loom-warm)', delay: '180ms' },
+        { left: '74%', dye: 'var(--dye-madder)', delay: '360ms' },
+      ].map((s, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: `calc(${s.left} - 0.5px)`,
+            top: 0,
+            width: 1,
+            height: matched ? '100%' : '0%',
+            background: matched ? s.dye : 'var(--loom-warm)',
+            opacity: matched ? 0.7 : 0.35,
+            transition: `height 1400ms ${ease}, opacity 1400ms ${ease}, background 1400ms ${ease}`,
+            transitionDelay: s.delay,
+          }}
+        />
+      ))}
+    </div>
   );
 }

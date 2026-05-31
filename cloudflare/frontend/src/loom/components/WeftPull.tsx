@@ -30,6 +30,8 @@ const OPEN_INDICES = ELEANOR_ENTRIES
   .filter(({ e }) => !e.locked)
   .map(({ i }) => i);
 
+const WOVEN_COUNT = ELEANOR_ENTRIES.filter((e) => !e.locked).length;
+
 export function WeftPull() {
   // start on the daffodils thread if present, else the first open one
   const startAt = OPEN_INDICES.indexOf(7);
@@ -48,6 +50,22 @@ export function WeftPull() {
         if (Math.abs(ev.deltaY) > 24) go(ev.deltaY > 0 ? 1 : -1);
       }}
     >
+      {/* eased thread-to-thread transition (720ms, the one curve). The
+          keyed content remounts on paging, so a mount animation carries
+          the easing rather than a CSS transition (which can't fire on a
+          fresh node). */}
+      <style>{`
+        .weftpull-thread {
+          animation: weftpull-in var(--loom-dur-veil) var(--loom-ease);
+        }
+        @keyframes weftpull-in {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .weftpull-thread { animation: none; }
+        }
+      `}</style>
       {/* dim cloth as wallpaper */}
       <div style={{ position: 'absolute', inset: 0, opacity: 0.3 }}>
         <Loom
@@ -59,16 +77,19 @@ export function WeftPull() {
           showYears={false}
           ambientShuttle={false}
           highlight={idx}
+          nowYear={2026}
+          appendCount={WOVEN_COUNT}
         />
       </div>
-      {/* vignette so the single thread reads above the cloth */}
+      {/* flat ink wash so the single thread reads above the cloth — a
+          solid ink veil at reduced opacity, NOT a radial gradient (§2.6) */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
-          background:
-            'radial-gradient(ellipse at center, rgba(14,14,12,0.4) 0%, rgba(14,14,12,0.94) 70%)',
+          background: 'var(--loom-ink)',
+          opacity: 0.82,
         }}
       />
 
@@ -99,7 +120,11 @@ export function WeftPull() {
           padding: '96px 0 104px',
         }}
       >
-        <div style={{ width: 720, maxWidth: '60ch' }}>
+        <div
+          key={idx}
+          className="weftpull-thread"
+          style={{ width: 720, maxWidth: '60ch' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
             <span
               style={{
@@ -246,9 +271,11 @@ export function WeftPull() {
         >
           pull for the next
         </button>
-        <span className="loom-serif" style={{ color: 'var(--loom-warm)', fontSize: 16 }}>
-          ↓
-        </span>
+        {/* hairline drop-cue — a short warm thread, not an arrow glyph */}
+        <span
+          aria-hidden
+          style={{ width: 1, height: 14, background: 'var(--loom-warm)', opacity: 0.7 }}
+        />
       </div>
     </div>
   );

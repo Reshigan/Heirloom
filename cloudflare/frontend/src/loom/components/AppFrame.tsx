@@ -19,13 +19,16 @@ import { Navigation } from '../../components/Navigation';
 export function AppFrame({
   children,
   width = 'reading',
+  nav = true,
 }: {
   children: ReactNode;
   width?: 'reading' | 'wide';
+  /** Set false when the page supplies its own top chrome (e.g. admin's AdminBar). */
+  nav?: boolean;
 }) {
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: '60px 1fr' }}>
-      <Navigation />
+    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: nav ? '60px 1fr' : '1fr' }}>
+      {nav ? <Navigation /> : null}
       <main style={{ position: 'relative', overflowX: 'hidden' }}>
         <div className="loom-horizon" style={{ pointerEvents: 'none' }} />
         <div className="loom-grain" style={{ pointerEvents: 'none' }} />

@@ -2,7 +2,21 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppFrame } from '../loom/components/AppFrame';
-import { threadsApi, type ThreadRole } from '../services/api';
+import { ViewToggle } from '../loom/components/ViewToggle';
+import { threadsApi, type ThreadRole, type ThreadEntry } from '../services/api';
+
+/**
+ * The 10-stop natural-dye palette is permitted ONLY inside woven thread
+ * content (the Wall). Each entry takes a dye chapter-mark; we cycle the
+ * palette deterministically by entry index so the cloth reads as woven.
+ */
+const DYES = [
+  'iron', 'walnut', 'cochineal', 'kermes', 'madder',
+  'saffron', 'weld', 'oakgall', 'woad', 'indigo',
+] as const;
+const dyeVar = (i: number) => `var(--dye-${DYES[i % DYES.length]})`;
+
+type WallView = 'wall' | 'book';
 
 export function ThreadDetail() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +30,7 @@ export function ThreadDetail() {
   const [inviteRole, setInviteRole] = useState<Exclude<ThreadRole, 'FOUNDER'>>('READER');
   const [inviteGen, setInviteGen] = useState<number>(0);
   const [inviteError, setInviteError] = useState<string | null>(null);
+  const [wallView, setWallView] = useState<WallView>('wall');
 
   const { data: detail, isLoading, error } = useQuery({
     queryKey: ['thread', threadId],
@@ -134,6 +149,16 @@ export function ThreadDetail() {
   const thread = detail.thread;
   const memberRows = members?.members ?? [];
   const entryRows = entries?.entries ?? [];
+
+  // author_member_id → display name, for the entry byline
+  const memberName = new Map<string, string>(memberRows.map((m) => [m.id, m.display_name]));
+  const authorOf = (e: ThreadEntry) => memberName.get(e.author_member_id) ?? 'A member of this thread';
+
+  // The "current" entry = most recently created — it carries the warm spine.
+  const activeEntryId =
+    entryRows.length > 0
+      ? entryRows.reduce((a, b) => (a.created_at >= b.created_at ? a : b)).id
+      : null;
 
   return (
     <AppFrame>
@@ -447,9 +472,19 @@ export function ThreadDetail() {
 
       {/* Entries — the Wall */}
       <section>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 28 }}>
           <span className="loom-eyebrow">The Wall</span>
           <hr className="loom-hairline" style={{ flex: 1 }} />
+          {entryRows.length > 0 ? (
+            <ViewToggle<WallView>
+              value={wallView}
+              onChange={setWallView}
+              options={[
+                { value: 'wall', label: 'wall' },
+                { value: 'book', label: 'book' },
+              ]}
+            />
+          ) : null}
           <span
             className="loom-mono"
             style={{ fontSize: 10, letterSpacing: '0.1em', color: 'var(--loom-bone-faint)' }}
@@ -475,65 +510,353 @@ export function ThreadDetail() {
               add the first entry
             </Link>
           </div>
+        ) : wallView === 'book' ? (
+          <BookReader entries={entryRows} authorOf={authorOf} threadName={thread.name} />
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {entryRows.map((e) => {
-              return (
-                <li
-                  key={e.id}
-                  style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}
-                >
-                  <article style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 32, alignItems: 'baseline' }}>
-                    <div>
-                      <p
-                        className="loom-mono"
-                        style={{
-                          margin: 0,
-                          fontSize: 11,
-                          letterSpacing: '0.18em',
-                          color: e.pending_lock ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {e.pending_lock ? `∞ ${e.pending_lock.toLowerCase()} lock` : formatDate(e.created_at)}
-                      </p>
-                      {e.pending_lock ? (
-                        <p
-                          className="loom-mono"
-                          style={{ margin: '4px 0 0', fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}
-                        >
-                          {formatDate(e.created_at)}
-                        </p>
-                      ) : null}
-                      <p
-                        className="loom-mono"
-                        style={{ margin: '6px 0 0', fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
-                      >
-                        {e.visibility.toLowerCase()}
-                        {e.memory_id ? ' · memory' : ''}
-                        {e.voice_recording_id ? ' · voice' : ''}
-                        {e.era_year ? ` · ${e.era_year}` : ''}
-                      </p>
-                    </div>
-                    <div>
-                      <h3
-                        className="loom-serif"
-                        style={{ margin: '0 0 0', fontSize: 22, fontWeight: 300, color: 'var(--loom-bone)', lineHeight: 1.25 }}
-                      >
-                        {e.pending_lock ? (
-                          <span style={{ color: 'var(--loom-warm)', marginRight: 8 }} aria-hidden>∞</span>
-                        ) : null}
-                        {e.title ?? <em style={{ color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>Untitled entry</em>}
-                      </h3>
-                    </div>
-                  </article>
-                </li>
-              );
-            })}
-          </ul>
+          <div>
+            {entryRows.map((e, i) => (
+              <WallEntry
+                key={e.id}
+                entry={e}
+                dyeIndex={i}
+                author={authorOf(e)}
+                visibility={thread.default_visibility}
+                active={e.id === activeEntryId}
+              />
+            ))}
+          </div>
         )}
       </section>
     </AppFrame>
+  );
+}
+
+/**
+ * WallEntry — one weft thread rendered in the design's Wall treatment:
+ * a dye chapter-mark (swatch + label), the author italic byline, the
+ * FULL serif prose body (hero prose, ~17px, ~60ch), and a meta line.
+ * The active/current entry carries a warm left-border spine.
+ *
+ * The body is read from `body_ciphertext` (which the composer currently
+ * stores as plaintext — see ThreadCompose). Sealed entries (pending_lock)
+ * never render their body; we show the seal instead. Nothing is invented:
+ * if no body exists, we say so quietly.
+ */
+function WallEntry({
+  entry: e,
+  dyeIndex,
+  author,
+  visibility,
+  active,
+}: {
+  entry: ThreadEntry;
+  dyeIndex: number;
+  author: string;
+  visibility: string;
+  active: boolean;
+}) {
+  const sealed = !!e.pending_lock;
+  const body = !sealed ? (e.body_ciphertext ?? '').trim() : '';
+  const paras = body ? body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean) : [];
+
+  // meta line — REAL fields only; no fabricated amendment/comment counts.
+  const metaBits: string[] = [(e.visibility ?? visibility).toLowerCase()];
+  if (e.era_label) metaBits.push(e.era_label);
+  else if (e.era_year) metaBits.push(String(e.era_year));
+  if (e.memory_id) metaBits.push('photograph');
+  if (e.voice_recording_id) metaBits.push('voice');
+
+  return (
+    <article
+      style={{
+        maxWidth: 680,
+        padding: '32px 0',
+        borderBottom: '1px solid var(--loom-rule)',
+        ...(active
+          ? { borderLeft: '1px solid var(--loom-warm)', paddingLeft: 22, marginLeft: -22 }
+          : null),
+      }}
+    >
+      {/* dye chapter-mark */}
+      <div
+        className="loom-mono"
+        style={{
+          fontSize: 10,
+          color: 'var(--loom-bone-faint)',
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          marginBottom: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <span
+          aria-hidden
+          style={{ display: 'inline-block', width: 12, height: 2, background: dyeVar(dyeIndex) }}
+        />
+        <span>
+          {sealed ? `∞ ${e.pending_lock?.toLowerCase()} lock` : formatDate(e.created_at)}
+        </span>
+      </div>
+
+      {/* author italic byline */}
+      <div
+        className="loom-serif"
+        style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--loom-bone-dim)', marginBottom: 4 }}
+      >
+        {author}
+      </div>
+
+      {/* title */}
+      <h3
+        className="loom-serif"
+        style={{
+          margin: 0,
+          fontSize: active ? 28 : 26,
+          fontWeight: 400,
+          color: 'var(--loom-bone)',
+          lineHeight: 1.2,
+          letterSpacing: '-0.008em',
+        }}
+      >
+        {sealed ? (
+          <span style={{ color: 'var(--loom-warm)', marginRight: 8 }} aria-hidden>∞</span>
+        ) : null}
+        {e.title ?? <em style={{ color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>Untitled entry</em>}
+      </h3>
+
+      {/* FULL serif prose body */}
+      {sealed ? (
+        <p
+          className="loom-body"
+          style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone-faint)', margin: '14px 0 0', maxWidth: '60ch', lineHeight: 1.7 }}
+        >
+          Sealed until its unlock condition is met. The thread holds it until then.
+        </p>
+      ) : paras.length > 0 ? (
+        <div style={{ marginTop: 14 }}>
+          {paras.map((p, k) => (
+            <p
+              key={k}
+              className="loom-serif"
+              style={{
+                fontSize: 17,
+                lineHeight: 1.7,
+                color: active ? 'var(--loom-bone)' : 'var(--loom-bone-dim)',
+                margin: k === 0 ? 0 : '14px 0 0',
+                maxWidth: '60ch',
+              }}
+            >
+              {p}
+            </p>
+          ))}
+        </div>
+      ) : (
+        <p
+          className="loom-body"
+          style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone-faint)', margin: '14px 0 0' }}
+        >
+          No words yet — only the title was woven.
+        </p>
+      )}
+
+      {/* meta line */}
+      <div
+        className="loom-mono"
+        style={{ marginTop: 14, fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.12em' }}
+      >
+        {metaBits.join(' · ')}
+      </div>
+    </article>
+  );
+}
+
+/**
+ * BookReader — the WallBook continuum, driven by REAL entries. One
+ * entry per spread: left page carries the chapter intro (∞-free dye
+ * eyebrow, title, author byline, folio); right page carries the full
+ * serif prose. A loom-mono text pager + ∞ chapter-dot row turns pages.
+ * Rendered on the parchment surface (deliberate physical-book shift).
+ *
+ * Sealed entries are shown as a sealed page (no body) — never invented.
+ */
+function BookReader({
+  entries,
+  authorOf,
+  threadName,
+}: {
+  entries: ThreadEntry[];
+  authorOf: (e: ThreadEntry) => string;
+  threadName: string;
+}) {
+  const [idx, setIdx] = useState(0);
+  const e = entries[idx];
+  const sealed = !!e.pending_lock;
+  const body = !sealed ? (e.body_ciphertext ?? '').trim() : '';
+  const paras = body ? body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean) : [];
+  const turn = (d: number) => setIdx((p) => Math.min(entries.length - 1, Math.max(0, p + d)));
+
+  return (
+    <div
+      style={{
+        background: 'var(--parchment)',
+        color: 'var(--parchment-ink)',
+        border: '1px solid var(--parchment-rule)',
+        position: 'relative',
+      }}
+    >
+      {/* running head */}
+      <div
+        className="loom-mono"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: '20px 40px 0',
+          fontSize: 10,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: 'var(--parchment-faint)',
+        }}
+      >
+        <span>book mode · {threadName}</span>
+        <span style={{ color: 'var(--loom-warm)' }}>∞ &nbsp; entry {idx + 1} of {entries.length}</span>
+      </div>
+
+      {/* two-page spread */}
+      <div style={{ display: 'flex', minHeight: 420 }}>
+        {/* left page — chapter intro */}
+        <div
+          style={{
+            flex: 1,
+            padding: '40px 40px 40px 56px',
+            borderRight: '1px solid var(--parchment-rule)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div
+            className="loom-mono"
+            style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: 28 }}
+          >
+            {e.era_label ?? (e.era_year ? String(e.era_year) : formatDate(e.created_at))}
+          </div>
+          <h2
+            className="loom-serif"
+            style={{ fontSize: 38, lineHeight: 1.1, fontWeight: 300, margin: 0, color: 'var(--parchment-ink)', letterSpacing: '-0.018em', maxWidth: '16ch' }}
+          >
+            {sealed ? (
+              <span style={{ color: 'var(--loom-warm)', marginRight: 8 }} aria-hidden>∞</span>
+            ) : null}
+            {e.title ?? <em style={{ color: 'var(--parchment-faint)' }}>Untitled entry</em>}
+          </h2>
+          <div
+            className="loom-serif"
+            style={{ fontStyle: 'italic', fontSize: 16, color: 'var(--parchment-dim)', marginTop: 24, fontWeight: 400 }}
+          >
+            Written by {authorOf(e)} · {formatDate(e.created_at)}
+          </div>
+          <div style={{ flex: 1 }} />
+          <div className="loom-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.18em' }}>
+            p. {idx * 2 + 1}
+          </div>
+        </div>
+
+        {/* right page — body */}
+        <div style={{ flex: 1, padding: '40px 56px 40px 40px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ maxWidth: '52ch' }}>
+            {sealed ? (
+              <p className="loom-serif" style={{ fontSize: 17, fontStyle: 'italic', lineHeight: 1.85, color: 'var(--parchment-dim)', margin: 0 }}>
+                This entry is sealed until its unlock condition is met. When the day comes, it will open here.
+              </p>
+            ) : paras.length > 0 ? (
+              paras.map((p, k) => (
+                <p
+                  key={k}
+                  className="loom-serif"
+                  style={{ fontSize: 18, lineHeight: 1.9, color: 'var(--parchment-ink)', margin: k === 0 ? 0 : '16px 0 0', fontWeight: 400 }}
+                >
+                  {p}
+                </p>
+              ))
+            ) : (
+              <p className="loom-serif" style={{ fontSize: 17, fontStyle: 'italic', lineHeight: 1.85, color: 'var(--parchment-dim)', margin: 0 }}>
+                No words yet — only the title was woven.
+              </p>
+            )}
+          </div>
+          <div style={{ flex: 1 }} />
+          <div className="loom-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.18em', textAlign: 'right' }}>
+            p. {idx * 2 + 2}
+          </div>
+        </div>
+      </div>
+
+      {/* pager — mono text + ∞ chapter-dot row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 40px 16px' }}>
+        <button
+          type="button"
+          onClick={() => turn(-1)}
+          disabled={idx === 0}
+          className="loom-mono"
+          style={{
+            background: 'transparent', border: 0, padding: 0,
+            cursor: idx === 0 ? 'default' : 'pointer',
+            fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+            color: idx === 0 ? 'var(--parchment-faint)' : 'var(--parchment-dim)',
+          }}
+        >
+          ← earlier
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', maxWidth: '60%', justifyContent: 'center' }}>
+          {entries.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`entry ${i + 1}`}
+              aria-current={i === idx}
+              onClick={() => setIdx(i)}
+              className="loom-serif"
+              style={{
+                background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                fontSize: 13, lineHeight: 1,
+                color: i === idx ? 'var(--loom-warm)' : 'var(--parchment-faint)',
+                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              ∞
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => turn(1)}
+          disabled={idx === entries.length - 1}
+          className="loom-mono"
+          style={{
+            background: 'transparent', border: 0, padding: 0,
+            cursor: idx === entries.length - 1 ? 'default' : 'pointer',
+            fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+            color: idx === entries.length - 1 ? 'var(--parchment-faint)' : 'var(--loom-warm)',
+          }}
+        >
+          later →
+        </button>
+      </div>
+
+      {/* parchment edge — paler, ~6px */}
+      <div
+        aria-hidden
+        style={{ height: 6, background: '#e6dcc4', borderTop: '1px solid var(--parchment-rule)', opacity: 0.6, position: 'relative', overflow: 'hidden' }}
+      >
+        {Array.from({ length: 120 }, (_, k) => (
+          <span
+            key={k}
+            style={{ position: 'absolute', top: 0, bottom: 0, left: `${(k / 120) * 100}%`, width: 1, background: 'rgba(26,25,22,0.06)' }}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 

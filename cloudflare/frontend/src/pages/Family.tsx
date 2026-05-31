@@ -13,7 +13,28 @@ interface FamilyMember {
   notes?: string | null;
   avatarUrl?: string | null;
   createdAt?: string;
+  /** A real dye/category value off the member, if the API carries one. Never invented. */
+  dye?: string | null;
 }
+
+/**
+ * Natural-dye palette (§2.7) — the only place a dye color may appear.
+ * Mapped ONLY from a real `dye` value on a member; never fabricated. The
+ * current family API surfaces no dye, so the lead cell renders an honest
+ * blank rather than a guessed stripe.
+ */
+const DYE_VARS: Record<string, string> = {
+  madder: 'var(--dye-madder)',
+  cochineal: 'var(--dye-cochineal)',
+  kermes: 'var(--dye-kermes)',
+  saffron: 'var(--dye-saffron)',
+  weld: 'var(--dye-weld)',
+  walnut: 'var(--dye-walnut)',
+  oakgall: 'var(--dye-oakgall)',
+  woad: 'var(--dye-woad)',
+  indigo: 'var(--dye-indigo)',
+  iron: 'var(--dye-iron)',
+};
 
 /**
  * Family — Bloodline typographic list.
@@ -230,13 +251,22 @@ export function Family() {
                     key={m.id}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '1fr 220px',
+                      gridTemplateColumns: '14px 1fr 220px',
                       gap: 24,
                       alignItems: 'baseline',
                       padding: '16px 0',
                       borderBottom: '1px solid var(--loom-rule)',
                     }}
                   >
+                    <span
+                      aria-hidden
+                      style={{
+                        width: 14,
+                        height: 2,
+                        alignSelf: 'center',
+                        background: m.dye ? DYE_VARS[m.dye.toLowerCase()] ?? 'transparent' : 'transparent',
+                      }}
+                    />
                     <div>
                       <p
                         className="loom-serif"

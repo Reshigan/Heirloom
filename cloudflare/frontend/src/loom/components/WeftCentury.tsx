@@ -29,6 +29,9 @@ const KIN_PICKS: LoomEntry[] = ELEANOR_KIN.flatMap((k, gen) =>
 
 const CENTURY_ENTRIES: LoomEntry[] = [...KIN_PICKS, ...ELEANOR_ENTRIES];
 
+// the always-visible append-only count (invariant B) — woven = un-sealed
+const WOVEN_COUNT = CENTURY_ENTRIES.filter((e) => !e.locked).length;
+
 export function WeftCentury() {
   return (
     <div
@@ -61,6 +64,8 @@ export function WeftCentury() {
           height={360}
           showLigatures={false}
           ambientShuttle={false}
+          nowYear={2026}
+          appendCount={WOVEN_COUNT}
         />
       </div>
 

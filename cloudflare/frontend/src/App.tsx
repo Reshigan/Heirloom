@@ -12,6 +12,8 @@ import {
 } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
 import { PwaNudge } from './components/PwaNudge';
+import { BottomNav } from './loom/components/BottomNav';
+import { OfflineGate } from './loom/pages/Offline';
 import { useLoomTheme } from './loom/theme';
 import './loom/styles/loom.css';
 import './loom/styles/loom-bridge.css';
@@ -186,6 +188,7 @@ export default function App() {
           <PushNotificationHandler />
           <PwaNudge />
           <LoomShellRoot>
+          <OfflineGate>
           <Routes>
           {/* Public routes */}
           <Route path="/" element={<LoomMarketing />} />
@@ -472,6 +475,8 @@ export default function App() {
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
           </Routes>
+          </OfflineGate>
+          <BottomNav />
           </LoomShellRoot>
         </BrowserRouter>
       </QueryClientProvider>

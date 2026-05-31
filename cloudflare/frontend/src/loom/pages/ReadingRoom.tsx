@@ -37,7 +37,8 @@ const THREADS: Thread[] = [
   { kind: 'photo',  date: '2024·06·02', title: 'Iris asleep on the windowsill', who: 'Eleanor' },
 ];
 
-const GLYPH: Record<Kind, string> = { photo: '◌', voice: '∿', letter: '∞' };
+// ∞ is the only mark; kind is distinguished by the loom-mono label text.
+const GLYPH: Record<Kind, string> = { photo: '∞', voice: '∞', letter: '∞' };
 
 export function ReadingRoom() {
   const [active, setActive] = useState(2);
@@ -58,7 +59,7 @@ export function ReadingRoom() {
   if (view === 'book') {
     return (
       <LoomShell>
-        <Frame active="weft" right={toggle}>
+        <Frame active="weft" right={toggle} showHorizon={false} showGrain={false}>
           <BookView />
         </Frame>
       </LoomShell>
@@ -322,28 +323,13 @@ function PhotoView({ title }: { title: string }) {
         style={{
           position: 'relative',
           aspectRatio: '4 / 3',
-          background: `
-            repeating-linear-gradient(135deg, rgba(244,236,216,0.04) 0, rgba(244,236,216,0.04) 1px, transparent 1px, transparent 8px),
-            linear-gradient(135deg, #1a1612 0%, #0e0c08 100%)
-          `,
+          background: 'var(--loom-ink-card)',
           border: '1px solid var(--loom-rule)',
           display: 'grid',
           placeItems: 'center',
           overflow: 'hidden',
         }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            top: '20%',
-            left: '30%',
-            width: '40%',
-            height: '55%',
-            background:
-              'radial-gradient(ellipse, rgba(207,147,90,0.22), transparent 70%)',
-            filter: 'blur(20px)',
-          }}
-        />
         <div
           className="loom-mono"
           style={{
@@ -442,7 +428,7 @@ function VoiceView({ duration }: { duration: string }) {
               letterSpacing: '0.04em',
             }}
           >
-            ∿ &nbsp; {duration} &nbsp;·&nbsp; recorded on a sunday morning
+            voice &nbsp;·&nbsp; {duration} &nbsp;·&nbsp; recorded on a sunday morning
           </div>
           <div
             className="loom-mono"
@@ -728,7 +714,16 @@ function BookView() {
     setCh((p) => Math.min(CHAPTERS.length - 1, Math.max(0, p + delta)));
 
   return (
-    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'var(--parchment)',
+        color: 'var(--parchment-ink)',
+      }}
+    >
       {/* running heads */}
       <div
         className="loom-mono"
@@ -739,7 +734,7 @@ function BookView() {
           fontSize: 10,
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
-          color: 'var(--loom-bone-faint)',
+          color: 'var(--parchment-faint)',
         }}
       >
         <span>book mode · the Hartshorn thread</span>
@@ -755,7 +750,7 @@ function BookView() {
           style={{
             flex: 1,
             padding: '56px 64px 56px 88px',
-            borderRight: '1px solid var(--loom-rule)',
+            borderRight: '1px solid var(--parchment-rule)',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -764,7 +759,7 @@ function BookView() {
             className="loom-mono"
             style={{
               fontSize: 10,
-              color: 'var(--loom-bone-faint)',
+              color: 'var(--parchment-faint)',
               letterSpacing: '0.32em',
               textTransform: 'uppercase',
               marginBottom: 36,
@@ -779,7 +774,7 @@ function BookView() {
               fontStyle: 'italic',
               margin: 0,
               maxWidth: '14ch',
-              color: 'var(--loom-bone)',
+              color: 'var(--parchment-ink)',
             }}
           >
             {c.title}
@@ -789,7 +784,7 @@ function BookView() {
             style={{
               fontStyle: 'italic',
               fontSize: 17,
-              color: 'var(--loom-bone-dim)',
+              color: 'var(--parchment-dim)',
               marginTop: 32,
               maxWidth: '38ch',
               lineHeight: 1.7,
@@ -800,7 +795,7 @@ function BookView() {
           <div style={{ flex: 1 }} />
           <div
             className="loom-mono"
-            style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em' }}
+            style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.18em' }}
           >
             p. {c.leftPage}
           </div>
@@ -823,7 +818,7 @@ function BookView() {
                 style={{
                   fontSize: 18,
                   lineHeight: 1.9,
-                  color: 'var(--loom-bone)',
+                  color: 'var(--parchment-ink)',
                   margin: i === 0 ? '0 0 18px' : '0 0 18px',
                 }}
               >
@@ -835,7 +830,7 @@ function BookView() {
               style={{
                 fontStyle: 'italic',
                 fontSize: 16,
-                color: 'var(--loom-bone-dim)',
+                color: 'var(--parchment-dim)',
                 marginTop: 10,
               }}
             >
@@ -847,7 +842,7 @@ function BookView() {
             className="loom-mono"
             style={{
               fontSize: 10,
-              color: 'var(--loom-bone-faint)',
+              color: 'var(--parchment-faint)',
               letterSpacing: '0.18em',
               textAlign: 'right',
             }}
@@ -879,7 +874,7 @@ function BookView() {
             fontSize: 10,
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
-            color: ch === 0 ? 'var(--loom-bone-ghost)' : 'var(--loom-bone-dim)',
+            color: ch === 0 ? 'var(--parchment-faint)' : 'var(--parchment-dim)',
           }}
         >
           ← earlier
@@ -901,7 +896,7 @@ function BookView() {
                 cursor: 'pointer',
                 fontSize: 14,
                 lineHeight: 1,
-                color: i === ch ? 'var(--loom-warm)' : 'var(--loom-bone-ghost)',
+                color: i === ch ? 'var(--loom-warm)' : 'var(--parchment-faint)',
                 transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
@@ -924,11 +919,42 @@ function BookView() {
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color:
-              ch === CHAPTERS.length - 1 ? 'var(--loom-bone-ghost)' : 'var(--loom-warm)',
+              ch === CHAPTERS.length - 1 ? 'var(--parchment-faint)' : 'var(--loom-warm)',
           }}
         >
           later →
         </button>
+      </div>
+
+      {/* parchment edge — paler, ~6px, anchors the book as a physical object */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 6,
+          background: '#e6dcc4',
+          borderTop: '1px solid var(--parchment-rule)',
+          opacity: 0.6,
+          overflow: 'hidden',
+          pointerEvents: 'none',
+        }}
+      >
+        {Array.from({ length: 144 }, (_, k) => (
+          <span
+            key={k}
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              left: `${(k / 144) * 100}%`,
+              width: 1,
+              background: 'rgba(26,25,22,0.06)',
+            }}
+          />
+        ))}
       </div>
     </div>
   );

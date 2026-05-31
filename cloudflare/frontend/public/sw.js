@@ -93,8 +93,9 @@ self.addEventListener('fetch', (event) => {
 });
 
 // ── Push ────────────────────────────────────────────────────────────────────
-// A nudge that it's someone's turn to add to the thread, that a sealed entry
-// has unlocked, or that a new author joined. Payload (JSON):
+// The daily 8 pm prompt — the Listener's one quiet line. Real copy is
+// server-driven (the prompt rotates); this is only the DEFAULT, in the
+// Listener's voice, for when a push arrives without a body. Payload (JSON):
 //   { title, body, route, tag }
 self.addEventListener('push', (event) => {
   let data = {};
@@ -105,7 +106,9 @@ self.addEventListener('push', (event) => {
   }
   const title = data.title || 'Heirloom';
   const options = {
-    body: data.body || 'Your family thread has something new.',
+    // The Listener asks, quietly, once. (Notifications have no subtitle
+    // field, so the framing folds into the body — kept on-voice.)
+    body: data.body || 'the listener asks…\nWhat did you almost forget to write down today?',
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     tag: data.tag || 'heirloom',

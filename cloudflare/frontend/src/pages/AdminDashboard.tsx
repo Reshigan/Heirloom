@@ -32,6 +32,7 @@ export function AdminDashboard() {
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
+  const status = useInlineStatus();
 
   // Queries
   const { data: overview } = useQuery({
@@ -200,39 +201,15 @@ export function AdminDashboard() {
       { id: 'social', label: 'Social' },
     ];
 
+  const activeSection = tabs.find(t => t.id === activeTab)?.label.toLowerCase() ?? activeTab;
+
   return (
     <AppFrame width="wide">
-      {/* Ledger header */}
-      <header style={{ marginBottom: 32, borderBottom: '1px solid var(--loom-rule)', paddingBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-          <div>
-            <p className="loom-eyebrow" style={{ marginBottom: 8 }}>the ledger · admin</p>
-            <h1 className="loom-h2" style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}>
-              Heirloom Ledger.
-            </h1>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>{admin.email}</span>
-            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.12em' }}>{admin.role}</span>
-            <button
-              onClick={handleLogout}
-              style={{
-                background: 'transparent', border: 0, cursor: 'pointer',
-                fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 500,
-                letterSpacing: '0.32em', textTransform: 'uppercase',
-                color: 'var(--loom-bone-faint)', padding: 0,
-              }}
-              onMouseOver={e => (e.currentTarget.style.color = '#c25a5a')}
-              onMouseOut={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Admin topbar — "admin · {section}" + zero-knowledge assurance */}
+      <AdminBar section={activeSection} email={admin.email} role={admin.role} onLogout={handleLogout} />
 
-      {/* Tab strip */}
-      <nav style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--loom-rule)', marginBottom: 36, overflowX: 'auto' }}>
+      {/* Tab strip — lowercase mono section nav */}
+      <nav style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--loom-rule)', marginBottom: 36, overflowX: 'auto', paddingBottom: 0 }}>
         {tabs.map(({ id, label }) => (
           <button
             key={id}
@@ -241,17 +218,19 @@ export function AdminDashboard() {
               background: 'transparent', border: 0, borderBottom: '1px solid',
               borderColor: activeTab === id ? 'var(--loom-warm)' : 'transparent',
               padding: '0 16px 12px', marginBottom: -1, cursor: 'pointer',
-              fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 500,
-              letterSpacing: '0.28em', textTransform: 'uppercase',
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 400,
+              letterSpacing: '0.18em', textTransform: 'lowercase',
               color: activeTab === id ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
               whiteSpace: 'nowrap',
               transition: 'color 180ms var(--loom-ease)',
             }}
           >
-            {label}
+            {label.toLowerCase()}
           </button>
         ))}
       </nav>
+
+      <InlineStatus status={status} />
 
       <div>
 
@@ -355,7 +334,7 @@ export function AdminDashboard() {
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                       <div className="loom-mono" style={{ width: 160, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{step.label}</div>
                       <div style={{ flex: 1, height: 4, background: 'var(--loom-rule)', position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${percentage}%`, background: 'var(--loom-warm)', transition: 'width 500ms var(--loom-ease)' }} />
+                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${percentage}%`, background: 'var(--loom-warm)', transition: 'width 360ms var(--loom-ease)' }} />
                       </div>
                       <div className="loom-mono" style={{ width: 80, textAlign: 'right', fontSize: 11 }}>
                         <span style={{ color: 'var(--loom-bone)' }}>{step.value}</span>
@@ -501,7 +480,7 @@ export function AdminDashboard() {
                   <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <div className="loom-mono" style={{ width: 160, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{label}</div>
                     <div style={{ flex: 1, height: 4, background: 'var(--loom-rule)', position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct}%`, background: 'var(--loom-warm)', transition: 'width 500ms var(--loom-ease)' }} />
+                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct}%`, background: 'var(--loom-warm)', transition: 'width 360ms var(--loom-ease)' }} />
                     </div>
                     <div className="loom-mono" style={{ width: 80, textAlign: 'right', fontSize: 11 }}>
                       <span style={{ color: 'var(--loom-bone)' }}>{value}</span>
@@ -611,7 +590,7 @@ export function AdminDashboard() {
                       <td style={tdStyle}>
                         <span className="loom-mono" style={{ color: 'var(--loom-warm)', fontSize: 12 }}>{voucher.code}</span>
                         {' '}
-                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => { navigator.clipboard.writeText(voucher.code); alert('Copied'); }}>copy</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => { navigator.clipboard.writeText(voucher.code); status.ok('code copied'); }}>copy</button>
                       </td>
                       <td style={tdStyle}><StatusWord value={voucher.tier} /></td>
                       <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{voucher.purchaser_email}</td>
@@ -621,9 +600,9 @@ export function AdminDashboard() {
                       <td style={{ ...tdStyle, textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
                           {voucher.status === 'PAID' && voucher.recipient_email && (
-                            <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={async () => { const token = localStorage.getItem('adminToken'); await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/${voucher.id}/resend`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }); alert('Resent'); }}>Resend</button>
+                            <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={async () => { const token = localStorage.getItem('adminToken'); await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/${voucher.id}/resend`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }); status.ok('voucher resent'); }}>Resend</button>
                           )}
-                          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gift/redeem?code=${voucher.code}`); alert('Copied'); }}>Link</button>
+                          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gift/redeem?code=${voucher.code}`); status.ok('redeem link copied'); }}>Link</button>
                         </div>
                       </td>
                     </tr>
@@ -671,7 +650,7 @@ export function AdminDashboard() {
                       <td style={tdStyle}>
                         <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)' }}>{voucher.code}</span>
                         {' '}
-                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => { navigator.clipboard.writeText(voucher.code); alert('Copied'); }}>copy</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => { navigator.clipboard.writeText(voucher.code); status.ok('code copied'); }}>copy</button>
                       </td>
                       <td style={tdStyle}>
                         <div style={{ color: 'var(--loom-bone)' }}>{voucher.recipient_name || '—'}</div>
@@ -680,7 +659,7 @@ export function AdminDashboard() {
                       <td style={tdStyle}><StatusWord value={voucher.status} /></td>
                       <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{new Date(voucher.created_at).toLocaleDateString()}</td>
                       <td style={{ ...tdStyle, textAlign: 'right' }}>
-                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gold/redeem?code=${voucher.code}`); alert('Copied'); }}>Link</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gold/redeem?code=${voucher.code}`); status.ok('redeem link copied'); }}>Link</button>
                       </td>
                     </tr>
                   ))}
@@ -694,8 +673,8 @@ export function AdminDashboard() {
         {activeTab === 'billing' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p className="loom-eyebrow">Billing Analysis &amp; Error Management</p>
-              <button className="loom-btn" onClick={() => adminApi.notifyAllFailedBilling().then(() => alert('Notifications sent!'))}>Notify All Failed</button>
+              <p className="loom-eyebrow">Billing Analysis & Error Management</p>
+              <button className="loom-btn" onClick={() => adminApi.notifyAllFailedBilling().then(() => status.ok('notifications sent to all failed accounts')).catch(() => status.err('failed to send notifications'))}>Notify All Failed</button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
@@ -732,9 +711,9 @@ export function AdminDashboard() {
                     <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{new Date(error.createdAt).toLocaleDateString()}</td>
                     <td style={{ ...tdStyle, textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.notifyBillingError(error.id).then(() => alert('Sent!'))}>Notify</button>
-                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.reprocessBillingError(error.id).then(() => alert('Initiated!'))}>Reprocess</button>
-                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.resolveBillingError(error.id, { resolution: 'Manually resolved' }).then(() => alert('Resolved!'))}>Resolve</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.notifyBillingError(error.id).then(() => status.ok('notification sent')).catch(() => status.err('failed to notify'))}>Notify</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.reprocessBillingError(error.id).then(() => status.ok('reprocess initiated')).catch(() => status.err('failed to reprocess'))}>Reprocess</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.resolveBillingError(error.id, { resolution: 'Manually resolved' }).then(() => status.ok('error resolved')).catch(() => status.err('failed to resolve'))}>Resolve</button>
                       </div>
                     </td>
                   </tr>
@@ -939,7 +918,7 @@ export function AdminDashboard() {
         {/* Reports Tab */}
         {activeTab === 'reports' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <p className="loom-eyebrow">Reports &amp; Analytics</p>
+            <p className="loom-eyebrow">Reports & Analytics</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
               <Panel title="Revenue Report">
@@ -984,17 +963,17 @@ export function AdminDashboard() {
                   try {
                     const token = localStorage.getItem('adminToken');
                     const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=csv`, { headers: { Authorization: `Bearer ${token}` } });
-                    if (!res.ok) { const e = await res.json(); alert(e.error || 'Export failed'); return; }
+                    if (!res.ok) { const e = await res.json(); status.err(e.error || 'export failed'); return; }
                     const blob = await res.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a);
-                  } catch (_err) { alert('Export failed.'); }
+                  } catch (_err) { status.err('export failed'); }
                 }}>Export Users (CSV)</button>
                 <button className="loom-btn-ghost" onClick={async () => {
                   try {
                     const token = localStorage.getItem('adminToken');
                     const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=json`, { headers: { Authorization: `Bearer ${token}` } });
-                    if (!res.ok) { const e = await res.json(); alert(e.error || 'Export failed'); return; }
+                    if (!res.ok) { const e = await res.json(); status.err(e.error || 'export failed'); return; }
                     const data = await res.json(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `users-export-${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a);
-                  } catch (_err) { alert('Export failed.'); }
+                  } catch (_err) { status.err('export failed'); }
                 }}>Export Users (JSON)</button>
               </div>
             </Panel>
@@ -1026,7 +1005,138 @@ export function AdminDashboard() {
       {selectedTicket && (
         <TicketDetailModal ticketId={selectedTicket} onClose={() => setSelectedTicket(null)} />
       )}
+
+      {/* Persistent ledger band — the loom-keeper's reverse */}
+      <LedgerBand overview={overview} revenue={revenue} />
     </AppFrame>
+  );
+}
+
+// ─── AdminBar — admin topbar: "admin · {section}" + zero-knowledge assurance ──
+function AdminBar({ section, email, role, onLogout }: { section: string; email: string; role: string; onLogout: () => void }) {
+  return (
+    <div
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
+        borderBottom: '1px solid var(--loom-rule)', paddingBottom: 16, marginBottom: 28,
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+      }}
+    >
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14, letterSpacing: '0.12em', color: 'var(--loom-bone)' }}>
+        <span className="loom-mark" style={{ fontSize: 13 }}><span className="infmark">∞</span>heirloom</span>
+        <span style={{ color: 'var(--loom-bone-faint)' }}>·</span>
+        <span style={{ textTransform: 'lowercase' }}>admin · {section}</span>
+      </span>
+      <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.14em', color: 'var(--loom-bone-faint)', textTransform: 'lowercase' }}>
+        role · <b style={{ color: 'var(--loom-warm)', fontWeight: 400 }}>{role?.toLowerCase()}</b> · zero-knowledge · cannot read entries
+      </span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 22 }}>
+        <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{email}</span>
+        <button
+          onClick={onLogout}
+          style={{
+            background: 'transparent', border: 0, cursor: 'pointer',
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
+            letterSpacing: '0.18em', textTransform: 'lowercase',
+            color: 'var(--loom-bone-faint)', padding: 0,
+          }}
+          onMouseOver={e => (e.currentTarget.style.color = '#c25a5a')}
+          onMouseOut={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
+        >
+          sign out
+        </button>
+      </span>
+    </div>
+  );
+}
+
+// ─── LedgerBand — persistent reverse band with real global counts ─────
+function LedgerBand({ overview, revenue }: { overview: any; revenue: any }) {
+  const accts = overview?.users?.total;
+  const entries =
+    overview?.content
+      ? (overview.content.memories || 0) + (overview.content.letters || 0) + (overview.content.voiceRecordings || 0)
+      : undefined;
+  const active = overview?.users?.active;
+  const parts: string[] = [];
+  if (accts != null) parts.push(`${accts.toLocaleString()} acct`);
+  if (entries != null) parts.push(`${entries.toLocaleString()} entries`);
+  if (active != null) parts.push(`${active.toLocaleString()} active`);
+  const counts = parts.length ? parts.join(' · ') : '—';
+  const right = revenue?.mrr != null ? `mrr $${revenue.mrr.toFixed(2)}` : 'everything ok';
+  return (
+    <div
+      style={{
+        marginTop: 48, borderTop: '1px solid var(--loom-rule)', paddingTop: 14,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--loom-bone-faint)',
+        letterSpacing: '0.18em', textTransform: 'uppercase',
+      }}
+    >
+      <span>ledger · the loom-keeper's reverse</span>
+      <span style={{ color: 'var(--loom-bone-dim)' }}>{counts}</span>
+      <span style={{ color: 'var(--loom-warm)' }}>{right}</span>
+    </div>
+  );
+}
+
+// ─── Inline status (replaces alert) + Confirm modal (replaces confirm) ─
+type StatusTone = 'ok' | 'err';
+interface InlineStatusState { msg: string; tone: StatusTone; key: number }
+function useInlineStatus() {
+  const [state, setState] = useState<InlineStatusState | null>(null);
+  return {
+    state,
+    ok: (msg: string) => setState({ msg, tone: 'ok', key: Date.now() }),
+    err: (msg: string) => setState({ msg, tone: 'err', key: Date.now() }),
+    clear: () => setState(null),
+  };
+}
+type InlineStatus = ReturnType<typeof useInlineStatus>;
+
+function InlineStatus({ status }: { status: InlineStatus }) {
+  useEffect(() => {
+    if (!status.state) return;
+    const t = setTimeout(() => status.clear(), 4000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status.state?.key]);
+  if (!status.state) return null;
+  const warm = status.state.tone === 'ok';
+  return (
+    <div
+      role="status"
+      style={{
+        marginBottom: 20, padding: '8px 14px',
+        background: 'var(--loom-ink-card)',
+        border: `1px solid ${warm ? 'var(--loom-rule-warm)' : 'rgba(194,90,90,0.35)'}`,
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.04em',
+        color: warm ? 'var(--loom-warm)' : '#c25a5a',
+      }}
+    >
+      {status.state.msg}
+    </div>
+  );
+}
+
+// Confirm modal — reuses ModalShell; replaces native confirm()
+function ConfirmModal({ title, body, confirmLabel, onConfirm, onClose }: {
+  title: string; body: string; confirmLabel?: string; onConfirm: () => void; onClose: () => void;
+}) {
+  return (
+    <ModalShell onClose={onClose} title={title}>
+      <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginBottom: 24 }}>{body}</p>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={onClose}>cancel</button>
+        <button
+          className="loom-btn"
+          style={{ fontSize: 11, background: '#c25a5a', borderColor: '#c25a5a' }}
+          onClick={() => { onConfirm(); onClose(); }}
+        >
+          {confirmLabel || 'confirm'}
+        </button>
+      </div>
+    </ModalShell>
   );
 }
 
@@ -1095,7 +1205,8 @@ function StatCard({ label, value, subtext }: { label: string; value: string | nu
 // Coupon Row Component
 function CouponRow({ coupon }: { coupon: any }) {
   const queryClient = useQueryClient();
-  
+  const [confirming, setConfirming] = useState(false);
+
   const deleteMutation = useMutation({
     mutationFn: () => adminApi.deleteCoupon(coupon.id),
     onSuccess: () => {
@@ -1127,7 +1238,16 @@ function CouponRow({ coupon }: { coupon: any }) {
         </button>
       </td>
       <td style={{ ...tdStyle, textAlign: 'right' }}>
-        <button className="loom-btn-ghost" style={{ fontSize: 11, color: '#c25a5a' }} onClick={() => { if (confirm('Delete this coupon?')) deleteMutation.mutate(); }}>Delete</button>
+        <button className="loom-btn-ghost" style={{ fontSize: 11, color: '#c25a5a' }} onClick={() => setConfirming(true)}>Delete</button>
+        {confirming && (
+          <ConfirmModal
+            title="Delete coupon"
+            body={`Delete coupon ${coupon.code}? This cannot be undone.`}
+            confirmLabel="delete coupon"
+            onConfirm={() => deleteMutation.mutate()}
+            onClose={() => setConfirming(false)}
+          />
+        )}
       </td>
     </tr>
   );
@@ -1253,6 +1373,8 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
 // User Actions Modal
 function UserActionsModal({ user, onClose }: { user: any; onClose: () => void }) {
   const queryClient = useQueryClient();
+  const status = useInlineStatus();
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
   const [trialDays, setTrialDays] = useState(7);
   const [couponCode, setCouponCode] = useState('');
   const [selectedTier, setSelectedTier] = useState(user.tier || 'FREE');
@@ -1261,51 +1383,51 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
     mutationFn: () => adminApi.extendTrial(user.id, trialDays),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      alert('Trial extended successfully');
+      status.ok('trial extended');
     },
-    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to extend trial'),
+    onError: (err: any) => status.err(err?.response?.data?.error || 'failed to extend trial'),
   });
 
   const applyCouponMutation = useMutation({
     mutationFn: () => adminApi.applyCouponToUser(user.id, couponCode),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      alert('Coupon applied successfully');
+      status.ok('coupon applied');
       setCouponCode('');
     },
-    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to apply coupon'),
+    onError: (err: any) => status.err(err?.response?.data?.error || 'failed to apply coupon'),
   });
 
   const cancelSubscriptionMutation = useMutation({
     mutationFn: () => adminApi.cancelSubscription(user.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      alert('Subscription cancelled');
       onClose();
     },
-    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to cancel subscription'),
+    onError: (err: any) => status.err(err?.response?.data?.error || 'failed to cancel subscription'),
   });
 
   const updateTierMutation = useMutation({
     mutationFn: () => adminApi.updateUser(user.id, { tier: selectedTier }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      alert('Tier updated successfully');
+      status.ok('tier updated');
     },
-    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to update tier'),
+    onError: (err: any) => status.err(err?.response?.data?.error || 'failed to update tier'),
   });
 
   const verifyEmailMutation = useMutation({
     mutationFn: () => adminApi.updateUser(user.id, { emailVerified: true }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      alert('Email marked as verified');
+      status.ok('email marked verified');
     },
-    onError: (err: any) => alert(err?.response?.data?.error || 'Failed to verify email'),
+    onError: (err: any) => status.err(err?.response?.data?.error || 'failed to verify email'),
   });
 
   return (
     <ModalShell onClose={onClose} title="Manage User">
+      <InlineStatus status={status} />
       {/* User metadata — zero-knowledge: no content, only status */}
       <div style={{ marginBottom: 24, padding: 16, background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)' }}>
         <div style={{ marginBottom: 12 }}>
@@ -1366,13 +1488,22 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
           <div className="loom-eyebrow" style={{ color: '#c25a5a', marginBottom: 8 }}>Danger Zone</div>
           <button
             style={{ width: '100%', background: 'transparent', border: '1px solid #c25a5a', color: '#c25a5a', padding: '8px 16px', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
-            onClick={() => { if (confirm('Cancel this subscription? This cannot be undone.')) cancelSubscriptionMutation.mutate(); }}
+            onClick={() => setConfirmingCancel(true)}
             disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
           >
             {cancelSubscriptionMutation.isPending ? 'Cancelling…' : 'Cancel Subscription'}
           </button>
         </div>
       </div>
+      {confirmingCancel && (
+        <ConfirmModal
+          title="Cancel subscription"
+          body="Cancel this subscription? This cannot be undone."
+          confirmLabel="cancel subscription"
+          onConfirm={() => cancelSubscriptionMutation.mutate()}
+          onClose={() => setConfirmingCancel(false)}
+        />
+      )}
     </ModalShell>
   );
 }
@@ -1380,6 +1511,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
 // Email Detail Modal
 function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () => void }) {
   const queryClient = useQueryClient();
+  const status = useInlineStatus();
 
   const { data: email, isLoading } = useQuery({
     queryKey: ['admin-email', emailId],
@@ -1391,15 +1523,16 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-email', emailId] });
       queryClient.invalidateQueries({ queryKey: ['admin-emails'] });
-      alert('Email resent successfully!');
+      status.ok('email resent');
     },
     onError: (error: any) => {
-      alert(`Failed to resend: ${error.response?.data?.error || error.message}`);
+      status.err(`failed to resend: ${error.response?.data?.error || error.message}`);
     },
   });
 
   return (
     <ModalShell onClose={onClose} title="Email Details" wide>
+      <InlineStatus status={status} />
       {isLoading ? (
         <p style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)', padding: '32px 0', textAlign: 'center' }}>Loading…</p>
       ) : email ? (
@@ -1522,6 +1655,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
 
 // Create Voucher Modal
 function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCreated?: () => void }) {
+  const status = useInlineStatus();
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [formData, setFormData] = useState({
     tier: 'FAMILY',
@@ -1582,10 +1716,10 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
         setCreatedCodes(codes);
         onCreated?.();
       } else {
-        alert('Failed to create voucher(s)');
+        status.err('failed to create voucher(s)');
       }
     } catch {
-      alert('Error creating voucher(s)');
+      status.err('error creating voucher(s)');
     } finally {
       setIsLoading(false);
     }
@@ -1593,6 +1727,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
 
   return (
     <ModalShell onClose={onClose} title="Create Gift Voucher">
+      <InlineStatus status={status} />
       {createdCodes.length > 0 ? (
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
           <div className="loom-serif" style={{ fontSize: 40, color: 'var(--loom-warm)', marginBottom: 12 }}>∞</div>
@@ -1601,8 +1736,8 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             {createdCodes.map((code, i) => <p key={i} className="loom-mono" style={{ fontSize: 16, color: 'var(--loom-warm)', marginBottom: 4, letterSpacing: '0.12em' }}>{code}</p>)}
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdCodes.join('\n')); alert('Copied!'); }}>Copy All Codes</button>
-            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdCodes.map(c => `https://heirloom.blue/gift/redeem?code=${c}`).join('\n')); alert('Copied!'); }}>Copy All Links</button>
+            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdCodes.join('\n')); status.ok('codes copied'); }}>Copy All Codes</button>
+            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdCodes.map(c => `https://heirloom.blue/gift/redeem?code=${c}`).join('\n')); status.ok('links copied'); }}>Copy All Links</button>
             <button className="loom-btn" onClick={onClose}>Done</button>
           </div>
         </div>
@@ -1673,6 +1808,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
 }
 
 function CreateGoldLegacyModal({ onClose }: { onClose: () => void }) {
+  const status = useInlineStatus();
   const [formData, setFormData] = useState({
     recipientEmail: '',
     recipientName: '',
@@ -1713,10 +1849,10 @@ The Heirloom Team`;
       if (data.success) {
         setCreatedVoucher(data.voucher);
       } else {
-        alert(data.error || 'Failed to create Gold Legacy voucher');
+        status.err(data.error || 'failed to create Gold Legacy voucher');
       }
     } catch {
-      alert('Error creating Gold Legacy voucher');
+      status.err('error creating Gold Legacy voucher');
     } finally {
       setIsLoading(false);
     }
@@ -1724,6 +1860,7 @@ The Heirloom Team`;
 
   return (
     <ModalShell onClose={onClose} title="Create Gold Legacy Voucher">
+      <InlineStatus status={status} />
       {createdVoucher ? (
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
           <div className="loom-serif" style={{ fontSize: 40, color: 'var(--loom-warm)', marginBottom: 12 }}>∞</div>
@@ -1734,8 +1871,8 @@ The Heirloom Team`;
           </div>
           {createdVoucher.emailSent && <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', marginBottom: 16 }}>Invitation email sent to {createdVoucher.recipientEmail}</p>}
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdVoucher.code); alert('Copied!'); }}>Copy Code</button>
-            <button className="loom-btn" onClick={() => { navigator.clipboard.writeText(`https://heirloom.blue/gold/redeem?code=${createdVoucher.code}`); alert('Copied!'); }}>Copy Invitation Link</button>
+            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdVoucher.code); status.ok('code copied'); }}>Copy Code</button>
+            <button className="loom-btn" onClick={() => { navigator.clipboard.writeText(`https://heirloom.blue/gold/redeem?code=${createdVoucher.code}`); status.ok('invitation link copied'); }}>Copy Invitation Link</button>
             <button className="loom-btn-ghost" onClick={onClose}>Done</button>
           </div>
         </div>
@@ -1781,7 +1918,7 @@ function ModalShell({ onClose, title, children, wide }: { onClose: () => void; t
       <div style={{ background: 'var(--loom-ink-card)', border: '1px solid var(--loom-rule)', width: '100%', maxWidth: wide ? 720 : 480, padding: 28 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid var(--loom-rule)', paddingBottom: 16 }}>
           <p className="loom-eyebrow" style={{ color: 'var(--loom-bone-dim)' }}>{title}</p>
-          <button onClick={onClose} style={{ background: 'transparent', border: 0, color: 'var(--loom-bone-faint)', cursor: 'pointer', fontSize: 16, padding: 0, lineHeight: 1 }} aria-label="Close">✕</button>
+          <button onClick={onClose} className="loom-mono" style={{ background: 'transparent', border: 0, color: 'var(--loom-bone-faint)', cursor: 'pointer', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0, lineHeight: 1 }} aria-label="Close">close</button>
         </div>
         {children}
       </div>

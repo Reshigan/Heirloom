@@ -1,21 +1,32 @@
 /**
- * VaultModal - Modal for setting up or unlocking the encryption vault
- * 
- * Used in two scenarios:
- * 1. After signup - to set up the vault passphrase (mode="setup")
- * 2. After login - to unlock the vault with existing passphrase (mode="unlock")
+ * VaultModal — sealing / unlocking the thread's encryption.
+ *
+ * Two ceremonies:
+ * 1. After signup — set the passphrase that seals the thread (mode="setup")
+ * 2. After login — unlock the thread with the existing passphrase (mode="unlock")
+ *
+ * Loom-native: a hairline-framed panel over a solid ink scrim (no glass, no
+ * backdrop-blur, no floating card). Open/close + error reveal are CSS-driven
+ * with the loom tokens (180/360/720ms, var(--loom-ease)). All encryption logic
+ * (encryptionService.setupEncryption / unlockVault) is preserved verbatim.
  */
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { encryptionService } from '../services/encryptionService';
 
 interface VaultModalProps {
   isOpen: boolean;
   mode: 'setup' | 'unlock';
   onComplete: () => void;
-  onSkip?: () => void; // Only for setup mode - allows skipping encryption
+  onSkip?: () => void; // Only for setup mode — allows skipping encryption
 }
+
+// A passphrase is three or four words you choose — easier to remember, harder
+// to crack. We require four-plus words and a reasonable floor of characters so
+// the derived key keeps its strength (PBKDF2 input is the raw string).
+const MIN_WORDS = 4;
+const MIN_CHARS = 16;
+const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 
 export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps) {
   const [passphrase, setPassphrase] = useState('');
@@ -24,22 +35,21 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const words = countWords(passphrase);
   const passphraseChecks = [
-    { label: 'At least 12 characters', valid: passphrase.length >= 12 },
-    { label: 'Contains a number', valid: /\d/.test(passphrase) },
-    { label: 'Contains uppercase', valid: /[A-Z]/.test(passphrase) },
-    { label: 'Contains special character', valid: /[!@#$%^&*(),.?":{}|<>]/.test(passphrase) },
+    { label: 'Four or more words', valid: words >= MIN_WORDS },
+    { label: 'At least 16 characters', valid: passphrase.length >= MIN_CHARS },
   ];
 
-  const isPassphraseValid = passphraseChecks.every(check => check.valid);
+  const isPassphraseValid = passphraseChecks.every((check) => check.valid);
 
   const handleSetup = async () => {
     if (!isPassphraseValid) {
-      setError('Please meet all passphrase requirements');
+      setError('Choose a passphrase of four or more words.');
       return;
     }
     if (passphrase !== confirmPassphrase) {
-      setError('Passphrases do not match');
+      setError('The two passphrases do not match.');
       return;
     }
 
@@ -50,7 +60,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
       await encryptionService.setupEncryption(passphrase);
       onComplete();
     } catch (err: any) {
-      setError(err.message || 'Failed to set up encryption');
+      setError(err.message || 'Could not seal the thread.');
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +68,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
 
   const handleUnlock = async () => {
     if (!passphrase) {
-      setError('Please enter your vault passphrase');
+      setError('Enter your passphrase.');
       return;
     }
 
@@ -70,10 +80,10 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
       if (success) {
         onComplete();
       } else {
-        setError('Invalid passphrase. Please try again.');
+        setError('That passphrase is wrong. Try again.');
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to unlock vault');
+      setError(err.message || 'Could not unlock the thread.');
     } finally {
       setIsLoading(false);
     }
@@ -88,144 +98,302 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
     }
   };
 
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    marginBottom: 10,
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 10,
+    letterSpacing: '0.22em',
+    textTransform: 'uppercase',
+    color: 'var(--loom-bone-faint)',
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    background: 'var(--loom-ink)',
+    border: '1px solid var(--loom-rule)',
+    borderRadius: 2,
+    color: 'var(--loom-bone)',
+    padding: '11px 14px',
+    fontFamily: "'Inter', sans-serif",
+    fontSize: 15,
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-void/80"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-md"
+    <div
+      aria-hidden={!isOpen}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        background: 'var(--loom-ink)',
+        opacity: isOpen ? 1 : 0,
+        pointerEvents: isOpen ? 'auto' : 'none',
+        transition: 'opacity var(--loom-dur-veil) var(--loom-ease)',
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        style={{
+          width: '100%',
+          maxWidth: 460,
+          background: 'var(--loom-ink-card)',
+          border: '1px solid var(--loom-rule)',
+          borderRadius: 2,
+          padding: '40px 36px',
+          opacity: isOpen ? 1 : 0,
+          transform: isOpen ? 'translateY(0)' : 'translateY(8px)',
+          transition:
+            'opacity var(--loom-dur-shift) var(--loom-ease), transform var(--loom-dur-shift) var(--loom-ease)',
+        }}
+      >
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <span
+            aria-hidden
+            style={{
+              display: 'block',
+              fontFamily: "'Source Serif 4', serif",
+              fontSize: 40,
+              color: 'var(--loom-warm)',
+              marginBottom: 18,
+            }}
           >
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 md:p-8">
-              {/* Header */}
-              <div className="text-center mb-6">
-                <span className="font-body text-4xl text-gold block mb-5" aria-hidden>∞</span>
-                <h2 className="font-body font-light text-2xl mb-2 tracking-[-0.014em]">
-                  {mode === 'setup' ? 'Secure Your Vault' : 'Unlock Your Vault'}
-                </h2>
-                <p className="text-paper-65 text-sm leading-relaxed">
-                  {mode === 'setup'
-                    ? 'Create a vault passphrase to encrypt your memories. This is separate from your login password and provides an extra layer of security.'
-                    : 'Enter your vault passphrase to access your encrypted memories.'
-                  }
-                </p>
-              </div>
+            ∞
+          </span>
+          <h2
+            className="loom-h2"
+            style={{ fontSize: 26, fontWeight: 300, margin: '0 0 10px', letterSpacing: '-0.014em' }}
+          >
+            {mode === 'setup' ? 'Seal your thread' : 'Unlock your thread'}
+          </h2>
+          <p
+            className="loom-body"
+            style={{ fontSize: 14, color: 'var(--loom-bone-dim)', lineHeight: 1.6, margin: 0 }}
+          >
+            {mode === 'setup'
+              ? 'Choose a passphrase to encrypt every entry. It is separate from your sign-in password and is the one thing only you hold.'
+              : 'Enter your passphrase to read your encrypted entries.'}
+          </p>
+        </div>
 
-              {/* Zero-knowledge badge */}
-              <div className="mb-6 p-3 bg-void-elevated border border-gold-40 rounded-[2px]">
-                <p className="text-xs text-paper-70 leading-relaxed">
-                  <strong className="text-gold">Zero-Knowledge Encryption:</strong> Your passphrase never leaves your device. We cannot access or recover your data without it.
-                </p>
-              </div>
+        {/* Zero-knowledge assurance (kept — on-brief) */}
+        <div
+          style={{
+            marginBottom: 24,
+            padding: '14px 16px',
+            background: 'var(--loom-ink)',
+            border: '1px solid var(--loom-rule-warm)',
+            borderRadius: 2,
+          }}
+        >
+          <p
+            className="loom-body"
+            style={{ fontSize: 12.5, color: 'var(--loom-bone-dim)', lineHeight: 1.6, margin: 0 }}
+          >
+            <strong style={{ color: 'var(--loom-warm)', fontWeight: 600 }}>Zero-knowledge.</strong>{' '}
+            Your passphrase never leaves this device. We cannot read or recover your entries without it.
+          </p>
+        </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    role="alert"
-                    className="p-3 bg-void-elevated border border-blood/40 rounded-[2px] text-blood text-sm"
-                  >
-                    {error}
-                  </motion.p>
-                )}
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 18 }}>
+          {error ? (
+            <p
+              role="alert"
+              className="loom-body"
+              style={{
+                margin: 0,
+                padding: '12px 14px',
+                background: 'var(--loom-ink)',
+                border: '1px solid var(--loom-rule-warm)',
+                borderRadius: 2,
+                fontStyle: 'italic',
+                fontSize: 13.5,
+                color: 'var(--loom-warm)',
+                animation: 'none',
+              }}
+            >
+              {error}
+            </p>
+          ) : null}
 
-                <div>
-                  <label htmlFor="vault-passphrase" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
-                    {mode === 'setup' ? 'Create Vault Passphrase' : 'Vault Passphrase'}
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="vault-passphrase"
-                      type={showPassphrase ? 'text' : 'password'}
-                      value={passphrase}
-                      onChange={(e) => setPassphrase(e.target.value)}
-                      placeholder={mode === 'setup' ? 'Create a strong passphrase' : 'Enter your passphrase'}
-                      className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper pl-4 pr-16 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassphrase(!showPassphrase)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-paper-50 hover:text-paper transition-colors text-[0.65rem] font-mono uppercase tracking-[0.18em]"
-                      aria-label={showPassphrase ? 'Hide passphrase' : 'Show passphrase'}
-                    >
-                      {showPassphrase ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Passphrase strength indicators - only for setup */}
-                {mode === 'setup' && (
-                  <>
-                    <div className="space-y-1.5">
-                      {passphraseChecks.map(({ label, valid }) => (
-                        <div key={label} className="flex items-center gap-2.5 text-xs">
-                          <span className={`font-mono ${valid ? 'text-gold' : 'text-paper-30'}`} aria-hidden>
-                            {valid ? '✓' : '·'}
-                          </span>
-                          <span className={valid ? 'text-paper-70' : 'text-paper-50'}>{label}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div>
-                      <label htmlFor="vault-confirm" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Confirm Passphrase</label>
-                      <input
-                        id="vault-confirm"
-                        type="password"
-                        value={confirmPassphrase}
-                        onChange={(e) => setConfirmPassphrase(e.target.value)}
-                        placeholder="Confirm your passphrase"
-                        className={`w-full bg-void border focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors ${confirmPassphrase && passphrase !== confirmPassphrase ? 'border-blood' : 'border-paper-15'}`}
-                      />
-                      {confirmPassphrase && passphrase !== confirmPassphrase && (
-                        <p className="text-blood text-xs mt-1.5">Passphrases do not match</p>
-                      )}
-                    </div>
-
-                    {/* Warning about passphrase recovery */}
-                    <div className="p-3 bg-void-elevated border border-gold-40 rounded-[2px]">
-                      <p className="text-xs text-paper-70 leading-relaxed">
-                        <strong className="text-gold">Important:</strong> Write down your passphrase and store it safely. If you forget it, your encrypted data cannot be recovered.
-                      </p>
-                    </div>
-                  </>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading || (mode === 'setup' && (!isPassphraseValid || passphrase !== confirmPassphrase))}
-                  className="btn btn-primary w-full"
-                >
-                  {isLoading
-                    ? (mode === 'setup' ? 'Enabling…' : 'Unlocking…')
-                    : (mode === 'setup' ? 'Enable Encryption' : 'Unlock Vault')}
-                </button>
-
-                {/* Skip option for setup only */}
-                {mode === 'setup' && onSkip && (
-                  <button
-                    type="button"
-                    onClick={onSkip}
-                    className="w-full text-center text-sm text-paper-50 hover:text-paper transition-colors py-2"
-                  >
-                    Skip for now (you can enable encryption later)
-                  </button>
-                )}
-              </form>
+          <div>
+            <label htmlFor="thread-passphrase" style={labelStyle}>
+              {mode === 'setup' ? 'Set your passphrase' : 'Passphrase'}
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                id="thread-passphrase"
+                type={showPassphrase ? 'text' : 'password'}
+                value={passphrase}
+                onChange={(e) => setPassphrase(e.target.value)}
+                placeholder={mode === 'setup' ? 'four words you choose' : 'your passphrase'}
+                style={{ ...inputStyle, paddingRight: 64 }}
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassphrase(!showPassphrase)}
+                aria-label={showPassphrase ? 'Hide passphrase' : 'Show passphrase'}
+                style={{
+                  position: 'absolute',
+                  right: 12,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 0,
+                  cursor: 'pointer',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 9.5,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--loom-bone-faint)',
+                }}
+              >
+                {showPassphrase ? 'hide' : 'show'}
+              </button>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            {mode === 'unlock' ? (
+              <p
+                className="loom-body"
+                style={{ margin: '12px 0 0', fontSize: 13, fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}
+              >
+                The three or four words you chose when you sealed the thread.
+              </p>
+            ) : null}
+          </div>
+
+          {/* Setup-only: word-passphrase guidance + confirm */}
+          {mode === 'setup' ? (
+            <>
+              <p
+                className="loom-body"
+                style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: 'var(--loom-bone-faint)', lineHeight: 1.6 }}
+              >
+                Use three or four words you choose — easier to remember, harder to crack.
+              </p>
+
+              <div style={{ display: 'grid', gap: 8 }}>
+                {passphraseChecks.map(({ label, valid }) => (
+                  <div
+                    key={label}
+                    className="loom-mono"
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11 }}
+                  >
+                    <span
+                      aria-hidden
+                      style={{
+                        color: valid ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                        transition: 'color var(--loom-dur-fast) var(--loom-ease)',
+                      }}
+                    >
+                      {valid ? '∞' : '·'}
+                    </span>
+                    <span style={{ color: valid ? 'var(--loom-bone-dim)' : 'var(--loom-bone-faint)' }}>
+                      {label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <label htmlFor="thread-confirm" style={labelStyle}>
+                  Repeat it
+                </label>
+                <input
+                  id="thread-confirm"
+                  type="password"
+                  value={confirmPassphrase}
+                  onChange={(e) => setConfirmPassphrase(e.target.value)}
+                  placeholder="the same passphrase"
+                  style={{
+                    ...inputStyle,
+                    borderColor:
+                      confirmPassphrase && passphrase !== confirmPassphrase
+                        ? 'var(--loom-rule-warm)'
+                        : 'var(--loom-rule)',
+                  }}
+                />
+                {confirmPassphrase && passphrase !== confirmPassphrase ? (
+                  <p
+                    className="loom-body"
+                    style={{ margin: '8px 0 0', fontSize: 12.5, fontStyle: 'italic', color: 'var(--loom-warm)' }}
+                  >
+                    The two passphrases do not match.
+                  </p>
+                ) : null}
+              </div>
+
+              <div
+                style={{
+                  padding: '14px 16px',
+                  background: 'var(--loom-ink)',
+                  border: '1px solid var(--loom-rule-warm)',
+                  borderRadius: 2,
+                }}
+              >
+                <p
+                  className="loom-body"
+                  style={{ fontSize: 12.5, color: 'var(--loom-bone-dim)', lineHeight: 1.6, margin: 0 }}
+                >
+                  <strong style={{ color: 'var(--loom-warm)', fontWeight: 600 }}>Write it down.</strong> Store
+                  it somewhere safe. If it is lost, your encrypted entries cannot be recovered.
+                </p>
+              </div>
+            </>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={isLoading || (mode === 'setup' && (!isPassphraseValid || passphrase !== confirmPassphrase))}
+            className="loom-btn"
+            style={{
+              width: '100%',
+              marginTop: 6,
+              opacity:
+                isLoading || (mode === 'setup' && (!isPassphraseValid || passphrase !== confirmPassphrase))
+                  ? 0.5
+                  : 1,
+            }}
+          >
+            {isLoading
+              ? mode === 'setup'
+                ? 'sealing…'
+                : 'unlocking…'
+              : mode === 'setup'
+                ? 'seal the thread'
+                : 'unlock'}
+          </button>
+
+          {mode === 'setup' && onSkip ? (
+            <button
+              type="button"
+              onClick={onSkip}
+              className="loom-mono"
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+                padding: '8px 0',
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'var(--loom-bone-faint)',
+              }}
+            >
+              seal it later
+            </button>
+          ) : null}
+        </form>
+      </div>
+    </div>
   );
 }

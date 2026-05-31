@@ -53,6 +53,11 @@ export function Weft() {
   // EmptyThread warp-only state. The 'empty' mode forces that view.
   const entries = mode === 'empty' ? [] : ELEANOR_ENTRIES;
 
+  // The append-only count (invariant B) — woven = un-sealed entries; it
+  // rides the selvedge in every mode. Derived from real data, never typed.
+  const wovenCount = ELEANOR_ENTRIES.filter((e) => !e.locked).length;
+  const sealedCount = ELEANOR_ENTRIES.length - wovenCount;
+
   const toggle = (
     <ViewToggle<WeftMode>
       value={mode}
@@ -96,50 +101,24 @@ export function Weft() {
     );
   }
 
+  // The canonical home is the full-bleed cloth itself (invariant A) — no
+  // dashboard, no nav-rail, no grid columns. The meta (whose weft this is,
+  // the woven count, the resonance the AI is noticing) lives as ambient
+  // hairline captions over the cloth, not as a column beside it.
   return (
     <LoomShell>
       <Frame active="weft" right={toggle}>
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            padding: '44px 80px 0',
-            display: 'grid',
-            gridTemplateColumns: '260px 1fr 280px',
-            gap: 56,
-          }}
-        >
-          {/* LEFT — meta */}
-          <div>
-            <div className="loom-eyebrow">your weft</div>
-            <div
-              className="loom-h2"
-              style={{ fontSize: 38, marginTop: 12, marginBottom: 18 }}
-            >
-              Eleanor
-              <br />
-              Hartshorn
-            </div>
-            <div
-              className="loom-mono"
-              style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginBottom: 24 }}
-            >
-              1958 · jul · 14&nbsp;&nbsp;—&nbsp;&nbsp;∞
-            </div>
-            <hr className="loom-hairline" style={{ margin: '20px 0' }} />
-            <div style={{ display: 'grid', gap: 14 }}>
-              <Stat label="threads" value="312" />
-              <Stat label="tied off" value="14" warm />
-              <Stat label="resonances" value="48" />
-              <Stat label="kept since" value="2026" />
-            </div>
-          </div>
-
-          {/* CENTER — the loom */}
-          <div style={{ position: 'relative', paddingTop: 8 }}>
-            <div className="loom-eyebrow" style={{ marginBottom: 16 }}>
-              <span style={{ color: 'var(--loom-warm)' }}>·</span> the loom &nbsp;·&nbsp; 1958 — 2068
-            </div>
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+          {/* the full-bleed cloth — the interface IS the Tapestry */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              top: 64,
+              bottom: 96,
+              padding: '0 56px',
+            }}
+          >
             <Loom
               entries={ELEANOR_ENTRIES}
               ligatures={ligatures}
@@ -147,126 +126,90 @@ export function Weft() {
               endYear={2068}
               highlight={hover}
               onHover={setHover}
-              height={300}
+              height={typeof window !== 'undefined' ? Math.max(420, window.innerHeight - 320) : 480}
+              nowYear={2026}
+              appendCount={wovenCount}
               ambientShuttle
             />
+          </div>
 
+          {/* ambient caption, top-left — whose cloth this is, who is noticing */}
+          <div style={{ position: 'absolute', top: 28, left: 56, maxWidth: 360 }}>
+            <div className="loom-eyebrow">
+              <span style={{ color: 'var(--loom-warm)' }}>·</span> the weft &nbsp;·&nbsp; Eleanor
+              Hartshorn &nbsp;·&nbsp; 1958 — 2068
+            </div>
             <div
-              style={{
-                marginTop: 56,
-                minHeight: 88,
-                paddingTop: 18,
-                borderTop: '1px solid var(--loom-rule)',
-                transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
-              }}
+              className="loom-mono"
+              style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 8, letterSpacing: '0.18em' }}
             >
-              {focusedEntry ? (
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'auto 1fr auto',
-                    gap: 24,
-                    alignItems: 'baseline',
-                  }}
-                >
-                  <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)' }}>
-                    {focusedEntry.year}·{String(focusedEntry.month ?? 1).padStart(2, '0')}
-                  </div>
-                  <div className="loom-body" style={{ fontSize: 18 }}>
-                    {focusedEntry.title}
-                  </div>
-                  <div className="loom-eyebrow" style={{ fontSize: 10 }}>
-                    {focusedEntry.locked ? 'tied off' : focusedEntry.kind}
-                  </div>
-                  {focusedLig ? (
-                    <div
-                      style={{ gridColumn: '1 / -1', marginTop: 10, color: 'var(--loom-bone-dim)' }}
-                      className="loom-body"
-                    >
-                      <span className="loom-warm-text" style={{ fontStyle: 'italic' }}>
-                        resonance ·{' '}
-                      </span>
-                      <em>{focusedLig.label}</em>
-                    </div>
-                  ) : null}
-                </div>
-              ) : (
-                <div
-                  className="loom-body loom-dim"
-                  style={{ fontStyle: 'italic', fontSize: 16 }}
-                >
-                  Hover any thread. The loom remembers what rhymes.
-                </div>
-              )}
+              ∞ {wovenCount} woven &nbsp;·&nbsp; {sealedCount} sealed
             </div>
           </div>
 
-          {/* RIGHT — resonances list */}
-          <div>
-            <div className="loom-eyebrow">resonances</div>
+          {/* ambient resonance caption, top-right — the Listener's one line */}
+          <div style={{ position: 'absolute', top: 28, right: 56, maxWidth: 320, textAlign: 'right' }}>
             <div
               className="loom-serif"
               style={{
                 fontSize: 13,
                 color: 'var(--loom-bone-dim)',
-                marginTop: 8,
                 fontStyle: 'italic',
                 lineHeight: 1.6,
+                transition: 'opacity 360ms var(--loom-ease)',
+                opacity: showAI ? 1 : 0,
               }}
             >
-              five threads of yours seem to rhyme with five others. shown above as warm vertical hairlines.
+              {focusedLig ? (
+                <>
+                  <span className="loom-warm-text">resonance · </span>
+                  {focusedLig.label}
+                </>
+              ) : (
+                'five of your threads rhyme with five others — shown as warm hairlines across the cloth.'
+              )}
             </div>
-            <hr className="loom-hairline" style={{ margin: '18px 0' }} />
-            <div style={{ display: 'grid', gap: 14 }}>
-              {ELEANOR_RESONANCES.map((l, i) => (
-                <div
-                  key={i}
-                  style={{
-                    opacity: focusedLig === l ? 1 : 0.6,
-                    transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
-                  }}
-                >
-                  <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-warm)' }}>
-                    {ELEANOR_ENTRIES[l.from].year} — {ELEANOR_ENTRIES[l.to].year}
-                  </div>
-                  <div
-                    className="loom-serif"
-                    style={{
-                      fontSize: 13,
-                      color: 'var(--loom-bone)',
-                      fontStyle: 'italic',
-                      marginTop: 2,
-                      lineHeight: 1.45,
-                    }}
-                  >
-                    {l.label}
-                  </div>
+          </div>
+
+          {/* the focused thread — a single hairline caption along the bottom */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 56,
+              right: 56,
+              bottom: 28,
+              paddingTop: 16,
+              borderTop: '1px solid var(--loom-rule)',
+              transition: 'opacity 360ms var(--loom-ease)',
+            }}
+          >
+            {focusedEntry ? (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'auto 1fr auto',
+                  gap: 24,
+                  alignItems: 'baseline',
+                }}
+              >
+                <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)' }}>
+                  {focusedEntry.year}·{String(focusedEntry.month ?? 1).padStart(2, '0')}
                 </div>
-              ))}
-            </div>
+                <div className="loom-body" style={{ fontSize: 18 }}>
+                  {focusedEntry.title}
+                </div>
+                <div className="loom-eyebrow" style={{ fontSize: 10 }}>
+                  {focusedEntry.locked ? 'sealed' : focusedEntry.kind}
+                </div>
+              </div>
+            ) : (
+              <div className="loom-body loom-dim" style={{ fontStyle: 'italic', fontSize: 16 }}>
+                Hover any thread. The loom remembers what rhymes.
+              </div>
+            )}
           </div>
         </div>
       </Frame>
     </LoomShell>
-  );
-}
-
-function Stat({ label, value, warm }: { label: string; value: string; warm?: boolean }) {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'baseline' }}>
-      <div className="loom-eyebrow" style={{ fontSize: 10 }}>
-        {label}
-      </div>
-      <div
-        className="loom-serif"
-        style={{
-          fontSize: 24,
-          color: warm ? 'var(--loom-warm)' : 'var(--loom-bone)',
-          fontWeight: 300,
-        }}
-      >
-        {value}
-      </div>
-    </div>
   );
 }
