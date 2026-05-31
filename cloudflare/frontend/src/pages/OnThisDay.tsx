@@ -1,24 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { AppFrame } from '../loom/components/AppFrame';
-import { engagementApi } from '../services/api';
+import { memoryCardsApi } from '../services/api';
 
 interface OnThisDayMemory {
   id: string;
-  type: 'memory' | 'voice' | 'letter';
+  type: string;
   title: string;
-  preview: string;
-  thumbnail_url?: string;
-  created_at: string;
-  years_ago: number;
+  description: string;
+  photoUrl?: string | null;
+  date: string;
+  yearsAgo: number;
 }
 
 export function OnThisDay() {
   const { data, isLoading } = useQuery({
     queryKey: ['on-this-day'],
-    queryFn: () => engagementApi.getOnThisDay().then((r) => r.data),
+    queryFn: () => memoryCardsApi.getOnThisDay().then((r) => r.data).catch(() => null),
   });
 
-  const memories: OnThisDayMemory[] = data?.memories || [];
+  const memories: OnThisDayMemory[] = [
+    ...((data as any)?.memoriesFromThisDay || []),
+    ...((data as any)?.createdOnThisDay || []),
+  ];
   const today = new Date();
   const dateStr = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
 
@@ -77,21 +80,21 @@ export function OnThisDay() {
                     className="loom-mono"
                     style={{ margin: 0, fontSize: 12, color: 'var(--loom-warm)', letterSpacing: '0.06em' }}
                   >
-                    {memory.years_ago === 1 ? '1 year ago' : `${memory.years_ago} years ago`}
+                    {memory.yearsAgo === 1 ? '1 year ago' : `${memory.yearsAgo} years ago`}
                   </p>
                   <p
                     className="loom-mono"
                     style={{ margin: '4px 0 0', fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
                   >
-                    {new Date(memory.created_at).toLocaleDateString(undefined, { year: 'numeric' })} · {typeLabels[memory.type] || 'entry'}
+                    {new Date(memory.date).toLocaleDateString(undefined, { year: 'numeric' })} · {typeLabels[memory.type] || 'entry'}
                   </p>
                 </div>
 
                 {/* Right: content */}
                 <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
-                  {memory.thumbnail_url ? (
+                  {memory.photoUrl ? (
                     <img
-                      src={memory.thumbnail_url}
+                      src={memory.photoUrl}
                       alt=""
                       style={{ width: 72, height: 72, objectFit: 'cover', flexShrink: 0, borderRadius: 0 }}
                     />
@@ -103,7 +106,7 @@ export function OnThisDay() {
                     >
                       {memory.title}
                     </h3>
-                    {memory.preview && (
+                    {memory.description && (
                       <p
                         className="loom-body"
                         style={{
@@ -117,7 +120,7 @@ export function OnThisDay() {
                           overflow: 'hidden',
                         }}
                       >
-                        {memory.preview}
+                        {memory.description}
                       </p>
                     )}
                     <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--loom-rule)' }}>
