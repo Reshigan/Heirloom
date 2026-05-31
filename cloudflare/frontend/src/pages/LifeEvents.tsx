@@ -144,7 +144,7 @@ export function LifeEvents() {
 
   const { data: triggers, isLoading } = useQuery<{ triggers: LifeEventTrigger[] }>({
     queryKey: ['life-events'],
-    queryFn: () => api.get('/api/life-events').then((r: { data: { triggers: LifeEventTrigger[] } }) => r.data),
+    queryFn: () => api.get('/life-events').then((r: { data: { triggers: LifeEventTrigger[] } }) => r.data),
   });
 
   const { data: familyData } = useQuery({
@@ -195,7 +195,7 @@ export function LifeEvents() {
   })();
 
   const createMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) => api.post('/api/life-events', data),
+    mutationFn: (data: Record<string, unknown>) => api.post('/life-events', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['life-events'] });
       resetForm();
@@ -203,17 +203,17 @@ export function LifeEvents() {
   });
 
   const triggerMutation = useMutation({
-    mutationFn: (triggerId: string) => api.post(`/api/life-events/${triggerId}/trigger`),
+    mutationFn: (triggerId: string) => api.post(`/life-events/${triggerId}/trigger`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['life-events'] }),
   });
 
   const cancelMutation = useMutation({
-    mutationFn: (triggerId: string) => api.post(`/api/life-events/${triggerId}/cancel`),
+    mutationFn: (triggerId: string) => api.post(`/life-events/${triggerId}/cancel`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['life-events'] }),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (triggerId: string) => api.delete(`/api/life-events/${triggerId}`),
+    mutationFn: (triggerId: string) => api.delete(`/life-events/${triggerId}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['life-events'] }),
   });
 

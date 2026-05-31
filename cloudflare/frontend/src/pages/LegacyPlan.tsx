@@ -83,18 +83,18 @@ export function LegacyPlan() {
 
   const { data, isLoading } = useQuery<LegacyPlan>({
     queryKey: ['legacy-plan'],
-    queryFn: () => api.get('/api/legacy-plan').then((r: { data: LegacyPlan }) => r.data),
+    queryFn: () => api.get('/legacy-plan').then((r: { data: LegacyPlan }) => r.data),
   });
 
   const toggleItemMutation = useMutation({
     mutationFn: ({ itemId, completed }: { itemId: string; completed: boolean }) =>
-      api.patch(`/api/legacy-plan/items/${itemId}`, { completed }),
+      api.patch(`/legacy-plan/items/${itemId}`, { completed }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['legacy-plan'] }),
   });
 
   const addItemMutation = useMutation({
     mutationFn: (data: { category: string; title: string; description?: string }) =>
-      api.post('/api/legacy-plan/items', data),
+      api.post('/legacy-plan/items', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['legacy-plan'] });
       setShowAddItem(null);
@@ -104,12 +104,12 @@ export function LegacyPlan() {
   });
 
   const deleteItemMutation = useMutation({
-    mutationFn: (itemId: string) => api.delete(`/api/legacy-plan/items/${itemId}`),
+    mutationFn: (itemId: string) => api.delete(`/legacy-plan/items/${itemId}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['legacy-plan'] }),
   });
 
   const toggleShareMutation = useMutation({
-    mutationFn: (shareProgress: boolean) => api.patch('/api/legacy-plan/share', { shareProgress }),
+    mutationFn: (shareProgress: boolean) => api.patch('/legacy-plan/share', { shareProgress }),
     onSuccess: (response: { data: { shareUrl?: string } }) => {
       queryClient.invalidateQueries({ queryKey: ['legacy-plan'] });
       if (response.data.shareUrl) {

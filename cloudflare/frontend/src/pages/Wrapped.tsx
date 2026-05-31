@@ -333,7 +333,7 @@ const Wrapped: React.FC = () => {
               <StatCell
                 eye="this year you wrote"
                 n={totalEntries}
-                sub={`${stats!.totalMemories} memories · ${stats!.totalLetters} letters`}
+                sub={`${stats!.totalMemories} ${stats!.totalMemories === 1 ? 'memory' : 'memories'} · ${stats!.totalLetters} ${stats!.totalLetters === 1 ? 'letter' : 'letters'}`}
                 borderRight
               />
               <StatCell

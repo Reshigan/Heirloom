@@ -195,17 +195,17 @@ export function RecipientExperience() {
 
   const { data: schedulesData, isLoading: schedulesLoading } = useQuery<{ schedules: ReleaseSchedule[] }>({
     queryKey: ['release-schedules'],
-    queryFn: () => api.get('/api/recipient-experience/schedules').then((r: { data: { schedules: ReleaseSchedule[] } }) => r.data),
+    queryFn: () => api.get('/recipient-experience/schedules').then((r: { data: { schedules: ReleaseSchedule[] } }) => r.data),
   });
 
   const { data: roomData, isLoading: roomLoading } = useQuery<{ room: FamilyMemoryRoom; contributionCount: number }>({
     queryKey: ['memory-room'],
-    queryFn: () => api.get('/api/recipient-experience/memory-room').then((r: { data: { room: FamilyMemoryRoom; contributionCount: number } }) => r.data),
+    queryFn: () => api.get('/recipient-experience/memory-room').then((r: { data: { room: FamilyMemoryRoom; contributionCount: number } }) => r.data),
   });
 
   const { data: contributionsData } = useQuery<{ contributions: Contribution[] }>({
     queryKey: ['room-contributions'],
-    queryFn: () => api.get('/api/recipient-experience/memory-room/contributions').then((r: { data: { contributions: Contribution[] } }) => r.data),
+    queryFn: () => api.get('/recipient-experience/memory-room/contributions').then((r: { data: { contributions: Contribution[] } }) => r.data),
     enabled: activeTab === 'room',
   });
 
@@ -220,7 +220,7 @@ export function RecipientExperience() {
   });
 
   const sendTestEmailMutation = useMutation({
-    mutationFn: () => api.post('/api/recipient-experience/test-email'),
+    mutationFn: () => api.post('/recipient-experience/test-email'),
     onSuccess: () => {
       setTestEmailSent(true);
       setTimeout(() => {
@@ -293,25 +293,25 @@ export function RecipientExperience() {
 
   const updateScheduleMutation = useMutation({
     mutationFn: ({ scheduleId, data }: { scheduleId: string; data: Record<string, unknown> }) =>
-      api.patch(`/api/recipient-experience/schedules/${scheduleId}`, data),
+      api.patch(`/recipient-experience/schedules/${scheduleId}`, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['release-schedules'] }),
   });
 
   const updateRoomMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
-      api.patch('/api/recipient-experience/memory-room', data),
+      api.patch('/recipient-experience/memory-room', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['memory-room'] }),
   });
 
   const moderateContributionMutation = useMutation({
     mutationFn: ({ contributionId, status }: { contributionId: string; status: string }) =>
-      api.patch(`/api/recipient-experience/memory-room/contributions/${contributionId}`, { status }),
+      api.patch(`/recipient-experience/memory-room/contributions/${contributionId}`, { status }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['room-contributions'] }),
   });
 
   const sendInviteMutation = useMutation({
     mutationFn: (data: { email: string; name: string }) =>
-      api.post('/api/recipient-experience/memory-room/invite', data),
+      api.post('/recipient-experience/memory-room/invite', data),
     onSuccess: () => {
       setInviteSent(true);
       setInviteEmail('');

@@ -224,84 +224,79 @@ memoryCardsRoutes.get('/', async (c) => {
 // Get "On This Day" memories
 memoryCardsRoutes.get('/on-this-day', async (c) => {
   const userId = c.get('userId');
-  
+
   if (!userId) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
-  
-  const today = new Date();
-  const month = today.getMonth() + 1;
-  const day = today.getDate();
-  
-  // Find memories from this day in previous years
-  const memories = await c.env.DB.prepare(`
-    SELECT m.*, 
-           strftime('%Y', m.memory_date) as memory_year,
-           (strftime('%Y', 'now') - strftime('%Y', m.memory_date)) as years_ago
-    FROM memories m
-    WHERE m.user_id = ?
-      AND m.deleted_at IS NULL
-      AND strftime('%m', m.memory_date) = ?
-      AND strftime('%d', m.memory_date) = ?
-      AND strftime('%Y', m.memory_date) < strftime('%Y', 'now')
-    ORDER BY m.memory_date DESC
-    LIMIT 10
-  `).bind(userId, month.toString().padStart(2, '0'), day.toString().padStart(2, '0')).all();
-  
-  // Also check for memories created on this day (not memory_date)
-  const createdOnThisDay = await c.env.DB.prepare(`
-    SELECT m.*, 
-           strftime('%Y', m.created_at) as created_year,
-           (strftime('%Y', 'now') - strftime('%Y', m.created_at)) as years_ago
-    FROM memories m
-    WHERE m.user_id = ?
-      AND m.deleted_at IS NULL
-      AND strftime('%m', m.created_at) = ?
-      AND strftime('%d', m.created_at) = ?
-      AND strftime('%Y', m.created_at) < strftime('%Y', 'now')
-    ORDER BY m.created_at DESC
-    LIMIT 5
-  `).bind(userId, month.toString().padStart(2, '0'), day.toString().padStart(2, '0')).all();
-  
-  // Get photos for memories
-  const memoryIds = [...memories.results, ...createdOnThisDay.results].map((m: any) => m.id);
-  let photosMap: Record<string, string> = {};
-  
-  if (memoryIds.length > 0) {
-    const photos = await c.env.DB.prepare(`
-      SELECT memory_id, file_key FROM memory_files 
-      WHERE memory_id IN (${memoryIds.map(() => '?').join(',')}) 
-      AND file_type LIKE 'image/%'
-    `).bind(...memoryIds).all();
-    
-    photos.results.forEach((p: any) => {
-      if (!photosMap[p.memory_id]) {
-        photosMap[p.memory_id] = `https://api.heirloom.blue/api/files/${p.file_key}`;
-      }
-    });
-  }
-  
-  const formatMemory = async (m: any, type: 'memory_date' | 'created') => {
-    const d = (await readDescription(c.env, m)) || '';
-    return {
-      id: m.id,
-      title: m.title,
-      description: d.substring(0, 200) + (d.length > 200 ? '...' : ''),
-      photoUrl: photosMap[m.id] || null,
-      yearsAgo: m.years_ago,
-      year: type === 'memory_date' ? m.memory_year : m.created_year,
-      type,
-      date: type === 'memory_date' ? m.memory_date : m.created_at,
-    };
-  };
 
-  return c.json({
-    date: today.toISOString().split('T')[0],
-    displayDate: today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
-    memoriesFromThisDay: await Promise.all(memories.results.map((m: any) => formatMemory(m, 'memory_date'))),
-    createdOnThisDay: await Promise.all(createdOnThisDay.results.map((m: any) => formatMemory(m, 'created'))),
-    hasMemories: memories.results.length > 0 || createdOnThisDay.results.length > 0,
-  });
+  try {
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
+    const mm = month.toString().padStart(2, '0');
+    const dd = day.toString().padStart(2, '0');
+
+    // Find memories written on this date in previous years (memories table has no
+    // memory_date column — created_at is the only date field available)
+    const memories = await c.env.DB.prepare(`
+      SELECT m.*,
+             strftime('%Y', m.created_at) as created_year,
+             (strftime('%Y', 'now') - strftime('%Y', m.created_at)) as years_ago
+      FROM memories m
+      WHERE m.user_id = ?
+        AND m.deleted_at IS NULL
+        AND strftime('%m', m.created_at) = ?
+        AND strftime('%d', m.created_at) = ?
+        AND strftime('%Y', m.created_at) < strftime('%Y', 'now')
+      ORDER BY m.created_at DESC
+      LIMIT 10
+    `).bind(userId, mm, dd).all();
+
+    // Get photos for memories
+    const memoryIds = memories.results.map((m: any) => m.id);
+    let photosMap: Record<string, string> = {};
+
+    if (memoryIds.length > 0) {
+      const photos = await c.env.DB.prepare(`
+        SELECT memory_id, file_key FROM memory_files
+        WHERE memory_id IN (${memoryIds.map(() => '?').join(',')})
+        AND file_type LIKE 'image/%'
+      `).bind(...memoryIds).all();
+
+      photos.results.forEach((p: any) => {
+        if (!photosMap[p.memory_id]) {
+          photosMap[p.memory_id] = `https://api.heirloom.blue/api/files/${p.file_key}`;
+        }
+      });
+    }
+
+    const formatMemory = async (m: any) => {
+      const d = (await readDescription(c.env, m)) || '';
+      return {
+        id: m.id,
+        title: m.title,
+        description: d.substring(0, 200) + (d.length > 200 ? '...' : ''),
+        photoUrl: photosMap[m.id] || null,
+        yearsAgo: m.years_ago,
+        year: m.created_year,
+        type: 'memory',
+        date: m.created_at,
+      };
+    };
+
+    const formatted = await Promise.all(memories.results.map((m: any) => formatMemory(m)));
+
+    return c.json({
+      date: today.toISOString().split('T')[0],
+      displayDate: `${today.toLocaleString('en-US', { month: 'long' })} ${day}`,
+      memoriesFromThisDay: formatted,
+      createdOnThisDay: [],
+      hasMemories: memories.results.length > 0,
+    });
+  } catch (err: any) {
+    console.error('[on-this-day] failed:', err?.message ?? err);
+    return c.json({ error: 'Failed to load on-this-day data' }, 500);
+  }
 });
 
 // Get a specific card (public endpoint for sharing)

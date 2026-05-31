@@ -97,7 +97,7 @@ export function StoryArtifact() {
 
   const { data: artifacts, isLoading } = useQuery<{ artifacts: StoryArtifactItem[] }>({
     queryKey: ['story-artifacts'],
-    queryFn: () => api.get('/api/story-artifacts').then((r: { data: { artifacts: StoryArtifactItem[] } }) => r.data),
+    queryFn: () => api.get('/story-artifacts').then((r: { data: { artifacts: StoryArtifactItem[] } }) => r.data),
   });
 
   const { data: memoriesData } = useQuery({
@@ -129,7 +129,7 @@ export function StoryArtifact() {
 
   const createMutation = useMutation({
     mutationFn: (data: { title: string; description?: string; selectedMemories: string[]; selectedVoice?: string; theme: string; musicTrack?: string }) =>
-      api.post('/api/story-artifacts', data),
+      api.post('/story-artifacts', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['story-artifacts'] });
       resetForm();
@@ -137,12 +137,12 @@ export function StoryArtifact() {
   });
 
   const generateMutation = useMutation({
-    mutationFn: (artifactId: string) => api.post(`/api/story-artifacts/${artifactId}/generate`),
+    mutationFn: (artifactId: string) => api.post(`/story-artifacts/${artifactId}/generate`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['story-artifacts'] }),
   });
 
   const shareMutation = useMutation({
-    mutationFn: (artifactId: string) => api.post(`/api/story-artifacts/${artifactId}/share`, { expiryDays: 7 }),
+    mutationFn: (artifactId: string) => api.post(`/story-artifacts/${artifactId}/share`, { expiryDays: 7 }),
     onSuccess: (response: { data: { shareToken: string } }) => {
       const baseUrl = window.location.origin;
       setShareUrl(`${baseUrl}/story/${response.data.shareToken}`);
@@ -150,7 +150,7 @@ export function StoryArtifact() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (artifactId: string) => api.delete(`/api/story-artifacts/${artifactId}`),
+    mutationFn: (artifactId: string) => api.delete(`/story-artifacts/${artifactId}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['story-artifacts'] }),
   });
 

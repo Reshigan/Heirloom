@@ -83,7 +83,7 @@ export function Navigation() {
         background: 'color-mix(in srgb, var(--loom-ink) 98%, transparent)',
       }}
     >
-      <Link to="/dashboard" className="loom-mark" style={{ textDecoration: 'none' }}>
+      <Link to="/loom" className="loom-mark" style={{ textDecoration: 'none' }}>
         <span className="infmark">∞</span>heirloom
       </Link>
 
