@@ -26,7 +26,11 @@ export function Letters() {
     queryKey: ['letters'],
     queryFn: () => lettersApi.getAll({ limit: 200 }).then((r) => r.data).catch(() => null),
   });
-  const letters: Letter[] = (data?.letters ?? data ?? []) as Letter[];
+  const letters: Letter[] = Array.isArray((data as any)?.data)
+    ? (data as any).data
+    : Array.isArray(data)
+    ? (data as any)
+    : [];
 
   return (
     <AppFrame>
