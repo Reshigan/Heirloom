@@ -1,4 +1,5 @@
 import type { Env } from '../index';
+import { sendWebPush, type VapidConfig } from './webPushSender';
 
 interface QueuedNotification {
   id: string;
@@ -244,11 +245,18 @@ export async function processPushNotificationQueue(env: Env): Promise<{
 
   const hasAPNsConfig = env.APNS_TEAM_ID && env.APNS_KEY_ID && env.APNS_PRIVATE_KEY && env.APNS_BUNDLE_ID;
   const hasFCMConfig = env.FCM_PROJECT_ID && env.FCM_PRIVATE_KEY && env.FCM_CLIENT_EMAIL;
+  const hasVapidConfig = env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && env.VAPID_SUBJECT;
 
-  if (!hasAPNsConfig && !hasFCMConfig) {
+  if (!hasAPNsConfig && !hasFCMConfig && !hasVapidConfig) {
     console.log('Push notification credentials not configured. Skipping queue processing.');
     return result;
   }
+
+  const vapidConfig: VapidConfig | null = hasVapidConfig ? {
+    publicKey: env.VAPID_PUBLIC_KEY!,
+    privateKey: env.VAPID_PRIVATE_KEY!,
+    subject: env.VAPID_SUBJECT!,
+  } : null;
 
   const apnsConfig: APNsConfig | null = hasAPNsConfig ? {
     teamId: env.APNS_TEAM_ID!,
@@ -313,6 +321,12 @@ export async function processPushNotificationQueue(env: Env): Promise<{
             data: notificationData,
             badge: notification.badge_count,
           }, fcmConfig);
+        } else if (device.platform === 'web' && vapidConfig) {
+          sendResult = await sendWebPush(device.token, {
+            title: notification.title,
+            body: notification.body,
+            data: { ...notificationData, badge: notification.badge_count },
+          }, vapidConfig);
         } else {
           sendResult = { success: false, error: `No config for platform: ${device.platform}` };
         }
@@ -324,7 +338,12 @@ export async function processPushNotificationQueue(env: Env): Promise<{
           `).bind(new Date().toISOString(), device.id).run();
         } else {
           errors.push(`${device.platform}: ${sendResult.error}`);
-          if (sendResult.error?.includes('Unregistered') || sendResult.error?.includes('InvalidRegistration')) {
+          // Deactivate tokens the provider reports as permanently gone so the
+          // queue stops retrying them: APNs/FCM strings, or a web `gone` flag.
+          const expired = (sendResult as { gone?: boolean }).gone === true
+            || sendResult.error?.includes('Unregistered')
+            || sendResult.error?.includes('InvalidRegistration');
+          if (expired) {
             await env.DB.prepare(`
               UPDATE device_tokens SET is_active = 0, updated_at = ? WHERE id = ?
             `).bind(new Date().toISOString(), device.id).run();

@@ -108,7 +108,13 @@ export interface Env {
   FCM_PROJECT_ID?: string;
   FCM_PRIVATE_KEY?: string;
   FCM_CLIENT_EMAIL?: string;
-  
+
+  // VAPID (Web Push — browser/PWA). Public key also lives in the frontend build
+  // as VITE_VAPID_PUBLIC_KEY; the two MUST match. Private key is a Worker secret.
+  VAPID_PUBLIC_KEY?: string;
+  VAPID_PRIVATE_KEY?: string;
+  VAPID_SUBJECT?: string;
+
   // Feature flags
   CRON_ENABLED?: string;
   
