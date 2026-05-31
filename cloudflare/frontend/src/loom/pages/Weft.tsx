@@ -1,62 +1,108 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { LoomShell } from '../components/LoomShell';
 import { Frame } from '../components/Frame';
-import { Loom, type LoomLigature } from '../components/Loom';
+import { Loom, type LoomEntry, type LoomLigature } from '../components/Loom';
 import { ViewToggle } from '../components/ViewToggle';
 import { EmptyThread } from '../components/EmptyThread';
 import { WeftPull } from '../components/WeftPull';
 import { WeftCentury } from '../components/WeftCentury';
-import { ELEANOR_ENTRIES, ELEANOR_RESONANCES } from '../data/mock';
+import { memoriesApi, lettersApi, voiceApi } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
 
 /**
  * Screen 02 — The Weft
  *
- * The user's life as a horizontal woven band, 1958 → 2068. Hovering
- * any thread shows the AI's resonances against it. The right rail is
- * the AI's quiet observations — never named, never asking, just
- * noticing.
+ * The user's life as a horizontal woven band. Fetches real data from
+ * the memories, letters, and voice APIs; falls back to the EmptyThread
+ * warp-only view when the cloth has no picks yet.
  *
- * The cloth has four view-modes, switched by the loom-mono ViewToggle
- * in the top bar:
- *   canon   — the canonical horizontal band (default, below)
- *   pull    — one thread at a time, vertical paging  (WeftPull)
- *   century — the whole archive compressed to a century (WeftCentury)
- *   empty   — the first-session warp-only state       (EmptyThread)
- * The empty state is what the cloth shows when entries.length === 0;
- * it is also reachable as a mode so reviewers can see it against the
- * seeded mock family.
+ * Four view-modes (ViewToggle in top bar):
+ *   canon   — full-bleed horizontal cloth (default)
+ *   pull    — one thread at a time, vertical paging (WeftPull)
+ *   century — the whole archive compressed (WeftCentury)
+ *   empty   — warp-only, forced (for reviewers)
  */
 type WeftMode = 'canon' | 'pull' | 'century' | 'empty';
+
+const NOW_YEAR = new Date().getFullYear();
+
+function toEntries(
+  memories: any[],
+  letters: any[],
+  voice: any[],
+): LoomEntry[] {
+  const all: LoomEntry[] = [];
+  let lane = 0;
+
+  for (const m of memories) {
+    const d = new Date(m.memory_date || m.created_at);
+    if (isNaN(d.getTime())) continue;
+    all.push({ year: d.getFullYear(), month: d.getMonth() + 1, lane: lane++ % 5, kind: 'memory', title: m.title ?? undefined });
+  }
+  for (const l of letters) {
+    const d = new Date(l.createdAt || l.created_at);
+    if (isNaN(d.getTime())) continue;
+    all.push({ year: d.getFullYear(), month: d.getMonth() + 1, lane: lane++ % 5, kind: 'letter', locked: !!l.sealedAt, title: l.title ?? l.salutation ?? undefined });
+  }
+  for (const v of voice) {
+    const d = new Date(v.createdAt || v.created_at);
+    if (isNaN(d.getTime())) continue;
+    all.push({ year: d.getFullYear(), month: d.getMonth() + 1, lane: lane++ % 5, kind: 'voice', title: v.title ?? undefined });
+  }
+
+  return all.sort((a, b) => (a.year * 12 + (a.month ?? 1)) - (b.year * 12 + (b.month ?? 1)));
+}
 
 export function Weft() {
   const [hover, setHover] = useState<number | null>(null);
   const [showAI, setShowAI] = useState(false);
   const [mode, setMode] = useState<WeftMode>('canon');
+  const { user } = useAuthStore();
 
   useEffect(() => {
     const t = setTimeout(() => setShowAI(true), 900);
     return () => clearTimeout(t);
   }, []);
 
-  const ligatures: LoomLigature[] = ELEANOR_RESONANCES.map((l) => ({
-    ...l,
-    show: showAI,
-  }));
+  const { data: memoriesData } = useQuery({
+    queryKey: ['weft-memories'],
+    queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+  });
+  const { data: lettersData } = useQuery({
+    queryKey: ['weft-letters'],
+    queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+  });
+  const { data: voiceData } = useQuery({
+    queryKey: ['weft-voice'],
+    queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+  });
 
-  const focusedLig =
-    hover != null
-      ? ELEANOR_RESONANCES.find((l) => l.from === hover || l.to === hover) ?? null
-      : null;
-  const focusedEntry = hover != null ? ELEANOR_ENTRIES[hover] : null;
+  const allEntries = useMemo(() => {
+    const mems = Array.isArray((memoriesData as any)?.memories) ? (memoriesData as any).memories : [];
+    const lets = Array.isArray((lettersData as any)?.data) ? (lettersData as any).data : [];
+    const vox = Array.isArray((voiceData as any)?.data) ? (voiceData as any).data : [];
+    return toEntries(mems, lets, vox);
+  }, [memoriesData, lettersData, voiceData]);
 
-  // The cloth's entries — the first session has none, which renders the
-  // EmptyThread warp-only state. The 'empty' mode forces that view.
-  const entries = mode === 'empty' ? [] : ELEANOR_ENTRIES;
+  const ligatures: LoomLigature[] = [];
 
-  // The append-only count (invariant B) — woven = un-sealed entries; it
-  // rides the selvedge in every mode. Derived from real data, never typed.
-  const wovenCount = ELEANOR_ENTRIES.filter((e) => !e.locked).length;
-  const sealedCount = ELEANOR_ENTRIES.length - wovenCount;
+  const focusedEntry = hover != null ? allEntries[hover] : null;
+
+  const entries = mode === 'empty' ? [] : allEntries;
+  const wovenCount = allEntries.filter((e) => !e.locked).length;
+  const sealedCount = allEntries.length - wovenCount;
+
+  const startYear = allEntries.length > 0
+    ? Math.min(allEntries[0].year - 5, NOW_YEAR - 30)
+    : NOW_YEAR - 30;
+  const endYear = allEntries.length > 0
+    ? Math.max(allEntries[allEntries.length - 1].year + 30, NOW_YEAR + 50)
+    : NOW_YEAR + 50;
+
+  const displayName = user
+    ? `${user.firstName} ${user.lastName}`.trim() || user.email
+    : 'your cloth';
 
   const toggle = (
     <ViewToggle<WeftMode>
@@ -101,53 +147,34 @@ export function Weft() {
     );
   }
 
-  // The canonical home is the full-bleed cloth itself (invariant A) — no
-  // dashboard, no nav-rail, no grid columns. The meta (whose weft this is,
-  // the woven count, the resonance the AI is noticing) lives as ambient
-  // hairline captions over the cloth, not as a column beside it.
   return (
     <LoomShell>
       <Frame active="weft" right={toggle}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-          {/* the full-bleed cloth — the interface IS the Tapestry */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              top: 64,
-              bottom: 96,
-              padding: '0 56px',
-            }}
-          >
+          <div style={{ position: 'absolute', inset: 0, top: 64, bottom: 96, padding: '0 56px' }}>
             <Loom
-              entries={ELEANOR_ENTRIES}
+              entries={entries}
               ligatures={ligatures}
-              startYear={1958}
-              endYear={2068}
+              startYear={startYear}
+              endYear={endYear}
               highlight={hover}
               onHover={setHover}
               height={typeof window !== 'undefined' ? Math.max(420, window.innerHeight - 320) : 480}
-              nowYear={2026}
+              nowYear={NOW_YEAR}
               appendCount={wovenCount}
               ambientShuttle
             />
           </div>
 
-          {/* ambient caption, top-left — whose cloth this is, who is noticing */}
           <div style={{ position: 'absolute', top: 28, left: 56, maxWidth: 360 }}>
             <div className="loom-eyebrow">
-              <span style={{ color: 'var(--loom-warm)' }}>·</span> the weft &nbsp;·&nbsp; Eleanor
-              Hartshorn &nbsp;·&nbsp; 1958 — 2068
+              <span style={{ color: 'var(--loom-warm)' }}>·</span> the weft &nbsp;·&nbsp; {displayName} &nbsp;·&nbsp; {startYear} — {endYear}
             </div>
-            <div
-              className="loom-mono"
-              style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 8, letterSpacing: '0.18em' }}
-            >
+            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 8, letterSpacing: '0.18em' }}>
               ∞ {wovenCount} woven &nbsp;·&nbsp; {sealedCount} sealed
             </div>
           </div>
 
-          {/* ambient resonance caption, top-right — the Listener's one line */}
           <div style={{ position: 'absolute', top: 28, right: 56, maxWidth: 320, textAlign: 'right' }}>
             <div
               className="loom-serif"
@@ -160,18 +187,10 @@ export function Weft() {
                 opacity: showAI ? 1 : 0,
               }}
             >
-              {focusedLig ? (
-                <>
-                  <span className="loom-warm-text">resonance · </span>
-                  {focusedLig.label}
-                </>
-              ) : (
-                'five of your threads rhyme with five others — shown as warm hairlines across the cloth.'
-              )}
+              Hover any thread. The loom remembers what rhymes.
             </div>
           </div>
 
-          {/* the focused thread — a single hairline caption along the bottom */}
           <div
             style={{
               position: 'absolute',
@@ -184,14 +203,7 @@ export function Weft() {
             }}
           >
             {focusedEntry ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'auto 1fr auto',
-                  gap: 24,
-                  alignItems: 'baseline',
-                }}
-              >
+              <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 24, alignItems: 'baseline' }}>
                 <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)' }}>
                   {focusedEntry.year}·{String(focusedEntry.month ?? 1).padStart(2, '0')}
                 </div>

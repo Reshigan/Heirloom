@@ -340,7 +340,7 @@ export function Record() {
             <textarea
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
-              placeholder="Type a few words or paste the transcript. The loom can transcribe the audio later."
+              placeholder="Add your own transcript after recording — or leave blank and the loom will transcribe the audio."
               rows={6}
               style={{ minHeight: 140 }}
             />

@@ -16,15 +16,11 @@ wrappedRoutes.get('/current', async (c) => {
   }
   const currentYear = new Date().getFullYear();
   
-  // Check if wrapped data exists for current year
-  let wrapped = await c.env.DB.prepare(`
-    SELECT * FROM wrapped_data WHERE user_id = ? AND year = ?
-  `).bind(userId, currentYear).first();
-  
-  if (!wrapped) {
-    // Generate wrapped data for current year
-    wrapped = await generateWrappedData(c.env.DB, userId, currentYear);
-  }
+  // Current year: always regenerate so new entries are reflected immediately.
+  // (Past years are cached; current year changes too often to cache.)
+  await c.env.DB.prepare(`DELETE FROM wrapped_data WHERE user_id = ? AND year = ?`)
+    .bind(userId, currentYear).run();
+  const wrapped = await generateWrappedData(c.env.DB, userId, currentYear);
   
   return c.json({
     id: wrapped.id,
@@ -185,12 +181,20 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
 
   // Get voice stats
   const voiceStats = await db.prepare(`
-    SELECT 
+    SELECT
       COUNT(*) as count,
       COALESCE(SUM(file_size), 0) as storage
     FROM voice_recordings
     WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
   `).bind(userId, startDate, endDate).first();
+
+  // Get thread entry stats (family thread entries count toward the cloth)
+  const threadEntryStats = await db.prepare(`
+    SELECT COUNT(*) as count
+    FROM thread_entries
+    WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND visibility_revoked_at IS NULL
+  `).bind(userId, startDate, endDate).first();
+  const threadEntryCount = (threadEntryStats?.count as number) || 0;
 
   // Get top emotions from memories metadata
   const emotions = await db.prepare(`
@@ -265,17 +269,18 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
     LIMIT 10
   `).bind(userId, startDate, endDate).all();
   
-  // Generate summary
-  const totalItems = ((memoryStats?.count as number) || 0) + ((letterStats?.count as number) || 0) + ((voiceStats?.count as number) || 0);
-  const summary = totalItems > 0 
-    ? `In ${year}, you created ${memoryStats?.count || 0} memories, wrote ${letterStats?.count || 0} letters, and recorded ${voiceStats?.count || 0} voice stories. Your longest streak was ${longestStreak} days of consecutive activity.`
+  // Generate summary (thread entries + memories both count as "woven")
+  const memoryCount = ((memoryStats?.count as number) || 0) + threadEntryCount;
+  const totalItems = memoryCount + ((letterStats?.count as number) || 0) + ((voiceStats?.count as number) || 0);
+  const summary = totalItems > 0
+    ? `In ${year}, you wove ${memoryCount} entr${memoryCount === 1 ? 'y' : 'ies'} into the thread, wrote ${letterStats?.count || 0} letter${(letterStats?.count || 0) === 1 ? '' : 's'}, and recorded ${voiceStats?.count || 0} voice stor${(voiceStats?.count || 0) === 1 ? 'y' : 'ies'}. Your longest streak was ${longestStreak} days of consecutive activity.`
     : `No activity recorded for ${year}.`;
-  
+
   // Save wrapped data
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const totalStorage = ((memoryStats?.storage as number) || 0) + ((voiceStats?.storage as number) || 0);
-  
+
   await db.prepare(`
     INSERT INTO wrapped_data (id, user_id, year, total_memories, total_voice_stories, total_letters, total_storage, longest_streak, current_streak, top_emotions, top_tagged_people, highlights, summary, generated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -283,7 +288,7 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
     id,
     userId,
     year,
-    memoryStats?.count || 0,
+    memoryCount,
     voiceStats?.count || 0,
     letterStats?.count || 0,
     totalStorage,
@@ -299,7 +304,7 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
   return {
     id,
     year,
-    total_memories: memoryStats?.count || 0,
+    total_memories: memoryCount,
     total_voice_stories: voiceStats?.count || 0,
     total_letters: letterStats?.count || 0,
     total_storage: totalStorage,

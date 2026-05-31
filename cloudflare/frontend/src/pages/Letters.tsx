@@ -176,7 +176,7 @@ function Empty() {
       >
         The best letters are written for someone you'll never meet.
       </h2>
-      <Link to="/compose" className="loom-btn" style={{ textDecoration: 'none' }}>
+      <Link to="/letters/new" className="loom-btn" style={{ textDecoration: 'none' }}>
         write a letter
       </Link>
     </div>

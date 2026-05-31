@@ -36,7 +36,7 @@ export function Login() {
       if (encryptionStatus.enabled && !encryptionStatus.unlocked) {
         setShowVaultUnlock(true);
       } else {
-        navigate(redirectUrl || '/dashboard');
+        navigate(redirectUrl || '/loom');
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Email or password is wrong.');
@@ -288,7 +288,7 @@ export function Login() {
           mode="unlock"
           onComplete={() => {
             setShowVaultUnlock(false);
-            navigate(redirectUrl || '/dashboard');
+            navigate(redirectUrl || '/loom');
           }}
         />
       ) : null}
