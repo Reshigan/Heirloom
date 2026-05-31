@@ -90,62 +90,12 @@
 
       <div class="statusbar">
         <span class="status" id="since">offline</span>
-        <a class="sync" href="/" onclick="location.reload()">sync · when ready →</a>
+        <a class="sync" id="sync" href="/">sync · when ready →</a>
       </div>
     </div>
 
-    <script>
-      // Honest, presentational holding queue — shares the localStorage key
-      // the in-app Offline route (src/loom/pages/Offline.tsx) reads, so a line
-      // written here is still there when the SPA reloads. Nothing is sent
-      // while offline; we never claim it synced.
-      (function () {
-        var KEY = 'heirloom-offline-holding';
-        var SINCE = 'heirloom-offline-since';
-        function read() { try { var r = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(r) ? r : []; } catch (e) { return []; } }
-        function write(q) { try { localStorage.setItem(KEY, JSON.stringify(q)); } catch (e) {} }
-        function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
-
-        var draft = document.getElementById('draft');
-        var holdBtn = document.getElementById('hold');
-        var queueEl = document.getElementById('queue');
-        var queueSection = document.getElementById('queue-section');
-        var queueLabel = document.getElementById('queue-label');
-        var countEl = document.getElementById('holding-count');
-
-        function render() {
-          var q = read();
-          countEl.textContent = q.length + (q.length === 1 ? ' entry holding' : ' entries holding');
-          if (q.length === 0) { queueSection.style.display = 'none'; return; }
-          queueSection.style.display = 'block';
-          queueLabel.textContent = 'holding offline · ' + q.length;
-          queueEl.innerHTML = q.map(function (e) {
-            return '<div class="held"><span class="tick"></span>' +
-              '<span class="text">' + esc(e.text) + '</span>' +
-              '<span class="holdtag">holding</span></div>';
-          }).join('');
-        }
-
-        draft.addEventListener('input', function () { holdBtn.disabled = !draft.value.trim(); });
-        holdBtn.addEventListener('click', function () {
-          var text = draft.value.trim();
-          if (!text) return;
-          var q = read();
-          q.unshift({ id: 'h_' + Date.now().toString(36), text: text, at: Date.now(), dye: 'walnut' });
-          write(q);
-          draft.value = ''; holdBtn.disabled = true;
-          render();
-        });
-
-        // offline-since clock
-        var since;
-        try { since = Number(localStorage.getItem(SINCE)) || Date.now(); localStorage.setItem(SINCE, String(since)); } catch (e) { since = Date.now(); }
-        var t = new Date(since).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('since').textContent = 'offline · since ' + t;
-
-        window.addEventListener('online', function () { location.reload(); });
-        render();
-      })();
-    </script>
+    <!-- External (not inline): the production CSP blocks inline scripts. This
+         file is precached by sw.js so it is available offline. -->
+    <script src="/offline-boot.js"></script>
   </body>
 </html>

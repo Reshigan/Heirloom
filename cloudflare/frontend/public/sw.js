@@ -19,7 +19,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v3';
+const CACHE = 'heirloom-v4';
 const SHELL = '/index.html';
 const OFFLINE = '/offline';
 const PRECACHE = [
@@ -31,6 +31,9 @@ const PRECACHE = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   OFFLINE,
+  // The offline page's logic lives in an external file (CSP blocks inline
+  // scripts); precache it so the holding queue works with no network.
+  '/offline-boot.js',
 ];
 
 self.addEventListener('install', (event) => {
