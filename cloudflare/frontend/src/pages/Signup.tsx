@@ -418,11 +418,11 @@ export function Signup() {
           mode="setup"
           onComplete={() => {
             setShowVaultSetup(false);
-            navigate(redirectUrl || '/dashboard');
+            navigate(redirectUrl || '/loom');
           }}
           onSkip={() => {
             setShowVaultSetup(false);
-            navigate(redirectUrl || '/dashboard');
+            navigate(redirectUrl || '/loom');
           }}
         />
       ) : null}

@@ -43,7 +43,11 @@ export function Memories() {
         .catch(() => null),
   });
 
-  const memories: Memory[] = (data?.memories ?? data ?? []) as Memory[];
+  const memories: Memory[] = Array.isArray((data as any)?.data)
+    ? (data as any).data
+    : Array.isArray(data)
+    ? (data as any)
+    : [];
 
   const grouped = groupByEra(memories);
 

@@ -127,7 +127,11 @@ export function MemoryCards() {
   };
 
   const styles = stylesData?.styles || [];
-  const memories = memoriesData?.memories || [];
+  const memories: any[] = Array.isArray((memoriesData as any)?.data)
+    ? (memoriesData as any).data
+    : Array.isArray(memoriesData)
+    ? (memoriesData as any)
+    : [];
   const cards = cardsData?.cards || [];
   const onThisDay = onThisDayData || { memoriesFromThisDay: [], createdOnThisDay: [], hasMemories: false, displayDate: '' };
 

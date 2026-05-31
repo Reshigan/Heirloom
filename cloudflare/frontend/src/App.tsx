@@ -111,7 +111,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
+  return !isAuthenticated ? <>{children}</> : <Navigate to="/loom" replace />;
 }
 
 function PushNotificationHandler() {
@@ -463,13 +463,13 @@ export default function App() {
               AI as invisible shuttle. Marketing is mounted at / (above);
               the eight-screen demo lives here. */}
           <Route path="/loom" element={<LoomThreshold />} />
-          <Route path="/loom/weft" element={<LoomWeft />} />
-          <Route path="/loom/compose" element={<LoomComposer />} />
-          <Route path="/loom/tied" element={<LoomTiedOff />} />
+          <Route path="/loom/weft" element={<ProtectedRoute><LoomWeft /></ProtectedRoute>} />
+          <Route path="/loom/compose" element={<ProtectedRoute><LoomComposer /></ProtectedRoute>} />
+          <Route path="/loom/tied" element={<ProtectedRoute><LoomTiedOff /></ProtectedRoute>} />
           <Route path="/loom/unlock" element={<LoomUnlock />} />
           <Route path="/loom/echo" element={<LoomEcho />} />
           <Route path="/loom/read" element={<LoomReadingRoom />} />
-          <Route path="/loom/kin" element={<LoomConstellation />} />
+          <Route path="/loom/kin" element={<ProtectedRoute><LoomConstellation /></ProtectedRoute>} />
           <Route path="/loom/marketing" element={<LoomMarketing />} />
 
           {/* Catch all - 404 page */}

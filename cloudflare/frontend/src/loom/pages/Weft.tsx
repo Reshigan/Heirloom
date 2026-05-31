@@ -79,7 +79,7 @@ export function Weft() {
   });
 
   const allEntries = useMemo(() => {
-    const mems = Array.isArray((memoriesData as any)?.memories) ? (memoriesData as any).memories : [];
+    const mems = Array.isArray((memoriesData as any)?.data) ? (memoriesData as any).data : [];
     const lets = Array.isArray((lettersData as any)?.data) ? (lettersData as any).data : [];
     const vox = Array.isArray((voiceData as any)?.data) ? (voiceData as any).data : [];
     return toEntries(mems, lets, vox);
