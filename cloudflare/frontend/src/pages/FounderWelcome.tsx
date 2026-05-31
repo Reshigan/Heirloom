@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import { foundersApi, type FounderPledgeStatus } from '../services/api';
 
@@ -76,7 +75,7 @@ export function FounderWelcome() {
               We've sent you a welcome letter with the next steps and the date of your first quarterly Founder call.
             </p>
             <Link to="/dashboard" className="btn btn-primary">
-              open your family's first thread <ArrowRight size={18} />
+              open your family's first thread <span aria-hidden>→</span>
             </Link>
           </>
         ) : (

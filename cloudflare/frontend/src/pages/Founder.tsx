@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
 import { foundersApi, type FounderCount } from '../services/api';
 
 function Eyebrow({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -36,7 +35,7 @@ function Field({ id, label, value, onChange, type = 'text', required, placeholde
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-md placeholder:text-paper-30 transition-colors"
+        className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
       />
     </div>
   );
@@ -183,14 +182,14 @@ export function Founder() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="border border-gold-40 rounded-xl p-10 text-center"
+              className="border border-gold-40 rounded-[2px] p-10 text-center"
               role="status"
             >
               <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
               <h3 className="font-body text-2xl mb-3">Pledge received.</h3>
               <p className="text-paper-65 max-w-prose mx-auto leading-relaxed">{done.message}</p>
               <Link to="/" className="inline-flex items-center gap-2 text-gold hover:text-gold-bright mt-8">
-                Back to Heirloom <ArrowRight size={16} />
+                Back to Heirloom <span aria-hidden>→</span>
               </Link>
             </motion.div>
           ) : (
@@ -210,7 +209,7 @@ export function Founder() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="A few sentences. Your grandmother. The recipe nobody wrote down. The reason you're putting your hand up for this."
-                  className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-md placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y"
+                  className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y"
                 />
               </div>
 
@@ -226,7 +225,7 @@ export function Founder() {
                   className="btn btn-primary"
                 >
                   {submitting ? 'Submitting…' : 'Pledge'}
-                  {!submitting ? <ArrowRight size={16} /> : null}
+                  {!submitting ? <span aria-hidden>→</span> : null}
                 </button>
               </div>
             </form>

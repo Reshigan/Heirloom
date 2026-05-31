@@ -1,14 +1,41 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Mail, User, MessageSquare, Send, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+function Field({
+  id,
+  label,
+  type = 'text',
+  value,
+  onChange,
+  placeholder,
+}: {
+  id: string;
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
+      />
+    </div>
+  );
+}
 
 export function Contact() {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -16,177 +43,115 @@ export function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!form.name || !form.email || !form.subject || !form.message) {
-      setError('Please fill in all fields');
+      setError('Please fill in all fields.');
       return;
     }
 
     setIsSubmitting(true);
-    
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          subject: form.subject,
-          message: form.message,
-        }),
+        body: JSON.stringify(form),
       });
-
       if (res.ok) {
         setIsSubmitted(true);
       } else {
-        const data = await res.json();
-        setError(data.error || 'Failed to submit. Please try again.');
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || 'Could not send. Please try again.');
       }
-    } catch (err) {
-      setError('Failed to submit. Please try again.');
+    } catch {
+      setError('Could not send. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen relative overflow-hidden">
-        <div className="eternal-bg">
-          <div className="eternal-aura" />
-          <div className="eternal-stars" />
-          <div className="eternal-mist" />
-        </div>
-
-        <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
-          <div className="card text-center py-12 animate-fade-in">
-            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Check className="w-8 h-8 text-green-400" />
-            </div>
-            <h1 className="text-2xl font-display text-paper mb-4">Message Sent</h1>
-            <p className="text-paper/70 mb-8">
-              Thank you for reaching out. We'll get back to you within 24-48 hours.
-            </p>
-            <Link to="/" className="btn btn-primary">
-              Return Home
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
-
-      <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
-        <Link to="/" className="inline-flex items-center gap-2 text-paper/65 hover:text-gold mb-8 transition-colors">
-          <ArrowLeft size={18} />
-          Back to Heirloom
+    <main className="min-h-screen bg-void text-paper antialiased px-6 md:px-12 py-12">
+      <div className="max-w-2xl mx-auto">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-paper-50 hover:text-gold transition-colors text-sm"
+        >
+          <span aria-hidden>←</span> Back to Heirloom
         </Link>
 
-        <div className="card animate-fade-in">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-gold/20">
-              <Mail className="w-8 h-8 text-gold" />
-            </div>
-            <h1 className="text-2xl md:text-3xl font-display text-paper mb-2">Contact Us</h1>
-            <p className="text-paper/70">
-              Have a question or need help? We'd love to hear from you.
+        {isSubmitted ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-24 text-center"
+            role="status"
+          >
+            <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
+            <h1 className="font-body font-light text-3xl mb-3 tracking-[-0.014em]">Message sent.</h1>
+            <p className="text-paper-65 max-w-prose mx-auto leading-relaxed">
+              Thank you for reaching out. We'll get back to you within 24–48 hours.
             </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm text-paper/65 mb-2">Your Name</label>
-              <div className="relative">
-                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="John Doe"
-                  className="input pl-12"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm text-paper/65 mb-2">Email Address</label>
-              <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="you@example.com"
-                  className="input pl-12"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm text-paper/65 mb-2">Subject</label>
-              <div className="relative">
-                <MessageSquare size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                <input
-                  type="text"
-                  value={form.subject}
-                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                  placeholder="How can we help?"
-                  className="input pl-12"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm text-paper/65 mb-2">Message</label>
-              <textarea
-                value={form.message}
-                onChange={(e) => setForm({ ...form, message: e.target.value })}
-                placeholder="Tell us more about your question or concern..."
-                rows={5}
-                className="input resize-none"
-              />
-            </div>
-
-            {error && (
-              <p className="text-blood text-sm text-center">{error}</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary w-full py-4 text-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
+            <Link to="/" className="inline-flex items-center gap-2 text-gold hover:text-gold-bright mt-8">
+              Return home <span aria-hidden>→</span>
+            </Link>
+          </motion.div>
+        ) : (
+          <div className="mt-16">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Contact</p>
+            <h1
+              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(2.25rem, 4vw, 3.25rem)' }}
             >
-              {isSubmitting ? (
-                'Sending…'
-              ) : (
-                <>
-                  Send Message
-                  <Send size={18} />
-                </>
-              )}
-            </button>
-          </form>
+              Say something.
+            </h1>
+            <p className="mt-6 text-paper-70 leading-relaxed max-w-prose font-light">
+              A question, a worry, a story you want to tell us first. We read every message.
+            </p>
 
-          <div className="mt-8 pt-6 border-t border-paper/10 text-center">
-            <p className="text-paper/70 text-sm mb-2">Or reach us directly at:</p>
-            <a href="mailto:support@heirloom.blue" className="text-gold hover:text-gold-bright transition-colors">
-              support@heirloom.blue
-            </a>
-            <p className="text-paper/65 text-xs mt-4">
+            <form onSubmit={handleSubmit} className="mt-12 space-y-6" aria-label="Contact form">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Field id="c-name" label="Your name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="John Doe" />
+                <Field id="c-email" label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="you@example.com" />
+              </div>
+              <Field id="c-subject" label="Subject" value={form.subject} onChange={(v) => setForm({ ...form, subject: v })} placeholder="How can we help?" />
+              <div>
+                <label htmlFor="c-message" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
+                  Message
+                </label>
+                <textarea
+                  id="c-message"
+                  value={form.message}
+                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  placeholder="Tell us more about your question or concern."
+                  rows={6}
+                  className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y"
+                />
+              </div>
+
+              {error ? <p role="alert" className="text-blood text-sm">{error}</p> : null}
+
+              <div className="flex items-center justify-between gap-4 pt-2">
+                <p className="text-xs text-paper-50 max-w-xs leading-relaxed">
+                  Or reach us directly at{' '}
+                  <a href="mailto:support@heirloom.blue" className="text-gold hover:text-gold-bright transition-colors">
+                    support@heirloom.blue
+                  </a>
+                </p>
+                <button type="submit" disabled={isSubmitting} className="btn btn-primary">
+                  {isSubmitting ? 'Sending…' : 'Send message'}
+                  {!isSubmitting ? <span aria-hidden>→</span> : null}
+                </button>
+              </div>
+            </form>
+
+            <p className="text-xs text-paper-30 mt-12 font-mono">
               131 Continental Dr Suite 305, Newark, DE 19713, US
             </p>
           </div>
-        </div>
+        )}
       </div>
-    </div>
+    </main>
   );
 }
 

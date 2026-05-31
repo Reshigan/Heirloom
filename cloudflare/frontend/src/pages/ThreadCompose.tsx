@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Lock } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../services/api';
 
@@ -94,7 +93,7 @@ export function ThreadCompose() {
           to={`/threads/${threadId}`}
           className="inline-flex items-center gap-2 text-paper/60 hover:text-paper text-sm mb-10"
         >
-          <ArrowLeft size={14} /> Back to thread
+          <span aria-hidden>←</span> Back to thread
         </Link>
 
         <motion.div
@@ -152,7 +151,7 @@ export function ThreadCompose() {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="The summer Nan taught me to bake"
                 maxLength={200}
-                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-md placeholder:text-paper/30 transition-colors"
+                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper/30 transition-colors"
               />
             </div>
 
@@ -166,7 +165,7 @@ export function ThreadCompose() {
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write to your descendants. Tell them something. They will read this."
-                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-md placeholder:text-paper/30 transition-colors font-body text-base leading-[1.7] resize-y"
+                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper/30 transition-colors font-body text-base leading-[1.7] resize-y"
                 required
               />
             </div>
@@ -179,7 +178,7 @@ export function ThreadCompose() {
                 id="t-vis"
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value as ThreadVisibility)}
-                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-md transition-colors"
+                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] transition-colors"
               >
                 <option value="FAMILY">Family — anyone in the thread, now and later</option>
                 <option value="DESCENDANTS">Descendants only — generations after yours</option>
@@ -187,7 +186,7 @@ export function ThreadCompose() {
               </select>
             </div>
 
-            <div className="border border-paper-15 rounded-md p-4 bg-void-surface/40">
+            <div className="border border-paper-15 rounded-[2px] p-4 bg-void-surface/40">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -197,7 +196,6 @@ export function ThreadCompose() {
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <Lock size={14} className="text-gold" />
                     <span className="font-body text-base">Time-lock this entry</span>
                   </div>
                   <p className="text-paper/55 text-sm leading-relaxed mt-1">
@@ -215,7 +213,7 @@ export function ThreadCompose() {
                       id="t-lock-type"
                       value={lockType}
                       onChange={(e) => setLockType(e.target.value as ThreadLockType)}
-                      className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                      className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
                     >
                       <option value="DATE">A specific date</option>
                       <option value="AGE">When someone reaches an age</option>
@@ -235,7 +233,7 @@ export function ThreadCompose() {
                         min={today}
                         value={lockDate}
                         onChange={(e) => setLockDate(e.target.value)}
-                        className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                        className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
                       />
                     </div>
                   ) : null}
@@ -250,7 +248,7 @@ export function ThreadCompose() {
                           id="t-lock-member"
                           value={lockTargetMemberId}
                           onChange={(e) => setLockTargetMemberId(e.target.value)}
-                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
                         >
                           <option value="">— Pick a thread member —</option>
                           {members.map((m) => (
@@ -271,7 +269,7 @@ export function ThreadCompose() {
                           max={120}
                           value={lockAgeYears}
                           onChange={(e) => setLockAgeYears(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
                         />
                       </div>
                     </div>
@@ -287,7 +285,7 @@ export function ThreadCompose() {
                           id="t-lock-event-member"
                           value={lockTargetMemberId}
                           onChange={(e) => setLockTargetMemberId(e.target.value)}
-                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
                         >
                           <option value="">— Pick a thread member —</option>
                           {members.map((m) => (
@@ -307,7 +305,7 @@ export function ThreadCompose() {
                           value={lockEventLabel}
                           onChange={(e) => setLockEventLabel(e.target.value)}
                           placeholder="wedding, first_child, graduation"
-                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md placeholder:text-paper/30 transition-colors"
+                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] placeholder:text-paper/30 transition-colors"
                         />
                       </div>
                     </div>
@@ -325,7 +323,7 @@ export function ThreadCompose() {
                         max={6}
                         value={lockGeneration}
                         onChange={(e) => setLockGeneration(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-                        className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-md transition-colors"
+                        className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
                       />
                       <p className="text-[0.65rem] text-paper/40 mt-1.5">+1 = your kids · +2 = grandkids · +3 = great-grandkids</p>
                     </div>
@@ -343,7 +341,7 @@ export function ThreadCompose() {
             <div className="flex items-center gap-3 pt-2">
               <button type="submit" disabled={create.isPending || !body.trim()} className="btn btn-primary">
                 {create.isPending ? 'Saving…' : 'Save to the thread'}
-                {!create.isPending ? <ArrowRight size={16} /> : null}
+                {!create.isPending ? <span aria-hidden>→</span> : null}
               </button>
               <Link to={`/threads/${threadId}`} className="text-paper/60 hover:text-paper text-sm">
                 Cancel
