@@ -2,10 +2,8 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 // MemoryMap page
 import { useQuery } from '@tanstack/react-query';
-import { Image, Mic, Pen } from '../components/Icons';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import { Navigation } from '../components/Navigation';
-import { EmptyState } from '../components/EmptyState';
 import { memoriesApi } from '../services/api';
 
 interface MapMemory {
@@ -32,33 +30,22 @@ export function MemoryMap() {
 
   const memories: MapMemory[] = mapData?.memories || [];
 
-  const typeIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
-    memory: Image,
-    voice: Mic,
-    letter: Pen,
-  };
-
-  const typeColors: Record<string, string> = {
-    memory: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    voice: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-    letter: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  const typeLabels: Record<string, string> = {
+    memory: 'Memory',
+    voice: 'Voice',
+    letter: 'Letter',
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
+    <div className="min-h-screen bg-void text-paper antialiased">
       <Navigation />
 
-      <main className="relative z-10 px-6 md:px-12 pt-24 pb-32 max-w-7xl mx-auto">
+      <main className="px-6 md:px-12 pt-24 pb-32 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Memory Map</h1>
-            <p className="text-paper/65 font-serif">Your memories, mapped across the world</p>
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-3">Memory Map</p>
+            <h1 className="font-body font-light text-3xl md:text-4xl text-paper tracking-[-0.014em]">Your memories, mapped across the world</h1>
           </div>
 
           {/* Filters */}
@@ -67,10 +54,10 @@ export function MemoryMap() {
               <button
                 key={type}
                 onClick={() => setFilter(type)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-[2px] text-xs font-mono uppercase tracking-[0.12em] border transition-colors ${
                   filter === type
-                    ? 'bg-gold/20 text-gold border border-gold/30'
-                    : 'bg-paper/5 text-paper/70 border border-paper/10 hover:border-paper/20'
+                    ? 'bg-void-surface text-gold border-gold-40'
+                    : 'bg-void-surface text-paper-70 border-paper-15 hover:text-paper'
                 }`}
               >
                 {type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1) + 's'}
@@ -84,28 +71,29 @@ export function MemoryMap() {
             <ProgressHair label="loading…" width={180} />
           </div>
         ) : !memories.length ? (
-          <EmptyState
-            icon={Image}
-            title="No memories on the map yet"
-            subtitle="Add locations to your memories, voice recordings, and letters to see them appear on your personal memory map."
-            actionLabel="Add a Memory"
-            onAction={() => navigate('/memories')}
-          />
+          <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
+            <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
+            <h3 className="font-body font-light text-2xl text-paper mb-3 tracking-[-0.014em]">No memories on the map yet</h3>
+            <p className="text-paper-70 max-w-md leading-relaxed mb-8">
+              Add locations to your memories, voice recordings, and letters to see them appear on your personal memory map.
+            </p>
+            <button onClick={() => navigate('/memories')} className="btn btn-primary">
+              Add a memory <span aria-hidden>→</span>
+            </button>
+          </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Map placeholder - Mapbox would be integrated here */}
-            <div className="lg:col-span-2 rounded-2xl glass border border-paper/10 overflow-hidden" style={{ minHeight: '500px' }}>
+            <div className="lg:col-span-2 bg-void-surface border border-paper-15 overflow-hidden rounded-[2px]" style={{ minHeight: '500px' }}>
               <div ref={mapContainerRef} className="w-full h-full min-h-[500px] relative">
                 {/* Mapbox GL JS container */}
-                <div className="absolute inset-0 flex items-center justify-center bg-void/50">
+                <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center">
-                      <Image size={28} className="text-gold/60" />
-                    </div>
-                    <p className="text-paper/70 text-sm">
+                    <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
+                    <p className="text-paper-70 text-sm">
                       {memories.length} memories across {new Set(memories.map((m) => m.location_name)).size} locations
                     </p>
-                    <p className="text-paper/65 text-xs mt-1">Map view requires Mapbox API key</p>
+                    <p className="text-paper-50 text-xs mt-1">Map view requires Mapbox API key</p>
                   </div>
                 </div>
               </div>
@@ -113,29 +101,28 @@ export function MemoryMap() {
 
             {/* Memory list sidebar */}
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-              <h3 className="font-serif text-lg text-paper mb-3 sticky top-0 bg-void/80 py-2">
+              <h3 className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-3 sticky top-0 bg-void py-2">
                 {memories.length} Memories
               </h3>
               {memories.map((memory) => {
-                const Icon = typeIcons[memory.type] || Image;
                 return (
                   <button
                     key={memory.id}
                     onClick={() => setSelectedMemory(memory)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all ${
+                    className={`w-full text-left p-4 rounded-[2px] border transition-colors ${
                       selectedMemory?.id === memory.id
-                        ? 'border-gold/30 bg-gold/5'
-                        : 'border-paper/10 bg-paper/5 hover:border-paper/20'
+                        ? 'border-gold-40 bg-void-surface'
+                        : 'border-paper-15 bg-void-surface hover:border-gold-40'
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border ${typeColors[memory.type]}`}>
-                        <Icon size={14} />
+                      <div className="w-8 h-8 rounded-[2px] flex items-center justify-center flex-shrink-0 border border-paper-15">
+                        <span className="font-mono text-[0.6rem] uppercase text-gold" aria-hidden>{(typeLabels[memory.type] || 'M').charAt(0)}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-paper/80 text-sm font-medium truncate">{memory.title}</p>
-                        <p className="text-paper/70 text-xs mt-0.5">{memory.location_name}</p>
-                        <p className="text-paper/65 text-xs mt-1">
+                        <p className="text-paper text-sm font-medium truncate">{memory.title}</p>
+                        <p className="text-paper-70 text-xs mt-0.5">{memory.location_name}</p>
+                        <p className="text-paper-50 text-xs mt-1">
                           {new Date(memory.created_at).toLocaleDateString()}
                         </p>
                       </div>

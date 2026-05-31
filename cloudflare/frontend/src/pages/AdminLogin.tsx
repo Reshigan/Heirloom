@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Lock, Mail, AlertCircle } from '../components/Icons';
 import { adminApi } from '../services/api';
 
 export function AdminLogin() {
@@ -29,52 +28,44 @@ export function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen bg-void text-paper antialiased flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center">
-            <Lock className="w-8 h-8 text-gold" />
-          </div>
-          <h1 className="text-3xl font-light text-paper">Admin Portal</h1>
-          <p className="text-paper/65 mt-2">Sign in to access the admin dashboard</p>
+        <div className="text-center mb-10">
+          <span className="font-body text-5xl text-gold block mb-5" aria-hidden>∞</span>
+          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Admin</p>
+          <h1 className="font-body font-light text-3xl tracking-[-0.014em] text-paper">Admin Portal</h1>
+          <p className="text-paper-60 mt-3">Sign in to access the admin dashboard</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="card space-y-6">
+        <form onSubmit={handleSubmit} className="bg-void-surface border border-paper-15 rounded-[2px] p-8 space-y-6">
           {error && (
-            <div className="p-4 bg-blood/10 border border-blood/30 text-blood flex items-center gap-2">
-              <AlertCircle size={18} />
-              {error}
-            </div>
+            <p role="alert" className="text-blood text-sm">{error}</p>
           )}
 
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-paper/65" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input pl-10"
-                placeholder="admin@heirloom.blue"
-                required
-              />
-            </div>
+            <label htmlFor="admin-email" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Email</label>
+            <input
+              id="admin-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
+              placeholder="admin@heirloom.blue"
+              required
+            />
           </div>
 
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-paper/65" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input pl-10"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
+            <label htmlFor="admin-password" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Password</label>
+            <input
+              id="admin-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
+              placeholder="Enter your password"
+              required
+            />
           </div>
 
           <button
@@ -82,11 +73,11 @@ export function AdminLogin() {
             disabled={loginMutation.isPending}
             className="btn btn-primary w-full"
           >
-            {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
+            {loginMutation.isPending ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
-        <p className="text-center text-paper/65 text-sm mt-6">
+        <p className="text-center text-paper-50 text-sm mt-6">
           <a href="/" className="hover:text-gold transition-colors">Back to main site</a>
         </p>
       </div>

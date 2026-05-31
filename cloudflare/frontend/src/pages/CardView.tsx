@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Share2, Heart } from '../components/Icons';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import axios from 'axios';
 
@@ -89,59 +88,52 @@ export function CardView() {
   if (error || !card) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-void text-paper p-6">
-        <h1 className="text-2xl font-light mb-4">Card Not Found</h1>
-        <p className="text-paper/70 mb-8">This memory card may have been removed or the link is invalid.</p>
+        <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
+        <h1 className="font-body font-light text-2xl mb-4 tracking-[-0.014em]">Card not found</h1>
+        <p className="text-paper-70 mb-8 max-w-prose text-center leading-relaxed">This memory card may have been removed or the link is invalid.</p>
         <Link to="/" className="btn btn-primary">
-          Discover Heirloom
+          Discover Heirloom <span aria-hidden>→</span>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-lg animate-fade-in">
+    <div className="min-h-screen bg-void text-paper antialiased">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-lg">
           {/* Card Display */}
-          <div 
-            className="rounded-2xl p-8 shadow-2xl mb-8"
+          <div
+            className="border border-paper-15 p-8 mb-8 rounded-[2px]"
             style={{
               background: card.styleConfig.bgColor,
               color: card.styleConfig.textColor,
             }}
           >
             {card.photoUrl && (
-              <img 
-                src={card.photoUrl} 
-                alt="Memory" 
-                className="w-full h-48 object-cover rounded-lg mb-6"
+              <img
+                src={card.photoUrl}
+                alt="Memory"
+                className="w-full h-48 object-cover rounded-[2px] mb-6"
               />
             )}
-            
-            <blockquote className="text-2xl italic leading-relaxed mb-6">
+
+            <blockquote className="font-body text-2xl italic leading-relaxed mb-6">
               "{card.quote}"
             </blockquote>
-            
+
             <div className="text-sm opacity-70">
-              <div className="font-medium">- {card.authorName}</div>
+              <div className="font-medium">— {card.authorName}</div>
               {card.memoryDate && (
                 <div className="mt-1">{card.memoryDate}</div>
               )}
             </div>
-            
-            <div 
-              className="mt-6 pt-4 border-t text-xs opacity-50 flex items-center gap-2"
+
+            <div
+              className="mt-6 pt-4 border-t text-xs opacity-50 flex items-baseline gap-2"
               style={{ borderColor: `${card.styleConfig.textColor}20` }}
             >
-              <Heart size={14} className="text-gold" />
+              <span className="text-gold" aria-hidden>∞</span>
               <span>Made with Heirloom</span>
             </div>
           </div>
@@ -152,21 +144,20 @@ export function CardView() {
               onClick={handleShare}
               className="btn btn-primary flex-1"
             >
-              <Share2 size={18} />
-              {copied ? 'Link Copied!' : 'Share'}
+              {copied ? 'Link copied' : 'Share'}
             </button>
           </div>
 
           {/* CTA */}
           <div className="text-center">
-            <p className="text-paper/70 mb-4">
+            <p className="text-paper-70 mb-4">
               Preserve your own memories for future generations
             </p>
-            <Link 
-              to="/signup" 
-              className="text-gold hover:underline font-medium"
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-2 text-gold hover:text-gold-bright transition-colors"
             >
-              Start Your Legacy on Heirloom
+              Start your thread on Heirloom <span aria-hidden>→</span>
             </Link>
           </div>
         </div>

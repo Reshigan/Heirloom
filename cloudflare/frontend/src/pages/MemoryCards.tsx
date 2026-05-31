@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Share2, Check, Image, Sparkles, Calendar, Clock } from '../components/Icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoryCardsApi, memoriesApi } from '../services/api';
 import { Navigation } from '../components/Navigation';
@@ -140,21 +139,12 @@ export function MemoryCards() {
   const onThisDay = onThisDayData || { memoriesFromThisDay: [], createdOnThisDay: [], hasMemories: false, displayDate: '' };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-
+    <div className="min-h-screen bg-void text-paper antialiased">
       <Navigation />
 
-      <div className="relative z-10 px-6 md:px-12 py-12">
-        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-paper/70 hover:text-gold transition-colors mb-8">
-          <ArrowLeft size={20} />
-          Back to Vault
+      <div className="px-6 md:px-12 py-12">
+        <button onClick={() => navigate('/dashboard')} className="inline-flex items-center gap-2 text-paper-70 hover:text-gold transition-colors mb-8 text-sm">
+          <span aria-hidden>←</span> Back to Vault
         </button>
 
         <div className="max-w-6xl mx-auto">
@@ -163,50 +153,45 @@ export function MemoryCards() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8"
           >
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Image size={32} className="text-gold" />
-              <h1 className="text-4xl font-light">Memory Cards</h1>
-            </div>
-            <p className="text-paper/70 max-w-2xl mx-auto">
-              Transform your memories into beautiful, shareable cards. Perfect for Instagram, 
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Memory Cards</p>
+            <h1 className="font-body font-light text-4xl tracking-[-0.018em]">Memory Cards</h1>
+            <p className="text-paper-70 max-w-2xl mx-auto mt-4 leading-relaxed">
+              Transform your memories into beautiful, shareable cards. Perfect for Instagram,
               Facebook, or sending to loved ones.
             </p>
           </motion.div>
 
           {/* Tabs */}
-          <div className="flex justify-center gap-4 mb-8">
+          <div className="flex justify-center gap-2 mb-8">
             <button
               onClick={() => setActiveTab('create')}
-              className={`px-6 py-3 rounded-lg transition-all ${
-                activeTab === 'create' 
-                  ? 'bg-gold text-void' 
-                  : 'bg-white/5 text-paper/70 hover:bg-white/10'
+              className={`px-6 py-3 rounded-[2px] text-sm border transition-colors ${
+                activeTab === 'create'
+                  ? 'bg-void-surface text-gold border-gold-40'
+                  : 'bg-void-surface text-paper-70 border-paper-15 hover:text-paper'
               }`}
             >
-              <Sparkles size={18} className="inline mr-2" />
-              Create Card
+              Create card
             </button>
             <button
               onClick={() => setActiveTab('gallery')}
-              className={`px-6 py-3 rounded-lg transition-all ${
-                activeTab === 'gallery' 
-                  ? 'bg-gold text-void' 
-                  : 'bg-white/5 text-paper/70 hover:bg-white/10'
+              className={`px-6 py-3 rounded-[2px] text-sm border transition-colors ${
+                activeTab === 'gallery'
+                  ? 'bg-void-surface text-gold border-gold-40'
+                  : 'bg-void-surface text-paper-70 border-paper-15 hover:text-paper'
               }`}
             >
-              <Image size={18} className="inline mr-2" />
-              My Cards
+              My cards
             </button>
             <button
               onClick={() => setActiveTab('onthisday')}
-              className={`px-6 py-3 rounded-lg transition-all ${
-                activeTab === 'onthisday' 
-                  ? 'bg-gold text-void' 
-                  : 'bg-white/5 text-paper/70 hover:bg-white/10'
+              className={`px-6 py-3 rounded-[2px] text-sm border transition-colors ${
+                activeTab === 'onthisday'
+                  ? 'bg-void-surface text-gold border-gold-40'
+                  : 'bg-void-surface text-paper-70 border-paper-15 hover:text-paper'
               }`}
             >
-              <Calendar size={18} className="inline mr-2" />
-              On This Day
+              On this day
             </button>
           </div>
 
@@ -220,26 +205,26 @@ export function MemoryCards() {
                 className="space-y-6"
               >
                 {/* Memory Selection */}
-                <div className="card">
-                  <h2 className="text-xl font-medium mb-4">1. Select a Memory</h2>
+                <div className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
+                  <h2 className="font-body text-xl mb-4">1. Select a memory</h2>
                   <div className="max-h-[300px] overflow-y-auto space-y-2">
                     {memories.length === 0 ? (
-                      <p className="text-paper/65 text-center py-8">
-                        No memories yet. Create some memories first!
+                      <p className="text-paper-60 text-center py-8">
+                        No memories yet. Create some memories first.
                       </p>
                     ) : (
                       memories.map((memory: any) => (
                         <button
                           key={memory.id}
                           onClick={() => setSelectedMemory(memory.id)}
-                          className={`w-full text-left p-4 rounded-lg transition-all ${
+                          className={`w-full text-left p-4 rounded-[2px] border transition-colors ${
                             selectedMemory === memory.id
-                              ? 'bg-gold/20 border border-gold'
-                              : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                              ? 'bg-void border-gold-40'
+                              : 'bg-void border-paper-15 hover:border-gold-40'
                           }`}
                         >
-                          <div className="font-medium">{memory.title || 'Untitled Memory'}</div>
-                          <div className="text-sm text-paper/65 line-clamp-2">
+                          <div className="font-medium text-paper">{memory.title || 'Untitled Memory'}</div>
+                          <div className="text-sm text-paper-60 line-clamp-2">
                             {memory.description?.substring(0, 100) || 'No description'}
                           </div>
                         </button>
@@ -249,20 +234,20 @@ export function MemoryCards() {
                 </div>
 
                 {/* Style Selection */}
-                <div className="card">
-                  <h2 className="text-xl font-medium mb-4">2. Choose a Style</h2>
+                <div className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
+                  <h2 className="font-body text-xl mb-4">2. Choose a style</h2>
                   <div className="grid grid-cols-2 gap-3">
                     {styles.map((style: CardStyle) => (
                       <button
                         key={style.id}
                         onClick={() => setSelectedStyle(style.id)}
-                        className={`p-4 rounded-lg transition-all text-left ${
+                        className={`p-4 rounded-[2px] text-left border transition-colors ${
                           selectedStyle === style.id
-                            ? 'ring-2 ring-gold'
-                            : 'hover:bg-white/5'
+                            ? 'border-gold-40'
+                            : 'border-paper-15 hover:border-gold-40'
                         }`}
                         style={{
-                          background: style.bgColor.includes('gradient') ? style.bgColor : style.bgColor,
+                          background: style.bgColor,
                           color: style.textColor,
                         }}
                       >
@@ -274,18 +259,18 @@ export function MemoryCards() {
                 </div>
 
                 {/* Options */}
-                <div className="card">
-                  <h2 className="text-xl font-medium mb-4">3. Customize</h2>
+                <div className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
+                  <h2 className="font-body text-xl mb-4">3. Customize</h2>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm text-paper/65 mb-2">
-                        Custom Quote (optional)
+                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
+                        Custom quote — optional
                       </label>
                       <textarea
                         value={customText}
                         onChange={(e) => setCustomText(e.target.value)}
                         placeholder="Leave empty to auto-extract from memory..."
-                        className="input min-h-[80px]"
+                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors min-h-[80px] resize-y"
                         maxLength={200}
                       />
                     </div>
@@ -294,9 +279,9 @@ export function MemoryCards() {
                         type="checkbox"
                         checked={includePhoto}
                         onChange={(e) => setIncludePhoto(e.target.checked)}
-                        className="w-5 h-5 rounded border-paper/30 bg-void text-gold focus:ring-gold"
+                        className="w-5 h-5 rounded-[2px] border-paper-15 bg-void text-gold"
                       />
-                      <span>Include photo if available</span>
+                      <span className="text-paper-70 text-sm">Include photo if available</span>
                     </label>
                   </div>
                 </div>
@@ -306,14 +291,9 @@ export function MemoryCards() {
                   disabled={!selectedMemory || generateMutation.isPending}
                   className="btn btn-primary w-full py-4"
                 >
-                  {generateMutation.isPending ? (
+                  {generateMutation.isPending ? 'Generating…' : (
                     <>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={20} />
-                      Generate Card
+                      Generate card <span aria-hidden>→</span>
                     </>
                   )}
                 </button>
@@ -326,34 +306,34 @@ export function MemoryCards() {
                 transition={{ delay: 0.2 }}
               >
                 {generatedCard ? (
-                  <div className="card">
-                    <h2 className="text-xl font-medium mb-4">Your Card</h2>
-                    
+                  <div className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
+                    <h2 className="font-body text-xl mb-4">Your card</h2>
+
                     {/* Card Preview */}
-                    <div 
-                      className="rounded-lg p-8 mb-6 min-h-[300px] flex flex-col justify-center"
+                    <div
+                      className="rounded-[2px] p-8 mb-6 min-h-[300px] flex flex-col justify-center"
                       style={{
                         background: generatedCard.styleConfig.bgColor,
                         color: generatedCard.styleConfig.textColor,
                       }}
                     >
                       {generatedCard.photoUrl && (
-                        <img 
-                          src={generatedCard.photoUrl} 
-                          alt="Memory" 
-                          className="w-full h-48 object-cover rounded-lg mb-4"
+                        <img
+                          src={generatedCard.photoUrl}
+                          alt="Memory"
+                          className="w-full h-48 object-cover rounded-[2px] mb-4"
                         />
                       )}
-                      <blockquote className="text-xl italic mb-4">
+                      <blockquote className="font-body text-xl italic mb-4">
                         "{generatedCard.quote}"
                       </blockquote>
                       <div className="text-sm opacity-70">
-                        <div>- {generatedCard.authorName}</div>
+                        <div>— {generatedCard.authorName}</div>
                         {generatedCard.memoryDate && (
                           <div>{generatedCard.memoryDate}</div>
                         )}
                       </div>
-                      <div 
+                      <div
                         className="mt-4 text-xs opacity-50"
                         style={{ color: generatedCard.styleConfig.accentColor }}
                       >
@@ -365,43 +345,33 @@ export function MemoryCards() {
                     <div className="space-y-4">
                       <button
                         onClick={handleCopyLink}
-                        className="btn btn-secondary w-full"
+                        className="btn btn-ghost w-full"
                       >
-                        {copied ? (
-                          <>
-                            <Check size={18} className="text-emerald-500" />
-                            Link Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Share2 size={18} />
-                            Copy Share Link
-                          </>
-                        )}
+                        {copied ? 'Link copied' : 'Copy share link'}
                       </button>
 
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => handleSocialShare('twitter', generatedCard.socialShareUrls.twitter)}
-                          className="btn bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white"
+                          className="btn btn-ghost"
                         >
                           Twitter
                         </button>
                         <button
                           onClick={() => handleSocialShare('facebook', generatedCard.socialShareUrls.facebook)}
-                          className="btn bg-[#4267B2] hover:bg-[#365899] text-white"
+                          className="btn btn-ghost"
                         >
                           Facebook
                         </button>
                         <button
                           onClick={() => handleSocialShare('whatsapp', generatedCard.socialShareUrls.whatsapp)}
-                          className="btn bg-[#25D366] hover:bg-[#20bd5a] text-white"
+                          className="btn btn-ghost"
                         >
                           WhatsApp
                         </button>
                         <button
                           onClick={() => handleSocialShare('linkedin', generatedCard.socialShareUrls.linkedin)}
-                          className="btn bg-[#0077B5] hover:bg-[#006699] text-white"
+                          className="btn btn-ghost"
                         >
                           LinkedIn
                         </button>
@@ -409,9 +379,9 @@ export function MemoryCards() {
                     </div>
                   </div>
                 ) : (
-                  <div className="card text-center py-16">
-                    <Image size={64} className="text-paper/20 mx-auto mb-4" />
-                    <p className="text-paper/65">
+                  <div className="bg-void-surface border border-paper-15 text-center py-16 px-6 rounded-[2px]">
+                    <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
+                    <p className="text-paper-60">
                       Select a memory and style to generate your card
                     </p>
                   </div>
@@ -427,39 +397,39 @@ export function MemoryCards() {
               animate={{ opacity: 1 }}
             >
               {cards.length === 0 ? (
-                <div className="card text-center py-16">
-                  <Image size={64} className="text-paper/20 mx-auto mb-4" />
-                  <p className="text-paper/65 mb-4">
+                <div className="bg-void-surface border border-paper-15 text-center py-16 px-6 rounded-[2px]">
+                  <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
+                  <p className="text-paper-60 mb-6">
                     You haven't created any cards yet
                   </p>
                   <button
                     onClick={() => setActiveTab('create')}
                     className="btn btn-primary"
                   >
-                    Create Your First Card
+                    Create your first card <span aria-hidden>→</span>
                   </button>
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {cards.map((card: any) => (
-                    <div key={card.id} className="card">
-                      <div className="text-sm text-paper/65 mb-2">
+                    <div key={card.id} className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
+                      <div className="text-sm text-paper-60 mb-2">
                         {card.memoryTitle || 'Untitled'}
                       </div>
-                      <blockquote className="text-paper/80 italic mb-4 line-clamp-3">
+                      <blockquote className="font-body text-paper italic mb-4 line-clamp-3">
                         "{card.quote}"
                       </blockquote>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-paper/65">
+                        <span className="text-paper-60">
                           {card.shareCount || 0} shares
                         </span>
                         <a
                           href={card.shareUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gold hover:underline"
+                          className="inline-flex items-center gap-2 text-gold hover:text-gold-bright transition-colors"
                         >
-                          View Card
+                          View card <span aria-hidden>→</span>
                         </a>
                       </div>
                     </div>
@@ -476,58 +446,56 @@ export function MemoryCards() {
               animate={{ opacity: 1 }}
             >
               <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gold/20 rounded-full text-gold">
-                  <Calendar size={18} />
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-void-surface border border-gold-40 rounded-[2px] text-gold font-mono text-xs tracking-[0.12em] uppercase">
                   {onThisDay.displayDate}
                 </div>
               </div>
 
               {!onThisDay.hasMemories ? (
-                <div className="card text-center py-16">
-                  <Clock size={64} className="text-paper/20 mx-auto mb-4" />
-                  <p className="text-paper/65 mb-2">
+                <div className="bg-void-surface border border-paper-15 text-center py-16 px-6 rounded-[2px]">
+                  <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
+                  <p className="text-paper-70 mb-2">
                     No memories from this day in previous years
                   </p>
-                  <p className="text-paper/65 text-sm">
-                    Keep capturing memories and they'll appear here on their anniversaries!
+                  <p className="text-paper-60 text-sm">
+                    Keep capturing memories and they'll appear here on their anniversaries.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-8">
                   {onThisDay.memoriesFromThisDay.length > 0 && (
                     <div>
-                      <h3 className="text-xl font-medium mb-4">Memories from this day</h3>
+                      <h3 className="font-body text-xl mb-4">Memories from this day</h3>
                       <div className="grid md:grid-cols-2 gap-6">
                         {onThisDay.memoriesFromThisDay.map((memory: OnThisDayMemory) => (
-                          <div key={memory.id} className="card">
-                            <div className="flex items-center gap-2 text-gold text-sm mb-3">
-                              <Calendar size={16} />
+                          <div key={memory.id} className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
+                            <div className="text-gold text-sm mb-3">
                               {memory.yearsAgo} year{memory.yearsAgo !== 1 ? 's' : ''} ago ({memory.year})
                             </div>
                             {memory.photoUrl && (
-                              <img 
-                                src={memory.photoUrl} 
-                                alt={memory.title} 
-                                className="w-full h-40 object-cover rounded-lg mb-4"
+                              <img
+                                src={memory.photoUrl}
+                                alt={memory.title}
+                                className="w-full h-40 object-cover rounded-[2px] mb-4"
                               />
                             )}
-                            <h4 className="font-medium mb-2">{memory.title || 'Untitled Memory'}</h4>
-                            <p className="text-paper/70 text-sm">{memory.description}</p>
+                            <h4 className="font-body text-paper mb-2">{memory.title || 'Untitled Memory'}</h4>
+                            <p className="text-paper-70 text-sm">{memory.description}</p>
                             <div className="mt-4 flex gap-2">
                               <button
                                 onClick={() => {
                                   setSelectedMemory(memory.id);
                                   setActiveTab('create');
                                 }}
-                                className="btn btn-secondary text-sm"
+                                className="btn btn-ghost text-sm"
                               >
-                                Create Card
+                                Create card
                               </button>
                               <button
                                 onClick={() => navigate(`/memories/${memory.id}`)}
                                 className="btn btn-ghost text-sm"
                               >
-                                View Memory
+                                View memory
                               </button>
                             </div>
                           </div>
@@ -538,16 +506,15 @@ export function MemoryCards() {
 
                   {onThisDay.createdOnThisDay.length > 0 && (
                     <div>
-                      <h3 className="text-xl font-medium mb-4">Created on this day</h3>
+                      <h3 className="font-body text-xl mb-4">Created on this day</h3>
                       <div className="grid md:grid-cols-2 gap-6">
                         {onThisDay.createdOnThisDay.map((memory: OnThisDayMemory) => (
-                          <div key={memory.id} className="card bg-white/[0.02]">
-                            <div className="flex items-center gap-2 text-paper/65 text-sm mb-3">
-                              <Clock size={16} />
+                          <div key={memory.id} className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
+                            <div className="text-paper-60 text-sm mb-3">
                               Created {memory.yearsAgo} year{memory.yearsAgo !== 1 ? 's' : ''} ago
                             </div>
-                            <h4 className="font-medium mb-2">{memory.title || 'Untitled Memory'}</h4>
-                            <p className="text-paper/70 text-sm">{memory.description}</p>
+                            <h4 className="font-body text-paper mb-2">{memory.title || 'Untitled Memory'}</h4>
+                            <p className="text-paper-70 text-sm">{memory.description}</p>
                           </div>
                         ))}
                       </div>

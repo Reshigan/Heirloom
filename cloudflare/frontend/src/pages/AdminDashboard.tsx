@@ -1,12 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Users, CreditCard, BarChart3, Tag, LogOut, Plus, Trash2, 
-  DollarSign, Activity, Search, X, MessageSquare, Shield,
-  FileText, Mail, Download, Clock, AlertTriangle, CheckCircle,
-  UserPlus, Send, Eye, Gift, RefreshCw, Copy, Target, Lock
-} from '../components/Icons';
 import { adminApi } from '../services/api';
 import { MarketingTab } from './MarketingTab';
 import { SocialCalendarTab } from './SocialCalendarTab';
@@ -187,47 +181,39 @@ export function AdminDashboard() {
   if (!admin) return null;
 
     const tabs = [
-      { id: 'overview', label: 'Overview', icon: BarChart3 },
-      { id: 'usage', label: 'Usage', icon: Activity },
-      { id: 'encryption', label: 'Encryption', icon: Lock },
-      { id: 'marketing', label: 'Marketing', icon: Target },
-      { id: 'users', label: 'Users', icon: Users },
-      { id: 'coupons', label: 'Coupons', icon: Tag },
-      { id: 'vouchers', label: 'Gift Vouchers', icon: Gift },
-      { id: 'gold-legacy', label: 'Gold Legacy', icon: Gift },
-      { id: 'billing', label: 'Billing', icon: CreditCard },
-      { id: 'support', label: 'Support', icon: MessageSquare },
-      { id: 'system', label: 'System', icon: Shield },
-      { id: 'audit', label: 'Audit Logs', icon: FileText },
-      { id: 'admins', label: 'Admins', icon: UserPlus },
-      { id: 'emails', label: 'Emails', icon: Mail },
-      { id: 'reports', label: 'Reports', icon: Download },
-      { id: 'social', label: 'Social', icon: Send },
+      { id: 'overview', label: 'Overview' },
+      { id: 'usage', label: 'Usage' },
+      { id: 'encryption', label: 'Encryption' },
+      { id: 'marketing', label: 'Marketing' },
+      { id: 'users', label: 'Users' },
+      { id: 'coupons', label: 'Coupons' },
+      { id: 'vouchers', label: 'Gift Vouchers' },
+      { id: 'gold-legacy', label: 'Gold Legacy' },
+      { id: 'billing', label: 'Billing' },
+      { id: 'support', label: 'Support' },
+      { id: 'system', label: 'System' },
+      { id: 'audit', label: 'Audit Logs' },
+      { id: 'admins', label: 'Admins' },
+      { id: 'emails', label: 'Emails' },
+      { id: 'reports', label: 'Reports' },
+      { id: 'social', label: 'Social' },
     ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-
-      <div className="relative z-10">
+    <div className="min-h-screen bg-void text-paper antialiased">
+      <div>
       {/* Header */}
-      <header className="border-b border-white/10 px-6 py-4">
+      <header className="border-b border-paper-15 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-light text-gold">Heirloom Admin</h1>
-            <span className="px-2 py-1 bg-gold/20 text-gold text-xs">{admin.role}</span>
+          <div className="flex items-baseline gap-4">
+            <span className="font-body text-2xl text-gold leading-none" aria-hidden>∞</span>
+            <h1 className="font-body font-light text-xl text-paper">Heirloom Admin</h1>
+            <span className="px-2 py-1 border border-gold-40 text-gold text-xs rounded-[2px]">{admin.role}</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-paper/65 text-sm">{admin.email}</span>
-            <button onClick={handleLogout} className="text-paper/65 hover:text-blood transition-colors">
-              <LogOut size={18} />
+            <span className="text-paper-65 text-sm">{admin.email}</span>
+            <button onClick={handleLogout} className="text-paper-65 hover:text-blood transition-colors text-sm">
+              Sign out
             </button>
           </div>
         </div>
@@ -236,17 +222,16 @@ export function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Tabs */}
         <div className="flex gap-2 mb-8 flex-wrap">
-          {tabs.map(({ id, label, icon: Icon }) => (
+          {tabs.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded transition-all ${
-                activeTab === id 
-                  ? 'bg-gold/20 text-gold' 
-                  : 'text-paper/65 hover:text-paper hover:bg-white/5'
+              className={`px-4 py-2 rounded-[2px] transition-colors ${
+                activeTab === id
+                  ? 'text-gold border-b border-gold'
+                  : 'text-paper-65 hover:text-paper'
               }`}
             >
-              <Icon size={18} />
               {label}
             </button>
           ))}
@@ -258,25 +243,21 @@ export function AdminDashboard() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
-                icon={Users}
                 label="Total Users"
                 value={overview?.users?.total || 0}
                 subtext={`+${overview?.users?.recentSignups || 0} this week`}
               />
               <StatCard
-                icon={CreditCard}
                 label="Active Subscriptions"
                 value={overview?.users?.active || 0}
                 subtext={`${overview?.users?.trialing || 0} trialing`}
               />
               <StatCard
-                icon={DollarSign}
                 label="Est. MRR"
                 value={`$${revenue?.mrr?.toFixed(2) || '0.00'}`}
                 subtext={`${revenue?.activeSubscriptions || 0} paying`}
               />
               <StatCard
-                icon={Activity}
                 label="Total Content"
                 value={(overview?.content?.memories || 0) + (overview?.content?.letters || 0) + (overview?.content?.voiceRecordings || 0)}
                 subtext={`${overview?.content?.memories || 0} memories`}
@@ -284,115 +265,112 @@ export function AdminDashboard() {
             </div>
 
             {/* Subscription Breakdown */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Subscription Breakdown</h3>
+            <Panel title="Subscription Breakdown">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { key: 'starter', label: 'Starter ($1/mo)' },
                   { key: 'family', label: 'Family ($2/mo)' },
                   { key: 'forever', label: 'Forever ($5/mo)' },
                 ].map(({ key, label }) => (
-                  <div key={key} className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                    <div className="text-2xl text-gold mb-1">
+                  <div key={key} className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                    <div className="font-mono text-2xl text-gold mb-1">
                       {overview?.subscriptions?.[key] || overview?.subscriptions?.[key.toUpperCase()] || 0}
                     </div>
-                    <div className="text-paper/65 text-sm">{label}</div>
+                    <div className="text-paper-65 text-sm">{label}</div>
                   </div>
                 ))}
               </div>
-            </div>
+            </Panel>
 
             {/* User Activity */}
-            <div className="card">
-              <h3 className="text-lg mb-4">User Activity</h3>
+            <Panel title="User Activity">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="text-2xl text-paper mb-1">{userAnalytics?.signupsLast30Days || 0}</div>
-                  <div className="text-paper/65 text-sm">Signups (30d)</div>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="font-mono text-2xl text-paper mb-1">{userAnalytics?.signupsLast30Days || 0}</div>
+                  <div className="text-paper-65 text-sm">Signups (30d)</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="text-2xl text-paper mb-1">{userAnalytics?.signupsLast7Days || 0}</div>
-                  <div className="text-paper/65 text-sm">Signups (7d)</div>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="font-mono text-2xl text-paper mb-1">{userAnalytics?.signupsLast7Days || 0}</div>
+                  <div className="text-paper-65 text-sm">Signups (7d)</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="text-2xl text-paper mb-1">{userAnalytics?.activeUsersLast7Days || 0}</div>
-                  <div className="text-paper/65 text-sm">Active (7d)</div>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="font-mono text-2xl text-paper mb-1">{userAnalytics?.activeUsersLast7Days || 0}</div>
+                  <div className="text-paper-65 text-sm">Active (7d)</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="text-2xl text-paper mb-1">{userAnalytics?.usersWithContent || 0}</div>
-                  <div className="text-paper/65 text-sm">With Content</div>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="font-mono text-2xl text-paper mb-1">{userAnalytics?.usersWithContent || 0}</div>
+                  <div className="text-paper-65 text-sm">With Content</div>
                 </div>
               </div>
-            </div>
+            </Panel>
 
             {/* Revenue Stats */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Revenue & Discounts</h3>
+            <Panel title="Revenue & Discounts">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="text-2xl text-green-400 mb-1">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="font-mono text-2xl text-gold mb-1">
                     ${revenue?.mrr?.toFixed(2) || '0.00'}
                   </div>
-                  <div className="text-paper/65 text-sm">Monthly Recurring Revenue</div>
+                  <div className="text-paper-65 text-sm">Monthly Recurring Revenue</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="text-2xl text-blood mb-1">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="font-mono text-2xl text-paper mb-1">
                     ${revenue?.totalDiscountsLast30Days?.toFixed(2) || '0.00'}
                   </div>
-                  <div className="text-paper/65 text-sm">Discounts Given (30d)</div>
+                  <div className="text-paper-65 text-sm">Discounts Given (30d)</div>
                 </div>
               </div>
-            </div>
+            </Panel>
           </div>
         )}
 
         {/* Usage Analytics Tab */}
         {activeTab === 'usage' && (
           <div className="space-y-8">
-            <h2 className="text-xl">Usage Analytics</h2>
+            <h2 className="font-body font-light text-xl">Usage Analytics</h2>
             
             {/* Engagement Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="card p-4">
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
                 <div className="text-3xl text-gold mb-1">{usageAnalytics?.engagement?.totalUsers || 0}</div>
-                <div className="text-paper/65 text-sm">Total Users</div>
+                <div className="text-paper-65 text-sm">Total Users</div>
               </div>
-              <div className="card p-4">
-                <div className="text-3xl text-green-400 mb-1">{usageAnalytics?.engagement?.activeToday || 0}</div>
-                <div className="text-paper/65 text-sm">Active Today</div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-3xl text-gold mb-1">{usageAnalytics?.engagement?.activeToday || 0}</div>
+                <div className="text-paper-65 text-sm">Active Today</div>
               </div>
-              <div className="card p-4">
-                <div className="text-3xl text-blue-400 mb-1">{usageAnalytics?.engagement?.active7d || 0}</div>
-                <div className="text-paper/65 text-sm">Active (7 days)</div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-3xl text-paper-70 mb-1">{usageAnalytics?.engagement?.active7d || 0}</div>
+                <div className="text-paper-65 text-sm">Active (7 days)</div>
               </div>
-              <div className="card p-4">
-                <div className="text-3xl text-purple-400 mb-1">{usageAnalytics?.engagement?.active30d || 0}</div>
-                <div className="text-paper/65 text-sm">Active (30 days)</div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-3xl text-paper-70 mb-1">{usageAnalytics?.engagement?.active30d || 0}</div>
+                <div className="text-paper-65 text-sm">Active (30 days)</div>
               </div>
-              <div className="card p-4">
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
                 <div className="text-3xl text-blood mb-1">{usageAnalytics?.engagement?.dormant || 0}</div>
-                <div className="text-paper/65 text-sm">Dormant</div>
+                <div className="text-paper-65 text-sm">Dormant</div>
               </div>
             </div>
 
             {/* User Funnel */}
-            <div className="card">
-              <h3 className="text-lg mb-4">User Funnel</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">User Funnel</h3>
               <div className="space-y-3">
                 {[
                   { label: 'Registered', value: usageAnalytics?.funnel?.registered || 0, color: 'bg-gold' },
-                  { label: 'Email Verified', value: usageAnalytics?.funnel?.verified || 0, color: 'bg-blue-400' },
-                  { label: 'Subscribed', value: usageAnalytics?.funnel?.subscribed || 0, color: 'bg-green-400' },
-                  { label: 'Created Memory', value: usageAnalytics?.funnel?.createdMemory || 0, color: 'bg-purple-400' },
-                  { label: 'Added Family', value: usageAnalytics?.funnel?.addedFamily || 0, color: 'bg-pink-400' },
-                  { label: 'Added Legacy Contact', value: usageAnalytics?.funnel?.addedLegacyContact || 0, color: 'bg-orange-400' },
+                  { label: 'Email Verified', value: usageAnalytics?.funnel?.verified || 0, color: 'bg-gold/70' },
+                  { label: 'Subscribed', value: usageAnalytics?.funnel?.subscribed || 0, color: 'bg-gold' },
+                  { label: 'Created Memory', value: usageAnalytics?.funnel?.createdMemory || 0, color: 'bg-gold/60' },
+                  { label: 'Added Family', value: usageAnalytics?.funnel?.addedFamily || 0, color: 'bg-gold/50' },
+                  { label: 'Added Legacy Contact', value: usageAnalytics?.funnel?.addedLegacyContact || 0, color: 'bg-gold/40' },
                 ].map((step, i) => {
                   const maxValue = usageAnalytics?.funnel?.registered || 1;
                   const percentage = Math.round((step.value / maxValue) * 100);
                   return (
                     <div key={i} className="flex items-center gap-4">
-                      <div className="w-40 text-paper/70 text-sm">{step.label}</div>
-                      <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
+                      <div className="w-40 text-paper-70 text-sm">{step.label}</div>
+                      <div className="flex-1 h-6 bg-void-elevated rounded-[2px] overflow-hidden">
                         <div 
                           className={`h-full ${step.color} transition-all duration-500`}
                           style={{ width: `${percentage}%` }}
@@ -400,7 +378,7 @@ export function AdminDashboard() {
                       </div>
                       <div className="w-20 text-right">
                         <span className="text-paper">{step.value}</span>
-                        <span className="text-paper/65 text-sm ml-1">({percentage}%)</span>
+                        <span className="text-paper-65 text-sm ml-1">({percentage}%)</span>
                       </div>
                     </div>
                   );
@@ -409,34 +387,34 @@ export function AdminDashboard() {
             </div>
 
             {/* Content Engagement */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Content Engagement</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Content Engagement</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithContent || 0}</div>
-                  <div className="text-paper/65 text-sm">Users with Content</div>
-                  <div className="text-xs text-paper/65 mt-1">
+                  <div className="text-paper-65 text-sm">Users with Content</div>
+                  <div className="text-xs text-paper-65 mt-1">
                     {Math.round(((usageAnalytics?.contentEngagement?.usersWithContent || 0) / (usageAnalytics?.contentEngagement?.totalUsers || 1)) * 100)}% of users
                   </div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithMemories || 0}</div>
-                  <div className="text-paper/65 text-sm">With Memories</div>
+                  <div className="text-paper-65 text-sm">With Memories</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithLetters || 0}</div>
-                  <div className="text-paper/65 text-sm">With Letters</div>
+                  <div className="text-paper-65 text-sm">With Letters</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithVoice || 0}</div>
-                  <div className="text-paper/65 text-sm">With Voice</div>
+                  <div className="text-paper-65 text-sm">With Voice</div>
                 </div>
               </div>
             </div>
 
             {/* Activity by Hour */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Activity by Hour of Day (Last 30 Days)</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Activity by Hour of Day (Last 30 Days)</h3>
               <div className="flex items-end gap-1 h-32">
                 {Array.from({ length: 24 }, (_, hour) => {
                   const data = usageAnalytics?.activityByHour?.find((h: any) => h.hour === hour);
@@ -446,23 +424,23 @@ export function AdminDashboard() {
                   return (
                     <div key={hour} className="flex-1 flex flex-col items-center">
                       <div 
-                        className="w-full bg-gold/60 hover:bg-gold transition-colors rounded-t"
+                        className="w-full bg-gold/60 hover:bg-gold transition-colors rounded-none"
                         style={{ height: `${Math.max(height, 2)}%` }}
                         title={`${hour}:00 - ${count} logins`}
                       />
                       {hour % 4 === 0 && (
-                        <div className="text-xs text-paper/65 mt-1">{hour}h</div>
+                        <div className="text-xs text-paper-65 mt-1">{hour}h</div>
                       )}
                     </div>
                   );
                 })}
               </div>
-              <div className="text-xs text-paper/65 mt-2 text-center">Hour of day (UTC)</div>
+              <div className="text-xs text-paper-65 mt-2 text-center">Hour of day (UTC)</div>
             </div>
 
             {/* Activity by Day of Week */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Activity by Day of Week (Last 30 Days)</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Activity by Day of Week (Last 30 Days)</h3>
               <div className="flex items-end gap-2 h-32">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => {
                   const data = usageAnalytics?.activityByDay?.find((d: any) => d.dayNum === i);
@@ -472,11 +450,11 @@ export function AdminDashboard() {
                   return (
                     <div key={day} className="flex-1 flex flex-col items-center">
                       <div 
-                        className="w-full bg-blue-400/60 hover:bg-blue-400 transition-colors rounded-t"
+                        className="w-full bg-gold/60 hover:bg-gold transition-colors rounded-none"
                         style={{ height: `${Math.max(height, 5)}%` }}
                         title={`${day} - ${count} logins`}
                       />
-                      <div className="text-xs text-paper/65 mt-2">{day}</div>
+                      <div className="text-xs text-paper-65 mt-2">{day}</div>
                     </div>
                   );
                 })}
@@ -484,67 +462,67 @@ export function AdminDashboard() {
             </div>
 
             {/* Reminder/Dead Man Switch Status */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Dead Man's Switch Status</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Dead Man's Switch Status</h3>
               <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="text-2xl text-green-400 mb-1">{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
-                  <div className="text-paper/65 text-sm">Active Switches</div>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="text-2xl text-gold mb-1">{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
+                  <div className="text-paper-65 text-sm">Active Switches</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="text-2xl text-yellow-400 mb-1">{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
-                  <div className="text-paper/65 text-sm">Warning Status</div>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="text-2xl text-gold mb-1">{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
+                  <div className="text-paper-65 text-sm">Warning Status</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-blood mb-1">{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
-                  <div className="text-paper/65 text-sm">Triggered</div>
+                  <div className="text-paper-65 text-sm">Triggered</div>
                 </div>
               </div>
-              <p className="text-paper/65 text-sm mt-4">
+              <p className="text-paper-65 text-sm mt-4">
                 Reminder emails are sent via scheduled cron jobs. Check that CRON_ENABLED=true is set in your worker environment.
               </p>
             </div>
 
             {/* Recent Sessions */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Recent User Sessions</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Recent User Sessions</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">User</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Email</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Tier</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Memories</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Letters</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Last Login</th>
+                    <tr className="border-b border-paper-15">
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">User</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Email</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Tier</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Memories</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Letters</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Last Login</th>
                     </tr>
                   </thead>
                   <tbody>
                     {usageAnalytics?.recentSessions?.map((session: any) => (
-                      <tr key={session.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <tr key={session.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                         <td className="py-3 px-4 text-paper">{session.name}</td>
-                        <td className="py-3 px-4 text-paper/70">{session.email}</td>
+                        <td className="py-3 px-4 text-paper-70">{session.email}</td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            session.tier === 'FOREVER' ? 'bg-gold/20 text-gold' :
-                            session.tier === 'FAMILY' ? 'bg-blue-500/20 text-blue-400' :
-                            session.tier === 'STARTER' ? 'bg-green-500/20 text-green-400' :
-                            'bg-white/10 text-paper/65'
+                          <span className={`px-2 py-1 rounded-[2px] text-xs ${
+                            session.tier === 'FOREVER' ? 'border border-gold-40 text-gold' :
+                            session.tier === 'FAMILY' ? 'border border-paper-15 text-paper-70' :
+                            session.tier === 'STARTER' ? 'border border-gold-40 text-gold' :
+                            'border border-paper-15 text-paper-65'
                           }`}>
                             {session.tier}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-paper/70">{session.memoryCount}</td>
-                        <td className="py-3 px-4 text-paper/70">{session.letterCount}</td>
-                        <td className="py-3 px-4 text-paper/65 text-sm">
+                        <td className="py-3 px-4 text-paper-70">{session.memoryCount}</td>
+                        <td className="py-3 px-4 text-paper-70">{session.letterCount}</td>
+                        <td className="py-3 px-4 text-paper-65 text-sm">
                           {session.lastLogin ? new Date(session.lastLogin).toLocaleString() : 'Never'}
                         </td>
                       </tr>
                     ))}
                     {(!usageAnalytics?.recentSessions || usageAnalytics.recentSessions.length === 0) && (
                       <tr>
-                        <td colSpan={6} className="text-center py-8 text-paper/65">
+                        <td colSpan={6} className="text-center py-8 text-paper-65">
                           No recent sessions
                         </td>
                       </tr>
@@ -559,45 +537,45 @@ export function AdminDashboard() {
         {/* Encryption Tab */}
         {activeTab === 'encryption' && (
           <div className="space-y-8">
-            <h2 className="text-xl">Encryption Adoption</h2>
+            <h2 className="font-body font-light text-xl">Encryption Adoption</h2>
             
             {/* Overview Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="card p-4">
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
                 <div className="text-3xl text-gold mb-1">{encryptionStats?.encryptedUsers || 0}</div>
-                <div className="text-paper/65 text-sm">Users with Encryption</div>
-                <div className="text-xs text-paper/65 mt-1">
+                <div className="text-paper-65 text-sm">Users with Encryption</div>
+                <div className="text-xs text-paper-65 mt-1">
                   {encryptionStats?.adoptionRate || 0}% adoption rate
                 </div>
               </div>
-              <div className="card p-4">
-                <div className="text-3xl text-green-400 mb-1">{encryptionStats?.escrowConfigured || 0}</div>
-                <div className="text-paper/65 text-sm">Key Escrow Configured</div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-3xl text-gold mb-1">{encryptionStats?.escrowConfigured || 0}</div>
+                <div className="text-paper-65 text-sm">Key Escrow Configured</div>
               </div>
-              <div className="card p-4">
-                <div className="text-3xl text-blue-400 mb-1">{encryptionStats?.shamirConfigured || 0}</div>
-                <div className="text-paper/65 text-sm">Shamir Shares Active</div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-3xl text-paper-70 mb-1">{encryptionStats?.shamirConfigured || 0}</div>
+                <div className="text-paper-65 text-sm">Shamir Shares Active</div>
               </div>
-              <div className="card p-4">
-                <div className="text-3xl text-purple-400 mb-1">{encryptionStats?.recentSetups || 0}</div>
-                <div className="text-paper/65 text-sm">New Setups (30 days)</div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-3xl text-paper-70 mb-1">{encryptionStats?.recentSetups || 0}</div>
+                <div className="text-paper-65 text-sm">New Setups (30 days)</div>
               </div>
             </div>
 
             {/* Adoption Progress */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Encryption Adoption Progress</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Encryption Adoption Progress</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-40 text-paper/70 text-sm">Total Users</div>
-                  <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
+                  <div className="w-40 text-paper-70 text-sm">Total Users</div>
+                  <div className="flex-1 h-6 bg-void-elevated rounded-[2px] overflow-hidden">
                     <div className="h-full bg-paper/30 w-full" />
                   </div>
                   <div className="w-20 text-right text-paper">{encryptionStats?.totalUsers || 0}</div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-40 text-paper/70 text-sm">Encryption Enabled</div>
-                  <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
+                  <div className="w-40 text-paper-70 text-sm">Encryption Enabled</div>
+                  <div className="flex-1 h-6 bg-void-elevated rounded-[2px] overflow-hidden">
                     <div 
                       className="h-full bg-gold transition-all duration-500"
                       style={{ width: `${encryptionStats?.adoptionRate || 0}%` }}
@@ -605,20 +583,20 @@ export function AdminDashboard() {
                   </div>
                   <div className="w-20 text-right">
                     <span className="text-paper">{encryptionStats?.encryptedUsers || 0}</span>
-                    <span className="text-paper/65 text-sm ml-1">({encryptionStats?.adoptionRate || 0}%)</span>
+                    <span className="text-paper-65 text-sm ml-1">({encryptionStats?.adoptionRate || 0}%)</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-40 text-paper/70 text-sm">Key Escrow Setup</div>
-                  <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden">
+                  <div className="w-40 text-paper-70 text-sm">Key Escrow Setup</div>
+                  <div className="flex-1 h-6 bg-void-elevated rounded-[2px] overflow-hidden">
                     <div 
-                      className="h-full bg-green-400 transition-all duration-500"
+                      className="h-full bg-gold transition-all duration-500"
                       style={{ width: `${encryptionStats?.totalUsers ? Math.round((encryptionStats.escrowConfigured / encryptionStats.totalUsers) * 100) : 0}%` }}
                     />
                   </div>
                   <div className="w-20 text-right">
                     <span className="text-paper">{encryptionStats?.escrowConfigured || 0}</span>
-                    <span className="text-paper/65 text-sm ml-1">
+                    <span className="text-paper-65 text-sm ml-1">
                       ({encryptionStats?.totalUsers ? Math.round((encryptionStats.escrowConfigured / encryptionStats.totalUsers) * 100) : 0}%)
                     </span>
                   </div>
@@ -627,51 +605,41 @@ export function AdminDashboard() {
             </div>
 
             {/* Encrypted Content */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Encrypted Content</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Encrypted Content</h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="flex items-center gap-3">
-                    <Lock className="text-gold" size={24} />
-                    <div>
-                      <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.letters || 0}</div>
-                      <div className="text-paper/65 text-sm">Encrypted Letters</div>
-                    </div>
-                  </div>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.letters || 0}</div>
+                  <div className="text-paper-65 text-sm">Encrypted Letters</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
-                  <div className="flex items-center gap-3">
-                    <Lock className="text-gold" size={24} />
-                    <div>
-                      <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.memories || 0}</div>
-                      <div className="text-paper/65 text-sm">Encrypted Memories</div>
-                    </div>
-                  </div>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.memories || 0}</div>
+                  <div className="text-paper-65 text-sm">Encrypted Memories</div>
                 </div>
               </div>
             </div>
 
             {/* Escrow Types Breakdown */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Key Escrow Types</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Key Escrow Types</h3>
               {encryptionStats?.escrowTypes && encryptionStats.escrowTypes.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {encryptionStats.escrowTypes.map((type: { escrow_type: string; count: number }) => (
-                    <div key={type.escrow_type} className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                    <div key={type.escrow_type} className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                       <div className="text-2xl text-paper mb-1">{type.count}</div>
-                      <div className="text-paper/65 text-sm capitalize">{type.escrow_type.replace(/_/g, ' ').toLowerCase()}</div>
+                      <div className="text-paper-65 text-sm capitalize">{type.escrow_type.replace(/_/g, ' ').toLowerCase()}</div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-paper/65">No escrow configurations yet</p>
+                <p className="text-paper-65">No escrow configurations yet</p>
               )}
             </div>
 
             {/* Zero-Knowledge Info */}
-            <div className="card bg-gold/5 border-gold/20">
-              <h3 className="text-lg mb-4 text-gold">Zero-Knowledge Architecture</h3>
-              <div className="space-y-3 text-paper/70">
+            <div className="bg-void-surface border border-gold-40 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4 text-gold">Zero-Knowledge Architecture</h3>
+              <div className="space-y-3 text-paper-70">
                 <p>
                   Heirloom uses true zero-knowledge encryption. User data is encrypted client-side using AES-256-GCM 
                   before upload. The server never sees plaintext content.
@@ -694,26 +662,25 @@ export function AdminDashboard() {
         {activeTab === 'coupons' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">Coupon Management</h2>
+              <h2 className="font-body font-light text-xl">Coupon Management</h2>
               <button
                 onClick={() => setShowCouponModal(true)}
-                className="btn btn-primary flex items-center gap-2"
+                className="btn btn-primary"
               >
-                <Plus size={18} />
                 Create Coupon
               </button>
             </div>
 
-            <div className="card">
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Code</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Discount</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Uses</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Valid Until</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
+                  <tr className="border-b border-paper-15">
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Code</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Discount</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Uses</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Valid Until</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -722,7 +689,7 @@ export function AdminDashboard() {
                   ))}
                   {(!coupons || coupons.length === 0) && (
                     <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper/65">
+                      <td colSpan={6} className="text-center py-8 text-paper-65">
                         No coupons created yet
                       </td>
                     </tr>
@@ -737,88 +704,59 @@ export function AdminDashboard() {
         {activeTab === 'vouchers' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">Gift Voucher Management</h2>
+              <h2 className="font-body font-light text-xl">Gift Voucher Management</h2>
               <button
                 onClick={() => setShowVoucherModal(true)}
-                className="btn btn-primary flex items-center gap-2"
+                className="btn btn-primary"
               >
-                <Plus size={18} />
                 Create Voucher
               </button>
             </div>
 
             {/* Voucher Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="card p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gold/20 rounded">
-                    <Gift className="w-5 h-5 text-gold" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-gold">{voucherStats?.stats?.total || 0}</div>
-                    <div className="text-paper/65 text-sm">Total Vouchers</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="font-mono text-2xl text-gold">{voucherStats?.stats?.total || 0}</div>
+                <div className="text-paper-65 text-sm">Total Vouchers</div>
               </div>
-              <div className="card p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/20 rounded">
-                    <Send className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-blue-400">{voucherStats?.stats?.sent || 0}</div>
-                    <div className="text-paper/65 text-sm">Sent</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="font-mono text-2xl text-paper">{voucherStats?.stats?.sent || 0}</div>
+                <div className="text-paper-65 text-sm">Sent</div>
               </div>
-              <div className="card p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/20 rounded">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-green-400">{voucherStats?.stats?.redeemed || 0}</div>
-                    <div className="text-paper/65 text-sm">Redeemed</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="font-mono text-2xl text-gold">{voucherStats?.stats?.redeemed || 0}</div>
+                <div className="text-paper-65 text-sm">Redeemed</div>
               </div>
-              <div className="card p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/20 rounded">
-                    <DollarSign className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-green-400">${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}</div>
-                    <div className="text-paper/65 text-sm">Total Revenue</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="font-mono text-2xl text-gold">${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}</div>
+                <div className="text-paper-65 text-sm">Total Revenue</div>
               </div>
             </div>
 
             {/* Vouchers Table */}
-            <div className="card">
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg">All Vouchers</h3>
-                <button onClick={() => refetchVouchers()} className="text-paper/65 hover:text-gold">
-                  <RefreshCw size={18} />
+                <h3 className="font-body font-light text-lg text-paper">All Vouchers</h3>
+                <button onClick={() => refetchVouchers()} className="text-paper-65 hover:text-gold transition-colors text-sm">
+                  Refresh
                 </button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Code</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Tier</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Purchaser</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Recipient</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                      <th className="text-left py-3 px-4 text-paper/65 font-normal">Created</th>
-                      <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
+                    <tr className="border-b border-paper-15">
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Code</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Tier</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Purchaser</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Recipient</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Created</th>
+                      <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {giftVouchers?.vouchers?.map((voucher: any) => (
-                      <tr key={voucher.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <tr key={voucher.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
                             <span className="font-mono text-gold">{voucher.code}</span>
@@ -827,39 +765,38 @@ export function AdminDashboard() {
                                 navigator.clipboard.writeText(voucher.code);
                                 alert('Code copied!');
                               }}
-                              className="text-paper/65 hover:text-gold"
+                              className="text-paper-65 hover:text-gold transition-colors text-xs"
+                              aria-label="Copy code"
                             >
-                              <Copy size={14} />
+                              Copy
                             </button>
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs rounded ${
-                            voucher.tier === 'FOREVER' ? 'bg-gold/20 text-gold' :
-                            voucher.tier === 'FAMILY' ? 'bg-blue-500/20 text-blue-400' :
-                            'bg-white/10 text-paper/70'
+                          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                            voucher.tier === 'FOREVER' ? 'border-gold-40 text-gold' :
+                            'border-paper-15 text-paper-70'
                           }`}>
                             {voucher.tier}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-paper/70 text-sm">{voucher.purchaser_email}</td>
-                        <td className="py-3 px-4 text-paper/70 text-sm">{voucher.recipient_email || '-'}</td>
+                        <td className="py-3 px-4 text-paper-70 text-sm">{voucher.purchaser_email}</td>
+                        <td className="py-3 px-4 text-paper-70 text-sm">{voucher.recipient_email || '-'}</td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs rounded ${
-                            voucher.status === 'REDEEMED' ? 'bg-green-500/20 text-green-400' :
-                            voucher.status === 'SENT' ? 'bg-blue-500/20 text-blue-400' :
-                            voucher.status === 'PAID' ? 'bg-gold/20 text-gold' :
-                            voucher.status === 'EXPIRED' ? 'bg-red-500/20 text-red-400' :
-                            'bg-white/10 text-paper/65'
+                          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                            voucher.status === 'REDEEMED' ? 'border-gold-40 text-gold' :
+                            voucher.status === 'PAID' ? 'border-gold-40 text-gold' :
+                            voucher.status === 'EXPIRED' ? 'border-blood text-blood' :
+                            'border-paper-15 text-paper-70'
                           }`}>
                             {voucher.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-paper/65 text-sm">
+                        <td className="py-3 px-4 text-paper-65 text-sm">
                           {new Date(voucher.created_at).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center justify-end gap-3">
                             {voucher.status === 'PAID' && voucher.recipient_email && (
                               <button
                                 onClick={async () => {
@@ -870,10 +807,10 @@ export function AdminDashboard() {
                                   });
                                   alert('Email resent!');
                                 }}
-                                className="text-paper/65 hover:text-blue-400"
-                                title="Resend email"
+                                className="text-paper-65 hover:text-gold transition-colors text-xs"
+                                aria-label="Resend email"
                               >
-                                <Send size={16} />
+                                Resend
                               </button>
                             )}
                             <button
@@ -882,10 +819,10 @@ export function AdminDashboard() {
                                 navigator.clipboard.writeText(url);
                                 alert('Redemption link copied!');
                               }}
-                              className="text-paper/65 hover:text-gold"
-                              title="Copy redemption link"
+                              className="text-paper-65 hover:text-gold transition-colors text-xs"
+                              aria-label="Copy redemption link"
                             >
-                              <Eye size={16} />
+                              Link
                             </button>
                           </div>
                         </td>
@@ -893,7 +830,7 @@ export function AdminDashboard() {
                     ))}
                     {(!giftVouchers?.vouchers || giftVouchers.vouchers.length === 0) && (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-paper/65">
+                        <td colSpan={7} className="text-center py-8 text-paper-65">
                           No gift vouchers created yet
                         </td>
                       </tr>
@@ -910,114 +847,92 @@ export function AdminDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-xl text-gold">Gold Legacy Circle</h2>
-                <p className="text-paper/65 text-sm mt-1">Exclusive lifetime access vouchers for VIP members</p>
+                <h2 className="font-body font-light text-xl text-gold">Gold Legacy Circle</h2>
+                <p className="text-paper-65 text-sm mt-1">Exclusive lifetime access vouchers for VIP members</p>
               </div>
               <button
                 onClick={() => setShowGoldLegacyModal(true)}
-                className="btn flex items-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', color: '#0a0a0f' }}
+                className="btn btn-primary"
               >
-                <Plus size={18} />
                 Create Gold Legacy Voucher
               </button>
             </div>
 
             {/* Gold Legacy Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="card p-4" style={{ borderColor: 'rgba(212, 175, 55, 0.3)' }}>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded" style={{ background: 'rgba(212, 175, 55, 0.2)' }}>
-                    <Gift className="w-5 h-5 text-gold" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-gold">{goldLegacyVouchers?.total || 0}</div>
-                    <div className="text-paper/65 text-sm">Total Gold Legacy</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-gold-40 rounded-[2px] p-4">
+                <div className="font-mono text-2xl text-gold">{goldLegacyVouchers?.total || 0}</div>
+                <div className="text-paper-65 text-sm">Total Gold Legacy</div>
               </div>
-              <div className="card p-4" style={{ borderColor: 'rgba(212, 175, 55, 0.3)' }}>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/20 rounded">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-green-400">
-                      {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'REDEEMED').length || 0}
-                    </div>
-                    <div className="text-paper/65 text-sm">Redeemed</div>
-                  </div>
+              <div className="bg-void-surface border border-gold-40 rounded-[2px] p-4">
+                <div className="font-mono text-2xl text-gold">
+                  {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'REDEEMED').length || 0}
                 </div>
+                <div className="text-paper-65 text-sm">Redeemed</div>
               </div>
-              <div className="card p-4" style={{ borderColor: 'rgba(212, 175, 55, 0.3)' }}>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/20 rounded">
-                    <Send className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-blue-400">
-                      {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'SENT' || v.status === 'PAID').length || 0}
-                    </div>
-                    <div className="text-paper/65 text-sm">Pending</div>
-                  </div>
+              <div className="bg-void-surface border border-gold-40 rounded-[2px] p-4">
+                <div className="font-mono text-2xl text-paper">
+                  {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'SENT' || v.status === 'PAID').length || 0}
                 </div>
+                <div className="text-paper-65 text-sm">Pending</div>
               </div>
             </div>
 
             {/* Gold Legacy Vouchers Table */}
-            <div className="card" style={{ borderColor: 'rgba(212, 175, 55, 0.2)' }}>
+            <div className="bg-void-surface border border-gold-40 rounded-[2px] p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg text-gold">Gold Legacy Members</h3>
-                <button onClick={() => refetchGoldLegacy()} className="text-paper/65 hover:text-gold">
-                  <RefreshCw size={18} />
+                <h3 className="font-body font-light text-lg text-gold">Gold Legacy Members</h3>
+                <button onClick={() => refetchGoldLegacy()} className="text-paper-65 hover:text-gold transition-colors text-sm">
+                  Refresh
                 </button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gold/20">
-                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Member #</th>
-                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Code</th>
-                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Recipient</th>
-                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Status</th>
-                      <th className="text-left py-3 px-4 text-gold/70 font-normal">Created</th>
-                      <th className="text-right py-3 px-4 text-gold/70 font-normal">Actions</th>
+                    <tr className="border-b border-gold-40">
+                      <th className="text-left py-3 px-4 text-gold font-normal">Member #</th>
+                      <th className="text-left py-3 px-4 text-gold font-normal">Code</th>
+                      <th className="text-left py-3 px-4 text-gold font-normal">Recipient</th>
+                      <th className="text-left py-3 px-4 text-gold font-normal">Status</th>
+                      <th className="text-left py-3 px-4 text-gold font-normal">Created</th>
+                      <th className="text-right py-3 px-4 text-gold font-normal">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {goldLegacyVouchers?.vouchers?.map((voucher: any) => (
-                      <tr key={voucher.id} className="border-b border-gold/10 hover:bg-gold/5">
+                      <tr key={voucher.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                         <td className="py-3 px-4">
                           <span className="font-mono text-gold">{voucher.gold_member_number || '-'}</span>
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-paper/70">{voucher.code}</span>
+                            <span className="font-mono text-paper-70">{voucher.code}</span>
                             <button
                               onClick={() => {
                                 navigator.clipboard.writeText(voucher.code);
                                 alert('Code copied!');
                               }}
-                              className="text-paper/65 hover:text-gold"
+                              className="text-paper-65 hover:text-gold transition-colors text-xs"
+                              aria-label="Copy code"
                             >
-                              <Copy size={14} />
+                              Copy
                             </button>
                           </div>
                         </td>
                         <td className="py-3 px-4">
                           <div className="text-paper">{voucher.recipient_name || '-'}</div>
-                          <div className="text-paper/65 text-sm">{voucher.recipient_email || '-'}</div>
+                          <div className="text-paper-65 text-sm">{voucher.recipient_email || '-'}</div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs rounded ${
-                            voucher.status === 'REDEEMED' ? 'bg-green-500/20 text-green-400' :
-                            voucher.status === 'SENT' ? 'bg-blue-500/20 text-blue-400' :
-                            'bg-gold/20 text-gold'
+                          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                            voucher.status === 'REDEEMED' ? 'border-gold-40 text-gold' :
+                            voucher.status === 'SENT' ? 'border-paper-15 text-paper-70' :
+                            'border-gold-40 text-gold'
                           }`}>
                             {voucher.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-paper/65 text-sm">
+                        <td className="py-3 px-4 text-paper-65 text-sm">
                           {new Date(voucher.created_at).toLocaleDateString()}
                         </td>
                         <td className="py-3 px-4 text-right">
@@ -1028,10 +943,10 @@ export function AdminDashboard() {
                                 navigator.clipboard.writeText(url);
                                 alert('Gold Legacy redemption link copied!');
                               }}
-                              className="text-paper/65 hover:text-gold"
-                              title="Copy redemption link"
+                              className="text-paper-65 hover:text-gold transition-colors text-xs"
+                              aria-label="Copy redemption link"
                             >
-                              <Eye size={16} />
+                              Link
                             </button>
                           </div>
                         </td>
@@ -1039,7 +954,7 @@ export function AdminDashboard() {
                     ))}
                     {(!goldLegacyVouchers?.vouchers || goldLegacyVouchers.vouchers.length === 0) && (
                       <tr>
-                        <td colSpan={6} className="text-center py-8 text-paper/65">
+                        <td colSpan={6} className="text-center py-8 text-paper-65">
                           No Gold Legacy vouchers created yet
                         </td>
                       </tr>
@@ -1055,129 +970,100 @@ export function AdminDashboard() {
         {activeTab === 'billing' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">Billing Analysis & Error Management</h2>
+              <h2 className="font-body font-light text-xl">Billing Analysis & Error Management</h2>
               <button
                 onClick={() => adminApi.notifyAllFailedBilling().then(() => alert('Notifications sent!'))}
-                className="btn btn-primary flex items-center gap-2"
+                className="btn btn-primary"
               >
-                <Send size={18} />
                 Notify All Failed
               </button>
             </div>
 
             {/* Billing Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="card p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-500/20 rounded">
-                    <AlertTriangle className="w-5 h-5 text-red-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-red-400">{billingStats?.failed || 0}</div>
-                    <div className="text-paper/65 text-sm">Failed Payments</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-2xl text-blood">{billingStats?.failed || 0}</div>
+                <div className="text-paper-65 text-sm">Failed Payments</div>
               </div>
-              <div className="card p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-500/20 rounded">
-                    <Clock className="w-5 h-5 text-yellow-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-yellow-400">{billingStats?.pendingRetry || 0}</div>
-                    <div className="text-paper/65 text-sm">Pending Retry</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-2xl text-gold">{billingStats?.pendingRetry || 0}</div>
+                <div className="text-paper-65 text-sm">Pending Retry</div>
               </div>
-              <div className="card p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/20 rounded">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-green-400">{billingStats?.resolved || 0}</div>
-                    <div className="text-paper/65 text-sm">Resolved</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-2xl text-gold">{billingStats?.resolved || 0}</div>
+                <div className="text-paper-65 text-sm">Resolved</div>
               </div>
-              <div className="card p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/20 rounded">
-                    <Activity className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl text-blue-400">{billingStats?.last24Hours || 0}</div>
-                    <div className="text-paper/65 text-sm">Last 24 Hours</div>
-                  </div>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
+                <div className="text-2xl text-paper-70">{billingStats?.last24Hours || 0}</div>
+                <div className="text-paper-65 text-sm">Last 24 Hours</div>
               </div>
             </div>
 
             {/* Billing Errors Table */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Billing Errors</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Billing Errors</h3>
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Error Type</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Amount</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Retries</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Date</th>
-                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
+                  <tr className="border-b border-paper-15">
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">User</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Error Type</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Amount</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Retries</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Date</th>
+                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {billingErrors?.data?.map((error: any) => (
-                    <tr key={error.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <tr key={error.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                       <td className="py-3 px-4">
                         <div className="text-paper">{error.userName}</div>
-                        <div className="text-paper/65 text-sm">{error.userEmail}</div>
+                        <div className="text-paper-65 text-sm">{error.userEmail}</div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded">
+                        <span className="px-2 py-1 text-xs border border-blood text-blood rounded-[2px]">
                           {error.errorType?.replace(/_/g, ' ')}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/70">
+                      <td className="py-3 px-4 text-paper-70">
                         ${((error.amount || 0) / 100).toFixed(2)} {error.currency}
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs rounded ${
-                          error.status === 'FAILED' ? 'bg-red-500/20 text-red-400' :
-                          error.status === 'PENDING_RETRY' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-green-500/20 text-green-400'
+                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                          error.status === 'FAILED' ? 'border-blood text-blood' :
+                          error.status === 'PENDING_RETRY' ? 'border-gold-40 text-gold' :
+                          'border-gold-40 text-gold'
                         }`}>
                           {error.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/65">{error.retryCount || 0}</td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-65">{error.retryCount || 0}</td>
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {new Date(error.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-3">
                           <button
                             onClick={() => adminApi.notifyBillingError(error.id).then(() => alert('Notification sent!'))}
-                            className="p-1 text-paper/65 hover:text-gold transition-colors"
-                            title="Notify User"
+                            className="text-paper-65 hover:text-gold transition-colors text-xs"
+                            aria-label="Notify user"
                           >
-                            <Mail size={16} />
+                            Notify
                           </button>
                           <button
                             onClick={() => adminApi.reprocessBillingError(error.id).then(() => alert('Reprocessing initiated!'))}
-                            className="p-1 text-paper/65 hover:text-blue-400 transition-colors"
-                            title="Reprocess Payment"
+                            className="text-paper-65 hover:text-paper transition-colors text-xs"
+                            aria-label="Reprocess payment"
                           >
-                            <Activity size={16} />
+                            Reprocess
                           </button>
                           <button
                             onClick={() => adminApi.resolveBillingError(error.id, { resolution: 'Manually resolved' }).then(() => alert('Marked as resolved!'))}
-                            className="p-1 text-paper/65 hover:text-green-400 transition-colors"
-                            title="Mark Resolved"
+                            className="text-paper-65 hover:text-gold transition-colors text-xs"
+                            aria-label="Mark resolved"
                           >
-                            <CheckCircle size={16} />
+                            Resolve
                           </button>
                         </div>
                       </td>
@@ -1185,7 +1071,7 @@ export function AdminDashboard() {
                   ))}
                   {(!billingErrors?.data || billingErrors.data.length === 0) && (
                     <tr>
-                      <td colSpan={7} className="text-center py-8 text-paper/65">
+                      <td colSpan={7} className="text-center py-8 text-paper-65">
                         No billing errors found - all payments are processing successfully
                       </td>
                     </tr>
@@ -1200,89 +1086,79 @@ export function AdminDashboard() {
         {activeTab === 'users' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">User Management</h2>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-paper/65" />
-                <input
-                  type="text"
-                  placeholder="Search users..."
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                  className="input pl-10 w-64"
-                />
-              </div>
+              <h2 className="font-body font-light text-xl">User Management</h2>
+              <input
+                type="text"
+                placeholder="Search users…"
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                className="input w-64"
+              />
             </div>
 
-            <div className="card">
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Subscription</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Email Status</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Joined</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Last Active</th>
-                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
+                  <tr className="border-b border-paper-15">
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">User</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Subscription</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Email Status</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Joined</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Last Active</th>
+                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users?.data?.map((user: any) => (
-                    <tr key={user.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <tr key={user.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-sm">
-                            {user.firstName?.[0]}{user.lastName?.[0]}
-                          </div>
-                          <div>
-                            <div className="text-paper">{user.firstName} {user.lastName}</div>
-                            <div className="text-paper/65 text-sm">{user.email}</div>
-                          </div>
-                        </div>
+                        <div className="text-paper">{user.firstName} {user.lastName}</div>
+                        <div className="text-paper-65 text-sm">{user.email}</div>
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex flex-col gap-1">
-                          <span className={`px-2 py-1 text-xs inline-block w-fit rounded ${
-                            user.tier === 'FOREVER' ? 'bg-purple-500/20 text-purple-400' :
-                            user.tier === 'FAMILY' ? 'bg-gold/20 text-gold' :
-                            user.tier === 'STARTER' ? 'bg-blue-500/20 text-blue-400' :
-                            'bg-white/10 text-paper/65'
+                          <span className={`px-2 py-1 text-xs inline-block w-fit border rounded-[2px] ${
+                            user.tier === 'FOREVER' ? 'border-paper-15 text-paper-70' :
+                            user.tier === 'FAMILY' ? 'border-gold-40 text-gold' :
+                            user.tier === 'STARTER' ? 'border-paper-15 text-paper-70' :
+                            'border-paper-15 text-paper-65'
                           }`}>
                             {user.tier || 'FREE'}
                           </span>
                           <span className={`text-xs ${
-                            user.subscriptionStatus === 'ACTIVE' ? 'text-green-400' :
-                            user.subscriptionStatus === 'TRIALING' ? 'text-yellow-400' :
-                            'text-paper/65'
+                            user.subscriptionStatus === 'ACTIVE' ? 'text-gold' :
+                            user.subscriptionStatus === 'TRIALING' ? 'text-gold' :
+                            'text-paper-65'
                           }`}>
                             {user.subscriptionStatus || 'None'}
                           </span>
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs rounded ${user.emailVerified ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${user.emailVerified ? 'border-gold-40 text-gold' : 'border-blood text-blood'}`}>
                           {user.emailVerified ? 'Verified' : 'Unverified'}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => setSelectedUser(user)}
-                          className="text-paper/65 hover:text-gold transition-colors"
-                          title="Manage user"
+                          className="text-paper-65 hover:text-gold transition-colors text-xs"
+                          aria-label="Manage user"
                         >
-                          <Eye size={16} />
+                          Manage
                         </button>
                       </td>
                     </tr>
                   ))}
                   {(!users?.data || users.data.length === 0) && (
                     <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper/65">
+                      <td colSpan={6} className="text-center py-8 text-paper-65">
                         {userSearch ? `No users found matching "${userSearch}"` : 'No users found'}
                       </td>
                     </tr>
@@ -1290,8 +1166,8 @@ export function AdminDashboard() {
                 </tbody>
               </table>
               {users?.pagination && (
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
-                  <span className="text-paper/65 text-sm">
+                <div className="flex justify-between items-center mt-4 pt-4 border-t border-paper-15">
+                  <span className="text-paper-65 text-sm">
                     Showing {users.data?.length || 0} of {users.pagination.total} users (Page {users.pagination.page} of {users.pagination.totalPages})
                   </span>
                 </div>
@@ -1304,72 +1180,73 @@ export function AdminDashboard() {
         {activeTab === 'support' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">Support Tickets</h2>
+              <h2 className="font-body font-light text-xl">Support Tickets</h2>
               <div className="flex gap-2">
-                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-sm rounded">
+                <span className="px-3 py-1 border border-gold-40 text-gold text-sm rounded-[2px]">
                   {tickets?.data?.filter((t: any) => t.status === 'OPEN').length || 0} Open
                 </span>
-                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded">
+                <span className="px-3 py-1 border border-paper-15 text-paper-70 text-sm rounded-[2px]">
                   {tickets?.data?.filter((t: any) => t.status === 'IN_PROGRESS').length || 0} In Progress
                 </span>
               </div>
             </div>
 
-            <div className="card">
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Subject</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Priority</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Created</th>
-                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
+                  <tr className="border-b border-paper-15">
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Subject</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">User</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Priority</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Created</th>
+                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tickets?.data?.map((ticket: any) => (
-                    <tr key={ticket.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <tr key={ticket.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                       <td className="py-3 px-4">
                         <div className="text-paper">{ticket.subject}</div>
-                        <div className="text-paper/65 text-sm">{ticket.category}</div>
+                        <div className="text-paper-65 text-sm">{ticket.category}</div>
                       </td>
-                      <td className="py-3 px-4 text-paper/70">{ticket.user?.email || ticket.email}</td>
+                      <td className="py-3 px-4 text-paper-70">{ticket.user?.email || ticket.email}</td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs ${
-                          ticket.priority === 'HIGH' ? 'bg-blood/20 text-blood' :
-                          ticket.priority === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-white/10 text-paper/65'
+                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                          ticket.priority === 'HIGH' ? 'border-blood text-blood' :
+                          ticket.priority === 'MEDIUM' ? 'border-gold-40 text-gold' :
+                          'border-paper-15 text-paper-65'
                         }`}>
                           {ticket.priority}
                         </span>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs ${
-                          ticket.status === 'OPEN' ? 'bg-yellow-500/20 text-yellow-400' :
-                          ticket.status === 'IN_PROGRESS' ? 'bg-blue-500/20 text-blue-400' :
-                          ticket.status === 'RESOLVED' ? 'bg-green-500/20 text-green-400' :
-                          'bg-white/10 text-paper/65'
+                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                          ticket.status === 'OPEN' ? 'border-gold-40 text-gold' :
+                          ticket.status === 'IN_PROGRESS' ? 'border-paper-15 text-paper-70' :
+                          ticket.status === 'RESOLVED' ? 'border-gold-40 text-gold' :
+                          'border-paper-15 text-paper-65'
                         }`}>
                           {ticket.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {new Date(ticket.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => setSelectedTicket(ticket.id)}
-                          className="text-paper/65 hover:text-gold transition-colors"
+                          className="text-paper-65 hover:text-gold transition-colors text-xs"
+                          aria-label="View ticket"
                         >
-                          <Eye size={16} />
+                          View
                         </button>
                       </td>
                     </tr>
                   ))}
                   {(!tickets?.data || tickets.data.length === 0) && (
                     <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper/65">
+                      <td colSpan={6} className="text-center py-8 text-paper-65">
                         No support tickets
                       </td>
                     </tr>
@@ -1384,11 +1261,8 @@ export function AdminDashboard() {
         {activeTab === 'system' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">System Health</h2>
-              <span className={`px-3 py-1 text-sm rounded ${
-                systemHealth?.status === 'healthy' ? 'bg-green-500/20 text-green-400' :
-                'bg-yellow-500/20 text-yellow-400'
-              }`}>
+              <h2 className="font-body font-light text-xl">System Health</h2>
+              <span className="px-3 py-1 text-sm border border-gold-40 text-gold rounded-[2px]">
                 {systemHealth?.status || 'Unknown'}
               </span>
             </div>
@@ -1396,13 +1270,10 @@ export function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {systemHealth?.checks && Object.entries(systemHealth.checks).map(([key, value]) => (
                 key !== 'timestamp' && (
-                  <div key={key} className="card">
+                  <div key={key} className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
                     <div className="flex items-center justify-between">
                       <span className="text-paper capitalize">{key}</span>
-                      <span className={`flex items-center gap-2 ${
-                        value === 'healthy' ? 'text-green-400' : 'text-blood'
-                      }`}>
-                        {value === 'healthy' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
+                      <span className={value === 'healthy' ? 'text-gold' : 'text-blood'}>
                         {value as string}
                       </span>
                     </div>
@@ -1411,28 +1282,28 @@ export function AdminDashboard() {
               ))}
             </div>
 
-            <div className="card">
-              <h3 className="text-lg mb-4">System Statistics</h3>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">System Statistics</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-paper mb-1">{systemStats?.users || 0}</div>
-                  <div className="text-paper/65 text-sm">Total Users</div>
+                  <div className="text-paper-65 text-sm">Total Users</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-paper mb-1">{systemStats?.openTickets || 0}</div>
-                  <div className="text-paper/65 text-sm">Open Tickets</div>
+                  <div className="text-paper-65 text-sm">Open Tickets</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-paper mb-1">
                     {((systemStats?.storage?.total || 0) / (1024 * 1024 * 1024)).toFixed(2)} GB
                   </div>
-                  <div className="text-paper/65 text-sm">Storage Used</div>
+                  <div className="text-paper-65 text-sm">Storage Used</div>
                 </div>
-                <div className="p-4 bg-white/[0.02] border border-white/10 rounded">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
                   <div className="text-2xl text-paper mb-1">
                     {(systemStats?.content?.memories || 0) + (systemStats?.content?.letters || 0)}
                   </div>
-                  <div className="text-paper/65 text-sm">Total Content</div>
+                  <div className="text-paper-65 text-sm">Total Content</div>
                 </div>
               </div>
             </div>
@@ -1442,38 +1313,38 @@ export function AdminDashboard() {
         {/* Audit Logs Tab */}
         {activeTab === 'audit' && (
           <div className="space-y-6">
-            <h2 className="text-xl">Audit Logs</h2>
+            <h2 className="font-body font-light text-xl">Audit Logs</h2>
 
-            <div className="card">
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Action</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Admin</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Details</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Time</th>
+                  <tr className="border-b border-paper-15">
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Action</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Admin</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Details</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Time</th>
                   </tr>
                 </thead>
                 <tbody>
                   {auditLogs?.data?.map((log: any) => (
-                    <tr key={log.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <tr key={log.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                       <td className="py-3 px-4">
-                        <span className="px-2 py-1 bg-white/10 text-paper text-xs">
+                        <span className="px-2 py-1 border border-paper-15 text-paper text-xs rounded-[2px]">
                           {log.action}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/70">{log.admin?.email || 'System'}</td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-70">{log.admin?.email || 'System'}</td>
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {log.details ? JSON.stringify(log.details).substring(0, 50) : '-'}
                       </td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {new Date(log.createdAt).toLocaleString()}
                       </td>
                     </tr>
                   ))}
                   {(!auditLogs?.data || auditLogs.data.length === 0) && (
                     <tr>
-                      <td colSpan={4} className="text-center py-8 text-paper/65">
+                      <td colSpan={4} className="text-center py-8 text-paper-65">
                         No audit logs
                       </td>
                     </tr>
@@ -1488,59 +1359,58 @@ export function AdminDashboard() {
         {activeTab === 'admins' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl">Admin Users</h2>
+              <h2 className="font-body font-light text-xl">Admin Users</h2>
               {admin.role === 'SUPER_ADMIN' && (
                 <button
                   onClick={() => setShowAdminModal(true)}
-                  className="btn btn-primary flex items-center gap-2"
+                  className="btn btn-primary"
                 >
-                  <UserPlus size={18} />
                   Add Admin
                 </button>
               )}
             </div>
 
-            <div className="card">
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Name</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Email</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Role</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Last Login</th>
+                  <tr className="border-b border-paper-15">
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Name</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Email</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Role</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Last Login</th>
                   </tr>
                 </thead>
                 <tbody>
                   {adminUsers?.map((adminUser: any) => (
-                    <tr key={adminUser.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <tr key={adminUser.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                       <td className="py-3 px-4 text-paper">
                         {adminUser.firstName} {adminUser.lastName}
                       </td>
-                      <td className="py-3 px-4 text-paper/70">{adminUser.email}</td>
+                      <td className="py-3 px-4 text-paper-70">{adminUser.email}</td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs ${
-                          adminUser.role === 'SUPER_ADMIN' ? 'bg-purple-500/20 text-purple-400' :
-                          'bg-gold/20 text-gold'
+                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                          adminUser.role === 'SUPER_ADMIN' ? 'border-gold-40 text-gold' :
+                          'border-paper-15 text-paper-70'
                         }`}>
                           {adminUser.role}
                         </span>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs ${
-                          adminUser.isActive ? 'bg-green-500/20 text-green-400' : 'bg-blood/20 text-blood'
+                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                          adminUser.isActive ? 'border-gold-40 text-gold' : 'border-blood text-blood'
                         }`}>
                           {adminUser.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {adminUser.lastLoginAt ? new Date(adminUser.lastLoginAt).toLocaleString() : 'Never'}
                       </td>
                     </tr>
                   ))}
                   {(!adminUsers || adminUsers.length === 0) && (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-paper/65">
+                      <td colSpan={5} className="text-center py-8 text-paper-65">
                         No admin users
                       </td>
                     </tr>
@@ -1554,50 +1424,50 @@ export function AdminDashboard() {
         {/* Emails Tab */}
         {activeTab === 'emails' && (
           <div className="space-y-6">
-            <h2 className="text-xl">Email Management</h2>
+            <h2 className="font-body font-light text-xl">Email Management</h2>
 
-            <div className="card">
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">To</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Subject</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper/65 font-normal">Sent</th>
-                    <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
+                  <tr className="border-b border-paper-15">
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">To</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Subject</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Sent</th>
+                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {emailLogs?.data?.map((email: any) => (
-                    <tr key={email.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                      <td className="py-3 px-4 text-paper/70">{email.to}</td>
+                    <tr key={email.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
+                      <td className="py-3 px-4 text-paper-70">{email.to}</td>
                       <td className="py-3 px-4 text-paper">{email.subject}</td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs ${
-                          email.status === 'SENT' ? 'bg-green-500/20 text-green-400' :
-                          email.status === 'FAILED' ? 'bg-blood/20 text-blood' :
-                          'bg-yellow-500/20 text-yellow-400'
+                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+                          email.status === 'SENT' ? 'border-gold-40 text-gold' :
+                          email.status === 'FAILED' ? 'border-blood text-blood' :
+                          'border-gold-40 text-gold'
                         }`}>
                           {email.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => setSelectedEmail(email.id)}
-                          className="text-paper/65 hover:text-gold"
-                          title="View email details"
+                          className="text-paper-65 hover:text-gold transition-colors text-xs"
+                          aria-label="View email details"
                         >
-                          <Eye size={16} />
+                          View
                         </button>
                       </td>
                     </tr>
                   ))}
                   {(!emailLogs?.data || emailLogs.data.length === 0) && (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-paper/65">
+                      <td colSpan={5} className="text-center py-8 text-paper-65">
                         No email logs
                       </td>
                     </tr>
@@ -1616,43 +1486,43 @@ export function AdminDashboard() {
         {/* Reports Tab */}
         {activeTab === 'reports' && (
           <div className="space-y-6">
-            <h2 className="text-xl">Reports & Analytics</h2>
+            <h2 className="font-body font-light text-xl">Reports & Analytics</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Revenue Report */}
-              <div className="card">
-                <h3 className="text-lg mb-4">Revenue Report</h3>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+                <h3 className="font-body font-light text-lg mb-4">Revenue Report</h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-white/[0.02] rounded">
-                    <span className="text-paper/70">Monthly Recurring Revenue</span>
-                    <span className="text-green-400 text-xl">${revenueReport?.mrr?.toFixed(2) || '0.00'}</span>
+                  <div className="flex justify-between items-center p-3 bg-void-elevated rounded-[2px]">
+                    <span className="text-paper-70">Monthly Recurring Revenue</span>
+                    <span className="text-gold text-xl">${revenueReport?.mrr?.toFixed(2) || '0.00'}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-white/[0.02] rounded">
-                    <span className="text-paper/70">Annual Recurring Revenue</span>
-                    <span className="text-green-400 text-xl">${revenueReport?.arr?.toFixed(2) || '0.00'}</span>
+                  <div className="flex justify-between items-center p-3 bg-void-elevated rounded-[2px]">
+                    <span className="text-paper-70">Annual Recurring Revenue</span>
+                    <span className="text-gold text-xl">${revenueReport?.arr?.toFixed(2) || '0.00'}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-white/[0.02] rounded">
-                    <span className="text-paper/70">Active Subscriptions</span>
+                  <div className="flex justify-between items-center p-3 bg-void-elevated rounded-[2px]">
+                    <span className="text-paper-70">Active Subscriptions</span>
                     <span className="text-paper text-xl">{revenueReport?.activeSubscriptions || 0}</span>
                   </div>
                 </div>
               </div>
 
               {/* User Growth */}
-              <div className="card">
-                <h3 className="text-lg mb-4">User Growth (Last 30 Days)</h3>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+                <h3 className="font-body font-light text-lg mb-4">User Growth (Last 30 Days)</h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-white/[0.02] rounded">
-                    <span className="text-paper/70">Total New Signups</span>
+                  <div className="flex justify-between items-center p-3 bg-void-elevated rounded-[2px]">
+                    <span className="text-paper-70">Total New Signups</span>
                     <span className="text-gold text-xl">{userGrowth?.totalSignups || 0}</span>
                   </div>
                   <div className="mt-4">
-                    <div className="text-paper/65 text-sm mb-2">Daily Signups</div>
+                    <div className="text-paper-65 text-sm mb-2">Daily Signups</div>
                     <div className="flex gap-1 h-20 items-end">
                       {userGrowth?.data?.slice(-14).map((day: any, i: number) => (
                         <div
                           key={i}
-                          className="flex-1 bg-gold/50 rounded-t"
+                          className="flex-1 bg-gold/50"
                           style={{ height: `${Math.max(10, (day.signups / Math.max(...(userGrowth?.data?.map((d: any) => d.signups) || [1]))) * 100)}%` }}
                           title={`${day.date}: ${day.signups} signups`}
                         />
@@ -1664,9 +1534,9 @@ export function AdminDashboard() {
             </div>
 
             {/* Export Button */}
-            <div className="card">
-              <h3 className="text-lg mb-4">Export Data</h3>
-              <p className="text-paper/65 text-sm mb-4">Download user data for reporting and analysis. Only available to Super Admins.</p>
+            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+              <h3 className="font-body font-light text-lg mb-4">Export Data</h3>
+              <p className="text-paper-65 text-sm mb-4">Download user data for reporting and analysis. Only available to Super Admins.</p>
               <div className="flex gap-4 flex-wrap">
                 <button
                   onClick={async () => {
@@ -1693,9 +1563,8 @@ export function AdminDashboard() {
                       alert('Export failed. Please try again.');
                     }
                   }}
-                  className="btn btn-secondary flex items-center gap-2"
+                  className="btn btn-secondary"
                 >
-                  <Download size={18} />
                   Export Users (CSV)
                 </button>
                 <button
@@ -1724,9 +1593,8 @@ export function AdminDashboard() {
                       alert('Export failed. Please try again.');
                     }
                   }}
-                  className="btn btn-secondary flex items-center gap-2"
+                  className="btn btn-secondary"
                 >
-                  <Download size={18} />
                   Export Users (JSON)
                 </button>
               </div>
@@ -1764,20 +1632,23 @@ export function AdminDashboard() {
   );
 }
 
-// Stat Card Component
-function StatCard({ icon: Icon, label, value, subtext }: { icon: any; label: string; value: string | number; subtext: string }) {
+// Panel — the constitution-aligned card surface (flat, 0/2px radius, hairline border).
+function Panel({ title, children, className = '' }: { title?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className="card">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="text-paper/65 text-sm mb-1">{label}</div>
-          <div className="text-2xl text-paper">{value}</div>
-          <div className="text-paper/70 text-sm mt-1">{subtext}</div>
-        </div>
-        <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
-          <Icon className="w-5 h-5 text-gold" />
-        </div>
-      </div>
+    <div className={`bg-void-surface border border-paper-15 rounded-[2px] p-6 ${className}`}>
+      {title ? <h3 className="font-body font-light text-lg text-paper mb-4">{title}</h3> : null}
+      {children}
+    </div>
+  );
+}
+
+// Stat Card Component
+function StatCard({ label, value, subtext }: { label: string; value: string | number; subtext: string }) {
+  return (
+    <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+      <div className="text-paper-65 text-sm mb-1">{label}</div>
+      <div className="font-mono text-2xl text-paper">{value}</div>
+      <div className="text-paper-70 text-sm mt-1">{subtext}</div>
     </div>
   );
 }
@@ -1801,11 +1672,11 @@ function CouponRow({ coupon }: { coupon: any }) {
   });
 
   return (
-    <tr className="border-b border-white/5 hover:bg-white/[0.02]">
+    <tr className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
       <td className="py-3 px-4">
         <span className="font-mono text-gold">{coupon.code}</span>
         {coupon.description && (
-          <div className="text-paper/65 text-sm">{coupon.description}</div>
+          <div className="text-paper-65 text-sm">{coupon.description}</div>
         )}
       </td>
       <td className="py-3 px-4">
@@ -1813,19 +1684,19 @@ function CouponRow({ coupon }: { coupon: any }) {
           ? `${coupon.discountValue}%` 
           : `$${(coupon.discountValue / 100).toFixed(2)}`}
       </td>
-      <td className="py-3 px-4 text-paper/70">
+      <td className="py-3 px-4 text-paper-70">
         {coupon.currentUses} / {coupon.maxUses || '∞'}
       </td>
-      <td className="py-3 px-4 text-paper/65 text-sm">
+      <td className="py-3 px-4 text-paper-65 text-sm">
         {coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : 'No expiry'}
       </td>
       <td className="py-3 px-4">
         <button
           onClick={() => toggleMutation.mutate()}
-          className={`px-2 py-1 text-xs ${
-            coupon.isActive 
-              ? 'bg-green-500/20 text-green-400' 
-              : 'bg-white/10 text-paper/65'
+          className={`px-2 py-1 text-xs border rounded-[2px] ${
+            coupon.isActive
+              ? 'border-gold-40 text-gold'
+              : 'border-paper-15 text-paper-65'
           }`}
         >
           {coupon.isActive ? 'Active' : 'Inactive'}
@@ -1838,9 +1709,10 @@ function CouponRow({ coupon }: { coupon: any }) {
               deleteMutation.mutate();
             }
           }}
-          className="text-paper/65 hover:text-blood transition-colors"
+          className="text-paper-65 hover:text-blood transition-colors text-xs"
+          aria-label="Delete coupon"
         >
-          <Trash2 size={16} />
+          Delete
         </button>
       </td>
     </tr>
@@ -1877,18 +1749,16 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
   });
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-md p-6">
+    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
+      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">Create Coupon</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
-          </button>
+          <h3 className="font-body font-light text-xl">Create Coupon</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Coupon Code</label>
+            <label className="block text-sm text-paper-65 mb-2">Coupon Code</label>
             <input
               type="text"
               value={formData.code}
@@ -1899,7 +1769,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Description (optional)</label>
+            <label className="block text-sm text-paper-65 mb-2">Description (optional)</label>
             <input
               type="text"
               value={formData.description}
@@ -1911,7 +1781,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/65 mb-2">Discount Type</label>
+              <label className="block text-sm text-paper-65 mb-2">Discount Type</label>
               <select
                 value={formData.discountType}
                 onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
@@ -1922,7 +1792,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-paper/65 mb-2">
+              <label className="block text-sm text-paper-65 mb-2">
                 {formData.discountType === 'PERCENTAGE' ? 'Percentage (%)' : 'Amount ($)'}
               </label>
               <input
@@ -1938,7 +1808,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/65 mb-2">Max Uses (optional)</label>
+              <label className="block text-sm text-paper-65 mb-2">Max Uses (optional)</label>
               <input
                 type="number"
                 value={formData.maxUses}
@@ -1949,7 +1819,7 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="block text-sm text-paper/65 mb-2">Valid Until (optional)</label>
+              <label className="block text-sm text-paper-65 mb-2">Valid Until (optional)</label>
               <input
                 type="date"
                 value={formData.validUntil}
@@ -1996,18 +1866,16 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
   });
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-md p-6">
+    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
+      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">Add Admin User</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
-          </button>
+          <h3 className="font-body font-light text-xl">Add Admin User</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Email</label>
+            <label className="block text-sm text-paper-65 mb-2">Email</label>
             <input
               type="email"
               value={formData.email}
@@ -2019,7 +1887,7 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/65 mb-2">First Name</label>
+              <label className="block text-sm text-paper-65 mb-2">First Name</label>
               <input
                 type="text"
                 value={formData.firstName}
@@ -2028,7 +1896,7 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="block text-sm text-paper/65 mb-2">Last Name</label>
+              <label className="block text-sm text-paper-65 mb-2">Last Name</label>
               <input
                 type="text"
                 value={formData.lastName}
@@ -2039,7 +1907,7 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Role</label>
+            <label className="block text-sm text-paper-65 mb-2">Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -2123,64 +1991,57 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
   });
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
+      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">Manage User</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
-          </button>
+          <h3 className="font-body font-light text-xl">Manage User</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
         </div>
 
         {/* User Info Card */}
-        <div className="mb-6 p-4 bg-white/[0.02] rounded border border-white/10">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center text-gold text-lg">
-              {user.firstName?.[0]}{user.lastName?.[0]}
-            </div>
-            <div>
-              <div className="text-paper text-lg">{user.firstName} {user.lastName}</div>
-              <div className="text-paper/65 text-sm">{user.email}</div>
-            </div>
+        <div className="mb-6 p-4 bg-void-elevated rounded-[2px] border border-paper-15">
+          <div className="mb-4">
+            <div className="text-paper text-lg">{user.firstName} {user.lastName}</div>
+            <div className="text-paper-65 text-sm">{user.email}</div>
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-paper/65">User ID:</span>
+              <span className="text-paper-65">User ID:</span>
               <div className="text-paper font-mono text-xs truncate">{user.id}</div>
             </div>
             <div>
-              <span className="text-paper/65">Joined:</span>
+              <span className="text-paper-65">Joined:</span>
               <div className="text-paper">{new Date(user.createdAt).toLocaleDateString()}</div>
             </div>
             <div>
-              <span className="text-paper/65">Current Tier:</span>
-              <div className={`inline-block px-2 py-0.5 text-xs rounded mt-1 ${
-                user.tier === 'FOREVER' ? 'bg-purple-500/20 text-purple-400' :
-                user.tier === 'FAMILY' ? 'bg-gold/20 text-gold' :
-                user.tier === 'STARTER' ? 'bg-blue-500/20 text-blue-400' :
-                'bg-white/10 text-paper/65'
+              <span className="text-paper-65">Current Tier:</span>
+              <div className={`inline-block px-2 py-0.5 text-xs rounded-[2px] mt-1 ${
+                user.tier === 'FOREVER' ? 'border border-paper-15 text-paper-70' :
+                user.tier === 'FAMILY' ? 'border border-gold-40 text-gold' :
+                user.tier === 'STARTER' ? 'border border-paper-15 text-paper-70' :
+                'border border-paper-15 text-paper-65'
               }`}>
                 {user.tier || 'FREE'}
               </div>
             </div>
             <div>
-              <span className="text-paper/65">Email Status:</span>
-              <div className={`inline-block px-2 py-0.5 text-xs rounded mt-1 ${user.emailVerified ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              <span className="text-paper-65">Email Status:</span>
+              <div className={`inline-block px-2 py-0.5 text-xs rounded-[2px] mt-1 ${user.emailVerified ? 'border border-gold-40 text-gold' : 'border border-blood text-blood'}`}>
                 {user.emailVerified ? 'Verified' : 'Unverified'}
               </div>
             </div>
             <div>
-              <span className="text-paper/65">Subscription:</span>
+              <span className="text-paper-65">Subscription:</span>
               <div className={`text-xs mt-1 ${
-                user.subscriptionStatus === 'ACTIVE' ? 'text-green-400' :
-                user.subscriptionStatus === 'TRIALING' ? 'text-yellow-400' :
-                'text-paper/65'
+                user.subscriptionStatus === 'ACTIVE' ? 'text-gold' :
+                user.subscriptionStatus === 'TRIALING' ? 'text-gold' :
+                'text-paper-65'
               }`}>
                 {user.subscriptionStatus || 'None'}
               </div>
             </div>
             <div>
-              <span className="text-paper/65">Last Active:</span>
+              <span className="text-paper-65">Last Active:</span>
               <div className="text-paper text-xs">{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}</div>
             </div>
           </div>
@@ -2189,7 +2050,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
         <div className="space-y-6">
           {/* Change Tier */}
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Change Subscription Tier</label>
+            <label className="block text-sm text-paper-65 mb-2">Change Subscription Tier</label>
             <div className="flex gap-2">
               <select
                 value={selectedTier}
@@ -2213,7 +2074,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
 
           {/* Extend Trial */}
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Extend Trial Period</label>
+            <label className="block text-sm text-paper-65 mb-2">Extend Trial Period</label>
             <div className="flex gap-2">
               <input
                 type="number"
@@ -2235,7 +2096,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
 
           {/* Apply Coupon */}
           <div>
-            <label className="block text-sm text-paper/65 mb-2">Apply Coupon Code</label>
+            <label className="block text-sm text-paper-65 mb-2">Apply Coupon Code</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -2257,7 +2118,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
           {/* Verify Email */}
           {!user.emailVerified && (
             <div>
-              <label className="block text-sm text-paper/65 mb-2">Email Verification</label>
+              <label className="block text-sm text-paper-65 mb-2">Email Verification</label>
               <button
                 onClick={() => verifyEmailMutation.mutate()}
                 disabled={verifyEmailMutation.isPending}
@@ -2269,7 +2130,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
           )}
 
           {/* Danger Zone */}
-          <div className="pt-4 border-t border-white/10">
+          <div className="pt-4 border-t border-paper-15">
             <div className="text-sm text-blood mb-2">Danger Zone</div>
             <button
               onClick={() => {
@@ -2278,7 +2139,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
                 }
               }}
               disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
-              className="btn bg-blood/20 text-blood hover:bg-blood/30 w-full disabled:opacity-50"
+              className="btn border border-blood text-blood hover:bg-blood/10 w-full disabled:opacity-50 transition-colors"
             >
               {cancelSubscriptionMutation.isPending ? 'Cancelling...' : 'Cancel Subscription'}
             </button>
@@ -2311,70 +2172,69 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
   });
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
+      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">Email Details</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
-          </button>
+          <h3 className="font-body font-light text-xl">Email Details</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
         </div>
 
         {isLoading ? (
-          <div className="text-center py-8 text-paper/65">Loading...</div>
+          <div className="text-center py-8 text-paper-65">Loading...</div>
         ) : email ? (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/65 text-xs mb-1">To</div>
+              <div className="p-3 bg-void-elevated rounded-[2px]">
+                <div className="text-paper-65 text-xs mb-1">To</div>
                 <div className="text-paper">{email.to}</div>
               </div>
-              <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/65 text-xs mb-1">Status</div>
+              <div className="p-3 bg-void-elevated rounded-[2px]">
+                <div className="text-paper-65 text-xs mb-1">Status</div>
                 <span className={`px-2 py-1 text-xs ${
-                  email.status === 'SENT' ? 'bg-green-500/20 text-green-400' :
-                  email.status === 'FAILED' ? 'bg-blood/20 text-blood' :
-                  'bg-yellow-500/20 text-yellow-400'
+                  email.status === 'SENT' ? 'border border-gold-40 text-gold' :
+                  email.status === 'FAILED' ? 'border border-blood text-blood' :
+                  'border border-gold-40 text-gold'
                 }`}>
                   {email.status}
                 </span>
               </div>
             </div>
 
-            <div className="p-3 bg-white/[0.02] rounded">
-              <div className="text-paper/65 text-xs mb-1">Subject</div>
+            <div className="p-3 bg-void-elevated rounded-[2px]">
+              <div className="text-paper-65 text-xs mb-1">Subject</div>
               <div className="text-paper">{email.subject}</div>
             </div>
 
             {email.emailType && (
-              <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/65 text-xs mb-1">Email Type</div>
+              <div className="p-3 bg-void-elevated rounded-[2px]">
+                <div className="text-paper-65 text-xs mb-1">Email Type</div>
                 <div className="text-paper font-mono text-sm">{email.emailType}</div>
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/65 text-xs mb-1">Created</div>
+              <div className="p-3 bg-void-elevated rounded-[2px]">
+                <div className="text-paper-65 text-xs mb-1">Created</div>
                 <div className="text-paper text-sm">{email.createdAt ? new Date(email.createdAt).toLocaleString() : '-'}</div>
               </div>
-              <div className="p-3 bg-white/[0.02] rounded">
-                <div className="text-paper/65 text-xs mb-1">Sent</div>
+              <div className="p-3 bg-void-elevated rounded-[2px]">
+                <div className="text-paper-65 text-xs mb-1">Sent</div>
                 <div className="text-paper text-sm">{email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}</div>
               </div>
             </div>
 
             {email.errorMessage && (
-              <div className="p-3 bg-blood/10 border border-blood/20 rounded">
+              <div className="p-3 border border-blood rounded-[2px]">
                 <div className="text-blood text-xs mb-1">Error Message</div>
                 <div className="text-blood/80 text-sm">{email.errorMessage}</div>
               </div>
             )}
 
-            <div className="p-3 bg-white/[0.02] rounded">
-              <div className="text-paper/65 text-xs mb-2">Email Body (HTML Preview)</div>
-              <div className="bg-white rounded p-4 max-h-96 overflow-y-auto">
-                <div 
+            <div className="p-3 bg-void-elevated rounded-[2px]">
+              <div className="text-paper-65 text-xs mb-2">Email Body (HTML Preview)</div>
+              {/* Email HTML preview — white surface is intentional (renders the actual email) */}
+              <div className="bg-white rounded-[2px] p-4 max-h-96 overflow-y-auto">
+                <div
                   className="text-black text-sm"
                   dangerouslySetInnerHTML={{ __html: email.body || '<em>No body content</em>' }}
                 />
@@ -2386,16 +2246,15 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
                 <button
                   onClick={() => resendMutation.mutate()}
                   disabled={resendMutation.isPending}
-                  className="btn btn-primary flex items-center gap-2"
+                  className="btn btn-primary"
                 >
-                  <Send size={16} />
-                  {resendMutation.isPending ? 'Resending...' : 'Resend Email'}
+                  {resendMutation.isPending ? 'Resending…' : 'Resend Email'}
                 </button>
               </div>
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-paper/65">Email not found</div>
+          <div className="text-center py-8 text-paper-65">Email not found</div>
         )}
       </div>
     </div>
@@ -2435,33 +2294,31 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
   });
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
+      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">{ticket?.subject}</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
-          </button>
+          <h3 className="font-body font-light text-xl">{ticket?.subject}</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
         </div>
 
         <div className="mb-4 flex gap-2">
-          <span className={`px-2 py-1 text-xs ${
-            ticket?.status === 'OPEN' ? 'bg-yellow-500/20 text-yellow-400' :
-            ticket?.status === 'IN_PROGRESS' ? 'bg-blue-500/20 text-blue-400' :
-            'bg-green-500/20 text-green-400'
+          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+            ticket?.status === 'OPEN' ? 'border-gold-40 text-gold' :
+            ticket?.status === 'IN_PROGRESS' ? 'border-paper-15 text-paper-70' :
+            'border-gold-40 text-gold'
           }`}>
             {ticket?.status}
           </span>
-          <span className={`px-2 py-1 text-xs ${
-            ticket?.priority === 'HIGH' ? 'bg-blood/20 text-blood' :
-            'bg-white/10 text-paper/65'
+          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
+            ticket?.priority === 'HIGH' ? 'border-blood text-blood' :
+            'border-paper-15 text-paper-65'
           }`}>
             {ticket?.priority}
           </span>
         </div>
 
-        <div className="mb-4 p-4 bg-white/[0.02] rounded">
-          <div className="text-paper/65 text-sm">From: {ticket?.user?.name} ({ticket?.user?.email})</div>
+        <div className="mb-4 p-4 bg-void-elevated rounded-[2px]">
+          <div className="text-paper-65 text-sm">From: {ticket?.user?.name} ({ticket?.user?.email})</div>
         </div>
 
         {/* Messages */}
@@ -2469,11 +2326,11 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
           {ticket?.messages?.map((msg: any) => (
             <div
               key={msg.id}
-              className={`p-4 rounded ${
-                msg.senderType === 'ADMIN' ? 'bg-gold/10 ml-8' : 'bg-white/[0.02] mr-8'
+              className={`p-4 rounded-[2px] border ${
+                msg.senderType === 'ADMIN' ? 'border-gold-40 ml-8' : 'border-paper-15 bg-void-elevated mr-8'
               }`}
             >
-              <div className="text-paper/65 text-xs mb-2">
+              <div className="text-paper-65 text-xs mb-2">
                 {msg.senderType === 'ADMIN' ? 'Admin' : 'User'} - {new Date(msg.createdAt).toLocaleString()}
               </div>
               <div className="text-paper">{msg.content}</div>
@@ -2493,9 +2350,8 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
             <button
               onClick={() => replyMutation.mutate()}
               disabled={!reply || replyMutation.isPending}
-              className="btn btn-primary flex items-center gap-2"
+              className="btn btn-primary"
             >
-              <Send size={16} />
               Send Reply
             </button>
             {ticket?.status !== 'RESOLVED' && !showResolveForm && (
@@ -2511,8 +2367,8 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
 
         {/* Resolution Form */}
         {showResolveForm && ticket?.status !== 'RESOLVED' && (
-          <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg space-y-3">
-            <div className="text-green-400 font-medium">Resolve Ticket</div>
+          <div className="mt-4 p-4 bg-void-elevated border border-paper-15 rounded-[2px] space-y-3">
+            <div className="text-gold">Resolve Ticket</div>
             <textarea
               value={resolutionNote}
               onChange={(e) => setResolutionNote(e.target.value)}
@@ -2523,9 +2379,9 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
               <button
                 onClick={() => updateStatusMutation.mutate({ status: 'RESOLVED', resolutionNote: resolutionNote || undefined })}
                 disabled={updateStatusMutation.isPending}
-                className="btn btn-primary bg-green-600 hover:bg-green-700"
+                className="btn btn-primary"
               >
-                {updateStatusMutation.isPending ? 'Resolving...' : 'Confirm Resolution'}
+                {updateStatusMutation.isPending ? 'Resolving…' : 'Confirm Resolution'}
               </button>
               <button
                 onClick={() => {
@@ -2616,23 +2472,19 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-void/90 z-50 overflow-y-auto">
       <div className="min-h-full flex items-start justify-center p-4 py-8">
-        <div className="bg-void border border-white/10 rounded-lg max-w-lg w-full p-6">
+        <div className="bg-void-surface border border-paper-15 rounded-[2px] max-w-lg w-full p-6">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl">Create Gift Voucher</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
-          </button>
+            <h3 className="font-body font-light text-xl">Create Gift Voucher</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
         </div>
 
         {createdCodes.length > 0 ? (
           <div className="text-center py-6">
-            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-400" />
-            </div>
-            <h4 className="text-lg mb-2">{createdCodes.length} Voucher{createdCodes.length > 1 ? 's' : ''} Created!</h4>
-            <div className="bg-white/5 p-4 rounded mb-4 max-h-48 overflow-y-auto">
+            <span className="font-body text-4xl text-gold block mb-5" aria-hidden>∞</span>
+            <h4 className="font-body font-light text-lg mb-2">{createdCodes.length} Voucher{createdCodes.length > 1 ? 's' : ''} Created</h4>
+            <div className="bg-void-elevated p-4 rounded-[2px] mb-4 max-h-48 overflow-y-auto">
               {createdCodes.map((code, i) => (
                 <p key={i} className="font-mono text-lg text-gold tracking-wider mb-1">{code}</p>
               ))}
@@ -2667,26 +2519,26 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             <div className="flex gap-2 mb-4">
               <button
                 onClick={() => setMode('single')}
-                className={`flex-1 py-2 px-4 rounded text-sm ${mode === 'single' ? 'bg-gold/20 text-gold' : 'bg-white/5 text-paper/65'}`}
+                className={`flex-1 py-2 px-4 rounded-[2px] text-sm ${mode === 'single' ? 'border border-gold-40 text-gold' : 'bg-void-elevated text-paper-65'}`}
               >
                 Single Voucher
               </button>
               <button
                 onClick={() => setMode('bulk')}
-                className={`flex-1 py-2 px-4 rounded text-sm ${mode === 'bulk' ? 'bg-gold/20 text-gold' : 'bg-white/5 text-paper/65'}`}
+                className={`flex-1 py-2 px-4 rounded-[2px] text-sm ${mode === 'bulk' ? 'border border-gold-40 text-gold' : 'bg-void-elevated text-paper-65'}`}
               >
                 Bulk Create
               </button>
             </div>
 
             <div>
-              <label className="block text-paper/65 text-sm mb-2">Quick Presets</label>
+              <label className="block text-paper-65 text-sm mb-2">Quick Presets</label>
               <div className="flex flex-wrap gap-2">
                 {PROMO_PRESETS.map((preset) => (
                   <button
                     key={preset.name}
                     onClick={() => applyPreset(preset)}
-                    className="px-3 py-1 text-xs bg-white/5 hover:bg-gold/20 hover:text-gold rounded transition-colors"
+                    className="px-3 py-1 text-xs border border-paper-15 text-paper-70 hover:text-gold hover:border-gold-40 rounded-[2px] transition-colors"
                   >
                     {preset.name}
                   </button>
@@ -2696,11 +2548,11 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-paper/65 text-sm mb-1">Tier</label>
+                <label className="block text-paper-65 text-sm mb-1">Tier</label>
                 <select
                   value={formData.tier}
                   onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
                 >
                   <option value="STARTER">Starter</option>
                   <option value="FAMILY">Family</option>
@@ -2709,7 +2561,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
               </div>
 
               <div>
-                <label className="block text-paper/65 text-sm mb-1">Billing Cycle</label>
+                <label className="block text-paper-65 text-sm mb-1">Billing Cycle</label>
                 <select
                   value={formData.billingCycle}
                   onChange={(e) => setFormData({ 
@@ -2717,7 +2569,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
                     billingCycle: e.target.value,
                     durationMonths: e.target.value === 'yearly' ? 12 : 1
                   })}
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
                 >
                   <option value="monthly">Monthly</option>
                   <option value="yearly">Yearly</option>
@@ -2727,12 +2579,12 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-paper/65 text-sm mb-1">Duration (months)</label>
+                <label className="block text-paper-65 text-sm mb-1">Duration (months)</label>
                 <input
                   type="number"
                   value={formData.durationMonths}
                   onChange={(e) => setFormData({ ...formData, durationMonths: parseInt(e.target.value) || 1 })}
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
                   min="1"
                   max="120"
                 />
@@ -2740,16 +2592,16 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
 
               {mode === 'bulk' && (
                 <div>
-                  <label className="block text-paper/65 text-sm mb-1">Quantity</label>
+                  <label className="block text-paper-65 text-sm mb-1">Quantity</label>
                   <input
                     type="number"
                     value={formData.quantity}
                     onChange={(e) => setFormData({ ...formData, quantity: Math.min(50, Math.max(1, parseInt(e.target.value) || 1)) })}
-                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                    className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
                     min="1"
                     max="50"
                   />
-                  <p className="text-paper/65 text-xs mt-1">Max 50 at a time</p>
+                  <p className="text-paper-65 text-xs mt-1">Max 50 at a time</p>
                 </div>
               )}
             </div>
@@ -2757,23 +2609,23 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             {mode === 'single' && (
               <>
                 <div>
-                  <label className="block text-paper/65 text-sm mb-1">Recipient Email (optional)</label>
+                  <label className="block text-paper-65 text-sm mb-1">Recipient Email (optional)</label>
                   <input
                     type="email"
                     value={formData.recipientEmail}
                     onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                    className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
                     placeholder="recipient@example.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-paper/65 text-sm mb-1">Recipient Name (optional)</label>
+                  <label className="block text-paper-65 text-sm mb-1">Recipient Name (optional)</label>
                   <input
                     type="text"
                     value={formData.recipientName}
                     onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                    className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
                     placeholder="John Doe"
                   />
                 </div>
@@ -2784,20 +2636,20 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
                       type="checkbox"
                       checked={formData.sendEmail}
                       onChange={(e) => setFormData({ ...formData, sendEmail: e.target.checked })}
-                      className="w-4 h-4 rounded border-white/20 bg-white/5"
+                      className="w-4 h-4 rounded-[2px] border-paper-15 bg-void-elevated"
                     />
-                    <span className="text-paper/70 text-sm">Send gift email to recipient immediately</span>
+                    <span className="text-paper-70 text-sm">Send gift email to recipient immediately</span>
                   </label>
                 )}
               </>
             )}
 
             <div>
-              <label className="block text-paper/65 text-sm mb-1">Admin Notes (optional)</label>
+              <label className="block text-paper-65 text-sm mb-1">Admin Notes (optional)</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-paper"
+                className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
                 rows={2}
                 placeholder="e.g., Promotional campaign, influencer gift, etc."
               />
@@ -2874,34 +2726,30 @@ The Heirloom Team`;
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-void/90 z-50 overflow-y-auto">
       <div className="min-h-full flex items-start justify-center p-4 py-8">
-        <div className="max-w-lg w-full rounded-lg" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #1a1a1f 100%)', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+        <div className="max-w-lg w-full bg-void-surface border border-gold-40 rounded-[2px]">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h3 className="text-xl text-gold">Create Gold Legacy Voucher</h3>
-              <p className="text-paper/65 text-sm mt-1">Exclusive lifetime access invitation</p>
+                <h3 className="font-body font-light text-xl text-gold">Create Gold Legacy Voucher</h3>
+              <p className="text-paper-65 text-sm mt-1">Exclusive lifetime access invitation</p>
             </div>
-            <button onClick={onClose} className="text-paper/65 hover:text-gold">
-              <X size={20} />
-            </button>
+            <button onClick={onClose} className="text-paper-65 hover:text-gold transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
           </div>
 
           {createdVoucher ? (
             <div className="text-center py-6">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%)', border: '2px solid rgba(212, 175, 55, 0.5)' }}>
-                <span className="text-4xl text-gold">∞</span>
-              </div>
-              <h4 className="text-lg text-gold mb-2">Gold Legacy Voucher Created!</h4>
-              <p className="text-paper/70 text-sm mb-4">Member #{createdVoucher.memberNumber}</p>
+              <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
+              <h4 className="font-body font-light text-lg text-gold mb-2">Gold Legacy Voucher Created</h4>
+              <p className="text-paper-70 text-sm mb-4">Member #{createdVoucher.memberNumber}</p>
               
-              <div className="p-4 rounded mb-4" style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' }}>
-                <p className="font-mono text-lg tracking-wider" style={{ color: '#0a0a0f' }}>{createdVoucher.code}</p>
+              <div className="p-4 rounded-[2px] mb-4 bg-void-elevated border border-gold-40">
+                <p className="font-mono text-lg tracking-wider text-gold">{createdVoucher.code}</p>
               </div>
               
               {createdVoucher.emailSent && (
-                <p className="text-green-400 text-sm mb-4">Invitation email sent to {createdVoucher.recipientEmail}</p>
+                <p className="text-gold text-sm mb-4">Invitation email sent to {createdVoucher.recipientEmail}</p>
               )}
               
               <div className="flex gap-2 justify-center flex-wrap">
@@ -2920,8 +2768,7 @@ The Heirloom Team`;
                     navigator.clipboard.writeText(url);
                     alert('Redemption link copied!');
                   }}
-                  className="btn"
-                  style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', color: '#0a0a0f' }}
+                  className="btn btn-primary"
                 >
                   Copy Invitation Link
                 </button>
@@ -2932,55 +2779,55 @@ The Heirloom Team`;
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="p-4 rounded" style={{ background: 'rgba(212, 175, 55, 0.1)', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
-                <p className="text-gold/80 text-sm">
+              <div className="p-4 rounded-[2px] bg-void-elevated border border-gold-40">
+                <p className="text-paper-70 text-sm">
                   Gold Legacy vouchers grant lifetime access to all Heirloom features. This is the highest tier of membership and should be reserved for special individuals.
                 </p>
               </div>
 
               <div>
-                <label className="block text-gold/70 text-sm mb-1">Recipient Name</label>
+                <label className="block text-paper-65 text-sm mb-1">Recipient Name</label>
                 <input
                   type="text"
                   value={formData.recipientName}
                   onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                  className="w-full bg-white/5 border border-gold/20 rounded px-3 py-2 text-paper focus:border-gold/50 focus:outline-none"
+                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper focus:border-gold focus:outline-none"
                   placeholder="John Doe"
                 />
               </div>
 
               <div>
-                <label className="block text-gold/70 text-sm mb-1">Recipient Email</label>
+                <label className="block text-paper-65 text-sm mb-1">Recipient Email</label>
                 <input
                   type="email"
                   value={formData.recipientEmail}
                   onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
-                  className="w-full bg-white/5 border border-gold/20 rounded px-3 py-2 text-paper focus:border-gold/50 focus:outline-none"
+                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper focus:border-gold focus:outline-none"
                   placeholder="recipient@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-gold/70 text-sm mb-1">Member Number (optional)</label>
+                <label className="block text-paper-65 text-sm mb-1">Member Number (optional)</label>
                 <input
                   type="text"
                   value={formData.memberNumber}
                   onChange={(e) => setFormData({ ...formData, memberNumber: e.target.value })}
-                  className="w-full bg-white/5 border border-gold/20 rounded px-3 py-2 text-paper focus:border-gold/50 focus:outline-none"
+                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper focus:border-gold focus:outline-none"
                   placeholder="G-000001 (auto-generated if empty)"
                 />
               </div>
 
               <div>
-                <label className="block text-gold/70 text-sm mb-1">Personal Message from Heirloom</label>
+                <label className="block text-paper-65 text-sm mb-1">Personal Message from Heirloom</label>
                 <textarea
                   value={formData.personalMessage}
                   onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
-                  className="w-full bg-white/5 border border-gold/20 rounded px-3 py-2 text-paper focus:border-gold/50 focus:outline-none"
+                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper focus:border-gold focus:outline-none"
                   rows={8}
                   placeholder={DEFAULT_MESSAGE}
                 />
-                <p className="text-paper/65 text-xs mt-1">Leave empty to use the default message</p>
+                <p className="text-paper-65 text-xs mt-1">Leave empty to use the default message</p>
               </div>
 
               {formData.recipientEmail && (
@@ -2989,9 +2836,9 @@ The Heirloom Team`;
                     type="checkbox"
                     checked={formData.sendEmail}
                     onChange={(e) => setFormData({ ...formData, sendEmail: e.target.checked })}
-                    className="w-4 h-4 rounded border-gold/20 bg-white/5"
+                    className="w-4 h-4 rounded-[2px] border-paper-15 bg-void-elevated"
                   />
-                  <span className="text-paper/70 text-sm">Send Gold Legacy invitation email immediately</span>
+                  <span className="text-paper-70 text-sm">Send Gold Legacy invitation email immediately</span>
                 </label>
               )}
 
@@ -3002,10 +2849,9 @@ The Heirloom Team`;
                 <button
                   onClick={handleCreate}
                   disabled={isLoading}
-                  className="flex-1 py-2 px-4 rounded font-medium transition-all"
-                  style={{ background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', color: '#0a0a0f' }}
+                  className="btn btn-primary flex-1"
                 >
-                  {isLoading ? 'Creating...' : 'Create Gold Legacy Voucher'}
+                  {isLoading ? 'Creating…' : 'Create Gold Legacy Voucher'}
                 </button>
               </div>
             </div>

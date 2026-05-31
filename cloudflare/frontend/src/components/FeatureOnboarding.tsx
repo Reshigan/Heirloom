@@ -6,15 +6,12 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, ChevronLeft, Check, HelpCircle } from 'lucide-react';
-import { LegacyPlaybook, StoryArtifact, LifeEventTrigger, RecipientJourney } from './Icons';
 
 interface OnboardingStep {
   title: string;
   description: string;
   whyItMatters: string;
   howToStart: string;
-  icon?: React.ReactNode;
 }
 
 interface FeatureOnboardingProps {
@@ -24,18 +21,14 @@ interface FeatureOnboardingProps {
   isOpen: boolean;
 }
 
-const FEATURE_CONFIGS: Record<string, { 
-  title: string; 
+const FEATURE_CONFIGS: Record<string, {
+  title: string;
   subtitle: string;
-  icon: React.ReactNode;
-  color: string;
   steps: OnboardingStep[];
 }> = {
   'legacy-plan': {
     title: 'Legacy Playbook',
     subtitle: 'Your personal guide to preserving what matters most',
-    icon: <LegacyPlaybook size={32} />,
-    color: 'blue',
     steps: [
       {
         title: 'Why This Matters',
@@ -66,8 +59,6 @@ const FEATURE_CONFIGS: Record<string, {
   'story-artifacts': {
     title: 'Story Artifacts',
     subtitle: 'Turn your memories into something they can rewatch',
-    icon: <StoryArtifact size={32} />,
-    color: 'pink',
     steps: [
       {
         title: 'Why This Matters',
@@ -98,8 +89,6 @@ const FEATURE_CONFIGS: Record<string, {
   'life-events': {
     title: 'Life Event Triggers',
     subtitle: 'Be present for milestones - even years from now',
-    icon: <LifeEventTrigger size={32} />,
-    color: 'yellow',
     steps: [
       {
         title: 'Why This Matters',
@@ -130,8 +119,6 @@ const FEATURE_CONFIGS: Record<string, {
   'recipient-experience': {
     title: 'Recipient Experience',
     subtitle: 'Invite family to help you remember',
-    icon: <RecipientJourney size={32} />,
-    color: 'purple',
     steps: [
       {
         title: 'Why This Matters',
@@ -175,12 +162,6 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
 
   const step = config.steps[currentStep];
   const isLastStep = currentStep === config.steps.length - 1;
-  const colorClasses = {
-    blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    pink: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
-    yellow: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    purple: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  }[config.color];
 
   return (
     <AnimatePresence>
@@ -189,47 +170,46 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
           onClick={onDismiss}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="glass rounded-2xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-void-surface border border-paper-15 rounded-[2px] p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <div className={`w-14 h-14 rounded-xl ${colorClasses} flex items-center justify-center`}>
-                  {config.icon}
-                </div>
-                <div>
-                  <h2 className="text-xl md:text-2xl font-medium">{config.title}</h2>
-                  <p className="text-sm text-paper/65">{config.subtitle}</p>
-                </div>
+            <div className="flex items-start justify-between mb-6 gap-6">
+              <div>
+                <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-2">Walkthrough</p>
+                <h2 className="font-body font-light text-xl md:text-2xl tracking-[-0.014em]">{config.title}</h2>
+                <p className="text-sm text-paper-65 mt-1">{config.subtitle}</p>
               </div>
               <button
                 onClick={onDismiss}
-                className="text-paper/65 hover:text-paper transition-colors p-2"
+                className="text-paper-50 hover:text-paper transition-colors text-sm shrink-0"
+                aria-label="Close walkthrough"
               >
-                <X size={24} />
+                Close
               </button>
             </div>
 
-            {/* Progress Dots */}
+            {/* Progress */}
             <div className="flex items-center justify-center gap-2 mb-8">
               {config.steps.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentStep(index)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    index === currentStep 
-                      ? 'bg-gold w-8' 
-                      : index < currentStep 
-                        ? 'bg-gold/50' 
-                        : 'bg-paper/20'
+                  aria-label={`Go to step ${index + 1}`}
+                  className={`h-[2px] rounded-[2px] transition-all ${
+                    index === currentStep
+                      ? 'bg-gold w-10'
+                      : index < currentStep
+                        ? 'bg-gold/50 w-6'
+                        : 'bg-paper-15 w-6'
                   }`}
                 />
               ))}
@@ -239,58 +219,49 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                exit={{ opacity: 0, x: -16 }}
+                transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-6"
               >
                 <div>
-                  <h3 className="text-lg font-medium mb-2">{step.title}</h3>
-                  <p className="text-paper/70">{step.description}</p>
+                  <h3 className="font-body text-lg text-paper mb-2">{step.title}</h3>
+                  <p className="text-paper-70 leading-relaxed">{step.description}</p>
                 </div>
 
-                <div className="p-4 bg-gold/10 rounded-xl border border-gold/20">
-                  <p className="text-sm text-paper/70 mb-1 font-medium">Why this matters:</p>
-                  <p className="text-paper/80 italic">{step.whyItMatters}</p>
+                <div className="p-4 bg-void-elevated border border-gold-40 rounded-[2px]">
+                  <p className="text-[0.65rem] uppercase tracking-[0.22em] text-gold mb-1.5">Why this matters</p>
+                  <p className="text-paper-70 leading-relaxed">{step.whyItMatters}</p>
                 </div>
 
-                <div className="p-4 bg-paper/5 rounded-xl">
-                  <p className="text-sm text-paper/70 mb-1 font-medium">How to start:</p>
-                  <p className="text-paper/80">{step.howToStart}</p>
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                  <p className="text-[0.65rem] uppercase tracking-[0.22em] text-paper-50 mb-1.5">How to start</p>
+                  <p className="text-paper-70 leading-relaxed">{step.howToStart}</p>
                 </div>
               </motion.div>
             </AnimatePresence>
 
             {/* Navigation */}
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-paper/10">
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-paper-15">
               <button
                 onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                 disabled={currentStep === 0}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  currentStep === 0 
-                    ? 'text-paper/65 cursor-not-allowed' 
-                    : 'text-paper/70 hover:text-paper hover:bg-paper/5'
-                }`}
+                className={`btn btn-ghost ${currentStep === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
               >
-                <ChevronLeft size={18} />
+                <span aria-hidden>←</span>
                 Previous
               </button>
 
               {isLastStep ? (
-                <button
-                  onClick={onComplete}
-                  className="btn btn-primary flex items-center gap-2"
-                >
-                  <Check size={18} />
+                <button onClick={onComplete} className="btn btn-primary">
                   Got it, let's start
+                  <span aria-hidden>→</span>
                 </button>
               ) : (
-                <button
-                  onClick={() => setCurrentStep(currentStep + 1)}
-                  className="btn btn-primary flex items-center gap-2"
-                >
+                <button onClick={() => setCurrentStep(currentStep + 1)} className="btn btn-primary">
                   Next
-                  <ChevronRight size={18} />
+                  <span aria-hidden>→</span>
                 </button>
               )}
             </div>
@@ -344,15 +315,14 @@ export function useFeatureOnboarding(featureKey: string) {
 // Help button component for reopening onboarding
 export function OnboardingHelpButton({ onClick }: { onClick: () => void }) {
   return (
-    <motion.button
+    <button
       onClick={onClick}
-      className="fixed bottom-20 md:bottom-6 right-6 z-40 w-12 h-12 rounded-full glass flex items-center justify-center text-gold hover:text-gold/80 transition-colors border border-gold/30 hover:border-gold/50"
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
+      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-[2px] text-gold hover:text-gold-bright transition-colors text-[0.7rem] font-mono uppercase tracking-[0.22em]"
       title="How does this work?"
+      aria-label="How does this work?"
     >
-      <HelpCircle size={24} />
-    </motion.button>
+      How does this work?
+    </button>
   );
 }
 

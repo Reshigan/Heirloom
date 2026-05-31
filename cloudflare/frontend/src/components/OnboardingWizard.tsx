@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Mic, Clock, Sparkles, ArrowRight, ArrowLeft, Check, Users, X } from './Icons';
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -13,25 +12,21 @@ const steps = [
     id: 'who',
     title: 'Who is this legacy for?',
     subtitle: 'Every great legacy begins with the people you love',
-    icon: Users,
   },
   {
     id: 'record',
     title: 'Record your first message',
     subtitle: 'Your voice is the most personal gift you can leave behind',
-    icon: Mic,
   },
   {
     id: 'delivery',
     title: 'When should they receive it?',
     subtitle: 'Choose the perfect moment for your memories to arrive',
-    icon: Clock,
   },
   {
     id: 'celebrate',
     title: 'Your sanctuary is ready',
     subtitle: 'You\'ve taken the first step in preserving what matters most',
-    icon: Sparkles,
   },
 ];
 
@@ -59,12 +54,12 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
   };
 
   const recipientOptions = [
-    { id: 'children', label: 'My Children', icon: '👶' },
-    { id: 'partner', label: 'My Partner', icon: '💑' },
-    { id: 'parents', label: 'My Parents', icon: '👨‍👩‍👦' },
-    { id: 'grandchildren', label: 'Future Grandchildren', icon: '🌱' },
-    { id: 'friends', label: 'Close Friends', icon: '🤝' },
-    { id: 'everyone', label: 'Everyone I Love', icon: '❤️' },
+    { id: 'children', label: 'My Children' },
+    { id: 'partner', label: 'My Partner' },
+    { id: 'parents', label: 'My Parents' },
+    { id: 'grandchildren', label: 'Future Grandchildren' },
+    { id: 'friends', label: 'Close Friends' },
+    { id: 'everyone', label: 'Everyone I Love' },
   ];
 
   const deliveryOptions = [
@@ -84,10 +79,9 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
       {/* Skip button */}
       <button
         onClick={onSkip}
-        className="absolute top-6 right-6 text-paper/70 hover:text-paper/70 transition-colors flex items-center gap-2 text-sm"
+        className="absolute top-6 right-6 text-paper-50 hover:text-paper transition-colors text-sm"
       >
         Skip for now
-        <X size={16} />
       </button>
 
       {/* Progress bar */}
@@ -95,8 +89,8 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
         {steps.map((_, i) => (
           <div
             key={i}
-            className={`h-1 rounded-full transition-all duration-500 ${
-              i <= currentStep ? 'w-12 bg-gold' : 'w-8 bg-paper/10'
+            className={`h-[2px] rounded-[2px] transition-all duration-500 ${
+              i <= currentStep ? 'w-12 bg-gold' : 'w-8 bg-paper-15'
             }`}
           />
         ))}
@@ -112,20 +106,14 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             transition={{ duration: 0.3 }}
             className="text-center"
           >
-            {/* Icon */}
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 flex items-center justify-center"
-            >
-              <step.icon size={36} className="text-gold" />
-            </motion.div>
+            {/* Mark */}
+            <span className="font-body text-4xl text-gold block mb-8" aria-hidden>∞</span>
 
             {/* Title */}
-            <h2 className="font-serif text-3xl md:text-4xl text-paper mb-3">
+            <h2 className="font-body font-light text-3xl md:text-4xl text-paper mb-3 tracking-[-0.018em]">
               {step.title}
             </h2>
-            <p className="text-paper/65 font-serif text-lg mb-10">
+            <p className="text-paper-65 text-lg mb-10 leading-relaxed">
               {step.subtitle}
             </p>
 
@@ -142,14 +130,13 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                           : [...prev, option.id]
                       );
                     }}
-                    className={`p-4 rounded-xl border transition-all text-left ${
+                    className={`p-4 rounded-[2px] border transition-colors text-left ${
                       selectedRecipients.includes(option.id)
-                        ? 'border-gold/50 bg-gold/10 text-gold'
-                        : 'border-paper/10 bg-paper/5 text-paper/70 hover:border-paper/20'
+                        ? 'border-gold-40 bg-void-elevated text-gold'
+                        : 'border-paper-15 bg-void-surface text-paper-70 hover:border-paper-15 hover:text-paper'
                     }`}
                   >
-                    <span className="text-2xl block mb-2">{option.icon}</span>
-                    <span className="text-sm font-medium">{option.label}</span>
+                    <span className="text-sm font-body">{option.label}</span>
                   </button>
                 ))}
               </div>
@@ -157,24 +144,17 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
 
             {step.id === 'record' && (
               <div className="space-y-4 max-w-md mx-auto">
-                <motion.button
+                <button
                   onClick={() => navigate('/record')}
-                  className="w-full p-6 rounded-xl border border-gold/30 bg-gold/10 hover:bg-gold/15 transition-all flex items-center gap-4"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="w-full p-6 rounded-[2px] border border-gold-40 bg-void-surface hover:bg-void-elevated transition-colors text-left"
                 >
-                  <div className="w-14 h-14 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
-                    <Mic size={24} className="text-gold" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-serif text-lg text-paper">Record a voice message</p>
-                    <p className="text-sm text-paper/65">Just 30 seconds to start your legacy</p>
-                  </div>
-                </motion.button>
+                  <p className="font-body text-lg text-paper">Record a voice message</p>
+                  <p className="text-sm text-paper-65 mt-1">Just 30 seconds to start your legacy</p>
+                </button>
 
                 <button
                   onClick={handleNext}
-                  className="text-paper/70 hover:text-paper/70 text-sm transition-colors"
+                  className="text-paper-50 hover:text-paper text-sm transition-colors"
                 >
                   I&apos;ll do this later
                 </button>
@@ -187,16 +167,16 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                   <button
                     key={option.id}
                     onClick={() => setDeliveryTiming(option.id)}
-                    className={`w-full p-4 rounded-xl border transition-all text-left ${
+                    className={`w-full p-4 rounded-[2px] border transition-colors text-left ${
                       deliveryTiming === option.id
-                        ? 'border-gold/50 bg-gold/10'
-                        : 'border-paper/10 bg-paper/5 hover:border-paper/20'
+                        ? 'border-gold-40 bg-void-elevated'
+                        : 'border-paper-15 bg-void-surface hover:border-paper-15'
                     }`}
                   >
-                    <p className={`font-medium ${deliveryTiming === option.id ? 'text-gold' : 'text-paper/80'}`}>
+                    <p className={`font-body ${deliveryTiming === option.id ? 'text-gold' : 'text-paper'}`}>
                       {option.label}
                     </p>
-                    <p className="text-sm text-paper/70 mt-1">{option.description}</p>
+                    <p className="text-sm text-paper-70 mt-1">{option.description}</p>
                   </button>
                 ))}
               </div>
@@ -204,26 +184,13 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
 
             {step.id === 'celebrate' && (
               <div className="max-w-md mx-auto">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', delay: 0.2 }}
-                  className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/30 flex items-center justify-center"
-                >
-                  <Check size={40} className="text-gold" />
-                </motion.div>
-                <p className="text-paper/70 font-serif text-lg mb-4">
+                <p className="text-paper-70 text-lg mb-6 leading-relaxed">
                   Every memory you save becomes a gift that lasts forever.
                 </p>
-                <div className="flex items-center justify-center gap-6 text-sm text-paper/70">
-                  <span className="flex items-center gap-2">
-                    <Heart size={14} className="text-blood" />
-                    Encrypted & Private
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <Sparkles size={14} className="text-gold" />
-                    AI-Enhanced
-                  </span>
+                <div className="flex items-center justify-center gap-7 text-sm text-paper-50">
+                  <span>Encrypted &amp; Private</span>
+                  <span className="text-paper-30" aria-hidden>·</span>
+                  <span>AI-Enhanced</span>
                 </div>
               </div>
             )}
@@ -234,23 +201,16 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
         <div className="flex items-center justify-between mt-12">
           <button
             onClick={handleBack}
-            className={`flex items-center gap-2 text-paper/70 hover:text-paper/70 transition-colors ${
-              currentStep === 0 ? 'invisible' : ''
-            }`}
+            className={`btn btn-ghost ${currentStep === 0 ? 'invisible' : ''}`}
           >
-            <ArrowLeft size={16} />
+            <span aria-hidden>←</span>
             Back
           </button>
 
-          <motion.button
-            onClick={handleNext}
-            className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-gold to-gold-dim text-void font-medium transition-all hover:shadow-lg hover:shadow-gold/20"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
+          <button onClick={handleNext} className="btn btn-primary">
             {isLastStep ? 'Enter Your Sanctuary' : 'Continue'}
-            <ArrowRight size={16} />
-          </motion.button>
+            <span aria-hidden>→</span>
+          </button>
         </div>
       </div>
     </motion.div>

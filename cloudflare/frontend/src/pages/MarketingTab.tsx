@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Plus, Upload, Send, Users, FileText, X, Target, 
-  AlertTriangle, RefreshCw
-} from '../components/Icons';
 import { marketingApi } from '../services/api';
+import { ProgressHair } from '../components/ui/ProgressHair';
 
 const SEGMENTS = ['GENEALOGY', 'GRIEF', 'PARENTING', 'TECH', 'ESTATE_PLANNING', 'PODCAST', 'OTHER'];
 const PLATFORMS = ['INSTAGRAM', 'FACEBOOK', 'TIKTOK', 'LINKEDIN', 'TWITTER', 'EMAIL', 'ALL'];
@@ -120,53 +117,49 @@ export function MarketingTab() {
   });
 
   const subTabs = [
-    { id: 'influencers', label: 'Influencers', icon: Users },
-    { id: 'campaigns', label: 'Campaigns', icon: Send },
-    { id: 'content', label: 'Content Library', icon: FileText },
-    { id: 'signups', label: 'Creator Signups', icon: Target },
+    { id: 'influencers', label: 'Influencers' },
+    { id: 'campaigns', label: 'Campaigns' },
+    { id: 'content', label: 'Content Library' },
+    { id: 'signups', label: 'Creator Signups' },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl">Marketing Automation</h2>
+        <h2 className="font-body font-light text-xl text-paper">Marketing Automation</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setShowImportModal(true)}
-            className="btn btn-secondary flex items-center gap-2"
+            className="btn btn-secondary"
           >
-            <Upload size={16} />
             Import Influencers
           </button>
           <button
             onClick={() => setShowInfluencerModal(true)}
-            className="btn btn-secondary flex items-center gap-2"
+            className="btn btn-secondary"
           >
-            <Plus size={16} />
             Add Influencer
           </button>
           <button
             onClick={() => setShowCampaignModal(true)}
-            className="btn btn-primary flex items-center gap-2"
+            className="btn btn-primary"
           >
-            <Send size={16} />
             New Campaign
           </button>
         </div>
       </div>
 
-      <div className="flex gap-2 border-b border-white/10 pb-2">
-        {subTabs.map(({ id, label, icon: Icon }) => (
+      <div className="flex gap-2 border-b border-paper-15 pb-2">
+        {subTabs.map(({ id, label }) => (
           <button
             key={id}
             onClick={() => setActiveSubTab(id as any)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-t transition-all ${
-              activeSubTab === id 
-                ? 'bg-gold/20 text-gold border-b-2 border-gold' 
-                : 'text-paper/65 hover:text-paper'
+            className={`px-4 py-2 transition-colors ${
+              activeSubTab === id
+                ? 'text-gold border-b border-gold'
+                : 'text-paper-65 hover:text-paper'
             }`}
           >
-            <Icon size={16} />
             {label}
           </button>
         ))}
@@ -191,50 +184,50 @@ export function MarketingTab() {
               <option value="">All Statuses</option>
               {INFLUENCER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            <div className="text-paper/65 flex items-center">
+            <div className="text-paper-65 flex items-center">
               {influencers?.influencers?.length || 0} influencers
             </div>
           </div>
 
-          <div className="card overflow-x-auto">
+          <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Name</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Email</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Platform</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Segment</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Last Contact</th>
+                <tr className="border-b border-paper-15">
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Name</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Email</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Platform</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Segment</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Last Contact</th>
                 </tr>
               </thead>
               <tbody>
                 {loadingInfluencers ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper/65">Loading...</td></tr>
+                  <tr><td colSpan={6} className="py-8"><ProgressHair label="Loading…" /></td></tr>
                 ) : influencers?.influencers?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper/65">No influencers yet. Import or add some!</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-paper-65">No influencers yet. Import or add some!</td></tr>
                 ) : (
                   influencers?.influencers?.map((inf: any) => (
-                    <tr key={inf.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <tr key={inf.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                       <td className="py-3 px-4">
-                        <div className="font-medium">{inf.name}</div>
-                        {inf.handle && <div className="text-xs text-paper/65">@{inf.handle}</div>}
+                        <div className="text-paper">{inf.name}</div>
+                        {inf.handle && <div className="text-xs text-paper-65">@{inf.handle}</div>}
                       </td>
-                      <td className="py-3 px-4 text-paper/70">{inf.email}</td>
+                      <td className="py-3 px-4 text-paper-70">{inf.email}</td>
                       <td className="py-3 px-4">
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
+                        <span className="px-2 py-1 border border-paper-15 text-paper-70 text-xs rounded-[2px]">
                           {inf.platform}
                         </span>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">
+                        <span className="px-2 py-1 border border-paper-15 text-paper-70 text-xs rounded-[2px]">
                           {inf.segment}
                         </span>
                       </td>
                       <td className="py-3 px-4">
                         <StatusBadge status={inf.status} />
                       </td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {inf.last_contacted_at ? new Date(inf.last_contacted_at).toLocaleDateString() : '-'}
                       </td>
                     </tr>
@@ -248,39 +241,39 @@ export function MarketingTab() {
 
       {activeSubTab === 'campaigns' && (
         <div className="space-y-4">
-          <div className="card overflow-x-auto">
+          <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Campaign</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Type</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Sent</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Opens</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Created</th>
+                <tr className="border-b border-paper-15">
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Campaign</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Type</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Sent</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Opens</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Created</th>
                 </tr>
               </thead>
               <tbody>
                 {campaigns?.campaigns?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper/65">No campaigns yet</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-paper-65">No campaigns yet</td></tr>
                 ) : (
                   campaigns?.campaigns?.map((c: any) => (
-                    <tr key={c.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <tr key={c.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
                       <td className="py-3 px-4">
-                        <div className="font-medium">{c.name}</div>
-                        <div className="text-xs text-paper/65">{c.subject_line}</div>
+                        <div className="text-paper">{c.name}</div>
+                        <div className="text-xs text-paper-65">{c.subject_line}</div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="px-2 py-1 bg-gold/20 text-gold text-xs rounded">
+                        <span className="px-2 py-1 border border-gold-40 text-gold text-xs rounded-[2px]">
                           {c.campaign_type}
                         </span>
                       </td>
                       <td className="py-3 px-4">
                         <StatusBadge status={c.status} />
                       </td>
-                      <td className="py-3 px-4">{c.sent_count || 0}</td>
-                      <td className="py-3 px-4">{c.open_count || 0}</td>
-                      <td className="py-3 px-4 text-paper/65 text-sm">
+                      <td className="py-3 px-4 font-mono text-paper">{c.sent_count || 0}</td>
+                      <td className="py-3 px-4 font-mono text-paper">{c.open_count || 0}</td>
+                      <td className="py-3 px-4 text-paper-65 text-sm">
                         {new Date(c.created_at).toLocaleDateString()}
                       </td>
                     </tr>
@@ -294,31 +287,31 @@ export function MarketingTab() {
 
       {activeSubTab === 'signups' && (
         <div className="space-y-4">
-          <p className="text-paper/65">
+          <p className="text-paper-65">
             Creators who signed up through the public form. Approve them to add to your influencer database.
           </p>
-          <div className="card overflow-x-auto">
+          <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Name</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Email</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Platform</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Why Interested</th>
-                  <th className="text-left py-3 px-4 text-paper/65 font-normal">Status</th>
-                  <th className="text-right py-3 px-4 text-paper/65 font-normal">Actions</th>
+                <tr className="border-b border-paper-15">
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Name</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Email</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Platform</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Why Interested</th>
+                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
+                  <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {creatorSignups?.signups?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper/65">No signups yet</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-paper-65">No signups yet</td></tr>
                 ) : (
                   creatorSignups?.signups?.map((s: any) => (
-                    <tr key={s.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                      <td className="py-3 px-4 font-medium">{s.name}</td>
-                      <td className="py-3 px-4 text-paper/70">{s.email}</td>
-                      <td className="py-3 px-4">{s.platform || '-'}</td>
-                      <td className="py-3 px-4 text-paper/65 text-sm max-w-xs truncate">{s.why_interested || '-'}</td>
+                    <tr key={s.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
+                      <td className="py-3 px-4 text-paper">{s.name}</td>
+                      <td className="py-3 px-4 text-paper-70">{s.email}</td>
+                      <td className="py-3 px-4 text-paper-70">{s.platform || '-'}</td>
+                      <td className="py-3 px-4 text-paper-65 text-sm max-w-xs truncate">{s.why_interested || '-'}</td>
                       <td className="py-3 px-4">
                         <StatusBadge status={s.status} />
                       </td>
@@ -344,25 +337,25 @@ export function MarketingTab() {
 
       {activeSubTab === 'content' && (
         <div className="space-y-4">
-          <p className="text-paper/65">
+          <p className="text-paper-65">
             Store and manage your marketing content, captions, and templates.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {content?.content?.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-paper/65">No content yet</div>
+              <div className="col-span-full text-center py-8 text-paper-65">No content yet</div>
             ) : (
               content?.content?.map((c: any) => (
-                <div key={c.id} className="card p-4">
+                <div key={c.id} className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium">{c.title}</h4>
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
+                    <h4 className="text-paper">{c.title}</h4>
+                    <span className="px-2 py-1 border border-paper-15 text-paper-70 text-xs rounded-[2px]">
                       {c.platform}
                     </span>
                   </div>
-                  <p className="text-paper/65 text-sm line-clamp-3">{c.caption || c.body}</p>
+                  <p className="text-paper-65 text-sm line-clamp-3">{c.caption || c.body}</p>
                   <div className="flex gap-2 mt-3">
                     <StatusBadge status={c.status} />
-                    {c.theme && <span className="text-xs text-paper/70">{c.theme}</span>}
+                    {c.theme && <span className="text-xs text-paper-70">{c.theme}</span>}
                   </div>
                 </div>
               ))
@@ -394,22 +387,23 @@ export function MarketingTab() {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  // Single warm accent for active/positive states, blood for negative, bone for neutral.
   const colors: Record<string, string> = {
-    NEW: 'bg-blue-500/20 text-blue-400',
-    CONTACTED: 'bg-yellow-500/20 text-yellow-400',
-    RESPONDED: 'bg-purple-500/20 text-purple-400',
-    INTERESTED: 'bg-green-500/20 text-green-400',
-    PARTNERED: 'bg-gold/20 text-gold',
-    DECLINED: 'bg-red-500/20 text-red-400',
-    UNSUBSCRIBED: 'bg-gray-500/20 text-gray-400',
-    DRAFT: 'bg-gray-500/20 text-gray-400',
-    SENDING: 'bg-yellow-500/20 text-yellow-400',
-    COMPLETED: 'bg-green-500/20 text-green-400',
-    APPROVED: 'bg-green-500/20 text-green-400',
-    CONVERTED: 'bg-gold/20 text-gold',
+    NEW: 'border-paper-15 text-paper-70',
+    CONTACTED: 'border-gold-40 text-gold',
+    RESPONDED: 'border-gold-40 text-gold',
+    INTERESTED: 'border-gold-40 text-gold',
+    PARTNERED: 'border-gold-40 text-gold',
+    DECLINED: 'border-blood text-blood',
+    UNSUBSCRIBED: 'border-paper-15 text-paper-50',
+    DRAFT: 'border-paper-15 text-paper-50',
+    SENDING: 'border-gold-40 text-gold',
+    COMPLETED: 'border-gold-40 text-gold',
+    APPROVED: 'border-gold-40 text-gold',
+    CONVERTED: 'border-gold-40 text-gold',
   };
   return (
-    <span className={`px-2 py-1 text-xs rounded ${colors[status] || 'bg-gray-500/20 text-gray-400'}`}>
+    <span className={`px-2 py-1 text-xs border rounded-[2px] ${colors[status] || 'border-paper-15 text-paper-50'}`}>
       {status}
     </span>
   );
@@ -448,18 +442,18 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50">
+      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">Import Influencers from CSV</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
+          <h3 className="font-body font-light text-xl text-paper">Import Influencers from CSV</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close">
+            <span aria-hidden>✕</span>
           </button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-paper/70 mb-2">
+            <label className="block text-sm text-paper-70 mb-2">
               CSV Format: name, email, platform, handle, segment, followers, profile_url, notes
             </label>
             <textarea
@@ -477,15 +471,15 @@ John Doe,john@example.com,INSTAGRAM,johndoe,GENEALOGY,50000,https://instagram.co
 
           {previewData.length > 0 && (
             <div className="space-y-2">
-              <div className="text-sm text-paper/70">{previewData.length} records to import:</div>
-              <div className="max-h-48 overflow-y-auto bg-white/[0.02] rounded p-2">
+              <div className="text-sm text-paper-70">{previewData.length} records to import:</div>
+              <div className="max-h-48 overflow-y-auto bg-void-elevated border border-paper-15 rounded-[2px] p-2">
                 {previewData.slice(0, 10).map((d, i) => (
-                  <div key={i} className="text-sm py-1 border-b border-white/5">
+                  <div key={i} className="text-sm py-1 border-b border-paper-15">
                     {d.name} - {d.email} ({d.platform}, {d.segment})
                   </div>
                 ))}
                 {previewData.length > 10 && (
-                  <div className="text-paper/65 text-sm py-1">...and {previewData.length - 10} more</div>
+                  <div className="text-paper-65 text-sm py-1">...and {previewData.length - 10} more</div>
                 )}
               </div>
             </div>
@@ -493,13 +487,12 @@ John Doe,john@example.com,INSTAGRAM,johndoe,GENEALOGY,50000,https://instagram.co
 
           <div className="flex justify-end gap-3">
             <button onClick={onClose} className="btn btn-secondary">Cancel</button>
-            <button 
-              onClick={() => onImport(previewData)} 
+            <button
+              onClick={() => onImport(previewData)}
               disabled={previewData.length === 0 || isLoading}
-              className="btn btn-primary flex items-center gap-2"
+              className="btn btn-primary"
             >
-              <Upload size={16} />
-              {isLoading ? 'Importing...' : `Import ${previewData.length} Influencers`}
+              {isLoading ? 'Importing…' : `Import ${previewData.length} Influencers`}
             </button>
           </div>
         </div>
@@ -574,20 +567,20 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
     : influencers;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50">
+      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">Create Email Campaign</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
+          <h3 className="font-body font-light text-xl text-paper">Create Email Campaign</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close">
+            <span aria-hidden>✕</span>
           </button>
         </div>
 
         <div className="flex gap-4 mb-6">
           {['setup', 'compose', 'review'].map((s, i) => (
-            <div key={s} className={`flex items-center gap-2 ${step === s ? 'text-gold' : 'text-paper/65'}`}>
-              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
-                step === s ? 'bg-gold text-void' : 'bg-white/10'
+            <div key={s} className={`flex items-center gap-2 ${step === s ? 'text-gold' : 'text-paper-65'}`}>
+              <span className={`w-6 h-6 rounded-[2px] flex items-center justify-center text-sm font-mono border ${
+                step === s ? 'border-gold text-gold' : 'border-paper-15 text-paper-50'
               }`}>{i + 1}</span>
               {s.charAt(0).toUpperCase() + s.slice(1)}
             </div>
@@ -597,7 +590,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
         {step === 'setup' && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Campaign Name</label>
+              <label className="block text-sm text-paper-70 mb-2">Campaign Name</label>
               <input
                 type="text"
                 value={formData.name}
@@ -608,7 +601,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
             </div>
 
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Target Segment (optional)</label>
+              <label className="block text-sm text-paper-70 mb-2">Target Segment (optional)</label>
               <select
                 value={formData.targetSegment}
                 onChange={(e) => {
@@ -622,14 +615,14 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
               </select>
             </div>
 
-            <div className="p-4 bg-white/[0.02] rounded">
-              <div className="text-sm text-paper/70 mb-2">
-                {formData.targetSegment 
+            <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+              <div className="text-sm text-paper-70 mb-2">
+                {formData.targetSegment
                   ? `${filteredInfluencers.length} influencers in ${formData.targetSegment} segment`
                   : `${influencers.length} total influencers`
                 }
               </div>
-              <div className="text-xs text-paper/65">
+              <div className="text-xs text-paper-65">
                 Only influencers with status NEW, CONTACTED, RESPONDED, or INTERESTED will receive emails.
                 Unsubscribed and declined contacts are automatically excluded.
               </div>
@@ -650,7 +643,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
         {step === 'compose' && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Subject Line</label>
+              <label className="block text-sm text-paper-70 mb-2">Subject Line</label>
               <input
                 type="text"
                 value={formData.subjectLine}
@@ -658,18 +651,18 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
                 placeholder="e.g., Partnership Opportunity: Help Families Preserve Their Stories"
                 className="input w-full"
               />
-              <div className="text-xs text-paper/65 mt-1">Use [Name] to personalize with recipient's name</div>
+              <div className="text-xs text-paper-65 mt-1">Use [Name] to personalize with recipient's name</div>
             </div>
 
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Email Body (HTML)</label>
+              <label className="block text-sm text-paper-70 mb-2">Email Body (HTML)</label>
               <textarea
                 value={formData.bodyHtml}
                 onChange={(e) => setFormData(prev => ({ ...prev, bodyHtml: e.target.value }))}
                 placeholder="<p>Hi [Name],</p><p>Your email content here...</p>"
                 className="input w-full h-64 font-mono text-sm"
               />
-              <div className="text-xs text-paper/65 mt-1">
+              <div className="text-xs text-paper-65 mt-1">
                 Use [Name] for personalization. Unsubscribe link is added automatically.
               </div>
             </div>
@@ -679,7 +672,6 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
                 onClick={() => applyTemplate(formData.targetSegment)}
                 className="btn btn-secondary text-sm"
               >
-                <RefreshCw size={14} className="mr-2" />
                 Reset to {formData.targetSegment} Template
               </button>
             )}
@@ -699,47 +691,44 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
 
         {step === 'review' && (
           <div className="space-y-4">
-            <div className="p-4 bg-white/[0.02] rounded space-y-3">
+            <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px] space-y-3">
               <div>
-                <span className="text-paper/65">Campaign:</span> {formData.name}
+                <span className="text-paper-65">Campaign:</span> {formData.name}
               </div>
               <div>
-                <span className="text-paper/65">Segment:</span> {formData.targetSegment || 'All'}
+                <span className="text-paper-65">Segment:</span> {formData.targetSegment || 'All'}
               </div>
               <div>
-                <span className="text-paper/65">Recipients:</span> {filteredInfluencers.filter(i => 
+                <span className="text-paper-65">Recipients:</span> {filteredInfluencers.filter(i =>
                   !['UNSUBSCRIBED', 'DECLINED'].includes(i.status)
                 ).length} influencers
               </div>
               <div>
-                <span className="text-paper/65">Subject:</span> {formData.subjectLine}
+                <span className="text-paper-65">Subject:</span> {formData.subjectLine}
               </div>
             </div>
 
-            <div className="p-4 bg-white rounded">
+            {/* Email HTML preview — white surface is intentional (renders the actual email) */}
+            <div className="p-4 bg-white rounded-[2px]">
               <div className="text-black text-sm" dangerouslySetInnerHTML={{ __html: formData.bodyHtml }} />
             </div>
 
-            <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded">
-              <div className="flex items-center gap-2 text-yellow-400 mb-2">
-                <AlertTriangle size={16} />
-                <span className="font-medium">Ready to send?</span>
-              </div>
-              <p className="text-paper/70 text-sm">
-                This will send emails to all eligible influencers immediately. 
+            <div className="p-4 bg-void-elevated border border-gold-40 rounded-[2px]">
+              <div className="text-gold mb-2">Ready to send?</div>
+              <p className="text-paper-70 text-sm">
+                This will send emails to all eligible influencers immediately.
                 Emails include an unsubscribe link for compliance.
               </p>
             </div>
 
             <div className="flex justify-between">
               <button onClick={() => setStep('compose')} className="btn btn-secondary">Back</button>
-              <button 
+              <button
                 onClick={handleSend}
                 disabled={createMutation.isPending || sendMutation.isPending}
-                className="btn btn-primary flex items-center gap-2"
+                className="btn btn-primary"
               >
-                <Send size={16} />
-                {createMutation.isPending || sendMutation.isPending ? 'Sending...' : 'Send Campaign'}
+                {createMutation.isPending || sendMutation.isPending ? 'Sending…' : 'Send Campaign'}
               </button>
             </div>
           </div>
@@ -777,19 +766,19 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
   });
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div className="bg-void border border-white/10 rounded-lg w-full max-w-lg p-6">
+    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50">
+      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-lg p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl">Add Influencer</h3>
-          <button onClick={onClose} className="text-paper/65 hover:text-paper">
-            <X size={20} />
+          <h3 className="font-body font-light text-xl text-paper">Add Influencer</h3>
+          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close">
+            <span aria-hidden>✕</span>
           </button>
         </div>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Name *</label>
+              <label className="block text-sm text-paper-70 mb-2">Name *</label>
               <input
                 type="text"
                 value={formData.name}
@@ -798,7 +787,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Email *</label>
+              <label className="block text-sm text-paper-70 mb-2">Email *</label>
               <input
                 type="email"
                 value={formData.email}
@@ -810,7 +799,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Platform</label>
+              <label className="block text-sm text-paper-70 mb-2">Platform</label>
               <select
                 value={formData.platform}
                 onChange={(e) => setFormData(prev => ({ ...prev, platform: e.target.value }))}
@@ -820,7 +809,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Segment</label>
+              <label className="block text-sm text-paper-70 mb-2">Segment</label>
               <select
                 value={formData.segment}
                 onChange={(e) => setFormData(prev => ({ ...prev, segment: e.target.value }))}
@@ -833,7 +822,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Handle</label>
+              <label className="block text-sm text-paper-70 mb-2">Handle</label>
               <input
                 type="text"
                 value={formData.handle}
@@ -843,7 +832,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="block text-sm text-paper/70 mb-2">Followers</label>
+              <label className="block text-sm text-paper-70 mb-2">Followers</label>
               <input
                 type="number"
                 value={formData.followerCount}
@@ -854,7 +843,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className="block text-sm text-paper/70 mb-2">Profile URL</label>
+            <label className="block text-sm text-paper-70 mb-2">Profile URL</label>
             <input
               type="url"
               value={formData.profileUrl}
@@ -864,7 +853,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className="block text-sm text-paper/70 mb-2">Notes</label>
+            <label className="block text-sm text-paper-70 mb-2">Notes</label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
