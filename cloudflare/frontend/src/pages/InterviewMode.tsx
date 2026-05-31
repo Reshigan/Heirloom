@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Pause, Stop, ArrowLeft, Sparkles, Play, Check } from '../components/Icons';
 import { voiceApi, aiApi } from '../services/api';
 
 const SILENCE_THRESHOLD = 0.01;
@@ -231,25 +230,24 @@ export function InterviewMode() {
       <div className="flex items-center justify-between p-6">
         <button
           onClick={() => navigate('/record')}
-          className="flex items-center gap-2 text-paper/65 hover:text-paper transition-colors"
+          className="inline-flex items-center gap-2 text-paper-65 hover:text-paper transition-colors"
         >
-          <ArrowLeft size={20} />
+          <span aria-hidden>←</span>
           <span className="text-sm">Exit Interview</span>
         </button>
 
         <div className="flex items-center gap-3">
-          <div className={`w-2 h-2 rounded-full ${isRecording && !isPaused ? 'bg-red-500 animate-pulse' : 'bg-paper/20'}`} />
-          <span className="font-mono text-lg text-paper/80">{formatTime(duration)}</span>
+          <div className={`w-2 h-2 rounded-[2px] ${isRecording && !isPaused ? 'bg-blood animate-pulse' : 'bg-paper-15'}`} />
+          <span className="font-mono text-lg text-paper-70">{formatTime(duration)}</span>
         </div>
 
         {isRecording && (
           <button
             onClick={stopAndSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gold/20 text-gold hover:bg-gold/30 transition-colors text-sm"
+            className="btn btn-ghost text-sm"
           >
-            {isSaving ? null : <Check size={16} />}
-            Save & Finish
+            Save &amp; Finish
           </button>
         )}
       </div>
@@ -265,7 +263,7 @@ export function InterviewMode() {
             exit={{ opacity: 0, y: -20 }}
             className="text-center mb-12"
           >
-            <p className="font-serif text-2xl md:text-3xl text-paper leading-relaxed italic">
+            <p className="font-body text-2xl md:text-3xl text-paper leading-relaxed italic">
               &ldquo;{currentQuestion}&rdquo;
             </p>
           </motion.div>
@@ -277,7 +275,7 @@ export function InterviewMode() {
             {waveformBars.map((height, i) => (
               <motion.div
                 key={i}
-                className="w-1 rounded-full bg-gold/60"
+                className="w-1 bg-gold/60"
                 animate={{ height: `${height * 96}px` }}
                 transition={{ duration: 0.1 }}
               />
@@ -294,15 +292,14 @@ export function InterviewMode() {
               exit={{ opacity: 0, y: -20 }}
               className="w-full space-y-2 mb-8"
             >
-              <p className="text-center text-paper/70 text-sm mb-3">
-                <Sparkles size={14} className="inline mr-1" />
-                AI-suggested follow-ups
+              <p className="text-center font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold mb-3">
+                Suggested follow-ups
               </p>
               {followUpQuestions.map((q, i) => (
                 <button
                   key={i}
                   onClick={() => selectFollowUp(q)}
-                  className="w-full p-3 rounded-lg border border-paper/10 bg-paper/5 text-paper/70 hover:border-gold/30 hover:text-gold text-left text-sm transition-all"
+                  className="w-full p-3 rounded-[2px] border border-paper-15 bg-void-surface text-paper-70 hover:border-gold-40 hover:text-gold text-left text-sm transition-colors"
                 >
                   {q}
                 </button>
@@ -314,46 +311,42 @@ export function InterviewMode() {
         {/* Controls */}
         <div className="flex items-center gap-6">
           {!isRecording ? (
-            <motion.button
+            <button
               onClick={startRecording}
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-blood to-blood/80 flex items-center justify-center shadow-lg shadow-blood/30 hover:shadow-blood/50 transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              aria-label="Start recording"
+              className="w-20 h-20 rounded-[2px] bg-void-surface border border-gold-40 flex items-center justify-center text-gold font-mono text-[0.6rem] tracking-[0.2em] uppercase hover:border-gold transition-colors"
             >
-              <Mic size={32} className="text-white" />
-            </motion.button>
+              Record
+            </button>
           ) : (
             <>
-              <motion.button
+              <button
                 onClick={isPaused ? resumeRecording : pauseRecording}
-                className="w-14 h-14 rounded-full bg-paper/10 flex items-center justify-center hover:bg-paper/20 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                aria-label={isPaused ? 'Resume recording' : 'Pause recording'}
+                className="w-14 h-14 rounded-[2px] bg-void-surface border border-paper-15 flex items-center justify-center text-paper-70 font-mono text-xs hover:text-paper transition-colors"
               >
-                {isPaused ? <Play size={24} /> : <Pause size={24} />}
-              </motion.button>
+                {isPaused ? '▶' : '❚❚'}
+              </button>
 
-              <motion.button
+              <button
                 onClick={stopAndSave}
                 disabled={isSaving}
+                aria-label={isSaving ? 'Saving' : 'Stop and save'}
                 title={isSaving ? 'Saving…' : 'Stop & save'}
-                className="w-20 h-20 rounded-full bg-gradient-to-br from-blood to-blood/80 flex items-center justify-center shadow-lg shadow-blood/30 disabled:opacity-50"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="w-20 h-20 rounded-[2px] bg-void-surface border border-gold-40 flex items-center justify-center text-gold font-mono text-[0.6rem] tracking-[0.2em] uppercase hover:border-gold transition-colors disabled:opacity-50"
               >
-                <Stop size={32} className="text-white" />
-              </motion.button>
+                Stop
+              </button>
 
-              <motion.button
+              <button
                 onClick={generateFollowUp}
                 disabled={isGeneratingQuestion}
+                aria-label={isGeneratingQuestion ? 'Thinking of a follow-up' : 'Suggest a follow-up'}
                 title={isGeneratingQuestion ? 'Thinking of a follow-up…' : 'Suggest a follow-up'}
-                className="w-14 h-14 rounded-full bg-gold/20 flex items-center justify-center hover:bg-gold/30 transition-colors disabled:opacity-50"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="w-14 h-14 rounded-[2px] bg-void-surface border border-paper-15 flex items-center justify-center text-gold hover:border-gold-40 transition-colors disabled:opacity-50"
               >
-                <Sparkles size={20} className="text-gold" />
-              </motion.button>
+                <span aria-hidden>∞</span>
+              </button>
             </>
           )}
         </div>
@@ -363,9 +356,9 @@ export function InterviewMode() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-6 text-paper/65 text-sm"
+            className="mt-6 text-paper-65 text-sm"
           >
-            Take your time... or tap the sparkle for a follow-up question
+            Take your time... or tap ∞ for a follow-up question
           </motion.p>
         )}
       </div>

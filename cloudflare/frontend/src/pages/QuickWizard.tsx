@@ -2,10 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import {
-  ChevronLeft, Mic, Edit3, User, Sparkles,
-  Play, Calendar, Heart, Clock, Gift, Star
-} from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import { familyApi } from '../services/api';
@@ -15,32 +11,24 @@ const TEMPLATES = [
   {
     id: 'birthday',
     name: 'Birthday Message',
-    icon: Gift,
-    color: 'pink',
     description: 'A heartfelt message for their special day',
     defaultPrompt: 'What I want you to know on your birthday...',
   },
   {
     id: 'if-not-here',
     name: 'If I\'m Not Here',
-    icon: Heart,
-    color: 'purple',
     description: 'Words of comfort for when you\'re gone',
     defaultPrompt: 'If I\'m not there to tell you this in person...',
   },
   {
     id: 'story',
     name: 'A Story You Should Know',
-    icon: Star,
-    color: 'gold',
     description: 'Share a memory or life lesson',
     defaultPrompt: 'There\'s a story I\'ve never told you...',
   },
   {
     id: 'proud',
     name: 'Why I\'m Proud of You',
-    icon: Sparkles,
-    color: 'blue',
     description: 'Celebrate who they are',
     defaultPrompt: 'I want you to know how proud I am of you because...',
   },
@@ -69,7 +57,7 @@ type ContentType = 'voice' | 'letter';
 export function QuickWizard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
+
   const [step, setStep] = useState<WizardStep>('person');
   const [selectedPerson, setSelectedPerson] = useState<FamilyMember | null>(null);
   const [_selectedTemplate, setSelectedTemplate] = useState<typeof TEMPLATES[0] | null>(null);
@@ -78,16 +66,16 @@ export function QuickWizard() {
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<PersonPrompt[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
-  
+
   // Pre-select person if coming from PersonPage
   const preselectedPersonId = searchParams.get('for');
   const preselectedPrompt = searchParams.get('prompt');
-  
+
   const { data: family, isLoading: familyLoading } = useQuery({
     queryKey: ['family'],
     queryFn: () => familyApi.getAll().then(r => r.data),
   });
-  
+
   // Handle preselection
   useEffect(() => {
     if (family && preselectedPersonId) {
@@ -103,14 +91,14 @@ export function QuickWizard() {
       }
     }
   }, [family, preselectedPersonId, preselectedPrompt]);
-  
+
   // Fetch prompts when person is selected
   useEffect(() => {
     if (selectedPerson && step === 'prompt') {
       fetchPrompts();
     }
   }, [selectedPerson, step]);
-  
+
   const fetchPrompts = async () => {
     if (!selectedPerson) return;
     setLoadingPrompts(true);
@@ -126,7 +114,7 @@ export function QuickWizard() {
     }
     setLoadingPrompts(false);
   };
-  
+
   const handlePersonSelect = (person: FamilyMember) => {
     setSelectedPerson(person);
     setStep('template');
@@ -137,7 +125,7 @@ export function QuickWizard() {
     setSelectedPrompt(template.defaultPrompt);
     setStep('type');
   };
-  
+
   const handleTypeSelect = (type: ContentType) => {
     setContentType(type);
     if (selectedPrompt) {
@@ -146,27 +134,27 @@ export function QuickWizard() {
       setStep('prompt');
     }
   };
-  
+
   const handlePromptSelect = (prompt: string) => {
     setSelectedPrompt(prompt);
     setStep('preview');
   };
-  
+
   const handleCreate = () => {
     if (!selectedPerson || !contentType) return;
-    
+
     const params = new URLSearchParams();
     if (selectedPrompt) params.set('prompt', selectedPrompt);
     params.set('for', selectedPerson.id);
     params.set('forName', selectedPerson.name);
-    
+
     if (contentType === 'voice') {
       navigate(`/record?${params.toString()}`);
     } else {
       navigate(`/compose?${params.toString()}`);
     }
   };
-  
+
   const goBack = () => {
     switch (step) {
       case 'template':
@@ -192,7 +180,7 @@ export function QuickWizard() {
         break;
     }
   };
-  
+
   const stepNumber = {
     person: 1,
     template: 2,
@@ -201,30 +189,21 @@ export function QuickWizard() {
     create: 5,
     preview: 5,
   };
-  
+
   const familyMembers = Array.isArray(family) ? family : [];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
-      
+    <div className="min-h-screen bg-void text-paper antialiased">
       <Navigation />
-      
+
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-12 max-w-2xl mx-auto">
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-paper/65">Step {stepNumber[step]} of 5</span>
-            <div className="flex items-center gap-2 text-sm text-paper/65">
-              <Clock size={14} />
-              <span>~3 minutes</span>
-            </div>
+            <span className="font-mono text-[0.65rem] tracking-[0.24em] uppercase text-paper-50">Step {stepNumber[step]} of 5</span>
+            <span className="font-mono text-[0.65rem] tracking-[0.24em] uppercase text-paper-50">~3 minutes</span>
           </div>
-          <div className="h-1 bg-paper/10 rounded-full overflow-hidden">
+          <div className="h-px bg-paper-15 overflow-hidden">
             <motion.div
               className="h-full bg-gold"
               initial={{ width: 0 }}
@@ -233,7 +212,7 @@ export function QuickWizard() {
             />
           </div>
         </div>
-        
+
         <AnimatePresence mode="wait">
           {/* Step 1: Select Person */}
           {step === 'person' && (
@@ -244,22 +223,21 @@ export function QuickWizard() {
               exit={{ opacity: 0, x: -20 }}
             >
               <div className="text-center mb-8">
-                <h1 className="text-2xl md:text-3xl font-light mb-2">
+                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
                   Who is this message for?
                 </h1>
-                <p className="text-paper/65">
+                <p className="text-paper-65">
                   Choose the person you want to leave a message for
                 </p>
               </div>
-              
+
               {familyLoading ? (
                 <div className="flex justify-center py-12">
                   <ProgressHair label="loading…" width={180} />
                 </div>
               ) : familyMembers.length === 0 ? (
                 <div className="text-center py-12">
-                  <User size={48} className="mx-auto mb-4 text-paper/20" />
-                  <p className="text-paper/65 mb-4">No family members added yet</p>
+                  <p className="text-paper-65 mb-4">No family members added yet</p>
                   <button
                     onClick={() => navigate('/family')}
                     className="btn btn-primary"
@@ -270,25 +248,23 @@ export function QuickWizard() {
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   {familyMembers.map((person: FamilyMember) => (
-                    <motion.button
+                    <button
                       key={person.id}
                       onClick={() => handlePersonSelect(person)}
-                      className="card text-center py-6 hover:border-gold/30 transition-all group"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      className="bg-void-surface border border-paper-15 text-center py-6 hover:border-gold-40 transition-colors group"
                     >
-                      <div className="w-16 h-16 rounded-full mx-auto mb-3 overflow-hidden">
-                        {person.avatarUrl ? (
+                      {person.avatarUrl ? (
+                        <div className="w-16 h-16 rounded-[2px] mx-auto mb-3 overflow-hidden">
                           <img src={person.avatarUrl} alt={person.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-xl font-medium">
-                            {person.name[0]}
-                          </div>
-                        )}
-                      </div>
-                      <h3 className="font-medium group-hover:text-gold transition-colors">{person.name}</h3>
-                      <p className="text-sm text-paper/65">{person.relationship}</p>
-                    </motion.button>
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 rounded-[2px] mx-auto mb-3 bg-void border border-paper-15 flex items-center justify-center text-gold font-body text-xl">
+                          {person.name[0]}
+                        </div>
+                      )}
+                      <h3 className="font-body group-hover:text-gold transition-colors">{person.name}</h3>
+                      <p className="text-sm text-paper-65">{person.relationship}</p>
+                    </button>
                   ))}
                 </div>
               )}
@@ -305,69 +281,56 @@ export function QuickWizard() {
             >
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-6"
+                className="inline-flex items-center gap-2 text-paper-65 hover:text-gold transition-colors mb-6"
               >
-                <ChevronLeft size={20} />
+                <span aria-hidden>←</span>
                 Back
               </button>
-              
+
               <div className="text-center mb-8">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden">
-                  {selectedPerson?.avatarUrl ? (
+                {selectedPerson?.avatarUrl ? (
+                  <div className="w-16 h-16 rounded-[2px] mx-auto mb-4 overflow-hidden">
                     <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-xl font-medium">
-                      {selectedPerson?.name[0]}
-                    </div>
-                  )}
-                </div>
-                <h1 className="text-2xl md:text-3xl font-light mb-2">
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-[2px] mx-auto mb-4 bg-void-surface border border-paper-15 flex items-center justify-center text-gold font-body text-xl">
+                    {selectedPerson?.name[0]}
+                  </div>
+                )}
+                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
                   What would you like to tell <span className="text-gold">{selectedPerson?.name}</span>?
                 </h1>
-                <p className="text-paper/65">
+                <p className="text-paper-65">
                   Pick a template to get started quickly
                 </p>
               </div>
-              
+
               <div className="space-y-3">
                 {TEMPLATES.map((template) => {
-                  const IconComponent = template.icon;
-                  const colorClasses = {
-                    pink: 'bg-pink-500/20 text-pink-400 border-pink-500/30 hover:border-pink-500/50',
-                    purple: 'bg-purple-500/20 text-purple-400 border-purple-500/30 hover:border-purple-500/50',
-                    gold: 'bg-gold/20 text-gold border-gold/30 hover:border-gold/50',
-                    blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30 hover:border-blue-500/50',
-                  };
                   return (
-                    <motion.button
+                    <button
                       key={template.id}
                       onClick={() => handleTemplateSelect(template)}
-                      className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 text-left ${colorClasses[template.color as keyof typeof colorClasses]}`}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
+                      className="w-full p-4 rounded-[2px] border border-paper-15 bg-void-surface hover:border-gold-40 transition-colors flex items-center gap-4 text-left group"
                     >
-                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorClasses[template.color as keyof typeof colorClasses].split(' ').slice(0, 2).join(' ')}`}>
-                        <IconComponent size={24} />
-                      </div>
                       <div className="flex-1">
-                        <h3 className="font-medium mb-0.5">{template.name}</h3>
-                        <p className="text-sm text-paper/65">{template.description}</p>
+                        <h3 className="font-body mb-0.5 text-paper group-hover:text-gold transition-colors">{template.name}</h3>
+                        <p className="text-sm text-paper-65">{template.description}</p>
                       </div>
-                      <ChevronLeft size={20} className="rotate-180 text-paper/65" />
-                    </motion.button>
+                      <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
+                    </button>
                   );
                 })}
               </div>
 
-              <div className="mt-6 p-4 glass rounded-xl flex items-start gap-3 text-sm">
-                <Sparkles size={18} className="text-gold mt-0.5 flex-shrink-0" />
-                <p className="text-paper/70">
-                  Each template includes AI-suggested prompts to help you express what matters most. You can always customize or write your own.
+              <div className="mt-6 p-4 bg-void-surface border border-paper-15 text-sm">
+                <p className="text-paper-70">
+                  Each template includes suggested prompts to help you express what matters most. You can always customize or write your own.
                 </p>
               </div>
             </motion.div>
           )}
-          
+
           {/* Step 3: Select Type */}
           {step === 'type' && (
             <motion.div
@@ -378,62 +341,54 @@ export function QuickWizard() {
             >
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-6"
+                className="inline-flex items-center gap-2 text-paper-65 hover:text-gold transition-colors mb-6"
               >
-                <ChevronLeft size={20} />
+                <span aria-hidden>←</span>
                 Back
               </button>
-              
+
               <div className="text-center mb-8">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 overflow-hidden">
-                  {selectedPerson?.avatarUrl ? (
+                {selectedPerson?.avatarUrl ? (
+                  <div className="w-16 h-16 rounded-[2px] mx-auto mb-4 overflow-hidden">
                     <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void text-xl font-medium">
-                      {selectedPerson?.name[0]}
-                    </div>
-                  )}
-                </div>
-                <h1 className="text-2xl md:text-3xl font-light mb-2">
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-[2px] mx-auto mb-4 bg-void-surface border border-paper-15 flex items-center justify-center text-gold font-body text-xl">
+                    {selectedPerson?.name[0]}
+                  </div>
+                )}
+                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
                   How do you want to share with <span className="text-gold">{selectedPerson?.name}</span>?
                 </h1>
-                <p className="text-paper/65">
+                <p className="text-paper-65">
                   Choose how you'd like to leave your message
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
-                <motion.button
+                <button
                   onClick={() => handleTypeSelect('voice')}
-                  className="card py-8 text-center hover:border-purple-500/30 transition-all group"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="bg-void-surface border border-paper-15 py-8 text-center hover:border-gold-40 transition-colors group"
                 >
-                  <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Mic size={28} className="text-purple-400" />
-                  </div>
-                  <h3 className="font-medium text-lg mb-1 group-hover:text-purple-400 transition-colors">Voice Message</h3>
-                  <p className="text-sm text-paper/65">Record your voice</p>
-                  <p className="text-xs text-paper/65 mt-2">~60 seconds</p>
-                </motion.button>
-                
-                <motion.button
+                  <p className="font-mono text-[0.6rem] tracking-[0.24em] uppercase text-gold mb-4">Voice</p>
+                  <h3 className="font-body text-lg mb-1 group-hover:text-gold transition-colors">Voice Message</h3>
+                  <p className="text-sm text-paper-65">Record your voice</p>
+                  <p className="text-xs text-paper-65 mt-2">~60 seconds</p>
+                </button>
+
+                <button
                   onClick={() => handleTypeSelect('letter')}
-                  className="card py-8 text-center hover:border-blue-500/30 transition-all group"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="bg-void-surface border border-paper-15 py-8 text-center hover:border-gold-40 transition-colors group"
                 >
-                  <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Edit3 size={28} className="text-blue-400" />
-                  </div>
-                  <h3 className="font-medium text-lg mb-1 group-hover:text-blue-400 transition-colors">Written Letter</h3>
-                  <p className="text-sm text-paper/65">Write a letter</p>
-                  <p className="text-xs text-paper/65 mt-2">~5 minutes</p>
-                </motion.button>
+                  <p className="font-mono text-[0.6rem] tracking-[0.24em] uppercase text-gold mb-4">Letter</p>
+                  <h3 className="font-body text-lg mb-1 group-hover:text-gold transition-colors">Written Letter</h3>
+                  <p className="text-sm text-paper-65">Write a letter</p>
+                  <p className="text-xs text-paper-65 mt-2">~5 minutes</p>
+                </button>
               </div>
             </motion.div>
           )}
-          
+
           {/* Step 3: Select Prompt */}
           {step === 'prompt' && (
             <motion.div
@@ -444,25 +399,22 @@ export function QuickWizard() {
             >
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-6"
+                className="inline-flex items-center gap-2 text-paper-65 hover:text-gold transition-colors mb-6"
               >
-                <ChevronLeft size={20} />
+                <span aria-hidden>←</span>
                 Back
               </button>
-              
+
               <div className="text-center mb-8">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <Sparkles size={20} className="text-gold" />
-                  <span className="text-sm text-gold">AI-Suggested Prompts</span>
-                </div>
-                <h1 className="text-2xl md:text-3xl font-light mb-2">
+                <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Suggested Prompts</p>
+                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
                   What would you like to tell <span className="text-gold">{selectedPerson?.name}</span>?
                 </h1>
-                <p className="text-paper/65">
+                <p className="text-paper-65">
                   Pick a prompt or write your own
                 </p>
               </div>
-              
+
               {loadingPrompts ? (
                 <div className="flex justify-center py-12">
                   <ProgressHair label="loading…" width={180} />
@@ -470,33 +422,31 @@ export function QuickWizard() {
               ) : (
                 <div className="space-y-3">
                   {prompts.map((prompt) => (
-                    <motion.button
+                    <button
                       key={prompt.id}
                       onClick={() => handlePromptSelect(prompt.prompt)}
-                      className="w-full p-4 card text-left hover:border-gold/30 transition-all group"
-                      whileHover={{ scale: 1.01 }}
+                      className="w-full p-4 bg-void-surface border border-paper-15 text-left hover:border-gold-40 transition-colors group"
                     >
-                      <p className="text-paper/90 group-hover:text-gold transition-colors">
+                      <p className="text-paper group-hover:text-gold transition-colors">
                         "{prompt.prompt}"
                       </p>
-                      <span className="text-xs text-paper/70 mt-2 block">{prompt.category}</span>
-                    </motion.button>
+                      <span className="text-xs text-paper-70 mt-2 block">{prompt.category}</span>
+                    </button>
                   ))}
-                  
-                  <motion.button
+
+                  <button
                     onClick={() => handlePromptSelect('')}
-                    className="w-full p-4 card text-left hover:border-paper/30 transition-all border-dashed"
-                    whileHover={{ scale: 1.01 }}
+                    className="w-full p-4 bg-void-surface border border-dashed border-paper-15 text-left hover:border-paper-15 transition-colors"
                   >
-                    <p className="text-paper/70">
+                    <p className="text-paper-70">
                       I'll write my own message
                     </p>
-                  </motion.button>
+                  </button>
                 </div>
               )}
             </motion.div>
           )}
-          
+
           {/* Step 4: Preview & Create */}
           {step === 'preview' && (
             <motion.div
@@ -507,96 +457,92 @@ export function QuickWizard() {
             >
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 text-paper/65 hover:text-gold transition-colors mb-6"
+                className="inline-flex items-center gap-2 text-paper-65 hover:text-gold transition-colors mb-6"
               >
-                <ChevronLeft size={20} />
+                <span aria-hidden>←</span>
                 Back
               </button>
-              
+
               <div className="text-center mb-8">
-                <h1 className="text-2xl md:text-3xl font-light mb-2">
+                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
                   Ready to create your message
                 </h1>
-                <p className="text-paper/65">
+                <p className="text-paper-65">
                   Here's what {selectedPerson?.name} will receive
                 </p>
               </div>
-              
+
               {/* Delivery Preview */}
-              <div className="card mb-8 overflow-hidden">
-                <div className="bg-gradient-to-r from-gold/10 to-transparent p-4 border-b border-paper/10">
+              <div className="bg-void-surface border border-paper-15 mb-8 overflow-hidden">
+                <div className="p-4 border-b border-paper-15">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden">
-                      {selectedPerson?.avatarUrl ? (
+                    {selectedPerson?.avatarUrl ? (
+                      <div className="w-10 h-10 rounded-[2px] overflow-hidden">
                         <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center text-void font-medium">
-                          {selectedPerson?.name[0]}
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded-[2px] bg-void border border-paper-15 flex items-center justify-center text-gold font-body">
+                        {selectedPerson?.name[0]}
+                      </div>
+                    )}
                     <div>
-                      <p className="font-medium">For {selectedPerson?.name}</p>
-                      <p className="text-xs text-paper/65">{selectedPerson?.relationship}</p>
+                      <p className="font-body">For {selectedPerson?.name}</p>
+                      <p className="text-xs text-paper-65">{selectedPerson?.relationship}</p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="p-6">
                   {contentType === 'voice' ? (
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center">
-                        <Play size={28} className="text-purple-400 ml-1" />
+                      <div className="w-16 h-16 rounded-[2px] bg-void border border-paper-15 flex items-center justify-center font-mono text-[0.55rem] tracking-[0.18em] uppercase text-gold">
+                        Voice
                       </div>
                       <div>
-                        <p className="font-medium">Voice Message</p>
-                        <p className="text-sm text-paper/65">A personal recording from you</p>
+                        <p className="font-body">Voice Message</p>
+                        <p className="text-sm text-paper-65">A personal recording from you</p>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center">
-                        <Edit3 size={28} className="text-blue-400" />
+                      <div className="w-16 h-16 rounded-[2px] bg-void border border-paper-15 flex items-center justify-center font-mono text-[0.55rem] tracking-[0.18em] uppercase text-gold">
+                        Letter
                       </div>
                       <div>
-                        <p className="font-medium">Written Letter</p>
-                        <p className="text-sm text-paper/65">A heartfelt letter from you</p>
+                        <p className="font-body">Written Letter</p>
+                        <p className="text-sm text-paper-65">A heartfelt letter from you</p>
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedPrompt && (
-                    <div className="mt-4 p-4 bg-paper/5 rounded-lg">
-                      <p className="text-sm text-paper/70 italic">"{selectedPrompt}"</p>
+                    <div className="mt-4 p-4 bg-void border border-paper-15 rounded-[2px]">
+                      <p className="text-sm text-paper-70 italic">"{selectedPrompt}"</p>
                     </div>
                   )}
                 </div>
-                
-                <div className="bg-paper/5 p-4 border-t border-paper/10">
-                  <div className="flex items-center gap-2 text-paper/65 text-sm">
-                    <Heart size={14} className="text-pink-400" />
-                    <span>{selectedPerson?.name} can send you a note back after viewing</span>
-                  </div>
+
+                <div className="p-4 border-t border-paper-15">
+                  <p className="text-paper-65 text-sm">
+                    {selectedPerson?.name} can send you a note back after viewing
+                  </p>
                 </div>
               </div>
-              
+
               {/* Action Buttons */}
               <div className="space-y-3">
-                <motion.button
+                <button
                   onClick={handleCreate}
-                  className="w-full py-4 rounded-xl bg-gold text-void font-medium flex items-center justify-center gap-2"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="btn btn-primary w-full justify-center"
                 >
-                  {contentType === 'voice' ? <Mic size={20} /> : <Edit3 size={20} />}
                   {contentType === 'voice' ? 'Start Recording' : 'Start Writing'}
-                </motion.button>
-                
+                  <span aria-hidden>→</span>
+                </button>
+
                 <button
                   onClick={() => navigate('/life-events')}
-                  className="w-full py-3 glass rounded-xl text-paper/70 hover:text-gold transition-colors flex items-center justify-center gap-2"
+                  className="btn btn-ghost w-full justify-center"
                 >
-                  <Calendar size={18} />
                   Schedule for a milestone instead
                 </button>
               </div>

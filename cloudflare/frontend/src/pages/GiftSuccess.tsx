@@ -1,5 +1,4 @@
 import { useSearchParams, Link } from 'react-router-dom';
-import { Gift, Check, Copy, Send, ArrowRight } from '../components/Icons';
 import { useState } from 'react';
 
 export function GiftSuccess() {
@@ -16,84 +15,73 @@ export function GiftSuccess() {
   const redemptionUrl = `${window.location.origin}/gift/redeem?code=${code}`;
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
+    <div className="min-h-screen bg-void text-paper antialiased">
+      <div className="max-w-lg mx-auto px-6 md:px-12 py-12">
+        <div className="bg-void-surface border border-paper-15 p-8 md:p-10 text-center">
+          {/* Success Mark */}
+          <span className="font-body text-5xl text-gold block mb-6" aria-hidden>∞</span>
 
-      <div className="relative z-10 max-w-lg mx-auto px-4 py-12">
-        <div className="card text-center">
-          {/* Success Icon */}
-          <div className="w-24 h-24 bg-gradient-to-br from-green-500/30 to-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/30">
-            <Check className="w-12 h-12 text-green-400" />
-          </div>
-
-          <h1 className="text-3xl font-light text-paper mb-2">
-            Thank You!
+          <h1
+            className="font-body font-light text-paper mb-2 tracking-[-0.014em]"
+            style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+          >
+            Thank you.
           </h1>
-          <p className="text-paper/70 mb-8">
+          <p className="text-paper-70 mb-8 leading-relaxed">
             Your gift voucher has been created successfully.
           </p>
 
           {/* Voucher Code */}
-          <div className="bg-white/5 border border-gold/30 rounded-lg p-6 mb-6">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Gift className="w-5 h-5 text-gold" />
-              <span className="text-paper/65 text-sm">Your Gift Code</span>
-            </div>
+          <div className="bg-void border border-gold-40 p-6 mb-6">
+            <div className="text-paper-50 text-xs uppercase tracking-[0.22em] mb-2">Your gift code</div>
             <div className="font-mono text-2xl md:text-3xl text-gold tracking-wider mb-4">
               {code}
             </div>
             <button
               onClick={handleCopy}
-              className="btn btn-secondary inline-flex items-center gap-2"
+              className="btn btn-ghost"
             >
-              <Copy size={16} />
-              {copied ? 'Copied!' : 'Copy Code'}
+              {copied ? 'Copied' : 'Copy code'}
             </button>
           </div>
 
           {/* Redemption Link */}
-          <div className="bg-white/[0.02] border border-white/10 rounded-lg p-4 mb-6">
-            <p className="text-paper/65 text-sm mb-2">Or share this redemption link:</p>
+          <div className="bg-void border border-paper-15 p-4 mb-6">
+            <p className="text-paper-50 text-sm mb-2 text-left">Or share this redemption link:</p>
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={redemptionUrl}
                 readOnly
-                className="flex-1 bg-white/5 border border-white/10 rounded px-3 py-2 text-paper/70 text-sm"
+                className="flex-1 bg-void-surface border border-paper-15 text-paper-70 text-sm px-3 py-2 rounded-[2px]"
               />
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(redemptionUrl);
                   alert('Link copied!');
                 }}
-                className="btn btn-secondary px-3"
+                className="btn btn-ghost px-4"
+                aria-label="Copy redemption link"
               >
-                <Copy size={16} />
+                Copy
               </button>
             </div>
           </div>
 
           {/* Next Steps */}
-          <div className="text-left bg-gold/5 border border-gold/20 rounded-lg p-4 mb-6">
-            <h3 className="text-gold text-sm font-medium mb-2">What's Next?</h3>
-            <ul className="space-y-2 text-paper/70 text-sm">
-              <li className="flex items-start gap-2">
-                <Send className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+          <div className="text-left bg-void border border-paper-15 p-4 mb-6">
+            <h3 className="text-gold text-xs uppercase tracking-[0.22em] mb-3">What's next</h3>
+            <ul className="space-y-2 text-paper-70 text-sm">
+              <li className="flex items-baseline gap-3">
+                <span className="text-gold font-mono text-sm" aria-hidden>·</span>
                 <span>Share the code or link with your recipient</span>
               </li>
-              <li className="flex items-start gap-2">
-                <Gift className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+              <li className="flex items-baseline gap-3">
+                <span className="text-gold font-mono text-sm" aria-hidden>·</span>
                 <span>They can redeem it at heirloom.blue/gift/redeem</span>
               </li>
-              <li className="flex items-start gap-2">
-                <Check className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+              <li className="flex items-baseline gap-3">
+                <span className="text-gold font-mono text-sm" aria-hidden>·</span>
                 <span>The voucher is valid for 1 year</span>
               </li>
             </ul>
@@ -103,21 +91,20 @@ export function GiftSuccess() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               to="/gift"
-              className="flex-1 btn btn-secondary text-center"
+              className="flex-1 btn btn-ghost text-center"
             >
-              Buy Another Gift
+              Buy another gift
             </Link>
             <Link
               to="/"
-              className="flex-1 btn btn-primary text-center inline-flex items-center justify-center gap-2"
+              className="flex-1 btn btn-primary text-center"
             >
-              Go to Heirloom
-              <ArrowRight size={16} />
+              Go to Heirloom <span aria-hidden>→</span>
             </Link>
           </div>
 
           {/* Receipt Note */}
-          <p className="text-paper/70 text-xs mt-6">
+          <p className="text-paper-50 text-xs mt-6">
             A confirmation email has been sent to your email address.
           </p>
         </div>

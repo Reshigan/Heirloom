@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Film, ChevronLeft, ChevronRight, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import api from '../services/api';
 
@@ -22,13 +21,6 @@ interface StoryData {
     thumbnailUrl: string | null;
   }>;
 }
-
-const THEME_STYLES: Record<string, { bg: string; text: string; accent: string }> = {
-  classic: { bg: 'from-[#0a0c10] to-[#12151c]', text: 'text-[#f5f0e8]', accent: 'text-[#c9a959]' },
-  warm: { bg: 'from-[#2d1f1a] to-[#1a1210]', text: 'text-[#f5e6d3]', accent: 'text-[#d4a574]' },
-  modern: { bg: 'from-[#1a1a2e] to-[#16213e]', text: 'text-white', accent: 'text-[#e94560]' },
-  vintage: { bg: 'from-[#2c2416] to-[#1a1610]', text: 'text-[#e8dcc8]', accent: 'text-[#b8860b]' },
-};
 
 export function StoryView() {
   const { token } = useParams<{ token: string }>();
@@ -60,7 +52,7 @@ export function StoryView() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0c10] to-[#12151c] flex items-center justify-center">
+      <div className="min-h-screen bg-void flex items-center justify-center">
         <ProgressHair label="loading…" width={180} />
       </div>
     );
@@ -68,18 +60,16 @@ export function StoryView() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0c10] to-[#12151c] flex items-center justify-center p-6">
+      <div className="min-h-screen bg-void flex items-center justify-center p-6">
         <div className="text-center">
-          <Film size={64} className="mx-auto text-[#f5f0e8]/20 mb-4" />
-          <h1 className="text-2xl font-serif text-[#f5f0e8] mb-2">Story Not Found</h1>
-          <p className="text-[#f5f0e8]/60">This story may have expired or the link may be invalid.</p>
+          <h1 className="text-2xl font-body font-light text-paper mb-2">Story Not Found</h1>
+          <p className="text-paper-60">This story may have expired or the link may be invalid.</p>
         </div>
       </div>
     );
   }
 
   const { artifact, memories } = data;
-  const theme = THEME_STYLES[artifact.theme] || THEME_STYLES.classic;
   const currentMemory = memories[currentIndex];
 
   const goToPrevious = () => {
@@ -98,12 +88,12 @@ export function StoryView() {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${theme.bg} flex flex-col`}>
+    <div className="min-h-screen bg-void text-paper flex flex-col">
       <header className="p-6 text-center">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`font-serif text-3xl md:text-4xl ${theme.accent} mb-2`}
+          className="font-body font-light text-3xl md:text-4xl text-gold mb-2 tracking-[-0.014em]"
         >
           {artifact.title}
         </motion.h1>
@@ -112,7 +102,7 @@ export function StoryView() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className={`${theme.text} opacity-60 max-w-xl mx-auto`}
+            className="text-paper-60 max-w-xl mx-auto"
           >
             {artifact.description}
           </motion.p>
@@ -121,7 +111,7 @@ export function StoryView() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className={`${theme.text} opacity-40 text-sm mt-2`}
+          className="text-paper-50 text-sm mt-2"
         >
           Created by {artifact.creatorName}
         </motion.p>
@@ -130,7 +120,7 @@ export function StoryView() {
       <main className="flex-1 flex flex-col items-center justify-center p-6">
         {memories.length > 0 ? (
           <>
-            <div className="relative w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative w-full max-w-4xl aspect-video rounded-[4px] overflow-hidden border border-paper-15">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentIndex}
@@ -143,11 +133,11 @@ export function StoryView() {
                   <img
                     src={currentMemory?.fileUrl}
                     alt={currentMemory?.title || 'Memory'}
-                    className="w-full h-full object-contain bg-black"
+                    className="w-full h-full object-contain bg-void"
                   />
                   {currentMemory?.title && (
-                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                      <p className={`${theme.text} text-lg font-medium`}>{currentMemory.title}</p>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-void/80">
+                      <p className="text-paper text-lg">{currentMemory.title}</p>
                     </div>
                   )}
                 </motion.div>
@@ -156,33 +146,37 @@ export function StoryView() {
               <button
                 onClick={goToPrevious}
                 disabled={currentIndex === 0}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label="Previous photo"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-[2px] bg-void/70 flex items-center justify-center text-paper text-2xl hover:bg-void transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <ChevronLeft size={24} />
+                <span aria-hidden>‹</span>
               </button>
 
               <button
                 onClick={goToNext}
                 disabled={currentIndex === memories.length - 1}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label="Next photo"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-[2px] bg-void/70 flex items-center justify-center text-paper text-2xl hover:bg-void transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <ChevronRight size={24} />
+                <span aria-hidden>›</span>
               </button>
             </div>
 
             <div className="mt-6 flex items-center gap-4">
               <button
                 onClick={togglePlayback}
-                className={`w-14 h-14 rounded-full bg-gradient-to-r from-[#c9a959] to-[#a08335] flex items-center justify-center text-[#0a0c10] hover:opacity-90 transition-opacity`}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
+                className="px-6 h-12 rounded-[2px] bg-gold text-void font-mono text-sm uppercase tracking-[0.18em] flex items-center justify-center hover:bg-gold-bright transition-colors"
               >
-                {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
+                {isPlaying ? 'Pause' : 'Play'}
               </button>
 
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className={`w-10 h-10 rounded-full bg-white/10 flex items-center justify-center ${theme.text} hover:bg-white/20 transition-colors`}
+                aria-label={isMuted ? 'Unmute' : 'Mute'}
+                className="px-4 h-10 rounded-[2px] bg-void-surface border border-paper-15 text-paper-70 font-mono text-xs uppercase tracking-[0.18em] flex items-center justify-center hover:text-paper transition-colors"
               >
-                {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                {isMuted ? 'Muted' : 'Sound'}
               </button>
             </div>
 
@@ -191,28 +185,28 @@ export function StoryView() {
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentIndex ? 'bg-[#c9a959] w-6' : 'bg-white/30 hover:bg-white/50'
+                  aria-label={`Go to photo ${index + 1}`}
+                  className={`h-1 rounded-[2px] transition-all ${
+                    index === currentIndex ? 'bg-gold w-6' : 'bg-paper-30 w-2 hover:bg-paper-50'
                   }`}
                 />
               ))}
             </div>
 
-            <p className={`mt-4 ${theme.text} opacity-40 text-sm`}>
+            <p className="mt-4 text-paper-50 text-sm">
               {currentIndex + 1} of {memories.length}
             </p>
           </>
         ) : (
           <div className="text-center">
-            <Film size={64} className={`mx-auto ${theme.text} opacity-20 mb-4`} />
-            <p className={`${theme.text} opacity-50`}>No photos in this story yet.</p>
+            <p className="text-paper-50">No photos in this story yet.</p>
           </div>
         )}
       </main>
 
       <footer className="p-6 text-center">
-        <p className={`${theme.text} opacity-30 text-sm`}>
-          Powered by <a href="https://heirloom.blue" className={`${theme.accent} hover:underline`}>Heirloom</a>
+        <p className="text-paper-30 text-sm">
+          Powered by <a href="https://heirloom.blue" className="text-gold hover:text-gold-bright transition-colors">Heirloom</a>
         </p>
       </footer>
     </div>

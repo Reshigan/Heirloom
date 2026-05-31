@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Users, Clock, Check, X, Image, Mic, FileText, Copy, Shield, Send, ExternalLink, Mail, CheckCircle, Plus, Trash2, Edit2, UserPlus, Sparkles, ChevronRight, Heart, Eye, Lock, Download, AlertCircle, Play, Calendar
-} from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import { ProgressHair } from '../components/ui/ProgressHair';
@@ -230,11 +227,7 @@ export function RecipientExperience() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen relative">
-        <div className="eternal-bg">
-          <div className="eternal-aura" />
-          <div className="eternal-stars" />
-        </div>
+      <div className="min-h-screen relative bg-void">
         <Navigation />
         <div className="flex items-center justify-center h-[60vh]">
           <ProgressHair label="loading…" width={180} />
@@ -248,14 +241,15 @@ export function RecipientExperience() {
   const contributions = contributionsData?.contributions || [];
   const pendingContributions = contributions.filter(c => c.status === 'PENDING');
 
-  return (
-    <div className="min-h-screen relative">
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
+  const tabClass = (tab: typeof activeTab) =>
+    `px-4 md:px-6 py-3 rounded-[2px] flex items-center gap-2 transition-colors border ${
+      activeTab === tab
+        ? 'border-gold-40 text-gold'
+        : 'border-paper-15 text-paper-70 hover:text-paper'
+    }`;
 
+  return (
+    <div className="min-h-screen relative bg-void text-paper antialiased">
       <Navigation />
 
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-16 max-w-5xl mx-auto">
@@ -265,8 +259,9 @@ export function RecipientExperience() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="font-display text-4xl md:text-5xl mb-4">Recipient Experience</h1>
-          <p className="text-paper/70 max-w-xl mx-auto">
+          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Recipient Experience</p>
+          <h1 className="font-display font-light text-4xl md:text-5xl mb-4 tracking-[-0.018em]">Recipient Experience</h1>
+          <p className="text-paper-70 max-w-xl mx-auto font-light leading-relaxed">
             Configure how your loved ones will receive and interact with your legacy
           </p>
         </motion.div>
@@ -276,41 +271,32 @@ export function RecipientExperience() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass rounded-2xl p-6 mb-8"
+          className="bg-void-surface border border-paper-15 rounded-[2px] p-6 mb-8"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <Sparkles size={20} className="text-gold" />
-            <h2 className="font-medium">Quick Setup</h2>
-          </div>
+          <h2 className="font-body mb-4">Quick Setup</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
               onClick={() => {
                 setActiveTab('family');
                 setShowAddFamilyModal(true);
               }}
-              className="p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
+              className="p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
             >
-              <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-gold">
-                <UserPlus size={20} />
-              </div>
               <div className="flex-1">
-                <h3 className="font-medium text-sm">Add Recipients</h3>
-                <p className="text-xs text-paper/65">Who should receive your legacy?</p>
+                <h3 className="font-body text-sm">Add Recipients</h3>
+                <p className="text-xs text-paper-65">Who should receive your legacy?</p>
               </div>
-              <ChevronRight size={16} className="text-paper/65 group-hover:text-gold transition-colors" />
+              <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
             </button>
             <button
               onClick={() => setActiveTab('schedules')}
-              className="p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
+              className="p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
             >
-              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
-                <Clock size={20} />
-              </div>
               <div className="flex-1">
-                <h3 className="font-medium text-sm">Set Release Schedule</h3>
-                <p className="text-xs text-paper/65">When should content be released?</p>
+                <h3 className="font-body text-sm">Set Release Schedule</h3>
+                <p className="text-xs text-paper-65">When should content be released?</p>
               </div>
-              <ChevronRight size={16} className="text-paper/65 group-hover:text-gold transition-colors" />
+              <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
             </button>
             <button
               onClick={() => {
@@ -319,72 +305,37 @@ export function RecipientExperience() {
                   updateRoomMutation.mutate({ is_active: true });
                 }
               }}
-              className="p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
+              className="p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
             >
-              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
-                <Heart size={20} />
-              </div>
               <div className="flex-1">
-                <h3 className="font-medium text-sm">Enable Memory Room</h3>
-                <p className="text-xs text-paper/65">Let family share their memories</p>
+                <h3 className="font-body text-sm">Enable Memory Room</h3>
+                <p className="text-xs text-paper-65">Let family share their memories</p>
               </div>
-              <ChevronRight size={16} className="text-paper/65 group-hover:text-gold transition-colors" />
+              <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
             </button>
           </div>
         </motion.div>
 
         {/* Tabs */}
         <div className="flex justify-center gap-2 md:gap-4 mb-8 flex-wrap">
-          <button
-            onClick={() => setActiveTab('preview')}
-            className={`px-4 md:px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
-              activeTab === 'preview' 
-                ? 'bg-gold/20 text-gold border border-gold/30' 
-                : 'glass hover:bg-paper/5'
-            }`}
-          >
-            <Eye size={18} />
+          <button onClick={() => setActiveTab('preview')} className={tabClass('preview')}>
             <span className="hidden md:inline">Preview Experience</span>
             <span className="md:hidden">Preview</span>
           </button>
-          <button
-            onClick={() => setActiveTab('schedules')}
-            className={`px-4 md:px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
-              activeTab === 'schedules' 
-                ? 'bg-gold/20 text-gold border border-gold/30' 
-                : 'glass hover:bg-paper/5'
-            }`}
-          >
-            <Clock size={18} />
+          <button onClick={() => setActiveTab('schedules')} className={tabClass('schedules')}>
             <span className="hidden md:inline">Staged Releases</span>
             <span className="md:hidden">Releases</span>
           </button>
-          <button
-            onClick={() => setActiveTab('room')}
-            className={`px-4 md:px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
-              activeTab === 'room' 
-                ? 'bg-gold/20 text-gold border border-gold/30' 
-                : 'glass hover:bg-paper/5'
-            }`}
-          >
-            <Users size={18} />
+          <button onClick={() => setActiveTab('room')} className={tabClass('room')}>
             <span className="hidden md:inline">Memory Room</span>
             <span className="md:hidden">Room</span>
             {pendingContributions.length > 0 && (
-              <span className="w-5 h-5 rounded-full bg-gold text-void text-xs flex items-center justify-center">
+              <span className="px-1.5 py-0.5 rounded-[2px] bg-gold text-void text-xs font-mono">
                 {pendingContributions.length}
               </span>
             )}
           </button>
-          <button
-            onClick={() => setActiveTab('family')}
-            className={`px-4 md:px-6 py-3 rounded-xl flex items-center gap-2 transition-all ${
-              activeTab === 'family' 
-                ? 'bg-gold/20 text-gold border border-gold/30' 
-                : 'glass hover:bg-paper/5'
-            }`}
-          >
-            <UserPlus size={18} />
+          <button onClick={() => setActiveTab('family')} className={tabClass('family')}>
             <span className="hidden md:inline">Manage Recipients</span>
             <span className="md:hidden">Recipients</span>
           </button>
@@ -402,46 +353,37 @@ export function RecipientExperience() {
               className="space-y-6"
             >
               {/* What Recipients Will See */}
-              <div className="glass rounded-2xl p-6">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center text-gold">
-                    <Eye size={24} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-medium mb-1">Preview What They'll Experience</h2>
-                    <p className="text-paper/65 text-sm">
-                      See exactly what your loved ones will receive when your legacy is activated.
-                    </p>
-                  </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+                <div className="mb-6">
+                  <h2 className="font-body text-xl mb-1">Preview What They'll Experience</h2>
+                  <p className="text-paper-65 text-sm">
+                    See exactly what your loved ones will receive when your legacy is activated.
+                  </p>
                 </div>
 
                 {/* Preview Card - Simulated Email */}
-                <div className="bg-void/50 rounded-xl border border-paper/10 overflow-hidden mb-6">
-                  <div className="bg-paper/5 px-4 py-3 border-b border-paper/10">
-                    <div className="flex items-center gap-2 text-sm text-paper/70">
-                      <Mail size={14} />
-                      <span>Preview: Email they'll receive</span>
+                <div className="bg-void rounded-[2px] border border-paper-15 overflow-hidden mb-6">
+                  <div className="bg-void-elevated px-4 py-3 border-b border-paper-15">
+                    <div className="text-sm text-paper-70 font-mono">
+                      Preview: Email they'll receive
                     </div>
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-gold/60 flex items-center justify-center text-void font-medium text-lg">
-                        H
-                      </div>
+                      <span className="font-display text-2xl text-gold" aria-hidden>∞</span>
                       <div>
-                        <p className="font-medium">A Message From Someone Who Loves You</p>
-                        <p className="text-sm text-paper/65">From Heirloom</p>
+                        <p className="font-body">A Message From Someone Who Loves You</p>
+                        <p className="text-sm text-paper-65">From Heirloom</p>
                       </div>
                     </div>
-                    <div className="space-y-4 text-paper/70">
+                    <div className="space-y-4 text-paper-70 leading-relaxed">
                       <p>Dear loved one,</p>
                       <p>Someone who cares deeply about you has left you messages, memories, and stories they wanted you to have.</p>
                       <p>When you're ready, click below to access your personal legacy portal.</p>
                     </div>
                     <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                      <button className="px-6 py-3 bg-gold text-void rounded-lg font-medium flex items-center justify-center gap-2">
-                        <Play size={18} />
-                        Access Your Legacy
+                      <button className="btn btn-primary">
+                        Access Your Legacy <span aria-hidden>→</span>
                       </button>
                     </div>
                   </div>
@@ -449,21 +391,21 @@ export function RecipientExperience() {
 
                 {/* What's Included Summary */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="p-4 bg-paper/5 rounded-xl text-center">
+                  <div className="p-4 bg-void border border-paper-15 rounded-[2px] text-center">
                     <div className="text-2xl font-light text-gold mb-1">{memoriesStats?.total || 0}</div>
-                    <div className="text-xs text-paper/65">Total Memories</div>
+                    <div className="text-xs text-paper-65">Total Memories</div>
                   </div>
-                  <div className="p-4 bg-paper/5 rounded-xl text-center">
-                    <div className="text-2xl font-light text-blue-400 mb-1">{memoriesStats?.byType?.letters || 0}</div>
-                    <div className="text-xs text-paper/65">Letters</div>
+                  <div className="p-4 bg-void border border-paper-15 rounded-[2px] text-center">
+                    <div className="text-2xl font-light text-paper mb-1">{memoriesStats?.byType?.letters || 0}</div>
+                    <div className="text-xs text-paper-65">Letters</div>
                   </div>
-                  <div className="p-4 bg-paper/5 rounded-xl text-center">
-                    <div className="text-2xl font-light text-purple-400 mb-1">{memoriesStats?.byType?.voice || 0}</div>
-                    <div className="text-xs text-paper/65">Voice Messages</div>
+                  <div className="p-4 bg-void border border-paper-15 rounded-[2px] text-center">
+                    <div className="text-2xl font-light text-paper mb-1">{memoriesStats?.byType?.voice || 0}</div>
+                    <div className="text-xs text-paper-65">Voice Messages</div>
                   </div>
-                  <div className="p-4 bg-paper/5 rounded-xl text-center">
-                    <div className="text-2xl font-light text-green-400 mb-1">{familyData?.members?.length || 0}</div>
-                    <div className="text-xs text-paper/65">Recipients</div>
+                  <div className="p-4 bg-void border border-paper-15 rounded-[2px] text-center">
+                    <div className="text-2xl font-light text-paper mb-1">{familyData?.members?.length || 0}</div>
+                    <div className="text-xs text-paper-65">Recipients</div>
                   </div>
                 </div>
 
@@ -471,89 +413,68 @@ export function RecipientExperience() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => setShowTestEmailModal(true)}
-                    className="flex-1 py-3 bg-gold/20 border border-gold/30 text-gold rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gold/30 transition-colors"
+                    className="flex-1 py-3 border border-gold-40 text-gold rounded-[2px] hover:text-gold-bright transition-colors flex items-center justify-center gap-2"
                   >
-                    <Send size={18} />
                     Send Test to Myself
                   </button>
                   <button
                     onClick={() => window.open('/inherit/preview', '_blank')}
-                    className="flex-1 py-3 glass rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-paper/10 transition-colors"
+                    className="flex-1 py-3 border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors flex items-center justify-center gap-2"
                   >
-                    <ExternalLink size={18} />
-                    Preview Full Portal
+                    Preview Full Portal <span aria-hidden>→</span>
                   </button>
                 </div>
               </div>
 
               {/* Delivery Timeline */}
-              <div className="glass rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Calendar size={20} className="text-gold" />
-                  <h3 className="font-medium">Delivery Timeline</h3>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+                <h3 className="font-body mb-4">Delivery Timeline</h3>
                 <div className="space-y-3">
                   {schedules.filter(s => s.enabled === 1).map((schedule, index) => (
-                    <div key={schedule.id} className="flex items-center gap-4 p-3 bg-paper/5 rounded-lg">
-                      <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-sm font-medium">
+                    <div key={schedule.id} className="flex items-center gap-4 p-3 bg-void border border-paper-15 rounded-[2px]">
+                      <div className="w-8 h-8 rounded-[2px] border border-gold-40 flex items-center justify-center text-gold text-sm font-mono">
                         {index + 1}
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-sm">{schedule.stage_name}</p>
-                        <p className="text-xs text-paper/65">
+                        <p className="font-body text-sm">{schedule.stage_name}</p>
+                        <p className="text-xs text-paper-65">
                           {schedule.delay_days === 0 ? 'Delivered immediately' : `Delivered after ${schedule.delay_days} days`}
                         </p>
                       </div>
-                      <Check size={16} className="text-green-400" />
+                      <span aria-hidden className="text-gold">✓</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Trust & Privacy Section */}
-              <div className="glass rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Shield size={20} className="text-gold" />
-                  <h3 className="font-medium">Privacy & Control</h3>
-                </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+                <h3 className="font-body mb-4">Privacy & Control</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
-                    <Lock size={18} className="text-green-400 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-sm">End-to-End Encrypted</p>
-                      <p className="text-xs text-paper/65">Your memories are protected with bank-level encryption</p>
-                    </div>
+                  <div className="p-4 bg-void border border-paper-15 rounded-[2px]">
+                    <p className="font-body text-sm">End-to-End Encrypted</p>
+                    <p className="text-xs text-paper-65 mt-1">Your memories are protected with bank-level encryption</p>
                   </div>
-                  <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
-                    <Users size={18} className="text-blue-400 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-sm">You Control Access</p>
-                      <p className="text-xs text-paper/65">Only invited recipients can view your content</p>
-                    </div>
+                  <div className="p-4 bg-void border border-paper-15 rounded-[2px]">
+                    <p className="font-body text-sm">You Control Access</p>
+                    <p className="text-xs text-paper-65 mt-1">Only invited recipients can view your content</p>
                   </div>
-                  <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
-                    <Download size={18} className="text-purple-400 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-sm">Export Anytime</p>
-                      <p className="text-xs text-paper/65">Download all your content whenever you want</p>
-                    </div>
+                  <div className="p-4 bg-void border border-paper-15 rounded-[2px]">
+                    <p className="font-body text-sm">Export Anytime</p>
+                    <p className="text-xs text-paper-65 mt-1">Download all your content whenever you want</p>
                   </div>
-                  <div className="flex items-start gap-3 p-4 bg-paper/5 rounded-xl">
-                    <Trash2 size={18} className="text-red-400 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-sm">Delete Permanently</p>
-                      <p className="text-xs text-paper/65">Remove any content at any time, no questions asked</p>
-                    </div>
+                  <div className="p-4 bg-void border border-paper-15 rounded-[2px]">
+                    <p className="font-body text-sm">Delete Permanently</p>
+                    <p className="text-xs text-paper-65 mt-1">Remove any content at any time, no questions asked</p>
                   </div>
                 </div>
               </div>
 
               {/* What Happens Next */}
-              <div className="glass rounded-xl p-4 flex items-start gap-3 text-sm">
-                <AlertCircle size={18} className="text-gold mt-0.5 flex-shrink-0" />
-                <div className="text-paper/70">
-                  <p className="font-medium text-paper mb-1">What happens when your legacy is activated?</p>
-                  <p>Your designated recipients will receive an email with a secure link to access the content you've prepared for them. Content is released in stages to help them process gradually. You can change these settings anytime.</p>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 text-sm">
+                <div className="text-paper-70">
+                  <p className="font-body text-paper mb-1">What happens when your legacy is activated?</p>
+                  <p className="leading-relaxed">Your designated recipients will receive an email with a secure link to access the content you've prepared for them. Content is released in stages to help them process gradually. You can change these settings anytime.</p>
                 </div>
               </div>
             </motion.div>
@@ -567,35 +488,30 @@ export function RecipientExperience() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="glass rounded-2xl p-6 mb-6">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center text-gold">
-                    <Clock size={24} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-medium mb-1">Staged Content Release</h2>
-                    <p className="text-paper/65 text-sm">
-                      Instead of overwhelming recipients with everything at once, your content will be released in thoughtful stages to help them through their grief journey.
-                    </p>
-                  </div>
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 mb-6">
+                <div className="mb-6">
+                  <h2 className="font-body text-xl mb-1">Staged Content Release</h2>
+                  <p className="text-paper-65 text-sm leading-relaxed">
+                    Instead of overwhelming recipients with everything at once, your content will be released in thoughtful stages to help them through their grief journey.
+                  </p>
                 </div>
 
                 <div className="space-y-4">
                   {schedules.map((schedule, index) => (
                     <div
                       key={schedule.id}
-                      className={`p-4 rounded-xl transition-all ${
-                        schedule.enabled === 1 ? 'bg-paper/5' : 'bg-void/30 opacity-60'
+                      className={`p-4 rounded-[2px] border transition-colors ${
+                        schedule.enabled === 1 ? 'bg-void border-paper-15' : 'bg-void border-paper-15 opacity-60'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-sm font-medium">
+                          <div className="w-8 h-8 rounded-[2px] border border-gold-40 flex items-center justify-center text-gold text-sm font-mono">
                             {index + 1}
                           </div>
                           <div>
-                            <h3 className="font-medium">{schedule.stage_name}</h3>
-                            <p className="text-sm text-paper/65">
+                            <h3 className="font-body">{schedule.stage_name}</h3>
+                            <p className="text-sm text-paper-65">
                               {schedule.delay_days === 0 ? 'Immediately' : `After ${schedule.delay_days} days`}
                             </p>
                           </div>
@@ -605,23 +521,23 @@ export function RecipientExperience() {
                             scheduleId: schedule.id,
                             data: { enabled: schedule.enabled !== 1 }
                           })}
-                          className={`w-12 h-6 rounded-full transition-all ${
-                            schedule.enabled === 1 ? 'bg-gold' : 'bg-paper/20'
+                          aria-label={schedule.enabled === 1 ? 'Disable stage' : 'Enable stage'}
+                          className={`w-12 h-6 rounded-[2px] transition-colors ${
+                            schedule.enabled === 1 ? 'bg-gold' : 'bg-paper-15'
                           }`}
                         >
-                          <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                          <div className={`w-5 h-5 rounded-[2px] bg-void transition-transform ${
                             schedule.enabled === 1 ? 'translate-x-6' : 'translate-x-0.5'
                           }`} />
                         </button>
                       </div>
-                      <p className="text-sm text-paper/70 ml-11">{schedule.stage_description}</p>
+                      <p className="text-sm text-paper-70 ml-11">{schedule.stage_description}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="glass rounded-xl p-4 flex items-center gap-3 text-sm text-paper/70">
-                <Shield size={18} className="text-gold" />
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 text-sm text-paper-70 leading-relaxed">
                 <p>
                   Staged releases help recipients process content gradually, providing comfort when they need it most and deeper reflections over time.
                 </p>
@@ -639,38 +555,23 @@ export function RecipientExperience() {
               className="space-y-6"
             >
               {/* Room Settings */}
-              <div className="glass rounded-2xl p-6">
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
                 <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
-                      <Users size={24} />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-medium mb-1">Family Memory Room</h2>
-                      <p className="text-paper/65 text-sm">
-                        A shared space where your loved ones can add their own memories and stories about you.
-                      </p>
-                    </div>
+                  <div>
+                    <h2 className="font-body text-xl mb-1">Family Memory Room</h2>
+                    <p className="text-paper-65 text-sm">
+                      A shared space where your loved ones can add their own memories and stories about you.
+                    </p>
                   </div>
                   <button
                     onClick={() => updateRoomMutation.mutate({ is_active: room.is_active !== 1 })}
-                    className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                      room.is_active === 1 
-                        ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                        : 'bg-paper/10 text-paper/65'
+                    className={`px-4 py-2 rounded-[2px] text-sm transition-colors border ${
+                      room.is_active === 1
+                        ? 'border-gold-40 text-gold'
+                        : 'border-paper-15 text-paper-65'
                     }`}
                   >
-                    {room.is_active === 1 ? (
-                      <>
-                        <Check size={16} />
-                        Active
-                      </>
-                    ) : (
-                      <>
-                        <X size={16} />
-                        Inactive
-                      </>
-                    )}
+                    {room.is_active === 1 ? 'Active' : 'Inactive'}
                   </button>
                 </div>
 
@@ -679,38 +580,29 @@ export function RecipientExperience() {
                                   <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <button
                                       onClick={() => setShowInviteModal(true)}
-                                      className="p-4 bg-gold/10 border border-gold/30 rounded-xl hover:bg-gold/20 transition-all flex items-center gap-3"
+                                      className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors flex items-center gap-3 text-left"
                                     >
-                                      <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-gold">
-                                        <Mail size={20} />
-                                      </div>
-                                      <div className="text-left">
-                                        <p className="font-medium text-gold">Invite Family</p>
-                                        <p className="text-xs text-paper/65">Send email invitations</p>
+                                      <div>
+                                        <p className="font-body text-gold">Invite Family</p>
+                                        <p className="text-xs text-paper-65">Send email invitations</p>
                                       </div>
                                     </button>
                                     <button
                                       onClick={previewRoom}
-                                      className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl hover:bg-purple-500/20 transition-all flex items-center gap-3"
+                                      className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors flex items-center gap-3 text-left"
                                     >
-                                      <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
-                                        <ExternalLink size={20} />
-                                      </div>
-                                      <div className="text-left">
-                                        <p className="font-medium text-purple-400">Preview Room</p>
-                                        <p className="text-xs text-paper/65">See what family sees</p>
+                                      <div>
+                                        <p className="font-body">Preview Room <span aria-hidden>→</span></p>
+                                        <p className="text-xs text-paper-65">See what family sees</p>
                                       </div>
                                     </button>
                                     <button
                                       onClick={copyRoomUrl}
-                                      className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl hover:bg-blue-500/20 transition-all flex items-center gap-3"
+                                      className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors flex items-center gap-3 text-left"
                                     >
-                                      <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                        {copiedUrl ? <Check size={20} /> : <Copy size={20} />}
-                                      </div>
-                                      <div className="text-left">
-                                        <p className="font-medium text-blue-400">{copiedUrl ? 'Copied!' : 'Copy Link'}</p>
-                                        <p className="text-xs text-paper/65">Share manually</p>
+                                      <div>
+                                        <p className="font-body">{copiedUrl ? 'Copied!' : 'Copy Link'}</p>
+                                        <p className="text-xs text-paper-65">Share manually</p>
                                       </div>
                                     </button>
                                   </div>
@@ -720,41 +612,37 @@ export function RecipientExperience() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <button
                     onClick={() => updateRoomMutation.mutate({ allow_photos: room.allow_photos !== 1 })}
-                    className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
-                      room.allow_photos === 1 ? 'bg-blue-500/20 text-blue-400' : 'bg-void/30 text-paper/70'
+                    className={`p-4 rounded-[2px] flex flex-col items-center gap-2 transition-colors border ${
+                      room.allow_photos === 1 ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-70'
                     }`}
                   >
-                    <Image size={24} />
                     <span className="text-sm">Photos</span>
                     <span className="text-xs">{room.allow_photos === 1 ? 'Allowed' : 'Disabled'}</span>
                   </button>
                   <button
                     onClick={() => updateRoomMutation.mutate({ allow_voice: room.allow_voice !== 1 })}
-                    className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
-                      room.allow_voice === 1 ? 'bg-purple-500/20 text-purple-400' : 'bg-void/30 text-paper/70'
+                    className={`p-4 rounded-[2px] flex flex-col items-center gap-2 transition-colors border ${
+                      room.allow_voice === 1 ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-70'
                     }`}
                   >
-                    <Mic size={24} />
                     <span className="text-sm">Voice</span>
                     <span className="text-xs">{room.allow_voice === 1 ? 'Allowed' : 'Disabled'}</span>
                   </button>
                   <button
                     onClick={() => updateRoomMutation.mutate({ allow_text: room.allow_text !== 1 })}
-                    className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
-                      room.allow_text === 1 ? 'bg-green-500/20 text-green-400' : 'bg-void/30 text-paper/70'
+                    className={`p-4 rounded-[2px] flex flex-col items-center gap-2 transition-colors border ${
+                      room.allow_text === 1 ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-70'
                     }`}
                   >
-                    <FileText size={24} />
                     <span className="text-sm">Text</span>
                     <span className="text-xs">{room.allow_text === 1 ? 'Allowed' : 'Disabled'}</span>
                   </button>
                   <button
                     onClick={() => updateRoomMutation.mutate({ moderation_required: room.moderation_required !== 1 })}
-                    className={`p-4 rounded-xl flex flex-col items-center gap-2 transition-all ${
-                      room.moderation_required === 1 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-void/30 text-paper/70'
+                    className={`p-4 rounded-[2px] flex flex-col items-center gap-2 transition-colors border ${
+                      room.moderation_required === 1 ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-70'
                     }`}
                   >
-                    <Shield size={24} />
                     <span className="text-sm">Moderation</span>
                     <span className="text-xs">{room.moderation_required === 1 ? 'Required' : 'Auto-approve'}</span>
                   </button>
@@ -763,34 +651,30 @@ export function RecipientExperience() {
 
               {/* Contributions */}
               {contributions.length > 0 && (
-                <div className="glass rounded-2xl p-6">
-                  <h3 className="text-lg font-medium mb-4">
+                <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
+                  <h3 className="font-body text-lg mb-4">
                     Contributions ({contributions.length})
                   </h3>
                   <div className="space-y-3">
                     {contributions.map((contribution) => (
                       <div
                         key={contribution.id}
-                        className={`p-4 rounded-xl ${
-                          contribution.status === 'PENDING' ? 'bg-yellow-500/10 border border-yellow-500/20' :
-                          contribution.status === 'APPROVED' ? 'bg-green-500/10' :
-                          'bg-red-500/10'
-                        }`}
+                        className="p-4 rounded-[2px] bg-void border border-paper-15"
                       >
                         <div className="flex items-start justify-between">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium">{contribution.contributor_name}</span>
+                              <span className="font-body">{contribution.contributor_name}</span>
                               {contribution.contributor_relationship && (
-                                <span className="text-sm text-paper/65">({contribution.contributor_relationship})</span>
+                                <span className="text-sm text-paper-65">({contribution.contributor_relationship})</span>
                               )}
                             </div>
                             {contribution.title && (
-                              <p className="text-sm font-medium mb-1">{contribution.title}</p>
+                              <p className="text-sm font-body mb-1">{contribution.title}</p>
                             )}
-                            <p className="text-sm text-paper/70 line-clamp-2">{contribution.content}</p>
-                            <p className="text-xs text-paper/70 mt-2">
-                              {new Date(contribution.created_at).toLocaleDateString()} - {contribution.content_type}
+                            <p className="text-sm text-paper-70 line-clamp-2">{contribution.content}</p>
+                            <p className="text-xs text-paper-50 mt-2 font-mono">
+                              {new Date(contribution.created_at).toLocaleDateString()} · {contribution.content_type}
                             </p>
                           </div>
                           {contribution.status === 'PENDING' && (
@@ -800,25 +684,23 @@ export function RecipientExperience() {
                                   contributionId: contribution.id,
                                   status: 'APPROVED'
                                 })}
-                                className="p-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors"
+                                className="px-3 py-1.5 border border-gold-40 text-gold rounded-[2px] hover:text-gold-bright transition-colors text-sm"
                               >
-                                <Check size={16} />
+                                Approve
                               </button>
                               <button
                                 onClick={() => moderateContributionMutation.mutate({
                                   contributionId: contribution.id,
                                   status: 'REJECTED'
                                 })}
-                                className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors"
+                                className="px-3 py-1.5 border border-paper-15 text-blood rounded-[2px] hover:text-blood transition-colors text-sm"
                               >
-                                <X size={16} />
+                                Reject
                               </button>
                             </div>
                           )}
                           {contribution.status !== 'PENDING' && (
-                            <span className={`px-2 py-1 rounded text-xs ${
-                              contribution.status === 'APPROVED' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                            }`}>
+                            <span className="px-2 py-1 rounded-[2px] text-xs font-mono uppercase tracking-[0.1em] border border-paper-15 text-paper-70">
                               {contribution.status}
                             </span>
                           )}
@@ -830,10 +712,10 @@ export function RecipientExperience() {
               )}
 
               {contributions.length === 0 && room.is_active === 1 && (
-                <div className="glass rounded-xl p-8 text-center">
-                  <Users size={48} className="mx-auto text-paper/20 mb-4" />
-                  <h3 className="font-medium mb-2">No contributions yet</h3>
-                  <p className="text-paper/65 text-sm">
+                <div className="bg-void-surface border border-paper-15 rounded-[2px] p-8 text-center">
+                  <span className="font-display text-3xl text-paper-30 block mb-4" aria-hidden>∞</span>
+                  <h3 className="font-body mb-2">No contributions yet</h3>
+                  <p className="text-paper-65 text-sm">
                     Share the room link with family members to start collecting memories.
                   </p>
                 </div>
@@ -850,24 +732,18 @@ export function RecipientExperience() {
               exit={{ opacity: 0, y: -20 }}
               className="space-y-6"
             >
-              <div className="glass rounded-2xl p-6">
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
                 <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-400">
-                      <UserPlus size={24} />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-medium mb-1">Manage Recipients</h2>
-                      <p className="text-paper/65 text-sm">
-                        Add and manage the people who will receive your legacy content.
-                      </p>
-                    </div>
+                  <div>
+                    <h2 className="font-body text-xl mb-1">Manage Recipients</h2>
+                    <p className="text-paper-65 text-sm">
+                      Add and manage the people who will receive your legacy content.
+                    </p>
                   </div>
                   <button
                     onClick={() => setShowAddFamilyModal(true)}
-                    className="btn btn-primary flex items-center gap-2"
+                    className="btn btn-primary"
                   >
-                    <Plus size={18} />
                     Add Recipient
                   </button>
                 </div>
@@ -878,35 +754,29 @@ export function RecipientExperience() {
                     {familyData.members.map((member) => (
                       <div
                         key={member.id}
-                        className="p-4 bg-paper/5 rounded-xl flex items-center justify-between"
+                        className="p-4 bg-void border border-paper-15 rounded-[2px] flex items-center justify-between"
                       >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center text-gold font-medium text-lg">
-                            {member.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <h3 className="font-medium">{member.name}</h3>
-                            <p className="text-sm text-paper/65">{member.relationship}</p>
-                            {member.email && (
-                              <p className="text-xs text-paper/70 flex items-center gap-1 mt-1">
-                                <Mail size={12} />
-                                {member.email}
-                              </p>
-                            )}
-                          </div>
+                        <div>
+                          <h3 className="font-body">{member.name}</h3>
+                          <p className="text-sm text-paper-65">{member.relationship}</p>
+                          {member.email && (
+                            <p className="text-xs text-paper-50 mt-1 font-mono">
+                              {member.email}
+                            </p>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           <button
                             onClick={() => handleEditMember(member)}
-                            className="p-2 hover:bg-paper/10 rounded-lg transition-colors text-paper/70 hover:text-paper"
+                            className="text-paper-70 hover:text-paper transition-colors text-sm"
                           >
-                            <Edit2 size={16} />
+                            Edit
                           </button>
                           <button
                             onClick={() => deleteFamilyMutation.mutate(member.id)}
-                            className="p-2 hover:bg-paper/10 rounded-lg transition-colors text-red-400"
+                            className="text-paper-50 hover:text-blood transition-colors text-sm"
                           >
-                            <Trash2 size={16} />
+                            Delete
                           </button>
                         </div>
                       </div>
@@ -914,24 +784,22 @@ export function RecipientExperience() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Users size={48} className="mx-auto text-paper/20 mb-4" />
-                    <h3 className="font-medium mb-2">No recipients added yet</h3>
-                    <p className="text-paper/65 text-sm mb-4">
+                    <span className="font-display text-3xl text-paper-30 block mb-4" aria-hidden>∞</span>
+                    <h3 className="font-body mb-2">No recipients added yet</h3>
+                    <p className="text-paper-65 text-sm mb-4">
                       Add family members and loved ones who will receive your legacy.
                     </p>
                     <button
                       onClick={() => setShowAddFamilyModal(true)}
                       className="btn btn-primary"
                     >
-                      <Plus size={18} className="mr-2" />
                       Add Your First Recipient
                     </button>
                   </div>
                 )}
               </div>
 
-              <div className="glass rounded-xl p-4 flex items-center gap-3 text-sm text-paper/70">
-                <Shield size={18} className="text-gold" />
+              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 text-sm text-paper-70 leading-relaxed">
                 <p>
                   Recipients will only receive content after your legacy is activated. You control exactly what each person receives.
                 </p>
@@ -959,43 +827,43 @@ export function RecipientExperience() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
             onClick={() => resetFamilyForm()}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="glass rounded-2xl p-6 max-w-md w-full"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-medium">
+                <h3 className="font-body text-xl">
                   {editingMember ? 'Edit Recipient' : 'Add Recipient'}
                 </h3>
-                <button onClick={() => resetFamilyForm()} className="text-paper/65 hover:text-paper">
-                  <X size={24} />
+                <button onClick={() => resetFamilyForm()} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
+                  <span aria-hidden>✕</span>
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Name *</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Name *</label>
                   <input
                     type="text"
                     value={familyForm.name}
                     onChange={(e) => setFamilyForm({ ...familyForm, name: e.target.value })}
                     placeholder="e.g., Sarah, Dad, Uncle John"
-                    className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Relationship *</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Relationship *</label>
                   <select
                     value={familyForm.relationship}
                     onChange={(e) => setFamilyForm({ ...familyForm, relationship: e.target.value })}
-                    className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 transition-colors"
                   >
                     <option value="">Select relationship...</option>
                     <option value="Spouse">Spouse</option>
@@ -1010,52 +878,46 @@ export function RecipientExperience() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Email</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Email</label>
                   <input
                     type="email"
                     value={familyForm.email}
                     onChange={(e) => setFamilyForm({ ...familyForm, email: e.target.value })}
                     placeholder="email@example.com"
-                    className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Phone</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Phone</label>
                   <input
                     type="tel"
                     value={familyForm.phone}
                     onChange={(e) => setFamilyForm({ ...familyForm, phone: e.target.value })}
                     placeholder="+1 (555) 123-4567"
-                    className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Notes</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Notes</label>
                   <textarea
                     value={familyForm.notes}
                     onChange={(e) => setFamilyForm({ ...familyForm, notes: e.target.value })}
                     placeholder="Any special notes about this person..."
                     rows={2}
-                    className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50 resize-none"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors resize-none"
                   />
                 </div>
 
                 <button
                   onClick={handleSaveFamilyMember}
                   disabled={!familyForm.name.trim() || !familyForm.relationship || addFamilyMutation.isPending || updateFamilyMutation.isPending}
-                  className="w-full py-3 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full btn btn-primary"
                 >
-                  {(addFamilyMutation.isPending || updateFamilyMutation.isPending) ? (
-                    <>
-                      {editingMember ? 'Saving…' : 'Adding…'}
-                    </>
-                  ) : (
-                    <>
-                      {editingMember ? 'Save Changes' : 'Add Recipient'}
-                    </>
-                  )}
+                  {(addFamilyMutation.isPending || updateFamilyMutation.isPending)
+                    ? (editingMember ? 'Saving…' : 'Adding…')
+                    : (editingMember ? 'Save Changes' : 'Add Recipient')}
                 </button>
               </div>
             </motion.div>
@@ -1070,73 +932,64 @@ export function RecipientExperience() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
             onClick={() => setShowInviteModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="glass rounded-2xl p-6 max-w-md w-full"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full"
               onClick={e => e.stopPropagation()}
             >
               {inviteSent ? (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <CheckCircle size={32} className="text-green-400" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">Invitation Sent!</h3>
-                  <p className="text-paper/70">They will receive an email with the link to your memory room.</p>
+                  <span className="font-display text-4xl text-gold block mb-4" aria-hidden>∞</span>
+                  <h3 className="font-body text-xl mb-2">Invitation Sent</h3>
+                  <p className="text-paper-70">They will receive an email with the link to your memory room.</p>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-medium">Invite Family Member</h3>
-                    <button onClick={() => setShowInviteModal(false)} className="text-paper/65 hover:text-paper">
-                      <X size={24} />
+                    <h3 className="font-body text-xl">Invite Family Member</h3>
+                    <button onClick={() => setShowInviteModal(false)} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
+                      <span aria-hidden>✕</span>
                     </button>
                   </div>
 
-                  <p className="text-paper/70 text-sm mb-6">
+                  <p className="text-paper-70 text-sm mb-6">
                     Send an email invitation to a family member or friend to contribute memories and stories.
                   </p>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm text-paper/70 mb-2">Their Name</label>
+                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Their Name</label>
                       <input
                         type="text"
                         value={inviteName}
                         onChange={(e) => setInviteName(e.target.value)}
                         placeholder="e.g., Mom, Uncle John"
-                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm text-paper/70 mb-2">Their Email *</label>
+                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Their Email *</label>
                       <input
                         type="email"
                         value={inviteEmail}
                         onChange={(e) => setInviteEmail(e.target.value)}
                         placeholder="email@example.com"
-                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
                       />
                     </div>
 
                     <button
                       onClick={handleSendInvite}
                       disabled={!inviteEmail.trim() || sendInviteMutation.isPending}
-                      className="w-full py-3 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full btn btn-primary"
                     >
-                      {sendInviteMutation.isPending ? (
-                        'Sending…'
-                      ) : (
-                        <>
-                          <Send size={18} />
-                          Send Invitation
-                        </>
-                      )}
+                      {sendInviteMutation.isPending ? 'Sending…' : 'Send Invitation'}
                     </button>
                   </div>
                 </>
@@ -1153,38 +1006,34 @@ export function RecipientExperience() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
             onClick={() => setShowTestEmailModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="glass rounded-2xl p-6 max-w-md w-full"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full"
               onClick={e => e.stopPropagation()}
             >
               {testEmailSent ? (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <CheckCircle size={32} className="text-green-400" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">Test Email Sent!</h3>
-                  <p className="text-paper/70">Check your inbox to see exactly what your recipients will receive.</p>
+                  <span className="font-display text-4xl text-gold block mb-4" aria-hidden>∞</span>
+                  <h3 className="font-body text-xl mb-2">Test Email Sent</h3>
+                  <p className="text-paper-70">Check your inbox to see exactly what your recipients will receive.</p>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-medium">Send Test Email</h3>
-                    <button onClick={() => setShowTestEmailModal(false)} className="text-paper/65 hover:text-paper">
-                      <X size={24} />
+                    <h3 className="font-body text-xl">Send Test Email</h3>
+                    <button onClick={() => setShowTestEmailModal(false)} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
+                      <span aria-hidden>✕</span>
                     </button>
                   </div>
 
                   <div className="text-center py-4">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center">
-                      <Mail size={32} className="text-gold" />
-                    </div>
-                    <p className="text-paper/70 text-sm mb-6">
+                    <span className="font-display text-4xl text-gold block mb-4" aria-hidden>∞</span>
+                    <p className="text-paper-70 text-sm mb-6 leading-relaxed">
                       We'll send you a sample of the email your recipients will receive when your legacy is activated. This helps you see exactly what they'll experience.
                     </p>
                   </div>
@@ -1192,16 +1041,9 @@ export function RecipientExperience() {
                   <button
                     onClick={() => sendTestEmailMutation.mutate()}
                     disabled={sendTestEmailMutation.isPending}
-                    className="w-full py-3 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full btn btn-primary"
                   >
-                    {sendTestEmailMutation.isPending ? (
-                      'Sending…'
-                    ) : (
-                      <>
-                        <Send size={18} />
-                        Send Test to My Email
-                      </>
-                    )}
+                    {sendTestEmailMutation.isPending ? 'Sending…' : 'Send Test to My Email'}
                   </button>
                 </>
               )}

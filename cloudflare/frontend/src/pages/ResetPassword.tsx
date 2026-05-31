@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from '../components/Icons';
 import { authApi } from '../services/api';
 
 export function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -52,207 +50,126 @@ export function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
+    <main className="min-h-screen bg-void text-paper antialiased px-6 md:px-12 py-12 flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <Link to="/" className="inline-block font-body text-3xl text-gold mb-10" aria-label="Heirloom home">
+          ∞
+        </Link>
 
-      {/* Floating particles */}
-      <div className="fixed inset-0 pointer-events-none">
-        {[...Array(30)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-gold/30"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 0.8, 0],
-            }}
-            transition={{
-              duration: 10 + Math.random() * 10,
-              repeat: Infinity,
-              delay: Math.random() * 10,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-md"
-      >
-        {/* Card glow */}
-        <div className="absolute -inset-4 bg-gold/5 blur-3xl rounded-full" />
-        
-        <div className="card glass-strong relative">
-          {/* Glass shine */}
-          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white/[0.08] to-transparent rounded-t-2xl pointer-events-none" />
-          
-          <div className="relative">
-            {/* Logo */}
-            <motion.div 
-              className="text-center mb-8"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+        {!token ? (
+          <div role="status">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Reset password</p>
+            <h1
+              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
             >
-              <Link to="/" className="inline-block">
-                <motion.div
-                  className="text-5xl text-gold mb-2"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-                >
-                  ∞
-                </motion.div>
-                <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
-              </Link>
-            </motion.div>
-
-            {!token ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
-              >
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blood/10 flex items-center justify-center">
-                  <AlertCircle className="w-8 h-8 text-blood" />
-                </div>
-                <h1 className="text-2xl font-light mb-4">Invalid Reset Link</h1>
-                <p className="text-paper/70 mb-8">
-                  This password reset link is invalid or has expired.
-                </p>
-                <Link 
-                  to="/forgot-password" 
-                  className="btn btn-primary inline-flex items-center gap-2"
-                >
-                  Request New Link
-                </Link>
-              </motion.div>
-            ) : success ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
-              >
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gold/10 flex items-center justify-center">
-                  <CheckCircle className="w-8 h-8 text-gold" />
-                </div>
-                <h1 className="text-2xl font-light mb-4">Password Reset!</h1>
-                <p className="text-paper/70 mb-8">
-                  Your password has been successfully reset. Redirecting you to login...
-                </p>
-                <Link 
-                  to="/login" 
-                  className="btn btn-primary inline-flex items-center gap-2"
-                >
-                  Go to Login
-                </Link>
-              </motion.div>
-            ) : (
-              <>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <h1 className="text-2xl font-light text-center mb-2">Reset your password</h1>
-                  <p className="text-paper/65 text-center mb-8">
-                    Enter your new password below
-                  </p>
-                </motion.div>
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-4 bg-blood/10 border border-blood/30 rounded-lg text-blood text-sm text-center"
-                    >
-                      {error}
-                    </motion.div>
-                  )}
-
-                  <div>
-                    <label className="block text-sm text-paper/65 mb-2">New Password</label>
-                    <div className="relative">
-                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="input pl-12 pr-12"
-                        required
-                        minLength={8}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/65 hover:text-paper transition-colors"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                    <p className="text-xs text-paper/70 mt-1">Must be at least 8 characters</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm text-paper/65 mb-2">Confirm Password</label>
-                    <div className="relative">
-                      <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/65" />
-                      <input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="input pl-12 pr-12"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/65 hover:text-paper transition-colors"
-                      >
-                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <motion.button
-                    type="submit"
-                    disabled={isLoading}
-                    className="btn btn-primary w-full py-4 text-lg"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {isLoading ? 'Resetting…' : 'Reset Password'}
-                  </motion.button>
-                </form>
-
-                <div className="mt-8 text-center">
-                  <Link 
-                    to="/login" 
-                    className="text-paper/65 hover:text-paper transition-colors"
-                  >
-                    Back to Login
-                  </Link>
-                </div>
-              </>
-            )}
+              Invalid reset link.
+            </h1>
+            <p className="mt-6 text-paper-70 leading-relaxed font-light">
+              This password reset link is invalid or has expired.
+            </p>
+            <Link to="/forgot-password" className="btn btn-primary mt-10">
+              Request new link
+            </Link>
           </div>
-        </div>
-      </motion.div>
-    </div>
+        ) : success ? (
+          <div role="status">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Reset password</p>
+            <h1
+              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+            >
+              Password reset.
+            </h1>
+            <p className="mt-6 text-paper-70 leading-relaxed font-light">
+              Your password has been successfully reset. Redirecting you to sign in…
+            </p>
+            <Link to="/login" className="btn btn-primary mt-10">
+              Go to sign in
+            </Link>
+          </div>
+        ) : (
+          <>
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Reset password</p>
+            <h1
+              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+            >
+              Reset your password.
+            </h1>
+            <p className="mt-6 text-paper-70 leading-relaxed font-light">
+              Enter your new password below.
+            </p>
+
+            <form onSubmit={handleSubmit} className="mt-12 space-y-6" aria-label="Reset password form">
+              <div>
+                <label htmlFor="rp-password" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
+                  New password
+                </label>
+                <div className="relative">
+                  <input
+                    id="rp-password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 pr-20 rounded-[2px] placeholder:text-paper-30 transition-colors"
+                    required
+                    minLength={8}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 font-mono text-[0.7rem] tracking-[0.18em] uppercase text-paper-50 hover:text-gold transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                <p className="text-xs text-paper-50 mt-2 font-mono">Must be at least 8 characters</p>
+              </div>
+
+              <div>
+                <label htmlFor="rp-confirm" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
+                  Confirm password
+                </label>
+                <div className="relative">
+                  <input
+                    id="rp-confirm"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 pr-20 rounded-[2px] placeholder:text-paper-30 transition-colors"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 font-mono text-[0.7rem] tracking-[0.18em] uppercase text-paper-50 hover:text-gold transition-colors"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </div>
+
+              {error ? <p role="alert" className="text-blood text-sm">{error}</p> : null}
+
+              <button type="submit" disabled={isLoading} className="btn btn-primary w-full">
+                {isLoading ? 'Resetting…' : 'Reset password'}
+              </button>
+            </form>
+
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 text-paper-50 hover:text-gold transition-colors text-sm mt-10"
+            >
+              <span aria-hidden>←</span> Back to sign in
+            </Link>
+          </>
+        )}
+      </div>
+    </main>
   );
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Gift, Check, ArrowLeft, Sparkles, AlertCircle } from '../components/Icons';
 import { useAuthStore } from '../stores/authStore';
 
 interface VoucherInfo {
@@ -20,7 +19,7 @@ export function GiftRedeem() {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
-  
+
   const [code, setCode] = useState(searchParams.get('code') || '');
   const [voucherInfo, setVoucherInfo] = useState<VoucherInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +37,7 @@ export function GiftRedeem() {
 
   const validateCode = async (voucherCode: string) => {
     if (!voucherCode || voucherCode.length < 10) return;
-    
+
     setIsValidating(true);
     setError(null);
     setVoucherInfo(null);
@@ -46,7 +45,7 @@ export function GiftRedeem() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/validate/${voucherCode.toUpperCase()}`);
       const data = await res.json();
-      
+
       if (data.valid) {
         setVoucherInfo(data.voucher);
       } else {
@@ -80,12 +79,12 @@ export function GiftRedeem() {
       });
 
       const data = await res.json();
-      
-            if (data.success) {
-              queryClient.invalidateQueries({ queryKey: ['subscription'] });
-              queryClient.invalidateQueries({ queryKey: ['limits'] });
-              setRedeemSuccess(true);
-            } else {
+
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        queryClient.invalidateQueries({ queryKey: ['limits'] });
+        setRedeemSuccess(true);
+      } else {
         setError(data.error || 'Failed to redeem voucher');
       }
     } catch (err) {
@@ -100,95 +99,82 @@ export function GiftRedeem() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Sanctuary Background */}
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
-
-      <div className="relative z-10 max-w-lg mx-auto px-4 py-12">
+    <div className="min-h-screen bg-void text-paper antialiased">
+      <div className="max-w-lg mx-auto px-6 md:px-12 py-12">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-paper/65 hover:text-gold mb-8 transition-colors">
-            <ArrowLeft size={18} />
-            Back to Heirloom
+        <div className="text-center mb-10">
+          <Link to="/" className="inline-flex items-center gap-2 text-paper-50 hover:text-gold mb-10 transition-colors text-sm">
+            <span aria-hidden>←</span> Back to Heirloom
           </Link>
-          
-          <div className="w-20 h-20 bg-gradient-to-br from-gold/30 to-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-gold/30">
-            <Gift className="w-10 h-10 text-gold" />
-          </div>
-          
-          <h1 className="text-3xl font-light text-paper mb-2">
-            Redeem Your <span className="text-gold">Gift</span>
+
+          <span className="font-body text-4xl text-gold block mb-6" aria-hidden>∞</span>
+
+          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Redeem your gift</p>
+          <h1
+            className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+          >
+            Redeem your gift.
           </h1>
-          <p className="text-paper/70">
+          <p className="mt-6 text-paper-70 leading-relaxed font-light">
             Enter your gift voucher code to activate your Heirloom subscription
           </p>
         </div>
 
         {/* Success State */}
         {redeemSuccess ? (
-          <div className="card text-center py-12">
-            <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Check className="w-10 h-10 text-green-400" />
-            </div>
-            <h2 className="text-2xl text-paper mb-2">Gift Redeemed!</h2>
-            <p className="text-paper/70 mb-6">
+          <div className="bg-void-surface border border-gold-40 p-10 text-center" role="status">
+            <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
+            <h2 className="font-body text-2xl text-paper mb-2">Gift redeemed.</h2>
+            <p className="text-paper-65 mb-8 leading-relaxed">
               Your {formatTier(voucherInfo?.tier || '')} subscription is now active.
-              {voucherInfo?.durationMonths && ` Enjoy ${voucherInfo.durationMonths} month${voucherInfo.durationMonths > 1 ? 's' : ''} of Heirloom!`}
+              {voucherInfo?.durationMonths && ` Enjoy ${voucherInfo.durationMonths} month${voucherInfo.durationMonths > 1 ? 's' : ''} of Heirloom.`}
             </p>
             <button
               onClick={() => navigate('/dashboard')}
               className="btn btn-primary"
             >
-              Go to Dashboard
+              Go to dashboard <span aria-hidden>→</span>
             </button>
           </div>
         ) : (
           <>
             {/* Code Input */}
-            <div className="card mb-6">
-              <label className="block text-paper/65 text-sm mb-2">Voucher Code</label>
+            <div className="bg-void-surface border border-paper-15 p-6 mb-6">
+              <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Voucher code</label>
               <div className="flex gap-3">
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  className="flex-1 bg-white/5 border border-white/10 rounded px-4 py-3 text-paper font-mono text-lg tracking-wider focus:border-gold/50 focus:outline-none"
+                  className="flex-1 bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper font-mono text-lg tracking-wider px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                   placeholder="HRLM-XXXX-XXXX-XXXX"
                 />
                 <button
                   onClick={() => validateCode(code)}
                   disabled={isValidating || code.length < 10}
-                  className="btn btn-secondary px-6"
+                  className="btn btn-ghost px-6"
                 >
-                  {isValidating ? 'Checking...' : 'Validate'}
+                  {isValidating ? 'Checking…' : 'Validate'}
                 </button>
               </div>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="card bg-red-500/10 border-red-500/30 mb-6">
-                <div className="flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                  <p className="text-red-400">{error}</p>
-                </div>
+              <div className="bg-void-surface border border-blood/40 p-4 mb-6">
+                <p role="alert" className="text-blood text-sm">{error}</p>
               </div>
             )}
 
             {/* Voucher Info */}
             {voucherInfo && (
-              <div className="card mb-6">
+              <div className="bg-void-surface border border-paper-15 p-6 mb-6">
                 <div className="text-center mb-6">
-                  <Sparkles className="w-8 h-8 text-gold mx-auto mb-3" />
-                  <h3 className="text-xl text-paper mb-1">Valid Gift Voucher!</h3>
+                  <span className="font-body text-3xl text-gold block mb-3" aria-hidden>∞</span>
+                  <h3 className="font-body text-xl text-paper mb-1">Valid gift voucher.</h3>
                   {voucherInfo.fromName && (
-                    <p className="text-paper/70">
+                    <p className="text-paper-70">
                       From: <span className="text-gold">{voucherInfo.fromName}</span>
                     </p>
                   )}
@@ -196,24 +182,24 @@ export function GiftRedeem() {
 
                 {/* Personal Message */}
                 {voucherInfo.recipientMessage && (
-                  <div className="bg-white/5 border-l-2 border-gold p-4 mb-6 italic text-paper/80">
+                  <div className="bg-void border-l-2 border-gold p-4 mb-6 italic text-paper-70 font-body">
                     "{voucherInfo.recipientMessage}"
                   </div>
                 )}
 
                 {/* Gift Details */}
                 <div className="space-y-3 mb-6">
-                  <div className="flex justify-between py-2 border-b border-white/10">
-                    <span className="text-paper/65">Plan</span>
-                    <span className="text-gold font-medium">{formatTier(voucherInfo.tier)}</span>
+                  <div className="flex justify-between py-2 border-b border-paper-15">
+                    <span className="text-paper-50">Plan</span>
+                    <span className="text-gold">{formatTier(voucherInfo.tier)}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-white/10">
-                    <span className="text-paper/65">Duration</span>
+                  <div className="flex justify-between py-2 border-b border-paper-15">
+                    <span className="text-paper-50">Duration</span>
                     <span className="text-paper">{voucherInfo.durationMonths} month{voucherInfo.durationMonths > 1 ? 's' : ''}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-white/10">
-                    <span className="text-paper/65">Expires</span>
-                    <span className="text-paper/70">{new Date(voucherInfo.expiresAt).toLocaleDateString()}</span>
+                  <div className="flex justify-between py-2 border-b border-paper-15">
+                    <span className="text-paper-50">Expires</span>
+                    <span className="text-paper-70">{new Date(voucherInfo.expiresAt).toLocaleDateString()}</span>
                   </div>
                 </div>
 
@@ -222,26 +208,20 @@ export function GiftRedeem() {
                   <button
                     onClick={handleRedeem}
                     disabled={isRedeeming}
-                    className="w-full btn btn-primary py-3 text-lg flex items-center justify-center gap-2"
+                    className="btn btn-primary w-full"
                   >
-                    {isRedeeming ? (
-                      'Redeeming...'
-                    ) : (
-                      <>
-                        <Gift size={20} />
-                        Redeem Gift
-                      </>
-                    )}
+                    {isRedeeming ? 'Redeeming…' : 'Redeem gift'}
+                    {!isRedeeming ? <span aria-hidden>→</span> : null}
                   </button>
                 ) : (
                   <div className="space-y-3">
-                    <p className="text-center text-paper/70 text-sm">
+                    <p className="text-center text-paper-50 text-sm">
                       Sign in or create an account to redeem your gift
                     </p>
                     <div className="flex gap-3">
                       <Link
                         to={`/login?redirect=/gift/redeem?code=${code}`}
-                        className="flex-1 btn btn-secondary text-center"
+                        className="flex-1 btn btn-ghost text-center"
                       >
                         Sign In
                       </Link>
@@ -259,8 +239,8 @@ export function GiftRedeem() {
 
             {/* Features */}
             {!voucherInfo && (
-              <div className="card">
-                <h3 className="text-sm text-paper/65 mb-3">What you'll get:</h3>
+              <div className="bg-void-surface border border-paper-15 p-6">
+                <h3 className="text-sm text-paper-50 mb-3 uppercase tracking-[0.22em]">What you'll get</h3>
                 <ul className="space-y-2 text-sm">
                   {[
                     'Preserve memories with photos, videos & stories',
@@ -269,8 +249,8 @@ export function GiftRedeem() {
                     'Set up posthumous delivery',
                     'Military-grade encryption',
                   ].map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2 text-paper/70">
-                      <Sparkles className="w-4 h-4 text-gold" />
+                    <li key={i} className="flex items-baseline gap-3 text-paper-70">
+                      <span className="text-gold font-mono text-sm" aria-hidden>·</span>
                       {feature}
                     </li>
                   ))}

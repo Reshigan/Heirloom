@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gift, Calendar, Check, CreditCard } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
 import { giftSubscriptionsApi } from '../services/api';
 
 const giftStyles = [
-  { id: 'classic', name: 'Classic', color: 'from-gold to-amber-600' },
-  { id: 'elegant', name: 'Elegant', color: 'from-purple-500 to-violet-600' },
-  { id: 'festive', name: 'Festive', color: 'from-red-500 to-pink-500' },
-  { id: 'birthday', name: 'Birthday', color: 'from-blue-500 to-cyan-500' },
-  { id: 'anniversary', name: 'Anniversary', color: 'from-rose-500 to-pink-500' },
+  { id: 'classic', name: 'Classic' },
+  { id: 'elegant', name: 'Elegant' },
+  { id: 'festive', name: 'Festive' },
+  { id: 'birthday', name: 'Birthday' },
+  { id: 'anniversary', name: 'Anniversary' },
 ];
 
 export function GiftSubscriptions() {
@@ -81,74 +80,82 @@ export function GiftSubscriptions() {
   };
 
   return (
-    <div className="min-h-screen bg-void">
+    <div className="min-h-screen bg-void text-paper antialiased">
       <Navigation />
-      
+
       <main id="main-content" className="pt-24 pb-12 px-6 md:px-12 max-w-4xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="mb-8 text-center"
         >
-          <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
-            <Gift className="text-gold" size={32} />
-          </div>
-          <h1 className="text-3xl md:text-4xl font-light mb-2">Gift a Subscription</h1>
-          <p className="text-paper/70">Give the gift of preserving memories</p>
+          <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
+          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Gift a subscription</p>
+          <h1
+            className="font-body font-light mb-2 tracking-[-0.018em]"
+            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+          >
+            Gift a subscription.
+          </h1>
+          <p className="text-paper-70">Give the gift of preserving memories</p>
         </motion.div>
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                s === step ? 'bg-gold text-void' : s < step ? 'bg-green-500 text-white' : 'bg-paper/10 text-paper/65'
+              <div className={`w-8 h-8 rounded-[2px] flex items-center justify-center text-sm font-mono ${
+                s === step ? 'bg-gold text-void' : s < step ? 'bg-gold/15 text-gold' : 'bg-void-surface border border-paper-15 text-paper-50'
               }`}>
-                {s < step ? <Check size={16} /> : s}
+                {s}
               </div>
-              {s < 4 && <div className={`w-12 h-0.5 ${s < step ? 'bg-green-500' : 'bg-paper/10'}`} />}
+              {s < 4 && <div className={`w-12 h-px ${s < step ? 'bg-gold-40' : 'bg-paper-15'}`} />}
             </div>
           ))}
         </div>
 
         <motion.div
           key={step}
-          initial={{ opacity: 0, x: 20 }}
+          initial={{ opacity: 0, x: 12 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="card"
+          exit={{ opacity: 0, x: -12 }}
+          transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-void-surface border border-paper-15 p-6"
         >
           {/* Step 1: Choose Plan */}
           {step === 1 && (
             <div>
-              <h2 className="text-xl font-medium mb-6">Choose a Plan</h2>
+              <h2 className="font-body text-xl mb-6">Choose a plan</h2>
               <div className="grid md:grid-cols-3 gap-4">
                 {tiers.map((tier: any) => (
                   <button
                     key={tier.id}
                     onClick={() => setSelectedTier(tier.id)}
-                    className={`p-6 rounded-xl text-left transition-all ${
+                    className={`p-6 rounded-[2px] text-left border transition-colors ${
                       selectedTier === tier.id
-                        ? 'bg-gold/20 border-2 border-gold'
-                        : 'bg-paper/5 border-2 border-transparent hover:border-paper/20'
+                        ? 'bg-gold/5 border-gold-40'
+                        : 'bg-void border-paper-15 hover:border-paper-30'
                     }`}
                   >
-                    <div className="text-lg font-medium mb-1">{tier.name}</div>
-                    <div className="text-3xl font-light text-gold mb-2">${tier.price}</div>
-                    <div className="text-sm text-paper/70">{tier.description}</div>
+                    <div className="font-body text-lg mb-1">{tier.name}</div>
+                    <div className="font-body text-3xl font-light text-gold mb-2">${tier.price}</div>
+                    <div className="text-sm text-paper-50">{tier.description}</div>
                   </button>
                 ))}
               </div>
 
               <div className="mt-8">
-                <h3 className="text-sm font-medium mb-3">Gift Card Style</h3>
+                <h3 className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-3">Gift card style</h3>
                 <div className="flex gap-3 flex-wrap">
                   {giftStyles.map((style) => (
                     <button
                       key={style.id}
                       onClick={() => setSelectedStyle(style.id)}
-                      className={`px-4 py-2 rounded-lg bg-gradient-to-r ${style.color} text-white text-sm ${
-                        selectedStyle === style.id ? 'ring-2 ring-white ring-offset-2 ring-offset-void' : ''
+                      className={`px-4 py-2 rounded-[2px] text-sm border transition-colors ${
+                        selectedStyle === style.id
+                          ? 'bg-gold/10 border-gold-40 text-gold'
+                          : 'bg-void border-paper-15 text-paper-50 hover:text-paper hover:border-paper-30'
                       }`}
                     >
                       {style.name}
@@ -162,47 +169,47 @@ export function GiftSubscriptions() {
           {/* Step 2: Recipient Details */}
           {step === 2 && (
             <div>
-              <h2 className="text-xl font-medium mb-6">Who's Receiving This Gift?</h2>
+              <h2 className="font-body text-xl mb-6">Who's receiving this gift?</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Recipient's Name</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Recipient's name</label>
                   <input
                     type="text"
                     value={formData.recipientName}
                     onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                    placeholder="Mom, Dad, Grandma..."
-                    className="input w-full"
+                    placeholder="Mom, Dad, Grandma…"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Recipient's Email</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Recipient's email</label>
                   <input
                     type="email"
                     value={formData.recipientEmail}
                     onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
                     placeholder="recipient@example.com"
-                    className="input w-full"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Personal Message (optional)</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Personal message (optional)</label>
                   <textarea
                     value={formData.personalMessage}
                     onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
-                    placeholder="Write a heartfelt message..."
-                    className="input w-full h-24 resize-none"
+                    placeholder="Write a heartfelt message…"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y h-24"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Schedule Delivery (optional)</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Schedule delivery (optional)</label>
                   <input
                     type="date"
                     value={formData.scheduledDate}
                     onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
                     min={new Date().toISOString().split('T')[0]}
-                    className="input w-full"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                   />
-                  <p className="text-xs text-paper/65 mt-1">Leave empty to send immediately</p>
+                  <p className="text-xs text-paper-50 mt-1">Leave empty to send immediately</p>
                 </div>
               </div>
             </div>
@@ -211,26 +218,26 @@ export function GiftSubscriptions() {
           {/* Step 3: Your Details */}
           {step === 3 && (
             <div>
-              <h2 className="text-xl font-medium mb-6">Your Details</h2>
+              <h2 className="font-body text-xl mb-6">Your details</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Your Name</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your name</label>
                   <input
                     type="text"
                     value={formData.purchaserName}
                     onChange={(e) => setFormData({ ...formData, purchaserName: e.target.value })}
                     placeholder="Your name"
-                    className="input w-full"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-paper/70 mb-2">Your Email</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your email</label>
                   <input
                     type="email"
                     value={formData.purchaserEmail}
                     onChange={(e) => setFormData({ ...formData, purchaserEmail: e.target.value })}
                     placeholder="your@email.com"
-                    className="input w-full"
+                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                   />
                 </div>
               </div>
@@ -240,44 +247,41 @@ export function GiftSubscriptions() {
           {/* Step 4: Review & Pay */}
           {step === 4 && (
             <div>
-              <h2 className="text-xl font-medium mb-6">Review Your Gift</h2>
-              
-              <div className="bg-paper/5 rounded-xl p-6 mb-6">
+              <h2 className="font-body text-xl mb-6">Review your gift</h2>
+
+              <div className="bg-void border border-paper-15 p-6 mb-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <div className="text-sm text-paper/65">Gift for</div>
-                    <div className="text-lg font-medium">{formData.recipientName}</div>
-                    <div className="text-sm text-paper/70">{formData.recipientEmail}</div>
+                    <div className="text-sm text-paper-50">Gift for</div>
+                    <div className="font-body text-lg">{formData.recipientName}</div>
+                    <div className="text-sm text-paper-70">{formData.recipientEmail}</div>
                   </div>
-                  <div className={`px-4 py-2 rounded-lg bg-gradient-to-r ${
-                    giftStyles.find(s => s.id === selectedStyle)?.color
-                  } text-white text-sm`}>
+                  <div className="px-4 py-2 rounded-[2px] border border-gold-40 text-gold text-sm">
                     {giftStyles.find(s => s.id === selectedStyle)?.name}
                   </div>
                 </div>
 
-                <div className="border-t border-paper/10 pt-4 mb-4">
+                <div className="border-t border-paper-15 pt-4 mb-4">
                   <div className="flex justify-between mb-2">
-                    <span className="text-paper/70">Plan</span>
+                    <span className="text-paper-50">Plan</span>
                     <span>{tiers.find((t: any) => t.id === selectedTier)?.name} (1 Year)</span>
                   </div>
-                  <div className="flex justify-between text-lg font-medium">
+                  <div className="flex justify-between text-lg">
                     <span>Total</span>
-                    <span className="text-gold">${tiers.find((t: any) => t.id === selectedTier)?.price}</span>
+                    <span className="font-body text-gold">${tiers.find((t: any) => t.id === selectedTier)?.price}</span>
                   </div>
                 </div>
 
                 {formData.personalMessage && (
-                  <div className="border-t border-paper/10 pt-4">
-                    <div className="text-sm text-paper/65 mb-1">Your Message</div>
-                    <p className="text-paper/80 italic">"{formData.personalMessage}"</p>
+                  <div className="border-t border-paper-15 pt-4">
+                    <div className="text-sm text-paper-50 mb-1">Your message</div>
+                    <p className="text-paper-70 italic font-body">"{formData.personalMessage}"</p>
                   </div>
                 )}
 
                 {formData.scheduledDate && (
-                  <div className="mt-4 flex items-center gap-2 text-sm text-paper/70">
-                    <Calendar size={14} />
-                    <span>Scheduled for {new Date(formData.scheduledDate).toLocaleDateString()}</span>
+                  <div className="mt-4 text-sm text-paper-70">
+                    Scheduled for {new Date(formData.scheduledDate).toLocaleDateString()}
                   </div>
                 )}
               </div>
@@ -287,20 +291,20 @@ export function GiftSubscriptions() {
                 disabled={purchaseMutation.isPending}
                 className="btn btn-primary w-full"
               >
-                <CreditCard size={18} />
-                <span>{purchaseMutation.isPending ? 'Processing...' : 'Complete Purchase'}</span>
+                <span>{purchaseMutation.isPending ? 'Processing…' : 'Complete purchase'}</span>
+                {!purchaseMutation.isPending ? <span aria-hidden>→</span> : null}
               </button>
             </div>
           )}
 
           {/* Navigation */}
-          <div className="flex justify-between mt-8 pt-6 border-t border-paper/10">
+          <div className="flex justify-between mt-8 pt-6 border-t border-paper-15">
             <button
               onClick={handleBack}
               disabled={step === 1}
-              className="btn btn-secondary"
+              className="btn btn-ghost"
             >
-              Back
+              <span aria-hidden>←</span> Back
             </button>
             {step < 4 && (
               <button
@@ -308,7 +312,7 @@ export function GiftSubscriptions() {
                 disabled={!canProceed()}
                 className="btn btn-primary"
               >
-                Continue
+                Continue <span aria-hidden>→</span>
               </button>
             )}
           </div>
@@ -317,37 +321,24 @@ export function GiftSubscriptions() {
         {/* Previous Gifts */}
         {purchasedGifts && purchasedGifts.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mt-8 card"
+            transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-8 bg-void-surface border border-paper-15 p-6"
           >
-            <h3 className="text-lg font-medium mb-4">Your Gift History</h3>
+            <h3 className="font-body text-lg mb-4">Your gift history</h3>
             <div className="space-y-3">
               {purchasedGifts.map((gift: any) => (
-                <div key={gift.id} className="flex items-center justify-between p-4 bg-paper/5 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${
-                      giftStyles.find(s => s.id === gift.gift_card_style)?.color || 'from-gold to-amber-600'
-                    } flex items-center justify-center`}>
-                      <Gift size={18} className="text-white" />
-                    </div>
-                    <div>
-                      <div className="font-medium">{gift.recipient_name}</div>
-                      <div className="text-sm text-paper/70">{gift.tier} Plan</div>
-                    </div>
+                <div key={gift.id} className="flex items-center justify-between p-4 bg-void border border-paper-15">
+                  <div>
+                    <div className="font-body">{gift.recipient_name}</div>
+                    <div className="text-sm text-paper-50">{gift.tier} Plan</div>
                   </div>
                   <div className="text-right">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                      gift.status === 'redeemed' 
-                        ? 'bg-green-500/20 text-green-400' 
-                        : gift.status === 'delivered'
-                        ? 'bg-blue-500/20 text-blue-400'
-                        : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
+                    <span className="inline-flex items-center px-2 py-1 rounded-[2px] text-xs font-mono uppercase tracking-[0.1em] bg-void-surface border border-paper-15 text-paper-70">
                       {gift.status}
                     </span>
-                    <div className="text-xs text-paper/65 mt-1">
+                    <div className="text-xs text-paper-50 mt-1">
                       {new Date(gift.created_at).toLocaleDateString()}
                     </div>
                   </div>
@@ -365,24 +356,24 @@ export function GiftSubscriptions() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="modal-backdrop"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-void/80 px-6"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal max-w-md text-center"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-void-surface border border-gold-40 p-8 max-w-md w-full text-center"
+              role="status"
             >
-              <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-                <Check className="text-green-400" size={40} />
-              </div>
-              <h3 className="text-2xl font-medium mb-2">Gift Sent!</h3>
-              <p className="text-paper/70 mb-6">
+              <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
+              <h3 className="font-body text-2xl mb-2">Gift sent.</h3>
+              <p className="text-paper-70 mb-6 leading-relaxed">
                 {formData.recipientName} will receive their gift {formData.scheduledDate ? `on ${new Date(formData.scheduledDate).toLocaleDateString()}` : 'shortly'}.
               </p>
-              
-              <div className="bg-paper/5 rounded-lg p-4 mb-6">
-                <div className="text-sm text-paper/65 mb-1">Gift Code</div>
+
+              <div className="bg-void border border-paper-15 p-4 mb-6">
+                <div className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-1">Gift code</div>
                 <div className="text-lg font-mono text-gold">{giftResult.giftCode}</div>
               </div>
 

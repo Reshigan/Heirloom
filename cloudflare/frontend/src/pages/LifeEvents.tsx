@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, Trash2, Send, X, GraduationCap, Heart, Baby, Cake, Sunset, Star, Calendar, User, Mail, Clock, CheckCircle, XCircle, ArrowRight, Image, Mic, FileText, Sparkles, ChevronRight
-} from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import { ProgressHair } from '../components/ui/ProgressHair';
@@ -11,41 +8,36 @@ import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/a
 
 // Quick Create wizard templates
 const QUICK_TEMPLATES = [
-  { 
-    id: 'graduation', 
-    icon: GraduationCap, 
+  {
+    id: 'graduation',
     title: 'Graduation Day',
     description: 'A message for when they graduate',
     eventType: 'GRADUATION',
     suggestedTitle: 'Congratulations on Your Graduation!',
   },
-  { 
-    id: 'wedding', 
-    icon: Heart, 
+  {
+    id: 'wedding',
     title: 'Wedding Day',
     description: 'Words of love for their special day',
     eventType: 'WEDDING',
     suggestedTitle: 'On Your Wedding Day',
   },
-  { 
-    id: 'first-child', 
-    icon: Baby, 
+  {
+    id: 'first-child',
     title: 'First Child',
     description: 'Welcome their new baby',
     eventType: 'FIRST_CHILD',
     suggestedTitle: 'Welcome to Parenthood',
   },
-  { 
-    id: 'milestone-birthday', 
-    icon: Cake, 
+  {
+    id: 'milestone-birthday',
     title: 'Milestone Birthday',
     description: 'For a special birthday (18, 21, 30...)',
     eventType: 'BIRTHDAY',
     suggestedTitle: 'Happy Milestone Birthday!',
   },
-  { 
-    id: 'when-they-miss-me', 
-    icon: Sunset, 
+  {
+    id: 'when-they-miss-me',
     title: 'When They Miss Me',
     description: 'Comfort for difficult moments',
     eventType: 'LOSS',
@@ -79,14 +71,16 @@ interface LifeEventTrigger {
   created_at: string;
 }
 
-const EVENT_TYPES = [
-  { value: 'GRADUATION', label: 'Graduation', icon: GraduationCap, color: 'text-blue-400' },
-  { value: 'WEDDING', label: 'Wedding', icon: Heart, color: 'text-pink-400' },
-  { value: 'FIRST_CHILD', label: 'First Child', icon: Baby, color: 'text-purple-400' },
-  { value: 'BIRTHDAY_MILESTONE', label: 'Milestone Birthday', icon: Cake, color: 'text-yellow-400' },
-  { value: 'RETIREMENT', label: 'Retirement', icon: Sunset, color: 'text-orange-400' },
-  { value: 'CUSTOM', label: 'Custom Event', icon: Star, color: 'text-gold' },
+// Event type catalog - kept for future advanced options
+const _EVENT_TYPES = [
+  { value: 'GRADUATION', label: 'Graduation' },
+  { value: 'WEDDING', label: 'Wedding' },
+  { value: 'FIRST_CHILD', label: 'First Child' },
+  { value: 'BIRTHDAY_MILESTONE', label: 'Milestone Birthday' },
+  { value: 'RETIREMENT', label: 'Retirement' },
+  { value: 'CUSTOM', label: 'Custom Event' },
 ];
+void _EVENT_TYPES;
 
 // Trigger methods available for advanced options (used in handleQuickCreate)
 const _TRIGGER_METHODS = [
@@ -96,18 +90,18 @@ const _TRIGGER_METHODS = [
 ];
 void _TRIGGER_METHODS; // Suppress unused warning - kept for future advanced options
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  PENDING: { label: 'Pending', color: 'text-yellow-400 bg-yellow-400/10', icon: Clock },
-  TRIGGERED: { label: 'Triggered', color: 'text-blue-400 bg-blue-400/10', icon: Send },
-  DELIVERED: { label: 'Delivered', color: 'text-green-400 bg-green-400/10', icon: CheckCircle },
-  CANCELLED: { label: 'Cancelled', color: 'text-red-400 bg-red-400/10', icon: XCircle },
+const STATUS_CONFIG: Record<string, { label: string }> = {
+  PENDING: { label: 'Pending' },
+  TRIGGERED: { label: 'Triggered' },
+  DELIVERED: { label: 'Delivered' },
+  CANCELLED: { label: 'Cancelled' },
 };
 
 export function LifeEvents() {
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   const [showContentPicker, setShowContentPicker] = useState(false);
-  
+
   // Wizard state - simplified 3-step flow
   const [wizardStep, setWizardStep] = useState(1); // 1: Pick template, 2: Pick recipient, 3: Review & customize
   const [selectedTemplate, setSelectedTemplate] = useState<typeof QUICK_TEMPLATES[0] | null>(null);
@@ -252,7 +246,7 @@ export function LifeEvents() {
   // Legacy create handler - kept for advanced mode
   const _handleCreate = () => {
     if (!eventName.trim()) return;
-    
+
     createMutation.mutate({
       eventType,
       eventName: eventName.trim(),
@@ -289,23 +283,9 @@ export function LifeEvents() {
     setSelectedContent(selectedContent.filter(c => !(c.type === type && c.id === id)));
   };
 
-  const getEventIcon = (type: string) => {
-    const config = EVENT_TYPES.find(e => e.value === type);
-    return config?.icon || Star;
-  };
-
-  const getEventColor = (type: string) => {
-    const config = EVENT_TYPES.find(e => e.value === type);
-    return config?.color || 'text-gold';
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen relative">
-        <div className="eternal-bg">
-          <div className="eternal-aura" />
-          <div className="eternal-stars" />
-        </div>
+      <div className="min-h-screen relative bg-void">
         <Navigation />
         <div className="flex items-center justify-center h-[60vh]">
           <ProgressHair label="loading…" width={180} />
@@ -315,13 +295,7 @@ export function LifeEvents() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
-
+    <div className="min-h-screen relative bg-void text-paper antialiased">
       <Navigation />
 
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-16 max-w-5xl mx-auto">
@@ -332,16 +306,16 @@ export function LifeEvents() {
           className="flex items-center justify-between mb-12"
         >
           <div>
-            <h1 className="font-display text-4xl md:text-5xl mb-2">Life Event Triggers</h1>
-            <p className="text-paper/70">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-3">Life Events</p>
+            <h1 className="font-display font-light text-4xl md:text-5xl mb-2 tracking-[-0.018em]">Life Event Triggers</h1>
+            <p className="text-paper-70 font-light">
               Deliver messages when life's special moments happen
             </p>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="btn btn-primary flex items-center gap-2"
+            className="btn btn-primary"
           >
-            <Plus size={20} />
             Create Trigger
           </button>
         </motion.div>
@@ -350,9 +324,7 @@ export function LifeEvents() {
         {triggers?.triggers && triggers.triggers.length > 0 ? (
           <div className="space-y-4">
             {triggers.triggers.map((trigger, index) => {
-              const Icon = getEventIcon(trigger.event_type);
               const statusConfig = STATUS_CONFIG[trigger.status] || STATUS_CONFIG.PENDING;
-              const StatusIcon = statusConfig.icon;
 
               return (
                 <motion.div
@@ -360,41 +332,32 @@ export function LifeEvents() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="glass rounded-xl p-5"
+                  className="bg-void-surface border border-paper-15 rounded-[2px] p-5"
                 >
                   <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 rounded-xl bg-paper/5 flex items-center justify-center ${getEventColor(trigger.event_type)}`}>
-                      <Icon size={24} />
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
-                        <h3 className="font-medium text-lg">{trigger.event_name}</h3>
-                        <span className={`px-2 py-0.5 rounded-full text-xs flex items-center gap-1 ${statusConfig.color}`}>
-                          <StatusIcon size={12} />
+                        <h3 className="font-body text-lg">{trigger.event_name}</h3>
+                        <span className="px-2 py-0.5 rounded-[2px] text-xs font-mono uppercase tracking-[0.1em] border border-paper-15 text-paper-70">
                           {statusConfig.label}
                         </span>
                       </div>
                       {trigger.event_description && (
-                        <p className="text-paper/65 text-sm mb-2">{trigger.event_description}</p>
+                        <p className="text-paper-65 text-sm mb-2">{trigger.event_description}</p>
                       )}
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-paper/70">
-                        <span className="flex items-center gap-1">
-                          <User size={14} />
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-paper-70">
+                        <span>
                           {trigger.recipient_name || trigger.family_member_name || 'No recipient'}
                         </span>
                         {trigger.recipient_email && (
-                          <span className="flex items-center gap-1">
-                            <Mail size={14} />
-                            {trigger.recipient_email}
-                          </span>
+                          <span className="font-mono text-xs">{trigger.recipient_email}</span>
                         )}
                         {trigger.scheduled_date && (
-                          <span className="flex items-center gap-1">
-                            <Calendar size={14} />
+                          <span className="font-mono text-xs">
                             {new Date(trigger.scheduled_date).toLocaleDateString()}
                           </span>
                         )}
-                        <span className="flex items-center gap-1">
+                        <span>
                           {JSON.parse(trigger.content_items || '[]').length} items attached
                         </span>
                       </div>
@@ -405,14 +368,13 @@ export function LifeEvents() {
                           <button
                             onClick={() => triggerMutation.mutate(trigger.id)}
                             disabled={triggerMutation.isPending}
-                            className="btn btn-primary btn-sm flex items-center gap-1"
+                            className="btn btn-primary btn-sm"
                           >
-                            <Send size={14} />
                             Trigger Now
                           </button>
                           <button
                             onClick={() => cancelMutation.mutate(trigger.id)}
-                            className="btn btn-ghost btn-sm text-paper/65"
+                            className="btn btn-ghost btn-sm text-paper-65"
                           >
                             Cancel
                           </button>
@@ -420,9 +382,9 @@ export function LifeEvents() {
                       )}
                       <button
                         onClick={() => deleteMutation.mutate(trigger.id)}
-                        className="p-2 hover:bg-paper/10 rounded-lg transition-colors text-red-400"
+                        className="text-paper-50 hover:text-blood transition-colors text-sm p-2"
                       >
-                        <Trash2 size={16} />
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -436,9 +398,9 @@ export function LifeEvents() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <Calendar size={64} className="mx-auto text-paper/20 mb-4" />
-            <h3 className="text-xl font-medium mb-2">No life event triggers yet</h3>
-            <p className="text-paper/65 mb-6">Create triggers to deliver messages at life's special moments</p>
+            <span className="font-display text-4xl text-paper-30 block mb-6" aria-hidden>∞</span>
+            <h3 className="font-body text-xl mb-2">No life event triggers yet</h3>
+            <p className="text-paper-65 mb-6">Create triggers to deliver messages at life's special moments</p>
             <button
               onClick={() => setShowCreate(true)}
               className="btn btn-primary"
@@ -455,70 +417,65 @@ export function LifeEvents() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-y-auto"
+              className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4 overflow-y-auto"
               onClick={() => resetForm()}
             >
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="glass rounded-2xl p-6 max-w-xl w-full my-8"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-xl w-full my-8"
                 onClick={e => e.stopPropagation()}
               >
                 {/* Wizard Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     {wizardStep > 1 && (
-                      <button 
-                        onClick={() => setWizardStep(wizardStep - 1)} 
-                        className="text-paper/65 hover:text-paper"
+                      <button
+                        onClick={() => setWizardStep(wizardStep - 1)}
+                        className="text-paper-50 hover:text-paper transition-colors"
+                        aria-label="Back"
                       >
-                        <ArrowRight size={20} className="rotate-180" />
+                        <span aria-hidden>←</span>
                       </button>
                     )}
                     <div>
-                      <h3 className="text-xl font-medium">
+                      <h3 className="font-body text-xl">
                         {wizardStep === 1 && 'What moment do you want to capture?'}
                         {wizardStep === 2 && 'Who is this for?'}
                         {wizardStep === 3 && 'Review & Create'}
                       </h3>
-                      <p className="text-sm text-paper/65">Step {wizardStep} of 3</p>
+                      <p className="text-sm text-paper-65 font-mono">Step {wizardStep} of 3</p>
                     </div>
                   </div>
-                  <button onClick={() => resetForm()} className="text-paper/65 hover:text-paper">
-                    <X size={24} />
+                  <button onClick={() => resetForm()} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
+                    <span aria-hidden>✕</span>
                   </button>
                 </div>
 
                 {/* Step 1: Pick Template */}
                 {wizardStep === 1 && (
                   <div className="space-y-3">
-                    {QUICK_TEMPLATES.map((template) => {
-                      const TemplateIcon = template.icon;
-                      return (
-                        <button
-                          key={template.id}
-                          onClick={() => handleTemplateSelect(template)}
-                          className="w-full p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
-                        >
-                          <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center text-gold">
-                            <TemplateIcon size={24} />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium">{template.title}</h4>
-                            <p className="text-sm text-paper/65">{template.description}</p>
-                          </div>
-                          <ChevronRight size={20} className="text-paper/65 group-hover:text-gold transition-colors" />
-                        </button>
-                      );
-                    })}
-                    <div className="pt-4 border-t border-paper/10">
+                    {QUICK_TEMPLATES.map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => handleTemplateSelect(template)}
+                        className="w-full p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
+                      >
+                        <div className="flex-1">
+                          <h4 className="font-body">{template.title}</h4>
+                          <p className="text-sm text-paper-65">{template.description}</p>
+                        </div>
+                        <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
+                      </button>
+                    ))}
+                    <div className="pt-4 border-t border-paper-15">
                       <button
                         onClick={() => {
                           setWizardStep(2);
                           setSelectedTemplate(null);
                         }}
-                        className="w-full p-3 text-center text-paper/65 hover:text-paper transition-colors"
+                        className="w-full p-3 text-center text-paper-65 hover:text-paper transition-colors"
                       >
                         Or create a custom event...
                       </button>
@@ -531,54 +488,50 @@ export function LifeEvents() {
                   <div className="space-y-4">
                     {family.length > 0 ? (
                       <div className="space-y-2">
-                        <p className="text-sm text-paper/70 mb-3">Select a family member:</p>
+                        <p className="text-sm text-paper-70 mb-3">Select a family member:</p>
                         {family.map((member) => (
                           <button
                             key={member.id}
                             onClick={() => handleRecipientSelect(member)}
-                            className={`w-full p-4 rounded-xl transition-all flex items-center gap-4 text-left ${
-                              familyMemberId === member.id 
-                                ? 'bg-gold/20 border border-gold/30' 
-                                : 'bg-paper/5 hover:bg-paper/10'
+                            className={`w-full p-4 rounded-[2px] transition-colors flex items-center gap-4 text-left border ${
+                              familyMemberId === member.id
+                                ? 'border-gold-40 text-gold'
+                                : 'border-paper-15 bg-void hover:bg-void-elevated'
                             }`}
                           >
-                            <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold font-medium">
-                              {member.name.charAt(0).toUpperCase()}
-                            </div>
                             <div className="flex-1">
-                              <h4 className="font-medium">{member.name}</h4>
-                              <p className="text-sm text-paper/65">{member.relationship}</p>
+                              <h4 className="font-body">{member.name}</h4>
+                              <p className="text-sm text-paper-65">{member.relationship}</p>
                             </div>
-                            <ChevronRight size={20} className="text-paper/65" />
+                            <span aria-hidden className="text-paper-50">→</span>
                           </button>
                         ))}
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <User size={48} className="mx-auto text-paper/20 mb-4" />
-                        <h4 className="font-medium mb-2">No family members yet</h4>
-                        <p className="text-paper/65 text-sm mb-4">Add family members to easily select recipients</p>
+                        <h4 className="font-body mb-2">No family members yet</h4>
+                        <p className="text-paper-65 text-sm mb-4">Add family members to easily select recipients</p>
                         <a href="/family" className="btn btn-primary">
                           Add Family Members
                         </a>
                       </div>
                     )}
-                    <div className="pt-4 border-t border-paper/10">
-                      <p className="text-sm text-paper/65 mb-2">Or enter manually:</p>
+                    <div className="pt-4 border-t border-paper-15">
+                      <p className="text-sm text-paper-65 mb-2">Or enter manually:</p>
                       <div className="grid grid-cols-2 gap-2">
                         <input
                           type="text"
                           value={recipientName}
                           onChange={(e) => setRecipientName(e.target.value)}
                           placeholder="Recipient name"
-                          className="bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
+                          className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-2 placeholder:text-paper-30 transition-colors"
                         />
                         <input
                           type="email"
                           value={recipientEmail}
                           onChange={(e) => setRecipientEmail(e.target.value)}
                           placeholder="Recipient email"
-                          className="bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
+                          className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-2 placeholder:text-paper-30 transition-colors"
                         />
                       </div>
                       {recipientName && (
@@ -597,62 +550,60 @@ export function LifeEvents() {
                 {wizardStep === 3 && (
                   <div className="space-y-5">
                     {/* Summary */}
-                    <div className="p-4 rounded-xl bg-gold/10 border border-gold/20">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Sparkles size={20} className="text-gold" />
-                        <span className="font-medium">Ready to create</span>
-                      </div>
-                      <p className="text-sm text-paper/70">
+                    <div className="p-4 rounded-[2px] bg-void border border-gold-40">
+                      <p className="font-body mb-2">Ready to create</p>
+                      <p className="text-sm text-paper-70">
                         {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom event'} for <strong>{recipientName}</strong>
                       </p>
                     </div>
 
                     {/* Editable Title */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">Event Title</label>
+                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Event Title</label>
                       <input
                         type="text"
                         value={eventName}
                         onChange={(e) => setEventName(e.target.value)}
                         placeholder="Give this event a name..."
-                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
                       />
                     </div>
 
                     {/* Optional Message */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">Personal Message (optional)</label>
+                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Personal Message (optional)</label>
                       <textarea
                         value={eventDescription}
                         onChange={(e) => setEventDescription(e.target.value)}
                         placeholder="Add a heartfelt message..."
                         rows={3}
-                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50 resize-none"
+                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors resize-none"
                       />
                     </div>
 
                     {/* Auto-selected Content */}
                     {selectedContent.length > 0 && (
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
                           Included Content ({selectedContent.length} items)
                         </label>
                         <div className="space-y-1">
                           {selectedContent.map((item) => (
-                            <div key={`${item.type}-${item.id}`} className="flex items-center justify-between p-2 bg-void/30 rounded-lg text-sm">
+                            <div key={`${item.type}-${item.id}`} className="flex items-center justify-between p-2 bg-void border border-paper-15 rounded-[2px] text-sm">
                               <span>{item.title}</span>
                               <button
                                 onClick={() => removeContent(item.type, item.id)}
-                                className="text-paper/65 hover:text-red-400"
+                                aria-label="Remove content"
+                                className="text-paper-50 hover:text-blood transition-colors"
                               >
-                                <X size={14} />
+                                <span aria-hidden>✕</span>
                               </button>
                             </div>
                           ))}
                         </div>
                         <button
                           onClick={() => setShowContentPicker(true)}
-                          className="mt-2 text-sm text-gold hover:underline"
+                          className="mt-2 text-sm text-gold hover:text-gold-bright transition-colors"
                         >
                           + Add more content
                         </button>
@@ -662,9 +613,9 @@ export function LifeEvents() {
                     {selectedContent.length === 0 && (
                       <button
                         onClick={() => setShowContentPicker(true)}
-                        className="w-full p-3 border border-dashed border-paper/20 rounded-lg text-paper/65 hover:text-paper hover:border-paper/40 transition-all flex items-center justify-center gap-2"
+                        className="w-full p-3 border border-dashed border-paper-15 rounded-[2px] text-paper-65 hover:text-paper hover:border-paper-15 transition-colors flex items-center justify-center gap-2"
                       >
-                        <Plus size={16} />
+                        <span aria-hidden>+</span>
                         Add photos, letters, or voice recordings
                       </button>
                     )}
@@ -673,16 +624,9 @@ export function LifeEvents() {
                     <button
                       onClick={handleQuickCreate}
                       disabled={!eventName.trim() || createMutation.isPending}
-                      className="w-full py-4 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full btn btn-primary"
                     >
-                      {createMutation.isPending ? (
-                        'Creating…'
-                      ) : (
-                        <>
-                          <Sparkles size={18} />
-                          Create Life Event
-                        </>
-                      )}
+                      {createMutation.isPending ? 'Creating…' : 'Create Life Event'}
                     </button>
                   </div>
                 )}
@@ -698,22 +642,22 @@ export function LifeEvents() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4"
+              className="fixed inset-0 bg-void/80 flex items-center justify-center z-[60] p-4"
               onClick={() => setShowContentPicker(false)}
             >
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="glass rounded-2xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
                 onClick={e => e.stopPropagation()}
               >
-                <h3 className="text-lg font-medium mb-4">Add Content</h3>
-                
+                <h3 className="font-body text-lg mb-4">Add Content</h3>
+
                 {memories.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/70 mb-2 flex items-center gap-2">
-                      <Image size={14} /> Photos & Memories ({memories.length})
+                    <h4 className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">
+                      Photos & Memories ({memories.length})
                     </h4>
                     <div className="space-y-1 max-h-32 overflow-y-auto">
                       {memories.slice(0, 10).map((m: { id: string; title: string }) => (
@@ -721,7 +665,7 @@ export function LifeEvents() {
                           key={m.id}
                           onClick={() => addContent('MEMORY', m.id, m.title)}
                           disabled={selectedContent.some(c => c.id === m.id)}
-                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full p-2 text-left hover:bg-void-elevated rounded-[2px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {m.title}
                         </button>
@@ -732,8 +676,8 @@ export function LifeEvents() {
 
                 {letters.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/70 mb-2 flex items-center gap-2">
-                      <FileText size={14} /> Letters ({letters.length})
+                    <h4 className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">
+                      Letters ({letters.length})
                     </h4>
                     <div className="space-y-1 max-h-32 overflow-y-auto">
                       {letters.slice(0, 10).map((l: { id: string; title: string }) => (
@@ -741,7 +685,7 @@ export function LifeEvents() {
                           key={l.id}
                           onClick={() => addContent('LETTER', l.id, l.title || 'Untitled Letter')}
                           disabled={selectedContent.some(c => c.id === l.id)}
-                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full p-2 text-left hover:bg-void-elevated rounded-[2px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {l.title || 'Untitled Letter'}
                         </button>
@@ -752,8 +696,8 @@ export function LifeEvents() {
 
                 {voiceRecordings.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-paper/70 mb-2 flex items-center gap-2">
-                      <Mic size={14} /> Voice Recordings ({voiceRecordings.length})
+                    <h4 className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">
+                      Voice Recordings ({voiceRecordings.length})
                     </h4>
                     <div className="space-y-1 max-h-32 overflow-y-auto">
                       {voiceRecordings.slice(0, 10).map((v: { id: string; title: string }) => (
@@ -761,7 +705,7 @@ export function LifeEvents() {
                           key={v.id}
                           onClick={() => addContent('VOICE', v.id, v.title)}
                           disabled={selectedContent.some(c => c.id === v.id)}
-                          className="w-full p-2 text-left hover:bg-paper/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full p-2 text-left hover:bg-void-elevated rounded-[2px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {v.title}
                         </button>
@@ -772,37 +716,34 @@ export function LifeEvents() {
 
                 {memories.length === 0 && letters.length === 0 && voiceRecordings.length === 0 && (
                   <div className="text-center py-6">
-                    <p className="text-paper/65 mb-4">No content available yet. Create some first:</p>
+                    <p className="text-paper-65 mb-4">No content available yet. Create some first:</p>
                     <div className="space-y-2">
                       <a
                         href="/memories"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400 hover:bg-blue-500/20 transition-colors"
+                        className="flex items-center justify-center gap-2 p-3 bg-void border border-paper-15 rounded-[2px] text-paper hover:bg-void-elevated transition-colors"
                       >
-                        <Image size={18} />
                         Add Photos & Memories
-                        <ArrowRight size={14} />
+                        <span aria-hidden>→</span>
                       </a>
                       <a
                         href="/compose"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 hover:bg-green-500/20 transition-colors"
+                        className="flex items-center justify-center gap-2 p-3 bg-void border border-paper-15 rounded-[2px] text-paper hover:bg-void-elevated transition-colors"
                       >
-                        <FileText size={18} />
                         Write a Letter
-                        <ArrowRight size={14} />
+                        <span aria-hidden>→</span>
                       </a>
                       <a
                         href="/record"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg text-purple-400 hover:bg-purple-500/20 transition-colors"
+                        className="flex items-center justify-center gap-2 p-3 bg-void border border-paper-15 rounded-[2px] text-paper hover:bg-void-elevated transition-colors"
                       >
-                        <Mic size={18} />
                         Record a Voice Message
-                        <ArrowRight size={14} />
+                        <span aria-hidden>→</span>
                       </a>
                     </div>
                   </div>

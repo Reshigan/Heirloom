@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { CheckCircle, XCircle, Mail } from '../components/Icons';
 import { emailVerificationApi } from '../services/api';
 import { ProgressHair } from '../components/ui/ProgressHair';
 
 export function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  
+
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'no-token'>('loading');
   const [message, setMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
@@ -54,125 +53,119 @@ export function VerifyEmail() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4">
-      <div className="sanctuary-bg">
-        <div className="sanctuary-orb sanctuary-orb-1" />
-        <div className="sanctuary-orb sanctuary-orb-2" />
-        <div className="sanctuary-orb sanctuary-orb-3" />
-        <div className="sanctuary-stars" />
-        <div className="sanctuary-mist" />
-      </div>
+    <main className="min-h-screen bg-void text-paper antialiased px-6 md:px-12 py-12 flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <Link to="/" className="inline-block font-body text-3xl text-gold mb-10" aria-label="Heirloom home">
+          ∞
+        </Link>
 
-      <div className="relative w-full max-w-md animate-fade-in">
-        <div className="absolute -inset-4 bg-gold/5 blur-3xl rounded-full" />
-        
-        <div className="card glass-strong relative text-center">
-          <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white/[0.08] to-transparent rounded-t-2xl pointer-events-none" />
-          
-          <div className="relative">
-            <Link to="/" className="inline-block mb-8">
-              <div className="text-5xl text-gold mb-2 inline-block">
-                ∞
-              </div>
-              <span className="text-lg tracking-[0.2em] text-paper/70">HEIRLOOM</span>
-            </Link>
-
-            {status === 'loading' && (
-              <div className="py-8">
-                <div className="flex justify-center mb-4">
-                  <ProgressHair label="verifying…" width={180} />
-                </div>
-                <p className="text-paper/70">Verifying your email...</p>
-              </div>
-            )}
-
-            {status === 'success' && (
-              <div className="py-8">
-                <CheckCircle size={48} className="text-emerald-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-light mb-2">Email Verified!</h1>
-                <p className="text-paper/70 mb-6">{message}</p>
-                <Link to="/dashboard" className="btn btn-primary">
-                  Go to Dashboard
-                </Link>
-              </div>
-            )}
-
-            {status === 'error' && (
-              <div className="py-8">
-                <XCircle size={48} className="text-blood mx-auto mb-4" />
-                <h1 className="text-2xl font-light mb-2">Verification Failed</h1>
-                <p className="text-paper/70 mb-6">{message}</p>
-                
-                <div className="space-y-4">
-                  <button
-                    onClick={handleResendVerification}
-                    disabled={isResending}
-                    className="btn btn-secondary w-full"
-                  >
-                    {isResending ? (
-                      'Sending…'
-                    ) : (
-                      <>
-                        <Mail size={20} />
-                        Resend Verification Email
-                      </>
-                    )}
-                  </button>
-                  
-                  {resendStatus === 'success' && (
-                    <p className="text-emerald-500 text-sm">Verification email sent!</p>
-                  )}
-                  {resendStatus === 'error' && (
-                    <p className="text-blood text-sm">Failed to send email. Please try again.</p>
-                  )}
-                  
-                  <Link to="/login" className="block text-gold hover:text-gold-bright transition-colors">
-                    Back to Login
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {status === 'no-token' && (
-              <div className="py-8">
-                <Mail size={48} className="text-paper/65 mx-auto mb-4" />
-                <h1 className="text-2xl font-light mb-2">Verify Your Email</h1>
-                <p className="text-paper/70 mb-6">
-                  Check your inbox for a verification link, or request a new one below.
-                </p>
-                
-                <div className="space-y-4">
-                  <button
-                    onClick={handleResendVerification}
-                    disabled={isResending}
-                    className="btn btn-primary w-full"
-                  >
-                    {isResending ? (
-                      'Sending…'
-                    ) : (
-                      <>
-                        <Mail size={20} />
-                        Send Verification Email
-                      </>
-                    )}
-                  </button>
-                  
-                  {resendStatus === 'success' && (
-                    <p className="text-emerald-500 text-sm">Verification email sent!</p>
-                  )}
-                  {resendStatus === 'error' && (
-                    <p className="text-blood text-sm">Failed to send email. Please log in first.</p>
-                  )}
-                  
-                  <Link to="/login" className="block text-gold hover:text-gold-bright transition-colors">
-                    Back to Login
-                  </Link>
-                </div>
-              </div>
-            )}
+        {status === 'loading' && (
+          <div role="status">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Verify email</p>
+            <h1
+              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+            >
+              Verifying…
+            </h1>
+            <div className="mt-8">
+              <ProgressHair label="verifying…" width={180} />
+            </div>
           </div>
-        </div>
+        )}
+
+        {status === 'success' && (
+          <div role="status">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Verify email</p>
+            <h1
+              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+            >
+              Email verified.
+            </h1>
+            <p className="mt-6 text-paper-70 leading-relaxed font-light">{message}</p>
+            <Link to="/dashboard" className="btn btn-primary mt-10">
+              Go to dashboard <span aria-hidden>→</span>
+            </Link>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div role="status">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Verify email</p>
+            <h1
+              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+            >
+              Verification failed.
+            </h1>
+            <p className="mt-6 text-paper-70 leading-relaxed font-light">{message}</p>
+
+            <div className="mt-10 space-y-4">
+              <button
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="btn btn-ghost w-full"
+              >
+                {isResending ? 'Sending…' : 'Resend verification email'}
+              </button>
+
+              {resendStatus === 'success' && (
+                <p role="status" className="text-gold text-sm">Verification email sent.</p>
+              )}
+              {resendStatus === 'error' && (
+                <p role="alert" className="text-blood text-sm">Failed to send email. Please try again.</p>
+              )}
+
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 text-paper-50 hover:text-gold transition-colors text-sm"
+              >
+                <span aria-hidden>←</span> Back to sign in
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {status === 'no-token' && (
+          <div role="status">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Verify email</p>
+            <h1
+              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+            >
+              Verify your email.
+            </h1>
+            <p className="mt-6 text-paper-70 leading-relaxed font-light">
+              Check your inbox for a verification link, or request a new one below.
+            </p>
+
+            <div className="mt-10 space-y-4">
+              <button
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="btn btn-primary w-full"
+              >
+                {isResending ? 'Sending…' : 'Send verification email'}
+              </button>
+
+              {resendStatus === 'success' && (
+                <p role="status" className="text-gold text-sm">Verification email sent.</p>
+              )}
+              {resendStatus === 'error' && (
+                <p role="alert" className="text-blood text-sm">Failed to send email. Please log in first.</p>
+              )}
+
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 text-paper-50 hover:text-gold transition-colors text-sm"
+              >
+                <span aria-hidden>←</span> Back to sign in
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </main>
   );
 }

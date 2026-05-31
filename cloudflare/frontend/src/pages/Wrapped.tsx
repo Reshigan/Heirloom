@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { wrappedApi } from '../services/api';
-import { ChevronLeft, ChevronRight, Calendar, Play, Pause, Volume2, VolumeX, Share2, Download } from '../components/Icons';
 
 // Royalty-free ambient music URL - using SoundJay's free sounds (no hotlink protection)
 // This is a gentle rain ambience suitable for the Wrapped experience
@@ -147,7 +146,7 @@ const IntroSlide: React.FC<{ year: number }> = ({ year }) => (
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-2xl text-paper/70 font-body"
+      className="text-2xl text-paper-70 font-body"
     >
       Wrapped in memories
     </motion.p>
@@ -161,8 +160,9 @@ const IntroSlide: React.FC<{ year: number }> = ({ year }) => (
       <motion.span
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ repeat: Infinity, duration: 2 }}
+        aria-hidden
       >
-        ▶
+        →
       </motion.span>
     </motion.div>
   </motion.div>
@@ -178,7 +178,7 @@ const TotalMemoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
     <motion.p
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="text-xl text-paper/70 mb-4"
+      className="text-xl text-paper-70 mb-4"
     >
       This year, you preserved
     </motion.p>
@@ -191,11 +191,6 @@ const TotalMemoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       <span className="text-6xl sm:text-8xl md:text-[12rem] font-display text-gold">
         {stats.totalMemories}
       </span>
-      <motion.div
-        className="absolute -inset-8 bg-gold/10 rounded-full blur-3xl -z-10"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ repeat: Infinity, duration: 3 }}
-      />
     </motion.div>
     <motion.p
       initial={{ y: 30, opacity: 0 }}
@@ -209,7 +204,7 @@ const TotalMemoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/70 mt-8"
+      className="text-lg text-paper-70 mt-8"
     >
       That's more than {Math.round(stats.totalMemories / 12)} memories per month
     </motion.p>
@@ -234,7 +229,7 @@ const VoiceStoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
         {Array.from({ length: 30 }).map((_, i) => (
           <motion.div
             key={i}
-            className="w-1 bg-gradient-to-t from-blood to-gold rounded-full"
+            className="w-1 bg-gold"
             animate={{
               height: [20, 40 + Math.random() * 60, 20],
             }}
@@ -251,7 +246,7 @@ const VoiceStoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="text-xl text-paper/70 mb-2"
+      className="text-xl text-paper-70 mb-2"
     >
       Your voice echoed through
     </motion.p>
@@ -268,7 +263,7 @@ const VoiceStoriesSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/70 mt-8"
+      className="text-lg text-paper-70 mt-8"
     >
       {stats.totalMinutesRecorded} minutes of your voice, preserved forever
     </motion.p>
@@ -289,12 +284,12 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => {
     <motion.p
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="text-xl text-paper/70 mb-8 text-center"
+      className="text-xl text-paper-70 mb-8 text-center"
     >
       The emotions that colored your year
     </motion.p>
     {topEmotions.length === 0 ? (
-      <div className="text-center text-paper/65">
+      <div className="text-center text-paper-65">
         <p className="text-lg mb-2">No emotion data yet</p>
         <p className="text-sm">Start adding memories to see your emotional journey</p>
       </div>
@@ -308,19 +303,17 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => {
           transition={{ delay: index * 0.15 }}
           className="flex items-center gap-4"
         >
-          <span className="text-3xl w-12">{emotion.icon}</span>
           <div className="flex-1">
             <div className="flex justify-between mb-1">
               <span className="text-paper font-medium">{emotion.emotion}</span>
-              <span className="text-paper/70">{emotion.percentage}%</span>
+              <span className="text-paper-70">{emotion.percentage}%</span>
             </div>
-            <div className="h-3 bg-void-elevated rounded-full overflow-hidden">
+            <div className="h-px bg-paper-15 overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${emotion.percentage}%` }}
                 transition={{ delay: 0.5 + index * 0.15, duration: 0.8 }}
-                className="h-full rounded-full"
-                style={{ backgroundColor: emotion.color }}
+                className="h-full bg-gold"
               />
             </div>
           </div>
@@ -335,7 +328,7 @@ const EmotionsSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => {
         transition={{ delay: 1.2 }}
         className="text-lg text-gold mt-8 text-center"
       >
-        {topEmotions[0].emotion} was your dominant feeling ✨
+        {topEmotions[0].emotion} was your dominant feeling
       </motion.p>
     )}
   </motion.div>
@@ -352,11 +345,11 @@ const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
     <motion.p
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="text-xl text-paper/70 mb-8 text-center"
+      className="text-xl text-paper-70 mb-8 text-center"
     >
       Your constellation grew to
     </motion.p>
-    
+
     {/* Animated constellation */}
     <motion.div
       initial={{ scale: 0 }}
@@ -365,14 +358,10 @@ const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       className="relative w-64 h-64 mb-8"
     >
       {/* Center star (you) */}
-      <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gold rounded-full flex items-center justify-center"
-        animate={{ boxShadow: ['0 0 20px rgba(201,169,89,0.5)', '0 0 40px rgba(201,169,89,0.8)', '0 0 20px rgba(201,169,89,0.5)'] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-      >
-        <span className="text-void-deep font-bold">You</span>
-      </motion.div>
-      
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gold rounded-[2px] flex items-center justify-center">
+        <span className="text-void font-bold">You</span>
+      </div>
+
       {/* Family member stars */}
       {stats.topRecipients.map((recipient, i) => {
         const angle = (i * 360) / stats.topRecipients.length;
@@ -384,7 +373,7 @@ const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.5 + i * 0.2 }}
-            className="absolute w-12 h-12 bg-gold/80 rounded-full flex items-center justify-center text-xs text-void-deep font-medium"
+            className="absolute w-12 h-12 bg-void-surface border border-gold-40 rounded-[2px] flex items-center justify-center text-xs text-gold font-medium"
             style={{
               left: `calc(50% + ${x}px - 24px)`,
               top: `calc(50% + ${y}px - 24px)`,
@@ -433,7 +422,7 @@ const FamilySlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       transition={{ delay: 1.2 }}
       className="text-2xl text-paper mt-2"
     >
-      stars in your sky
+      threads in your cloth
     </motion.p>
   </motion.div>
 );
@@ -449,15 +438,16 @@ const StreakSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ rotate: -180, scale: 0 }}
       animate={{ rotate: 0, scale: 1 }}
       transition={{ type: 'spring', duration: 1 }}
-      className="text-5xl sm:text-7xl md:text-8xl mb-8"
+      className="text-5xl sm:text-7xl md:text-8xl font-display text-gold mb-8"
+      aria-hidden
     >
-      🔥
+      ∞
     </motion.div>
     <motion.p
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="text-xl text-paper/70 mb-4"
+      className="text-xl text-paper-70 mb-4"
     >
       Your longest streak was
     </motion.p>
@@ -474,7 +464,7 @@ const StreakSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/70 mt-8"
+      className="text-lg text-paper-70 mt-8"
     >
       You were most active on <span className="text-gold">{stats.mostActiveDay}s</span>
     </motion.p>
@@ -491,7 +481,7 @@ const WordCloudSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
     <motion.p
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="text-xl text-paper/70 mb-8 text-center"
+      className="text-xl text-paper-70 mb-8 text-center"
     >
       Words that defined your year
     </motion.p>
@@ -502,11 +492,9 @@ const WordCloudSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: index * 0.1, type: 'spring' }}
-          className="px-4 py-2 rounded-full"
+          className={item.sentiment === 'positive' ? 'text-gold' : 'text-paper'}
           style={{
             fontSize: `${Math.max(14, item.count / 3)}px`,
-            backgroundColor: item.sentiment === 'positive' ? 'rgba(201,169,89,0.2)' : 'rgba(255,255,255,0.1)',
-            color: item.sentiment === 'positive' ? '#c9a959' : '#f5f3ee',
           }}
         >
           {item.word}
@@ -530,15 +518,15 @@ const LettersSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       className="relative mb-8"
     >
       {/* Envelope animation */}
-      <div className="w-48 h-32 bg-paper-warm rounded-lg relative overflow-hidden">
+      <div className="w-48 h-32 bg-void-surface border border-paper-15 rounded-[2px] relative overflow-hidden">
         <motion.div
           initial={{ y: '100%' }}
           animate={{ y: '20%' }}
           transition={{ delay: 0.8 }}
-          className="absolute inset-x-4 bottom-0 h-24 bg-paper rounded-t-lg shadow-lg"
+          className="absolute inset-x-4 bottom-0 h-24 bg-void border-x border-t border-paper-15 rounded-t-[2px]"
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-4xl text-blood">∞</span>
+          <span className="text-4xl text-gold" aria-hidden>∞</span>
         </div>
       </div>
     </motion.div>
@@ -546,7 +534,7 @@ const LettersSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3 }}
-      className="text-xl text-paper/70 mb-4"
+      className="text-xl text-paper-70 mb-4"
     >
       You wrote
     </motion.p>
@@ -563,7 +551,7 @@ const LettersSlide: React.FC<{ stats: WrappedStats }> = ({ stats }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/70 mt-8"
+      className="text-lg text-paper-70 mt-8"
     >
       Messages waiting to be discovered
     </motion.p>
@@ -602,40 +590,38 @@ const SummarySlide: React.FC<{ stats: WrappedStats; year: number }> = ({ stats, 
     >
       <div className="text-center">
         <p className="text-4xl font-display text-gold">{stats.totalMemories}</p>
-        <p className="text-sm text-paper/70">Memories</p>
+        <p className="text-sm text-paper-70">Memories</p>
       </div>
       <div className="text-center">
         <p className="text-4xl font-display text-gold">{stats.totalVoiceStories}</p>
-        <p className="text-sm text-paper/70">Voice Stories</p>
+        <p className="text-sm text-paper-70">Voice Stories</p>
       </div>
       <div className="text-center">
         <p className="text-4xl font-display text-gold">{stats.totalLetters}</p>
-        <p className="text-sm text-paper/70">Letters</p>
+        <p className="text-sm text-paper-70">Letters</p>
       </div>
       <div className="text-center">
         <p className="text-4xl font-display text-gold">{stats.familyMembersConnected}</p>
-        <p className="text-sm text-paper/70">Family</p>
+        <p className="text-sm text-paper-70">Family</p>
       </div>
     </motion.div>
-    
+
     {stats.topEmotions && stats.topEmotions.length > 0 && (
     <motion.p
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
-      className="text-lg text-paper/70 mb-8"
+      className="text-lg text-paper-70 mb-8"
     >
       Dominant emotion: <span className="text-gold">{stats.topEmotions[0].emotion}</span>
     </motion.p>
     )}
-    
+
     <motion.button
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 1 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="px-8 py-3 bg-gold text-void-deep rounded-full font-semibold tracking-wide"
+      className="btn btn-primary"
     >
       Share Your Wrapped
     </motion.button>
@@ -849,48 +835,11 @@ const Wrapped: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentSlide, slides.length]);
 
-  // Background gradient based on slide
-  const bgGradients = [
-    'from-void-deep via-sanctuary-blue to-void-deep',
-    'from-void-deep via-gold/20 to-void-deep',
-    'from-void-deep via-blood/20 to-void-deep',
-    'from-void-deep via-sanctuary-teal to-void-deep',
-    'from-void-deep via-gold/10 to-void-deep',
-    'from-void-deep via-blood/10 to-void-deep',
-    'from-void-deep via-sanctuary-blue to-void-deep',
-    'from-void-deep via-gold/20 to-void-deep',
-    'from-void-deep via-sanctuary-teal to-void-deep',
-  ];
-
   return (
     <div
       ref={containerRef}
-      className={`fixed inset-0 bg-gradient-to-b ${bgGradients[currentSlide]} transition-all duration-1000 overflow-hidden`}
+      className="fixed inset-0 bg-void text-paper overflow-hidden"
     >
-      {/* Floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 50 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-gold rounded-full"
-            initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-              opacity: 0,
-            }}
-            animate={{
-              y: [null, Math.random() * -200],
-              opacity: [0, 0.5, 0],
-            }}
-            transition={{
-              duration: 5 + Math.random() * 5,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-      </div>
-
       {/* Year Slider - positioned below progress dots on mobile */}
       <div className="absolute top-20 sm:top-8 left-4 sm:left-8 flex items-center gap-2 sm:gap-3 z-50">
         <button
@@ -902,12 +851,12 @@ const Wrapped: React.FC = () => {
             }
           }}
           disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
-          className="p-2 rounded-full border border-paper/30 text-paper/65 hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="p-2 rounded-[2px] border border-paper-15 text-paper-65 hover:text-gold hover:border-gold-40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          aria-label="Previous year"
         >
-          <ChevronLeft size={18} />
+          <span aria-hidden>←</span>
         </button>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-paper/30 bg-void-deep/50">
-          <Calendar size={16} className="text-gold" />
+        <div className="flex items-center gap-2 px-4 py-2 rounded-[2px] border border-paper-15 bg-void-surface">
           <span className="text-xl font-display text-gold">{selectedYear}</span>
         </div>
         <button
@@ -919,9 +868,10 @@ const Wrapped: React.FC = () => {
             }
           }}
           disabled={availableYears.indexOf(selectedYear) === 0}
-          className="p-2 rounded-full border border-paper/30 text-paper/65 hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="p-2 rounded-[2px] border border-paper-15 text-paper-65 hover:text-gold hover:border-gold-40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          aria-label="Next year"
         >
-          <ChevronRight size={18} />
+          <span aria-hidden>→</span>
         </button>
       </div>
 
@@ -935,10 +885,11 @@ const Wrapped: React.FC = () => {
               setProgress(0);
               setIsAutoPlaying(true);
             }}
-            className="flex-1 h-1 bg-paper/20 rounded-full overflow-hidden relative"
+            className="flex-1 h-px bg-paper-15 overflow-hidden relative"
+            aria-label={`Go to slide ${index + 1}`}
           >
             <div
-              className="absolute inset-y-0 left-0 bg-gold rounded-full transition-all duration-75"
+              className="absolute inset-y-0 left-0 bg-gold transition-all duration-75"
               style={{
                 width: index < currentSlide 
                   ? '100%' 
@@ -985,21 +936,22 @@ const Wrapped: React.FC = () => {
             }
           }}
           disabled={currentSlide === 0}
-          className={`p-3 rounded-full border transition-all ${
+          className={`px-4 py-2 rounded-[2px] border text-sm transition-colors ${
             currentSlide === 0
-              ? 'border-paper/10 text-paper/20'
-              : 'border-paper/30 text-paper hover:bg-paper/10'
+              ? 'border-paper-15 text-paper-30'
+              : 'border-paper-15 text-paper hover:border-gold-40'
           }`}
+          aria-label="Previous slide"
         >
-          <ChevronLeft size={20} />
+          <span aria-hidden>←</span>
         </button>
 
-        {/* Play/Pause button (center, larger) */}
+        {/* Play/Pause button (center) */}
         <button
           onClick={togglePlayPause}
-          className="p-4 rounded-full bg-gold text-void-deep hover:bg-gold-bright transition-all shadow-lg"
+          className="px-5 py-2 rounded-[2px] bg-gold text-void hover:bg-gold-bright transition-colors text-sm font-medium"
         >
-          {isAutoPlaying ? <Pause size={24} /> : <Play size={24} className="ml-0.5" />}
+          {isAutoPlaying ? 'Pause' : 'Play'}
         </button>
 
         {/* Next button */}
@@ -1011,30 +963,32 @@ const Wrapped: React.FC = () => {
             }
           }}
           disabled={currentSlide === slides.length - 1}
-          className={`p-3 rounded-full border transition-all ${
+          className={`px-4 py-2 rounded-[2px] border text-sm transition-colors ${
             currentSlide === slides.length - 1
-              ? 'border-paper/10 text-paper/20'
-              : 'border-paper/30 text-paper hover:bg-paper/10'
+              ? 'border-paper-15 text-paper-30'
+              : 'border-paper-15 text-paper hover:border-gold-40'
           }`}
+          aria-label="Next slide"
         >
-          <ChevronRight size={20} />
+          <span aria-hidden>→</span>
         </button>
 
-        {/* Mute button (for future audio support) */}
+        {/* Mute button */}
         <button
           onClick={() => setIsMuted(!isMuted)}
-          className="p-2 rounded-full border border-paper/20 text-paper/65 hover:text-paper hover:border-paper/40 transition-all ml-4"
+          className="px-3 py-2 rounded-[2px] border border-paper-15 text-paper-65 hover:text-paper hover:border-paper-15 transition-colors ml-4 text-xs"
+          aria-label={isMuted ? 'Unmute' : 'Mute'}
         >
-          {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          {isMuted ? 'Muted' : 'Sound'}
         </button>
       </div>
 
       {/* Back to Vault breadcrumb */}
       <button
         onClick={() => window.location.href = '/dashboard'}
-        className="absolute top-8 right-4 sm:right-8 flex items-center gap-2 px-3 py-2 text-paper/70 hover:text-gold transition-colors z-50 rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50"
+        className="absolute top-8 right-4 sm:right-8 flex items-center gap-2 px-3 py-2 text-paper-70 hover:text-gold transition-colors z-50 rounded-[2px] border border-paper-15 hover:border-gold-40 bg-void-surface"
       >
-        <ChevronLeft size={16} />
+        <span aria-hidden>←</span>
         <span className="text-sm font-medium">Back to Vault</span>
       </button>
 
@@ -1042,41 +996,36 @@ const Wrapped: React.FC = () => {
       <div className="absolute top-20 sm:top-8 right-4 sm:right-48 z-50">
         <button
           onClick={() => setShowShareMenu(!showShareMenu)}
-          className="flex items-center gap-2 px-3 py-2 text-paper/70 hover:text-gold transition-colors rounded-full border border-paper/20 hover:border-gold/50 bg-void-deep/50"
+          className="flex items-center gap-2 px-3 py-2 text-paper-70 hover:text-gold transition-colors rounded-[2px] border border-paper-15 hover:border-gold-40 bg-void-surface"
         >
-          <Share2 size={16} />
-          <span className="text-sm font-medium hidden sm:inline">Share</span>
+          <span className="text-sm font-medium">Share</span>
         </button>
-        
+
         {/* Share menu dropdown */}
         {showShareMenu && (
-          <div className="absolute top-12 right-0 bg-void-deep/95 border border-paper/20 rounded-xl p-2 min-w-[160px] shadow-xl">
+          <div className="absolute top-12 right-0 bg-void-surface border border-paper-15 rounded-[2px] p-2 min-w-[160px]">
             <button
               onClick={() => handleShare('native')}
-              className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 text-paper hover:text-gold transition-colors text-left rounded-[2px]"
             >
-              <Share2 size={16} />
-              <span className="text-sm">Share...</span>
+              <span className="text-sm">Share…</span>
             </button>
             <button
               onClick={() => handleShare('twitter')}
-              className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 text-paper hover:text-gold transition-colors text-left rounded-[2px]"
             >
-              <span className="text-base">𝕏</span>
               <span className="text-sm">Post on X</span>
             </button>
             <button
               onClick={() => handleShare('facebook')}
-              className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 text-paper hover:text-gold transition-colors text-left rounded-[2px]"
             >
-              <span className="text-base">f</span>
               <span className="text-sm">Share on Facebook</span>
             </button>
             <button
               onClick={() => handleShare('copy')}
-              className="w-full flex items-center gap-3 px-3 py-2 text-paper/80 hover:text-gold hover:bg-paper/5 rounded-lg transition-colors text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 text-paper hover:text-gold transition-colors text-left rounded-[2px]"
             >
-              <Download size={16} />
               <span className="text-sm">Copy Link</span>
             </button>
           </div>

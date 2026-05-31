@@ -1,9 +1,6 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, Play, Trash2, Share2, Film, Image, Mic, Check, X, Eye, Upload, ArrowRight, Sparkles, ChevronRight, Heart, Users, Clock, Star
-} from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import { ProgressHair } from '../components/ui/ProgressHair';
@@ -11,33 +8,29 @@ import api, { memoriesApi, voiceApi } from '../services/api';
 
 // Quick Create wizard templates
 const STORY_TEMPLATES = [
-  { 
-    id: 'family-moments', 
-    icon: Users, 
+  {
+    id: 'family-moments',
     title: 'Family Moments',
     description: 'A collection of cherished family memories',
     suggestedTitle: 'Our Family Story',
     theme: 'warm',
   },
-  { 
-    id: 'love-story', 
-    icon: Heart, 
+  {
+    id: 'love-story',
     title: 'Love Story',
     description: 'Your journey together',
     suggestedTitle: 'Our Love Story',
     theme: 'classic',
   },
-  { 
-    id: 'life-journey', 
-    icon: Clock, 
+  {
+    id: 'life-journey',
     title: 'Life Journey',
     description: 'Highlights from through the years',
     suggestedTitle: 'A Life Well Lived',
     theme: 'vintage',
   },
-  { 
-    id: 'special-moments', 
-    icon: Star, 
+  {
+    id: 'special-moments',
     title: 'Special Moments',
     description: 'Your most treasured memories',
     suggestedTitle: 'Moments to Remember',
@@ -247,14 +240,14 @@ export function StoryArtifact() {
           filename: file.name,
           contentType: file.type,
         });
-        
+
         // Upload file to presigned URL
         await fetch(uploadData.uploadUrl, {
           method: 'PUT',
           body: file,
           headers: { 'Content-Type': file.type },
         });
-        
+
         // Create memory record
         await memoriesApi.create({
           title: file.name.replace(/\.[^/.]+$/, ''),
@@ -276,11 +269,7 @@ export function StoryArtifact() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen relative">
-        <div className="eternal-bg">
-          <div className="eternal-aura" />
-          <div className="eternal-stars" />
-        </div>
+      <div className="min-h-screen relative bg-void">
         <Navigation />
         <div className="flex items-center justify-center h-[60vh]">
           <ProgressHair label="loading…" width={180} />
@@ -290,13 +279,7 @@ export function StoryArtifact() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
-
+    <div className="min-h-screen relative bg-void text-paper antialiased">
       <Navigation />
 
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-16 max-w-6xl mx-auto">
@@ -307,16 +290,16 @@ export function StoryArtifact() {
           className="flex items-center justify-between mb-12"
         >
           <div>
-            <h1 className="font-display text-4xl md:text-5xl mb-2">Story Artifacts</h1>
-            <p className="text-paper/70">
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-3">Story Artifacts</p>
+            <h1 className="font-display font-light text-4xl md:text-5xl mb-2 tracking-[-0.018em]">Story Artifacts</h1>
+            <p className="text-paper-70 font-light">
               Create beautiful micro-documentaries from your memories
             </p>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="btn btn-primary flex items-center gap-2"
+            className="btn btn-primary"
           >
-            <Plus size={20} />
             Create Story
           </button>
         </motion.div>
@@ -330,73 +313,60 @@ export function StoryArtifact() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="glass rounded-xl overflow-hidden group"
+                className="bg-void-surface border border-paper-15 rounded-[2px] overflow-hidden group"
               >
-                <div className="aspect-video bg-gradient-to-br from-gold/20 to-void flex items-center justify-center relative">
-                  <Film size={48} className="text-gold/50" />
+                <div className="aspect-video bg-void-elevated flex items-center justify-center relative border-b border-paper-15">
+                  <span className="font-display text-3xl text-gold" aria-hidden>∞</span>
                                     {artifact.status === 'READY' && (
-                                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                      <div className="absolute inset-0 bg-void/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                         <button
                                           onClick={() => shareMutation.mutate(artifact.id)}
-                                          className="w-16 h-16 rounded-full bg-gold/90 flex items-center justify-center"
-                                          title="Share this story"
+                                          className="px-4 py-2 border border-gold-40 text-gold rounded-[2px] hover:text-gold-bright transition-colors"
+                                          aria-label="Share this story"
                                         >
-                                          <Play size={24} className="text-void ml-1" />
+                                          Share <span aria-hidden>→</span>
                                         </button>
                                       </div>
                                     )}
                   <div className="absolute top-3 right-3">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      artifact.status === 'READY' ? 'bg-green-500/20 text-green-400' :
-                      artifact.status === 'PROCESSING' ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-paper/20 text-paper/70'
-                    }`}>
+                    <span className="px-2 py-1 rounded-[2px] text-xs font-mono uppercase tracking-[0.1em] bg-void border border-paper-15 text-paper-70">
                       {artifact.status}
                     </span>
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-medium mb-1 truncate">{artifact.title}</h3>
+                  <h3 className="font-body mb-1 truncate">{artifact.title}</h3>
                   {artifact.description && (
-                    <p className="text-sm text-paper/65 mb-3 line-clamp-2">{artifact.description}</p>
+                    <p className="text-sm text-paper-65 mb-3 line-clamp-2">{artifact.description}</p>
                   )}
-                  <div className="flex items-center justify-between text-sm text-paper/70">
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        <Image size={14} />
-                        {JSON.parse(artifact.selected_memories || '[]').length}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Eye size={14} />
-                        {artifact.view_count}
-                      </span>
+                  <div className="flex items-center justify-between text-sm text-paper-70">
+                    <div className="flex items-center gap-3 font-mono text-xs">
+                      <span>{JSON.parse(artifact.selected_memories || '[]').length} photos</span>
+                      <span>{artifact.view_count} views</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {artifact.status === 'DRAFT' && (
                         <button
                           onClick={() => generateMutation.mutate(artifact.id)}
                           disabled={generateMutation.isPending}
-                          className="p-2 hover:bg-paper/10 rounded-lg transition-colors text-gold"
-                          title="Generate"
+                          className="text-gold hover:text-gold-bright transition-colors text-sm"
                         >
-                          <Play size={16} />
+                          Generate
                         </button>
                       )}
                       {artifact.status === 'READY' && (
                         <button
                           onClick={() => shareMutation.mutate(artifact.id)}
-                          className="p-2 hover:bg-paper/10 rounded-lg transition-colors"
-                          title="Share"
+                          className="text-paper-70 hover:text-paper transition-colors text-sm"
                         >
-                          <Share2 size={16} />
+                          Share
                         </button>
                       )}
                       <button
                         onClick={() => deleteMutation.mutate(artifact.id)}
-                        className="p-2 hover:bg-paper/10 rounded-lg transition-colors text-red-400"
-                        title="Delete"
+                        className="text-paper-50 hover:text-blood transition-colors text-sm"
                       >
-                        <Trash2 size={16} />
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -410,9 +380,9 @@ export function StoryArtifact() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <Film size={64} className="mx-auto text-paper/20 mb-4" />
-            <h3 className="text-xl font-medium mb-2">No stories yet</h3>
-            <p className="text-paper/65 mb-6">Create your first micro-documentary from your memories</p>
+            <span className="font-display text-4xl text-paper-30 block mb-6" aria-hidden>∞</span>
+            <h3 className="font-body text-xl mb-2">No stories yet</h3>
+            <p className="text-paper-65 mb-6">Create your first micro-documentary from your memories</p>
             <button
               onClick={() => setShowCreate(true)}
               className="btn btn-primary"
@@ -429,24 +399,24 @@ export function StoryArtifact() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
               onClick={() => setShareUrl(null)}
             >
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="glass rounded-2xl p-6 max-w-md w-full"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full"
                 onClick={e => e.stopPropagation()}
               >
-                <h3 className="text-xl font-medium mb-4">Share Your Story</h3>
-                <p className="text-paper/70 mb-4">Anyone with this link can view your story for 7 days.</p>
+                <h3 className="font-body text-xl mb-4">Share Your Story</h3>
+                <p className="text-paper-70 mb-4">Anyone with this link can view your story for 7 days.</p>
                 <div className="flex gap-2 mb-4">
                   <input
                     type="text"
                     value={shareUrl}
                     readOnly
-                    className="flex-1 bg-void/50 border border-paper/10 rounded-lg px-4 py-2 text-sm"
+                    className="flex-1 bg-void border border-paper-15 rounded-[2px] px-4 py-2 text-sm text-paper font-mono"
                   />
                   <button
                     onClick={() => navigator.clipboard.writeText(shareUrl)}
@@ -473,70 +443,65 @@ export function StoryArtifact() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-y-auto"
+              className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4 overflow-y-auto"
               onClick={() => resetForm()}
             >
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="glass rounded-2xl p-6 max-w-xl w-full my-8"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-xl w-full my-8"
                 onClick={e => e.stopPropagation()}
               >
                 {/* Wizard Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     {wizardStep > 1 && (
-                      <button 
-                        onClick={() => setWizardStep(wizardStep - 1)} 
-                        className="text-paper/65 hover:text-paper"
+                      <button
+                        onClick={() => setWizardStep(wizardStep - 1)}
+                        className="text-paper-50 hover:text-paper transition-colors"
+                        aria-label="Back"
                       >
-                        <ArrowRight size={20} className="rotate-180" />
+                        <span aria-hidden>←</span>
                       </button>
                     )}
                     <div>
-                      <h3 className="text-xl font-medium">
+                      <h3 className="font-body text-xl">
                         {wizardStep === 1 && 'What kind of story?'}
                         {wizardStep === 2 && 'Select your photos'}
                         {wizardStep === 3 && 'Review & Create'}
                       </h3>
-                      <p className="text-sm text-paper/65">Step {wizardStep} of 3</p>
+                      <p className="text-sm text-paper-65 font-mono">Step {wizardStep} of 3</p>
                     </div>
                   </div>
-                  <button onClick={() => resetForm()} className="text-paper/65 hover:text-paper">
-                    <X size={24} />
+                  <button onClick={() => resetForm()} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
+                    <span aria-hidden>✕</span>
                   </button>
                 </div>
 
                 {/* Step 1: Pick Template */}
                 {wizardStep === 1 && (
                   <div className="space-y-3">
-                    {STORY_TEMPLATES.map((template) => {
-                      const TemplateIcon = template.icon;
-                      return (
-                        <button
-                          key={template.id}
-                          onClick={() => handleTemplateSelect(template)}
-                          className="w-full p-4 rounded-xl bg-paper/5 hover:bg-paper/10 transition-all flex items-center gap-4 text-left group"
-                        >
-                          <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center text-gold">
-                            <TemplateIcon size={24} />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium">{template.title}</h4>
-                            <p className="text-sm text-paper/65">{template.description}</p>
-                          </div>
-                          <ChevronRight size={20} className="text-paper/65 group-hover:text-gold transition-colors" />
-                        </button>
-                      );
-                    })}
-                    <div className="pt-4 border-t border-paper/10">
+                    {STORY_TEMPLATES.map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => handleTemplateSelect(template)}
+                        className="w-full p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
+                      >
+                        <div className="flex-1">
+                          <h4 className="font-body">{template.title}</h4>
+                          <p className="text-sm text-paper-65">{template.description}</p>
+                        </div>
+                        <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
+                      </button>
+                    ))}
+                    <div className="pt-4 border-t border-paper-15">
                       <button
                         onClick={() => {
                           setWizardStep(2);
                           setSelectedTemplate(null);
                         }}
-                        className="w-full p-3 text-center text-paper/65 hover:text-paper transition-colors"
+                        className="w-full p-3 text-center text-paper-65 hover:text-paper transition-colors"
                       >
                         Or create a custom story...
                       </button>
@@ -552,18 +517,16 @@ export function StoryArtifact() {
                       <button
                         onClick={handleAutoSelectPhotos}
                         disabled={memories.filter(m => m.type === 'PHOTO').length === 0}
-                        className="flex-1 p-3 bg-gold/10 border border-gold/20 rounded-lg text-gold hover:bg-gold/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 p-3 border border-gold-40 rounded-[2px] text-gold hover:text-gold-bright transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Sparkles size={16} />
                         Auto-select recent photos
                       </button>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploading}
-                        className="p-3 bg-paper/5 border border-paper/10 rounded-lg hover:bg-paper/10 transition-colors flex items-center gap-2"
+                        className="p-3 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors"
                       >
-                        <Upload size={16} />
                         {isUploading ? 'Uploading...' : 'Upload'}
                       </button>
                       <input
@@ -576,18 +539,18 @@ export function StoryArtifact() {
                       />
                     </div>
 
-                    <p className="text-sm text-paper/70">
+                    <p className="text-sm text-paper-70 font-mono">
                       Selected: {selectedMemories.length}/10 photos
                     </p>
 
                     {/* Photo Grid */}
-                    <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto p-2 bg-void/30 rounded-lg">
+                    <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto p-2 bg-void rounded-[2px]">
                       {memories.filter(m => m.type === 'PHOTO').map((memory) => (
                         <button
                           key={memory.id}
                           onClick={() => toggleMemory(memory.id)}
-                          className={`aspect-square rounded-lg overflow-hidden relative ${
-                            selectedMemories.includes(memory.id) ? 'ring-2 ring-gold' : ''
+                          className={`aspect-square rounded-[2px] overflow-hidden relative ${
+                            selectedMemories.includes(memory.id) ? 'ring-1 ring-gold' : ''
                           }`}
                         >
                           <img
@@ -597,21 +560,19 @@ export function StoryArtifact() {
                           />
                           {selectedMemories.includes(memory.id) && (
                             <div className="absolute inset-0 bg-gold/30 flex items-center justify-center">
-                              <Check size={24} className="text-white" />
+                              <span aria-hidden className="text-paper text-lg">✓</span>
                             </div>
                           )}
                         </button>
                       ))}
                       {memories.filter(m => m.type === 'PHOTO').length === 0 && (
                         <div className="col-span-4 text-center py-8">
-                          <Image size={32} className="mx-auto text-paper/65 mb-2" />
-                          <p className="text-paper/65 mb-3">No photos yet</p>
+                          <p className="text-paper-65 mb-3">No photos yet</p>
                           <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
                             className="btn btn-primary btn-sm"
                           >
-                            <Upload size={14} className="mr-1" />
                             Upload Your First Photo
                           </button>
                         </div>
@@ -633,56 +594,52 @@ export function StoryArtifact() {
                 {wizardStep === 3 && (
                   <div className="space-y-5">
                     {/* Summary */}
-                    <div className="p-4 rounded-xl bg-gold/10 border border-gold/20">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Sparkles size={20} className="text-gold" />
-                        <span className="font-medium">Ready to create</span>
-                      </div>
-                      <p className="text-sm text-paper/70">
+                    <div className="p-4 rounded-[2px] bg-void border border-gold-40">
+                      <p className="font-body mb-2">Ready to create</p>
+                      <p className="text-sm text-paper-70">
                         {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom story'} with {selectedMemories.length} photos
                       </p>
                     </div>
 
                     {/* Editable Title */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">Story Title</label>
+                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Story Title</label>
                       <input
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Give your story a name..."
-                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50"
+                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
                       />
                     </div>
 
                     {/* Optional Description */}
                     <div>
-                      <label className="block text-sm font-medium mb-2">Description (optional)</label>
+                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Description (optional)</label>
                       <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Add a description..."
                         rows={2}
-                        className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-3 focus:outline-none focus:border-gold/50 resize-none"
+                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors resize-none"
                       />
                     </div>
 
                     {/* Voice Recording (collapsed by default) */}
                     {voiceRecordings.length > 0 && (
                       <div>
-                        <label className="block text-sm font-medium mb-2">Add Voice Narration (optional)</label>
+                        <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Add Voice Narration (optional)</label>
                         <div className="space-y-1 max-h-24 overflow-y-auto">
                           {voiceRecordings.slice(0, 3).map((recording) => (
                             <button
                               key={recording.id}
                               onClick={() => setSelectedVoice(selectedVoice === recording.id ? null : recording.id)}
-                              className={`w-full p-2 rounded-lg flex items-center gap-2 text-sm transition-all ${
-                                selectedVoice === recording.id 
-                                  ? 'bg-gold/20 border border-gold/30' 
-                                  : 'bg-void/30 hover:bg-void/50'
+                              className={`w-full p-2 rounded-[2px] flex items-center gap-2 text-sm transition-colors border ${
+                                selectedVoice === recording.id
+                                  ? 'border-gold-40 text-gold'
+                                  : 'border-paper-15 bg-void hover:bg-void-elevated'
                               }`}
                             >
-                              <Mic size={14} className={selectedVoice === recording.id ? 'text-gold' : 'text-paper/65'} />
                               <span className="flex-1 text-left truncate">{recording.title}</span>
                             </button>
                           ))}
@@ -694,16 +651,9 @@ export function StoryArtifact() {
                     <button
                       onClick={handleQuickCreate}
                       disabled={!title.trim() || selectedMemories.length === 0 || createMutation.isPending}
-                      className="w-full py-4 bg-gradient-to-r from-gold to-gold/80 text-void font-medium rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full btn btn-primary"
                     >
-                      {createMutation.isPending ? (
-                        'Creating…'
-                      ) : (
-                        <>
-                          <Sparkles size={18} />
-                          Create Story
-                        </>
-                      )}
+                      {createMutation.isPending ? 'Creating…' : 'Create Story'}
                     </button>
                   </div>
                 )}

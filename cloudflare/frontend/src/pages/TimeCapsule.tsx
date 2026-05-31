@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Clock, Lock, Users, Check, X, Image, Sparkles } from '../components/Icons';
 import { Navigation } from '../components/Navigation';
-import { EmptyState } from '../components/EmptyState';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import { capsulesApi, threadsApi } from '../services/api';
 
@@ -18,10 +16,9 @@ function ThreadComposeBanner() {
   const featured = data?.threads?.[0];
   if (!featured) return null;
   return (
-    <div className="mb-8 border border-gold/30 rounded-xl px-5 py-4 bg-void-surface/40 flex items-start gap-4 flex-wrap">
-      <Lock size={16} className="text-gold mt-1 shrink-0" />
+    <div className="mb-8 border border-gold-40 px-5 py-4 bg-void-surface flex items-start gap-4 flex-wrap">
       <div className="flex-1 min-w-0">
-        <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold/80 mb-1">
+        <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold mb-1">
           Now part of your family thread
         </p>
         <p className="text-paper text-sm leading-relaxed">
@@ -30,9 +27,9 @@ function ThreadComposeBanner() {
       </div>
       <Link
         to={`/threads/${featured.id}/compose`}
-        className="text-gold hover:text-gold-bright text-sm whitespace-nowrap"
+        className="inline-flex items-center gap-2 text-gold hover:text-gold-bright text-sm whitespace-nowrap"
       >
-        Write a locked entry →
+        Write a locked entry <span aria-hidden>→</span>
       </Link>
     </div>
   );
@@ -58,53 +55,44 @@ function CapsuleCard({ capsule, onClick, isSelected }: { capsule: Capsule; onCli
   const daysUntilUnlock = Math.ceil((unlockDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   const canOpen = status === 'sealed' && daysUntilUnlock <= 0;
 
+  const statusLabel =
+    status === 'unlocked' ? 'Opened' : status === 'sealed' ? 'Sealed' : 'Open';
+
   return (
-    <motion.button
+    <button
       onClick={onClick}
-      className={`w-full text-left p-6 rounded-2xl glass border transition-all group ${isSelected ? 'border-gold/50 ring-1 ring-gold/20' : 'border-paper/10 hover:border-gold/30'}`}
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.99 }}
+      className={`w-full text-left p-6 bg-void-surface border transition-colors group ${isSelected ? 'border-gold-40' : 'border-paper-15 hover:border-gold-40'}`}
     >
       <div className="flex items-start justify-between mb-4">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-          status === 'unlocked' ? 'bg-green-500/20 text-green-400' :
-          status === 'sealed' ? 'bg-gold/20 text-gold' :
-          'bg-paper/10 text-paper/65'
+        <span className="font-mono text-[0.6rem] tracking-[0.24em] uppercase text-paper-50">
+          {statusLabel}
+        </span>
+        <span className={`text-xs px-2 py-1 rounded-[2px] border ${
+          canOpen ? 'border-gold-40 text-gold' :
+          status === 'sealed' ? 'border-paper-15 text-paper-70' :
+          status === 'unlocked' ? 'border-paper-15 text-paper-65' :
+          'border-paper-15 text-paper-65'
         }`}>
-          {status === 'unlocked' ? <Check size={24} /> :
-           status === 'sealed' ? <Lock size={24} /> :
-           <Clock size={24} />}
-        </div>
-        <span className={`text-xs px-2 py-1 rounded-full ${
-          canOpen ? 'bg-gold/20 text-gold' :
-          status === 'sealed' ? 'bg-paper/10 text-paper/70' :
-          status === 'unlocked' ? 'bg-green-500/10 text-green-400' :
-          'bg-paper/5 text-paper/65'
-        }`}>
-          {canOpen ? 'Ready to open!' :
+          {canOpen ? 'Ready to open' :
            status === 'sealed' ? `Opens in ${daysUntilUnlock} days` :
            status === 'unlocked' ? 'Opened' :
            'Collecting memories'}
         </span>
       </div>
 
-      <h3 className="font-serif text-xl text-paper mb-1 group-hover:text-gold transition-colors">
+      <h3 className="font-body text-xl text-paper mb-1 group-hover:text-gold transition-colors">
         {capsule.title}
       </h3>
       {capsule.description && (
-        <p className="text-paper/70 text-sm mb-4 line-clamp-2">{capsule.description}</p>
+        <p className="text-paper-70 text-sm mb-4 line-clamp-2">{capsule.description}</p>
       )}
 
-      <div className="flex items-center gap-4 text-xs text-paper/65">
-        <span className="flex items-center gap-1">
-          <Users size={12} /> {capsule.contributor_count} contributors
-        </span>
-        <span className="flex items-center gap-1">
-          <Image size={12} /> {capsule.item_count} items
-        </span>
+      <div className="flex items-center gap-4 text-xs text-paper-65">
+        <span>{capsule.contributor_count} contributors</span>
+        <span>{capsule.item_count} items</span>
         <span>Opens {unlockDate.toLocaleDateString()}</span>
       </div>
-    </motion.button>
+    </button>
   );
 }
 
@@ -134,19 +122,14 @@ export function TimeCapsule() {
   });
 
   const coverStyles = [
-    { id: 'classic', label: 'Classic Gold', bg: 'from-gold/20 to-amber-900/20' },
-    { id: 'midnight', label: 'Midnight Blue', bg: 'from-blue-900/30 to-indigo-900/20' },
-    { id: 'rose', label: 'Rose Garden', bg: 'from-pink-900/20 to-rose-900/20' },
-    { id: 'emerald', label: 'Emerald', bg: 'from-emerald-900/20 to-green-900/20' },
+    { id: 'classic', label: 'Classic Gold' },
+    { id: 'midnight', label: 'Midnight Blue' },
+    { id: 'rose', label: 'Rose Garden' },
+    { id: 'emerald', label: 'Emerald' },
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
+    <div className="min-h-screen bg-void text-paper antialiased">
       <Navigation />
 
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-32 max-w-5xl mx-auto">
@@ -157,18 +140,17 @@ export function TimeCapsule() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-serif text-3xl md:text-4xl text-paper mb-2">Time Capsules</h1>
-            <p className="text-paper/65 font-serif">Seal memories today, open them when the time is right</p>
+            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Time Capsules</p>
+            <h1 className="font-body font-light text-3xl md:text-4xl text-paper mb-2 tracking-[-0.014em]">Time Capsules</h1>
+            <p className="text-paper-65 font-body">Seal memories today, open them when the time is right</p>
           </div>
-          <motion.button
+          <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-gold to-gold-dim text-void font-medium text-sm"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="btn btn-primary text-sm"
           >
-            <Plus size={18} />
             New Capsule
-          </motion.button>
+            <span aria-hidden>→</span>
+          </button>
         </div>
 
         {/* Capsule list */}
@@ -177,13 +159,16 @@ export function TimeCapsule() {
             <ProgressHair label="loading…" width={180} />
           </div>
         ) : !capsules?.length ? (
-          <EmptyState
-            icon={Clock}
-            title="No time capsules yet"
-            subtitle="Create your first time capsule and fill it with memories, messages, and photos for your loved ones to open in the future."
-            actionLabel="Create Time Capsule"
-            onAction={() => setShowCreateModal(true)}
-          />
+          <div className="border border-paper-15 bg-void-surface p-10 text-center">
+            <h3 className="font-body font-light text-2xl text-paper mb-2 tracking-[-0.014em]">No time capsules yet</h3>
+            <p className="text-paper-65 max-w-prose mx-auto leading-relaxed mb-8">
+              Create your first time capsule and fill it with memories, messages, and photos for your loved ones to open in the future.
+            </p>
+            <button onClick={() => setShowCreateModal(true)} className="btn btn-primary">
+              Create Time Capsule
+              <span aria-hidden>→</span>
+            </button>
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {capsules.map((capsule: Capsule) => (
@@ -208,62 +193,62 @@ export function TimeCapsule() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-void/80 p-6"
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-lg glass rounded-2xl border border-paper/10 p-8"
+              exit={{ scale: 0.98, opacity: 0 }}
+              className="w-full max-w-lg bg-void-surface border border-paper-15 p-8"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-serif text-2xl text-paper">Create Time Capsule</h2>
-                <button onClick={() => setShowCreateModal(false)} className="text-paper/70 hover:text-paper">
-                  <X size={20} />
+                <h2 className="font-body font-light text-2xl text-paper tracking-[-0.014em]">Create Time Capsule</h2>
+                <button onClick={() => setShowCreateModal(false)} aria-label="Close" className="text-paper-70 hover:text-paper transition-colors">
+                  <span aria-hidden>✕</span>
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-paper/65 mb-1">Capsule Name</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Capsule Name</label>
                   <input
                     type="text"
                     value={newCapsule.title}
                     onChange={(e) => setNewCapsule((prev) => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl bg-paper/5 border border-paper/10 text-paper focus:border-gold/30 focus:outline-none"
+                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                     placeholder="Family Christmas 2025"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/65 mb-1">Description (optional)</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Description (optional)</label>
                   <textarea
                     value={newCapsule.description}
                     onChange={(e) => setNewCapsule((prev) => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl bg-paper/5 border border-paper/10 text-paper focus:border-gold/30 focus:outline-none resize-none h-20"
+                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 resize-none h-20 transition-colors"
                     placeholder="A collection of memories from this special year..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/65 mb-1">Unlock Date</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Unlock Date</label>
                   <input
                     type="date"
                     value={newCapsule.unlock_date}
                     onChange={(e) => setNewCapsule((prev) => ({ ...prev, unlock_date: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl bg-paper/5 border border-paper/10 text-paper focus:border-gold/30 focus:outline-none"
+                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] transition-colors"
                     min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm text-paper/65 mb-2">Cover Style</label>
+                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Cover Style</label>
                   <div className="grid grid-cols-2 gap-2">
                     {coverStyles.map((style) => (
                       <button
                         key={style.id}
                         onClick={() => setNewCapsule((prev) => ({ ...prev, cover_style: style.id }))}
-                        className={`p-3 rounded-xl bg-gradient-to-br ${style.bg} border transition-all text-sm ${
+                        className={`p-3 rounded-[2px] bg-void-surface border transition-colors text-sm ${
                           newCapsule.cover_style === style.id
-                            ? 'border-gold/50 ring-1 ring-gold/20'
-                            : 'border-paper/10'
+                            ? 'border-gold-40 text-gold'
+                            : 'border-paper-15 text-paper-70'
                         }`}
                       >
                         {style.label}
@@ -276,20 +261,18 @@ export function TimeCapsule() {
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-5 py-2.5 rounded-xl text-paper/65 hover:text-paper transition-colors"
+                  className="btn btn-ghost"
                 >
                   Cancel
                 </button>
-                <motion.button
+                <button
                   onClick={() => createMutation.mutate(newCapsule)}
                   disabled={!newCapsule.title || !newCapsule.unlock_date || createMutation.isPending}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold to-gold-dim text-void font-medium text-sm disabled:opacity-50"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="btn btn-primary"
                 >
-                  {createMutation.isPending ? null : <Sparkles size={16} />}
                   Create Capsule
-                </motion.button>
+                  {!createMutation.isPending ? <span aria-hidden>→</span> : null}
+                </button>
               </div>
             </motion.div>
           </motion.div>

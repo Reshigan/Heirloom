@@ -1,21 +1,17 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Check, Plus, Trash2, Share2, Users, BookOpen, Heart, FileText, Lightbulb, ChevronDown, ChevronUp, Link2
-} from 'lucide-react';
 import { Navigation } from '../components/Navigation';
-import { Mic, Mail, Image, Family } from '../components/Icons';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api from '../services/api';
 
-const CATEGORY_CONFIG: Record<string, { icon: React.ElementType; label: string; color: string }> = {
-  PEOPLE: { icon: Users, label: 'People to Remember', color: 'text-blue-400' },
-  STORIES: { icon: BookOpen, label: 'Stories to Tell', color: 'text-purple-400' },
-  GRATITUDE: { icon: Heart, label: 'Gratitude & Love', color: 'text-pink-400' },
-  PRACTICAL: { icon: FileText, label: 'Practical Matters', color: 'text-green-400' },
-  WISDOM: { icon: Lightbulb, label: 'Wisdom to Share', color: 'text-yellow-400' },
+const CATEGORY_CONFIG: Record<string, { label: string }> = {
+  PEOPLE: { label: 'People to Remember' },
+  STORIES: { label: 'Stories to Tell' },
+  GRATITUDE: { label: 'Gratitude & Love' },
+  PRACTICAL: { label: 'Practical Matters' },
+  WISDOM: { label: 'Wisdom to Share' },
 };
 
 interface PlanItem {
@@ -111,11 +107,7 @@ export function LegacyPlan() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen relative">
-        <div className="eternal-bg">
-          <div className="eternal-aura" />
-          <div className="eternal-stars" />
-        </div>
+      <div className="min-h-screen relative bg-void">
         <Navigation />
         <div className="flex items-center justify-center h-[60vh]">
           <ProgressHair label="loading…" width={180} />
@@ -128,13 +120,7 @@ export function LegacyPlan() {
   const itemsByCategory = data?.itemsByCategory || {};
 
   return (
-    <div className="min-h-screen relative">
-      <div className="eternal-bg">
-        <div className="eternal-aura" />
-        <div className="eternal-stars" />
-        <div className="eternal-mist" />
-      </div>
-
+    <div className="min-h-screen relative bg-void text-paper antialiased">
       <Navigation />
 
       <main className="relative z-10 px-6 md:px-12 pt-24 pb-16 max-w-4xl mx-auto">
@@ -144,8 +130,9 @@ export function LegacyPlan() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="font-display text-4xl md:text-5xl mb-4">Thread Plan</h1>
-          <p className="text-paper/70 max-w-xl mx-auto">
+          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Thread Plan</p>
+          <h1 className="font-display font-light text-4xl md:text-5xl mb-4 tracking-[-0.018em]">Thread Plan</h1>
+          <p className="text-paper-70 max-w-xl mx-auto leading-relaxed font-light">
             A structured guide for what to write into your family thread first. Work through these so the people who come after you have something to read.
           </p>
         </motion.div>
@@ -155,47 +142,45 @@ export function LegacyPlan() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass rounded-2xl p-6 mb-8"
+          className="bg-void-surface border border-paper-15 rounded-[2px] p-6 mb-8"
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-medium">Your Progress</h2>
-              <p className="text-paper/65 text-sm">
+              <h2 className="font-body text-xl">Your Progress</h2>
+              <p className="text-paper-65 text-sm">
                 {plan?.completedItems || 0} of {plan?.totalItems || 0} items completed
               </p>
             </div>
             <div className="text-4xl font-display text-gold">{plan?.progressPercent || 0}%</div>
           </div>
-          
-          <div className="h-3 bg-void/50 rounded-full overflow-hidden mb-4">
+
+          <div className="h-px bg-paper-15 overflow-hidden mb-4">
             <motion.div
-              className="h-full bg-gradient-to-r from-gold to-gold/70 rounded-full"
+              className="h-full bg-gold"
               initial={{ width: 0 }}
               animate={{ width: `${plan?.progressPercent || 0}%` }}
-              transition={{ duration: 1, ease: 'easeOut' }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             />
           </div>
 
           <div className="flex items-center justify-between">
             <button
               onClick={() => toggleShareMutation.mutate(!(plan?.share_progress === 1))}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                plan?.share_progress === 1 
-                  ? 'bg-gold/20 text-gold border border-gold/30' 
-                  : 'glass hover:bg-paper/5'
+              className={`px-4 py-2 rounded-[2px] text-sm transition-colors border ${
+                plan?.share_progress === 1
+                  ? 'border-gold-40 text-gold'
+                  : 'border-paper-15 text-paper-70 hover:text-paper'
               }`}
             >
-              <Share2 size={16} />
               {plan?.share_progress === 1 ? 'Sharing Enabled' : 'Share Progress'}
             </button>
-            
+
             {shareUrl && (
-              <div className="flex items-center gap-2 text-sm text-paper/70">
-                <Link2 size={14} />
-                <span className="truncate max-w-[200px]">{shareUrl}</span>
+              <div className="flex items-center gap-2 text-sm text-paper-70">
+                <span className="truncate max-w-[200px] font-mono">{shareUrl}</span>
                 <button
                   onClick={() => navigator.clipboard.writeText(shareUrl)}
-                  className="text-gold hover:text-gold/80"
+                  className="text-gold hover:text-gold-bright transition-colors"
                 >
                   Copy
                 </button>
@@ -207,7 +192,6 @@ export function LegacyPlan() {
         {/* Categories */}
         <div className="space-y-4">
           {Object.entries(CATEGORY_CONFIG).map(([category, config], index) => {
-            const Icon = config.icon;
             const items = itemsByCategory[category] || [];
             const completedCount = items.filter(i => i.completed === 1).length;
             const isExpanded = expandedCategories.has(category);
@@ -218,30 +202,27 @@ export function LegacyPlan() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + index * 0.05 }}
-                className="glass rounded-xl overflow-hidden"
+                className="bg-void-surface border border-paper-15 rounded-[2px] overflow-hidden"
               >
                 {/* Category Header */}
                 <button
                   onClick={() => toggleCategory(category)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-paper/5 transition-colors"
+                  className="w-full p-4 flex items-center justify-between hover:bg-void-elevated transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg bg-paper/5 flex items-center justify-center ${config.color}`}>
-                      <Icon size={20} />
-                    </div>
                     <div className="text-left">
-                      <h3 className="font-medium">{config.label}</h3>
-                      <p className="text-sm text-paper/65">{completedCount} of {items.length} completed</p>
+                      <h3 className="font-body">{config.label}</h3>
+                      <p className="text-sm text-paper-65">{completedCount} of {items.length} completed</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-24 h-2 bg-void/50 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full ${config.color.replace('text-', 'bg-')}`}
+                    <div className="w-24 h-px bg-paper-15 overflow-hidden">
+                      <div
+                        className="h-full bg-gold"
                         style={{ width: `${items.length > 0 ? (completedCount / items.length) * 100 : 0}%` }}
                       />
                     </div>
-                    {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    <span aria-hidden className="text-paper-50">{isExpanded ? '−' : '+'}</span>
                   </div>
                 </button>
 
@@ -252,55 +233,57 @@ export function LegacyPlan() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="border-t border-paper/10"
+                      className="border-t border-paper-15"
                     >
                       <div className="p-4 space-y-2">
                         {items.map((item) => (
                           <div
                             key={item.id}
-                            className={`flex items-start gap-3 p-3 rounded-lg transition-all ${
-                              item.completed === 1 ? 'bg-green-500/10' : 'bg-paper/5 hover:bg-paper/10'
+                            className={`flex items-start gap-3 p-3 rounded-[2px] transition-colors ${
+                              item.completed === 1 ? 'bg-void-elevated' : 'bg-void hover:bg-void-elevated'
                             }`}
                           >
                             <button
-                              onClick={() => toggleItemMutation.mutate({ 
-                                itemId: item.id, 
-                                completed: item.completed !== 1 
+                              onClick={() => toggleItemMutation.mutate({
+                                itemId: item.id,
+                                completed: item.completed !== 1
                               })}
-                              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
-                                item.completed === 1 
-                                  ? 'bg-green-500 border-green-500 text-white' 
-                                  : 'border-paper/30 hover:border-gold'
+                              aria-label={item.completed === 1 ? 'Mark incomplete' : 'Mark complete'}
+                              className={`w-6 h-6 rounded-[2px] border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                                item.completed === 1
+                                  ? 'border-gold-40 text-gold'
+                                  : 'border-paper-15 hover:border-gold'
                               }`}
                             >
-                              {item.completed === 1 && <Check size={14} />}
+                              {item.completed === 1 && <span aria-hidden>✓</span>}
                             </button>
                             <div className="flex-1 min-w-0">
-                              <p className={`font-medium ${item.completed === 1 ? 'line-through text-paper/65' : ''}`}>
+                              <p className={`font-body ${item.completed === 1 ? 'line-through text-paper-65' : ''}`}>
                                 {item.title}
                               </p>
                               {item.description && (
-                                <p className="text-sm text-paper/65 mt-1">{item.description}</p>
+                                <p className="text-sm text-paper-65 mt-1">{item.description}</p>
                               )}
                             </div>
                             <button
                               onClick={() => deleteItemMutation.mutate(item.id)}
-                              className="text-paper/65 hover:text-red-400 transition-colors p-1"
+                              aria-label="Delete item"
+                              className="text-paper-50 hover:text-blood transition-colors p-1 text-sm"
                             >
-                              <Trash2 size={16} />
+                              Remove
                             </button>
                           </div>
                         ))}
 
                         {/* Add Item Form */}
                         {showAddItem === category ? (
-                          <div className="p-3 bg-paper/5 rounded-lg space-y-3">
+                          <div className="p-3 bg-void rounded-[2px] space-y-3">
                             <input
                               type="text"
                               value={newItemTitle}
                               onChange={(e) => setNewItemTitle(e.target.value)}
                               placeholder="What do you want to accomplish?"
-                              className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
+                              className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-2 placeholder:text-paper-30 transition-colors"
                               autoFocus
                             />
                             <input
@@ -308,7 +291,7 @@ export function LegacyPlan() {
                               value={newItemDescription}
                               onChange={(e) => setNewItemDescription(e.target.value)}
                               placeholder="Add a description (optional)"
-                              className="w-full bg-void/50 border border-paper/10 rounded-lg px-4 py-2 focus:outline-none focus:border-gold/50"
+                              className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-2 placeholder:text-paper-30 transition-colors"
                             />
                             <div className="flex gap-2">
                               <button
@@ -333,9 +316,9 @@ export function LegacyPlan() {
                         ) : (
                           <button
                             onClick={() => setShowAddItem(category)}
-                            className="w-full p-3 border border-dashed border-paper/20 rounded-lg text-paper/65 hover:text-paper hover:border-paper/40 transition-all flex items-center justify-center gap-2"
+                            className="w-full p-3 border border-dashed border-paper-15 rounded-[2px] text-paper-65 hover:text-paper hover:border-paper-15 transition-colors flex items-center justify-center gap-2"
                           >
-                            <Plus size={16} />
+                            <span aria-hidden>+</span>
                             Add custom item
                           </button>
                         )}
@@ -353,32 +336,20 @@ export function LegacyPlan() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="mt-8 glass rounded-xl p-6"
+          className="mt-8 bg-void-surface border border-paper-15 rounded-[2px] p-6"
         >
-          <h3 className="font-medium mb-4">Quick Actions</h3>
+          <h3 className="font-body mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <a href="/record" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center group">
-              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
-                <Mic size={20} />
-              </div>
+            <a href="/record" className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors text-center">
               <p className="text-sm">Record a Story</p>
             </a>
-            <a href="/compose" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center group">
-              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-                <Mail size={20} />
-              </div>
+            <a href="/compose" className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors text-center">
               <p className="text-sm">Write a Letter</p>
             </a>
-            <a href="/memories" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center group">
-              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400 group-hover:scale-110 transition-transform">
-                <Image size={20} />
-              </div>
+            <a href="/memories" className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors text-center">
               <p className="text-sm">Add Photos</p>
             </a>
-            <a href="/family" className="p-4 bg-paper/5 rounded-lg hover:bg-paper/10 transition-all text-center group">
-              <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400 group-hover:scale-110 transition-transform">
-                <Family size={20} />
-              </div>
+            <a href="/family" className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors text-center">
               <p className="text-sm">Add Family</p>
             </a>
           </div>

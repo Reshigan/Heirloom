@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Gift, Heart, ArrowRight, Sparkles } from '../components/Icons';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import { giftsApi } from '../services/api';
 
@@ -63,18 +62,16 @@ export function GiftReceive() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center px-6">
+      <div className="min-h-screen bg-void text-paper antialiased flex items-center justify-center px-6">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blood/20 border border-blood/30 flex items-center justify-center">
-            <Gift size={28} className="text-blood" />
-          </div>
-          <h1 className="font-serif text-2xl text-paper mb-2">Gift Not Found</h1>
-          <p className="text-paper/65 mb-6">{error}</p>
+          <span className="font-body text-4xl text-gold block mb-6" aria-hidden>∞</span>
+          <h1 className="font-body font-light text-2xl text-paper mb-2 tracking-[-0.014em]">Gift not found.</h1>
+          <p className="text-paper-65 mb-8 leading-relaxed">{error}</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 rounded-xl bg-gold/20 text-gold text-sm"
+            className="btn btn-primary"
           >
-            Go to Heirloom
+            Go to Heirloom <span aria-hidden>→</span>
           </button>
         </div>
       </div>
@@ -83,96 +80,77 @@ export function GiftReceive() {
 
   if (claimed) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center px-6">
+      <div className="min-h-screen bg-void text-paper antialiased flex items-center justify-center px-6">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="text-center max-w-md"
+          role="status"
         >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', delay: 0.2 }}
-            className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/30 flex items-center justify-center"
-          >
-            <Heart size={36} className="text-gold" />
-          </motion.div>
-          <h1 className="font-serif text-3xl text-paper mb-3">Gift Claimed!</h1>
-          <p className="text-paper/65 font-serif text-lg mb-8">
+          <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
+          <h1 className="font-body font-light text-3xl text-paper mb-3 tracking-[-0.014em]">Gift claimed.</h1>
+          <p className="text-paper-65 font-body text-lg mb-8 leading-relaxed">
             This memory is now part of your collection. Create a free account to keep it safe forever.
           </p>
-          <motion.button
+          <button
             onClick={() => navigate('/signup')}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-gold to-gold-dim text-void font-medium"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="btn btn-primary"
           >
-            Create Your Free Account
-            <ArrowRight size={18} />
-          </motion.button>
+            Create your free account <span aria-hidden>→</span>
+          </button>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-void flex items-center justify-center px-6">
+    <div className="min-h-screen bg-void text-paper antialiased flex items-center justify-center px-6">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="text-center max-w-md w-full"
       >
-        <motion.div
-          initial={{ scale: 0.8, rotate: -10 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: 'spring' }}
-          className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gold/20 to-blood/20 border border-gold/20 flex items-center justify-center"
-        >
-          <Gift size={36} className="text-gold" />
-        </motion.div>
+        <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
 
-        <h1 className="font-serif text-3xl text-paper mb-2">You&apos;ve Received a Gift</h1>
+        <h1 className="font-body font-light text-3xl text-paper mb-2 tracking-[-0.014em]">You&apos;ve received a gift.</h1>
         {gift?.sender_name && (
-          <p className="text-paper/65 font-serif text-lg mb-2">
+          <p className="text-paper-65 font-body text-lg mb-2">
             From <span className="text-gold">{gift.sender_name}</span>
           </p>
         )}
 
         {gift?.personal_message && (
-          <div className="glass rounded-xl border border-paper/10 p-5 my-6 text-left">
-            <p className="text-paper/70 font-serif italic">&ldquo;{gift.personal_message}&rdquo;</p>
+          <div className="bg-void-surface border border-paper-15 p-5 my-6 text-left">
+            <p className="text-paper-70 font-body italic">&ldquo;{gift.personal_message}&rdquo;</p>
           </div>
         )}
 
         {gift?.content && (
-          <div className="glass rounded-xl border border-gold/20 p-5 my-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles size={14} className="text-gold" />
-              <span className="text-gold text-xs uppercase tracking-wider">
+          <div className="bg-void-surface border border-gold-40 p-5 my-6 text-left">
+            <div className="mb-2">
+              <span className="text-gold text-xs uppercase tracking-[0.22em] font-mono">
                 {gift.memory_type === 'memory' ? 'Photo Memory' : gift.memory_type === 'voice' ? 'Voice Recording' : 'Letter'}
               </span>
             </div>
-            <h3 className="font-serif text-xl text-paper">{gift.content.title}</h3>
+            <h3 className="font-body text-xl text-paper">{gift.content.title}</h3>
             {gift.content.preview && (
-              <p className="text-paper/70 text-sm mt-1 line-clamp-2">{gift.content.preview}</p>
+              <p className="text-paper-70 text-sm mt-1 line-clamp-2">{gift.content.preview}</p>
             )}
           </div>
         )}
 
-        <motion.button
+        <button
           onClick={handleClaim}
           disabled={claiming}
-          className="w-full flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-gold to-gold-dim text-void font-medium mt-4"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          className="btn btn-primary w-full mt-4"
         >
-          {claiming ? null : (
-            <Heart size={18} />
-          )}
-          Unwrap Your Gift
-        </motion.button>
+          {claiming ? 'Unwrapping…' : 'Unwrap your gift'}
+          {!claiming ? <span aria-hidden>→</span> : null}
+        </button>
 
-        <p className="text-paper/65 text-xs mt-4">
+        <p className="text-paper-50 text-xs mt-6 font-mono">
           Powered by Heirloom &mdash; preserving what matters most
         </p>
       </motion.div>
