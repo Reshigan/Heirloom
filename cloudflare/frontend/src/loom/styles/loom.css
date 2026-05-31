@@ -61,26 +61,26 @@
 
 /* ─── Type primitives ───────────────────────────────────────────── */
 .loom-serif {
-  font-family: 'Newsreader', Georgia, serif;
+  font-family: 'Source Serif 4', Georgia, serif;
   font-variation-settings: 'opsz' 28;
   font-weight: 300;
 }
 .loom-display {
-  font-family: 'Newsreader', Georgia, serif;
+  font-family: 'Source Serif 4', Georgia, serif;
   font-variation-settings: 'opsz' 72;
   font-weight: 200;
   letter-spacing: -0.024em;
   line-height: 0.98;
 }
 .loom-h2 {
-  font-family: 'Newsreader', Georgia, serif;
+  font-family: 'Source Serif 4', Georgia, serif;
   font-variation-settings: 'opsz' 56;
   font-weight: 300;
   letter-spacing: -0.014em;
   line-height: 1.04;
 }
 .loom-body {
-  font-family: 'Newsreader', Georgia, serif;
+  font-family: 'Source Serif 4', Georgia, serif;
   font-variation-settings: 'opsz' 14;
   font-weight: 400;
   letter-spacing: -0.001em;
@@ -121,7 +121,7 @@
   color: var(--loom-bone-faint);
 }
 .loom-mark {
-  font-family: 'Newsreader', serif;
+  font-family: 'Source Serif 4', serif;
   font-variation-settings: 'opsz' 28;
   font-weight: 400;
   font-size: 17px;
@@ -280,7 +280,7 @@
 .loom-sealed { text-align: center; letter-spacing: 0.02em; }
 .loom-sealed .infmark {
   color: var(--loom-warm);
-  font-family: 'Newsreader', serif;
+  font-family: 'Source Serif 4', serif;
   font-size: 22px;
   display: block;
   margin-bottom: 4px;
@@ -293,7 +293,7 @@
   letter-spacing: 0.04em;
 }
 .loom-sealed .for {
-  font-family: 'Newsreader', serif;
+  font-family: 'Source Serif 4', serif;
   font-style: italic;
   font-size: 16px;
   color: var(--loom-bone);
@@ -339,7 +339,7 @@
 .loom-nameroll .row {
   display: grid;
   grid-template-columns: 1fr auto;
-  font-family: 'Newsreader', serif;
+  font-family: 'Source Serif 4', serif;
   font-variation-settings: 'opsz' 28;
   font-size: 18px;
   font-weight: 400;
@@ -440,7 +440,7 @@
   gap: 12px;
   align-items: baseline;
   padding: 9px 16px;
-  font-family: 'Newsreader', serif;
+  font-family: 'Source Serif 4', serif;
   font-size: 14px;
   color: var(--loom-bone-dim);
   transition: background var(--loom-dur-fast) var(--loom-ease),

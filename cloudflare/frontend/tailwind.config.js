@@ -4,49 +4,54 @@ export default {
   theme: {
     extend: {
       colors: {
-        // THE VOID - Deep blacks (Eternal Premium)
+        // INK — the ground (remapped from the legacy "void" tokens so every
+        // bg-void/text-void utility across the app now resolves to the
+        // Claude Design ink ramp). ink #0e0e0c on bone #f4ecd8.
         void: {
-          abyss: '#030305',
-          deep: '#050508',
-          DEFAULT: '#08080c',
-          surface: '#0c0c12',
-          elevated: '#101018',
-          hover: '#14141e',
+          abyss: '#0a0a08',
+          deep: '#0a0a08',
+          DEFAULT: '#0e0e0c',
+          surface: '#141412',
+          elevated: '#1a1a17',
+          hover: '#201f1c',
         },
-        // PAPER - Aged warm whites
+        // BONE — the cloth (remapped from legacy "paper"). #f4ecd8.
         paper: {
-          DEFAULT: '#ebe6dc',
-          bright: '#f5f2eb',
-          dim: '#d4cfc4',
-          muted: '#a8a49c',
-          90: 'rgba(235, 230, 220, 0.9)',
-          70: 'rgba(235, 230, 220, 0.7)',
-          65: 'rgba(235, 230, 220, 0.65)',
-          60: 'rgba(235, 230, 220, 0.6)',
-          50: 'rgba(235, 230, 220, 0.5)',
-          30: 'rgba(235, 230, 220, 0.3)',
-          15: 'rgba(235, 230, 220, 0.15)',
-          '08': 'rgba(235, 230, 220, 0.08)',
-          '04': 'rgba(235, 230, 220, 0.04)',
-          '02': 'rgba(235, 230, 220, 0.02)',
+          DEFAULT: '#f4ecd8',
+          bright: '#faf6ee',
+          dim: 'rgba(244, 236, 216, 0.55)',
+          muted: 'rgba(244, 236, 216, 0.40)',
+          90: 'rgba(244, 236, 216, 0.9)',
+          70: 'rgba(244, 236, 216, 0.7)',
+          65: 'rgba(244, 236, 216, 0.65)',
+          60: 'rgba(244, 236, 216, 0.6)',
+          50: 'rgba(244, 236, 216, 0.5)',
+          30: 'rgba(244, 236, 216, 0.32)',
+          15: 'rgba(244, 236, 216, 0.18)',
+          '08': 'rgba(244, 236, 216, 0.08)',
+          '04': 'rgba(244, 236, 216, 0.05)',
+          '02': 'rgba(244, 236, 216, 0.03)',
         },
-        // GOLD - Legacy, permanence
+        // WARM — the single emotional accent (sealing-wax). Remapped from the
+        // legacy bright "gold" to warm #b07a4a so the whole app speaks the
+        // one accent color. Used at <3% surface area per the constitution.
         gold: {
-          DEFAULT: '#d4a853',
-          light: '#e8c878',
-          bright: '#f4dda0',
-          dim: '#9c7a3c',
-          deep: '#6b5228',
-          40: 'rgba(212, 168, 83, 0.4)',
-          20: 'rgba(212, 168, 83, 0.2)',
-          10: 'rgba(212, 168, 83, 0.1)',
-          '05': 'rgba(212, 168, 83, 0.05)',
+          DEFAULT: '#b07a4a',
+          light: '#cf935a',
+          bright: '#cf935a',
+          dim: '#8c5a30',
+          deep: '#6b4524',
+          40: 'rgba(176, 122, 74, 0.4)',
+          20: 'rgba(176, 122, 74, 0.2)',
+          10: 'rgba(176, 122, 74, 0.1)',
+          '05': 'rgba(176, 122, 74, 0.05)',
         },
-        // BLOOD - Life, recording, urgency
+        // BLOOD — retained only for destructive/record states, retuned to the
+        // dye-madder family so it sits inside the natural-dye world.
         blood: {
-          DEFAULT: '#8c2f3d',
-          light: '#a84455',
-          glow: 'rgba(140, 47, 61, 0.4)',
+          DEFAULT: '#9f3a2a',
+          light: '#b14a4a',
+          glow: 'rgba(159, 58, 42, 0.4)',
         },
         // STATUS COLORS
         emerald: '#5ab88a',
@@ -55,18 +60,18 @@ export default {
         // ── v3 design tokens (light-mode-first; library, not vault) ──
         // See cloudflare/frontend/src/v3/DESIGN.md for rationale.
         bone: {
-          DEFAULT: '#F4EFE6',
-          2: '#EAE3D4',
+          DEFAULT: '#f4ecd8',
+          2: '#f0e8d4',
         },
-        ink: '#1B1815',
-        char: '#66615A',
-        edge: '#D5CCBA',
+        ink: '#0e0e0c',
+        char: 'rgba(244, 236, 216, 0.55)',
+        edge: 'rgba(244, 236, 216, 0.14)',
         mark: {
-          DEFAULT: '#92602B',
-          deep: '#6E481E',
-          tint: '#E2D2B6',
+          DEFAULT: '#b07a4a',
+          deep: '#8c5a30',
+          tint: '#cf935a',
         },
-        'blood-v3': '#8C2C2C',
+        'blood-v3': '#9f3a2a',
 
         // ── Loom design tokens (vault dark + paper light, theme-driven) ──
         // The product is a perpetual family loom. The AI is the invisible
@@ -90,16 +95,17 @@ export default {
         },
       },
       fontFamily: {
-        display: ['Cinzel', 'serif'],
-        body: ['Cormorant', 'Georgia', 'serif'],
-        hand: ['Caveat', 'cursive'],
-        // v3 — Newsreader is a Google Font designed for long-form reading.
-        // Used everywhere serif on /v3/*. JetBrains Mono for labels.
-        news: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+        // One serif across the whole product: Source Serif 4 (variable optical
+        // sizes), per the Claude Design bundle. The legacy display/body/hand
+        // families all collapse onto it so un-migrated pages inherit the
+        // correct type. "hand" maps to the serif italic — there is no
+        // handwriting face in the system.
+        display: ['"Source Serif 4"', '"Source Serif Pro"', 'Charter', 'Georgia', 'serif'],
+        body: ['"Source Serif 4"', '"Source Serif Pro"', 'Charter', 'Georgia', 'serif'],
+        hand: ['"Source Serif 4"', 'Georgia', 'serif'],
+        news: ['"Source Serif 4"', 'ui-serif', 'Georgia', 'serif'],
         v3mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-        // Loom — same Newsreader serif (full opsz/weight range), Inter for
-        // UI/eyebrows/buttons, JetBrains Mono for archival metadata.
-        'loom-serif': ['Newsreader', 'Georgia', 'serif'],
+        'loom-serif': ['"Source Serif 4"', '"Source Serif Pro"', 'Charter', 'Georgia', 'serif'],
         'loom-ui': ['Inter', 'system-ui', 'sans-serif'],
         'loom-mono': ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
@@ -115,13 +121,13 @@ export default {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gold-gradient': 'linear-gradient(135deg, #d4a853, #9c7a3c)',
-        'blood-gradient': 'linear-gradient(135deg, #8c2f3d, #6b2430)',
+        'gold-gradient': 'linear-gradient(135deg, #cf935a, #8c5a30)',
+        'blood-gradient': 'linear-gradient(135deg, #9f3a2a, #7a1f2b)',
       },
       boxShadow: {
-        'gold': '0 8px 32px -4px rgba(212, 168, 83, 0.4)',
-        'gold-hover': '0 12px 40px -4px rgba(212, 168, 83, 0.5)',
-        'blood': '0 8px 32px -4px rgba(140, 47, 61, 0.4)',
+        'gold': '0 8px 32px -4px rgba(176, 122, 74, 0.4)',
+        'gold-hover': '0 12px 40px -4px rgba(176, 122, 74, 0.5)',
+        'blood': '0 8px 32px -4px rgba(159, 58, 42, 0.4)',
         'glass': '0 4px 24px -4px rgba(0, 0, 0, 0.5)',
       },
       animation: {

@@ -165,7 +165,7 @@ export function Navigation() {
                   style={{
                     display: 'block',
                     padding: '9px 16px',
-                    fontFamily: "'Newsreader', serif",
+                    fontFamily: "'Source Serif 4', serif",
                     fontSize: 14,
                     color: pathname === m.to ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
                     fontStyle: pathname === m.to ? 'italic' : 'normal',
@@ -247,7 +247,7 @@ export function Navigation() {
                 }}
               >
                 <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--loom-rule)', marginBottom: 6 }}>
-                  <p style={{ margin: 0, fontFamily: "'Newsreader', serif", fontSize: 14, color: 'var(--loom-bone)' }}>
+                  <p style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone)' }}>
                     {user.firstName} {user.lastName}
                   </p>
                   <p
@@ -314,7 +314,7 @@ export function Navigation() {
               style={{
                 display: 'block',
                 padding: '10px 0',
-                fontFamily: "'Newsreader', serif",
+                fontFamily: "'Source Serif 4', serif",
                 fontSize: 16,
                 color: pathname === m.to ? 'var(--loom-warm)' : 'var(--loom-bone)',
                 textDecoration: 'none',
@@ -362,7 +362,7 @@ export function Navigation() {
 const menuItemStyle: React.CSSProperties = {
   display: 'block',
   padding: '8px 12px',
-  fontFamily: "'Newsreader', serif",
+  fontFamily: "'Source Serif 4', serif",
   fontSize: 14,
   color: 'var(--loom-bone-dim)',
   textDecoration: 'none',

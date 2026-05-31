@@ -18,7 +18,7 @@ interface Memory {
  *
  * A single reading column. Era-grouped (this year, last year, earlier).
  * Each entry is a row with the date on the left rail (mono small caps),
- * the title in Newsreader, and a one-line excerpt from the description.
+ * the title in Source Serif 4, and a one-line excerpt from the description.
  * No grid view, no filter chips — type filtering moves into a quiet
  * mono toggle row.
  */

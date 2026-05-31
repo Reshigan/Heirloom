@@ -6,7 +6,7 @@ import { SealedNote } from '../components/SealedNote';
 /**
  * Screen 03 — The Composer
  *
- * Writing a single entry. The text is set in Newsreader at reading-
+ * Writing a single entry. The text is set in Source Serif 4 at reading-
  * column scale; the date+place stamp sits beneath the title in mono.
  *
  * After the user pauses for ~2 seconds the AI surfaces past entries

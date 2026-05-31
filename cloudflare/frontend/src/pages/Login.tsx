@@ -8,7 +8,7 @@ import { encryptionService } from '../services/encryptionService';
  * Login — Loom-native rewrite.
  *
  * Same business logic as before (auth, vault unlock, redirect on
- * success). Cosmetic shell only: a single mark, a Newsreader heading,
+ * success). Cosmetic shell only: a single mark, a Source Serif 4 heading,
  * two hairline-bordered fields, a warm primary button. No cosmic
  * intro animation, no particles, no glow.
  */

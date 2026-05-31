@@ -335,7 +335,7 @@ function LivingLoom() {
         style={{
           textAlign: 'center',
           marginTop: 28,
-          fontFamily: "'Newsreader', serif",
+          fontFamily: "'Source Serif 4', serif",
           fontStyle: 'italic',
           fontSize: 16,
           color: 'var(--loom-bone-dim)',
@@ -399,7 +399,7 @@ function Megafact() {
       <div style={{ textAlign: 'center', padding: '0 24px' }}>
         <div
           style={{
-            fontFamily: "'Newsreader', serif",
+            fontFamily: "'Source Serif 4', serif",
             fontVariationSettings: "'opsz' 72",
             fontWeight: 200,
             fontSize: 'clamp(120px, 22vw, 280px)',
@@ -412,7 +412,7 @@ function Megafact() {
         </div>
         <div
           style={{
-            fontFamily: "'Newsreader', serif",
+            fontFamily: "'Source Serif 4', serif",
             fontStyle: 'italic',
             fontSize: 22,
             color: 'var(--loom-bone-dim)',
@@ -493,7 +493,7 @@ function ThreePrimitives() {
               <div>
                 <div
                   style={{
-                    fontFamily: "'Newsreader', serif",
+                    fontFamily: "'Source Serif 4', serif",
                     fontSize: 36,
                     color: 'var(--loom-warm)',
                     lineHeight: 1,
@@ -504,7 +504,7 @@ function ThreePrimitives() {
                 </div>
                 <h3
                   style={{
-                    fontFamily: "'Newsreader', serif",
+                    fontFamily: "'Source Serif 4', serif",
                     fontVariationSettings: "'opsz' 28",
                     fontWeight: 400,
                     fontSize: 28,
@@ -587,7 +587,7 @@ function UnlockSpotlight() {
         <div style={{ textAlign: 'center', padding: '60px 0' }}>
           <div
             style={{
-              fontFamily: "'Newsreader', serif",
+              fontFamily: "'Source Serif 4', serif",
               fontSize: 64,
               color: 'var(--loom-warm)',
               lineHeight: 1,
@@ -659,7 +659,7 @@ function Quote() {
         <div style={{ borderLeft: '1px solid var(--loom-warm)', paddingLeft: 36 }}>
           <blockquote
             style={{
-              fontFamily: "'Newsreader', serif",
+              fontFamily: "'Source Serif 4', serif",
               fontVariationSettings: "'opsz' 56",
               fontWeight: 300,
               fontStyle: 'italic',
@@ -822,7 +822,7 @@ function Pricing() {
               </span>
               <div
                 style={{
-                  fontFamily: "'Newsreader', serif",
+                  fontFamily: "'Source Serif 4', serif",
                   fontStyle: 'italic',
                   fontWeight: 400,
                   fontSize: 22,
@@ -833,7 +833,7 @@ function Pricing() {
               </div>
               <div
                 style={{
-                  fontFamily: "'Newsreader', serif",
+                  fontFamily: "'Source Serif 4', serif",
                   fontVariationSettings: "'opsz' 56",
                   fontWeight: 200,
                   fontSize: 56,
@@ -868,7 +868,7 @@ function Pricing() {
                   <li
                     key={j}
                     style={{
-                      fontFamily: "'Newsreader', serif",
+                      fontFamily: "'Source Serif 4', serif",
                       fontSize: 15,
                       lineHeight: 1.5,
                       color: 'var(--loom-bone-dim)',
@@ -921,7 +921,7 @@ function Footer() {
       <div>
         <h4
           style={{
-            fontFamily: "'Newsreader', serif",
+            fontFamily: "'Source Serif 4', serif",
             fontVariationSettings: "'opsz' 56",
             fontStyle: 'italic',
             fontWeight: 300,

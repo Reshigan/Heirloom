@@ -110,7 +110,7 @@ export function Unlock() {
                 <div>
                   <div
                     style={{
-                      fontFamily: "'Newsreader', serif",
+                      fontFamily: "'Source Serif 4', serif",
                       fontVariationSettings: "'opsz' 72",
                       fontSize: 132,
                       fontWeight: 300,
@@ -194,7 +194,7 @@ export function Unlock() {
                   <div
                     style={{
                       marginTop: 24,
-                      fontFamily: "'Newsreader', serif",
+                      fontFamily: "'Source Serif 4', serif",
                       fontVariationSettings: "'opsz' 28",
                       fontSize: 22,
                       fontStyle: 'italic',
@@ -281,7 +281,7 @@ function ShareCard() {
         <div>
           <div
             style={{
-              fontFamily: "'Newsreader', serif",
+              fontFamily: "'Source Serif 4', serif",
               fontVariationSettings: "'opsz' 72",
               fontSize: 56,
               fontWeight: 300,

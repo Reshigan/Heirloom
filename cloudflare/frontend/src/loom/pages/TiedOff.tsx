@@ -103,7 +103,7 @@ export function TiedOff() {
                 <div
                   style={{
                     color: 'var(--loom-warm)',
-                    fontFamily: "'Newsreader', serif",
+                    fontFamily: "'Source Serif 4', serif",
                     fontSize: 18,
                     lineHeight: 1,
                   }}
@@ -178,7 +178,7 @@ function TiedCard({ date, recip, years, kind }: TiedCardProps) {
           background: 'var(--loom-ink)',
           padding: '0 8px',
           color: 'var(--loom-warm)',
-          fontFamily: "'Newsreader', serif",
+          fontFamily: "'Source Serif 4', serif",
           fontSize: 18,
           lineHeight: 1,
         }}

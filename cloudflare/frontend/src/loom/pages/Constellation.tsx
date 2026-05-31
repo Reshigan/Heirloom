@@ -173,7 +173,7 @@ export function Constellation() {
                       left: `${xOf(k.born)}%`,
                       top: top - 26,
                       transform: 'translateX(-2px)',
-                      fontFamily: "'Newsreader', serif",
+                      fontFamily: "'Source Serif 4', serif",
                       fontVariationSettings: "'opsz' 28",
                       fontSize: 15,
                       fontWeight: 400,

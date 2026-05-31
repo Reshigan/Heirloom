@@ -5,62 +5,103 @@
 @tailwind utilities;
 
 :root {
-  /* THE VOID - Deep blacks (Eternal Premium) */
-  --void-abyss: #030305;
-  --void-deep: #050508;
-  --void: #08080c;
-  --void-surface: #0c0c12;
-  --void-elevated: #101018;
-  --void-hover: #14141e;
-  
-  /* PAPER - Aged warm whites */
-  --paper: #ebe6dc;
-  --paper-bright: #f5f2eb;
-  --paper-dim: #d4cfc4;
-  --paper-muted: #a8a49c;
-  
-  /* Paper opacity scales */
-  --paper-90: rgba(235, 230, 220, 0.9);
-  --paper-70: rgba(235, 230, 220, 0.7);
-  --paper-50: rgba(235, 230, 220, 0.5);
-  --paper-30: rgba(235, 230, 220, 0.3);
-  --paper-15: rgba(235, 230, 220, 0.15);
-  --paper-08: rgba(235, 230, 220, 0.08);
-  --paper-04: rgba(235, 230, 220, 0.04);
-  --paper-02: rgba(235, 230, 220, 0.02);
-  
-  /* GOLD - Legacy, permanence */
-  --gold: #d4a853;
-  --gold-light: #e8c878;
-  --gold-bright: #f4dda0;
-  --gold-dim: #9c7a3c;
-  --gold-deep: #6b5228;
-  
-  /* Gold opacity scales */
-  --gold-40: rgba(212, 168, 83, 0.4);
-  --gold-20: rgba(212, 168, 83, 0.2);
-  --gold-10: rgba(212, 168, 83, 0.1);
-  --gold-05: rgba(212, 168, 83, 0.05);
-  
-  /* BLOOD - Life, passion, sacrifice */
-  --blood: #8c2f3d;
-  --blood-light: #a84455;
-  --blood-glow: rgba(140, 47, 61, 0.4);
-  
+  /* ── Claude Design tokens (the canonical palette). Legacy variable NAMES
+        are retained so un-migrated pages keep resolving, but their VALUES now
+        point at the Heirloom design system: ink ground, bone cloth, warm
+        sealing-wax accent. ── */
+
+  /* INK — the ground (was "void") */
+  --void-abyss: #0a0a08;
+  --void-deep: #0a0a08;
+  --void: #0e0e0c;
+  --void-surface: #141412;
+  --void-elevated: #1a1a17;
+  --void-hover: #201f1c;
+
+  /* BONE — the cloth (was "paper") */
+  --paper: #f4ecd8;
+  --paper-bright: #faf6ee;
+  --paper-dim: rgba(244, 236, 216, 0.55);
+  --paper-muted: rgba(244, 236, 216, 0.40);
+
+  /* Bone opacity scales */
+  --paper-90: rgba(244, 236, 216, 0.9);
+  --paper-70: rgba(244, 236, 216, 0.7);
+  --paper-50: rgba(244, 236, 216, 0.5);
+  --paper-30: rgba(244, 236, 216, 0.32);
+  --paper-15: rgba(244, 236, 216, 0.18);
+  --paper-08: rgba(244, 236, 216, 0.08);
+  --paper-04: rgba(244, 236, 216, 0.05);
+  --paper-02: rgba(244, 236, 216, 0.03);
+
+  /* WARM — sealing-wax, the one emotional accent (was "gold") */
+  --gold: #b07a4a;
+  --gold-light: #cf935a;
+  --gold-bright: #cf935a;
+  --gold-dim: #8c5a30;
+  --gold-deep: #6b4524;
+
+  /* Warm opacity scales */
+  --gold-40: rgba(176, 122, 74, 0.4);
+  --gold-20: rgba(176, 122, 74, 0.2);
+  --gold-10: rgba(176, 122, 74, 0.1);
+  --gold-05: rgba(176, 122, 74, 0.05);
+
+  /* BLOOD — destructive/record only, tuned into the natural-dye world */
+  --blood: #9f3a2a;
+  --blood-light: #b14a4a;
+  --blood-glow: rgba(159, 58, 42, 0.4);
+
   /* STATUS COLORS */
   --emerald: #5ab88a;
   --sapphire: #64a0dc;
-  
-  /* Glass effects */
-  --glass-bg: rgba(12, 12, 18, 0.7);
-  --glass-border: rgba(235, 230, 220, 0.08);
-  --glass-highlight: rgba(235, 230, 220, 0.12);
+
+  /* Glass retired — solid panels only (§2.6). Kept as opaque ink so any
+     lingering reference renders as a flat surface, never a blur. */
+  --glass-bg: #141412;
+  --glass-border: rgba(244, 236, 216, 0.08);
+  --glass-highlight: rgba(244, 236, 216, 0.12);
   --glass-shadow: rgba(0, 0, 0, 0.5);
-  
-  /* Typography */
-  --font-display: 'Cinzel', serif;
-  --font-body: 'Cormorant', Georgia, serif;
-  --font-hand: 'Caveat', cursive;
+
+  /* Typography — one serif (Source Serif 4); display/body/hand all collapse
+     onto it. Inter for UI, JetBrains Mono for archival metadata. */
+  --font-display: 'Source Serif 4', 'Source Serif Pro', Charter, Georgia, serif;
+  --font-body: 'Source Serif 4', 'Source Serif Pro', Charter, Georgia, serif;
+  --font-hand: 'Source Serif 4', Georgia, serif;
+
+  /* Canonical aliases (match the Claude Design bundle's heirloom-styles.css) */
+  --ink: #0e0e0c;
+  --ink-deep: #0a0a08;
+  --bone: #f4ecd8;
+  --bone-dim: rgba(244, 236, 216, 0.55);
+  --bone-faint: rgba(244, 236, 216, 0.32);
+  --bone-low: rgba(244, 236, 216, 0.18);
+  --rule: rgba(244, 236, 216, 0.08);
+  --rule-strong: rgba(244, 236, 216, 0.14);
+  --warm: #b07a4a;
+  --warm-bright: #cf935a;
+  --warm-dim: #8c5a30;
+  --parchment: #faf6ee;
+  --parchment-deep: #f0e8d4;
+  --parchment-ink: #1a1916;
+  --parchment-dim: rgba(26, 25, 22, 0.6);
+  --parchment-faint: rgba(26, 25, 22, 0.36);
+  --parchment-rule: rgba(26, 25, 22, 0.12);
+  --serif: 'Source Serif 4', 'Source Serif Pro', 'Charter', 'Iowan Old Style', Garamond, serif;
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+
+  /* natural-dye palette — only inside the cloth (woven threads) */
+  --dye-madder: #9f3a2a;
+  --dye-cochineal: #7a1f2b;
+  --dye-kermes: #b14a4a;
+  --dye-saffron: #c69a3a;
+  --dye-weld: #a89248;
+  --dye-walnut: #5b3a22;
+  --dye-oakgall: #3a2e1f;
+  --dye-woad: #3a4a6a;
+  --dye-indigo: #1f3a5b;
+  --dye-iron: #1c1c1a;
   
   /* Timing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -2205,3 +2246,90 @@ html {
     opacity: 0.5;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   HEIRLOOM DESIGN SYSTEM — hl-* primitives
+   Ported verbatim from the Claude Design bundle (heirloom-styles.css). These
+   are the canonical building blocks for the screen rewrites: the ink screen,
+   the eyebrow, the always-visible top bar + append counter, the ambient
+   Listener line, the hairline rule, the warm button, prose, and the sealed
+   note. Build new/migrated pages from these, not from the legacy .card/.btn.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.hl-screen {
+  font-family: var(--sans);
+  background: var(--ink);
+  color: var(--bone);
+  width: 100%;
+  min-height: 100%;
+  position: relative;
+  box-sizing: border-box;
+  font-feature-settings: "ss01", "ss02";
+  font-variant-numeric: oldstyle-nums proportional-nums;
+}
+.hl-screen.parchment { background: var(--parchment); color: var(--parchment-ink); }
+.hl-screen * { box-sizing: border-box; }
+
+.hl-serif { font-family: var(--serif); font-weight: 300; }
+.hl-mono  { font-family: var(--mono);  font-weight: 400; letter-spacing: 0.04em; }
+.hl-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+.hl-eyebrow.dark { color: var(--parchment-dim); }
+.hl-italic { font-family: var(--serif); font-style: italic; font-weight: 400; }
+
+/* eyebrow top row — lives on every authed screen */
+.hl-topbar {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--bone-dim);
+  z-index: 5;
+}
+.hl-topbar .hl-counter { color: var(--bone-faint); letter-spacing: 0.14em; }
+.hl-topbar .hl-counter b { color: var(--bone-dim); font-weight: 400; }
+.hl-topbar .hl-link { color: var(--bone-dim); text-decoration: none; }
+.hl-topbar .hl-link:hover { color: var(--warm); }
+.hl-topbar .hl-link.warm { color: var(--warm); }
+
+/* the ambient AI surface — one typographic line, never a chatbot */
+.hl-listener {
+  position: absolute; right: 32px; top: 64px;
+  font-family: var(--mono);
+  font-size: 10.5px; line-height: 1.7; letter-spacing: 0.04em;
+  text-align: right; color: var(--bone-dim);
+  max-width: 26ch;
+}
+.hl-listener .hl-l-eye { color: var(--bone-faint); text-transform: uppercase; letter-spacing: 0.22em; font-size: 9px; display: block; margin-bottom: 6px; }
+.hl-listener em { color: var(--bone); font-style: normal; }
+
+.hl-rule { display: block; height: 1px; background: var(--rule); border: 0; margin: 0; }
+.hl-rule.strong { background: var(--rule-strong); }
+.hl-rule.parchment { background: var(--parchment-rule); }
+
+.hl-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--sans); font-size: 14px; font-weight: 500;
+  padding: 14px 26px; border-radius: 2px; border: 0; cursor: pointer;
+  background: var(--warm); color: var(--ink); text-decoration: none;
+  transition: background .15s ease;
+}
+.hl-btn:hover { background: var(--warm-bright); }
+.hl-btn.ghost { background: transparent; color: inherit; border: 1px solid currentColor; padding: 13px 24px; opacity: .8; }
+.hl-btn.ghost:hover { opacity: 1; }
+.hl-btn.text { background: transparent; color: var(--warm); padding: 0; border-radius: 0; font-weight: 400; }
+
+.hl-prose { font-family: var(--serif); font-size: 17px; line-height: 1.85; max-width: 60ch; font-weight: 400; }
+.hl-prose.dark { color: var(--parchment-ink); }
+
+.hl-link-i { color: var(--warm); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 1px; }
+
+/* sealed note primitive */
+.hl-sealed { font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; line-height: 1.6; color: var(--bone-dim); text-align: center; }
+.hl-sealed .glyph { display: block; font-family: var(--serif); font-size: 22px; color: var(--warm); font-weight: 300; margin-bottom: 6px; line-height: 1; }
+.hl-sealed .who { font-family: var(--serif); font-style: italic; color: var(--bone); }

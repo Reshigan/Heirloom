@@ -25,7 +25,11 @@ invariants" (§1.5): (A) Tapestry-is-the-interface, (B) append-only counter alwa
 (C) the Listener is the ambient AI surface (one typographic line, never a chatbot), (D) the
 Unlock is the only ceremony (720ms), (E) print + textile fidelity.
 
-- **Type is the hero.** Newsreader (display serif), Inter (UI), JetBrains Mono (archival). No 4th typeface.
+- **Type is the hero.** Source Serif 4 (variable optical serif — display + prose), Inter (UI),
+  JetBrains Mono (archival). No 4th typeface. (The Claude Design handoff bundle superseded the
+  brief's original Newsreader with Source Serif 4 for letterpress fidelity — now canonical across
+  the live app; legacy Cinzel/Cormorant/Caveat are retired. Tokens + `hl-*` primitives live in
+  `cloudflare/frontend/src/styles/globals.css`.)
 - **One emotional color:** sealing-wax `warm #b07a4a`, used at **<3% surface area**. Everything else
   is bone `#f4ecd8` on ink `#0e0e0c`. The 10-stop natural-dye palette (§2.7) lives **only** inside woven threads.
 - **Negative space is the composition** (60–70% empty). **0px radius** default (2px inputs, never >4px). 1px hairlines only.

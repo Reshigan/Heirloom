@@ -216,7 +216,7 @@ export function Billing() {
                       style={{
                         position: 'relative',
                         paddingLeft: 16,
-                        fontFamily: "'Newsreader', serif",
+                        fontFamily: "'Source Serif 4', serif",
                         fontSize: 14,
                         color: 'var(--loom-bone-dim)',
                         lineHeight: 1.5,

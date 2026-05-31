@@ -7,7 +7,7 @@ import { AppFrame } from '../loom/components/AppFrame';
 /**
  * Compose — Loom-native rewrite.
  *
- * The page is a single Newsreader column. Title, mono date stamp, body
+ * The page is a single Source Serif 4 column. Title, mono date stamp, body
  * textarea, and a quiet save bar. Same memoriesApi.create call as before;
  * we save type=TEXT by default. Locks and recipients land later via
  * /threads/:id/compose; this surface keeps the daily-write fast.
@@ -59,7 +59,7 @@ export function Compose() {
             border: 0,
             background: 'transparent',
             color: 'var(--loom-bone)',
-            fontFamily: "'Newsreader', serif",
+            fontFamily: "'Source Serif 4', serif",
             fontVariationSettings: "'opsz' 28",
             fontSize: 30,
             fontWeight: 300,
@@ -88,7 +88,7 @@ export function Compose() {
             border: 0,
             borderBottom: 0,
             background: 'transparent',
-            fontFamily: "'Newsreader', serif",
+            fontFamily: "'Source Serif 4', serif",
             fontSize: 19,
             lineHeight: 1.85,
             color: 'var(--loom-bone)',

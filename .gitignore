@@ -42,3 +42,6 @@ prisma/migrations/*_migration_lock.toml
 *.apk
 *.aab
 *.ipa
+
+# Playwright MCP scratch output
+.playwright-mcp/

@@ -7,7 +7,7 @@ import { VaultModal } from '../components/VaultModal';
  * Signup — Loom-native rewrite.
  *
  * Same business logic as before (form validation, register, vault
- * setup on success). Cosmetic shell only: a Newsreader heading,
+ * setup on success). Cosmetic shell only: a Source Serif 4 heading,
  * hairline-bordered fields, a warm primary button. No sanctuary
  * background, no particles.
  */

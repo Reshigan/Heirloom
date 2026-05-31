@@ -9,7 +9,7 @@
 
    This file is intentionally surgical. We're not trying to be the v3
    sanctuary; we're matching the Loom: vault dark default + paper light,
-   Newsreader serif, Inter UI, JetBrains Mono labels, hairline rules in
+   Source Serif 4 serif, Inter UI, JetBrains Mono labels, hairline rules in
    place of card chrome, ∞ as the only icon, the warm accent for
    anything that was previously gold. Reduced motion is honoured.
 
@@ -102,11 +102,11 @@
 .loom .text-blood,
 .loom .text-blood-light { color: #c25a5a !important; }
 
-/* ── Type: drop Cinzel/Cormorant/Caveat in favour of Newsreader ── */
+/* ── Type: drop Cinzel/Cormorant/Caveat in favour of Source Serif 4 ── */
 .loom .font-display,
 .loom .font-body,
 .loom .font-hand {
-  font-family: 'Newsreader', Georgia, serif !important;
+  font-family: 'Source Serif 4', Georgia, serif !important;
   font-variation-settings: 'opsz' 28;
 }
 .loom .font-display { font-variation-settings: 'opsz' 56; font-weight: 300; }
@@ -218,7 +218,7 @@
   border-bottom: 1px solid var(--loom-rule) !important;
   border-radius: 0 !important;
   color: var(--loom-bone) !important;
-  font-family: 'Newsreader', Georgia, serif !important;
+  font-family: 'Source Serif 4', Georgia, serif !important;
   font-size: 17px !important;
   padding: 8px 0 !important;
   transition: border-color var(--loom-dur-fast) var(--loom-ease) !important;
@@ -235,9 +235,9 @@
   font-style: italic;
 }
 
-/* ── Headings — Newsreader, restrained ──────────────────────────── */
+/* ── Headings — Source Serif 4, restrained ──────────────────────────── */
 .loom h1, .loom h2, .loom h3, .loom h4, .loom h5, .loom h6 {
-  font-family: 'Newsreader', Georgia, serif !important;
+  font-family: 'Source Serif 4', Georgia, serif !important;
   font-weight: 300;
   letter-spacing: -0.014em;
 }
@@ -257,7 +257,7 @@
 .loom th, .loom td {
   border-bottom: 1px solid var(--loom-rule) !important;
   padding: 12px 8px;
-  font-family: 'Newsreader', Georgia, serif;
+  font-family: 'Source Serif 4', Georgia, serif;
 }
 .loom th {
   font-family: 'Inter', sans-serif !important;
