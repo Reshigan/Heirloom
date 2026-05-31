@@ -52,7 +52,7 @@ export function Letters() {
       <div style={{ display: 'flex', gap: 24, paddingBottom: 14, marginBottom: 28, borderBottom: '1px solid var(--loom-rule)' }}>
         <span style={{ flex: 1 }} />
         <Link
-          to="/compose"
+          to="/letters/new"
           style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 10,

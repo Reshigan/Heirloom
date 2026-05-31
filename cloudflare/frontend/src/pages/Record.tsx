@@ -3,32 +3,39 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { voiceApi } from '../services/api';
 import { AppFrame } from '../loom/components/AppFrame';
+import { ComposerModes } from '../loom/components/ComposerChrome';
 
 /**
- * Record — Loom-native rewrite.
+ * Record — ComposerSpeak (Claude Design · loom3).
  *
- * One large mic button, an elapsed-time counter, a title field, a
- * transcript (manual for now). Recording uses the standard
- * MediaRecorder API; the file is uploaded via voiceApi.getUploadUrl
- * + PUT, then voiceApi.create persists the metadata. Same upload
- * flow as the v1/v2 page; only the chrome changes.
- *
- * The previous page (1383 lines) included prompts, recipient
- * pickers, year/emotion filters, AI suggestions. Those move into
- * /interview and the More menu; this surface is the daily quick
- * record and stays sharp.
+ * The voice mode, designed for the patriarch: one prompt, concentric breath
+ * rings, an oversized mono timer, and two plain text controls (stop · pause).
+ * Recording is the real MediaRecorder flow — start, pause/resume, stop —
+ * uploaded via the signed URL and persisted with voiceApi.create. Title and
+ * transcript move below the ring, quiet, for after you've spoken.
  */
+
+const PROMPTS = [
+  'What did your mother say about the war?',
+  'What was the song that always played?',
+  'What was your father afraid of?',
+  'Where did you feel most at home?',
+  'What did you carry that you never showed anyone?',
+  'Who taught you the thing you do best?',
+];
+
 export function Record() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [title, setTitle] = useState('');
   const [transcript, setTranscript] = useState('');
-  const [recordingState, setRecordingState] = useState<'idle' | 'recording' | 'recorded'>('idle');
+  const [recordingState, setRecordingState] = useState<'idle' | 'recording' | 'paused' | 'recorded'>('idle');
   const [elapsed, setElapsed] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [promptIdx, setPromptIdx] = useState(0);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -40,6 +47,16 @@ export function Record() {
       if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
   }, [audioUrl]);
+
+  const startTick = () => {
+    tickRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
+  };
+  const stopTick = () => {
+    if (tickRef.current) {
+      clearInterval(tickRef.current);
+      tickRef.current = null;
+    }
+  };
 
   const start = async () => {
     setError(null);
@@ -61,19 +78,30 @@ export function Record() {
       recorder.start();
       setElapsed(0);
       setRecordingState('recording');
-      tickRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
+      startTick();
     } catch {
       setError('We could not start the microphone. Check your browser permissions.');
+    }
+  };
+
+  const togglePause = () => {
+    const r = mediaRecorderRef.current;
+    if (!r) return;
+    if (recordingState === 'recording') {
+      r.pause();
+      stopTick();
+      setRecordingState('paused');
+    } else if (recordingState === 'paused') {
+      r.resume();
+      startTick();
+      setRecordingState('recording');
     }
   };
 
   const stop = () => {
     mediaRecorderRef.current?.stop();
     setRecordingState('recorded');
-    if (tickRef.current) {
-      clearInterval(tickRef.current);
-      tickRef.current = null;
-    }
+    stopTick();
   };
 
   const reset = () => {
@@ -92,14 +120,13 @@ export function Record() {
         filename,
         contentType: 'audio/webm',
       });
-      // Upload to R2 / S3 via the signed URL the worker returned.
       await fetch(upload.uploadUrl ?? upload.url, {
         method: 'PUT',
         body: audioBlob,
         headers: { 'Content-Type': 'audio/webm' },
       });
       const { data } = await voiceApi.create({
-        title: title.trim() || 'untitled recording',
+        title: title.trim() || PROMPTS[promptIdx],
         transcript: transcript.trim() || null,
         fileKey: upload.fileKey ?? upload.key,
         fileUrl: upload.publicUrl ?? upload.url,
@@ -119,75 +146,181 @@ export function Record() {
 
   const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
   const ss = String(elapsed % 60).padStart(2, '0');
+  const live = recordingState === 'recording' || recordingState === 'paused';
 
   return (
     <AppFrame>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 22, color: 'var(--loom-warm)' }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 18, color: 'var(--loom-warm)' }}>
           ∿ &nbsp; voice · in your own voice
         </p>
+        <ComposerModes active="speak" />
 
-        <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(32px, 4vw, 44px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 14px' }}
-        >
-          Speak to the thread.
-        </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '0 0 56px', maxWidth: 580, lineHeight: 1.6 }}
-        >
-          The fastest way to add a memory is to say it aloud. Tap the circle, talk for as long as
-          you like, stop when you're done. Add the title afterward.
-        </p>
+        {/* the prompt + breath rings — the hero */}
+        <div style={{ textAlign: 'center', padding: '24px 0 8px' }}>
+          <p
+            className="loom-serif"
+            style={{
+              fontSize: 22,
+              fontStyle: 'italic',
+              fontWeight: 400,
+              color: 'var(--loom-bone-dim)',
+              margin: '0 0 36px',
+              minHeight: 30,
+            }}
+          >
+            {PROMPTS[promptIdx]}
+          </p>
 
-        {/* The mic */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 56 }}>
           <button
             type="button"
-            onClick={recordingState === 'recording' ? stop : recordingState === 'idle' ? start : undefined}
-            disabled={recordingState === 'recorded'}
+            onClick={recordingState === 'idle' ? start : undefined}
+            disabled={recordingState !== 'idle'}
+            aria-label={recordingState === 'idle' ? 'Begin recording' : 'Recording'}
             style={{
-              width: 132,
-              height: 132,
-              borderRadius: '50%',
-              border: '2px solid var(--loom-warm)',
-              background: recordingState === 'recording' ? 'var(--loom-warm)' : 'transparent',
-              color: recordingState === 'recording' ? 'var(--loom-ink)' : 'var(--loom-warm)',
-              cursor: recordingState === 'recorded' ? 'default' : 'pointer',
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              letterSpacing: '0.32em',
-              textTransform: 'uppercase',
-              transition: 'all 220ms cubic-bezier(0.16,1,0.3,1)',
-              animation: recordingState === 'recording' ? 'loom-breathe 2.4s ease-in-out infinite' : 'none',
+              position: 'relative',
+              width: 280,
+              height: 280,
+              margin: '0 auto',
+              background: 'transparent',
+              border: 0,
+              padding: 0,
+              cursor: recordingState === 'idle' ? 'pointer' : 'default',
+              display: 'block',
             }}
           >
-            {recordingState === 'idle' ? 'Record' : recordingState === 'recording' ? 'Stop' : 'Done'}
+            <span
+              style={{
+                position: 'absolute',
+                inset: 0,
+                border: '1px solid var(--loom-bone-dim)',
+                borderRadius: '50%',
+                animation: recordingState === 'recording' ? 'loom-breathe 2.6s ease-in-out infinite' : 'none',
+              }}
+            />
+            <span
+              style={{
+                position: 'absolute',
+                inset: 22,
+                border: '1px solid var(--loom-bone-ghost)',
+                borderRadius: '50%',
+                animation: recordingState === 'recording' ? 'loom-breathe 2.6s ease-in-out infinite 0.3s' : 'none',
+              }}
+            />
+            <span
+              style={{
+                position: 'absolute',
+                inset: 56,
+                border: '1px solid var(--loom-bone-faint)',
+                borderRadius: '50%',
+                opacity: 0.5,
+                animation: recordingState === 'recording' ? 'loom-breathe 2.6s ease-in-out infinite 0.6s' : 'none',
+              }}
+            />
+            <span
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                gap: 6,
+              }}
+            >
+              {recordingState === 'idle' ? (
+                <span
+                  className="loom-mono"
+                  style={{
+                    fontSize: 12,
+                    letterSpacing: '0.28em',
+                    textTransform: 'uppercase',
+                    color: 'var(--loom-warm)',
+                  }}
+                >
+                  begin
+                </span>
+              ) : (
+                <span
+                  className="loom-mono"
+                  style={{
+                    fontSize: 48,
+                    letterSpacing: '0.04em',
+                    color: recordingState === 'paused' ? 'var(--loom-bone-dim)' : 'var(--loom-bone)',
+                  }}
+                >
+                  {mm}:{ss}
+                </span>
+              )}
+            </span>
           </button>
-          <p
-            className="loom-mono"
-            style={{
-              marginTop: 18,
-              fontSize: 14,
-              letterSpacing: '0.06em',
-              color: recordingState === 'recording' ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
-            }}
-          >
-            {mm}:{ss} {recordingState === 'recording' ? '· recording' : recordingState === 'recorded' ? '· captured' : '· ready'}
-          </p>
-          {audioUrl && recordingState === 'recorded' ? (
-            <div style={{ marginTop: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
-              <audio controls src={audioUrl} style={{ height: 36 }} />
-              <button type="button" onClick={reset} className="loom-btn-ghost" style={{ padding: '8px 16px' }}>
-                redo
-              </button>
-            </div>
+
+          {/* controls */}
+          <div style={{ marginTop: 36, display: 'flex', justifyContent: 'center', gap: 32, alignItems: 'center', minHeight: 30 }}>
+            {live ? (
+              <>
+                <button type="button" onClick={stop} style={textLink('var(--loom-warm)', 22, true)}>
+                  stop
+                </button>
+                <button type="button" onClick={togglePause} style={textLink('var(--loom-bone-dim)', 18, false)}>
+                  {recordingState === 'paused' ? 'resume' : 'pause'}
+                </button>
+              </>
+            ) : recordingState === 'recorded' ? (
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                {audioUrl ? <audio controls src={audioUrl} style={{ height: 36 }} /> : null}
+                <button type="button" onClick={reset} className="loom-btn-ghost" style={{ padding: '8px 16px' }}>
+                  redo
+                </button>
+              </div>
+            ) : null}
+          </div>
+
+          {recordingState === 'idle' ? (
+            <p
+              className="loom-serif"
+              style={{ marginTop: 24, color: 'var(--loom-bone-faint)', fontStyle: 'italic', fontSize: 15 }}
+            >
+              We'll transcribe it for you. You can read it back before saving.
+            </p>
           ) : null}
         </div>
 
-        <hr className="loom-hairline" style={{ marginBottom: 36 }} />
+        {/* prompt cards row */}
+        {recordingState === 'idle' ? (
+          <div
+            style={{
+              margin: '28px 0 8px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'baseline',
+              gap: 24,
+              fontFamily: "'Source Serif 4', serif",
+              fontStyle: 'italic',
+              fontSize: 15,
+              flexWrap: 'wrap',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setPromptIdx((i) => (i - 1 + PROMPTS.length) % PROMPTS.length)}
+              style={{ ...promptCard(), opacity: 0.4 }}
+            >
+              ← {PROMPTS[(promptIdx - 1 + PROMPTS.length) % PROMPTS.length]}
+            </button>
+            <button
+              type="button"
+              onClick={() => setPromptIdx((i) => (i + 1) % PROMPTS.length)}
+              style={{ ...promptCard(), opacity: 0.4 }}
+            >
+              {PROMPTS[(promptIdx + 1) % PROMPTS.length]} →
+            </button>
+          </div>
+        ) : null}
 
+        <hr className="loom-hairline" style={{ margin: '36px 0' }} />
+
+        {/* title + transcript — quiet, for after */}
         <div style={{ display: 'grid', gap: 28 }}>
           <label>
             <span className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
@@ -222,7 +355,7 @@ export function Record() {
 
         <div
           style={{
-            marginTop: 56,
+            marginTop: 48,
             paddingTop: 24,
             borderTop: '1px solid var(--loom-rule)',
             display: 'flex',
@@ -237,7 +370,7 @@ export function Record() {
             style={{
               margin: 0,
               fontSize: 10,
-              letterSpacing: '0.18em',
+              letterSpacing: '0.16em',
               textTransform: 'uppercase',
               color: 'var(--loom-bone-faint)',
               maxWidth: 480,
@@ -263,4 +396,34 @@ export function Record() {
       </div>
     </AppFrame>
   );
+}
+
+function textLink(color: string, fontSize: number, underline: boolean): React.CSSProperties {
+  return {
+    background: 'transparent',
+    border: 0,
+    padding: underline ? '0 0 3px' : 0,
+    cursor: 'pointer',
+    color,
+    fontFamily: "'Inter', sans-serif",
+    fontSize,
+    fontWeight: 400,
+    letterSpacing: '-0.005em',
+    borderBottom: underline ? '1px solid currentColor' : 0,
+  };
+}
+
+function promptCard(): React.CSSProperties {
+  return {
+    background: 'transparent',
+    border: 0,
+    padding: 0,
+    cursor: 'pointer',
+    color: 'var(--loom-bone-faint)',
+    fontFamily: "'Source Serif 4', serif",
+    fontStyle: 'italic',
+    fontSize: 15,
+    maxWidth: '22ch',
+    textAlign: 'center',
+  };
 }
