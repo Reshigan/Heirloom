@@ -5,8 +5,16 @@
 // Father's Day, Grandparents Day, Christmas — the four peaks per PLAYBOOK §3).
 //
 // Themes are deliberately about the *user's parent or grandparent*, not the
-// user themselves. The wedge is gift purchase: the buyer is the adult child,
-// the user is the parent. Copy must reflect that.
+// user themselves. The buyer is often the adult child (the Keeper); the
+// person whose stories enter the thread is the parent or grandparent (the
+// Elder). Copy reflects that — but Heirloom is NOT a year-of-stories gift
+// product (that is Storyworth, and voice.ts rule 8 forbids that framing).
+// The thing being given/started is a perpetual family thread: append-only,
+// multi-author, time-lockable, built to outlive the company. A season or
+// holiday is the *occasion* to open or write into the thread, never a
+// 52-week subscription that ends. Avoid "a year of stories," "first prompt
+// arrives Monday," "52 weeks" — frame around the thread, the time-lock, and
+// one question today.
 
 export type RelationFocus =
   | "mom"
@@ -51,13 +59,13 @@ export const WEEKLY_THEMES: Theme[] = [
   { id: "w13-school", title: "School stories you've never heard", hook: "The teacher they loved. The one they hated.", relation: "parent", angles: ["favorite teacher", "biggest school memory", "the day they got in trouble"] },
   { id: "w14-grandparents", title: "Their grandparents, your great-grandparents", hook: "Two generations back. Already half-lost.", relation: "grandparent", angles: ["what they remember", "a story they were told", "a face in an old photo"] },
   { id: "w15-fears", title: "Things they're scared of", hook: "Being asked. So ask gently.", relation: "parent", angles: ["a current fear", "a childhood fear", "what keeps them up"] },
-  { id: "w16-mothersday-prep", title: "Mother's Day is 3 weeks away", hook: "Don't buy flowers. Buy time.", relation: "mom", angles: ["the gift that lasts", "weekly story prompts", "the year-end book"] },
-  { id: "w17-mothersday-prep2", title: "Mother's Day is 2 weeks away", hook: "Last year's flowers are gone. This year, a year of stories.", relation: "mom", angles: ["why a story is better than flowers", "what mom would actually want", "give her a year"] },
-  { id: "w18-mothersday", title: "Mother's Day", hook: "It's not too late to give her something that lasts.", relation: "mom", angles: ["gift purchase last-minute", "first prompt arrives Monday", "what other moms have said"] },
+  { id: "w16-mothersday-prep", title: "Mother's Day is 3 weeks away", hook: "Don't buy flowers. Open a thread.", relation: "mom", angles: ["the gift that outlives the giver", "start the thread with one question for her", "an entry her great-granddaughter opens in 2120"] },
+  { id: "w17-mothersday-prep2", title: "Mother's Day is 2 weeks away", hook: "Last year's flowers are gone. Start something that isn't.", relation: "mom", angles: ["why a thread beats flowers", "ask mom the one question no one asks", "lock an entry for a grandchild not born yet"] },
+  { id: "w18-mothersday", title: "Mother's Day", hook: "Ask her one thing today. Lock the answer for whoever comes next.", relation: "mom", angles: ["record one answer this afternoon", "open the family thread with her voice", "a time-locked entry for a descendant"] },
   { id: "w19-postmom", title: "After Mother's Day", hook: "Did you call? Did you ask?", relation: "mom", angles: ["a question for this week", "the conversation you didn't have", "next Sunday's call"] },
   { id: "w20-summer-stories", title: "Summer stories, told slow", hook: "The summer they were 16.", relation: "parent", angles: ["a summer job", "a road trip", "first heartbreak"] },
   { id: "w21-fathersday-prep", title: "Father's Day is 3 weeks away", hook: "Dads are harder. So ask better questions.", relation: "dad", angles: ["why dads don't talk", "the question that opens dad up", "his stories matter too"] },
-  { id: "w22-fathersday-prep2", title: "Father's Day is 2 weeks away", hook: "He says he doesn't need anything. He doesn't mean it.", relation: "dad", angles: ["dad gifts that aren't ties", "the quiet way to ask", "give him a year"] },
+  { id: "w22-fathersday-prep2", title: "Father's Day is 2 weeks away", hook: "He says he doesn't need anything. He doesn't mean it.", relation: "dad", angles: ["dad gifts that aren't ties", "the quiet way to ask", "open a thread his grandkids will read"] },
   { id: "w23-fathersday", title: "Father's Day", hook: "He'll never ask you to. Do it anyway.", relation: "dad", angles: ["ask one thing today, record the answer", "lock the story for your kids to open later", "what dads actually answer when asked"] },
   { id: "w24-postdad", title: "After Father's Day", hook: "Ask him about his dad.", relation: "dad", angles: ["grandfather questions", "what your dad never said about his dad", "two-generation story"] },
   { id: "w25-summer-2", title: "Travel and family", hook: "The vacation you remember. The one they remember.", relation: "parent", angles: ["a trip together", "where they wanted to go", "a passport story"] },
@@ -80,14 +88,14 @@ export const WEEKLY_THEMES: Theme[] = [
   { id: "w42-thanksgiving-prep2", title: "Thanksgiving prep", hook: "Bring a question, not a side dish.", relation: "parent", angles: ["the question to ask", "open the conversation", "record it on your phone"] },
   { id: "w43-thanksgiving", title: "Thanksgiving", hook: "Today, ask one thing you've never asked.", relation: "parent", angles: ["the table moment", "permission to record", "one question per person"] },
   { id: "w44-postthanks", title: "Post-Thanksgiving", hook: "What did you learn?", relation: "parent", angles: ["a story you got", "something you'll keep", "the next call"] },
-  { id: "w45-christmas-prep", title: "Christmas gift ideas they'll actually open", hook: "Don't buy another candle.", relation: "parent", angles: ["gift guide angle", "the gift that lasts", "vs other gifts"] },
-  { id: "w46-christmas-prep2", title: "2 weeks to Christmas", hook: "Order now. First prompt arrives Monday.", relation: "parent", angles: ["last-minute gift", "delivered instantly", "the year ahead"] },
-  { id: "w47-christmas-prep3", title: "1 week to Christmas", hook: "Print the gift card tonight.", relation: "parent", angles: ["digital gift", "no shipping", "wrapped in 2 minutes"] },
-  { id: "w48-christmas", title: "Christmas Day", hook: "The gift that keeps giving — for 52 weeks.", relation: "parent", angles: ["under the tree", "the moment they see it", "what's coming Monday"] },
+  { id: "w45-christmas-prep", title: "Christmas gift ideas they'll actually open", hook: "Don't buy another candle.", relation: "parent", angles: ["the gift that outlives everyone at the table", "give a thread, not a thing", "a gift their grandchildren inherit"] },
+  { id: "w46-christmas-prep2", title: "2 weeks to Christmas", hook: "Nothing to ship. Nothing that runs out.", relation: "parent", angles: ["a gift with no end date", "open the thread together on the day", "the first entry can be one question"] },
+  { id: "w47-christmas-prep3", title: "1 week to Christmas", hook: "The one gift that gets older with your family.", relation: "parent", angles: ["no shipping, ready tonight", "a thread the whole bloodline writes into", "lock an entry to open years from now"] },
+  { id: "w48-christmas", title: "Christmas Day", hook: "Open one thread today. Your family writes into it for the next century.", relation: "parent", angles: ["around the tree, record one story", "the moment the thread begins", "a time-locked entry for a future Christmas"] },
   { id: "w49-betweenyears", title: "Between Christmas and New Year", hook: "Quiet days. Big questions.", relation: "parent", angles: ["family time", "old photos", "a slow conversation"] },
   { id: "w50-yearend", title: "Year-end reflection", hook: "What do you wish you'd asked last year?", relation: "self", angles: ["regret-free angle", "next year resolution", "habit setting"] },
-  { id: "w51-newyear-prep", title: "New Year resolutions that actually matter", hook: "Not the gym. Their stories.", relation: "parent", angles: ["resolutions that matter", "small habit", "1 question per week"] },
-  { id: "w52-newyear", title: "New Year", hook: "This is the year you actually do it.", relation: "parent", angles: ["start small", "1 story a week", "by next year you'll have 52"] },
+  { id: "w51-newyear-prep", title: "New Year resolutions that actually matter", hook: "Not the gym. The questions you keep meaning to ask.", relation: "parent", angles: ["a resolution that outlasts you", "one question a week, written into the thread", "the habit of asking before it's too late"] },
+  { id: "w52-newyear", title: "New Year", hook: "This is the year the thread starts. It doesn't have a last year.", relation: "parent", angles: ["start with one entry today", "the door is one question", "an append-only thread, not a 12-month project"] },
 ];
 
 export const SEASONAL_WINDOWS: SeasonalWindow[] = [
