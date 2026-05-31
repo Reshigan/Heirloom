@@ -194,7 +194,7 @@ export function ThreadDetail() {
             color: 'var(--loom-warm)',
           }}
         >
-          {thread.role.toLowerCase()} · gen {thread.generation_offset}
+          {(thread.role ?? '').toLowerCase()} · gen {thread.generation_offset}
         </p>
         <h1
           className="loom-h2"
@@ -215,7 +215,7 @@ export function ThreadDetail() {
           className="loom-mono"
           style={{ margin: '20px 0 0', fontSize: 11, letterSpacing: '0.04em', color: 'var(--loom-bone-faint)' }}
         >
-          · {entryRows.length} {entryRows.length === 1 ? 'entry' : 'entries'} &nbsp;·&nbsp; {memberRows.length} {memberRows.length === 1 ? 'member' : 'members'} &nbsp;·&nbsp; {thread.default_visibility.toLowerCase()}
+          · {entryRows.length} {entryRows.length === 1 ? 'entry' : 'entries'} &nbsp;·&nbsp; {memberRows.length} {memberRows.length === 1 ? 'member' : 'members'} &nbsp;·&nbsp; {(thread.default_visibility ?? '').toLowerCase()}
         </p>
 
         <div style={{ display: 'flex', gap: 12, marginTop: 24, flexWrap: 'wrap' }}>
@@ -402,7 +402,7 @@ export function ThreadDetail() {
                     className="loom-mono"
                     style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
                   >
-                    {m.role.toLowerCase()}
+                    {(m.role ?? '').toLowerCase()}
                   </span>
                 </div>
               </li>
@@ -454,7 +454,7 @@ export function ThreadDetail() {
                     className="loom-mono"
                     style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
                   >
-                    {s.role.toLowerCase()}
+                    {(s.role ?? '').toLowerCase()}
                   </span>
                 </li>
               ))}
