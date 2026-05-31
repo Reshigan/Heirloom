@@ -90,7 +90,6 @@ export function Navigation() {
       {/* Desktop primary nav */}
       <nav
         style={{
-          display: 'flex',
           gap: 24,
           marginLeft: 36,
           flex: 1,
@@ -201,7 +200,7 @@ export function Navigation() {
         {mobileOpen ? 'close' : 'menu'}
       </button>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginLeft: 'auto' }} className="hidden md:flex">
+      <div style={{ alignItems: 'center', gap: 18, marginLeft: 'auto' }} className="hidden md:flex">
         <span className="loom-theme-pill">
           <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')} type="button">
             vault

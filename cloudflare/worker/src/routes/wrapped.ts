@@ -15,13 +15,14 @@ wrappedRoutes.get('/current', async (c) => {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   const currentYear = new Date().getFullYear();
-  
+
+  try {
   // Current year: always regenerate so new entries are reflected immediately.
   // (Past years are cached; current year changes too often to cache.)
   await c.env.DB.prepare(`DELETE FROM wrapped_data WHERE user_id = ? AND year = ?`)
     .bind(userId, currentYear).run();
   const wrapped = await generateWrappedData(c.env.DB, userId, currentYear);
-  
+
   return c.json({
     id: wrapped.id,
     year: wrapped.year,
@@ -37,6 +38,10 @@ wrappedRoutes.get('/current', async (c) => {
     summary: wrapped.summary,
     generatedAt: wrapped.generated_at,
   });
+  } catch (err: any) {
+    console.error('[wrapped/current] failed:', err?.message ?? err);
+    return c.json({ error: 'Failed to generate wrapped data' }, 500);
+  }
 });
 
 // Get wrapped data for a specific year
@@ -188,14 +193,6 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
     WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
   `).bind(userId, startDate, endDate).first();
 
-  // Get thread entry stats (family thread entries count toward the cloth)
-  const threadEntryStats = await db.prepare(`
-    SELECT COUNT(*) as count
-    FROM thread_entries
-    WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND visibility_revoked_at IS NULL
-  `).bind(userId, startDate, endDate).first();
-  const threadEntryCount = (threadEntryStats?.count as number) || 0;
-
   // Get top emotions from memories metadata
   const emotions = await db.prepare(`
     SELECT metadata FROM memories
@@ -269,8 +266,8 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
     LIMIT 10
   `).bind(userId, startDate, endDate).all();
   
-  // Generate summary (thread entries + memories both count as "woven")
-  const memoryCount = ((memoryStats?.count as number) || 0) + threadEntryCount;
+  // Generate summary
+  const memoryCount = (memoryStats?.count as number) || 0;
   const totalItems = memoryCount + ((letterStats?.count as number) || 0) + ((voiceStats?.count as number) || 0);
   const summary = totalItems > 0
     ? `In ${year}, you wove ${memoryCount} entr${memoryCount === 1 ? 'y' : 'ies'} into the thread, wrote ${letterStats?.count || 0} letter${(letterStats?.count || 0) === 1 ? '' : 's'}, and recorded ${voiceStats?.count || 0} voice stor${(voiceStats?.count || 0) === 1 ? 'y' : 'ies'}. Your longest streak was ${longestStreak} days of consecutive activity.`

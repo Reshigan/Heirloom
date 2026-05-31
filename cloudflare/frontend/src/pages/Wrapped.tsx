@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { wrappedApi } from '../services/api';
 import { Loom, type LoomEntry, type LoomKind } from '../loom/components/Loom';
@@ -216,6 +217,12 @@ const Wrapped: React.FC = () => {
         }}
       >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
+          <Link
+            to="/loom"
+            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+          >
+            ← back
+          </Link>
           <span className="loom-serif" style={{ fontSize: 18, color: 'var(--loom-warm)', textTransform: 'none', letterSpacing: 0 }}>∞</span>
           <span style={{ color: 'var(--loom-bone-dim)' }}>Heirloom</span>
           <span style={{ color: 'var(--loom-bone-faint)' }}>·</span>
