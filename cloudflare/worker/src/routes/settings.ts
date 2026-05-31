@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { readDescription } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
 
 export const settingsRoutes = new Hono<AppEnv>();
@@ -578,7 +579,15 @@ settingsRoutes.get('/export', async (c) => {
       c.env.DB.prepare(`SELECT * FROM dead_man_switches WHERE user_id = ?`).bind(userId).first(),
       c.env.DB.prepare(`SELECT * FROM subscriptions WHERE user_id = ?`).bind(userId).first(),
     ]);
-    
+
+    // Decrypt encrypted memory descriptions so the personal data export carries
+    // readable prose. This export is the user's complete GDPR archive, so it
+    // intentionally includes revoked (soft-deleted) entries too — append-only
+    // means nothing is lost until account erasure.
+    for (const m of memories.results as any[]) {
+      m.description = await readDescription(c.env, m);
+    }
+
     // Build file manifest with R2 URLs
     const fileManifest: { type: string; key: string; url: string }[] = [];
     

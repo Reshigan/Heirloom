@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
+import { readDescription } from '../lib/legacyArchive';
 
 export const engagementV2Routes = new Hono<AppEnv>();
 
@@ -30,15 +31,15 @@ engagementV2Routes.get('/legacy-score', async (c) => {
   // Compute score from scratch
   const rules = [
     { key: 'first_family', points: 10, query: `SELECT COUNT(*) as c FROM family_members WHERE user_id = ?` },
-    { key: 'first_voice', points: 15, query: `SELECT COUNT(*) as c FROM voice_recordings WHERE user_id = ?` },
-    { key: 'first_letter', points: 10, query: `SELECT COUNT(*) as c FROM letters WHERE user_id = ?` },
-    { key: 'first_memory', points: 10, query: `SELECT COUNT(*) as c FROM memories WHERE user_id = ?` },
-    { key: 'five_memories', points: 10, query: `SELECT CASE WHEN COUNT(*) >= 5 THEN 1 ELSE 0 END as c FROM memories WHERE user_id = ?` },
+    { key: 'first_voice', points: 15, query: `SELECT COUNT(*) as c FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL` },
+    { key: 'first_letter', points: 10, query: `SELECT COUNT(*) as c FROM letters WHERE user_id = ? AND deleted_at IS NULL` },
+    { key: 'first_memory', points: 10, query: `SELECT COUNT(*) as c FROM memories WHERE user_id = ? AND deleted_at IS NULL` },
+    { key: 'five_memories', points: 10, query: `SELECT CASE WHEN COUNT(*) >= 5 THEN 1 ELSE 0 END as c FROM memories WHERE user_id = ? AND deleted_at IS NULL` },
     { key: 'legacy_contact', points: 15, query: `SELECT COUNT(*) as c FROM legacy_contacts WHERE user_id = ?` },
     { key: 'dead_mans_switch', points: 10, query: `SELECT COUNT(*) as c FROM dead_mans_switches WHERE user_id = ? AND is_active = 1` },
     { key: 'encryption_setup', points: 10, query: `SELECT COUNT(*) as c FROM encryption_keys WHERE user_id = ?` },
     { key: 'profile_complete', points: 5, query: `SELECT CASE WHEN first_name IS NOT NULL AND last_name IS NOT NULL AND avatar_url IS NOT NULL THEN 1 ELSE 0 END as c FROM users WHERE id = ?` },
-    { key: 'ten_voices', points: 5, query: `SELECT CASE WHEN COUNT(*) >= 10 THEN 1 ELSE 0 END as c FROM voice_recordings WHERE user_id = ?` },
+    { key: 'ten_voices', points: 5, query: `SELECT CASE WHEN COUNT(*) >= 10 THEN 1 ELSE 0 END as c FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL` },
   ];
 
   let totalScore = 0;
@@ -100,15 +101,19 @@ engagementV2Routes.get('/family-feed', async (c) => {
   const placeholders = familyUserIds.map(() => '?').join(',');
 
   const memories = await c.env.DB.prepare(`
-    SELECT m.id, m.title, m.description, m.created_at, m.user_id, 
+    SELECT m.id, m.title, m.description, m.description_enc, m.description_iv,
+           m.created_at, m.user_id,
            u.first_name, u.last_name, u.avatar_url,
            'memory' as type
     FROM memories m
     JOIN users u ON m.user_id = u.id
-    WHERE m.user_id IN (${placeholders})
+    WHERE m.user_id IN (${placeholders}) AND m.deleted_at IS NULL
     ORDER BY m.created_at DESC
     LIMIT 20
   `).bind(...familyUserIds).all();
+  for (const m of memories.results as any[]) {
+    m.description = await readDescription(c.env, m);
+  }
 
   const voices = await c.env.DB.prepare(`
     SELECT v.id, v.title, v.transcript as description, v.created_at, v.user_id,
@@ -116,7 +121,7 @@ engagementV2Routes.get('/family-feed', async (c) => {
            'voice' as type
     FROM voice_recordings v
     JOIN users u ON v.user_id = u.id
-    WHERE v.user_id IN (${placeholders})
+    WHERE v.user_id IN (${placeholders}) AND v.deleted_at IS NULL
     ORDER BY v.created_at DESC
     LIMIT 20
   `).bind(...familyUserIds).all();
@@ -127,7 +132,7 @@ engagementV2Routes.get('/family-feed', async (c) => {
            'letter' as type
     FROM letters l
     JOIN users u ON l.user_id = u.id
-    WHERE l.user_id IN (${placeholders})
+    WHERE l.user_id IN (${placeholders}) AND l.deleted_at IS NULL
     ORDER BY l.created_at DESC
     LIMIT 20
   `).bind(...familyUserIds).all();
@@ -143,9 +148,9 @@ engagementV2Routes.get('/family-feed', async (c) => {
 // Public stats endpoint
 engagementV2Routes.get('/public/stats', async (c) => {
   try {
-    const memoriesCount = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM memories`).first();
-    const voicesCount = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM voice_recordings`).first();
-    const lettersCount = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM letters`).first();
+    const memoriesCount = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM memories WHERE deleted_at IS NULL`).first();
+    const voicesCount = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM voice_recordings WHERE deleted_at IS NULL`).first();
+    const lettersCount = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM letters WHERE deleted_at IS NULL`).first();
     const usersCount = await c.env.DB.prepare(`SELECT COUNT(*) as count FROM users`).first();
 
     return c.json({

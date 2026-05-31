@@ -88,15 +88,15 @@ wrappedRoutes.get('/', async (c) => {
   
   // Get years with activity
   const memoriesYears = await c.env.DB.prepare(`
-    SELECT DISTINCT strftime('%Y', created_at) as year FROM memories WHERE user_id = ?
+    SELECT DISTINCT strftime('%Y', created_at) as year FROM memories WHERE user_id = ? AND deleted_at IS NULL
   `).bind(userId).all();
   
   const lettersYears = await c.env.DB.prepare(`
-    SELECT DISTINCT strftime('%Y', created_at) as year FROM letters WHERE user_id = ?
+    SELECT DISTINCT strftime('%Y', created_at) as year FROM letters WHERE user_id = ? AND deleted_at IS NULL
   `).bind(userId).all();
   
   const voiceYears = await c.env.DB.prepare(`
-    SELECT DISTINCT strftime('%Y', created_at) as year FROM voice_recordings WHERE user_id = ?
+    SELECT DISTINCT strftime('%Y', created_at) as year FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL
   `).bind(userId).all();
   
   // Combine and deduplicate years
@@ -172,30 +172,30 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
     SELECT 
       COUNT(*) as count,
       COALESCE(SUM(file_size), 0) as storage
-    FROM memories 
-    WHERE user_id = ? AND created_at >= ? AND created_at <= ?
+    FROM memories
+    WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
   `).bind(userId, startDate, endDate).first();
-  
+
   // Get letter stats
   const letterStats = await db.prepare(`
     SELECT COUNT(*) as count
-    FROM letters 
-    WHERE user_id = ? AND created_at >= ? AND created_at <= ?
+    FROM letters
+    WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
   `).bind(userId, startDate, endDate).first();
-  
+
   // Get voice stats
   const voiceStats = await db.prepare(`
     SELECT 
       COUNT(*) as count,
       COALESCE(SUM(file_size), 0) as storage
-    FROM voice_recordings 
-    WHERE user_id = ? AND created_at >= ? AND created_at <= ?
+    FROM voice_recordings
+    WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
   `).bind(userId, startDate, endDate).first();
-  
+
   // Get top emotions from memories metadata
   const emotions = await db.prepare(`
-    SELECT metadata FROM memories 
-    WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND metadata IS NOT NULL
+    SELECT metadata FROM memories
+    WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND metadata IS NOT NULL AND deleted_at IS NULL
   `).bind(userId, startDate, endDate).all();
   
   const emotionCounts: Record<string, number> = {};
@@ -228,11 +228,11 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
   // Calculate streaks (simplified - based on days with activity)
   const activityDays = await db.prepare(`
     SELECT DISTINCT date(created_at) as day FROM (
-      SELECT created_at FROM memories WHERE user_id = ? AND created_at >= ? AND created_at <= ?
+      SELECT created_at FROM memories WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
       UNION ALL
-      SELECT created_at FROM letters WHERE user_id = ? AND created_at >= ? AND created_at <= ?
+      SELECT created_at FROM letters WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
       UNION ALL
-      SELECT created_at FROM voice_recordings WHERE user_id = ? AND created_at >= ? AND created_at <= ?
+      SELECT created_at FROM voice_recordings WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
     ) ORDER BY day
   `).bind(userId, startDate, endDate, userId, startDate, endDate, userId, startDate, endDate).all();
   
@@ -259,8 +259,8 @@ async function generateWrappedData(db: D1Database, userId: string, year: number)
   
   // Get highlights (most recent/notable memories)
   const highlights = await db.prepare(`
-    SELECT id, title, type, created_at FROM memories 
-    WHERE user_id = ? AND created_at >= ? AND created_at <= ?
+    SELECT id, title, type, created_at FROM memories
+    WHERE user_id = ? AND created_at >= ? AND created_at <= ? AND deleted_at IS NULL
     ORDER BY created_at DESC
     LIMIT 10
   `).bind(userId, startDate, endDate).all();

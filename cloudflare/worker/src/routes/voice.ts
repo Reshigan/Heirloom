@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { mirrorIntoDefaultThread, mirrorVoiceUpdate, mirrorVoiceDelete } from '../services/threadMesh';
+import { recordRevision, withinGrace, mutableUntilFrom } from '../lib/legacyArchive';
 
 export const voiceRoutes = new Hono<AppEnv>();
 
@@ -17,7 +18,7 @@ voiceRoutes.get('/', async (c) => {
   const offset = (page - 1) * limit;
   
   const recordings = await c.env.DB.prepare(`
-    SELECT * FROM voice_recordings WHERE user_id = ?
+    SELECT * FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL
     ORDER BY created_at DESC LIMIT ? OFFSET ?
   `).bind(userId, limit, offset).all();
   
@@ -55,7 +56,7 @@ voiceRoutes.get('/', async (c) => {
   
   // Get total count
   const countResult = await c.env.DB.prepare(`
-    SELECT COUNT(*) as count FROM voice_recordings WHERE user_id = ?
+    SELECT COUNT(*) as count FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL
   `).bind(userId).first();
   
   return c.json({
@@ -78,7 +79,7 @@ voiceRoutes.get('/stats', async (c) => {
       COUNT(*) as total,
       SUM(duration) as total_duration,
       SUM(file_size) as total_storage
-    FROM voice_recordings WHERE user_id = ?
+    FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL
   `).bind(userId).first();
   
   return c.json({
@@ -292,13 +293,13 @@ voiceRoutes.get('/:id', async (c) => {
   const recordingId = c.req.param('id');
   
   const recording = await c.env.DB.prepare(`
-    SELECT * FROM voice_recordings WHERE id = ? AND user_id = ?
+    SELECT * FROM voice_recordings WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(recordingId, userId).first();
-  
+
   if (!recording) {
     return c.json({ error: 'Voice recording not found' }, 404);
   }
-  
+
   // Get recipients
   const recipients = await c.env.DB.prepare(`
     SELECT fm.id, fm.name, fm.relationship, fm.email FROM family_members fm
@@ -350,10 +351,11 @@ voiceRoutes.post('/', async (c) => {
     // Use recordingDate if provided (for historic recordings), otherwise use current date
     const createdAt = recordingDate ? new Date(recordingDate).toISOString() : now;
   
+    const mutableUntil = mutableUntilFrom(createdAt);
     await c.env.DB.prepare(`
-      INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, userId, title, description || null, fileUrl || null, fileKey || null, duration || null, fileSize || null, transcript || null, emotion || null, createdAt, now).run();
+      INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, mutable_until, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, userId, title, description || null, fileUrl || null, fileKey || null, duration || null, fileSize || null, transcript || null, emotion || null, mutableUntil, createdAt, now).run();
 
   // Dual-write into the Family Thread.
   await mirrorIntoDefaultThread(c.env, userId, {
@@ -393,21 +395,30 @@ voiceRoutes.patch('/:id', async (c) => {
   const recordingId = c.req.param('id');
   const body = await c.req.json();
   
-  // Verify ownership
+  // Verify ownership (a soft-deleted recording is no longer editable)
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM voice_recordings WHERE id = ? AND user_id = ?
+    SELECT * FROM voice_recordings WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(recordingId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Voice recording not found' }, 404);
   }
-  
+
   const { title, description, transcript, emotion } = body;
   const now = new Date().toISOString();
-  
+
+  // Append-only: snapshot prior values to the immutable revision log before edit.
+  await recordRevision(c.env, 'voice', recordingId, userId, {
+    title: existing.title,
+    description: existing.description,
+    transcript: existing.transcript,
+    emotion: existing.emotion,
+    updated_at: existing.updated_at,
+  }, withinGrace(existing.mutable_until as string | null) ? 'edit' : 'amendment');
+
   // Convert undefined to null for D1 compatibility
   await c.env.DB.prepare(`
-    UPDATE voice_recordings 
+    UPDATE voice_recordings
     SET title = COALESCE(?, title),
         description = COALESCE(?, description),
         transcript = COALESCE(?, transcript),
@@ -441,32 +452,37 @@ voiceRoutes.patch('/:id', async (c) => {
   });
 });
 
-// Delete a voice recording
+// "Delete" a voice recording — append-only soft revoke. The row and its R2
+// audio file are preserved; the item is just hidden from reads. True erasure of
+// the bytes happens only at the account level (GDPR), never here.
 voiceRoutes.delete('/:id', async (c) => {
   const userId = c.get('userId');
   const recordingId = c.req.param('id');
-  
-  // Verify ownership
+  const reason = c.req.query('reason') || null;
+
+  // Verify ownership (idempotent: an already-revoked recording is treated as gone).
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM voice_recordings WHERE id = ? AND user_id = ?
+    SELECT * FROM voice_recordings WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(recordingId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Voice recording not found' }, 404);
   }
-  
-  // Delete from R2 if file exists
-  if (existing.file_key) {
-    try {
-      await c.env.STORAGE.delete(existing.file_key as string);
-    } catch (e) {
-      console.error('Failed to delete file from R2:', e);
-    }
-  }
-  
+
+  const now = new Date().toISOString();
+
+  // Preserve the final state in the revision log, then revoke (soft-delete).
+  await recordRevision(c.env, 'voice', recordingId, userId, {
+    title: existing.title,
+    description: existing.description,
+    transcript: existing.transcript,
+    emotion: existing.emotion,
+    file_key: existing.file_key,
+  }, 'revoke');
+
   await c.env.DB.prepare(`
-    DELETE FROM voice_recordings WHERE id = ?
-  `).bind(recordingId).run();
+    UPDATE voice_recordings SET deleted_at = ?, deleted_reason = ?, updated_at = ? WHERE id = ?
+  `).bind(now, reason, now, recordingId).run();
 
   await mirrorVoiceDelete(c.env, recordingId);
 

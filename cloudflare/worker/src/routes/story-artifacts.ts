@@ -37,7 +37,7 @@ storyArtifactsRoutes.get('/:artifactId', async (c) => {
   if (memoryIds.length > 0) {
     const placeholders = memoryIds.map(() => '?').join(',');
     const memoriesResult = await c.env.DB.prepare(
-      `SELECT id, title, file_url, thumbnail_url FROM memories WHERE id IN (${placeholders})`
+      `SELECT id, title, file_url, thumbnail_url FROM memories WHERE id IN (${placeholders}) AND deleted_at IS NULL`
     ).bind(...memoryIds).all();
     memories = memoriesResult.results || [];
   }
@@ -277,7 +277,7 @@ storyArtifactsRoutes.get('/view/:token', async (c) => {
   if (memoryIds.length > 0) {
     const placeholders = memoryIds.map(() => '?').join(',');
     const memoriesResult = await c.env.DB.prepare(
-      `SELECT id, title, file_url, thumbnail_url FROM memories WHERE id IN (${placeholders})`
+      `SELECT id, title, file_url, thumbnail_url FROM memories WHERE id IN (${placeholders}) AND deleted_at IS NULL`
     ).bind(...memoryIds).all();
     memories = memoriesResult.results || [];
   }

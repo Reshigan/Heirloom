@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
+import { readDescription } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
 
 export const engagementRoutes = new Hono<AppEnv>();
@@ -265,17 +266,25 @@ engagementRoutes.get('/card/:token', async (c) => {
   const token = c.req.param('token');
   
   const card = await c.env.DB.prepare(`
-    SELECT sc.*, m.title, m.description, m.media_url, m.memory_type,
+    SELECT sc.*, m.title, m.description, m.description_enc, m.description_iv,
+           m.media_url, m.memory_type,
            u.first_name, u.last_name
     FROM shareable_cards sc
-    LEFT JOIN memories m ON sc.memory_id = m.id
+    LEFT JOIN memories m ON sc.memory_id = m.id AND m.deleted_at IS NULL
     LEFT JOIN users u ON sc.user_id = u.id
     WHERE sc.share_token = ? AND sc.is_public = 1
   `).bind(token).first();
-  
+
   if (!card) {
     return c.json({ error: 'Card not found or expired' }, 404);
   }
+
+  // A card whose underlying memory has since been revoked has no content to show.
+  if (card.memory_id && !card.title && !card.description && !card.description_enc) {
+    return c.json({ error: 'This card is no longer available' }, 404);
+  }
+
+  const cardDescription = card.memory_id ? await readDescription(c.env, card as any) : null;
   
   // Increment view count
   await c.env.DB.prepare(`
@@ -287,7 +296,7 @@ engagementRoutes.get('/card/:token', async (c) => {
     cardStyle: card.card_style,
     memory: card.memory_id ? {
       title: card.title,
-      description: card.description,
+      description: cardDescription,
       mediaUrl: card.media_url,
       type: card.memory_type,
     } : null,

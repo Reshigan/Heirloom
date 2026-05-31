@@ -7,6 +7,13 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 import { mirrorIntoDefaultThread, mirrorMemoryUpdate, mirrorMemoryDelete } from '../services/threadMesh';
+import {
+  descriptionColumnsForWrite,
+  readDescription,
+  recordRevision,
+  mutableUntilFrom,
+  withinGrace,
+} from '../lib/legacyArchive';
 
 export const memoriesRoutes = new Hono<AppEnv>();
 
@@ -19,35 +26,36 @@ memoriesRoutes.get('/', async (c) => {
   const limit = parseInt(c.req.query('limit') || '20');
   const offset = (page - 1) * limit;
   
-  let query = `SELECT * FROM memories WHERE user_id = ?`;
+  // Append-only: never surface soft-deleted (revoked) rows.
+  let query = `SELECT * FROM memories WHERE user_id = ? AND deleted_at IS NULL`;
   const params: any[] = [userId];
-  
+
   if (type) {
     query += ` AND type = ?`;
     params.push(type);
   }
-  
+
   if (recipientId) {
     query += ` AND id IN (SELECT memory_id FROM memory_recipients WHERE family_member_id = ?)`;
     params.push(recipientId);
   }
-  
+
   query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
   params.push(limit, offset);
-  
+
   const memories = await c.env.DB.prepare(query).bind(...params).all();
-  
+
   // Get total count
-  let countQuery = `SELECT COUNT(*) as count FROM memories WHERE user_id = ?`;
+  let countQuery = `SELECT COUNT(*) as count FROM memories WHERE user_id = ? AND deleted_at IS NULL`;
   const countParams: any[] = [userId];
   if (type) {
     countQuery += ` AND type = ?`;
     countParams.push(type);
   }
   const countResult = await c.env.DB.prepare(countQuery).bind(...countParams).first();
-  
+
   return c.json({
-    data: memories.results.map((m: any) => {
+    data: await Promise.all(memories.results.map(async (m: any) => {
       const parsedMetadata = m.metadata ? JSON.parse(m.metadata) : null;
       // Fallback: construct fileUrl from file_key if file_url is missing or broken
       let fileUrl = m.file_url;
@@ -58,7 +66,7 @@ memoriesRoutes.get('/', async (c) => {
         id: m.id,
         type: m.type,
         title: m.title,
-        description: m.description,
+        description: await readDescription(c.env, m),
         fileUrl,
         fileKey: m.file_key,
         fileSize: m.file_size,
@@ -70,7 +78,7 @@ memoriesRoutes.get('/', async (c) => {
         createdAt: m.created_at,
         updatedAt: m.updated_at,
       };
-    }),
+    })),
     pagination: {
       page,
       limit,
@@ -91,7 +99,7 @@ memoriesRoutes.get('/map', async (c) => {
   if (!type || type === 'memory') {
     const result = await c.env.DB.prepare(`
       SELECT id, title, 'memory' as type, latitude, longitude, location_name, created_at
-      FROM memories WHERE user_id = ? AND latitude IS NOT NULL AND longitude IS NOT NULL
+      FROM memories WHERE user_id = ? AND deleted_at IS NULL AND latitude IS NOT NULL AND longitude IS NOT NULL
       ORDER BY created_at DESC
     `).bind(userId).all();
     memories.push(...result.results);
@@ -101,7 +109,7 @@ memoriesRoutes.get('/map', async (c) => {
   if (!type || type === 'voice') {
     const result = await c.env.DB.prepare(`
       SELECT id, title, 'voice' as type, latitude, longitude, location_name, created_at
-      FROM voice_recordings WHERE user_id = ? AND latitude IS NOT NULL AND longitude IS NOT NULL
+      FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL AND latitude IS NOT NULL AND longitude IS NOT NULL
       ORDER BY created_at DESC
     `).bind(userId).all();
     memories.push(...result.results);
@@ -111,7 +119,7 @@ memoriesRoutes.get('/map', async (c) => {
   if (!type || type === 'letter') {
     const result = await c.env.DB.prepare(`
       SELECT id, subject as title, 'letter' as type, latitude, longitude, location_name, created_at
-      FROM letters WHERE user_id = ? AND latitude IS NOT NULL AND longitude IS NOT NULL
+      FROM letters WHERE user_id = ? AND deleted_at IS NULL AND latitude IS NOT NULL AND longitude IS NOT NULL
       ORDER BY created_at DESC
     `).bind(userId).all();
     memories.push(...result.results);
@@ -136,10 +144,10 @@ memoriesRoutes.get('/stats/summary', async (c) => {
         SUM(CASE WHEN type = 'VOICE' THEN 1 ELSE 0 END) as voice,
         SUM(CASE WHEN type = 'LETTER' THEN 1 ELSE 0 END) as letters,
         SUM(file_size) as total_storage
-      FROM memories WHERE user_id = ?
+      FROM memories WHERE user_id = ? AND deleted_at IS NULL
     `).bind(userId),
-    c.env.DB.prepare(`SELECT COUNT(*) as count FROM letters WHERE user_id = ?`).bind(userId),
-    c.env.DB.prepare(`SELECT COUNT(*) as count, SUM(duration) as total_minutes FROM voice_recordings WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND deleted_at IS NULL`).bind(userId),
+    c.env.DB.prepare(`SELECT COUNT(*) as count, SUM(duration) as total_minutes FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL`).bind(userId),
   ]);
   
   const stats = statsResult.results[0] as any;
@@ -297,25 +305,25 @@ memoriesRoutes.get('/:id', async (c) => {
   const memoryId = c.req.param('id');
   
   const memory = await c.env.DB.prepare(`
-    SELECT * FROM memories WHERE id = ? AND user_id = ?
+    SELECT * FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(memoryId, userId).first();
-  
+
   if (!memory) {
     return c.json({ error: 'Memory not found' }, 404);
   }
-  
+
   // Get recipients
   const recipients = await c.env.DB.prepare(`
     SELECT fm.* FROM family_members fm
     JOIN memory_recipients mr ON fm.id = mr.family_member_id
     WHERE mr.memory_id = ?
   `).bind(memoryId).all();
-  
+
   return c.json({
     id: memory.id,
     type: memory.type,
     title: memory.title,
-    description: memory.description,
+    description: await readDescription(c.env, memory),
     fileUrl: memory.file_url,
     fileKey: memory.file_key,
     fileSize: memory.file_size,
@@ -359,10 +367,16 @@ memoriesRoutes.post('/', async (c) => {
     emotionConfidence: emotionResult.confidence,
   };
   
+    // Encrypt the long-form description at rest (ciphertext → description_enc/iv,
+    // base `description` NULLed so the FTS index never holds ciphertext). Falls
+    // back to plaintext if no master key is configured.
+    const desc = await descriptionColumnsForWrite(c.env, description);
+    const mutableUntil = mutableUntilFrom(createdAt);
+
     await c.env.DB.prepare(`
-      INSERT INTO memories (id, user_id, type, title, description, file_url, file_key, file_size, mime_type, metadata, encrypted, encryption_iv, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, userId, type, title, description || null, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), encrypted ? 1 : 0, encryption_iv || null, createdAt, now).run();
+      INSERT INTO memories (id, user_id, type, title, description, description_enc, description_iv, file_url, file_key, file_size, mime_type, metadata, encrypted, encryption_iv, mutable_until, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, userId, type, title, desc.description, desc.description_enc, desc.description_iv, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), encrypted ? 1 : 0, encryption_iv || null, mutableUntil, createdAt, now).run();
 
   // Dual-write into the Family Thread (best-effort; never blocks the legacy write).
   await mirrorIntoDefaultThread(c.env, userId, {
@@ -388,7 +402,7 @@ memoriesRoutes.post('/', async (c) => {
     id: memory?.id,
     type: memory?.type,
     title: memory?.title,
-    description: memory?.description,
+    description: description || null,
     fileUrl: memory?.file_url,
     fileKey: memory?.file_key,
     emotion: emotionResult.label,
@@ -403,26 +417,53 @@ memoriesRoutes.patch('/:id', async (c) => {
   const memoryId = c.req.param('id');
   const body = await c.req.json();
   
-  // Verify ownership
+  // Verify ownership (a soft-deleted memory can no longer be edited).
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM memories WHERE id = ? AND user_id = ?
+    SELECT * FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(memoryId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Memory not found' }, 404);
   }
-  
+
   const { title, description, metadata } = body;
   const now = new Date().toISOString();
-  
-  await c.env.DB.prepare(`
-    UPDATE memories
-    SET title = COALESCE(?, title),
-        description = COALESCE(?, description),
-        metadata = COALESCE(?, metadata),
-        updated_at = ?
-    WHERE id = ?
-  `).bind(title, description, metadata ? JSON.stringify(metadata) : null, now, memoryId).run();
+
+  // Append-only: snapshot the prior values to the immutable revision log before
+  // mutating. Encrypted fields are snapshotted in ciphertext form (never plaintext).
+  // Within the 30-day grace window an edit is an 'edit'; after it, an 'amendment'.
+  const reason = withinGrace(existing.mutable_until as string | null) ? 'edit' : 'amendment';
+  await recordRevision(c.env, 'memory', memoryId, userId, {
+    title: existing.title,
+    description: existing.description,
+    description_enc: existing.description_enc,
+    description_iv: existing.description_iv,
+    metadata: existing.metadata,
+    updated_at: existing.updated_at,
+  }, reason);
+
+  if (description !== undefined) {
+    // Re-encrypt the new description (or store plaintext fallback if no key).
+    const desc = await descriptionColumnsForWrite(c.env, description);
+    await c.env.DB.prepare(`
+      UPDATE memories
+      SET title = COALESCE(?, title),
+          description = ?,
+          description_enc = ?,
+          description_iv = ?,
+          metadata = COALESCE(?, metadata),
+          updated_at = ?
+      WHERE id = ?
+    `).bind(title ?? null, desc.description, desc.description_enc, desc.description_iv, metadata ? JSON.stringify(metadata) : null, now, memoryId).run();
+  } else {
+    await c.env.DB.prepare(`
+      UPDATE memories
+      SET title = COALESCE(?, title),
+          metadata = COALESCE(?, metadata),
+          updated_at = ?
+      WHERE id = ?
+    `).bind(title ?? null, metadata ? JSON.stringify(metadata) : null, now, memoryId).run();
+  }
 
   if (title !== undefined) {
     await mirrorMemoryUpdate(c.env, memoryId, { title });
@@ -431,43 +472,51 @@ memoriesRoutes.patch('/:id', async (c) => {
   const memory = await c.env.DB.prepare(`
     SELECT * FROM memories WHERE id = ?
   `).bind(memoryId).first();
-  
+
   return c.json({
     id: memory?.id,
     type: memory?.type,
     title: memory?.title,
-    description: memory?.description,
+    description: await readDescription(c.env, memory as any),
     updatedAt: memory?.updated_at,
   });
 });
 
-// Delete a memory
+// "Delete" a memory — append-only soft revoke. The row and its R2 file are
+// preserved; the item is simply hidden from every read. True erasure of the
+// underlying bytes happens only at the account level (GDPR), never here, so a
+// family thread can never silently lose a entry. (§ "never lose a thread")
 memoriesRoutes.delete('/:id', async (c) => {
   const userId = c.get('userId');
   const memoryId = c.req.param('id');
-  
-  // Verify ownership
+  const reason = c.req.query('reason') || null;
+
+  // Verify ownership (idempotent: an already-revoked memory is treated as gone).
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM memories WHERE id = ? AND user_id = ?
+    SELECT * FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(memoryId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Memory not found' }, 404);
   }
-  
-  // Delete from R2 if file exists
-  if (existing.file_key) {
-    try {
-      await c.env.STORAGE.delete(existing.file_key as string);
-    } catch (e) {
-      console.error('Failed to delete file from R2:', e);
-    }
-  }
-  
-  await c.env.DB.prepare(`
-    DELETE FROM memories WHERE id = ?
-  `).bind(memoryId).run();
 
+  const now = new Date().toISOString();
+
+  // Preserve the final state in the revision log, then revoke (soft-delete).
+  await recordRevision(c.env, 'memory', memoryId, userId, {
+    title: existing.title,
+    description: existing.description,
+    description_enc: existing.description_enc,
+    description_iv: existing.description_iv,
+    metadata: existing.metadata,
+    file_key: existing.file_key,
+  }, 'revoke');
+
+  await c.env.DB.prepare(`
+    UPDATE memories SET deleted_at = ?, deleted_reason = ?, updated_at = ? WHERE id = ?
+  `).bind(now, reason, now, memoryId).run();
+
+  // Mirror the revoke into the Family Thread (also a soft visibility revoke).
   await mirrorMemoryDelete(c.env, memoryId);
 
   return c.body(null, 204);
@@ -513,7 +562,7 @@ memoriesRoutes.get('/search', async (c) => {
                snippet(memories_fts, 1, '<mark>', '</mark>', '...', 64) as description_snippet
         FROM memories_fts
         JOIN memories m ON memories_fts.rowid = m.rowid
-        WHERE memories_fts MATCH ? AND m.user_id = ?
+        WHERE memories_fts MATCH ? AND m.user_id = ? AND m.deleted_at IS NULL
         ORDER BY rank
         LIMIT ?
       `).bind(sanitizedQuery, userId, limit).all();
@@ -543,7 +592,7 @@ memoriesRoutes.get('/search', async (c) => {
                snippet(voice_fts, 2, '<mark>', '</mark>', '...', 64) as transcript_snippet
         FROM voice_fts
         JOIN voice_recordings v ON voice_fts.rowid = v.rowid
-        WHERE voice_fts MATCH ? AND v.user_id = ?
+        WHERE voice_fts MATCH ? AND v.user_id = ? AND v.deleted_at IS NULL
         ORDER BY rank
         LIMIT ?
       `).bind(sanitizedQuery, userId, limit).all();
@@ -571,7 +620,7 @@ memoriesRoutes.get('/search', async (c) => {
                snippet(letters_fts, 2, '<mark>', '</mark>', '...', 64) as body_snippet
         FROM letters_fts
         JOIN letters l ON letters_fts.rowid = l.rowid
-        WHERE letters_fts MATCH ? AND l.user_id = ?
+        WHERE letters_fts MATCH ? AND l.user_id = ? AND l.deleted_at IS NULL
         ORDER BY rank
         LIMIT ?
       `).bind(sanitizedQuery, userId, limit).all();
@@ -619,13 +668,15 @@ memoriesRoutes.get('/:id/card', async (c) => {
     SELECT m.*, u.first_name, u.last_name
     FROM memories m
     JOIN users u ON m.user_id = u.id
-    WHERE m.id = ? AND m.user_id = ?
+    WHERE m.id = ? AND m.user_id = ? AND m.deleted_at IS NULL
   `).bind(memoryId, userId).first();
-  
+
   if (!memory) {
     return c.json({ error: 'Memory not found' }, 404);
   }
-  
+
+  const plainDescription = await readDescription(c.env, memory as any);
+
   // Parse metadata for emotion
   const metadata = memory.metadata ? JSON.parse(memory.metadata as string) : {};
   const emotion = metadata.emotion || 'love';
@@ -689,7 +740,7 @@ memoriesRoutes.get('/:id/card', async (c) => {
   };
   
   const title = escapeXml(memory.title as string || 'Untitled Memory');
-  const description = memory.description ? escapeXml(memory.description as string) : '';
+  const description = plainDescription ? escapeXml(plainDescription) : '';
   const titleLines = wrapText(title, 35);
   const descLines = description ? wrapText(description, 50) : [];
   

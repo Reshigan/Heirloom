@@ -51,6 +51,7 @@ import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
 import { resolveTimeLocks } from './crons/time-locks';
 import { processArchivePinning } from './crons/archive-pinning';
+import { backfillMemoryDescriptionEncryption } from './crons/legacy-encryption-backfill';
 import { archiveRoutes } from './routes/archive';
 import { bookOrderRoutes, bookOrderProtectedRoutes } from './routes/books';
 import { syncOpenPrintJobs } from './services/book';
@@ -942,8 +943,15 @@ export default {
       const payoutResult = await processAutomatedPayouts(env);
       console.log(`Payouts processed: ${payoutResult.processed}, total paid: $${(payoutResult.totalPaid / 100).toFixed(2)}`);
       
+      // At-rest encryption backfill — seals any pre-existing plaintext memory
+      // descriptions once ENCRYPTION_MASTER_KEY is set. No-op when the key is
+      // absent or all rows are already encrypted; converges over a few runs.
+      console.log('Backfilling memory-description encryption…');
+      const encBackfill = await backfillMemoryDescriptionEncryption(env);
+      console.log(`Encryption backfill — encrypted:${encBackfill.encrypted} remaining:${encBackfill.remaining}${encBackfill.skipped ? ` (${encBackfill.skipped})` : ''}`);
+
       console.log('Daily jobs complete.');
-      
+
     } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
       // ========== WEEKLY JOBS (Sunday midnight UTC) ==========
       console.log('Running weekly jobs...');

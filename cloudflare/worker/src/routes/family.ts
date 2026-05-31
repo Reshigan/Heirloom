@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { mirrorFamilyMemberIntoDefaultThread } from '../services/threadMesh';
+import { readDescription } from '../lib/legacyArchive';
 
 export const familyRoutes = new Hono<AppEnv>();
 
@@ -60,16 +61,19 @@ familyRoutes.get('/:id', async (c) => {
   const recentMemories = await c.env.DB.prepare(`
     SELECT m.* FROM memories m
     JOIN memory_recipients mr ON m.id = mr.memory_id
-    WHERE mr.family_member_id = ?
+    WHERE mr.family_member_id = ? AND m.deleted_at IS NULL
     ORDER BY m.created_at DESC
     LIMIT 10
   `).bind(memberId).all();
-  
+  for (const m of recentMemories.results as any[]) {
+    m.description = await readDescription(c.env, m);
+  }
+
   // Get recent letters
   const recentLetters = await c.env.DB.prepare(`
     SELECT l.* FROM letters l
     JOIN letter_recipients lr ON l.id = lr.letter_id
-    WHERE lr.family_member_id = ?
+    WHERE lr.family_member_id = ? AND l.deleted_at IS NULL
     ORDER BY l.created_at DESC
     LIMIT 10
   `).bind(memberId).all();
@@ -78,7 +82,7 @@ familyRoutes.get('/:id', async (c) => {
   const recentVoice = await c.env.DB.prepare(`
     SELECT v.* FROM voice_recordings v
     JOIN voice_recipients vr ON v.id = vr.voice_recording_id
-    WHERE vr.family_member_id = ?
+    WHERE vr.family_member_id = ? AND v.deleted_at IS NULL
     ORDER BY v.created_at DESC
     LIMIT 10
   `).bind(memberId).all();

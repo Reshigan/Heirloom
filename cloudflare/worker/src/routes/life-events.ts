@@ -46,17 +46,17 @@ lifeEventsRoutes.get('/:triggerId', async (c) => {
     for (const item of contentItems) {
       if (item.type === 'MEMORY') {
         const memory = await c.env.DB.prepare(
-          'SELECT id, title, type, file_url FROM memories WHERE id = ? AND user_id = ?'
+          'SELECT id, title, type, file_url FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
         ).bind(item.id, userId).first();
         if (memory) contentDetails.push({ ...memory, contentType: 'MEMORY' });
       } else if (item.type === 'LETTER') {
         const letter = await c.env.DB.prepare(
-          'SELECT id, title FROM letters WHERE id = ? AND user_id = ?'
+          'SELECT id, title FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
         ).bind(item.id, userId).first();
         if (letter) contentDetails.push({ ...letter, contentType: 'LETTER' });
       } else if (item.type === 'VOICE') {
         const voice = await c.env.DB.prepare(
-          'SELECT id, title, duration FROM voice_recordings WHERE id = ? AND user_id = ?'
+          'SELECT id, title, duration FROM voice_recordings WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
         ).bind(item.id, userId).first();
         if (voice) contentDetails.push({ ...voice, contentType: 'VOICE' });
       }

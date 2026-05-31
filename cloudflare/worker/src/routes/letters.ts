@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { generateLetterSuggestion, classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 import { mirrorIntoDefaultThread, mirrorLetterUpdate, mirrorLetterDelete } from '../services/threadMesh';
+import { recordRevision, withinGrace, mutableUntilFrom } from '../lib/legacyArchive';
 
 export const lettersRoutes = new Hono<AppEnv>();
 
@@ -115,26 +116,27 @@ lettersRoutes.get('/', async (c) => {
   const limit = parseInt(c.req.query('limit') || '20');
   const offset = (page - 1) * limit;
   
-  let query = `SELECT * FROM letters WHERE user_id = ?`;
+  // Append-only: never surface soft-deleted (revoked) letters.
+  let query = `SELECT * FROM letters WHERE user_id = ? AND deleted_at IS NULL`;
   const params: any[] = [userId];
-  
+
   if (status === 'draft') {
     query += ` AND sealed_at IS NULL`;
   } else if (status === 'sealed') {
     query += ` AND sealed_at IS NOT NULL`;
   }
-  
+
   query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
   params.push(limit, offset);
-  
+
   const [letters, countResult] = await c.env.DB.batch([
     c.env.DB.prepare(query).bind(...params),
     c.env.DB.prepare(
       status === 'draft'
-        ? `SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND sealed_at IS NULL`
+        ? `SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND deleted_at IS NULL AND sealed_at IS NULL`
         : status === 'sealed'
-        ? `SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND sealed_at IS NOT NULL`
-        : `SELECT COUNT(*) as count FROM letters WHERE user_id = ?`
+        ? `SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND deleted_at IS NULL AND sealed_at IS NOT NULL`
+        : `SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND deleted_at IS NULL`
     ).bind(userId),
   ]);
   
@@ -189,13 +191,13 @@ lettersRoutes.get('/:id', async (c) => {
   const letterId = c.req.param('id');
   
   const letter = await c.env.DB.prepare(`
-    SELECT * FROM letters WHERE id = ? AND user_id = ?
+    SELECT * FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(letterId, userId).first();
-  
+
   if (!letter) {
     return c.json({ error: 'Letter not found' }, 404);
   }
-  
+
   // Get recipients
   const recipients = await c.env.DB.prepare(`
     SELECT fm.id, fm.name, fm.relationship, fm.email FROM family_members fm
@@ -250,10 +252,11 @@ lettersRoutes.post('/', async (c) => {
   const now = new Date().toISOString();
   
   // Store encrypted flag and IV if provided (E2E encryption)
+  const mutableUntil = mutableUntilFrom(now);
   await c.env.DB.prepare(`
-    INSERT INTO letters (id, user_id, title, salutation, body, signature, delivery_trigger, scheduled_date, encrypted, encryption_iv, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, deliveryTrigger || 'IMMEDIATE', scheduledDate || null, encrypted ? 1 : 0, encryption_iv || null, now, now).run();
+    INSERT INTO letters (id, user_id, title, salutation, body, signature, delivery_trigger, scheduled_date, encrypted, encryption_iv, mutable_until, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, deliveryTrigger || 'IMMEDIATE', scheduledDate || null, encrypted ? 1 : 0, encryption_iv || null, mutableUntil, now, now).run();
 
   // Dual-write into the Family Thread; SCHEDULED letters get a DATE unlock.
   await mirrorIntoDefaultThread(c.env, userId, {
@@ -293,22 +296,35 @@ lettersRoutes.patch('/:id', async (c) => {
   const letterId = c.req.param('id');
   const body = await c.req.json();
   
-  // Verify ownership and not sealed
+  // Verify ownership and not sealed (a soft-deleted letter is also un-editable)
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM letters WHERE id = ? AND user_id = ?
+    SELECT * FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(letterId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Letter not found' }, 404);
   }
-  
+
   if (existing.sealed_at) {
     return c.json({ error: 'Cannot edit a sealed letter' }, 403);
   }
-  
+
   const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, recipientIds, encrypted, encryption_iv } = body;
   const now = new Date().toISOString();
-  
+
+  // Append-only: snapshot prior values to the immutable revision log before edit.
+  await recordRevision(c.env, 'letter', letterId, userId, {
+    title: existing.title,
+    salutation: existing.salutation,
+    body: existing.body,
+    signature: existing.signature,
+    delivery_trigger: existing.delivery_trigger,
+    scheduled_date: existing.scheduled_date,
+    encrypted: existing.encrypted,
+    encryption_iv: existing.encryption_iv,
+    updated_at: existing.updated_at,
+  }, withinGrace(existing.mutable_until as string | null) ? 'edit' : 'amendment');
+
   // Convert undefined to null for D1 compatibility
   // Include encryption fields if provided (E2E encryption)
   await c.env.DB.prepare(`
@@ -379,13 +395,13 @@ lettersRoutes.post('/:id/seal', async (c) => {
   
   // Verify ownership
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM letters WHERE id = ? AND user_id = ?
+    SELECT * FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(letterId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Letter not found' }, 404);
   }
-  
+
   if (existing.sealed_at) {
     return c.json({ error: 'Letter is already sealed' }, 400);
   }
@@ -425,23 +441,36 @@ lettersRoutes.post('/:id/seal', async (c) => {
   });
 });
 
-// Delete a letter
+// "Delete" a letter — append-only soft revoke. The row is preserved and simply
+// hidden from reads; true erasure happens only at the account level (GDPR).
 lettersRoutes.delete('/:id', async (c) => {
   const userId = c.get('userId');
   const letterId = c.req.param('id');
-  
-  // Verify ownership
+  const reason = c.req.query('reason') || null;
+
+  // Verify ownership (idempotent: an already-revoked letter is treated as gone).
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM letters WHERE id = ? AND user_id = ?
+    SELECT * FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(letterId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Letter not found' }, 404);
   }
-  
+
+  const now = new Date().toISOString();
+
+  // Preserve the final state in the revision log, then revoke (soft-delete).
+  await recordRevision(c.env, 'letter', letterId, userId, {
+    title: existing.title,
+    salutation: existing.salutation,
+    body: existing.body,
+    signature: existing.signature,
+    sealed_at: existing.sealed_at,
+  }, 'revoke');
+
   await c.env.DB.prepare(`
-    DELETE FROM letters WHERE id = ?
-  `).bind(letterId).run();
+    UPDATE letters SET deleted_at = ?, deleted_reason = ?, updated_at = ? WHERE id = ?
+  `).bind(now, reason, now, letterId).run();
 
   await mirrorLetterDelete(c.env, letterId);
 

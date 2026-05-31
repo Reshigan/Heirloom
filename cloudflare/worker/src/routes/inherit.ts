@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { readDescription } from '../lib/legacyArchive';
 
 export const inheritRoutes = new Hono<AppEnv>();
 
@@ -144,28 +145,30 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
       l.sealed_at,
       l.created_at
     FROM letters l
-    WHERE l.user_id = ? AND l.sealed_at IS NOT NULL
+    WHERE l.user_id = ? AND l.sealed_at IS NOT NULL AND l.deleted_at IS NULL
     ORDER BY l.created_at DESC
   `).bind(ownerId).all();
-  
+
   // Get memories shared with this recipient
   const memories = await c.env.DB.prepare(`
-    SELECT 
+    SELECT
       m.id,
       m.title,
       m.description,
+      m.description_enc,
+      m.description_iv,
       m.file_url,
       m.mime_type,
       m.emotion,
       m.created_at
     FROM memories m
-    WHERE m.user_id = ?
+    WHERE m.user_id = ? AND m.deleted_at IS NULL
     ORDER BY m.created_at DESC
   `).bind(ownerId).all();
-  
+
   // Get voice recordings shared with this recipient
   const voiceRecordings = await c.env.DB.prepare(`
-    SELECT 
+    SELECT
       v.id,
       v.title,
       v.description,
@@ -175,10 +178,10 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
       v.transcript,
       v.created_at
     FROM voice_recordings v
-    WHERE v.user_id = ?
+    WHERE v.user_id = ? AND v.deleted_at IS NULL
     ORDER BY v.created_at DESC
   `).bind(ownerId).all();
-  
+
   return c.json({
     letters: letters.results.map((l: any) => ({
       id: l.id,
@@ -190,15 +193,15 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
       sealedAt: l.sealed_at,
       createdAt: l.created_at,
     })),
-    memories: memories.results.map((m: any) => ({
+    memories: await Promise.all(memories.results.map(async (m: any) => ({
       id: m.id,
       title: m.title,
-      description: m.description,
+      description: await readDescription(c.env, m),
       fileUrl: m.file_url,
       fileType: m.mime_type,
       emotion: m.emotion,
       createdAt: m.created_at,
-    })),
+    }))),
     voiceRecordings: voiceRecordings.results.map((v: any) => ({
       id: v.id,
       title: v.title,
@@ -297,17 +300,17 @@ inheritRoutes.post('/search', validateRecipientSession, async (c) => {
     const [letters, memories, voiceRecordings] = await Promise.all([
       c.env.DB.prepare(`
         SELECT id, title, salutation, body, signature, emotion, sealed_at, created_at
-        FROM letters WHERE user_id = ? AND sealed_at IS NOT NULL
+        FROM letters WHERE user_id = ? AND sealed_at IS NOT NULL AND deleted_at IS NULL
         ORDER BY created_at DESC
       `).bind(ownerId).all(),
       c.env.DB.prepare(`
-        SELECT id, title, description, file_url, file_type, emotion, created_at
-        FROM memories WHERE user_id = ?
+        SELECT id, title, description, description_enc, description_iv, file_url, file_type, emotion, created_at
+        FROM memories WHERE user_id = ? AND deleted_at IS NULL
         ORDER BY created_at DESC
       `).bind(ownerId).all(),
       c.env.DB.prepare(`
         SELECT id, title, description, file_url, duration, emotion, transcript, created_at
-        FROM voice_recordings WHERE user_id = ?
+        FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL
         ORDER BY created_at DESC
       `).bind(ownerId).all()
     ]);
@@ -336,18 +339,19 @@ inheritRoutes.post('/search', validateRecipientSession, async (c) => {
       });
     });
     
-    // Add memories
-    memories.results.forEach((m: any) => {
+    // Add memories (description is decrypted from at-rest ciphertext if present)
+    for (const m of memories.results as any[]) {
+      const description = await readDescription(c.env, m);
       searchableItems.push({
         type: 'memory',
         id: m.id,
         title: m.title || 'Untitled Memory',
-        content: m.description || m.title || '',
+        content: description || m.title || '',
         date: m.created_at,
         emotion: m.emotion,
         metadata: { fileUrl: m.file_url, fileType: m.file_type }
       });
-    });
+    }
     
     // Add voice recordings (with transcripts)
     voiceRecordings.results.forEach((v: any) => {

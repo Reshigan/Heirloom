@@ -235,7 +235,7 @@ deadmanRoutes.post('/test-trigger', async (c) => {
   
   // Get sealed letters
   const letters = await c.env.DB.prepare(`
-    SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND sealed_at IS NOT NULL
+    SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND sealed_at IS NOT NULL AND deleted_at IS NULL
   `).bind(userId).first();
   
   return c.json({

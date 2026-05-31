@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
+import { readDescription } from '../lib/legacyArchive';
 
 export const giftsV2Routes = new Hono<AppEnv>();
 // Protected gifts routes (require auth) - mounted under protectedApp
@@ -24,15 +25,15 @@ giftsV2ProtectedRoutes.post('/send', async (c) => {
   // Verify the memory exists and belongs to user
   let memoryTitle = 'A memory';
   if (body.memory_type === 'memory') {
-    const memory = await c.env.DB.prepare(`SELECT title FROM memories WHERE id = ? AND user_id = ?`).bind(body.memory_id, userId).first();
+    const memory = await c.env.DB.prepare(`SELECT title FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL`).bind(body.memory_id, userId).first();
     if (!memory) return c.json({ error: 'Memory not found' }, 404);
     memoryTitle = (memory.title as string) || 'A memory';
   } else if (body.memory_type === 'letter') {
-    const letter = await c.env.DB.prepare(`SELECT subject FROM letters WHERE id = ? AND user_id = ?`).bind(body.memory_id, userId).first();
+    const letter = await c.env.DB.prepare(`SELECT subject FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL`).bind(body.memory_id, userId).first();
     if (!letter) return c.json({ error: 'Letter not found' }, 404);
     memoryTitle = (letter.subject as string) || 'A letter';
   } else if (body.memory_type === 'voice') {
-    const voice = await c.env.DB.prepare(`SELECT title FROM voice_recordings WHERE id = ? AND user_id = ?`).bind(body.memory_id, userId).first();
+    const voice = await c.env.DB.prepare(`SELECT title FROM voice_recordings WHERE id = ? AND user_id = ? AND deleted_at IS NULL`).bind(body.memory_id, userId).first();
     if (!voice) return c.json({ error: 'Voice recording not found' }, 404);
     memoryTitle = (voice.title as string) || 'A voice recording';
   }
@@ -124,11 +125,12 @@ giftsV2Routes.get('/receive/:token', async (c) => {
   // Get memory preview info
   let content: any = null;
   if (gift.memory_type === 'memory') {
-    content = await c.env.DB.prepare(`SELECT title, description as preview FROM memories WHERE id = ?`).bind(gift.memory_id).first();
+    content = await c.env.DB.prepare(`SELECT title, description, description_enc, description_iv FROM memories WHERE id = ? AND deleted_at IS NULL`).bind(gift.memory_id).first();
+    if (content) (content as any).preview = await readDescription(c.env, content);
   } else if (gift.memory_type === 'letter') {
-    content = await c.env.DB.prepare(`SELECT subject as title, body as preview FROM letters WHERE id = ?`).bind(gift.memory_id).first();
+    content = await c.env.DB.prepare(`SELECT subject as title, body as preview FROM letters WHERE id = ? AND deleted_at IS NULL`).bind(gift.memory_id).first();
   } else if (gift.memory_type === 'voice') {
-    content = await c.env.DB.prepare(`SELECT title, transcript as preview FROM voice_recordings WHERE id = ?`).bind(gift.memory_id).first();
+    content = await c.env.DB.prepare(`SELECT title, transcript as preview FROM voice_recordings WHERE id = ? AND deleted_at IS NULL`).bind(gift.memory_id).first();
   }
 
   return c.json({

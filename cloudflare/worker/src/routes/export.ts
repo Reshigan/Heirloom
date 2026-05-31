@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import { PDFDocument, rgb, StandardFonts, PDFFont, PDFPage } from 'pdf-lib';
 import type { AppEnv } from '../index';
+import { readDescription } from '../lib/legacyArchive';
 
 // Heirloom brand colors
 const COLORS = {
@@ -172,9 +173,9 @@ exportRoutes.post('/memories-pdf', async (c) => {
   ).run();
   
   // Build query for memories
-  let query = `SELECT * FROM memories WHERE user_id = ?`;
+  let query = `SELECT * FROM memories WHERE user_id = ? AND deleted_at IS NULL`;
   const params: any[] = [userId];
-  
+
   if (dateRange?.start) {
     query += ` AND created_at >= ?`;
     params.push(dateRange.start);
@@ -196,21 +197,25 @@ exportRoutes.post('/memories-pdf', async (c) => {
   query += ` ORDER BY created_at DESC`;
   
   const memories = await c.env.DB.prepare(query).bind(...params).all();
-  
+  // Normalize at-rest-encrypted descriptions to plaintext for rendering.
+  for (const m of memories.results as any[]) {
+    m.description = await readDescription(c.env, m);
+  }
+
   // Get letters if requested
   let letters: any[] = [];
   if (includeLetters) {
     const lettersResult = await c.env.DB.prepare(`
-      SELECT * FROM letters WHERE user_id = ? ORDER BY created_at DESC
+      SELECT * FROM letters WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC
     `).bind(userId).all();
     letters = lettersResult.results;
   }
-  
+
   // Get voice transcripts if requested
   let voiceRecordings: any[] = [];
   if (includeVoiceTranscripts) {
     const voiceResult = await c.env.DB.prepare(`
-      SELECT * FROM voice_recordings WHERE user_id = ? AND transcript IS NOT NULL ORDER BY created_at DESC
+      SELECT * FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL AND transcript IS NOT NULL ORDER BY created_at DESC
     `).bind(userId).all();
     voiceRecordings = voiceResult.results;
   }
@@ -575,13 +580,13 @@ exportRoutes.post('/letters-pdf', async (c) => {
   let letters: any[];
   if (includeAll || !letterIds || letterIds.length === 0) {
     const result = await c.env.DB.prepare(`
-      SELECT * FROM letters WHERE user_id = ? ORDER BY created_at DESC
+      SELECT * FROM letters WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC
     `).bind(userId).all();
     letters = result.results;
   } else {
     const placeholders = letterIds.map(() => '?').join(',');
     const result = await c.env.DB.prepare(`
-      SELECT * FROM letters WHERE user_id = ? AND id IN (${placeholders}) ORDER BY created_at DESC
+      SELECT * FROM letters WHERE user_id = ? AND deleted_at IS NULL AND id IN (${placeholders}) ORDER BY created_at DESC
     `).bind(userId, ...letterIds).all();
     letters = result.results;
   }
@@ -803,23 +808,27 @@ exportRoutes.post('/family-book', async (c) => {
   // Get memories
   if (includeMemories !== false) {
     const memoriesResult = await c.env.DB.prepare(`
-      SELECT * FROM memories WHERE user_id = ? ORDER BY created_at DESC
+      SELECT * FROM memories WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC
     `).bind(userId).all();
+    // Normalize at-rest-encrypted descriptions to plaintext for rendering.
+    for (const m of memoriesResult.results as any[]) {
+      m.description = await readDescription(c.env, m);
+    }
     content.memories = memoriesResult.results;
   }
-  
+
   // Get letters
   if (includeLetters !== false) {
     const lettersResult = await c.env.DB.prepare(`
-      SELECT * FROM letters WHERE user_id = ? ORDER BY created_at DESC
+      SELECT * FROM letters WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC
     `).bind(userId).all();
     content.letters = lettersResult.results;
   }
-  
+
   // Get voice transcripts
   if (includeVoiceTranscripts) {
     const voiceResult = await c.env.DB.prepare(`
-      SELECT * FROM voice_recordings WHERE user_id = ? AND transcript IS NOT NULL ORDER BY created_at DESC
+      SELECT * FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL AND transcript IS NOT NULL ORDER BY created_at DESC
     `).bind(userId).all();
     content.voiceRecordings = voiceResult.results;
   }

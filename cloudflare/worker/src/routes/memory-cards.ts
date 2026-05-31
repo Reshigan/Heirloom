@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
+import { readDescription } from '../lib/legacyArchive';
 
 export const memoryCardsRoutes = new Hono<AppEnv>();
 
@@ -97,7 +98,7 @@ memoryCardsRoutes.post('/generate', async (c) => {
       SELECT m.*, u.first_name, u.last_name
       FROM memories m
       JOIN users u ON m.user_id = u.id
-      WHERE m.id = ? AND m.user_id = ?
+      WHERE m.id = ? AND m.user_id = ? AND m.deleted_at IS NULL
     `).bind(memoryId, userId).first();
     
     if (!memory) {
@@ -117,7 +118,7 @@ memoryCardsRoutes.post('/generate', async (c) => {
     }
     
     // Extract quote from memory
-    const description = (memory.description as string) || '';
+    const description = (await readDescription(c.env, memory)) || '';
     const title = (memory.title as string) || '';
     const memoryDate = memory.memory_date ? new Date(memory.memory_date as string).toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -239,6 +240,7 @@ memoryCardsRoutes.get('/on-this-day', async (c) => {
            (strftime('%Y', 'now') - strftime('%Y', m.memory_date)) as years_ago
     FROM memories m
     WHERE m.user_id = ?
+      AND m.deleted_at IS NULL
       AND strftime('%m', m.memory_date) = ?
       AND strftime('%d', m.memory_date) = ?
       AND strftime('%Y', m.memory_date) < strftime('%Y', 'now')
@@ -253,6 +255,7 @@ memoryCardsRoutes.get('/on-this-day', async (c) => {
            (strftime('%Y', 'now') - strftime('%Y', m.created_at)) as years_ago
     FROM memories m
     WHERE m.user_id = ?
+      AND m.deleted_at IS NULL
       AND strftime('%m', m.created_at) = ?
       AND strftime('%d', m.created_at) = ?
       AND strftime('%Y', m.created_at) < strftime('%Y', 'now')
@@ -278,22 +281,25 @@ memoryCardsRoutes.get('/on-this-day', async (c) => {
     });
   }
   
-  const formatMemory = (m: any, type: 'memory_date' | 'created') => ({
-    id: m.id,
-    title: m.title,
-    description: m.description?.substring(0, 200) + (m.description?.length > 200 ? '...' : ''),
-    photoUrl: photosMap[m.id] || null,
-    yearsAgo: m.years_ago,
-    year: type === 'memory_date' ? m.memory_year : m.created_year,
-    type,
-    date: type === 'memory_date' ? m.memory_date : m.created_at,
-  });
-  
+  const formatMemory = async (m: any, type: 'memory_date' | 'created') => {
+    const d = (await readDescription(c.env, m)) || '';
+    return {
+      id: m.id,
+      title: m.title,
+      description: d.substring(0, 200) + (d.length > 200 ? '...' : ''),
+      photoUrl: photosMap[m.id] || null,
+      yearsAgo: m.years_ago,
+      year: type === 'memory_date' ? m.memory_year : m.created_year,
+      type,
+      date: type === 'memory_date' ? m.memory_date : m.created_at,
+    };
+  };
+
   return c.json({
     date: today.toISOString().split('T')[0],
     displayDate: today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
-    memoriesFromThisDay: memories.results.map((m: any) => formatMemory(m, 'memory_date')),
-    createdOnThisDay: createdOnThisDay.results.map((m: any) => formatMemory(m, 'created')),
+    memoriesFromThisDay: await Promise.all(memories.results.map((m: any) => formatMemory(m, 'memory_date'))),
+    createdOnThisDay: await Promise.all(createdOnThisDay.results.map((m: any) => formatMemory(m, 'created'))),
     hasMemories: memories.results.length > 0 || createdOnThisDay.results.length > 0,
   });
 });

@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, Variables } from '../index';
+import { readDescription } from '../lib/legacyArchive';
 
 export const aiRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -36,16 +37,16 @@ aiRoutes.get('/prompt', async (c) => {
   try {
     // Get user's existing memories to understand what they've captured
     const memories = await c.env.DB.prepare(`
-      SELECT title, description, type FROM memories WHERE user_id = ? ORDER BY created_at DESC LIMIT 50
+      SELECT title, description, description_enc, description_iv, type FROM memories WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 50
     `).bind(userId).all();
     
     const voiceRecordings = await c.env.DB.prepare(`
-      SELECT title, prompt FROM voice_recordings WHERE user_id = ? ORDER BY created_at DESC LIMIT 20
+      SELECT title, prompt FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20
     `).bind(userId).all();
     
     // Build context for AI
     const existingContent = [
-      ...memories.results.map((m: any) => m.title || m.description),
+      ...(await Promise.all(memories.results.map(async (m: any) => m.title || (await readDescription(c.env, m))))),
       ...voiceRecordings.results.map((v: any) => v.title || v.prompt)
     ].filter(Boolean).join(', ');
     
@@ -399,9 +400,9 @@ aiRoutes.get('/legacy-score', async (c) => {
   try {
     // Get counts for scoring
     const [memories, voiceRecordings, letters, familyMembers, legacyContacts, deadManSwitch] = await Promise.all([
-      c.env.DB.prepare('SELECT COUNT(*) as count FROM memories WHERE user_id = ?').bind(userId).first(),
-      c.env.DB.prepare('SELECT COUNT(*) as count, SUM(duration) as total_duration FROM voice_recordings WHERE user_id = ?').bind(userId).first(),
-      c.env.DB.prepare('SELECT COUNT(*) as count FROM letters WHERE user_id = ?').bind(userId).first(),
+      c.env.DB.prepare('SELECT COUNT(*) as count FROM memories WHERE user_id = ? AND deleted_at IS NULL').bind(userId).first(),
+      c.env.DB.prepare('SELECT COUNT(*) as count, SUM(duration) as total_duration FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL').bind(userId).first(),
+      c.env.DB.prepare('SELECT COUNT(*) as count FROM letters WHERE user_id = ? AND deleted_at IS NULL').bind(userId).first(),
       c.env.DB.prepare('SELECT COUNT(*) as count FROM family_members WHERE user_id = ?').bind(userId).first(),
       c.env.DB.prepare('SELECT COUNT(*) as count FROM legacy_contacts WHERE user_id = ?').bind(userId).first(),
       c.env.DB.prepare('SELECT enabled FROM dead_man_switches WHERE user_id = ?').bind(userId).first()
@@ -493,14 +494,14 @@ aiRoutes.get('/person-prompts/:familyMemberId', async (c) => {
     const existingLetters = await c.env.DB.prepare(`
       SELECT l.title, l.body FROM letters l
       JOIN letter_recipients lr ON l.id = lr.letter_id
-      WHERE lr.family_member_id = ?
+      WHERE lr.family_member_id = ? AND l.deleted_at IS NULL
       ORDER BY l.created_at DESC LIMIT 5
     `).bind(familyMemberId).all();
     
     const existingVoice = await c.env.DB.prepare(`
       SELECT v.title, v.prompt FROM voice_recordings v
       JOIN voice_recipients vr ON v.id = vr.voice_recording_id
-      WHERE vr.family_member_id = ?
+      WHERE vr.family_member_id = ? AND v.deleted_at IS NULL
       ORDER BY v.created_at DESC LIMIT 5
     `).bind(familyMemberId).all();
     
