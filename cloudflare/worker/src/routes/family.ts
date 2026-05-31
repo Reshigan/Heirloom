@@ -96,9 +96,29 @@ familyRoutes.get('/:id', async (c) => {
     avatarUrl: member.avatar_url,
     birthDate: member.birth_date,
     notes: member.notes,
-    recentMemories: recentMemories.results,
+    recentMemories: (recentMemories.results as any[]).map((m) => ({
+      id: m.id,
+      title: m.title,
+      description: m.description,
+      type: m.type,
+      fileUrl: m.file_url ?? null,
+      createdAt: m.created_at,
+    })),
     recentLetters: recentLetters.results,
-    recentVoiceRecordings: recentVoice.results,
+    recentVoiceRecordings: (recentVoice.results as any[]).map((v) => {
+      let fileUrl = v.file_url as string | null;
+      if ((!fileUrl || fileUrl.includes('undefined')) && v.file_key) {
+        fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(v.file_key)}`;
+      }
+      return {
+        id: v.id,
+        title: v.title,
+        duration: v.duration,
+        fileUrl,
+        transcript: v.transcript,
+        createdAt: v.created_at,
+      };
+    }),
     createdAt: member.created_at,
   });
 });
