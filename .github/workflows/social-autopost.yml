@@ -65,7 +65,11 @@ jobs:
           # marketing/PLAYBOOK.md §4.
           HEIRLOOM_API_URL: ${{ vars.HEIRLOOM_API_URL || 'https://api.heirloom.blue' }}
           HEIRLOOM_ADMIN_TOKEN: ${{ secrets.HEIRLOOM_ADMIN_TOKEN }}
-          PLATFORMS: ${{ vars.PLATFORMS || 'instagram,tiktok,pinterest,facebook,linkedin,x' }}
+          # Direct-posting strategy (no Postiz): the five platforms with free
+          # publishing APIs. tiktok/x/threads/youtube have no free API — add
+          # them back to generate manual-paste queue files if wanted.
+          PLATFORMS: ${{ vars.PLATFORMS || 'bluesky,facebook,linkedin,instagram,pinterest' }}
+          SOCIAL_IMAGE_URL: ${{ vars.SOCIAL_IMAGE_URL }}
         run: npm run ${{ github.event.inputs.mode || 'daily' }}
 
       - name: Commit output

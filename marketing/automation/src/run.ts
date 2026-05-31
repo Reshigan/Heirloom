@@ -66,6 +66,15 @@ async function generate(): Promise<SourcePost> {
   return source;
 }
 
+// On-brand image attached to every post. Instagram and Pinterest REQUIRE an
+// image URL (text-only can't publish there), and a photo post lifts reach on
+// Facebook too. Defaults to the live, brand-correct OG card already served on
+// the site; override with SOCIAL_IMAGE_URL to point at a per-post card later
+// without touching code. Must be a publicly fetchable raster (PNG/JPEG) —
+// platform servers fetch it directly, so SVG won't do.
+const SOCIAL_IMAGE_URL =
+  process.env.SOCIAL_IMAGE_URL || "https://heirloom.blue/og-image.png";
+
 async function postAll(source?: SourcePost): Promise<void> {
   const today = source ?? (await readJson<{ source: SourcePost }>("output/source.json"))?.source;
   if (!today) {
@@ -79,8 +88,10 @@ async function postAll(source?: SourcePost): Promise<void> {
   const dateKey = new Date().toISOString().slice(0, 10);
   await writeJson(`output/${dateKey}/variants.json`, variants);
 
-  console.log(`[post] dispatching ${variants.length} posts…`);
-  const results = await Promise.all(variants.map((v) => post({ variant: v })));
+  console.log(`[post] dispatching ${variants.length} posts… (image: ${SOCIAL_IMAGE_URL})`);
+  const results = await Promise.all(
+    variants.map((v) => post({ variant: v, imageUrl: SOCIAL_IMAGE_URL })),
+  );
 
   for (const r of results) {
     const tag = r.mode === "queue" ? "QUEUE" : r.ok ? "OK" : "FAIL";
