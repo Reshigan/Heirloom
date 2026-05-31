@@ -8,10 +8,20 @@
  *   static assets    cache-first   (hashed /assets/* are immutable)
  *   /api/*           never touched  (always live; never cached — privacy + freshness)
  *
+ * Push
+ *   push              render the family-thread notification
+ *   notificationclick focus an existing tab or open the deep-linked route
+ *
  * Bump CACHE when the shell contract changes; activate purges older caches.
+ *
+ * NOTE: precache the *canonical* URLs. Cloudflare Pages serves clean URLs, so
+ * `/offline.html` 308-redirects to `/offline`; precaching the .html form makes
+ * cache.addAll() reject on the redirected response and the whole install fails.
+ * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v1';
+const CACHE = 'heirloom-v2';
 const SHELL = '/index.html';
+const OFFLINE = '/offline';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -20,7 +30,7 @@ const PRECACHE = [
   '/icon.svg',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  '/offline.html',
+  OFFLINE,
 ];
 
 self.addEventListener('install', (event) => {
@@ -60,7 +70,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE).then((cache) => cache.put(SHELL, copy));
           return res;
         })
-        .catch(() => caches.match(SHELL).then((r) => r || caches.match('/offline.html')))
+        .catch(() => caches.match(SHELL).then((r) => r || caches.match(OFFLINE)))
     );
     return;
   }
@@ -79,5 +89,45 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
     )
+  );
+});
+
+// ── Push ────────────────────────────────────────────────────────────────────
+// A nudge that it's someone's turn to add to the thread, that a sealed entry
+// has unlocked, or that a new author joined. Payload (JSON):
+//   { title, body, route, tag }
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data ? event.data.text() : '' };
+  }
+  const title = data.title || 'Heirloom';
+  const options = {
+    body: data.body || 'Your family thread has something new.',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    tag: data.tag || 'heirloom',
+    renotify: false,
+    data: { route: data.route || '/dashboard' },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const route = (event.notification.data && event.notification.data.route) || '/dashboard';
+  const target = new URL(route, self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if ('focus' in client) {
+          client.navigate(target).catch(() => {});
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(target);
+    })
   );
 });

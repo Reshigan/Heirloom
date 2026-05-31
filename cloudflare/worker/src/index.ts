@@ -822,7 +822,13 @@ app.onError((err, c) => {
   if (err.message === 'Unauthorized') {
     return c.json({ error: 'Unauthorized' }, 401);
   }
-  
+
+  // Malformed request body (c.req.json() on invalid JSON throws SyntaxError) is a
+  // client error, not a server fault — answer 400 rather than 500.
+  if (err instanceof SyntaxError || /JSON|Unexpected (token|end)/i.test(err.message)) {
+    return c.json({ error: 'Invalid request body' }, 400);
+  }
+
   return c.json({
     error: c.env.ENVIRONMENT === 'production' 
       ? 'Internal server error' 
