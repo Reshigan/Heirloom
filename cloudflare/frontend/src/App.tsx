@@ -76,6 +76,10 @@ const GiftReceive = lazy(() => import('./pages/GiftReceive').then(m => ({ defaul
 const Threads = lazy(() => import('./pages/Threads').then(m => ({ default: m.Threads })));
 const ThreadDetail = lazy(() => import('./pages/ThreadDetail').then(m => ({ default: m.ThreadDetail })));
 const ThreadCompose = lazy(() => import('./pages/ThreadCompose').then(m => ({ default: m.ThreadCompose })));
+const DailySentence = lazy(() => import('./pages/DailySentence').then(m => ({ default: m.DailySentence })));
+const FoundersWall = lazy(() => import('./pages/FoundersWall').then(m => ({ default: m.FoundersWall })));
+const Inbox = lazy(() => import('./pages/Inbox').then(m => ({ default: m.Inbox })));
+const QandA = lazy(() => import('./pages/QandA').then(m => ({ default: m.QandA })));
 
 // The Loom — the live marketing + design system.
 // See cloudflare/frontend/src/loom/DESIGN.md.
@@ -185,6 +189,8 @@ export default function App() {
           <Routes>
           {/* Public routes */}
           <Route path="/" element={<LoomMarketing />} />
+                              <Route path="/daily" element={<DailySentence />} />
+                              <Route path="/founders-wall" element={<FoundersWall />} />
                               <Route path="/privacy" element={<Privacy />} />
                               <Route path="/terms" element={<Terms />} />
                               <Route path="/contact" element={<Contact />} />
@@ -431,6 +437,8 @@ export default function App() {
 
                                                                                                     {/* Heirloom v2 Protected Routes */}
           <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizardPage /></ProtectedRoute>} />
+          <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
+          <Route path="/ask" element={<ProtectedRoute><QandA /></ProtectedRoute>} />
           <Route path="/interview" element={<ProtectedRoute><InterviewMode /></ProtectedRoute>} />
           <Route path="/time-capsules" element={<ProtectedRoute><TimeCapsulePage /></ProtectedRoute>} />
           <Route path="/memory-map" element={<ProtectedRoute><MemoryMap /></ProtectedRoute>} />

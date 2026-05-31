@@ -17,6 +17,14 @@ export function registerServiceWorker(): void {
     navigator.serviceWorker
       .register('/sw.js')
       .then((reg) => {
+        // Proactively check for a newer worker on every load (and hourly for
+        // long-lived PWA windows) so a returning visitor pinned to an old
+        // precached shell adopts the freshest build without waiting for the
+        // browser's once-a-day sw.js revalidation. The CACHE bump in sw.js
+        // then purges every stale cache on activate.
+        reg.update().catch(() => {});
+        setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+
         reg.addEventListener('updatefound', () => {
           const installing = reg.installing;
           if (!installing) return;

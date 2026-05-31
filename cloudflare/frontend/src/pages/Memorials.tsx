@@ -1,17 +1,43 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ProgressHair } from '../components/ui/ProgressHair';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 import { memorialsApi } from '../services/api';
 
+// Design styles kept for API compatibility; not displayed as a visual style chooser
 const designStyles = [
-  { id: 'classic', name: 'Classic', description: 'Timeless and elegant' },
-  { id: 'elegant', name: 'Elegant', description: 'Refined and sophisticated' },
-  { id: 'modern', name: 'Modern', description: 'Clean and minimal' },
-  { id: 'floral', name: 'Floral', description: 'Soft and natural' },
-  { id: 'religious', name: 'Religious', description: 'Faith-inspired' },
+  { id: 'classic', name: 'Classic' },
+  { id: 'elegant', name: 'Elegant' },
+  { id: 'modern', name: 'Modern' },
+  { id: 'floral', name: 'Floral' },
+  { id: 'religious', name: 'Religious' },
 ];
+
+const fieldStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'transparent',
+  border: '1px solid var(--loom-rule)',
+  borderRadius: 2,
+  color: 'var(--loom-bone)',
+  caretColor: 'var(--loom-warm)',
+  fontFamily: "'Source Serif 4', serif",
+  fontSize: 15,
+  lineHeight: 1.7,
+  padding: '12px 14px',
+  outline: 'none',
+  boxSizing: 'border-box',
+  resize: 'none',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 11,
+  fontWeight: 500,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: 'var(--loom-bone-faint)',
+  marginBottom: 10,
+};
 
 export function Memorials() {
   const queryClient = useQueryClient();
@@ -38,16 +64,7 @@ export function Memorials() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memorials'] });
       setShowCreateModal(false);
-      setFormData({
-        name: '',
-        description: '',
-        style: 'classic',
-        isPublic: true,
-        birthDate: '',
-        deathDate: '',
-        location: '',
-        epitaph: '',
-      });
+      setFormData({ name: '', description: '', style: 'classic', isPublic: true, birthDate: '', deathDate: '', location: '', epitaph: '' });
     },
   });
 
@@ -68,393 +85,427 @@ export function Memorials() {
       });
     } else {
       navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
     }
   };
 
+  const memorialList: any[] = memorials || [];
+
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
-
-      <main id="main-content" className="pt-24 pb-12 px-6 md:px-12 max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start justify-between mb-8"
-        >
-          <div>
-            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-3">QR Memorial Codes</p>
-            <h1 className="font-body font-light text-3xl md:text-4xl tracking-[-0.014em]">Create lasting digital memorials accessible via QR code</h1>
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary"
+    <AppFrame>
+      <header style={{ marginBottom: 40, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
+        <div>
+          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>In memoriam</p>
+          <h1
+            className="loom-h2"
+            style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
           >
-            <span>Create memorial</span>
-            <span aria-hidden>→</span>
-          </button>
-        </motion.div>
+            A place in the thread.
+          </h1>
+          <p
+            className="loom-body"
+            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
+          >
+            Memorial pages carry a QR code that can be placed anywhere — a gravestone, a frame, a keepsake.
+            Those who scan it enter the memory.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="loom-btn"
+          style={{ flexShrink: 0, marginTop: 8 }}
+        >
+          create memorial
+        </button>
+      </header>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <ProgressHair label="loading…" width={180} />
-          </div>
-        ) : memorials && memorials.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {memorials.map((memorial: any, index: number) => (
-              <motion.div
-                key={memorial.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-void-surface border border-paper-15 hover:border-gold-40 transition-colors p-6 rounded-[2px]"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-body text-lg text-paper">{memorial.memorial_name}</h3>
-                    {memorial.family_member_name && (
-                      <div className="text-sm text-paper-70">{memorial.family_member_name}</div>
+      {isLoading ? (
+        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+          Loading…
+        </p>
+      ) : memorialList.length > 0 ? (
+        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 48px' }}>
+          {memorialList.map((memorial: any) => (
+            <li
+              key={memorial.id}
+              style={{ padding: '28px 0', borderBottom: '1px solid var(--loom-rule)' }}
+            >
+              <article style={{ display: 'grid', gridTemplateColumns: '1fr 80px', gap: 32, alignItems: 'start' }}>
+                <div>
+                  <h3
+                    className="loom-serif"
+                    style={{ fontSize: 22, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 4px', lineHeight: 1.2 }}
+                  >
+                    <span style={{ color: 'var(--loom-warm)', marginRight: 10 }}>∞</span>
+                    {memorial.memorial_name}
+                  </h3>
+                  {memorial.family_member_name && (
+                    <p className="loom-body" style={{ margin: '0 0 6px', fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                      {memorial.family_member_name}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: memorial.memorial_description ? 10 : 0 }}>
+                    {memorial.birth_date && memorial.death_date && (
+                      <p className="loom-mono" style={{ margin: 0, fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
+                        {new Date(memorial.birth_date).getFullYear()} – {new Date(memorial.death_date).getFullYear()}
+                      </p>
                     )}
+                    {memorial.location && (
+                      <p className="loom-mono" style={{ margin: 0, fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                        {memorial.location}
+                      </p>
+                    )}
+                    <p className="loom-mono" style={{ margin: 0, fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                      {memorial.view_count || 0} visits
+                    </p>
                   </div>
-                  <div className="w-16 h-16 bg-white p-1 rounded-[2px]">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://hlm.blue/m/${memorial.qr_code}`}
-                      alt="QR Code"
-                      className="w-full h-full"
-                    />
-                  </div>
-                </div>
-
-                {memorial.memorial_description && (
-                  <p className="text-sm text-paper-70 mb-4 line-clamp-2">
-                    {memorial.memorial_description}
-                  </p>
-                )}
-
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-paper-60 mb-4">
-                  {memorial.birth_date && memorial.death_date && (
-                    <span>{new Date(memorial.birth_date).getFullYear()} – {new Date(memorial.death_date).getFullYear()}</span>
+                  {memorial.memorial_description && (
+                    <p
+                      className="loom-body"
+                      style={{
+                        fontSize: 15,
+                        color: 'var(--loom-bone-dim)',
+                        margin: '8px 0 0',
+                        lineHeight: 1.7,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {memorial.memorial_description}
+                    </p>
                   )}
-                  {memorial.location && (
-                    <span>{memorial.location}</span>
-                  )}
-                  <span>{memorial.view_count || 0} views</span>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSelectedMemorial(memorial)}
-                    className="btn btn-ghost flex-1 text-sm"
-                  >
-                    <span>View</span>
-                  </button>
-                  <button
-                    onClick={() => downloadQR(memorial)}
-                    className="btn btn-ghost text-sm"
-                    aria-label={`Download QR code for ${memorial.memorial_name}`}
-                  >
-                    Download
-                  </button>
-                  <button
-                    onClick={() => shareMemorial(memorial)}
-                    className="btn btn-ghost text-sm"
-                    aria-label={`Share ${memorial.memorial_name}`}
-                  >
-                    Share
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-void-surface border border-paper-15 text-center py-16 px-6 rounded-[2px]"
-          >
-            <span className="font-body text-4xl text-gold block mb-6" aria-hidden>∞</span>
-            <h2 className="font-body font-light text-xl mb-2 tracking-[-0.014em]">No memorials yet</h2>
-            <p className="text-paper-70 mb-8 max-w-md mx-auto leading-relaxed">
-              Create a QR code memorial that can be placed on gravestones, photo frames,
-              or any physical location to share memories with visitors.
-            </p>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn btn-primary"
-            >
-              <span>Create your first memorial</span>
-              <span aria-hidden>→</span>
-            </button>
-          </motion.div>
-        )}
-
-        {/* How It Works */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-12 bg-void-surface border border-paper-15 p-6 rounded-[2px]"
-        >
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">How QR memorials work</p>
-          <div className="grid md:grid-cols-4 gap-6">
-            <div>
-              <p className="font-mono text-sm text-gold mb-3">01</p>
-              <h3 className="font-body text-paper mb-2">Create memorial</h3>
-              <p className="text-sm text-paper-70">Add details about your loved one</p>
-            </div>
-            <div>
-              <p className="font-mono text-sm text-gold mb-3">02</p>
-              <h3 className="font-body text-paper mb-2">Get QR code</h3>
-              <p className="text-sm text-paper-70">Download weather-resistant QR</p>
-            </div>
-            <div>
-              <p className="font-mono text-sm text-gold mb-3">03</p>
-              <h3 className="font-body text-paper mb-2">Place anywhere</h3>
-              <p className="text-sm text-paper-70">Gravestone, frame, or keepsake</p>
-            </div>
-            <div>
-              <p className="font-mono text-sm text-gold mb-3">04</p>
-              <h3 className="font-body text-paper mb-2">Share memories</h3>
-              <p className="text-sm text-paper-70">Visitors can view and add tributes</p>
-            </div>
-          </div>
-        </motion.div>
-      </main>
-
-      {/* Create Modal */}
-      <AnimatePresence>
-        {showCreateModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-backdrop"
-            onClick={() => setShowCreateModal(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal max-w-lg max-h-[90vh] overflow-y-auto"
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="absolute top-4 right-4 text-paper-60 hover:text-paper transition-colors text-lg"
-                aria-label="Close"
-              >
-                <span aria-hidden>✕</span>
-              </button>
-
-              <h3 className="font-body text-xl mb-6">Create memorial</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Memorial name <span className="text-blood" aria-hidden>*</span></label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="In loving memory of..."
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Description</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="A brief description or biography..."
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors h-24 resize-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Birth date</label>
-                    <input
-                      type="date"
-                      value={formData.birthDate}
-                      onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                      className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Death date</label>
-                    <input
-                      type="date"
-                      value={formData.deathDate}
-                      onChange={(e) => setFormData({ ...formData, deathDate: e.target.value })}
-                      className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] transition-colors"
-                    />
+                  <div style={{ display: 'flex', gap: 16, marginTop: 14 }}>
+                    <button
+                      onClick={() => setSelectedMemorial(memorial)}
+                      style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
+                    >
+                      view →
+                    </button>
+                    <button
+                      onClick={() => downloadQR(memorial)}
+                      style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+                    >
+                      download QR
+                    </button>
+                    <button
+                      onClick={() => shareMemorial(memorial)}
+                      style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+                    >
+                      share
+                    </button>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Location</label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="Resting place or hometown"
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Epitaph</label>
-                  <textarea
-                    value={formData.epitaph}
-                    onChange={(e) => setFormData({ ...formData, epitaph: e.target.value })}
-                    placeholder="A meaningful quote or message..."
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors h-20 resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Design style</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {designStyles.map((style) => (
-                      <button
-                        key={style.id}
-                        onClick={() => setFormData({ ...formData, style: style.id })}
-                        className={`p-3 rounded-[2px] text-left border transition-colors ${
-                          formData.style === style.id
-                            ? 'bg-void-surface border-gold-40'
-                            : 'bg-void-surface border-paper-15 hover:border-gold-40'
-                        }`}
-                      >
-                        <div className="text-sm font-medium text-paper">{style.name}</div>
-                        <div className="text-xs text-paper-60">{style.description}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="isPublic"
-                    checked={formData.isPublic}
-                    onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-                    className="w-4 h-4 rounded-[2px] border-paper-15"
-                  />
-                  <label htmlFor="isPublic" className="text-sm text-paper-70">
-                    Allow anyone with the QR code to view this memorial
-                  </label>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="btn btn-ghost flex-1"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => createMutation.mutate()}
-                    disabled={!formData.name.trim() || createMutation.isPending}
-                    className="btn btn-primary flex-1"
-                  >
-                    {createMutation.isPending ? 'Creating…' : 'Create memorial'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* View Memorial Modal */}
-      <AnimatePresence>
-        {selectedMemorial && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-backdrop"
-            onClick={() => setSelectedMemorial(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal max-w-lg"
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedMemorial(null)}
-                className="absolute top-4 right-4 text-paper-60 hover:text-paper transition-colors text-lg"
-                aria-label="Close"
-              >
-                <span aria-hidden>✕</span>
-              </button>
-
-              <div className="text-center mb-6">
-                <div className="w-32 h-32 bg-white p-2 mx-auto mb-4 rounded-[2px]">
+                {/* QR preview */}
+                <div style={{ background: '#fff', padding: 6, flexShrink: 0 }}>
                   <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://hlm.blue/m/${selectedMemorial.qr_code}`}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://hlm.blue/m/${memorial.qr_code}`}
                     alt="QR Code"
-                    className="w-full h-full"
+                    style={{ display: 'block', width: '100%' }}
                   />
                 </div>
-                <h3 className="font-body text-xl text-paper">{selectedMemorial.memorial_name}</h3>
-                {selectedMemorial.birth_date && selectedMemorial.death_date && (
-                  <div className="text-paper-70 mt-1">
-                    {new Date(selectedMemorial.birth_date).getFullYear()} – {new Date(selectedMemorial.death_date).getFullYear()}
-                  </div>
-                )}
+              </article>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center', marginBottom: 48 }}>
+          <p className="loom-mono" style={{ fontSize: 22, color: 'var(--loom-warm)', marginBottom: 16 }}>∞</p>
+          <h2 className="loom-serif" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 10px' }}>
+            No memorials yet.
+          </h2>
+          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', margin: '0 0 24px', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.7 }}>
+            A memorial is a page in the thread for someone no longer here. It carries a QR code you can
+            place anywhere to bring their memory forward.
+          </p>
+          <button onClick={() => setShowCreateModal(true)} className="loom-btn">
+            create the first
+          </button>
+        </div>
+      )}
+
+      {/* How it works */}
+      <section style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 40 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 32 }}>How QR memorials work</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32 }}>
+          {[
+            { n: '01', h: 'Create the page.', b: 'Add name, dates, a biography, and an epitaph.' },
+            { n: '02', h: 'Receive a QR code.', b: 'Download a weather-resistant code for physical placement.' },
+            { n: '03', h: 'Place it anywhere.', b: 'Gravestone, photo frame, keepsake, or anywhere meaningful.' },
+            { n: '04', h: 'Memories continue.', b: 'Visitors scan and enter. The thread of memory keeps going.' },
+          ].map(({ n, h, b }) => (
+            <div key={n}>
+              <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.06em', margin: '0 0 8px' }}>{n}</p>
+              <h3 className="loom-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 6px' }}>{h}</h3>
+              <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: 0, lineHeight: 1.7 }}>{b}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Create overlay */}
+      {showCreateModal && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 200, padding: 24, overflowY: 'auto',
+          }}
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 520,
+              width: '100%',
+              margin: 'auto',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="loom-eyebrow" style={{ marginBottom: 20 }}>Create a memorial</p>
+
+            <div style={{ display: 'grid', gap: 20 }}>
+              <div>
+                <label style={labelStyle} htmlFor="mem-name">
+                  Name <span style={{ color: '#c25a5a' }} aria-hidden>*</span>
+                </label>
+                <input
+                  id="mem-name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="In loving memory of…"
+                  style={fieldStyle}
+                />
               </div>
 
-              {selectedMemorial.memorial_description && (
-                <p className="text-paper-70 text-center mb-4">
-                  {selectedMemorial.memorial_description}
-                </p>
-              )}
+              <div>
+                <label style={labelStyle} htmlFor="mem-desc">Biography</label>
+                <textarea
+                  id="mem-desc"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="A brief life in their own thread…"
+                  rows={3}
+                  style={fieldStyle}
+                />
+              </div>
 
-              {selectedMemorial.epitaph && (
-                <div className="bg-void border border-paper-15 rounded-[2px] p-4 mb-4 text-center italic text-paper font-body">
-                  "{selectedMemorial.epitaph}"
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={labelStyle} htmlFor="mem-born">Birth date</label>
+                  <input
+                    id="mem-born"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+                    style={fieldStyle}
+                  />
                 </div>
+                <div>
+                  <label style={labelStyle} htmlFor="mem-died">Date of passing</label>
+                  <input
+                    id="mem-died"
+                    type="date"
+                    value={formData.deathDate}
+                    onChange={(e) => setFormData({ ...formData, deathDate: e.target.value })}
+                    style={fieldStyle}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle} htmlFor="mem-loc">Resting place</label>
+                <input
+                  id="mem-loc"
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  placeholder="Resting place or hometown"
+                  style={fieldStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle} htmlFor="mem-epitaph">Epitaph</label>
+                <textarea
+                  id="mem-epitaph"
+                  value={formData.epitaph}
+                  onChange={(e) => setFormData({ ...formData, epitaph: e.target.value })}
+                  placeholder="A meaningful line to carry them forward…"
+                  rows={2}
+                  style={fieldStyle}
+                />
+              </div>
+
+              {/* Style selector — minimal, for API value only */}
+              <div>
+                <label style={labelStyle}>Page style</label>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {designStyles.map((style) => (
+                    <button
+                      key={style.id}
+                      onClick={() => setFormData({ ...formData, style: style.id })}
+                      style={{
+                        background: 'transparent',
+                        border: `1px solid ${formData.style === style.id ? 'var(--loom-warm)' : 'var(--loom-rule)'}`,
+                        borderRadius: 0,
+                        color: formData.style === style.id ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: 11,
+                        fontWeight: 500,
+                        letterSpacing: '0.14em',
+                        textTransform: 'uppercase',
+                        padding: '7px 12px',
+                        cursor: 'pointer',
+                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    >
+                      {style.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <input
+                  type="checkbox"
+                  id="mem-public"
+                  checked={formData.isPublic}
+                  onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
+                  style={{ width: 14, height: 14, accentColor: 'var(--loom-warm)' }}
+                />
+                <label
+                  htmlFor="mem-public"
+                  className="loom-body"
+                  style={{ fontSize: 14, color: 'var(--loom-bone-dim)', cursor: 'pointer' }}
+                >
+                  Allow anyone with the QR code to view this memorial
+                </label>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
+                <button onClick={() => setShowCreateModal(false)} className="loom-btn-ghost" style={{ flex: 1 }}>
+                  cancel
+                </button>
+                <button
+                  onClick={() => createMutation.mutate()}
+                  disabled={!formData.name.trim() || createMutation.isPending}
+                  className="loom-btn"
+                  style={{ flex: 1 }}
+                >
+                  {createMutation.isPending ? 'creating…' : 'create memorial'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View memorial overlay */}
+      {selectedMemorial && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 200, padding: 24,
+          }}
+          onClick={() => setSelectedMemorial(null)}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 480,
+              width: '100%',
+              textAlign: 'center',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* QR */}
+            <div style={{ background: '#fff', padding: 10, display: 'inline-block', marginBottom: 20 }}>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://hlm.blue/m/${selectedMemorial.qr_code}`}
+                alt="QR Code"
+                style={{ display: 'block', width: 128, height: 128 }}
+              />
+            </div>
+
+            <p className="loom-mono" style={{ fontSize: 18, color: 'var(--loom-warm)', margin: '0 0 6px' }}>∞</p>
+            <h3
+              className="loom-serif"
+              style={{ fontSize: 24, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 6px' }}
+            >
+              {selectedMemorial.memorial_name}
+            </h3>
+
+            {selectedMemorial.birth_date && selectedMemorial.death_date && (
+              <p className="loom-mono" style={{ fontSize: 12, color: 'var(--loom-bone-dim)', margin: '0 0 12px', letterSpacing: '0.04em' }}>
+                {new Date(selectedMemorial.birth_date).getFullYear()} – {new Date(selectedMemorial.death_date).getFullYear()}
+              </p>
+            )}
+
+            {selectedMemorial.memorial_description && (
+              <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 16px', lineHeight: 1.7 }}>
+                {selectedMemorial.memorial_description}
+              </p>
+            )}
+
+            {selectedMemorial.epitaph && (
+              <div style={{ borderLeft: '1px solid var(--loom-rule)', paddingLeft: 16, marginBottom: 16, textAlign: 'left' }}>
+                <p className="loom-body" style={{ fontStyle: 'italic', fontSize: 15, color: 'var(--loom-bone)', margin: 0 }}>
+                  "{selectedMemorial.epitaph}"
+                </p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
+              {selectedMemorial.location && (
+                <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                  {selectedMemorial.location}
+                </span>
               )}
+              <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                {selectedMemorial.view_count || 0} visits
+              </span>
+            </div>
 
-              <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center text-sm text-paper-70 mb-6">
-                {selectedMemorial.location && (
-                  <span>{selectedMemorial.location}</span>
-                )}
-                <span>{selectedMemorial.view_count || 0} views</span>
-              </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => downloadQR(selectedMemorial)} className="loom-btn-ghost" style={{ flex: 1 }}>
+                download QR
+              </button>
+              <button onClick={() => shareMemorial(selectedMemorial)} className="loom-btn" style={{ flex: 1 }}>
+                share
+              </button>
+            </div>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => downloadQR(selectedMemorial)}
-                  className="btn btn-ghost flex-1"
-                >
-                  <span>Download QR</span>
-                </button>
-                <button
-                  onClick={() => shareMemorial(selectedMemorial)}
-                  className="btn btn-primary flex-1"
-                >
-                  <span>Share</span>
-                </button>
-              </div>
-
-              <div className="mt-4 text-center">
-                <a
-                  href={`https://hlm.blue/m/${selectedMemorial.qr_code}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-gold hover:text-gold-bright transition-colors text-sm"
-                >
-                  View public memorial page <span aria-hidden>→</span>
-                </a>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            <div style={{ marginTop: 16 }}>
+              <a
+                href={`https://hlm.blue/m/${selectedMemorial.qr_code}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 10,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: 'var(--loom-warm)',
+                  textDecoration: 'none',
+                }}
+              >
+                view public page →
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </AppFrame>
   );
 }

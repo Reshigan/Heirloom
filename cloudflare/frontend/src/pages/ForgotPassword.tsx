@@ -24,77 +24,179 @@ export function ForgotPassword() {
   };
 
   return (
-    <main className="min-h-screen bg-void text-paper antialiased px-6 md:px-12 py-12 flex items-center justify-center">
-      <div className="w-full max-w-md">
-        <Link to="/" className="inline-block font-body text-3xl text-gold mb-10" aria-label="Heirloom home">
-          ∞
+    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: '68px 1fr' }}>
+      <header
+        style={{
+          borderBottom: '1px solid var(--loom-rule)',
+          padding: '0 28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Link to="/" className="loom-mark" style={{ textDecoration: 'none' }}>
+          <span className="infmark">∞</span>heirloom
         </Link>
+        <Link
+          to="/login"
+          className="loom-mono"
+          style={{
+            fontSize: 11,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'var(--loom-bone-dim)',
+            textDecoration: 'none',
+          }}
+        >
+          back to sign in
+        </Link>
+      </header>
 
-        {success ? (
-          <div role="status">
-            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Check your email</p>
-            <h1
-              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
-              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
-            >
-              On its way.
-            </h1>
-            <p className="mt-6 text-paper-70 leading-relaxed font-light">
-              If an account exists with <span className="text-gold">{email}</span>, you'll receive a password reset link
-              shortly.
-            </p>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 text-gold hover:text-gold-bright transition-colors mt-10"
-            >
-              <span aria-hidden>←</span> Back to sign in
-            </Link>
-          </div>
-        ) : (
-          <>
-            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Reset password</p>
-            <h1
-              className="font-body font-light leading-[1.1] tracking-[-0.018em]"
-              style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
-            >
-              Forgot your password?
-            </h1>
-            <p className="mt-6 text-paper-70 leading-relaxed font-light">
-              Enter your email and we'll send you a reset link.
-            </p>
-
-            <form onSubmit={handleSubmit} className="mt-12 space-y-6" aria-label="Forgot password form">
-              <div>
-                <label htmlFor="fp-email" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
-                  Email
-                </label>
-                <input
-                  id="fp-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                  required
-                />
+      <main
+        style={{
+          display: 'grid',
+          placeItems: 'center',
+          padding: '40px 24px',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 440 }}>
+          {success ? (
+            <div role="status">
+              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
+                check your email
               </div>
+              <h1
+                className="loom-h2"
+                style={{
+                  fontSize: 'clamp(36px, 5vw, 56px)',
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  margin: '0 0 24px',
+                }}
+              >
+                On its way.
+              </h1>
+              <p
+                className="loom-body"
+                style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.7, margin: 0 }}
+              >
+                If a thread exists for{' '}
+                <span style={{ color: 'var(--loom-warm)' }}>{email}</span>, a
+                reset link will arrive shortly.
+              </p>
+              <div style={{ marginTop: 40 }}>
+                <Link
+                  to="/login"
+                  className="loom-mono"
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--loom-bone-faint)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  ← back to sign in
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
+                reset password
+              </div>
+              <h1
+                className="loom-h2"
+                style={{
+                  fontSize: 'clamp(36px, 5vw, 56px)',
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  margin: '0 0 16px',
+                }}
+              >
+                Forgot your password?
+              </h1>
+              <p
+                className="loom-body"
+                style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.7, margin: '0 0 40px' }}
+              >
+                Enter your email and we'll send a reset link.
+              </p>
 
-              {error ? <p role="alert" className="text-blood text-sm">{error}</p> : null}
+              <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 28 }}>
+                <div>
+                  <label
+                    htmlFor="fp-email"
+                    className="loom-eyebrow"
+                    style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
+                  >
+                    email
+                  </label>
+                  <input
+                    id="fp-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
 
-              <button type="submit" disabled={isLoading} className="btn btn-primary w-full">
-                {isLoading ? 'Sending…' : 'Send reset link'}
-              </button>
-            </form>
+                {error ? (
+                  <p
+                    role="alert"
+                    className="loom-body"
+                    style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}
+                  >
+                    {error}
+                  </p>
+                ) : null}
 
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 text-paper-50 hover:text-gold transition-colors text-sm mt-10"
-            >
-              <span aria-hidden>←</span> Back to sign in
-            </Link>
-          </>
-        )}
-      </div>
-    </main>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                  <button
+                    type="submit"
+                    disabled={isLoading || !email.trim()}
+                    className="loom-btn"
+                    style={{ opacity: isLoading || !email.trim() ? 0.5 : 1 }}
+                  >
+                    {isLoading ? 'sending…' : 'send reset link'}
+                  </button>
+                </div>
+              </form>
+
+              <div style={{ marginTop: 40 }}>
+                <Link
+                  to="/login"
+                  className="loom-mono"
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--loom-bone-faint)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  ← back to sign in
+                </Link>
+              </div>
+            </>
+          )}
+
+          <div
+            className="loom-mono"
+            style={{
+              marginTop: 64,
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--loom-bone-faint)',
+              textAlign: 'center',
+            }}
+          >
+            ∞ &nbsp; encrypted in browser · since 2026
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }

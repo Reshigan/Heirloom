@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../services/api';
 
 /**
@@ -15,6 +14,32 @@ import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../servi
  * The body is sent as plaintext in body_ciphertext for now (the thread
  * encryption envelope arrives in a later phase). The worker accepts this.
  */
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'transparent',
+  border: 0,
+  borderBottom: '1px solid var(--loom-rule)',
+  color: 'var(--loom-bone)',
+  caretColor: 'var(--loom-warm)',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 14,
+  padding: '8px 0',
+  outline: 'none',
+  boxSizing: 'border-box',
+  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+};
+
+const selectStyle: React.CSSProperties = {
+  ...inputStyle,
+  appearance: 'none',
+  cursor: 'pointer',
+  paddingRight: 24,
+  backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><polyline points='0,0 5,6 10,0' fill='none' stroke='rgba(244,236,216,0.32)' stroke-width='1.2'/></svg>\")",
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'right 4px center',
+};
+
 export function ThreadCompose() {
   const { id } = useParams<{ id: string }>();
   const threadId = id ?? '';
@@ -85,271 +110,359 @@ export function ThreadCompose() {
   const thread = detail?.thread;
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
-
-      <main id="main-content" className="pt-24 pb-16 px-6 md:px-12 max-w-2xl mx-auto">
+    <AppFrame>
+      <div style={{ maxWidth: 720, margin: '0 auto' }}>
+        {/* Back link */}
         <Link
           to={`/threads/${threadId}`}
-          className="inline-flex items-center gap-2 text-paper/60 hover:text-paper text-sm mb-10"
+          style={{
+            display: 'inline-block',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 10,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--loom-bone-faint)',
+            textDecoration: 'none',
+            marginBottom: 40,
+            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--loom-bone-dim)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--loom-bone-faint)'; }}
         >
-          <span aria-hidden>←</span> Back to thread
+          ← back to thread
         </Link>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="font-mono text-[0.65rem] tracking-[0.32em] uppercase text-gold mb-3">
-            New entry{thread ? ` · ${thread.name}` : ''}
+        {/* Header */}
+        <header style={{ marginBottom: 48 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 14, color: 'var(--loom-warm)' }}>
+            ∞ &nbsp; new entry{thread ? ` · ${thread.name}` : ''}
           </p>
           <h1
-            className="font-body font-light leading-[1.1] tracking-[-0.018em] mb-10"
-            style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+            className="loom-h2"
+            style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
           >
             What do you want the thread to remember?
           </h1>
+        </header>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setError(null);
-              if (!body.trim()) {
-                setError('Write something — even a sentence.');
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setError(null);
+            if (!body.trim()) {
+              setError('Write something — even a sentence.');
+              return;
+            }
+            if (enableLock) {
+              if (lockType === 'DATE' && !lockDate) {
+                setError('Pick the date the entry should open, or turn the lock off.');
                 return;
               }
-              if (enableLock) {
-                if (lockType === 'DATE' && !lockDate) {
-                  setError('Pick the date the entry should open, or turn the lock off.');
-                  return;
-                }
-                if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
-                  setError('Pick a member and an age for the age-gate lock.');
-                  return;
-                }
-                if (lockType === 'RECIPIENT_EVENT' && (!lockTargetMemberId || !lockEventLabel.trim())) {
-                  setError('Pick a member and describe the event the lock waits for.');
-                  return;
-                }
-                if (lockType === 'GENERATION' && !lockGeneration) {
-                  setError('Pick the generation the entry should wait for.');
-                  return;
-                }
+              if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
+                setError('Pick a member and an age for the age-gate lock.');
+                return;
               }
-              create.mutate();
+              if (lockType === 'RECIPIENT_EVENT' && (!lockTargetMemberId || !lockEventLabel.trim())) {
+                setError('Pick a member and describe the event the lock waits for.');
+                return;
+              }
+              if (lockType === 'GENERATION' && !lockGeneration) {
+                setError('Pick the generation the entry should wait for.');
+                return;
+              }
+            }
+            create.mutate();
+          }}
+          style={{ display: 'grid', gap: 28 }}
+        >
+          {/* Title */}
+          <div>
+            <label htmlFor="t-title" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+              Title — optional
+            </label>
+            <input
+              id="t-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="The summer Nan taught me to bake"
+              maxLength={200}
+              style={{
+                ...inputStyle,
+                fontFamily: "'Source Serif 4', serif",
+                fontVariationSettings: "'opsz' 28",
+                fontStyle: 'italic',
+                fontSize: 22,
+                fontWeight: 300,
+              }}
+            />
+          </div>
+
+          {/* Body */}
+          <div>
+            <label htmlFor="t-body" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+              Body
+            </label>
+            <textarea
+              id="t-body"
+              rows={12}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Write to your descendants. Tell them something. They will read this."
+              required
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--loom-rule)',
+                color: 'var(--loom-bone)',
+                caretColor: 'var(--loom-warm)',
+                fontFamily: "'Source Serif 4', serif",
+                fontVariationSettings: "'opsz' 14",
+                fontSize: 18,
+                lineHeight: 1.85,
+                padding: '8px 0',
+                outline: 'none',
+                resize: 'vertical',
+                boxSizing: 'border-box',
+                maxWidth: '60ch',
+              }}
+            />
+          </div>
+
+          {/* Visibility */}
+          <div>
+            <label htmlFor="t-vis" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+              Who can read this
+            </label>
+            <select
+              id="t-vis"
+              value={visibility}
+              onChange={(e) => setVisibility(e.target.value as ThreadVisibility)}
+              style={{ ...selectStyle, maxWidth: 480 }}
+            >
+              <option value="FAMILY">Family — anyone in the thread, now and later</option>
+              <option value="DESCENDANTS">Descendants only — generations after yours</option>
+              <option value="PRIVATE">Private — for a specific recipient (future feature)</option>
+            </select>
+          </div>
+
+          {/* Time-lock panel */}
+          <div
+            style={{
+              border: '1px solid var(--loom-rule)',
+              padding: '20px 24px',
             }}
-            className="space-y-6"
           >
-            <div>
-              <label htmlFor="t-title" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                Title — optional
-              </label>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 14, cursor: 'pointer' }}>
               <input
-                id="t-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="The summer Nan taught me to bake"
-                maxLength={200}
-                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper/30 transition-colors"
+                type="checkbox"
+                checked={enableLock}
+                onChange={(e) => setEnableLock(e.target.checked)}
+                style={{ marginTop: 3, accentColor: 'var(--loom-warm)', flexShrink: 0 }}
               />
-            </div>
+              <div>
+                <p
+                  className="loom-serif"
+                  style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 300, color: 'var(--loom-bone)' }}
+                >
+                  Seal this entry
+                </p>
+                <p
+                  className="loom-body"
+                  style={{ margin: 0, fontSize: 14, color: 'var(--loom-bone-dim)', lineHeight: 1.65 }}
+                >
+                  The entry stays sealed until the moment you choose. Write today; have it open on a wedding day, a 21st, a centenary.
+                </p>
+              </div>
+            </label>
 
-            <div>
-              <label htmlFor="t-body" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                Body
-              </label>
-              <textarea
-                id="t-body"
-                rows={12}
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                placeholder="Write to your descendants. Tell them something. They will read this."
-                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper/30 transition-colors font-body text-base leading-[1.7] resize-y"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="t-vis" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                Who can read this
-              </label>
-              <select
-                id="t-vis"
-                value={visibility}
-                onChange={(e) => setVisibility(e.target.value as ThreadVisibility)}
-                className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] transition-colors"
-              >
-                <option value="FAMILY">Family — anyone in the thread, now and later</option>
-                <option value="DESCENDANTS">Descendants only — generations after yours</option>
-                <option value="PRIVATE">Private — for a specific recipient (future feature)</option>
-              </select>
-            </div>
-
-            <div className="border border-paper-15 rounded-[2px] p-4 bg-void-surface/40">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={enableLock}
-                  onChange={(e) => setEnableLock(e.target.checked)}
-                  className="mt-1 accent-gold"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-body text-base">Time-lock this entry</span>
-                  </div>
-                  <p className="text-paper/55 text-sm leading-relaxed mt-1">
-                    The entry stays sealed until the date you choose. Write today; have it open on a wedding day, a 21st, a centenary.
-                  </p>
+            {enableLock ? (
+              <div style={{ marginTop: 24, paddingLeft: 28, display: 'grid', gap: 20 }}>
+                <div>
+                  <label htmlFor="t-lock-type" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                    Lock type
+                  </label>
+                  <select
+                    id="t-lock-type"
+                    value={lockType}
+                    onChange={(e) => setLockType(e.target.value as ThreadLockType)}
+                    style={{ ...selectStyle, maxWidth: 360 }}
+                  >
+                    <option value="DATE">A specific date</option>
+                    <option value="AGE">When someone reaches an age</option>
+                    <option value="RECIPIENT_EVENT">When an event happens (wedding, first child…)</option>
+                    <option value="GENERATION">When a generation exists in the thread</option>
+                  </select>
                 </div>
-              </label>
-              {enableLock ? (
-                <div className="mt-4 pl-7 space-y-4">
+
+                {lockType === 'DATE' ? (
                   <div>
-                    <label htmlFor="t-lock-type" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                      Lock type
+                    <label htmlFor="t-lock-date" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                      Open on
                     </label>
-                    <select
-                      id="t-lock-type"
-                      value={lockType}
-                      onChange={(e) => setLockType(e.target.value as ThreadLockType)}
-                      className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
-                    >
-                      <option value="DATE">A specific date</option>
-                      <option value="AGE">When someone reaches an age</option>
-                      <option value="RECIPIENT_EVENT">When an event happens (wedding, first child…)</option>
-                      <option value="GENERATION">When a generation exists in the thread</option>
-                    </select>
+                    <input
+                      id="t-lock-date"
+                      type="date"
+                      min={today}
+                      value={lockDate}
+                      onChange={(e) => setLockDate(e.target.value)}
+                      style={{ ...inputStyle, maxWidth: 200 }}
+                    />
                   </div>
+                ) : null}
 
-                  {lockType === 'DATE' ? (
+                {lockType === 'AGE' ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 480 }}>
                     <div>
-                      <label htmlFor="t-lock-date" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                        Open on
+                      <label htmlFor="t-lock-member" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                        Recipient
+                      </label>
+                      <select
+                        id="t-lock-member"
+                        value={lockTargetMemberId}
+                        onChange={(e) => setLockTargetMemberId(e.target.value)}
+                        style={selectStyle}
+                      >
+                        <option value="">— pick a member —</option>
+                        {members.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.display_name} {m.relation_label ? `(${m.relation_label})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="t-lock-age" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                        Open at age
                       </label>
                       <input
-                        id="t-lock-date"
-                        type="date"
-                        min={today}
-                        value={lockDate}
-                        onChange={(e) => setLockDate(e.target.value)}
-                        className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
-                      />
-                    </div>
-                  ) : null}
-
-                  {lockType === 'AGE' ? (
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="t-lock-member" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                          Recipient
-                        </label>
-                        <select
-                          id="t-lock-member"
-                          value={lockTargetMemberId}
-                          onChange={(e) => setLockTargetMemberId(e.target.value)}
-                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
-                        >
-                          <option value="">— Pick a thread member —</option>
-                          {members.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.display_name} {m.relation_label ? `(${m.relation_label})` : ''}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label htmlFor="t-lock-age" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                          Open at age
-                        </label>
-                        <input
-                          id="t-lock-age"
-                          type="number"
-                          min={1}
-                          max={120}
-                          value={lockAgeYears}
-                          onChange={(e) => setLockAgeYears(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
-                        />
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {lockType === 'RECIPIENT_EVENT' ? (
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="t-lock-event-member" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                          Recipient
-                        </label>
-                        <select
-                          id="t-lock-event-member"
-                          value={lockTargetMemberId}
-                          onChange={(e) => setLockTargetMemberId(e.target.value)}
-                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
-                        >
-                          <option value="">— Pick a thread member —</option>
-                          {members.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.display_name} {m.relation_label ? `(${m.relation_label})` : ''}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label htmlFor="t-lock-event" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                          Event
-                        </label>
-                        <input
-                          id="t-lock-event"
-                          type="text"
-                          value={lockEventLabel}
-                          onChange={(e) => setLockEventLabel(e.target.value)}
-                          placeholder="wedding, first_child, graduation"
-                          className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] placeholder:text-paper/30 transition-colors"
-                        />
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {lockType === 'GENERATION' ? (
-                    <div>
-                      <label htmlFor="t-lock-gen" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                        Open once a member of generation N exists in the thread
-                      </label>
-                      <input
-                        id="t-lock-gen"
+                        id="t-lock-age"
                         type="number"
                         min={1}
-                        max={6}
-                        value={lockGeneration}
-                        onChange={(e) => setLockGeneration(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-                        className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-2 rounded-[2px] transition-colors"
+                        max={120}
+                        value={lockAgeYears}
+                        onChange={(e) => setLockAgeYears(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                        style={inputStyle}
                       />
-                      <p className="text-[0.65rem] text-paper/40 mt-1.5">+1 = your kids · +2 = grandkids · +3 = great-grandkids</p>
                     </div>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
+                  </div>
+                ) : null}
 
-            {error ? (
-              <p role="alert" className="text-blood text-sm">
-                {error}
-              </p>
+                {lockType === 'RECIPIENT_EVENT' ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 480 }}>
+                    <div>
+                      <label htmlFor="t-lock-event-member" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                        Recipient
+                      </label>
+                      <select
+                        id="t-lock-event-member"
+                        value={lockTargetMemberId}
+                        onChange={(e) => setLockTargetMemberId(e.target.value)}
+                        style={selectStyle}
+                      >
+                        <option value="">— pick a member —</option>
+                        {members.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.display_name} {m.relation_label ? `(${m.relation_label})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="t-lock-event" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                        Event
+                      </label>
+                      <input
+                        id="t-lock-event"
+                        type="text"
+                        value={lockEventLabel}
+                        onChange={(e) => setLockEventLabel(e.target.value)}
+                        placeholder="wedding, first_child, graduation"
+                        style={inputStyle}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
+                {lockType === 'GENERATION' ? (
+                  <div>
+                    <label htmlFor="t-lock-gen" className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                      Open once a member of generation N exists
+                    </label>
+                    <input
+                      id="t-lock-gen"
+                      type="number"
+                      min={1}
+                      max={6}
+                      value={lockGeneration}
+                      onChange={(e) => setLockGeneration(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                      style={{ ...inputStyle, maxWidth: 120 }}
+                    />
+                    <p
+                      className="loom-mono"
+                      style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em' }}
+                    >
+                      +1 = your children · +2 = grandchildren · +3 = great-grandchildren
+                    </p>
+                  </div>
+                ) : null}
+              </div>
             ) : null}
+          </div>
 
-            <div className="flex items-center gap-3 pt-2">
-              <button type="submit" disabled={create.isPending || !body.trim()} className="btn btn-primary">
-                {create.isPending ? 'Saving…' : 'Save to the thread'}
-                {!create.isPending ? <span aria-hidden>→</span> : null}
-              </button>
-              <Link to={`/threads/${threadId}`} className="text-paper/60 hover:text-paper text-sm">
-                Cancel
+          {error ? (
+            <p
+              role="alert"
+              className="loom-body"
+              style={{ margin: 0, fontStyle: 'italic', color: '#c25a5a', fontSize: 14 }}
+            >
+              {error}
+            </p>
+          ) : null}
+
+          {/* Actions */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 16,
+              paddingTop: 8,
+              flexWrap: 'wrap',
+            }}
+          >
+            <p
+              className="loom-mono"
+              style={{
+                margin: 0,
+                fontSize: 10,
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                color: 'var(--loom-bone-faint)',
+              }}
+            >
+              {create.isPending ? 'weaving…' : 'append-only · cannot be altered once woven'}
+            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <Link
+                to={`/threads/${threadId}`}
+                className="loom-btn-ghost"
+                style={{ textDecoration: 'none' }}
+              >
+                cancel
               </Link>
+              <button
+                type="submit"
+                disabled={create.isPending || !body.trim()}
+                className="loom-btn"
+                style={{ opacity: create.isPending || !body.trim() ? 0.5 : 1 }}
+              >
+                {create.isPending ? 'saving…' : 'save to thread'}
+              </button>
             </div>
-          </form>
-        </motion.div>
-      </main>
-    </div>
+          </div>
+        </form>
+      </div>
+    </AppFrame>
   );
 }

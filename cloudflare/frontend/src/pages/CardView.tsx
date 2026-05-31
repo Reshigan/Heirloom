@@ -39,15 +39,11 @@ export function CardView() {
         setLoading(false);
       }
     };
-
-    if (id) {
-      fetchCard();
-    }
+    if (id) fetchCard();
   }, [id]);
 
   const handleShare = async () => {
     if (!card) return;
-    
     if (navigator.share) {
       try {
         await navigator.share({
@@ -56,108 +52,180 @@ export function CardView() {
           url: card.shareUrl,
         });
       } catch {
-        // User cancelled
+        // user cancelled
       }
     } else {
       try {
         await navigator.clipboard.writeText(card.shareUrl);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
       } catch {
-        // Fallback
-        const textArea = document.createElement('textarea');
-        textArea.value = card.shareUrl;
-        document.body.appendChild(textArea);
-        textArea.select();
+        const ta = document.createElement('textarea');
+        ta.value = card.shareUrl;
+        document.body.appendChild(ta);
+        ta.select();
         document.execCommand('copy');
-        document.body.removeChild(textArea);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        document.body.removeChild(ta);
       }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const pageStyle: React.CSSProperties = {
+    minHeight: '100vh',
+    background: 'var(--loom-ink)',
+    color: 'var(--loom-bone)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-void">
-        <ProgressHair label="loading…" width={180} />
+      <div style={pageStyle}>
+        <ProgressHair label="loading…" width={200} />
       </div>
     );
   }
 
   if (error || !card) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-void text-paper p-6">
-        <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
-        <h1 className="font-body font-light text-2xl mb-4 tracking-[-0.014em]">Card not found</h1>
-        <p className="text-paper-70 mb-8 max-w-prose text-center leading-relaxed">This memory card may have been removed or the link is invalid.</p>
-        <Link to="/" className="btn btn-primary">
-          Discover Heirloom <span aria-hidden>→</span>
+      <div style={{ ...pageStyle, flexDirection: 'column', textAlign: 'center' }}>
+        <p style={{ fontFamily: "'Source Serif 4', serif", fontSize: 32, color: 'var(--loom-warm)', marginBottom: 20 }}>∞</p>
+        <h1 className="loom-h2" style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}>
+          Card not found.
+        </h1>
+        <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 32px', maxWidth: 380 }}>
+          This memory card may have been removed or the link is invalid.
+        </p>
+        <Link to="/" className="loom-btn" style={{ textDecoration: 'none' }}>
+          Discover Heirloom
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <div className="min-h-screen flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-lg">
-          {/* Card Display */}
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+      }}
+    >
+      {/* Ambient glow */}
+      <div className="loom-horizon" style={{ pointerEvents: 'none' }} />
+      <div className="loom-grain" style={{ pointerEvents: 'none' }} />
+
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '48px 24px',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 520 }}>
+          {/* Card display */}
           <div
-            className="border border-paper-15 p-8 mb-8 rounded-[2px]"
             style={{
+              border: '1px solid rgba(244,236,216,0.14)',
+              padding: 40,
+              marginBottom: 28,
               background: card.styleConfig.bgColor,
               color: card.styleConfig.textColor,
             }}
           >
             {card.photoUrl && (
-              <img
-                src={card.photoUrl}
-                alt="Memory"
-                className="w-full h-48 object-cover rounded-[2px] mb-6"
-              />
+              <div
+                style={{
+                  border: '1px solid rgba(244,236,216,0.14)',
+                  marginBottom: 24,
+                  overflow: 'hidden',
+                }}
+              >
+                <img
+                  src={card.photoUrl}
+                  alt="Memory"
+                  style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }}
+                />
+              </div>
             )}
 
-            <blockquote className="font-body text-2xl italic leading-relaxed mb-6">
+            <blockquote
+              style={{
+                fontFamily: "'Source Serif 4', serif",
+                fontStyle: 'italic',
+                fontSize: 21,
+                lineHeight: 1.65,
+                margin: '0 0 20px',
+                borderLeft: '2px solid var(--loom-warm)',
+                paddingLeft: 18,
+              }}
+            >
               "{card.quote}"
             </blockquote>
 
-            <div className="text-sm opacity-70">
-              <div className="font-medium">— {card.authorName}</div>
+            <div style={{ fontSize: 14, opacity: 0.7 }}>
+              <p style={{ margin: 0, fontWeight: 500 }}>— {card.authorName}</p>
               {card.memoryDate && (
-                <div className="mt-1">{card.memoryDate}</div>
+                <p style={{ margin: '4px 0 0', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.06em' }}>
+                  {card.memoryDate}
+                </p>
               )}
             </div>
 
             <div
-              className="mt-6 pt-4 border-t text-xs opacity-50 flex items-baseline gap-2"
-              style={{ borderColor: `${card.styleConfig.textColor}20` }}
+              style={{
+                marginTop: 24,
+                paddingTop: 16,
+                borderTop: `1px solid ${card.styleConfig.textColor}18`,
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: 8,
+              }}
             >
-              <span className="text-gold" aria-hidden>∞</span>
-              <span>Made with Heirloom</span>
+              <span style={{ color: 'var(--loom-warm)' }}>∞</span>
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  opacity: 0.5,
+                }}
+              >
+                Made with Heirloom
+              </span>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-4 mb-8">
-            <button
-              onClick={handleShare}
-              className="btn btn-primary flex-1"
-            >
-              {copied ? 'Link copied' : 'Share'}
-            </button>
-          </div>
+          <button type="button" onClick={handleShare} className="loom-btn" style={{ width: '100%', marginBottom: 36 }}>
+            {copied ? 'Link copied' : 'Share'}
+          </button>
 
           {/* CTA */}
-          <div className="text-center">
-            <p className="text-paper-70 mb-4">
-              Preserve your own memories for future generations
+          <div style={{ textAlign: 'center' }}>
+            <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 16px' }}>
+              Preserve your own memories for future generations.
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 text-gold hover:text-gold-bright transition-colors"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--loom-warm)',
+                textDecoration: 'none',
+              }}
             >
-              Start your thread on Heirloom <span aria-hidden>→</span>
+              Start your thread on Heirloom →
             </Link>
           </div>
         </div>

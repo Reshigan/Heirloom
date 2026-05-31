@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Navigation } from '../components/Navigation';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { AppFrame } from '../loom/components/AppFrame';
 import { familyApi } from '../services/api';
 
 // Template options for quick start
@@ -12,25 +10,25 @@ const TEMPLATES = [
     id: 'birthday',
     name: 'Birthday Message',
     description: 'A heartfelt message for their special day',
-    defaultPrompt: 'What I want you to know on your birthday...',
+    defaultPrompt: 'What I want you to know on your birthday…',
   },
   {
     id: 'if-not-here',
-    name: 'If I\'m Not Here',
+    name: "If I'm Not Here",
     description: 'Words of comfort for when you\'re gone',
-    defaultPrompt: 'If I\'m not there to tell you this in person...',
+    defaultPrompt: "If I'm not there to tell you this in person…",
   },
   {
     id: 'story',
     name: 'A Story You Should Know',
     description: 'Share a memory or life lesson',
-    defaultPrompt: 'There\'s a story I\'ve never told you...',
+    defaultPrompt: "There's a story I've never told you…",
   },
   {
     id: 'proud',
     name: 'Why I\'m Proud of You',
     description: 'Celebrate who they are',
-    defaultPrompt: 'I want you to know how proud I am of you because...',
+    defaultPrompt: 'I want you to know how proud I am of you because…',
   },
 ];
 
@@ -54,6 +52,94 @@ interface PersonPrompt {
 type WizardStep = 'person' | 'template' | 'type' | 'prompt' | 'create' | 'preview';
 type ContentType = 'voice' | 'letter';
 
+/* ─── Hairline progress track ──────────────────────────────── */
+function StepTrack({ current, total }: { current: number; total: number }) {
+  return (
+    <div style={{ marginBottom: 48 }}>
+      <p
+        className="loom-mono"
+        style={{ fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', marginBottom: 10 }}
+      >
+        step {current} of {total}
+      </p>
+      <div style={{ height: 1, background: 'var(--loom-rule)', position: 'relative' }}>
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            height: '100%',
+            width: `${(current / total) * 100}%`,
+            background: 'var(--loom-warm)',
+            transition: 'width 360ms var(--loom-ease)',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Selection row ─────────────────────────────────────────── */
+function SelectRow({
+  label,
+  sub,
+  selected,
+  onClick,
+}: {
+  label: string;
+  sub?: string;
+  selected?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'baseline',
+        justifyContent: 'space-between',
+        width: '100%',
+        padding: '14px 0',
+        background: 'none',
+        border: 'none',
+        borderBottom: '1px solid var(--loom-rule)',
+        cursor: 'pointer',
+        textAlign: 'left',
+        gap: 16,
+      }}
+    >
+      <span>
+        <span
+          className="loom-body"
+          style={{
+            fontSize: 16,
+            color: selected ? 'var(--loom-warm)' : 'var(--loom-bone)',
+            display: 'block',
+          }}
+        >
+          {label}
+        </span>
+        {sub && (
+          <span
+            className="loom-mono"
+            style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em', display: 'block', marginTop: 3 }}
+          >
+            {sub}
+          </span>
+        )}
+      </span>
+      {selected && (
+        <span
+          className="loom-mono"
+          style={{ fontSize: 10, color: 'var(--loom-warm)', letterSpacing: '0.16em', flexShrink: 0 }}
+        >
+          selected
+        </span>
+      )}
+    </button>
+  );
+}
+
 export function QuickWizard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -61,13 +147,12 @@ export function QuickWizard() {
   const [step, setStep] = useState<WizardStep>('person');
   const [selectedPerson, setSelectedPerson] = useState<FamilyMember | null>(null);
   const [_selectedTemplate, setSelectedTemplate] = useState<typeof TEMPLATES[0] | null>(null);
-  void _selectedTemplate; // Used for future template display in preview
+  void _selectedTemplate;
   const [contentType, setContentType] = useState<ContentType | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<PersonPrompt[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
 
-  // Pre-select person if coming from PersonPage
   const preselectedPersonId = searchParams.get('for');
   const preselectedPrompt = searchParams.get('prompt');
 
@@ -76,7 +161,6 @@ export function QuickWizard() {
     queryFn: () => familyApi.getAll().then(r => r.data),
   });
 
-  // Handle preselection
   useEffect(() => {
     if (family && preselectedPersonId) {
       const person = family.find((m: FamilyMember) => m.id === preselectedPersonId);
@@ -92,7 +176,6 @@ export function QuickWizard() {
     }
   }, [family, preselectedPersonId, preselectedPrompt]);
 
-  // Fetch prompts when person is selected
   useEffect(() => {
     if (selectedPerson && step === 'prompt') {
       fetchPrompts();
@@ -142,12 +225,10 @@ export function QuickWizard() {
 
   const handleCreate = () => {
     if (!selectedPerson || !contentType) return;
-
     const params = new URLSearchParams();
     if (selectedPrompt) params.set('prompt', selectedPrompt);
     params.set('for', selectedPerson.id);
     params.set('forName', selectedPerson.name);
-
     if (contentType === 'voice') {
       navigate(`/record?${params.toString()}`);
     } else {
@@ -193,363 +274,383 @@ export function QuickWizard() {
   const familyMembers = Array.isArray(family) ? family : [];
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
+    <AppFrame>
+      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+        <StepTrack current={stepNumber[step]} total={5} />
 
-      <main className="relative z-10 px-6 md:px-12 pt-24 pb-12 max-w-2xl mx-auto">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-[0.65rem] tracking-[0.24em] uppercase text-paper-50">Step {stepNumber[step]} of 5</span>
-            <span className="font-mono text-[0.65rem] tracking-[0.24em] uppercase text-paper-50">~3 minutes</span>
-          </div>
-          <div className="h-px bg-paper-15 overflow-hidden">
-            <motion.div
-              className="h-full bg-gold"
-              initial={{ width: 0 }}
-              animate={{ width: `${(stepNumber[step] / 5) * 100}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        </div>
-
-        <AnimatePresence mode="wait">
-          {/* Step 1: Select Person */}
-          {step === 'person' && (
-            <motion.div
-              key="person"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+        {/* Step 1: Select Person */}
+        {step === 'person' && (
+          <div>
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>begin a thread</p>
+            <h1
+              className="loom-h2"
+              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
             >
-              <div className="text-center mb-8">
-                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
-                  Who is this message for?
-                </h1>
-                <p className="text-paper-65">
-                  Choose the person you want to leave a message for
-                </p>
-              </div>
+              Who is this for?
+            </h1>
+            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
+              Choose the person you want to leave a thread for.
+            </p>
 
-              {familyLoading ? (
-                <div className="flex justify-center py-12">
-                  <ProgressHair label="loading…" width={180} />
-                </div>
-              ) : familyMembers.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-paper-65 mb-4">No family members added yet</p>
-                  <button
-                    onClick={() => navigate('/family')}
-                    className="btn btn-primary"
-                  >
-                    Add Family Member
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  {familyMembers.map((person: FamilyMember) => (
-                    <button
-                      key={person.id}
-                      onClick={() => handlePersonSelect(person)}
-                      className="bg-void-surface border border-paper-15 text-center py-6 hover:border-gold-40 transition-colors group"
-                    >
-                      {person.avatarUrl ? (
-                        <div className="w-16 h-16 rounded-[2px] mx-auto mb-3 overflow-hidden">
-                          <img src={person.avatarUrl} alt={person.name} className="w-full h-full object-cover" />
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 rounded-[2px] mx-auto mb-3 bg-void border border-paper-15 flex items-center justify-center text-gold font-body text-xl">
-                          {person.name[0]}
-                        </div>
-                      )}
-                      <h3 className="font-body group-hover:text-gold transition-colors">{person.name}</h3>
-                      <p className="text-sm text-paper-65">{person.relationship}</p>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* Step 2: Select Template */}
-          {step === 'template' && (
-            <motion.div
-              key="template"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <button
-                onClick={goBack}
-                className="inline-flex items-center gap-2 text-paper-65 hover:text-gold transition-colors mb-6"
-              >
-                <span aria-hidden>←</span>
-                Back
-              </button>
-
-              <div className="text-center mb-8">
-                {selectedPerson?.avatarUrl ? (
-                  <div className="w-16 h-16 rounded-[2px] mx-auto mb-4 overflow-hidden">
-                    <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 rounded-[2px] mx-auto mb-4 bg-void-surface border border-paper-15 flex items-center justify-center text-gold font-body text-xl">
-                    {selectedPerson?.name[0]}
-                  </div>
-                )}
-                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
-                  What would you like to tell <span className="text-gold">{selectedPerson?.name}</span>?
-                </h1>
-                <p className="text-paper-65">
-                  Pick a template to get started quickly
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {TEMPLATES.map((template) => {
-                  return (
-                    <button
-                      key={template.id}
-                      onClick={() => handleTemplateSelect(template)}
-                      className="w-full p-4 rounded-[2px] border border-paper-15 bg-void-surface hover:border-gold-40 transition-colors flex items-center gap-4 text-left group"
-                    >
-                      <div className="flex-1">
-                        <h3 className="font-body mb-0.5 text-paper group-hover:text-gold transition-colors">{template.name}</h3>
-                        <p className="text-sm text-paper-65">{template.description}</p>
-                      </div>
-                      <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-6 p-4 bg-void-surface border border-paper-15 text-sm">
-                <p className="text-paper-70">
-                  Each template includes suggested prompts to help you express what matters most. You can always customize or write your own.
-                </p>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 3: Select Type */}
-          {step === 'type' && (
-            <motion.div
-              key="type"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <button
-                onClick={goBack}
-                className="inline-flex items-center gap-2 text-paper-65 hover:text-gold transition-colors mb-6"
-              >
-                <span aria-hidden>←</span>
-                Back
-              </button>
-
-              <div className="text-center mb-8">
-                {selectedPerson?.avatarUrl ? (
-                  <div className="w-16 h-16 rounded-[2px] mx-auto mb-4 overflow-hidden">
-                    <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 rounded-[2px] mx-auto mb-4 bg-void-surface border border-paper-15 flex items-center justify-center text-gold font-body text-xl">
-                    {selectedPerson?.name[0]}
-                  </div>
-                )}
-                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
-                  How do you want to share with <span className="text-gold">{selectedPerson?.name}</span>?
-                </h1>
-                <p className="text-paper-65">
-                  Choose how you'd like to leave your message
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={() => handleTypeSelect('voice')}
-                  className="bg-void-surface border border-paper-15 py-8 text-center hover:border-gold-40 transition-colors group"
+            {familyLoading ? (
+              <div style={{ padding: '40px 0' }}>
+                <div
+                  style={{
+                    height: 1,
+                    background: 'var(--loom-rule)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    maxWidth: 180,
+                  }}
                 >
-                  <p className="font-mono text-[0.6rem] tracking-[0.24em] uppercase text-gold mb-4">Voice</p>
-                  <h3 className="font-body text-lg mb-1 group-hover:text-gold transition-colors">Voice Message</h3>
-                  <p className="text-sm text-paper-65">Record your voice</p>
-                  <p className="text-xs text-paper-65 mt-2">~60 seconds</p>
-                </button>
-
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      height: '100%',
+                      width: '40%',
+                      background: 'var(--loom-warm)',
+                      animation: 'loom-shuttle 1.4s var(--loom-ease) infinite',
+                    }}
+                  />
+                </div>
+                <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 10, letterSpacing: '0.1em' }}>
+                  loading…
+                </p>
+              </div>
+            ) : familyMembers.length === 0 ? (
+              <div style={{ paddingTop: 40 }}>
+                <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 24 }}>
+                  No bloodline members yet.
+                </p>
                 <button
-                  onClick={() => handleTypeSelect('letter')}
-                  className="bg-void-surface border border-paper-15 py-8 text-center hover:border-gold-40 transition-colors group"
+                  onClick={() => navigate('/family')}
+                  className="loom-btn"
                 >
-                  <p className="font-mono text-[0.6rem] tracking-[0.24em] uppercase text-gold mb-4">Letter</p>
-                  <h3 className="font-body text-lg mb-1 group-hover:text-gold transition-colors">Written Letter</h3>
-                  <p className="text-sm text-paper-65">Write a letter</p>
-                  <p className="text-xs text-paper-65 mt-2">~5 minutes</p>
+                  add family member
                 </button>
               </div>
-            </motion.div>
-          )}
+            ) : (
+              <div style={{ display: 'grid', gap: 0 }}>
+                {familyMembers.map((person: FamilyMember) => (
+                  <SelectRow
+                    key={person.id}
+                    label={person.name}
+                    sub={person.relationship}
+                    onClick={() => handlePersonSelect(person)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-          {/* Step 3: Select Prompt */}
-          {step === 'prompt' && (
-            <motion.div
-              key="prompt"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+        {/* Step 2: Select Template */}
+        {step === 'template' && (
+          <div>
+            <button
+              onClick={goBack}
+              className="loom-mono"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--loom-bone-faint)',
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                marginBottom: 32,
+                padding: 0,
+              }}
             >
-              <button
-                onClick={goBack}
-                className="inline-flex items-center gap-2 text-paper-65 hover:text-gold transition-colors mb-6"
-              >
-                <span aria-hidden>←</span>
-                Back
-              </button>
+              ← back
+            </button>
 
-              <div className="text-center mb-8">
-                <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Suggested Prompts</p>
-                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
-                  What would you like to tell <span className="text-gold">{selectedPerson?.name}</span>?
-                </h1>
-                <p className="text-paper-65">
-                  Pick a prompt or write your own
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
+              for {selectedPerson?.name}
+            </p>
+            <h1
+              className="loom-h2"
+              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
+            >
+              What would you like to say?
+            </h1>
+            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
+              Pick a thread to get started quickly.
+            </p>
+
+            <div style={{ display: 'grid', gap: 0 }}>
+              {TEMPLATES.map((template) => (
+                <SelectRow
+                  key={template.id}
+                  label={template.name}
+                  sub={template.description}
+                  onClick={() => handleTemplateSelect(template)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Select Type */}
+        {step === 'type' && (
+          <div>
+            <button
+              onClick={goBack}
+              className="loom-mono"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--loom-bone-faint)',
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                marginBottom: 32,
+                padding: 0,
+              }}
+            >
+              ← back
+            </button>
+
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
+              for {selectedPerson?.name}
+            </p>
+            <h1
+              className="loom-h2"
+              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
+            >
+              How do you want to weave it?
+            </h1>
+            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
+              Choose your medium.
+            </p>
+
+            <div style={{ display: 'grid', gap: 0 }}>
+              <SelectRow
+                label="Voice"
+                sub="a personal recording — ≈ 60 seconds"
+                selected={contentType === 'voice'}
+                onClick={() => handleTypeSelect('voice')}
+              />
+              <SelectRow
+                label="Written letter"
+                sub="a composed thread — ≈ 5 minutes"
+                selected={contentType === 'letter'}
+                onClick={() => handleTypeSelect('letter')}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Select Prompt */}
+        {step === 'prompt' && (
+          <div>
+            <button
+              onClick={goBack}
+              className="loom-mono"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--loom-bone-faint)',
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                marginBottom: 32,
+                padding: 0,
+              }}
+            >
+              ← back
+            </button>
+
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>suggested beginnings</p>
+            <h1
+              className="loom-h2"
+              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
+            >
+              Where to begin?
+            </h1>
+            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
+              Pick a prompt or write your own.
+            </p>
+
+            {loadingPrompts ? (
+              <div style={{ padding: '40px 0' }}>
+                <div
+                  style={{
+                    height: 1,
+                    background: 'var(--loom-rule)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    maxWidth: 180,
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      height: '100%',
+                      width: '40%',
+                      background: 'var(--loom-warm)',
+                      animation: 'loom-shuttle 1.4s var(--loom-ease) infinite',
+                    }}
+                  />
+                </div>
+                <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 10, letterSpacing: '0.1em' }}>
+                  the Listener is thinking…
                 </p>
               </div>
-
-              {loadingPrompts ? (
-                <div className="flex justify-center py-12">
-                  <ProgressHair label="loading…" width={180} />
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {prompts.map((prompt) => (
-                    <button
-                      key={prompt.id}
-                      onClick={() => handlePromptSelect(prompt.prompt)}
-                      className="w-full p-4 bg-void-surface border border-paper-15 text-left hover:border-gold-40 transition-colors group"
-                    >
-                      <p className="text-paper group-hover:text-gold transition-colors">
-                        "{prompt.prompt}"
-                      </p>
-                      <span className="text-xs text-paper-70 mt-2 block">{prompt.category}</span>
-                    </button>
-                  ))}
-
+            ) : (
+              <div style={{ display: 'grid', gap: 0 }}>
+                {prompts.map((prompt) => (
                   <button
-                    onClick={() => handlePromptSelect('')}
-                    className="w-full p-4 bg-void-surface border border-dashed border-paper-15 text-left hover:border-paper-15 transition-colors"
+                    key={prompt.id}
+                    onClick={() => handlePromptSelect(prompt.prompt)}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '14px 0',
+                      background: 'none',
+                      border: 'none',
+                      borderBottom: '1px solid var(--loom-rule)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
                   >
-                    <p className="text-paper-70">
-                      I'll write my own message
-                    </p>
+                    <span
+                      className="loom-body"
+                      style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)', fontSize: 15 }}
+                    >
+                      "{prompt.prompt}"
+                    </span>
+                    <span
+                      className="loom-mono"
+                      style={{ display: 'block', fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', marginTop: 4 }}
+                    >
+                      {prompt.category}
+                    </span>
                   </button>
-                </div>
-              )}
-            </motion.div>
-          )}
+                ))}
 
-          {/* Step 4: Preview & Create */}
-          {step === 'preview' && (
-            <motion.div
-              key="preview"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <button
-                onClick={goBack}
-                className="inline-flex items-center gap-2 text-paper-65 hover:text-gold transition-colors mb-6"
-              >
-                <span aria-hidden>←</span>
-                Back
-              </button>
-
-              <div className="text-center mb-8">
-                <h1 className="font-body font-light text-2xl md:text-3xl mb-2 tracking-[-0.014em]">
-                  Ready to create your message
-                </h1>
-                <p className="text-paper-65">
-                  Here's what {selectedPerson?.name} will receive
-                </p>
+                <button
+                  onClick={() => handlePromptSelect('')}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '14px 0',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <span
+                    className="loom-body"
+                    style={{ color: 'var(--loom-bone-faint)', fontSize: 15 }}
+                  >
+                    I'll write my own thread
+                  </span>
+                </button>
               </div>
+            )}
+          </div>
+        )}
 
-              {/* Delivery Preview */}
-              <div className="bg-void-surface border border-paper-15 mb-8 overflow-hidden">
-                <div className="p-4 border-b border-paper-15">
-                  <div className="flex items-center gap-3">
-                    {selectedPerson?.avatarUrl ? (
-                      <div className="w-10 h-10 rounded-[2px] overflow-hidden">
-                        <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 rounded-[2px] bg-void border border-paper-15 flex items-center justify-center text-gold font-body">
-                        {selectedPerson?.name[0]}
-                      </div>
+        {/* Step 5: Preview & Create */}
+        {step === 'preview' && (
+          <div>
+            <button
+              onClick={goBack}
+              className="loom-mono"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--loom-bone-faint)',
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                marginBottom: 32,
+                padding: 0,
+              }}
+            >
+              ← back
+            </button>
+
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>ready to weave</p>
+            <h1
+              className="loom-h2"
+              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
+            >
+              Your thread is ready.
+            </h1>
+            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
+              Here is what {selectedPerson?.name} will receive.
+            </p>
+
+            {/* Summary */}
+            <div style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 24, marginBottom: 40 }}>
+              <div style={{ display: 'grid', gap: 16 }}>
+                <div style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
+                  <span className="loom-eyebrow" style={{ minWidth: 80 }}>for</span>
+                  <span className="loom-body" style={{ color: 'var(--loom-bone)' }}>
+                    {selectedPerson?.name}
+                    {selectedPerson?.relationship && (
+                      <span style={{ color: 'var(--loom-bone-faint)', marginLeft: 8 }}>
+                        · {selectedPerson.relationship}
+                      </span>
                     )}
-                    <div>
-                      <p className="font-body">For {selectedPerson?.name}</p>
-                      <p className="text-xs text-paper-65">{selectedPerson?.relationship}</p>
-                    </div>
-                  </div>
+                  </span>
                 </div>
-
-                <div className="p-6">
-                  {contentType === 'voice' ? (
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-[2px] bg-void border border-paper-15 flex items-center justify-center font-mono text-[0.55rem] tracking-[0.18em] uppercase text-gold">
-                        Voice
-                      </div>
-                      <div>
-                        <p className="font-body">Voice Message</p>
-                        <p className="text-sm text-paper-65">A personal recording from you</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-[2px] bg-void border border-paper-15 flex items-center justify-center font-mono text-[0.55rem] tracking-[0.18em] uppercase text-gold">
-                        Letter
-                      </div>
-                      <div>
-                        <p className="font-body">Written Letter</p>
-                        <p className="text-sm text-paper-65">A heartfelt letter from you</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedPrompt && (
-                    <div className="mt-4 p-4 bg-void border border-paper-15 rounded-[2px]">
-                      <p className="text-sm text-paper-70 italic">"{selectedPrompt}"</p>
-                    </div>
-                  )}
+                <div style={{ height: 1, background: 'var(--loom-rule)' }} />
+                <div style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
+                  <span className="loom-eyebrow" style={{ minWidth: 80 }}>medium</span>
+                  <span className="loom-body" style={{ color: 'var(--loom-bone)' }}>
+                    {contentType === 'voice' ? 'voice recording' : 'written letter'}
+                  </span>
                 </div>
-
-                <div className="p-4 border-t border-paper-15">
-                  <p className="text-paper-65 text-sm">
-                    {selectedPerson?.name} can send you a note back after viewing
-                  </p>
+                {selectedPrompt && (
+                  <>
+                    <div style={{ height: 1, background: 'var(--loom-rule)' }} />
+                    <div style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
+                      <span className="loom-eyebrow" style={{ minWidth: 80 }}>prompt</span>
+                      <span
+                        className="loom-body"
+                        style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)' }}
+                      >
+                        "{selectedPrompt}"
+                      </span>
+                    </div>
+                  </>
+                )}
+                <div style={{ height: 1, background: 'var(--loom-rule)' }} />
+                <div style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
+                  <span className="loom-eyebrow" style={{ minWidth: 80 }}>reply</span>
+                  <span className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 14 }}>
+                    {selectedPerson?.name} can respond after viewing
+                  </span>
                 </div>
               </div>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <button
-                  onClick={handleCreate}
-                  className="btn btn-primary w-full justify-center"
-                >
-                  {contentType === 'voice' ? 'Start Recording' : 'Start Writing'}
-                  <span aria-hidden>→</span>
-                </button>
-
-                <button
-                  onClick={() => navigate('/life-events')}
-                  className="btn btn-ghost w-full justify-center"
-                >
-                  Schedule for a milestone instead
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
-    </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button onClick={handleCreate} className="loom-btn" style={{ alignSelf: 'flex-start' }}>
+                {contentType === 'voice' ? 'start recording' : 'start writing'}
+              </button>
+              <button
+                onClick={() => navigate('/life-events')}
+                className="loom-btn-ghost"
+                style={{ alignSelf: 'flex-start' }}
+              >
+                schedule for a milestone instead
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </AppFrame>
   );
 }

@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { LoomShell } from '../components/LoomShell';
 import { Frame } from '../components/Frame';
 import { Loom, type LoomLigature } from '../components/Loom';
+import { ViewToggle } from '../components/ViewToggle';
+import { EmptyThread } from '../components/EmptyThread';
+import { WeftPull } from '../components/WeftPull';
+import { WeftCentury } from '../components/WeftCentury';
 import { ELEANOR_ENTRIES, ELEANOR_RESONANCES } from '../data/mock';
 
 /**
@@ -11,10 +15,23 @@ import { ELEANOR_ENTRIES, ELEANOR_RESONANCES } from '../data/mock';
  * any thread shows the AI's resonances against it. The right rail is
  * the AI's quiet observations — never named, never asking, just
  * noticing.
+ *
+ * The cloth has four view-modes, switched by the loom-mono ViewToggle
+ * in the top bar:
+ *   canon   — the canonical horizontal band (default, below)
+ *   pull    — one thread at a time, vertical paging  (WeftPull)
+ *   century — the whole archive compressed to a century (WeftCentury)
+ *   empty   — the first-session warp-only state       (EmptyThread)
+ * The empty state is what the cloth shows when entries.length === 0;
+ * it is also reachable as a mode so reviewers can see it against the
+ * seeded mock family.
  */
+type WeftMode = 'canon' | 'pull' | 'century' | 'empty';
+
 export function Weft() {
   const [hover, setHover] = useState<number | null>(null);
   const [showAI, setShowAI] = useState(false);
+  const [mode, setMode] = useState<WeftMode>('canon');
 
   useEffect(() => {
     const t = setTimeout(() => setShowAI(true), 900);
@@ -32,9 +49,56 @@ export function Weft() {
       : null;
   const focusedEntry = hover != null ? ELEANOR_ENTRIES[hover] : null;
 
+  // The cloth's entries — the first session has none, which renders the
+  // EmptyThread warp-only state. The 'empty' mode forces that view.
+  const entries = mode === 'empty' ? [] : ELEANOR_ENTRIES;
+
+  const toggle = (
+    <ViewToggle<WeftMode>
+      value={mode}
+      onChange={setMode}
+      options={[
+        { value: 'canon', label: 'canon' },
+        { value: 'pull', label: 'pull' },
+        { value: 'century', label: 'century' },
+        { value: 'empty', label: 'empty' },
+      ]}
+    />
+  );
+
+  if (mode === 'empty' || entries.length === 0) {
+    return (
+      <LoomShell>
+        <Frame active="weft" right={toggle}>
+          <EmptyThread onWeave={() => setMode('canon')} />
+        </Frame>
+      </LoomShell>
+    );
+  }
+
+  if (mode === 'pull') {
+    return (
+      <LoomShell>
+        <Frame active="weft" right={toggle}>
+          <WeftPull />
+        </Frame>
+      </LoomShell>
+    );
+  }
+
+  if (mode === 'century') {
+    return (
+      <LoomShell>
+        <Frame active="weft" right={toggle}>
+          <WeftCentury />
+        </Frame>
+      </LoomShell>
+    );
+  }
+
   return (
     <LoomShell>
-      <Frame active="weft">
+      <Frame active="weft" right={toggle}>
         <div
           style={{
             position: 'absolute',

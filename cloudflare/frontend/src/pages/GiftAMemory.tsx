@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 import { giftsApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 type GiftStep = 'select-type' | 'select-content' | 'recipient' | 'confirm';
@@ -60,9 +60,9 @@ export function GiftAMemory() {
   });
 
   const typeOptions = [
-    { id: 'memory' as const, label: 'A Photo Memory', desc: 'Share a cherished photo with someone special' },
-    { id: 'voice' as const, label: 'A Voice Recording', desc: 'Let them hear the sound of your voice' },
-    { id: 'letter' as const, label: 'A Written Letter', desc: 'Words from the heart, preserved forever' },
+    { id: 'memory' as const, label: 'a photograph', desc: 'a single image from your thread, passed to someone who matters.' },
+    { id: 'voice' as const, label: 'a voice recording', desc: 'the sound of your voice, preserved and given.' },
+    { id: 'letter' as const, label: 'a written letter', desc: 'words from your thread, sealed and sent.' },
   ];
 
   const getContentList = () => {
@@ -82,56 +82,67 @@ export function GiftAMemory() {
   };
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
+    <AppFrame>
+      <header style={{ marginBottom: 40 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>give a thread</p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        >
+          Gift a place on the thread.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
+        >
+          Send something from your thread to someone you love, or invite them to begin their own.
+        </p>
+      </header>
 
-      <main className="px-6 md:px-12 pt-24 pb-32 max-w-2xl mx-auto">
-        <div className="text-center mb-10">
-          <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Gift a memory</p>
-          <h1
-            className="font-body font-light text-paper mb-2 tracking-[-0.018em]"
-            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+      <hr className="loom-hairline" style={{ marginBottom: 40 }} />
+
+      {sendMutation.isSuccess ? (
+        <div style={{ maxWidth: 480, paddingTop: 24 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 20 }}>sent</p>
+          <h2
+            className="loom-h2"
+            style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
           >
-            Gift a memory.
-          </h1>
-          <p className="text-paper-65 font-body">Send something from your thread — or invite them to start their own</p>
-        </div>
-
-        {sendMutation.isSuccess ? (
-          <div className="text-center py-12">
-            <span className="font-body text-4xl text-gold block mb-6" aria-hidden>∞</span>
-            <h2 className="font-body text-2xl text-paper mb-2">Gift sent.</h2>
-            <p className="text-paper-65 mb-1">
-              Your memory gift has been sent to <span className="text-gold">{config.recipientName}</span>
-            </p>
-            <p className="text-paper-50 text-sm mb-8">
-              They&apos;ll receive an email with a link to unwrap their gift.
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => {
-                  setConfig({ memoryType: 'memory', memoryId: '', memoryTitle: '', recipientEmail: '', recipientName: '', personalMessage: '', unlockDate: '' });
-                  setStep('select-type');
-                  sendMutation.reset();
-                }}
-                className="btn btn-ghost"
-              >
-                Send another gift
-              </button>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="btn btn-primary"
-              >
-                Back to dashboard <span aria-hidden>→</span>
-              </button>
-            </div>
+            Gift sent.
+          </h2>
+          <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 16, margin: '0 0 8px' }}>
+            {config.recipientName} will receive a link to their gift.
+          </p>
+          <p className="loom-body" style={{ color: 'var(--loom-bone-faint)', fontSize: 14, margin: '0 0 40px' }}>
+            They can accept it without an account, or weave it into a thread of their own.
+          </p>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <button
+              onClick={() => {
+                setConfig({ memoryType: 'memory', memoryId: '', memoryTitle: '', recipientEmail: '', recipientName: '', personalMessage: '', unlockDate: '' });
+                setStep('select-type');
+                sendMutation.reset();
+              }}
+              className="loom-btn-ghost"
+            >
+              send another
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="loom-btn"
+            >
+              back to thread
+            </button>
           </div>
-        ) : (
-          <>
-            {step === 'select-type' && (
-              <div className="space-y-3">
-                <p className="text-paper-50 text-center mb-6">What would you like to gift?</p>
+        </div>
+      ) : (
+        <>
+          {step === 'select-type' && (
+            <div style={{ maxWidth: 520 }}>
+              <p className="loom-body" style={{ color: 'var(--loom-bone-faint)', fontSize: 14, marginBottom: 28 }}>
+                what would you like to give?
+              </p>
+              <div style={{ display: 'grid', gap: 1 }}>
                 {typeOptions.map(({ id, label, desc }) => (
                   <button
                     key={id}
@@ -139,120 +150,193 @@ export function GiftAMemory() {
                       setConfig((prev) => ({ ...prev, memoryType: id }));
                       setStep('select-content');
                     }}
-                    className="w-full text-left p-5 bg-void-surface border border-paper-15 hover:border-gold-40 transition-colors"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '20px 0',
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--loom-rule)',
+                      cursor: 'pointer',
+                      transition: 'color 180ms var(--loom-ease)',
+                    }}
                   >
-                    <p className="font-body text-lg text-paper">{label}</p>
-                    <p className="text-paper-50 text-sm">{desc}</p>
+                    <p
+                      className="loom-body"
+                      style={{ color: 'var(--loom-bone)', fontSize: 18, fontStyle: 'italic', margin: '0 0 4px' }}
+                    >
+                      {label}
+                    </p>
+                    <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 13, margin: 0 }}>
+                      {desc}
+                    </p>
                   </button>
                 ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {step === 'select-content' && (
-              <div className="space-y-3">
-                <p className="text-paper-50 text-center mb-6">Choose the {config.memoryType} to gift</p>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {getContentList().map((item: { id: string; title?: string; subject?: string }) => (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setConfig((prev) => ({
-                          ...prev,
-                          memoryId: item.id,
-                          memoryTitle: item.title || item.subject || 'Untitled',
-                        }));
-                        setStep('recipient');
-                      }}
-                      className={`w-full text-left p-4 border transition-colors ${
-                        config.memoryId === item.id
-                          ? 'border-gold-40 bg-gold/5'
-                          : 'border-paper-15 bg-void-surface hover:border-paper-30'
-                      }`}
-                    >
-                      <p className="text-paper-70 text-sm">{item.title || item.subject || 'Untitled'}</p>
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={() => setStep('select-type')}
-                  className="text-paper-50 hover:text-paper text-sm transition-colors"
-                >
-                  <span aria-hidden>←</span> Back
-                </button>
+          {step === 'select-content' && (
+            <div style={{ maxWidth: 520 }}>
+              <p className="loom-body" style={{ color: 'var(--loom-bone-faint)', fontSize: 14, marginBottom: 28 }}>
+                choose the {config.memoryType} to gift
+              </p>
+              <div style={{ display: 'grid', gap: 1, maxHeight: 380, overflowY: 'auto', marginBottom: 28 }}>
+                {getContentList().map((item: { id: string; title?: string; subject?: string }) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setConfig((prev) => ({
+                        ...prev,
+                        memoryId: item.id,
+                        memoryTitle: item.title || item.subject || 'Untitled',
+                      }));
+                      setStep('recipient');
+                    }}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '14px 0',
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--loom-rule)',
+                      cursor: 'pointer',
+                      color: config.memoryId === item.id ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                      transition: 'color 180ms var(--loom-ease)',
+                    }}
+                  >
+                    <span className="loom-body" style={{ fontSize: 15 }}>
+                      {item.title || item.subject || 'Untitled'}
+                    </span>
+                  </button>
+                ))}
               </div>
-            )}
+              <button
+                onClick={() => setStep('select-type')}
+                className="loom-mono"
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  color: 'var(--loom-bone-faint)',
+                  fontSize: 11,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                }}
+              >
+                back
+              </button>
+            </div>
+          )}
 
-            {step === 'recipient' && (
-              <div className="space-y-4 max-w-md mx-auto">
-                <p className="text-paper-50 text-center mb-6">Who should receive this gift?</p>
+          {step === 'recipient' && (
+            <div style={{ maxWidth: 480 }}>
+              <p className="loom-body" style={{ color: 'var(--loom-bone-faint)', fontSize: 14, marginBottom: 32 }}>
+                who should receive this gift?
+              </p>
+              <div style={{ display: 'grid', gap: 28 }}>
                 <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Recipient&apos;s name</label>
+                  <label
+                    className="loom-eyebrow"
+                    style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
+                  >
+                    recipient's name
+                  </label>
                   <input
                     type="text"
                     value={config.recipientName}
                     onChange={(e) => setConfig((prev) => ({ ...prev, recipientName: e.target.value }))}
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                    placeholder="Their name"
+                    placeholder="their name"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Recipient&apos;s email</label>
+                  <label
+                    className="loom-eyebrow"
+                    style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
+                  >
+                    recipient's email
+                  </label>
                   <input
                     type="email"
                     value={config.recipientEmail}
                     onChange={(e) => setConfig((prev) => ({ ...prev, recipientEmail: e.target.value }))}
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                     placeholder="their@email.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Personal message (optional)</label>
+                  <label
+                    className="loom-eyebrow"
+                    style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
+                  >
+                    a note (optional)
+                  </label>
                   <textarea
                     value={config.personalMessage}
                     onChange={(e) => setConfig((prev) => ({ ...prev, personalMessage: e.target.value }))}
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y h-24"
-                    placeholder="Write a heartfelt message…"
+                    placeholder="a few words…"
+                    style={{ resize: 'vertical', minHeight: 88 }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Unlock date (optional)</label>
+                  <label
+                    className="loom-eyebrow"
+                    style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
+                  >
+                    open after (optional)
+                  </label>
                   <input
                     type="date"
                     value={config.unlockDate}
                     onChange={(e) => setConfig((prev) => ({ ...prev, unlockDate: e.target.value }))}
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                   />
-                  <p className="text-paper-50 text-xs mt-1">Leave empty to make it available immediately</p>
+                  <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 6 }}>
+                    leave empty to deliver immediately
+                  </p>
                 </div>
 
-                <div className="flex justify-between items-center pt-4">
+                {sendMutation.isError && (
+                  <p
+                    role="alert"
+                    className="loom-body"
+                    style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}
+                  >
+                    Failed to send. Please try again.
+                  </p>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8 }}>
                   <button
                     onClick={() => setStep('select-content')}
-                    className="text-paper-50 hover:text-paper text-sm transition-colors"
+                    className="loom-mono"
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      color: 'var(--loom-bone-faint)',
+                      fontSize: 11,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                    }}
                   >
-                    <span aria-hidden>←</span> Back
+                    back
                   </button>
                   <button
                     onClick={() => sendMutation.mutate()}
                     disabled={!config.recipientEmail || !config.recipientName || sendMutation.isPending}
-                    className="btn btn-primary"
+                    className="loom-btn"
+                    style={{ opacity: (!config.recipientEmail || !config.recipientName || sendMutation.isPending) ? 0.5 : 1 }}
                   >
-                    {sendMutation.isPending ? 'Sending…' : 'Send gift'}
-                    {!sendMutation.isPending ? <span aria-hidden>→</span> : null}
+                    {sendMutation.isPending ? 'sending…' : 'send gift'}
                   </button>
                 </div>
-
-                {sendMutation.isError && (
-                  <p role="alert" className="text-blood text-sm text-center">
-                    Failed to send gift. Please try again.
-                  </p>
-                )}
               </div>
-            )}
-          </>
-        )}
-      </main>
-    </div>
+            </div>
+          )}
+        </>
+      )}
+    </AppFrame>
   );
 }
 

@@ -1,15 +1,33 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { foundersApi, type FounderCount } from '../services/api';
+import { AppFrame } from '../loom/components/AppFrame';
 
-function Eyebrow({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <p className={`font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold ${className}`}>
-      {children}
-    </p>
-  );
-}
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 11,
+  fontWeight: 500,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: 'var(--loom-bone-faint)',
+  marginBottom: 10,
+};
+
+const fieldStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'transparent',
+  border: '1px solid var(--loom-rule)',
+  borderRadius: 2,
+  color: 'var(--loom-bone)',
+  caretColor: 'var(--loom-warm)',
+  fontFamily: "'Source Serif 4', serif",
+  fontSize: 16,
+  lineHeight: 1.7,
+  padding: '12px 14px',
+  outline: 'none',
+  boxSizing: 'border-box',
+};
 
 interface FieldProps {
   id: string;
@@ -24,9 +42,9 @@ interface FieldProps {
 function Field({ id, label, value, onChange, type = 'text', required, placeholder }: FieldProps) {
   return (
     <div>
-      <label htmlFor={id} className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
+      <label htmlFor={id} style={labelStyle}>
         {label}
-        {required ? <span className="text-blood ml-1" aria-hidden>*</span> : null}
+        {required ? <span style={{ color: '#c25a5a', marginLeft: 4 }} aria-hidden>*</span> : null}
       </label>
       <input
         id={id}
@@ -35,7 +53,7 @@ function Field({ id, label, value, onChange, type = 'text', required, placeholde
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
+        style={fieldStyle}
       />
     </div>
   );
@@ -43,10 +61,10 @@ function Field({ id, label, value, onChange, type = 'text', required, placeholde
 
 function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="border-l border-paper-15 pl-5">
-      <p className="text-[0.65rem] uppercase tracking-[0.28em] text-paper-50 mb-2">{label}</p>
-      <p className="font-body text-3xl text-paper mb-1">{value}</p>
-      <p className="text-xs text-paper-50">{sub}</p>
+    <div style={{ borderLeft: '1px solid var(--loom-rule)', paddingLeft: 20 }}>
+      <p className="loom-eyebrow" style={{ marginBottom: 8 }}>{label}</p>
+      <p className="loom-serif" style={{ fontSize: 28, color: 'var(--loom-bone)', margin: '0 0 4px' }}>{value}</p>
+      <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.08em' }}>{sub}</p>
     </div>
   );
 }
@@ -94,160 +112,200 @@ export function Founder() {
   };
 
   return (
-    <main className="min-h-screen bg-void text-paper antialiased">
-      <header className="px-6 md:px-12 pt-8 md:pt-10">
-        <nav className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-baseline gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded">
-            <span className="font-body text-3xl text-gold leading-none">∞</span>
-            <span className="text-[0.7rem] tracking-[0.34em] uppercase text-paper-70 group-hover:text-paper transition-colors">Heirloom</span>
-          </Link>
-          <Link to="/login" className="text-paper-50 hover:text-paper transition-colors text-sm">
-            Sign in
-          </Link>
-        </nav>
+    <AppFrame>
+      {/* Hero */}
+      <header style={{ marginBottom: 56, maxWidth: 720 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Founder pledge — first 100</p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(40px, 6vw, 72px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        >
+          Found the<br />continuity record.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 'clamp(17px, 1.5vw, 20px)', color: 'var(--loom-bone-dim)', margin: '20px 0 0', maxWidth: 600, lineHeight: 1.7 }}
+        >
+          One hundred families seed the successor non-profit. Your name is engraved in the public
+          continuity record. Your bloodline gets lifetime Family-tier access. The thread that outlives
+          all of us has its first hundred names — yours among them.
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 28, justifyContent: 'start', marginTop: 40 }}>
+          <Stat label="Pledge amount" value="$999" sub="one-time, lifetime" />
+          <Stat label="Cap" value={count ? `${count.cap}` : '100'} sub="ever" />
+          <Stat label="Remaining" value={count ? `${count.remaining}` : '—'} sub={count ? 'as of right now' : 'loading'} />
+        </div>
       </header>
 
-      <section className="px-6 md:px-12 pt-24 md:pt-32 pb-20 md:pb-28">
-        <div className="max-w-3xl mx-auto">
-          <Eyebrow className="mb-6">Founder pledge — first 100</Eyebrow>
-          <h1
-            className="font-body font-light leading-[1.04] tracking-[-0.022em]"
-            style={{ fontSize: 'clamp(2.75rem, 6vw, 4.75rem)' }}
-          >
-            Found the<br />continuity record.
-          </h1>
-          <p
-            className="mt-10 text-paper-70 leading-relaxed max-w-prose font-light"
-            style={{ fontSize: 'clamp(1.125rem, 1.5vw, 1.375rem)' }}
-          >
-            One hundred families seed the successor non-profit. Your name is engraved in the public continuity record. Your bloodline gets lifetime Family-tier access. The thread that outlives all of us has its first hundred names — yours among them.
-          </p>
+      <hr style={{ border: 0, borderTop: '1px solid var(--loom-rule)', margin: '0 0 56px' }} />
 
-          <div className="mt-14 grid sm:grid-cols-3 gap-x-10 gap-y-8 max-w-2xl">
-            <Stat label="Pledge amount" value="$999" sub="one-time, lifetime" />
-            <Stat label="Cap" value={count ? `${count.cap}` : '100'} sub="ever" />
-            <Stat label="Remaining" value={count ? `${count.remaining}` : '—'} sub={count ? 'as of right now' : 'loading'} />
-          </div>
-        </div>
-      </section>
-
-      <hr className="border-paper-15 mx-6 md:mx-12" />
-
-      <section className="px-6 md:px-12 py-20 md:py-28">
-        <div className="max-w-3xl mx-auto">
-          <Eyebrow className="mb-6">What you get</Eyebrow>
-          <h2
-            className="font-body font-light mb-12 leading-[1.1] tracking-[-0.014em]"
-            style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)' }}
-          >
-            Lifetime, engraved.
-          </h2>
-          <ul className="space-y-7">
-            {[
-              ['Lifetime Family-tier access for your bloodline.', 'No subscription, no renewals, no churn. Your descendants inherit the same plan.'],
-              ['Your name in the continuity record.', 'A real, physical document filed with the successor non-profit at incorporation. Not a webpage that can be deleted — a public-record artifact.'],
-              ['Quarterly call with the founder.', 'For as long as Heirloom is operating. Your input shapes the roadmap.'],
-              ['You fund the successor non-profit.', 'Your pledge directly seeds the 501(c)(3) that takes over the archive if the company is wound down. The promise to outlast us is paid for, not aspirational.'],
-              ['Welcome to the Opening Cohort.', 'A private group with the first hundred families. Quiet, considered. Not a Slack — letters and quarterly dinners where geography allows.'],
-            ].map(([title, body]) => (
-              <li key={title} className="grid md:grid-cols-[2rem_1fr] gap-3 md:gap-7">
-                <span className="text-gold font-mono text-sm pt-1">·</span>
-                <div>
-                  <p className="font-body text-xl text-paper mb-1.5">{title}</p>
-                  <p className="text-paper-65 text-[15px] leading-relaxed max-w-prose">{body}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <hr className="border-paper-15 mx-6 md:mx-12" />
-
-      <section id="pledge" className="px-6 md:px-12 py-20 md:py-28">
-        <div className="max-w-2xl mx-auto">
-          <Eyebrow className="mb-6">Pledge</Eyebrow>
-          <h2
-            className="font-body font-light mb-3 leading-[1.1] tracking-[-0.014em]"
-            style={{ fontSize: 'clamp(2rem, 3.5vw, 2.75rem)' }}
-          >
-            Tell us who you are.
-          </h2>
-          <p className="text-paper-60 mb-12 leading-relaxed">
-            We respond within two business days with a payment link and the next steps. Pledging here doesn't charge your card — we want to read your note first.
-          </p>
-
-          {done ? (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="border border-gold-40 rounded-[2px] p-10 text-center"
-              role="status"
-            >
-              <span className="font-body text-4xl text-gold block mb-7" aria-hidden>∞</span>
-              <h3 className="font-body text-2xl mb-3">Pledge received.</h3>
-              <p className="text-paper-65 max-w-prose mx-auto leading-relaxed">{done.message}</p>
-              <Link to="/" className="inline-flex items-center gap-2 text-gold hover:text-gold-bright mt-8">
-                Back to Heirloom <span aria-hidden>→</span>
-              </Link>
-            </motion.div>
-          ) : (
-            <form onSubmit={submit} className="space-y-6" aria-label="Founder pledge intent form">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Field label="Your name" id="f-name" required value={name} onChange={setName} />
-                <Field label="Email" id="f-email" type="email" required value={email} onChange={setEmail} />
-              </div>
-              <Field label="Family name — optional" id="f-family" value={familyName} onChange={setFamilyName} placeholder="The Mahmood family" />
+      {/* Benefits */}
+      <section style={{ marginBottom: 64, maxWidth: 720 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>What you get</p>
+        <h2
+          className="loom-h2"
+          style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 40px' }}
+        >
+          Lifetime, engraved.
+        </h2>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 28 }}>
+          {[
+            ['Lifetime Family-tier access for your bloodline.', 'No subscription, no renewals, no churn. Your descendants inherit the same plan.'],
+            ['Your name in the continuity record.', 'A real, physical document filed with the successor non-profit at incorporation. Not a webpage that can be deleted — a public-record artifact.'],
+            ['Quarterly call with the founder.', 'For as long as Heirloom is operating. Your input shapes the roadmap.'],
+            ['You fund the successor non-profit.', 'Your pledge directly seeds the 501(c)(3) that takes over the archive if the company is wound down. The promise to outlast us is paid for, not aspirational.'],
+            ['Welcome to the Opening Cohort.', 'A private group with the first hundred families. Quiet, considered. Not a Slack — letters and quarterly dinners where geography allows.'],
+          ].map(([title, body]) => (
+            <li key={title} style={{ display: 'grid', gridTemplateColumns: '20px 1fr', gap: 20, alignItems: 'baseline' }}>
+              <span style={{ color: 'var(--loom-warm)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>·</span>
               <div>
-                <label htmlFor="f-notes" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
-                  Why this matters to your family — optional
-                </label>
-                <textarea
-                  id="f-notes"
-                  rows={6}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="A few sentences. Your grandmother. The recipe nobody wrote down. The reason you're putting your hand up for this."
-                  className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y"
-                />
+                <p className="loom-body" style={{ fontSize: 18, color: 'var(--loom-bone)', margin: '0 0 6px', lineHeight: 1.4 }}>{title}</p>
+                <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: 0, lineHeight: 1.7 }}>{body}</p>
               </div>
-
-              {error ? <p role="alert" className="text-blood text-sm">{error}</p> : null}
-
-              <div className="flex items-center justify-between gap-4 pt-4">
-                <p className="text-xs text-paper-50 max-w-xs leading-relaxed">
-                  We're at {count ? `${count.cap - count.remaining}/${count.cap}` : '—/100'} pledges. We'll never sell or share your address.
-                </p>
-                <button
-                  type="submit"
-                  disabled={submitting || !name.trim() || !email.trim()}
-                  className="btn btn-primary"
-                >
-                  {submitting ? 'Submitting…' : 'Pledge'}
-                  {!submitting ? <span aria-hidden>→</span> : null}
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
+            </li>
+          ))}
+        </ul>
       </section>
 
-      <footer className="border-t border-paper-15 px-6 md:px-12 py-10">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-baseline gap-3">
-            <span className="text-xl text-gold">∞</span>
-            <span className="text-[0.65rem] tracking-[0.34em] uppercase text-paper-50">Heirloom</span>
+      <hr style={{ border: 0, borderTop: '1px solid var(--loom-rule)', margin: '0 0 56px' }} />
+
+      {/* Pledge form */}
+      <section id="pledge" style={{ maxWidth: 560 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Pledge</p>
+        <h2
+          className="loom-h2"
+          style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 10px' }}
+        >
+          Tell us who you are.
+        </h2>
+        <p
+          className="loom-body"
+          style={{ color: 'var(--loom-bone-dim)', margin: '0 0 40px', lineHeight: 1.7 }}
+        >
+          We respond within two business days with a payment link and the next steps. Pledging here
+          doesn't charge your card — we want to read your note first.
+        </p>
+
+        {done ? (
+          <div
+            role="status"
+            style={{
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              textAlign: 'center',
+            }}
+          >
+            <p className="loom-serif" style={{ fontSize: 36, color: 'var(--loom-warm)', margin: '0 0 24px', lineHeight: 1 }} aria-hidden>
+              ∞
+            </p>
+            <h3
+              className="loom-h2"
+              style={{ fontSize: 26, fontWeight: 300, fontStyle: 'italic', margin: '0 0 14px' }}
+            >
+              Pledge received.
+            </h3>
+            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', maxWidth: 400, margin: '0 auto 28px', lineHeight: 1.7 }}>
+              {done.message}
+            </p>
+            <Link
+              to="/"
+              className="loom-mono"
+              style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-warm)', textDecoration: 'none' }}
+            >
+              back to heirloom →
+            </Link>
           </div>
-          <div className="flex gap-7 text-sm text-paper-50">
-            <Link to="/" className="hover:text-paper transition-colors">Home</Link>
-            <Link to="/privacy" className="hover:text-paper transition-colors">Privacy</Link>
-            <Link to="/terms" className="hover:text-paper transition-colors">Terms</Link>
-            <a href="/api/archive/audit" className="hover:text-paper transition-colors">Audit</a>
-          </div>
-          <div className="text-xs font-mono text-paper-30">© {new Date().getFullYear()}</div>
-        </div>
-      </footer>
-    </main>
+        ) : (
+          <form onSubmit={submit} aria-label="Founder pledge intent form" style={{ display: 'grid', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <Field label="Your name" id="f-name" required value={name} onChange={setName} />
+              <Field label="Email" id="f-email" type="email" required value={email} onChange={setEmail} />
+            </div>
+            <Field label="Family name — optional" id="f-family" value={familyName} onChange={setFamilyName} placeholder="The Mahmood family" />
+            <div>
+              <label htmlFor="f-notes" style={labelStyle}>Why this matters to your family — optional</label>
+              <textarea
+                id="f-notes"
+                rows={6}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="A few sentences. Your grandmother. The recipe nobody wrote down. The reason you're putting your hand up for this."
+                style={{ ...fieldStyle, resize: 'vertical' }}
+              />
+            </div>
+
+            {error ? (
+              <p role="alert" className="loom-body" style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}>
+                {error}
+              </p>
+            ) : null}
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingTop: 8 }}>
+              <p
+                className="loom-mono"
+                style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.08em', maxWidth: 220 }}
+              >
+                {count ? `${count.cap - count.remaining}/${count.cap}` : '—/100'} pledges so far. We'll never sell or share your address.
+              </p>
+              <button
+                type="submit"
+                disabled={submitting || !name.trim() || !email.trim()}
+                className="loom-btn"
+                style={{ opacity: submitting || !name.trim() || !email.trim() ? 0.5 : 1 }}
+              >
+                {submitting ? 'submitting…' : 'pledge'}
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
+
+      <div
+        style={{
+          borderTop: '1px solid var(--loom-rule)',
+          marginTop: 96,
+          paddingTop: 28,
+          display: 'flex',
+          gap: 28,
+          alignItems: 'center',
+        }}
+      >
+        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', marginRight: 'auto' }}>
+          ∞ heirloom
+        </span>
+        <Link
+          to="/"
+          className="loom-mono"
+          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+        >
+          Home
+        </Link>
+        <Link
+          to="/privacy"
+          className="loom-mono"
+          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+        >
+          Privacy
+        </Link>
+        <Link
+          to="/terms"
+          className="loom-mono"
+          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+        >
+          Terms
+        </Link>
+        <a
+          href="/api/archive/audit"
+          className="loom-mono"
+          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+        >
+          Audit
+        </a>
+        <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.08em', color: 'var(--loom-bone-faint)' }}>
+          © {new Date().getFullYear()}
+        </span>
+      </div>
+    </AppFrame>
   );
 }

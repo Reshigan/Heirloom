@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation } from '../components/Navigation';
-import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { AppFrame } from '../loom/components/AppFrame';
 import api, { familyApi, memoriesApi } from '../services/api';
 
 interface ReleaseSchedule {
@@ -49,6 +46,137 @@ interface FamilyMember {
   created_at: string;
 }
 
+/* ── Small shared primitives ──────────────────────────────────── */
+
+function ToggleBtn({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        background: 'transparent',
+        border: `1px solid ${active ? 'var(--loom-rule-warm)' : 'var(--loom-rule)'}`,
+        padding: '10px 16px',
+        cursor: 'pointer',
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: 9,
+        letterSpacing: '0.22em',
+        textTransform: 'uppercase',
+        color: active ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+        transition: 'border-color 180ms var(--loom-ease), color 180ms var(--loom-ease)',
+        textAlign: 'center' as const,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* Modal backdrop + card */
+function Modal({
+  onClose,
+  children,
+}: {
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 60,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+        background: 'rgba(14,14,12,0.80)',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 480,
+          background: 'var(--loom-ink-card)',
+          border: '1px solid var(--loom-rule)',
+          padding: '32px',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ModalHeader({
+  title,
+  onClose,
+}: {
+  title: string;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'baseline',
+        justifyContent: 'space-between',
+        marginBottom: 24,
+      }}
+    >
+      <h3
+        className="loom-serif"
+        style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+      >
+        {title}
+      </h3>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close"
+        style={{
+          background: 'transparent',
+          border: 0,
+          cursor: 'pointer',
+          color: 'var(--loom-bone-faint)',
+          fontSize: 18,
+          lineHeight: 1,
+          padding: '4px 6px',
+        }}
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+function FieldBlock({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <span className="loom-eyebrow" style={{ display: 'block', marginBottom: 6, fontSize: 10 }}>
+        {label}
+      </span>
+      {children}
+    </div>
+  );
+}
+
 export function RecipientExperience() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'schedules' | 'room' | 'family' | 'preview'>('preview');
@@ -65,47 +193,42 @@ export function RecipientExperience() {
   const [_selectedPreviewMember, _setSelectedPreviewMember] = useState<FamilyMember | null>(null);
   void _selectedPreviewMember; void _setSelectedPreviewMember; // Reserved for future per-recipient preview
 
-  // Feature onboarding
-  const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('recipient-experience');
+  const { data: schedulesData, isLoading: schedulesLoading } = useQuery<{ schedules: ReleaseSchedule[] }>({
+    queryKey: ['release-schedules'],
+    queryFn: () => api.get('/api/recipient-experience/schedules').then((r: { data: { schedules: ReleaseSchedule[] } }) => r.data),
+  });
 
-    const { data: schedulesData, isLoading: schedulesLoading } = useQuery<{ schedules: ReleaseSchedule[] }>({
-      queryKey: ['release-schedules'],
-      queryFn: () => api.get('/api/recipient-experience/schedules').then((r: { data: { schedules: ReleaseSchedule[] } }) => r.data),
-    });
+  const { data: roomData, isLoading: roomLoading } = useQuery<{ room: FamilyMemoryRoom; contributionCount: number }>({
+    queryKey: ['memory-room'],
+    queryFn: () => api.get('/api/recipient-experience/memory-room').then((r: { data: { room: FamilyMemoryRoom; contributionCount: number } }) => r.data),
+  });
 
-    const { data: roomData, isLoading: roomLoading } = useQuery<{ room: FamilyMemoryRoom; contributionCount: number }>({
-      queryKey: ['memory-room'],
-      queryFn: () => api.get('/api/recipient-experience/memory-room').then((r: { data: { room: FamilyMemoryRoom; contributionCount: number } }) => r.data),
-    });
+  const { data: contributionsData } = useQuery<{ contributions: Contribution[] }>({
+    queryKey: ['room-contributions'],
+    queryFn: () => api.get('/api/recipient-experience/memory-room/contributions').then((r: { data: { contributions: Contribution[] } }) => r.data),
+    enabled: activeTab === 'room',
+  });
 
-    const { data: contributionsData } = useQuery<{ contributions: Contribution[] }>({
-      queryKey: ['room-contributions'],
-      queryFn: () => api.get('/api/recipient-experience/memory-room/contributions').then((r: { data: { contributions: Contribution[] } }) => r.data),
-      enabled: activeTab === 'room',
-    });
+  const { data: familyData } = useQuery<{ members: FamilyMember[] }>({
+    queryKey: ['family-members'],
+    queryFn: () => familyApi.getAll().then((r: { data: { members: FamilyMember[] } }) => r.data),
+  });
 
-    const { data: familyData } = useQuery<{ members: FamilyMember[] }>({
-      queryKey: ['family-members'],
-      queryFn: () => familyApi.getAll().then((r: { data: { members: FamilyMember[] } }) => r.data),
-    });
+  const { data: memoriesStats } = useQuery({
+    queryKey: ['memories-stats'],
+    queryFn: () => memoriesApi.getStats().then((r: { data: { total: number; byType: { letters: number; voice: number; photos: number } } }) => r.data),
+  });
 
-    // Get memories stats for preview
-    const { data: memoriesStats } = useQuery({
-      queryKey: ['memories-stats'],
-      queryFn: () => memoriesApi.getStats().then((r: { data: { total: number; byType: { letters: number; voice: number; photos: number } } }) => r.data),
-    });
-
-    // Send test email to self
-    const sendTestEmailMutation = useMutation({
-      mutationFn: () => api.post('/api/recipient-experience/test-email'),
-      onSuccess: () => {
-        setTestEmailSent(true);
-        setTimeout(() => {
-          setShowTestEmailModal(false);
-          setTestEmailSent(false);
-        }, 3000);
-      },
-    });
+  const sendTestEmailMutation = useMutation({
+    mutationFn: () => api.post('/api/recipient-experience/test-email'),
+    onSuccess: () => {
+      setTestEmailSent(true);
+      setTimeout(() => {
+        setShowTestEmailModal(false);
+        setTestEmailSent(false);
+      }, 3000);
+    },
+  });
 
   const addFamilyMutation = useMutation({
     mutationFn: (data: { name: string; relationship: string; email?: string; phone?: string; notes?: string }) =>
@@ -180,878 +303,1046 @@ export function RecipientExperience() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['memory-room'] }),
   });
 
-    const moderateContributionMutation = useMutation({
-      mutationFn: ({ contributionId, status }: { contributionId: string; status: string }) =>
-        api.patch(`/api/recipient-experience/memory-room/contributions/${contributionId}`, { status }),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['room-contributions'] }),
+  const moderateContributionMutation = useMutation({
+    mutationFn: ({ contributionId, status }: { contributionId: string; status: string }) =>
+      api.patch(`/api/recipient-experience/memory-room/contributions/${contributionId}`, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['room-contributions'] }),
+  });
+
+  const sendInviteMutation = useMutation({
+    mutationFn: (data: { email: string; name: string }) =>
+      api.post('/api/recipient-experience/memory-room/invite', data),
+    onSuccess: () => {
+      setInviteSent(true);
+      setInviteEmail('');
+      setInviteName('');
+      setTimeout(() => {
+        setShowInviteModal(false);
+        setInviteSent(false);
+      }, 2000);
+    },
+  });
+
+  const copyRoomUrl = () => {
+    if (roomData?.room?.access_token) {
+      const url = `${window.location.origin}/memory-room/${roomData.room.access_token}`;
+      navigator.clipboard.writeText(url);
+      setCopiedUrl(true);
+      setTimeout(() => setCopiedUrl(false), 2000);
+    }
+  };
+
+  const previewRoom = () => {
+    if (roomData?.room?.access_token) {
+      window.open(`/memory-room/${roomData.room.access_token}`, '_blank');
+    }
+  };
+
+  const handleSendInvite = () => {
+    if (!inviteEmail.trim()) return;
+    sendInviteMutation.mutate({
+      email: inviteEmail.trim(),
+      name: inviteName.trim() || 'Friend',
     });
+  };
 
-    const sendInviteMutation = useMutation({
-      mutationFn: (data: { email: string; name: string }) =>
-        api.post('/api/recipient-experience/memory-room/invite', data),
-      onSuccess: () => {
-        setInviteSent(true);
-        setInviteEmail('');
-        setInviteName('');
-        setTimeout(() => {
-          setShowInviteModal(false);
-          setInviteSent(false);
-        }, 2000);
-      },
-    });
-
-      const copyRoomUrl = () => {
-      if (roomData?.room?.access_token) {
-        const url = `${window.location.origin}/memory-room/${roomData.room.access_token}`;
-        navigator.clipboard.writeText(url);
-        setCopiedUrl(true);
-        setTimeout(() => setCopiedUrl(false), 2000);
-      }
-    };
-
-    const previewRoom = () => {
-      if (roomData?.room?.access_token) {
-        window.open(`/memory-room/${roomData.room.access_token}`, '_blank');
-      }
-    };
-
-    const handleSendInvite = () => {
-      if (!inviteEmail.trim()) return;
-      sendInviteMutation.mutate({
-        email: inviteEmail.trim(),
-        name: inviteName.trim() || 'Friend',
-      });
-    };
-
-    const isLoading = schedulesLoading || roomLoading;
+  const isLoading = schedulesLoading || roomLoading;
 
   if (isLoading) {
     return (
-      <div className="min-h-screen relative bg-void">
-        <Navigation />
-        <div className="flex items-center justify-center h-[60vh]">
-          <ProgressHair label="loading…" width={180} />
-        </div>
-      </div>
+      <AppFrame>
+        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)', marginTop: 80 }}>
+          Loading…
+        </p>
+      </AppFrame>
     );
   }
 
   const schedules = schedulesData?.schedules || [];
   const room = roomData?.room;
   const contributions = contributionsData?.contributions || [];
-  const pendingContributions = contributions.filter(c => c.status === 'PENDING');
+  const pendingContributions = contributions.filter((c) => c.status === 'PENDING');
 
-  const tabClass = (tab: typeof activeTab) =>
-    `px-4 md:px-6 py-3 rounded-[2px] flex items-center gap-2 transition-colors border ${
-      activeTab === tab
-        ? 'border-gold-40 text-gold'
-        : 'border-paper-15 text-paper-70 hover:text-paper'
-    }`;
+  /* ── Tab bar ─────────────────────────────────────────────── */
+  const tabStyle = (tab: typeof activeTab): React.CSSProperties => ({
+    background: 'transparent',
+    border: 0,
+    padding: '8px 0',
+    marginRight: 28,
+    cursor: 'pointer',
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 10,
+    letterSpacing: '0.22em',
+    textTransform: 'uppercase' as const,
+    color: activeTab === tab ? 'var(--loom-bone)' : 'var(--loom-bone-faint)',
+    borderBottom: activeTab === tab ? '1px solid var(--loom-warm)' : '1px solid transparent',
+    transition: 'color 180ms var(--loom-ease), border-color 180ms var(--loom-ease)',
+    position: 'relative' as const,
+  });
+
+  /* ── Stat cell ───────────────────────────────────────────── */
+  const StatCell = ({ n, label }: { n: number; label: string }) => (
+    <div
+      style={{
+        padding: '20px 0',
+        textAlign: 'center',
+        borderBottom: '1px solid var(--loom-rule)',
+        borderRight: '1px solid var(--loom-rule)',
+      }}
+    >
+      <p
+        className="loom-serif"
+        style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', margin: '0 0 4px' }}
+      >
+        {n}
+      </p>
+      <p className="loom-eyebrow" style={{ fontSize: 9 }}>
+        {label}
+      </p>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen relative bg-void text-paper antialiased">
-      <Navigation />
-
-      <main className="relative z-10 px-6 md:px-12 pt-24 pb-16 max-w-5xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+    <AppFrame>
+      {/* Page header */}
+      <header style={{ marginBottom: 48 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+          successor experience
+        </p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
         >
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Recipient Experience</p>
-          <h1 className="font-display font-light text-4xl md:text-5xl mb-4 tracking-[-0.018em]">Recipient Experience</h1>
-          <p className="text-paper-70 max-w-xl mx-auto font-light leading-relaxed">
-            Configure how your loved ones will receive and interact with your legacy
+          How your thread reaches them.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
+        >
+          Configure how your descendants receive and move through the cloth you've woven.
+        </p>
+      </header>
+
+      {/* Quick setup */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: 1,
+          border: '1px solid var(--loom-rule)',
+          marginBottom: 48,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => { setActiveTab('family'); setShowAddFamilyModal(true); }}
+          style={{
+            background: 'transparent',
+            border: 0,
+            padding: '22px 20px',
+            cursor: 'pointer',
+            textAlign: 'left',
+            borderRight: '1px solid var(--loom-rule)',
+            transition: 'background 180ms var(--loom-ease)',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(176,122,74,0.04)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+        >
+          <p className="loom-eyebrow" style={{ marginBottom: 6, fontSize: 9 }}>step one</p>
+          <p className="loom-serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 4px' }}>
+            Name your descendants
           </p>
-        </motion.div>
-
-        {/* Quick Setup Guide */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-void-surface border border-paper-15 rounded-[2px] p-6 mb-8"
+          <p className="loom-body" style={{ fontSize: 12, color: 'var(--loom-bone-faint)', margin: 0 }}>
+            Who will receive the thread?
+          </p>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('schedules')}
+          style={{
+            background: 'transparent',
+            border: 0,
+            padding: '22px 20px',
+            cursor: 'pointer',
+            textAlign: 'left',
+            borderRight: '1px solid var(--loom-rule)',
+            transition: 'background 180ms var(--loom-ease)',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(176,122,74,0.04)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
         >
-          <h2 className="font-body mb-4">Quick Setup</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={() => {
-                setActiveTab('family');
-                setShowAddFamilyModal(true);
+          <p className="loom-eyebrow" style={{ marginBottom: 6, fontSize: 9 }}>step two</p>
+          <p className="loom-serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 4px' }}>
+            Set the release rhythm
+          </p>
+          <p className="loom-body" style={{ fontSize: 12, color: 'var(--loom-bone-faint)', margin: 0 }}>
+            When does the cloth unfold?
+          </p>
+        </button>
+        <button
+          type="button"
+          onClick={() => { setActiveTab('room'); if (room && room.is_active !== 1) { updateRoomMutation.mutate({ is_active: true }); } }}
+          style={{
+            background: 'transparent',
+            border: 0,
+            padding: '22px 20px',
+            cursor: 'pointer',
+            textAlign: 'left',
+            transition: 'background 180ms var(--loom-ease)',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(176,122,74,0.04)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+        >
+          <p className="loom-eyebrow" style={{ marginBottom: 6, fontSize: 9 }}>step three</p>
+          <p className="loom-serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 4px' }}>
+            Open a memory room
+          </p>
+          <p className="loom-body" style={{ fontSize: 12, color: 'var(--loom-bone-faint)', margin: 0 }}>
+            Let the bloodline add their weft.
+          </p>
+        </button>
+      </div>
+
+      {/* Tab bar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          borderBottom: '1px solid var(--loom-rule)',
+          marginBottom: 40,
+        }}
+      >
+        <button type="button" onClick={() => setActiveTab('preview')} style={tabStyle('preview')}>
+          preview
+        </button>
+        <button type="button" onClick={() => setActiveTab('schedules')} style={tabStyle('schedules')}>
+          releases
+        </button>
+        <button type="button" onClick={() => setActiveTab('room')} style={tabStyle('room')}>
+          memory room
+          {pendingContributions.length > 0 ? (
+            <span
+              className="loom-mono"
+              style={{
+                marginLeft: 6,
+                fontSize: 8,
+                letterSpacing: '0.1em',
+                color: 'var(--loom-warm)',
               }}
-              className="p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
             >
-              <div className="flex-1">
-                <h3 className="font-body text-sm">Add Recipients</h3>
-                <p className="text-xs text-paper-65">Who should receive your legacy?</p>
-              </div>
-              <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('schedules')}
-              className="p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
-            >
-              <div className="flex-1">
-                <h3 className="font-body text-sm">Set Release Schedule</h3>
-                <p className="text-xs text-paper-65">When should content be released?</p>
-              </div>
-              <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab('room');
-                if (room && room.is_active !== 1) {
-                  updateRoomMutation.mutate({ is_active: true });
-                }
+              {pendingContributions.length}
+            </span>
+          ) : null}
+        </button>
+        <button type="button" onClick={() => setActiveTab('family')} style={tabStyle('family')}>
+          descendants
+        </button>
+      </div>
+
+      {/* ── Preview ──────────────────────────────────────────── */}
+      {activeTab === 'preview' && (
+        <div style={{ display: 'grid', gap: 36 }}>
+          {/* What they'll receive */}
+          <section>
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>what they'll receive</p>
+
+            {/* Simulated email card */}
+            <div
+              style={{
+                border: '1px solid var(--loom-rule)',
+                marginBottom: 20,
               }}
-              className="p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
             >
-              <div className="flex-1">
-                <h3 className="font-body text-sm">Enable Memory Room</h3>
-                <p className="text-xs text-paper-65">Let family share their memories</p>
+              <div
+                style={{
+                  borderBottom: '1px solid var(--loom-rule)',
+                  padding: '12px 20px',
+                }}
+              >
+                <span
+                  className="loom-mono"
+                  style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}
+                >
+                  preview · the email your successors will receive
+                </span>
               </div>
-              <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Tabs */}
-        <div className="flex justify-center gap-2 md:gap-4 mb-8 flex-wrap">
-          <button onClick={() => setActiveTab('preview')} className={tabClass('preview')}>
-            <span className="hidden md:inline">Preview Experience</span>
-            <span className="md:hidden">Preview</span>
-          </button>
-          <button onClick={() => setActiveTab('schedules')} className={tabClass('schedules')}>
-            <span className="hidden md:inline">Staged Releases</span>
-            <span className="md:hidden">Releases</span>
-          </button>
-          <button onClick={() => setActiveTab('room')} className={tabClass('room')}>
-            <span className="hidden md:inline">Memory Room</span>
-            <span className="md:hidden">Room</span>
-            {pendingContributions.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-[2px] bg-gold text-void text-xs font-mono">
-                {pendingContributions.length}
-              </span>
-            )}
-          </button>
-          <button onClick={() => setActiveTab('family')} className={tabClass('family')}>
-            <span className="hidden md:inline">Manage Recipients</span>
-            <span className="md:hidden">Recipients</span>
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <AnimatePresence mode="wait">
-          {/* Preview Experience Tab */}
-          {activeTab === 'preview' && (
-            <motion.div
-              key="preview"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
-            >
-              {/* What Recipients Will See */}
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                <div className="mb-6">
-                  <h2 className="font-body text-xl mb-1">Preview What They'll Experience</h2>
-                  <p className="text-paper-65 text-sm">
-                    See exactly what your loved ones will receive when your legacy is activated.
-                  </p>
-                </div>
-
-                {/* Preview Card - Simulated Email */}
-                <div className="bg-void rounded-[2px] border border-paper-15 overflow-hidden mb-6">
-                  <div className="bg-void-elevated px-4 py-3 border-b border-paper-15">
-                    <div className="text-sm text-paper-70 font-mono">
-                      Preview: Email they'll receive
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <span className="font-display text-2xl text-gold" aria-hidden>∞</span>
-                      <div>
-                        <p className="font-body">A Message From Someone Who Loves You</p>
-                        <p className="text-sm text-paper-65">From Heirloom</p>
-                      </div>
-                    </div>
-                    <div className="space-y-4 text-paper-70 leading-relaxed">
-                      <p>Dear loved one,</p>
-                      <p>Someone who cares deeply about you has left you messages, memories, and stories they wanted you to have.</p>
-                      <p>When you're ready, click below to access your personal legacy portal.</p>
-                    </div>
-                    <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                      <button className="btn btn-primary">
-                        Access Your Legacy <span aria-hidden>→</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* What's Included Summary */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="p-4 bg-void border border-paper-15 rounded-[2px] text-center">
-                    <div className="text-2xl font-light text-gold mb-1">{memoriesStats?.total || 0}</div>
-                    <div className="text-xs text-paper-65">Total Memories</div>
-                  </div>
-                  <div className="p-4 bg-void border border-paper-15 rounded-[2px] text-center">
-                    <div className="text-2xl font-light text-paper mb-1">{memoriesStats?.byType?.letters || 0}</div>
-                    <div className="text-xs text-paper-65">Letters</div>
-                  </div>
-                  <div className="p-4 bg-void border border-paper-15 rounded-[2px] text-center">
-                    <div className="text-2xl font-light text-paper mb-1">{memoriesStats?.byType?.voice || 0}</div>
-                    <div className="text-xs text-paper-65">Voice Messages</div>
-                  </div>
-                  <div className="p-4 bg-void border border-paper-15 rounded-[2px] text-center">
-                    <div className="text-2xl font-light text-paper mb-1">{familyData?.members?.length || 0}</div>
-                    <div className="text-xs text-paper-65">Recipients</div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => setShowTestEmailModal(true)}
-                    className="flex-1 py-3 border border-gold-40 text-gold rounded-[2px] hover:text-gold-bright transition-colors flex items-center justify-center gap-2"
-                  >
-                    Send Test to Myself
-                  </button>
-                  <button
-                    onClick={() => window.open('/inherit/preview', '_blank')}
-                    className="flex-1 py-3 border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors flex items-center justify-center gap-2"
-                  >
-                    Preview Full Portal <span aria-hidden>→</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Delivery Timeline */}
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                <h3 className="font-body mb-4">Delivery Timeline</h3>
-                <div className="space-y-3">
-                  {schedules.filter(s => s.enabled === 1).map((schedule, index) => (
-                    <div key={schedule.id} className="flex items-center gap-4 p-3 bg-void border border-paper-15 rounded-[2px]">
-                      <div className="w-8 h-8 rounded-[2px] border border-gold-40 flex items-center justify-center text-gold text-sm font-mono">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-body text-sm">{schedule.stage_name}</p>
-                        <p className="text-xs text-paper-65">
-                          {schedule.delay_days === 0 ? 'Delivered immediately' : `Delivered after ${schedule.delay_days} days`}
-                        </p>
-                      </div>
-                      <span aria-hidden className="text-gold">✓</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Trust & Privacy Section */}
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                <h3 className="font-body mb-4">Privacy & Control</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-void border border-paper-15 rounded-[2px]">
-                    <p className="font-body text-sm">End-to-End Encrypted</p>
-                    <p className="text-xs text-paper-65 mt-1">Your memories are protected with bank-level encryption</p>
-                  </div>
-                  <div className="p-4 bg-void border border-paper-15 rounded-[2px]">
-                    <p className="font-body text-sm">You Control Access</p>
-                    <p className="text-xs text-paper-65 mt-1">Only invited recipients can view your content</p>
-                  </div>
-                  <div className="p-4 bg-void border border-paper-15 rounded-[2px]">
-                    <p className="font-body text-sm">Export Anytime</p>
-                    <p className="text-xs text-paper-65 mt-1">Download all your content whenever you want</p>
-                  </div>
-                  <div className="p-4 bg-void border border-paper-15 rounded-[2px]">
-                    <p className="font-body text-sm">Delete Permanently</p>
-                    <p className="text-xs text-paper-65 mt-1">Remove any content at any time, no questions asked</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* What Happens Next */}
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 text-sm">
-                <div className="text-paper-70">
-                  <p className="font-body text-paper mb-1">What happens when your legacy is activated?</p>
-                  <p className="leading-relaxed">Your designated recipients will receive an email with a secure link to access the content you've prepared for them. Content is released in stages to help them process gradually. You can change these settings anytime.</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Staged Releases Tab */}
-          {activeTab === 'schedules' && (
-            <motion.div
-              key="schedules"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 mb-6">
-                <div className="mb-6">
-                  <h2 className="font-body text-xl mb-1">Staged Content Release</h2>
-                  <p className="text-paper-65 text-sm leading-relaxed">
-                    Instead of overwhelming recipients with everything at once, your content will be released in thoughtful stages to help them through their grief journey.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {schedules.map((schedule, index) => (
-                    <div
-                      key={schedule.id}
-                      className={`p-4 rounded-[2px] border transition-colors ${
-                        schedule.enabled === 1 ? 'bg-void border-paper-15' : 'bg-void border-paper-15 opacity-60'
-                      }`}
+              <div style={{ padding: '28px 24px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 20 }}>
+                  <span style={{ fontFamily: "'Source Serif 4', serif", fontSize: 20, color: 'var(--loom-warm)' }}>
+                    ∞
+                  </span>
+                  <div>
+                    <p className="loom-serif" style={{ fontSize: 15, fontStyle: 'italic', margin: 0 }}>
+                      A message from someone who loves you
+                    </p>
+                    <p
+                      className="loom-mono"
+                      style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: '2px 0 0' }}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-[2px] border border-gold-40 flex items-center justify-center text-gold text-sm font-mono">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <h3 className="font-body">{schedule.stage_name}</h3>
-                            <p className="text-sm text-paper-65">
-                              {schedule.delay_days === 0 ? 'Immediately' : `After ${schedule.delay_days} days`}
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => updateScheduleMutation.mutate({
-                            scheduleId: schedule.id,
-                            data: { enabled: schedule.enabled !== 1 }
-                          })}
-                          aria-label={schedule.enabled === 1 ? 'Disable stage' : 'Enable stage'}
-                          className={`w-12 h-6 rounded-[2px] transition-colors ${
-                            schedule.enabled === 1 ? 'bg-gold' : 'bg-paper-15'
-                          }`}
+                      from Heirloom
+                    </p>
+                  </div>
+                </div>
+                <div
+                  className="loom-body"
+                  style={{ color: 'var(--loom-bone-dim)', lineHeight: 1.8, fontSize: 14, marginBottom: 24 }}
+                >
+                  <p style={{ margin: '0 0 12px' }}>Dear loved one,</p>
+                  <p style={{ margin: '0 0 12px' }}>
+                    Someone who cares deeply about you has left you messages, memories, and stories
+                    they wanted you to have.
+                  </p>
+                  <p style={{ margin: 0 }}>When you're ready, follow the link to access your personal thread.</p>
+                </div>
+                <button type="button" className="loom-btn">
+                  access your thread
+                </button>
+              </div>
+            </div>
+
+            {/* Stats grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', border: '1px solid var(--loom-rule)' }}>
+              <StatCell n={memoriesStats?.total ?? 0} label="total entries" />
+              <StatCell n={memoriesStats?.byType?.letters ?? 0} label="letters" />
+              <StatCell n={memoriesStats?.byType?.voice ?? 0} label="voice" />
+              <StatCell n={familyData?.members?.length ?? 0} label="descendants" />
+            </div>
+
+            {/* Action row */}
+            <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+              <button
+                type="button"
+                onClick={() => setShowTestEmailModal(true)}
+                className="loom-btn-ghost"
+              >
+                send test to myself
+              </button>
+              <button
+                type="button"
+                onClick={() => window.open('/inherit/preview', '_blank')}
+                className="loom-btn-ghost"
+              >
+                preview full portal
+              </button>
+            </div>
+          </section>
+
+          {/* Delivery timeline */}
+          <section>
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>delivery timeline</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {schedules.filter((s) => s.enabled === 1).map((schedule, index) => (
+                <li
+                  key={schedule.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '28px 1fr',
+                    gap: 16,
+                    alignItems: 'baseline',
+                    padding: '14px 0',
+                    borderBottom: '1px solid var(--loom-rule)',
+                  }}
+                >
+                  <span
+                    className="loom-mono"
+                    style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}
+                  >
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <div>
+                    <p className="loom-serif" style={{ fontSize: 15, fontStyle: 'italic', margin: '0 0 2px' }}>
+                      {schedule.stage_name}
+                    </p>
+                    <p
+                      className="loom-mono"
+                      style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: 0 }}
+                    >
+                      {schedule.delay_days === 0 ? 'immediately' : `after ${schedule.delay_days} days`}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Privacy */}
+          <section>
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>privacy &amp; control</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+              {[
+                { title: 'end-to-end encrypted', body: 'Your memories are protected with bank-level encryption.' },
+                { title: 'you control access', body: 'Only invited successors can view your content.' },
+                { title: 'export anytime', body: 'Download all your content whenever you want.' },
+                { title: 'delete permanently', body: 'Remove any entry at any time, no questions asked.' },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  style={{
+                    padding: '20px',
+                    borderRight: '1px solid var(--loom-rule)',
+                    borderBottom: '1px solid var(--loom-rule)',
+                  }}
+                >
+                  <p className="loom-serif" style={{ fontSize: 14, fontStyle: 'italic', margin: '0 0 4px' }}>
+                    {item.title}
+                  </p>
+                  <p className="loom-body" style={{ fontSize: 12, color: 'var(--loom-bone-faint)', margin: 0, lineHeight: 1.6 }}>
+                    {item.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Explainer */}
+          <p
+            className="loom-body"
+            style={{ fontSize: 14, color: 'var(--loom-bone-dim)', lineHeight: 1.8, borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}
+          >
+            When your legacy is activated, each named descendant receives a secure link. Content
+            unfolds in stages so they can move through it gradually. You can adjust these settings at
+            any time.
+          </p>
+        </div>
+      )}
+
+      {/* ── Staged releases ───────────────────────────────────── */}
+      {activeTab === 'schedules' && (
+        <div>
+          <header style={{ marginBottom: 28 }}>
+            <h2 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', margin: '0 0 8px' }}>
+              Staged content release.
+            </h2>
+            <p
+              className="loom-body"
+              style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0, lineHeight: 1.7, maxWidth: 560 }}
+            >
+              Instead of surfacing everything at once, the thread unfolds in thoughtful stages — each
+              one a new row in the cloth.
+            </p>
+          </header>
+
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px' }}>
+            {schedules.map((schedule, index) => (
+              <li
+                key={schedule.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '28px 1fr auto',
+                  gap: 20,
+                  alignItems: 'center',
+                  padding: '18px 0',
+                  borderBottom: '1px solid var(--loom-rule)',
+                  opacity: schedule.enabled === 1 ? 1 : 0.45,
+                  transition: 'opacity 180ms var(--loom-ease)',
+                }}
+              >
+                <span
+                  className="loom-mono"
+                  style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <p className="loom-serif" style={{ fontSize: 16, fontStyle: 'italic', margin: '0 0 2px' }}>
+                    {schedule.stage_name}
+                  </p>
+                  <p
+                    className="loom-mono"
+                    style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: '0 0 4px' }}
+                  >
+                    {schedule.delay_days === 0 ? 'immediately' : `after ${schedule.delay_days} days`}
+                  </p>
+                  <p
+                    className="loom-body"
+                    style={{ fontSize: 13, color: 'var(--loom-bone-dim)', margin: 0, lineHeight: 1.6 }}
+                  >
+                    {schedule.stage_description}
+                  </p>
+                </div>
+                {/* Toggle */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateScheduleMutation.mutate({ scheduleId: schedule.id, data: { enabled: schedule.enabled !== 1 } })
+                  }
+                  aria-label={schedule.enabled === 1 ? 'Disable stage' : 'Enable stage'}
+                  style={{
+                    width: 36,
+                    height: 20,
+                    background: schedule.enabled === 1 ? 'var(--loom-warm)' : 'var(--loom-rule)',
+                    border: 0,
+                    cursor: 'pointer',
+                    position: 'relative',
+                    flexShrink: 0,
+                    transition: 'background 180ms var(--loom-ease)',
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 3,
+                      left: schedule.enabled === 1 ? 19 : 3,
+                      width: 14,
+                      height: 14,
+                      background: 'var(--loom-ink)',
+                      transition: 'left 180ms var(--loom-ease)',
+                    }}
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <p
+            className="loom-body"
+            style={{ fontSize: 13, color: 'var(--loom-bone-faint)', lineHeight: 1.7 }}
+          >
+            Staged releases help successors move through the cloth gradually, finding comfort where
+            they need it and deeper reflection over time.
+          </p>
+        </div>
+      )}
+
+      {/* ── Memory room ──────────────────────────────────────── */}
+      {activeTab === 'room' && room && (
+        <div style={{ display: 'grid', gap: 36 }}>
+          {/* Room status */}
+          <section>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
+                marginBottom: 16,
+              }}
+            >
+              <div>
+                <h2 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', margin: '0 0 6px' }}>
+                  Family memory room.
+                </h2>
+                <p
+                  className="loom-body"
+                  style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0, lineHeight: 1.7 }}
+                >
+                  A shared space where your bloodline can add their own threads.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => updateRoomMutation.mutate({ is_active: room.is_active !== 1 })}
+                className={room.is_active === 1 ? 'loom-btn' : 'loom-btn-ghost'}
+                style={{ flexShrink: 0, marginLeft: 24 }}
+              >
+                {room.is_active === 1 ? 'active' : 'inactive'}
+              </button>
+            </div>
+
+            {room.is_active === 1 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)', marginBottom: 24 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowInviteModal(true)}
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    borderRight: '1px solid var(--loom-rule)',
+                    padding: '18px 16px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 180ms var(--loom-ease)',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(176,122,74,0.04)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                >
+                  <p className="loom-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--loom-warm)', margin: '0 0 2px' }}>
+                    invite kin
+                  </p>
+                  <p className="loom-body" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                    send email invitation
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={previewRoom}
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    borderRight: '1px solid var(--loom-rule)',
+                    padding: '18px 16px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 180ms var(--loom-ease)',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(176,122,74,0.04)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                >
+                  <p className="loom-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 2px' }}>
+                    preview room
+                  </p>
+                  <p className="loom-body" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                    see what family sees
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={copyRoomUrl}
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: '18px 16px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 180ms var(--loom-ease)',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(176,122,74,0.04)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                >
+                  <p className="loom-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 2px' }}>
+                    {copiedUrl ? 'copied' : 'copy link'}
+                  </p>
+                  <p className="loom-body" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                    share manually
+                  </p>
+                </button>
+              </div>
+            ) : null}
+
+            {/* Content toggles */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+              <ToggleBtn active={room.allow_photos === 1} onClick={() => updateRoomMutation.mutate({ allow_photos: room.allow_photos !== 1 })}>
+                photos{'\n'}{room.allow_photos === 1 ? 'on' : 'off'}
+              </ToggleBtn>
+              <ToggleBtn active={room.allow_voice === 1} onClick={() => updateRoomMutation.mutate({ allow_voice: room.allow_voice !== 1 })}>
+                voice{'\n'}{room.allow_voice === 1 ? 'on' : 'off'}
+              </ToggleBtn>
+              <ToggleBtn active={room.allow_text === 1} onClick={() => updateRoomMutation.mutate({ allow_text: room.allow_text !== 1 })}>
+                text{'\n'}{room.allow_text === 1 ? 'on' : 'off'}
+              </ToggleBtn>
+              <ToggleBtn active={room.moderation_required === 1} onClick={() => updateRoomMutation.mutate({ moderation_required: room.moderation_required !== 1 })}>
+                moderation{'\n'}{room.moderation_required === 1 ? 'required' : 'auto'}
+              </ToggleBtn>
+            </div>
+          </section>
+
+          {/* Contributions */}
+          {contributions.length > 0 ? (
+            <section>
+              <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
+                contributions · {contributions.length}
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {contributions.map((contribution) => (
+                  <li
+                    key={contribution.id}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto',
+                      gap: 20,
+                      alignItems: 'center',
+                      padding: '18px 0',
+                      borderBottom: '1px solid var(--loom-rule)',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
+                        <span
+                          className="loom-serif"
+                          style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone)' }}
                         >
-                          <div className={`w-5 h-5 rounded-[2px] bg-void transition-transform ${
-                            schedule.enabled === 1 ? 'translate-x-6' : 'translate-x-0.5'
-                          }`} />
+                          {contribution.contributor_name}
+                        </span>
+                        {contribution.contributor_relationship ? (
+                          <span
+                            className="loom-mono"
+                            style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}
+                          >
+                            {contribution.contributor_relationship}
+                          </span>
+                        ) : null}
+                      </div>
+                      {contribution.title ? (
+                        <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone)', margin: '0 0 4px' }}>
+                          {contribution.title}
+                        </p>
+                      ) : null}
+                      <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-dim)', margin: '0 0 6px', lineHeight: 1.6 }}>
+                        {contribution.content}
+                      </p>
+                      <p
+                        className="loom-mono"
+                        style={{ fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: 0 }}
+                      >
+                        {new Date(contribution.created_at).toLocaleDateString()} · {contribution.content_type}
+                      </p>
+                    </div>
+                    {contribution.status === 'PENDING' ? (
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => moderateContributionMutation.mutate({ contributionId: contribution.id, status: 'APPROVED' })}
+                          className="loom-btn-ghost"
+                          style={{ padding: '8px 14px', fontSize: 10 }}
+                        >
+                          approve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moderateContributionMutation.mutate({ contributionId: contribution.id, status: 'REJECTED' })}
+                          style={{
+                            background: 'transparent',
+                            border: '1px solid var(--loom-rule)',
+                            padding: '8px 14px',
+                            cursor: 'pointer',
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 10,
+                            letterSpacing: '0.16em',
+                            textTransform: 'uppercase',
+                            color: '#c25a5a',
+                          }}
+                        >
+                          reject
                         </button>
                       </div>
-                      <p className="text-sm text-paper-70 ml-11">{schedule.stage_description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 text-sm text-paper-70 leading-relaxed">
-                <p>
-                  Staged releases help recipients process content gradually, providing comfort when they need it most and deeper reflections over time.
-                </p>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Family Memory Room Tab */}
-          {activeTab === 'room' && room && (
-            <motion.div
-              key="room"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
-            >
-              {/* Room Settings */}
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h2 className="font-body text-xl mb-1">Family Memory Room</h2>
-                    <p className="text-paper-65 text-sm">
-                      A shared space where your loved ones can add their own memories and stories about you.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => updateRoomMutation.mutate({ is_active: room.is_active !== 1 })}
-                    className={`px-4 py-2 rounded-[2px] text-sm transition-colors border ${
-                      room.is_active === 1
-                        ? 'border-gold-40 text-gold'
-                        : 'border-paper-15 text-paper-65'
-                    }`}
-                  >
-                    {room.is_active === 1 ? 'Active' : 'Inactive'}
-                  </button>
-                </div>
-
-                                {/* Quick Actions */}
-                                {room.is_active === 1 && (
-                                  <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <button
-                                      onClick={() => setShowInviteModal(true)}
-                                      className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors flex items-center gap-3 text-left"
-                                    >
-                                      <div>
-                                        <p className="font-body text-gold">Invite Family</p>
-                                        <p className="text-xs text-paper-65">Send email invitations</p>
-                                      </div>
-                                    </button>
-                                    <button
-                                      onClick={previewRoom}
-                                      className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors flex items-center gap-3 text-left"
-                                    >
-                                      <div>
-                                        <p className="font-body">Preview Room <span aria-hidden>→</span></p>
-                                        <p className="text-xs text-paper-65">See what family sees</p>
-                                      </div>
-                                    </button>
-                                    <button
-                                      onClick={copyRoomUrl}
-                                      className="p-4 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors flex items-center gap-3 text-left"
-                                    >
-                                      <div>
-                                        <p className="font-body">{copiedUrl ? 'Copied!' : 'Copy Link'}</p>
-                                        <p className="text-xs text-paper-65">Share manually</p>
-                                      </div>
-                                    </button>
-                                  </div>
-                                )}
-
-                {/* Room Settings */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <button
-                    onClick={() => updateRoomMutation.mutate({ allow_photos: room.allow_photos !== 1 })}
-                    className={`p-4 rounded-[2px] flex flex-col items-center gap-2 transition-colors border ${
-                      room.allow_photos === 1 ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-70'
-                    }`}
-                  >
-                    <span className="text-sm">Photos</span>
-                    <span className="text-xs">{room.allow_photos === 1 ? 'Allowed' : 'Disabled'}</span>
-                  </button>
-                  <button
-                    onClick={() => updateRoomMutation.mutate({ allow_voice: room.allow_voice !== 1 })}
-                    className={`p-4 rounded-[2px] flex flex-col items-center gap-2 transition-colors border ${
-                      room.allow_voice === 1 ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-70'
-                    }`}
-                  >
-                    <span className="text-sm">Voice</span>
-                    <span className="text-xs">{room.allow_voice === 1 ? 'Allowed' : 'Disabled'}</span>
-                  </button>
-                  <button
-                    onClick={() => updateRoomMutation.mutate({ allow_text: room.allow_text !== 1 })}
-                    className={`p-4 rounded-[2px] flex flex-col items-center gap-2 transition-colors border ${
-                      room.allow_text === 1 ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-70'
-                    }`}
-                  >
-                    <span className="text-sm">Text</span>
-                    <span className="text-xs">{room.allow_text === 1 ? 'Allowed' : 'Disabled'}</span>
-                  </button>
-                  <button
-                    onClick={() => updateRoomMutation.mutate({ moderation_required: room.moderation_required !== 1 })}
-                    className={`p-4 rounded-[2px] flex flex-col items-center gap-2 transition-colors border ${
-                      room.moderation_required === 1 ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-70'
-                    }`}
-                  >
-                    <span className="text-sm">Moderation</span>
-                    <span className="text-xs">{room.moderation_required === 1 ? 'Required' : 'Auto-approve'}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Contributions */}
-              {contributions.length > 0 && (
-                <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                  <h3 className="font-body text-lg mb-4">
-                    Contributions ({contributions.length})
-                  </h3>
-                  <div className="space-y-3">
-                    {contributions.map((contribution) => (
-                      <div
-                        key={contribution.id}
-                        className="p-4 rounded-[2px] bg-void border border-paper-15"
+                    ) : (
+                      <span
+                        className="loom-mono"
+                        style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
                       >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-body">{contribution.contributor_name}</span>
-                              {contribution.contributor_relationship && (
-                                <span className="text-sm text-paper-65">({contribution.contributor_relationship})</span>
-                              )}
-                            </div>
-                            {contribution.title && (
-                              <p className="text-sm font-body mb-1">{contribution.title}</p>
-                            )}
-                            <p className="text-sm text-paper-70 line-clamp-2">{contribution.content}</p>
-                            <p className="text-xs text-paper-50 mt-2 font-mono">
-                              {new Date(contribution.created_at).toLocaleDateString()} · {contribution.content_type}
-                            </p>
-                          </div>
-                          {contribution.status === 'PENDING' && (
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => moderateContributionMutation.mutate({
-                                  contributionId: contribution.id,
-                                  status: 'APPROVED'
-                                })}
-                                className="px-3 py-1.5 border border-gold-40 text-gold rounded-[2px] hover:text-gold-bright transition-colors text-sm"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => moderateContributionMutation.mutate({
-                                  contributionId: contribution.id,
-                                  status: 'REJECTED'
-                                })}
-                                className="px-3 py-1.5 border border-paper-15 text-blood rounded-[2px] hover:text-blood transition-colors text-sm"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          )}
-                          {contribution.status !== 'PENDING' && (
-                            <span className="px-2 py-1 rounded-[2px] text-xs font-mono uppercase tracking-[0.1em] border border-paper-15 text-paper-70">
-                              {contribution.status}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                        {contribution.status.toLowerCase()}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : room.is_active === 1 ? (
+            <div style={{ padding: '48px 0', textAlign: 'center', borderTop: '1px solid var(--loom-rule)' }}>
+              <span style={{ fontFamily: "'Source Serif 4', serif", fontSize: 24, color: 'var(--loom-bone-faint)', display: 'block', marginBottom: 14 }}>
+                ∞
+              </span>
+              <h3 className="loom-serif" style={{ fontSize: 18, fontWeight: 300, fontStyle: 'italic', margin: '0 0 8px' }}>
+                No contributions yet.
+              </h3>
+              <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                Share the room link with your bloodline to begin collecting memories.
+              </p>
+            </div>
+          ) : null}
+        </div>
+      )}
 
-              {contributions.length === 0 && room.is_active === 1 && (
-                <div className="bg-void-surface border border-paper-15 rounded-[2px] p-8 text-center">
-                  <span className="font-display text-3xl text-paper-30 block mb-4" aria-hidden>∞</span>
-                  <h3 className="font-body mb-2">No contributions yet</h3>
-                  <p className="text-paper-65 text-sm">
-                    Share the room link with family members to start collecting memories.
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* Family Management Tab */}
-          {activeTab === 'family' && (
-            <motion.div
-              key="family"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
+      {/* ── Descendants ──────────────────────────────────────── */}
+      {activeTab === 'family' && (
+        <div style={{ display: 'grid', gap: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <div>
+              <h2 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', margin: '0 0 6px' }}>
+                Named descendants.
+              </h2>
+              <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0, lineHeight: 1.7 }}>
+                The people who will receive the thread when the time comes.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAddFamilyModal(true)}
+              className="loom-btn"
+              style={{ flexShrink: 0, marginLeft: 24 }}
             >
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h2 className="font-body text-xl mb-1">Manage Recipients</h2>
-                    <p className="text-paper-65 text-sm">
-                      Add and manage the people who will receive your legacy content.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowAddFamilyModal(true)}
-                    className="btn btn-primary"
-                  >
-                    Add Recipient
-                  </button>
-                </div>
+              add descendant
+            </button>
+          </div>
 
-                {/* Family Members List */}
-                {familyData?.members && familyData.members.length > 0 ? (
-                  <div className="space-y-3">
-                    {familyData.members.map((member) => (
-                      <div
-                        key={member.id}
-                        className="p-4 bg-void border border-paper-15 rounded-[2px] flex items-center justify-between"
-                      >
-                        <div>
-                          <h3 className="font-body">{member.name}</h3>
-                          <p className="text-sm text-paper-65">{member.relationship}</p>
-                          {member.email && (
-                            <p className="text-xs text-paper-50 mt-1 font-mono">
-                              {member.email}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => handleEditMember(member)}
-                            className="text-paper-70 hover:text-paper transition-colors text-sm"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => deleteFamilyMutation.mutate(member.id)}
-                            className="text-paper-50 hover:text-blood transition-colors text-sm"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <span className="font-display text-3xl text-paper-30 block mb-4" aria-hidden>∞</span>
-                    <h3 className="font-body mb-2">No recipients added yet</h3>
-                    <p className="text-paper-65 text-sm mb-4">
-                      Add family members and loved ones who will receive your legacy.
+          {familyData?.members && familyData.members.length > 0 ? (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {familyData.members.map((member) => (
+                <li
+                  key={member.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    gap: 24,
+                    alignItems: 'center',
+                    padding: '16px 0',
+                    borderBottom: '1px solid var(--loom-rule)',
+                  }}
+                >
+                  <div>
+                    <p className="loom-serif" style={{ fontSize: 17, fontStyle: 'italic', margin: '0 0 2px' }}>
+                      {member.name}
                     </p>
-                    <button
-                      onClick={() => setShowAddFamilyModal(true)}
-                      className="btn btn-primary"
+                    <p
+                      className="loom-mono"
+                      style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: '0 0 2px' }}
                     >
-                      Add Your First Recipient
+                      {member.relationship}
+                    </p>
+                    {member.email ? (
+                      <p
+                        className="loom-mono"
+                        style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: 0 }}
+                      >
+                        {member.email}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div style={{ display: 'flex', gap: 16 }}>
+                    <button
+                      type="button"
+                      onClick={() => handleEditMember(member)}
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: 'pointer',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 9,
+                        letterSpacing: '0.22em',
+                        textTransform: 'uppercase',
+                        color: 'var(--loom-bone-dim)',
+                        transition: 'color 180ms var(--loom-ease)',
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone-dim)'; }}
+                    >
+                      edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteFamilyMutation.mutate(member.id)}
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: 'pointer',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 9,
+                        letterSpacing: '0.22em',
+                        textTransform: 'uppercase',
+                        color: 'var(--loom-bone-faint)',
+                        transition: 'color 180ms var(--loom-ease)',
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#c25a5a'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone-faint)'; }}
+                    >
+                      remove
                     </button>
                   </div>
-                )}
-              </div>
-
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 text-sm text-paper-70 leading-relaxed">
-                <p>
-                  Recipients will only receive content after your legacy is activated. You control exactly what each person receives.
-                </p>
-              </div>
-            </motion.div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div style={{ padding: '48px 0', textAlign: 'center', border: '1px solid var(--loom-rule)' }}>
+              <span style={{ fontFamily: "'Source Serif 4', serif", fontSize: 24, color: 'var(--loom-bone-faint)', display: 'block', marginBottom: 14 }}>
+                ∞
+              </span>
+              <h3 className="loom-serif" style={{ fontSize: 18, fontWeight: 300, fontStyle: 'italic', margin: '0 0 8px' }}>
+                No descendants named yet.
+              </h3>
+              <p
+                className="loom-body"
+                style={{ fontSize: 13, color: 'var(--loom-bone-faint)', margin: '0 0 24px' }}
+              >
+                Add the people who will receive your legacy.
+              </p>
+              <button type="button" onClick={() => setShowAddFamilyModal(true)} className="loom-btn">
+                add first descendant
+              </button>
+            </div>
           )}
-        </AnimatePresence>
-      </main>
 
-      {/* Help Button */}
-      <OnboardingHelpButton onClick={openOnboarding} />
-
-      {/* Feature Onboarding */}
-      <FeatureOnboarding
-        featureKey="recipient-experience"
-        isOpen={isOnboardingOpen}
-        onComplete={completeOnboarding}
-        onDismiss={dismissOnboarding}
-      />
-
-      {/* Add/Edit Family Member Modal */}
-      <AnimatePresence>
-        {showAddFamilyModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
-            onClick={() => resetFamilyForm()}
+          <p
+            className="loom-body"
+            style={{ fontSize: 13, color: 'var(--loom-bone-faint)', borderTop: '1px solid var(--loom-rule)', paddingTop: 16, lineHeight: 1.7 }}
           >
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-body text-xl">
-                  {editingMember ? 'Edit Recipient' : 'Add Recipient'}
-                </h3>
-                <button onClick={() => resetFamilyForm()} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
-                  <span aria-hidden>✕</span>
-                </button>
-              </div>
+            Successors only receive the thread after your legacy is activated. You control exactly
+            what each person receives.
+          </p>
+        </div>
+      )}
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Name *</label>
+      {/* ── Add/Edit member modal ──────────────────────────── */}
+      {showAddFamilyModal && (
+        <Modal onClose={resetFamilyForm}>
+          <ModalHeader
+            title={editingMember ? 'edit descendant' : 'add descendant'}
+            onClose={resetFamilyForm}
+          />
+          <div style={{ display: 'grid', gap: 18 }}>
+            <FieldBlock label="name *">
+              <input
+                type="text"
+                value={familyForm.name}
+                onChange={(e) => setFamilyForm({ ...familyForm, name: e.target.value })}
+                placeholder="Sarah, Dad, Uncle John"
+              />
+            </FieldBlock>
+            <FieldBlock label="relationship *">
+              <select
+                value={familyForm.relationship}
+                onChange={(e) => setFamilyForm({ ...familyForm, relationship: e.target.value })}
+              >
+                <option value="">select relationship…</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Child">Child</option>
+                <option value="Parent">Parent</option>
+                <option value="Sibling">Sibling</option>
+                <option value="Grandchild">Grandchild</option>
+                <option value="Grandparent">Grandparent</option>
+                <option value="Friend">Friend</option>
+                <option value="Other">Other</option>
+              </select>
+            </FieldBlock>
+            <FieldBlock label="email">
+              <input
+                type="email"
+                value={familyForm.email}
+                onChange={(e) => setFamilyForm({ ...familyForm, email: e.target.value })}
+                placeholder="email@example.com"
+              />
+            </FieldBlock>
+            <FieldBlock label="phone">
+              <input
+                type="tel"
+                value={familyForm.phone}
+                onChange={(e) => setFamilyForm({ ...familyForm, phone: e.target.value })}
+                placeholder="+1 (555) 123-4567"
+              />
+            </FieldBlock>
+            <FieldBlock label="notes">
+              <textarea
+                value={familyForm.notes}
+                onChange={(e) => setFamilyForm({ ...familyForm, notes: e.target.value })}
+                placeholder="Any special notes…"
+                rows={2}
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: '1px solid var(--loom-rule)',
+                  padding: '10px 12px',
+                  color: 'var(--loom-bone)',
+                  fontFamily: "'Source Serif 4', serif",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  resize: 'vertical',
+                  outline: 0,
+                  boxSizing: 'border-box',
+                }}
+              />
+            </FieldBlock>
+            <button
+              type="button"
+              onClick={handleSaveFamilyMember}
+              disabled={!familyForm.name.trim() || !familyForm.relationship || addFamilyMutation.isPending || updateFamilyMutation.isPending}
+              className="loom-btn"
+              style={{
+                width: '100%',
+                opacity: !familyForm.name.trim() || !familyForm.relationship || addFamilyMutation.isPending || updateFamilyMutation.isPending ? 0.45 : 1,
+              }}
+            >
+              {(addFamilyMutation.isPending || updateFamilyMutation.isPending)
+                ? (editingMember ? 'saving…' : 'adding…')
+                : (editingMember ? 'save changes' : 'add descendant')}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── Invite modal ──────────────────────────────────── */}
+      {showInviteModal && (
+        <Modal onClose={() => setShowInviteModal(false)}>
+          {inviteSent ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <span style={{ fontFamily: "'Source Serif 4', serif", fontSize: 28, color: 'var(--loom-warm)', display: 'block', marginBottom: 16 }}>
+                ∞
+              </span>
+              <h3 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', margin: '0 0 8px' }}>
+                Invitation sent.
+              </h3>
+              <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                They will receive an email with a link to the memory room.
+              </p>
+            </div>
+          ) : (
+            <>
+              <ModalHeader title="invite a kin" onClose={() => setShowInviteModal(false)} />
+              <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginBottom: 24, lineHeight: 1.7 }}>
+                Send an email invitation to a family member to contribute their own memories.
+              </p>
+              <div style={{ display: 'grid', gap: 18 }}>
+                <FieldBlock label="their name">
                   <input
                     type="text"
-                    value={familyForm.name}
-                    onChange={(e) => setFamilyForm({ ...familyForm, name: e.target.value })}
-                    placeholder="e.g., Sarah, Dad, Uncle John"
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
+                    value={inviteName}
+                    onChange={(e) => setInviteName(e.target.value)}
+                    placeholder="Mum, Uncle John…"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Relationship *</label>
-                  <select
-                    value={familyForm.relationship}
-                    onChange={(e) => setFamilyForm({ ...familyForm, relationship: e.target.value })}
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 transition-colors"
-                  >
-                    <option value="">Select relationship...</option>
-                    <option value="Spouse">Spouse</option>
-                    <option value="Child">Child</option>
-                    <option value="Parent">Parent</option>
-                    <option value="Sibling">Sibling</option>
-                    <option value="Grandchild">Grandchild</option>
-                    <option value="Grandparent">Grandparent</option>
-                    <option value="Friend">Friend</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Email</label>
+                </FieldBlock>
+                <FieldBlock label="their email *">
                   <input
                     type="email"
-                    value={familyForm.email}
-                    onChange={(e) => setFamilyForm({ ...familyForm, email: e.target.value })}
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="email@example.com"
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Phone</label>
-                  <input
-                    type="tel"
-                    value={familyForm.phone}
-                    onChange={(e) => setFamilyForm({ ...familyForm, phone: e.target.value })}
-                    placeholder="+1 (555) 123-4567"
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Notes</label>
-                  <textarea
-                    value={familyForm.notes}
-                    onChange={(e) => setFamilyForm({ ...familyForm, notes: e.target.value })}
-                    placeholder="Any special notes about this person..."
-                    rows={2}
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors resize-none"
-                  />
-                </div>
-
+                </FieldBlock>
                 <button
-                  onClick={handleSaveFamilyMember}
-                  disabled={!familyForm.name.trim() || !familyForm.relationship || addFamilyMutation.isPending || updateFamilyMutation.isPending}
-                  className="w-full btn btn-primary"
+                  type="button"
+                  onClick={handleSendInvite}
+                  disabled={!inviteEmail.trim() || sendInviteMutation.isPending}
+                  className="loom-btn"
+                  style={{ width: '100%', opacity: !inviteEmail.trim() || sendInviteMutation.isPending ? 0.45 : 1 }}
                 >
-                  {(addFamilyMutation.isPending || updateFamilyMutation.isPending)
-                    ? (editingMember ? 'Saving…' : 'Adding…')
-                    : (editingMember ? 'Save Changes' : 'Add Recipient')}
+                  {sendInviteMutation.isPending ? 'sending…' : 'send invitation'}
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </>
+          )}
+        </Modal>
+      )}
 
-      {/* Invite Modal */}
-      <AnimatePresence>
-        {showInviteModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
-            onClick={() => setShowInviteModal(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full"
-              onClick={e => e.stopPropagation()}
-            >
-              {inviteSent ? (
-                <div className="text-center py-8">
-                  <span className="font-display text-4xl text-gold block mb-4" aria-hidden>∞</span>
-                  <h3 className="font-body text-xl mb-2">Invitation Sent</h3>
-                  <p className="text-paper-70">They will receive an email with the link to your memory room.</p>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-body text-xl">Invite Family Member</h3>
-                    <button onClick={() => setShowInviteModal(false)} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
-                      <span aria-hidden>✕</span>
-                    </button>
-                  </div>
-
-                  <p className="text-paper-70 text-sm mb-6">
-                    Send an email invitation to a family member or friend to contribute memories and stories.
-                  </p>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Their Name</label>
-                      <input
-                        type="text"
-                        value={inviteName}
-                        onChange={(e) => setInviteName(e.target.value)}
-                        placeholder="e.g., Mom, Uncle John"
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">Their Email *</label>
-                      <input
-                        type="email"
-                        value={inviteEmail}
-                        onChange={(e) => setInviteEmail(e.target.value)}
-                        placeholder="email@example.com"
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
-                      />
-                    </div>
-
-                    <button
-                      onClick={handleSendInvite}
-                      disabled={!inviteEmail.trim() || sendInviteMutation.isPending}
-                      className="w-full btn btn-primary"
-                    >
-                      {sendInviteMutation.isPending ? 'Sending…' : 'Send Invitation'}
-                    </button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Test Email Modal */}
-      <AnimatePresence>
-        {showTestEmailModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
-            onClick={() => setShowTestEmailModal(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full"
-              onClick={e => e.stopPropagation()}
-            >
-              {testEmailSent ? (
-                <div className="text-center py-8">
-                  <span className="font-display text-4xl text-gold block mb-4" aria-hidden>∞</span>
-                  <h3 className="font-body text-xl mb-2">Test Email Sent</h3>
-                  <p className="text-paper-70">Check your inbox to see exactly what your recipients will receive.</p>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-body text-xl">Send Test Email</h3>
-                    <button onClick={() => setShowTestEmailModal(false)} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
-                      <span aria-hidden>✕</span>
-                    </button>
-                  </div>
-
-                  <div className="text-center py-4">
-                    <span className="font-display text-4xl text-gold block mb-4" aria-hidden>∞</span>
-                    <p className="text-paper-70 text-sm mb-6 leading-relaxed">
-                      We'll send you a sample of the email your recipients will receive when your legacy is activated. This helps you see exactly what they'll experience.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => sendTestEmailMutation.mutate()}
-                    disabled={sendTestEmailMutation.isPending}
-                    className="w-full btn btn-primary"
-                  >
-                    {sendTestEmailMutation.isPending ? 'Sending…' : 'Send Test to My Email'}
-                  </button>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+      {/* ── Test email modal ──────────────────────────────── */}
+      {showTestEmailModal && (
+        <Modal onClose={() => setShowTestEmailModal(false)}>
+          {testEmailSent ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <span style={{ fontFamily: "'Source Serif 4', serif", fontSize: 28, color: 'var(--loom-warm)', display: 'block', marginBottom: 16 }}>
+                ∞
+              </span>
+              <h3 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', margin: '0 0 8px' }}>
+                Test email sent.
+              </h3>
+              <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                Check your inbox to see exactly what your successors will receive.
+              </p>
+            </div>
+          ) : (
+            <>
+              <ModalHeader title="send test email" onClose={() => setShowTestEmailModal(false)} />
+              <div style={{ textAlign: 'center', padding: '12px 0 28px' }}>
+                <span style={{ fontFamily: "'Source Serif 4', serif", fontSize: 28, color: 'var(--loom-warm)', display: 'block', marginBottom: 16 }}>
+                  ∞
+                </span>
+                <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', lineHeight: 1.7 }}>
+                  We'll send you a sample of the email your successors will receive when your legacy is
+                  activated.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => sendTestEmailMutation.mutate()}
+                disabled={sendTestEmailMutation.isPending}
+                className="loom-btn"
+                style={{ width: '100%', opacity: sendTestEmailMutation.isPending ? 0.45 : 1 }}
+              >
+                {sendTestEmailMutation.isPending ? 'sending…' : 'send test to my email'}
+              </button>
+            </>
+          )}
+        </Modal>
+      )}
+    </AppFrame>
   );
 }
 

@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { voiceApi, aiApi } from '../services/api';
 
 const SILENCE_THRESHOLD = 0.01;
@@ -37,7 +36,7 @@ export function InterviewMode() {
     'What was the happiest day of your life?',
     'Describe the home you grew up in.',
     'Who had the biggest influence on your life?',
-    'What\'s a lesson you learned the hard way?',
+    "What's a lesson you learned the hard way?",
     'Tell me about a tradition in your family.',
     'What do you want your grandchildren to know about you?',
     'Describe a moment that changed everything.',
@@ -85,7 +84,6 @@ export function InterviewMode() {
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
-      // Set up audio analysis
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
       const source = audioContext.createMediaStreamSource(stream);
@@ -176,7 +174,6 @@ export function InterviewMode() {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     if (audioContextRef.current) audioContextRef.current.close();
 
-    // Wait for data
     await new Promise((resolve) => setTimeout(resolve, 500));
     const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
 
@@ -217,7 +214,7 @@ export function InterviewMode() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // Generate waveform bars from audio level
+  // Waveform amplitude bars derived from audio level
   const waveformBars = Array.from({ length: 40 }, (_, i) => {
     const baseHeight = Math.sin((i / 40) * Math.PI) * 0.5 + 0.5;
     const audioInfluence = audioLevel * 3;
@@ -225,143 +222,268 @@ export function InterviewMode() {
   });
 
   return (
-    <div className="min-h-screen bg-void text-paper flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-6">
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: "'Inter', system-ui, sans-serif",
+        WebkitFontSmoothing: 'antialiased',
+      }}
+    >
+      {/* Top bar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '20px 28px',
+          borderBottom: '1px solid var(--loom-rule)',
+        }}
+      >
         <button
           onClick={() => navigate('/record')}
-          className="inline-flex items-center gap-2 text-paper-65 hover:text-paper transition-colors"
+          className="loom-mono"
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--loom-bone-faint)',
+            fontSize: 10,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            padding: 0,
+          }}
         >
-          <span aria-hidden>←</span>
-          <span className="text-sm">Exit Interview</span>
+          ← exit
         </button>
 
-        <div className="flex items-center gap-3">
-          <div className={`w-2 h-2 rounded-[2px] ${isRecording && !isPaused ? 'bg-blood animate-pulse' : 'bg-paper-15'}`} />
-          <span className="font-mono text-lg text-paper-70">{formatTime(duration)}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {isRecording && !isPaused && (
+            <div
+              style={{
+                width: 4,
+                height: 4,
+                background: '#c25a5a',
+                borderRadius: '50%',
+                animation: 'loom-caret 1.1s steps(1) infinite',
+              }}
+            />
+          )}
+          <span
+            className="loom-mono"
+            style={{ fontSize: 13, color: 'var(--loom-bone-dim)', letterSpacing: '0.06em' }}
+          >
+            {formatTime(duration)}
+          </span>
         </div>
 
         {isRecording && (
           <button
             onClick={stopAndSave}
             disabled={isSaving}
-            className="btn btn-ghost text-sm"
+            className="loom-btn-ghost"
+            style={{ fontSize: 10, padding: '8px 18px', opacity: isSaving ? 0.5 : 1 }}
           >
-            Save &amp; Finish
+            {isSaving ? 'saving…' : 'save & finish'}
           </button>
         )}
+        {!isRecording && <div style={{ width: 80 }} />}
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 max-w-2xl mx-auto w-full">
-        {/* Current question */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentQuestion}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="text-center mb-12"
-          >
-            <p className="font-body text-2xl md:text-3xl text-paper leading-relaxed italic">
-              &ldquo;{currentQuestion}&rdquo;
+      {/* Main — vertically centred */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '48px 28px',
+          maxWidth: 640,
+          margin: '0 auto',
+          width: '100%',
+        }}
+      >
+        {/* The Listener's question */}
+        <div
+          key={currentQuestion}
+          style={{
+            textAlign: 'center',
+            marginBottom: 56,
+            animation: 'fadeInUp 360ms var(--loom-ease) both',
+          }}
+        >
+          {!isRecording && (
+            <p
+              className="loom-eyebrow"
+              style={{ marginBottom: 20, color: 'var(--loom-warm)' }}
+            >
+              the listener
             </p>
-          </motion.div>
-        </AnimatePresence>
+          )}
+          <p
+            className="loom-h2"
+            style={{
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: 'clamp(22px,3.5vw,32px)',
+              lineHeight: 1.3,
+              color: 'var(--loom-bone)',
+              margin: 0,
+            }}
+          >
+            &ldquo;{currentQuestion}&rdquo;
+          </p>
+        </div>
 
-        {/* Waveform visualizer */}
+        {/* Waveform — 1px hairline bars */}
         {isRecording && (
-          <div className="flex items-center justify-center gap-[2px] h-24 mb-8">
-            {waveformBars.map((height, i) => (
-              <motion.div
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              height: 40,
+              marginBottom: 40,
+            }}
+          >
+            {waveformBars.map((h, i) => (
+              <div
                 key={i}
-                className="w-1 bg-gold/60"
-                animate={{ height: `${height * 96}px` }}
-                transition={{ duration: 0.1 }}
+                style={{
+                  width: 1,
+                  height: `${h * 40}px`,
+                  background: isPaused ? 'var(--loom-bone-faint)' : 'var(--loom-warm)',
+                  opacity: 0.7,
+                  transition: 'height 100ms var(--loom-ease)',
+                  borderRadius: 0,
+                }}
               />
             ))}
           </div>
         )}
 
         {/* Follow-up suggestions */}
-        <AnimatePresence>
-          {followUpQuestions.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="w-full space-y-2 mb-8"
+        {followUpQuestions.length > 0 && (
+          <div style={{ width: '100%', marginBottom: 40 }}>
+            <p
+              className="loom-eyebrow"
+              style={{ textAlign: 'center', marginBottom: 16, color: 'var(--loom-bone-faint)' }}
             >
-              <p className="text-center font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold mb-3">
-                Suggested follow-ups
-              </p>
+              follow-up questions
+            </p>
+            <div style={{ display: 'grid', gap: 0 }}>
               {followUpQuestions.map((q, i) => (
                 <button
                   key={i}
                   onClick={() => selectFollowUp(q)}
-                  className="w-full p-3 rounded-[2px] border border-paper-15 bg-void-surface text-paper-70 hover:border-gold-40 hover:text-gold text-left text-sm transition-colors"
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '12px 0',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: '1px solid var(--loom-rule)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
                 >
-                  {q}
+                  <span
+                    className="loom-body"
+                    style={{ fontStyle: 'italic', fontSize: 15, color: 'var(--loom-bone-dim)' }}
+                  >
+                    {q}
+                  </span>
                 </button>
               ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
 
         {/* Controls */}
-        <div className="flex items-center gap-6">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           {!isRecording ? (
             <button
               onClick={startRecording}
+              className="loom-btn"
+              style={{ minWidth: 120 }}
               aria-label="Start recording"
-              className="w-20 h-20 rounded-[2px] bg-void-surface border border-gold-40 flex items-center justify-center text-gold font-mono text-[0.6rem] tracking-[0.2em] uppercase hover:border-gold transition-colors"
             >
-              Record
+              begin
             </button>
           ) : (
             <>
               <button
                 onClick={isPaused ? resumeRecording : pauseRecording}
+                className="loom-btn-ghost"
                 aria-label={isPaused ? 'Resume recording' : 'Pause recording'}
-                className="w-14 h-14 rounded-[2px] bg-void-surface border border-paper-15 flex items-center justify-center text-paper-70 font-mono text-xs hover:text-paper transition-colors"
+                style={{ minWidth: 80 }}
               >
-                {isPaused ? '▶' : '❚❚'}
+                {isPaused ? 'resume' : 'pause'}
               </button>
 
               <button
                 onClick={stopAndSave}
                 disabled={isSaving}
+                className="loom-btn"
                 aria-label={isSaving ? 'Saving' : 'Stop and save'}
-                title={isSaving ? 'Saving…' : 'Stop & save'}
-                className="w-20 h-20 rounded-[2px] bg-void-surface border border-gold-40 flex items-center justify-center text-gold font-mono text-[0.6rem] tracking-[0.2em] uppercase hover:border-gold transition-colors disabled:opacity-50"
+                style={{ minWidth: 80, opacity: isSaving ? 0.5 : 1 }}
               >
-                Stop
+                {isSaving ? 'saving…' : 'stop'}
               </button>
 
               <button
                 onClick={generateFollowUp}
                 disabled={isGeneratingQuestion}
                 aria-label={isGeneratingQuestion ? 'Thinking of a follow-up' : 'Suggest a follow-up'}
+                style={{
+                  background: 'none',
+                  border: '1px solid var(--loom-rule)',
+                  cursor: isGeneratingQuestion ? 'wait' : 'pointer',
+                  color: isGeneratingQuestion ? 'var(--loom-bone-faint)' : 'var(--loom-warm)',
+                  fontFamily: "'Source Serif 4', serif",
+                  fontSize: 18,
+                  padding: '8px 16px',
+                  opacity: isGeneratingQuestion ? 0.5 : 1,
+                  borderRadius: 0,
+                  transition: 'border-color 180ms var(--loom-ease)',
+                }}
                 title={isGeneratingQuestion ? 'Thinking of a follow-up…' : 'Suggest a follow-up'}
-                className="w-14 h-14 rounded-[2px] bg-void-surface border border-paper-15 flex items-center justify-center text-gold hover:border-gold-40 transition-colors disabled:opacity-50"
               >
-                <span aria-hidden>∞</span>
+                ∞
               </button>
             </>
           )}
         </div>
 
-        {/* Silence indicator */}
+        {/* Silence hint */}
         {silenceTimer > 1500 && isRecording && !isPaused && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-6 text-paper-65 text-sm"
+          <p
+            className="loom-body"
+            style={{
+              marginTop: 32,
+              color: 'var(--loom-bone-faint)',
+              fontStyle: 'italic',
+              fontSize: 14,
+              textAlign: 'center',
+              animation: 'fadeInUp 360ms var(--loom-ease) both',
+            }}
           >
-            Take your time... or tap ∞ for a follow-up question
-          </motion.p>
+            Take your time — or press ∞ for a follow-up question.
+          </p>
         )}
       </div>
+
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

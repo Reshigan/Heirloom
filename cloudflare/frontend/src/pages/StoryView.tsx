@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import api from '../services/api';
 
@@ -36,7 +35,6 @@ export function StoryView() {
 
   useEffect(() => {
     if (!isPlaying || !data?.memories.length) return;
-
     const interval = setInterval(() => {
       setCurrentIndex((prev) => {
         if (prev >= data.memories.length - 1) {
@@ -46,25 +44,36 @@ export function StoryView() {
         return prev + 1;
       });
     }, 5000);
-
     return () => clearInterval(interval);
   }, [isPlaying, data?.memories.length]);
 
+  const pageBase: React.CSSProperties = {
+    minHeight: '100vh',
+    background: 'var(--loom-ink)',
+    color: 'var(--loom-bone)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center">
-        <ProgressHair label="loading…" width={180} />
+      <div style={pageBase}>
+        <ProgressHair label="loading…" width={200} />
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center p-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-body font-light text-paper mb-2">Story Not Found</h1>
-          <p className="text-paper-60">This story may have expired or the link may be invalid.</p>
-        </div>
+      <div style={{ ...pageBase, flexDirection: 'column', textAlign: 'center' }}>
+        <h1 className="loom-h2" style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}>
+          Story not found.
+        </h1>
+        <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)' }}>
+          This story may have expired or the link may be invalid.
+        </p>
       </div>
     );
   }
@@ -72,141 +81,229 @@ export function StoryView() {
   const { artifact, memories } = data;
   const currentMemory = memories[currentIndex];
 
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
-  };
-
-  const goToNext = () => {
-    setCurrentIndex((prev) => Math.min(memories.length - 1, prev + 1));
-  };
-
+  const goToPrevious = () => setCurrentIndex((prev) => Math.max(0, prev - 1));
+  const goToNext = () => setCurrentIndex((prev) => Math.min(memories.length - 1, prev + 1));
   const togglePlayback = () => {
-    if (currentIndex >= memories.length - 1) {
-      setCurrentIndex(0);
-    }
+    if (currentIndex >= memories.length - 1) setCurrentIndex(0);
     setIsPlaying(!isPlaying);
   };
 
   return (
-    <div className="min-h-screen bg-void text-paper flex flex-col">
-      <header className="p-6 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="font-body font-light text-3xl md:text-4xl text-gold mb-2 tracking-[-0.014em]"
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Ambient glow */}
+      <div className="loom-horizon" style={{ pointerEvents: 'none' }} />
+      <div className="loom-grain" style={{ pointerEvents: 'none' }} />
+
+      {/* Header */}
+      <header
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: '48px 24px 32px',
+          textAlign: 'center',
+        }}
+      >
+        <h1
+          className="loom-h2"
+          style={{
+            fontSize: 'clamp(28px,4vw,44px)',
+            fontWeight: 300,
+            fontStyle: 'italic',
+            color: 'var(--loom-bone)',
+            margin: '0 0 12px',
+          }}
         >
           {artifact.title}
-        </motion.h1>
+        </h1>
         {artifact.description && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-paper-60 max-w-xl mx-auto"
-          >
+          <p className="loom-body" style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '0 auto 8px', maxWidth: 520 }}>
             {artifact.description}
-          </motion.p>
+          </p>
         )}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-paper-50 text-sm mt-2"
-        >
+        <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
           Created by {artifact.creatorName}
-        </motion.p>
+        </p>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-6">
+      {/* Main content */}
+      <main
+        style={{
+          flex: 1,
+          position: 'relative',
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0 24px 48px',
+        }}
+      >
         {memories.length > 0 ? (
           <>
-            <div className="relative w-full max-w-4xl aspect-video rounded-[4px] overflow-hidden border border-paper-15">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentIndex}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute inset-0"
-                >
-                  <img
-                    src={currentMemory?.fileUrl}
-                    alt={currentMemory?.title || 'Memory'}
-                    className="w-full h-full object-contain bg-void"
-                  />
-                  {currentMemory?.title && (
-                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-void/80">
-                      <p className="text-paper text-lg">{currentMemory.title}</p>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
+            {/* Image frame */}
+            <div
+              style={{
+                width: '100%',
+                maxWidth: 900,
+                position: 'relative',
+                border: '1px solid var(--loom-rule)',
+                overflow: 'hidden',
+                aspectRatio: '16/9',
+                background: 'var(--loom-ink)',
+              }}
+            >
+              {/* Current image */}
+              <div
+                key={currentIndex}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+              >
+                <img
+                  src={currentMemory?.fileUrl}
+                  alt={currentMemory?.title || 'Memory'}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', background: 'var(--loom-ink)' }}
+                />
+                {currentMemory?.title && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      padding: '12px 20px',
+                      background: 'linear-gradient(to top, rgba(14,14,12,0.82), transparent)',
+                    }}
+                  >
+                    <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone)', margin: 0 }}>
+                      {currentMemory.title}
+                    </p>
+                  </div>
+                )}
+              </div>
 
+              {/* Prev button */}
               <button
+                type="button"
                 onClick={goToPrevious}
                 disabled={currentIndex === 0}
-                aria-label="Previous photo"
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-[2px] bg-void/70 flex items-center justify-center text-paper text-2xl hover:bg-void transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label="Previous"
+                style={{
+                  position: 'absolute',
+                  left: 12,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 40,
+                  height: 40,
+                  background: 'rgba(14,14,12,0.65)',
+                  border: '1px solid var(--loom-rule)',
+                  cursor: currentIndex === 0 ? 'default' : 'pointer',
+                  opacity: currentIndex === 0 ? 0.3 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--loom-bone)',
+                  fontSize: 20,
+                  lineHeight: 1,
+                }}
               >
-                <span aria-hidden>‹</span>
+                ‹
               </button>
 
+              {/* Next button */}
               <button
+                type="button"
                 onClick={goToNext}
                 disabled={currentIndex === memories.length - 1}
-                aria-label="Next photo"
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-[2px] bg-void/70 flex items-center justify-center text-paper text-2xl hover:bg-void transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                aria-label="Next"
+                style={{
+                  position: 'absolute',
+                  right: 12,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 40,
+                  height: 40,
+                  background: 'rgba(14,14,12,0.65)',
+                  border: '1px solid var(--loom-rule)',
+                  cursor: currentIndex === memories.length - 1 ? 'default' : 'pointer',
+                  opacity: currentIndex === memories.length - 1 ? 0.3 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--loom-bone)',
+                  fontSize: 20,
+                  lineHeight: 1,
+                }}
               >
-                <span aria-hidden>›</span>
+                ›
               </button>
             </div>
 
-            <div className="mt-6 flex items-center gap-4">
-              <button
-                onClick={togglePlayback}
-                aria-label={isPlaying ? 'Pause' : 'Play'}
-                className="px-6 h-12 rounded-[2px] bg-gold text-void font-mono text-sm uppercase tracking-[0.18em] flex items-center justify-center hover:bg-gold-bright transition-colors"
-              >
+            {/* Controls row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 20 }}>
+              <button type="button" onClick={togglePlayback} aria-label={isPlaying ? 'Pause' : 'Play'} className="loom-btn">
                 {isPlaying ? 'Pause' : 'Play'}
               </button>
-
               <button
+                type="button"
                 onClick={() => setIsMuted(!isMuted)}
                 aria-label={isMuted ? 'Unmute' : 'Mute'}
-                className="px-4 h-10 rounded-[2px] bg-void-surface border border-paper-15 text-paper-70 font-mono text-xs uppercase tracking-[0.18em] flex items-center justify-center hover:text-paper transition-colors"
+                className="loom-btn-ghost"
+                style={{ fontSize: 11, padding: '10px 18px' }}
               >
                 {isMuted ? 'Muted' : 'Sound'}
               </button>
             </div>
 
-            <div className="mt-4 flex items-center gap-2">
+            {/* Dot indicators */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 16 }}>
               {memories.map((_, index) => (
                 <button
                   key={index}
+                  type="button"
                   onClick={() => setCurrentIndex(index)}
                   aria-label={`Go to photo ${index + 1}`}
-                  className={`h-1 rounded-[2px] transition-all ${
-                    index === currentIndex ? 'bg-gold w-6' : 'bg-paper-30 w-2 hover:bg-paper-50'
-                  }`}
+                  style={{
+                    height: 1,
+                    width: index === currentIndex ? 24 : 8,
+                    background: index === currentIndex ? 'var(--loom-warm)' : 'var(--loom-rule)',
+                    border: 0,
+                    cursor: 'pointer',
+                    padding: 0,
+                    transition: 'width 360ms cubic-bezier(0.16,1,0.3,1), background 180ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
                 />
               ))}
             </div>
 
-            <p className="mt-4 text-paper-50 text-sm">
+            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', marginTop: 12 }}>
               {currentIndex + 1} of {memories.length}
             </p>
           </>
         ) : (
-          <div className="text-center">
-            <p className="text-paper-50">No photos in this story yet.</p>
-          </div>
+          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>
+            No photos in this story yet.
+          </p>
         )}
       </main>
 
-      <footer className="p-6 text-center">
-        <p className="text-paper-30 text-sm">
-          Powered by <a href="https://heirloom.blue" className="text-gold hover:text-gold-bright transition-colors">Heirloom</a>
+      {/* Footer */}
+      <footer style={{ position: 'relative', zIndex: 1, padding: '24px', textAlign: 'center' }}>
+        <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em' }}>
+          Powered by{' '}
+          <a href="https://heirloom.blue" style={{ color: 'var(--loom-warm)', textDecoration: 'none' }}>
+            Heirloom
+          </a>
         </p>
       </footer>
     </div>

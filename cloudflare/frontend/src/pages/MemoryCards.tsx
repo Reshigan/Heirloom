@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoryCardsApi, memoriesApi } from '../services/api';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 
 interface CardStyle {
   id: string;
@@ -44,10 +43,16 @@ interface OnThisDayMemory {
   date: string;
 }
 
+const TABS: { value: 'create' | 'gallery' | 'onthisday'; label: string }[] = [
+  { value: 'create', label: 'Create' },
+  { value: 'gallery', label: 'My cards' },
+  { value: 'onthisday', label: 'On this day' },
+];
+
 export function MemoryCards() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
+
   const [selectedMemory, setSelectedMemory] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string>('quote');
   const [customText, setCustomText] = useState('');
@@ -56,33 +61,28 @@ export function MemoryCards() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'create' | 'gallery' | 'onthisday'>('create');
 
-  // Fetch card styles
   const { data: stylesData } = useQuery({
     queryKey: ['memory-card-styles'],
     queryFn: () => memoryCardsApi.getStyles().then(r => r.data),
   });
 
-  // Fetch user's memories
   const { data: memoriesData } = useQuery({
     queryKey: ['memories-for-cards'],
     queryFn: () => memoriesApi.getAll({ limit: 50 }).then(r => r.data),
   });
 
-  // Fetch user's generated cards
   const { data: cardsData } = useQuery({
     queryKey: ['my-memory-cards'],
     queryFn: () => memoryCardsApi.getAll().then(r => r.data),
     enabled: activeTab === 'gallery',
   });
 
-  // Fetch On This Day memories
   const { data: onThisDayData } = useQuery({
     queryKey: ['on-this-day'],
     queryFn: () => memoryCardsApi.getOnThisDay().then(r => r.data),
     enabled: activeTab === 'onthisday',
   });
 
-  // Generate card mutation
   const generateMutation = useMutation({
     mutationFn: () => memoryCardsApi.generate({
       memoryId: selectedMemory!,
@@ -96,36 +96,29 @@ export function MemoryCards() {
     },
   });
 
-  // Share mutation
   const shareMutation = useMutation({
     mutationFn: (platform: string) => memoryCardsApi.recordShare(generatedCard!.id, platform),
   });
 
   const handleGenerate = () => {
-    if (selectedMemory) {
-      generateMutation.mutate();
-    }
+    if (selectedMemory) generateMutation.mutate();
   };
 
   const handleCopyLink = async () => {
-    if (generatedCard) {
-      try {
-        await navigator.clipboard.writeText(generatedCard.shareUrl);
-        setCopied(true);
-        shareMutation.mutate('copy');
-        setTimeout(() => setCopied(false), 2000);
-      } catch {
-        const textArea = document.createElement('textarea');
-        textArea.value = generatedCard.shareUrl;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        setCopied(true);
-        shareMutation.mutate('copy');
-        setTimeout(() => setCopied(false), 2000);
-      }
+    if (!generatedCard) return;
+    try {
+      await navigator.clipboard.writeText(generatedCard.shareUrl);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = generatedCard.shareUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
     }
+    setCopied(true);
+    shareMutation.mutate('copy');
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSocialShare = (platform: string, url: string) => {
@@ -139,394 +132,536 @@ export function MemoryCards() {
   const onThisDay = onThisDayData || { memoriesFromThisDay: [], createdOnThisDay: [], hasMemories: false, displayDate: '' };
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
+    <AppFrame>
+      {/* Header */}
+      <header style={{ marginBottom: 40 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Memory Cards</p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        >
+          Threads made shareable.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
+        >
+          Pull a line from the cloth and send it forward — a single weft made into a card for
+          someone who wasn't there.
+        </p>
+      </header>
 
-      <div className="px-6 md:px-12 py-12">
-        <button onClick={() => navigate('/dashboard')} className="inline-flex items-center gap-2 text-paper-70 hover:text-gold transition-colors mb-8 text-sm">
-          <span aria-hidden>←</span> Back to Vault
-        </button>
-
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
+      {/* Tab row */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 24,
+          paddingBottom: 14,
+          marginBottom: 36,
+          borderBottom: '1px solid var(--loom-rule)',
+        }}
+      >
+        {TABS.map((t) => (
+          <button
+            key={t.value}
+            type="button"
+            onClick={() => setActiveTab(t.value)}
+            style={{
+              background: 'transparent',
+              border: 0,
+              padding: 0,
+              cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: '0.32em',
+              textTransform: 'uppercase',
+              color: activeTab === t.value ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+              borderBottom: '1px solid',
+              borderColor: activeTab === t.value ? 'var(--loom-warm)' : 'transparent',
+              paddingBottom: 6,
+              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+            }}
           >
-            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Memory Cards</p>
-            <h1 className="font-body font-light text-4xl tracking-[-0.018em]">Memory Cards</h1>
-            <p className="text-paper-70 max-w-2xl mx-auto mt-4 leading-relaxed">
-              Transform your memories into beautiful, shareable cards. Perfect for Instagram,
-              Facebook, or sending to loved ones.
-            </p>
-          </motion.div>
+            {t.label}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => navigate('/memories')}
+          style={{
+            marginLeft: 'auto',
+            background: 'transparent',
+            border: 0,
+            padding: 0,
+            cursor: 'pointer',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 10,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--loom-warm)',
+          }}
+        >
+          view the thread →
+        </button>
+      </div>
 
-          {/* Tabs */}
-          <div className="flex justify-center gap-2 mb-8">
+      {/* Create tab */}
+      {activeTab === 'create' && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+            gap: 48,
+            alignItems: 'start',
+          }}
+        >
+          {/* Left column — controls */}
+          <div style={{ display: 'grid', gap: 32 }}>
+            {/* Memory selection */}
+            <section>
+              <p className="loom-eyebrow" style={{ marginBottom: 16 }}>1 — select a memory</p>
+              <div style={{ maxHeight: 300, overflowY: 'auto', display: 'grid', gap: 1 }}>
+                {memories.length === 0 ? (
+                  <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>
+                    No memories yet.
+                  </p>
+                ) : (
+                  memories.map((memory: any) => (
+                    <button
+                      key={memory.id}
+                      type="button"
+                      onClick={() => setSelectedMemory(memory.id)}
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        borderBottom: '1px solid var(--loom-rule)',
+                        padding: '14px 0',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        display: 'grid',
+                        gap: 4,
+                      }}
+                    >
+                      <span
+                        className="loom-serif"
+                        style={{
+                          fontSize: 17,
+                          fontWeight: 300,
+                          color: selectedMemory === memory.id ? 'var(--loom-warm)' : 'var(--loom-bone)',
+                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        }}
+                      >
+                        {memory.title || 'Untitled Memory'}
+                      </span>
+                      {memory.description && (
+                        <span
+                          className="loom-body"
+                          style={{
+                            fontSize: 13,
+                            color: 'var(--loom-bone-dim)',
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: 'vertical',
+                          }}
+                        >
+                          {memory.description}
+                        </span>
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+            </section>
+
+            {/* Style selection */}
+            <section>
+              <p className="loom-eyebrow" style={{ marginBottom: 16 }}>2 — choose a style</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {styles.map((style: CardStyle) => (
+                  <button
+                    key={style.id}
+                    type="button"
+                    onClick={() => setSelectedStyle(style.id)}
+                    style={{
+                      padding: '12px 14px',
+                      border: `1px solid ${selectedStyle === style.id ? 'var(--loom-warm)' : 'var(--loom-rule)'}`,
+                      background: selectedStyle === style.id ? 'rgba(176,122,74,0.06)' : 'transparent',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                  >
+                    <p
+                      className="loom-mono"
+                      style={{
+                        fontSize: 11,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: selectedStyle === style.id ? 'var(--loom-warm)' : 'var(--loom-bone)',
+                        margin: '0 0 4px',
+                      }}
+                    >
+                      {style.name}
+                    </p>
+                    <p style={{ fontSize: 12, color: 'var(--loom-bone-faint)', margin: 0 }}>{style.description}</p>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Customize */}
+            <section>
+              <p className="loom-eyebrow" style={{ marginBottom: 16 }}>3 — customize</p>
+              <div style={{ display: 'grid', gap: 16 }}>
+                <div>
+                  <label
+                    className="loom-eyebrow"
+                    style={{ display: 'block', marginBottom: 10, color: 'var(--loom-bone-faint)' }}
+                  >
+                    Custom quote — optional
+                  </label>
+                  <textarea
+                    value={customText}
+                    onChange={(e) => setCustomText(e.target.value)}
+                    placeholder="Leave empty to auto-extract from memory…"
+                    maxLength={200}
+                    style={{
+                      width: '100%',
+                      background: 'transparent',
+                      border: '1px solid var(--loom-rule)',
+                      borderRadius: 2,
+                      padding: '10px 14px',
+                      color: 'var(--loom-bone)',
+                      fontFamily: "'Source Serif 4', serif",
+                      fontSize: 15,
+                      lineHeight: 1.7,
+                      minHeight: 80,
+                      resize: 'vertical',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={includePhoto}
+                    onChange={(e) => setIncludePhoto(e.target.checked)}
+                    style={{ width: 14, height: 14, accentColor: 'var(--loom-warm)', cursor: 'pointer' }}
+                  />
+                  <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                    Include photo if available
+                  </span>
+                </label>
+              </div>
+            </section>
+
             <button
-              onClick={() => setActiveTab('create')}
-              className={`px-6 py-3 rounded-[2px] text-sm border transition-colors ${
-                activeTab === 'create'
-                  ? 'bg-void-surface text-gold border-gold-40'
-                  : 'bg-void-surface text-paper-70 border-paper-15 hover:text-paper'
-              }`}
+              type="button"
+              onClick={handleGenerate}
+              disabled={!selectedMemory || generateMutation.isPending}
+              className="loom-btn"
+              style={{ opacity: !selectedMemory || generateMutation.isPending ? 0.45 : 1 }}
             >
-              Create card
-            </button>
-            <button
-              onClick={() => setActiveTab('gallery')}
-              className={`px-6 py-3 rounded-[2px] text-sm border transition-colors ${
-                activeTab === 'gallery'
-                  ? 'bg-void-surface text-gold border-gold-40'
-                  : 'bg-void-surface text-paper-70 border-paper-15 hover:text-paper'
-              }`}
-            >
-              My cards
-            </button>
-            <button
-              onClick={() => setActiveTab('onthisday')}
-              className={`px-6 py-3 rounded-[2px] text-sm border transition-colors ${
-                activeTab === 'onthisday'
-                  ? 'bg-void-surface text-gold border-gold-40'
-                  : 'bg-void-surface text-paper-70 border-paper-15 hover:text-paper'
-              }`}
-            >
-              On this day
+              {generateMutation.isPending ? (
+                <span style={{ fontStyle: 'italic' }}>Weaving…</span>
+              ) : (
+                'Generate card'
+              )}
             </button>
           </div>
 
-          {/* Create Tab */}
-          {activeTab === 'create' && (
-            <div className="grid md:grid-cols-2 gap-8">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="space-y-6"
-              >
-                {/* Memory Selection */}
-                <div className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
-                  <h2 className="font-body text-xl mb-4">1. Select a memory</h2>
-                  <div className="max-h-[300px] overflow-y-auto space-y-2">
-                    {memories.length === 0 ? (
-                      <p className="text-paper-60 text-center py-8">
-                        No memories yet. Create some memories first.
-                      </p>
-                    ) : (
-                      memories.map((memory: any) => (
-                        <button
-                          key={memory.id}
-                          onClick={() => setSelectedMemory(memory.id)}
-                          className={`w-full text-left p-4 rounded-[2px] border transition-colors ${
-                            selectedMemory === memory.id
-                              ? 'bg-void border-gold-40'
-                              : 'bg-void border-paper-15 hover:border-gold-40'
-                          }`}
-                        >
-                          <div className="font-medium text-paper">{memory.title || 'Untitled Memory'}</div>
-                          <div className="text-sm text-paper-60 line-clamp-2">
-                            {memory.description?.substring(0, 100) || 'No description'}
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
+          {/* Right column — preview */}
+          <div>
+            {generatedCard ? (
+              <div>
+                <p className="loom-eyebrow" style={{ marginBottom: 18 }}>Your card</p>
+
+                {/* Card preview */}
+                <div
+                  style={{
+                    border: '1px solid var(--loom-rule)',
+                    padding: 32,
+                    marginBottom: 24,
+                    background: generatedCard.styleConfig.bgColor,
+                    color: generatedCard.styleConfig.textColor,
+                  }}
+                >
+                  {generatedCard.photoUrl && (
+                    <div
+                      style={{
+                        border: '1px solid rgba(244,236,216,0.12)',
+                        marginBottom: 20,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <img
+                        src={generatedCard.photoUrl}
+                        alt="Memory"
+                        style={{ width: '100%', height: 192, objectFit: 'cover', display: 'block' }}
+                      />
+                    </div>
+                  )}
+                  <blockquote
+                    style={{
+                      fontFamily: "'Source Serif 4', serif",
+                      fontStyle: 'italic',
+                      fontSize: 19,
+                      lineHeight: 1.6,
+                      margin: '0 0 18px',
+                      borderLeft: '2px solid var(--loom-warm)',
+                      paddingLeft: 16,
+                    }}
+                  >
+                    "{generatedCard.quote}"
+                  </blockquote>
+                  <p style={{ fontSize: 13, opacity: 0.7, margin: 0 }}>
+                    — {generatedCard.authorName}
+                    {generatedCard.memoryDate && <span> · {generatedCard.memoryDate}</span>}
+                  </p>
+                  <p
+                    className="loom-mono"
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: '0.18em',
+                      marginTop: 16,
+                      opacity: 0.45,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    ∞ Heirloom
+                  </p>
                 </div>
 
-                {/* Style Selection */}
-                <div className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
-                  <h2 className="font-body text-xl mb-4">2. Choose a style</h2>
-                  <div className="grid grid-cols-2 gap-3">
-                    {styles.map((style: CardStyle) => (
+                {/* Share actions */}
+                <div style={{ display: 'grid', gap: 8 }}>
+                  <button type="button" onClick={handleCopyLink} className="loom-btn-ghost">
+                    {copied ? 'Link copied' : 'Copy share link'}
+                  </button>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {(['twitter', 'facebook', 'whatsapp', 'linkedin'] as const).map((p) => (
                       <button
-                        key={style.id}
-                        onClick={() => setSelectedStyle(style.id)}
-                        className={`p-4 rounded-[2px] text-left border transition-colors ${
-                          selectedStyle === style.id
-                            ? 'border-gold-40'
-                            : 'border-paper-15 hover:border-gold-40'
-                        }`}
-                        style={{
-                          background: style.bgColor,
-                          color: style.textColor,
-                        }}
+                        key={p}
+                        type="button"
+                        onClick={() => handleSocialShare(p, generatedCard.socialShareUrls[p])}
+                        className="loom-btn-ghost"
+                        style={{ fontSize: 11, textTransform: 'capitalize', letterSpacing: '0.12em' }}
                       >
-                        <div className="font-medium text-sm">{style.name}</div>
-                        <div className="text-xs opacity-70">{style.description}</div>
+                        {p}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                {/* Options */}
-                <div className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
-                  <h2 className="font-body text-xl mb-4">3. Customize</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
-                        Custom quote — optional
-                      </label>
-                      <textarea
-                        value={customText}
-                        onChange={(e) => setCustomText(e.target.value)}
-                        placeholder="Leave empty to auto-extract from memory..."
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors min-h-[80px] resize-y"
-                        maxLength={200}
-                      />
-                    </div>
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={includePhoto}
-                        onChange={(e) => setIncludePhoto(e.target.checked)}
-                        className="w-5 h-5 rounded-[2px] border-paper-15 bg-void text-gold"
-                      />
-                      <span className="text-paper-70 text-sm">Include photo if available</span>
-                    </label>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleGenerate}
-                  disabled={!selectedMemory || generateMutation.isPending}
-                  className="btn btn-primary w-full py-4"
-                >
-                  {generateMutation.isPending ? 'Generating…' : (
-                    <>
-                      Generate card <span aria-hidden>→</span>
-                    </>
-                  )}
-                </button>
-              </motion.div>
-
-              {/* Preview */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
+              </div>
+            ) : (
+              <div
+                style={{
+                  border: '1px solid var(--loom-rule)',
+                  padding: '64px 32px',
+                  textAlign: 'center',
+                }}
               >
-                {generatedCard ? (
-                  <div className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
-                    <h2 className="font-body text-xl mb-4">Your card</h2>
+                <p
+                  style={{
+                    fontFamily: "'Source Serif 4', serif",
+                    fontSize: 28,
+                    color: 'var(--loom-warm)',
+                    marginBottom: 14,
+                  }}
+                >
+                  ∞
+                </p>
+                <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>
+                  Select a memory and style to generate your card.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-                    {/* Card Preview */}
-                    <div
-                      className="rounded-[2px] p-8 mb-6 min-h-[300px] flex flex-col justify-center"
-                      style={{
-                        background: generatedCard.styleConfig.bgColor,
-                        color: generatedCard.styleConfig.textColor,
-                      }}
-                    >
-                      {generatedCard.photoUrl && (
-                        <img
-                          src={generatedCard.photoUrl}
-                          alt="Memory"
-                          className="w-full h-48 object-cover rounded-[2px] mb-4"
-                        />
-                      )}
-                      <blockquote className="font-body text-xl italic mb-4">
-                        "{generatedCard.quote}"
-                      </blockquote>
-                      <div className="text-sm opacity-70">
-                        <div>— {generatedCard.authorName}</div>
-                        {generatedCard.memoryDate && (
-                          <div>{generatedCard.memoryDate}</div>
-                        )}
-                      </div>
-                      <div
-                        className="mt-4 text-xs opacity-50"
-                        style={{ color: generatedCard.styleConfig.accentColor }}
-                      >
-                        Made with Heirloom
-                      </div>
-                    </div>
-
-                    {/* Share Options */}
-                    <div className="space-y-4">
-                      <button
-                        onClick={handleCopyLink}
-                        className="btn btn-ghost w-full"
-                      >
-                        {copied ? 'Link copied' : 'Copy share link'}
-                      </button>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          onClick={() => handleSocialShare('twitter', generatedCard.socialShareUrls.twitter)}
-                          className="btn btn-ghost"
-                        >
-                          Twitter
-                        </button>
-                        <button
-                          onClick={() => handleSocialShare('facebook', generatedCard.socialShareUrls.facebook)}
-                          className="btn btn-ghost"
-                        >
-                          Facebook
-                        </button>
-                        <button
-                          onClick={() => handleSocialShare('whatsapp', generatedCard.socialShareUrls.whatsapp)}
-                          className="btn btn-ghost"
-                        >
-                          WhatsApp
-                        </button>
-                        <button
-                          onClick={() => handleSocialShare('linkedin', generatedCard.socialShareUrls.linkedin)}
-                          className="btn btn-ghost"
-                        >
-                          LinkedIn
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-void-surface border border-paper-15 text-center py-16 px-6 rounded-[2px]">
-                    <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
-                    <p className="text-paper-60">
-                      Select a memory and style to generate your card
-                    </p>
-                  </div>
-                )}
-              </motion.div>
+      {/* Gallery tab */}
+      {activeTab === 'gallery' && (
+        <div>
+          {cards.length === 0 ? (
+            <div style={{ border: '1px solid var(--loom-rule)', padding: '64px 32px', textAlign: 'center' }}>
+              <p className="loom-eyebrow" style={{ marginBottom: 14 }}>No cards yet</p>
+              <h2 className="loom-serif" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 24px' }}>
+                Every thread has a quotable line. Find yours.
+              </h2>
+              <button type="button" onClick={() => setActiveTab('create')} className="loom-btn">
+                Create your first card
+              </button>
             </div>
-          )}
-
-          {/* Gallery Tab */}
-          {activeTab === 'gallery' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {cards.length === 0 ? (
-                <div className="bg-void-surface border border-paper-15 text-center py-16 px-6 rounded-[2px]">
-                  <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
-                  <p className="text-paper-60 mb-6">
-                    You haven't created any cards yet
-                  </p>
-                  <button
-                    onClick={() => setActiveTab('create')}
-                    className="btn btn-primary"
-                  >
-                    Create your first card <span aria-hidden>→</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {cards.map((card: any) => (
-                    <div key={card.id} className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
-                      <div className="text-sm text-paper-60 mb-2">
+          ) : (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {cards.map((card: any) => (
+                <li key={card.id} style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}>
+                  <article style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'baseline' }}>
+                    <div>
+                      <p className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', margin: '0 0 8px' }}>
                         {card.memoryTitle || 'Untitled'}
-                      </div>
-                      <blockquote className="font-body text-paper italic mb-4 line-clamp-3">
+                      </p>
+                      <blockquote className="loom-serif" style={{ fontSize: 18, fontWeight: 300, fontStyle: 'italic', color: 'var(--loom-bone)', margin: 0 }}>
                         "{card.quote}"
                       </blockquote>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-paper-60">
-                          {card.shareCount || 0} shares
-                        </span>
-                        <a
-                          href={card.shareUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-gold hover:text-gold-bright transition-colors"
-                        >
-                          View card <span aria-hidden>→</span>
-                        </a>
-                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: '0 0 8px' }}>
+                        {card.shareCount || 0} shares
+                      </p>
+                      <a
+                        href={card.shareUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: 10,
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          color: 'var(--loom-warm)',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        view →
+                      </a>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {/* On This Day tab */}
+      {activeTab === 'onthisday' && (
+        <div>
+          {onThisDay.displayDate && (
+            <p
+              className="loom-mono"
+              style={{
+                fontSize: 11,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
+                color: 'var(--loom-warm)',
+                marginBottom: 32,
+              }}
+            >
+              {onThisDay.displayDate}
+            </p>
           )}
 
-          {/* On This Day Tab */}
-          {activeTab === 'onthisday' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-void-surface border border-gold-40 rounded-[2px] text-gold font-mono text-xs tracking-[0.12em] uppercase">
-                  {onThisDay.displayDate}
-                </div>
-              </div>
-
-              {!onThisDay.hasMemories ? (
-                <div className="bg-void-surface border border-paper-15 text-center py-16 px-6 rounded-[2px]">
-                  <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
-                  <p className="text-paper-70 mb-2">
-                    No memories from this day in previous years
-                  </p>
-                  <p className="text-paper-60 text-sm">
-                    Keep capturing memories and they'll appear here on their anniversaries.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  {onThisDay.memoriesFromThisDay.length > 0 && (
-                    <div>
-                      <h3 className="font-body text-xl mb-4">Memories from this day</h3>
-                      <div className="grid md:grid-cols-2 gap-6">
-                        {onThisDay.memoriesFromThisDay.map((memory: OnThisDayMemory) => (
-                          <div key={memory.id} className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
-                            <div className="text-gold text-sm mb-3">
-                              {memory.yearsAgo} year{memory.yearsAgo !== 1 ? 's' : ''} ago ({memory.year})
-                            </div>
+          {!onThisDay.hasMemories ? (
+            <div style={{ border: '1px solid var(--loom-rule)', padding: '64px 32px', textAlign: 'center' }}>
+              <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Nothing from this day yet</p>
+              <h2 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: 0, color: 'var(--loom-bone-dim)' }}>
+                Keep weaving. The anniversaries will come.
+              </h2>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 48 }}>
+              {onThisDay.memoriesFromThisDay.length > 0 && (
+                <section>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
+                    <span className="loom-eyebrow">From this day</span>
+                    <hr className="loom-hairline" style={{ flex: 1 }} />
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                    {onThisDay.memoriesFromThisDay.map((memory: OnThisDayMemory) => (
+                      <li key={memory.id} style={{ padding: '20px 0', borderBottom: '1px solid var(--loom-rule)' }}>
+                        <article style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 28, alignItems: 'start' }}>
+                          <div>
+                            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', textTransform: 'uppercase', letterSpacing: '0.18em', margin: 0 }}>
+                              {memory.yearsAgo}y ago
+                            </p>
+                            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: '4px 0 0' }}>
+                              {memory.year}
+                            </p>
+                          </div>
+                          <div>
                             {memory.photoUrl && (
-                              <img
-                                src={memory.photoUrl}
-                                alt={memory.title}
-                                className="w-full h-40 object-cover rounded-[2px] mb-4"
-                              />
+                              <div style={{ border: '1px solid var(--loom-rule)', marginBottom: 12, overflow: 'hidden' }}>
+                                <img
+                                  src={memory.photoUrl}
+                                  alt={memory.title}
+                                  style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }}
+                                />
+                              </div>
                             )}
-                            <h4 className="font-body text-paper mb-2">{memory.title || 'Untitled Memory'}</h4>
-                            <p className="text-paper-70 text-sm">{memory.description}</p>
-                            <div className="mt-4 flex gap-2">
+                            <h4 className="loom-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 6px' }}>
+                              {memory.title || 'Untitled Memory'}
+                            </h4>
+                            <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 14px' }}>
+                              {memory.description}
+                            </p>
+                            <div style={{ display: 'flex', gap: 12 }}>
                               <button
-                                onClick={() => {
-                                  setSelectedMemory(memory.id);
-                                  setActiveTab('create');
-                                }}
-                                className="btn btn-ghost text-sm"
+                                type="button"
+                                onClick={() => { setSelectedMemory(memory.id); setActiveTab('create'); }}
+                                className="loom-btn-ghost"
+                                style={{ fontSize: 11, padding: '8px 16px' }}
                               >
                                 Create card
                               </button>
                               <button
+                                type="button"
                                 onClick={() => navigate(`/memories/${memory.id}`)}
-                                className="btn btn-ghost text-sm"
+                                className="loom-btn-ghost"
+                                style={{ fontSize: 11, padding: '8px 16px' }}
                               >
                                 View memory
                               </button>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {onThisDay.createdOnThisDay.length > 0 && (
-                    <div>
-                      <h3 className="font-body text-xl mb-4">Created on this day</h3>
-                      <div className="grid md:grid-cols-2 gap-6">
-                        {onThisDay.createdOnThisDay.map((memory: OnThisDayMemory) => (
-                          <div key={memory.id} className="bg-void-surface border border-paper-15 p-6 rounded-[2px]">
-                            <div className="text-paper-60 text-sm mb-3">
-                              Created {memory.yearsAgo} year{memory.yearsAgo !== 1 ? 's' : ''} ago
-                            </div>
-                            <h4 className="font-body text-paper mb-2">{memory.title || 'Untitled Memory'}</h4>
-                            <p className="text-paper-70 text-sm">{memory.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                        </article>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
               )}
-            </motion.div>
+
+              {onThisDay.createdOnThisDay.length > 0 && (
+                <section>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
+                    <span className="loom-eyebrow">Created on this day</span>
+                    <hr className="loom-hairline" style={{ flex: 1 }} />
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                    {onThisDay.createdOnThisDay.map((memory: OnThisDayMemory) => (
+                      <li key={memory.id} style={{ padding: '20px 0', borderBottom: '1px solid var(--loom-rule)' }}>
+                        <article style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 28, alignItems: 'baseline' }}>
+                          <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', textTransform: 'uppercase', letterSpacing: '0.18em', margin: 0 }}>
+                            {memory.yearsAgo}y ago
+                          </p>
+                          <div>
+                            <h4 className="loom-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 6px' }}>
+                              {memory.title || 'Untitled Memory'}
+                            </h4>
+                            <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0 }}>
+                              {memory.description}
+                            </p>
+                          </div>
+                        </article>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
           )}
         </div>
-      </div>
-    </div>
+      )}
+    </AppFrame>
   );
 }
 

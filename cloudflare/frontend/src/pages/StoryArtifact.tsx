@@ -1,41 +1,16 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation } from '../components/Navigation';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import { ProgressHair } from '../components/ui/ProgressHair';
+import { AppFrame } from '../loom/components/AppFrame';
 import api, { memoriesApi, voiceApi } from '../services/api';
 
 // Quick Create wizard templates
 const STORY_TEMPLATES = [
-  {
-    id: 'family-moments',
-    title: 'Family Moments',
-    description: 'A collection of cherished family memories',
-    suggestedTitle: 'Our Family Story',
-    theme: 'warm',
-  },
-  {
-    id: 'love-story',
-    title: 'Love Story',
-    description: 'Your journey together',
-    suggestedTitle: 'Our Love Story',
-    theme: 'classic',
-  },
-  {
-    id: 'life-journey',
-    title: 'Life Journey',
-    description: 'Highlights from through the years',
-    suggestedTitle: 'A Life Well Lived',
-    theme: 'vintage',
-  },
-  {
-    id: 'special-moments',
-    title: 'Special Moments',
-    description: 'Your most treasured memories',
-    suggestedTitle: 'Moments to Remember',
-    theme: 'modern',
-  },
+  { id: 'family-moments', title: 'Family Moments', description: 'A collection of cherished family memories', suggestedTitle: 'Our Family Story', theme: 'warm' },
+  { id: 'love-story', title: 'Love Story', description: 'Your journey together', suggestedTitle: 'Our Love Story', theme: 'classic' },
+  { id: 'life-journey', title: 'Life Journey', description: 'Highlights from through the years', suggestedTitle: 'A Life Well Lived', theme: 'vintage' },
+  { id: 'special-moments', title: 'Special Moments', description: 'Your most treasured memories', suggestedTitle: 'Moments to Remember', theme: 'modern' },
 ];
 
 interface Memory {
@@ -54,7 +29,7 @@ interface VoiceRecording {
   duration: number;
 }
 
-interface StoryArtifact {
+interface StoryArtifactItem {
   id: string;
   title: string;
   description: string;
@@ -69,7 +44,7 @@ interface StoryArtifact {
   created_at: string;
 }
 
-// Theme options - kept for future advanced customization
+// Theme options — kept for future advanced customization
 const _THEMES = [
   { id: 'classic', name: 'Classic', description: 'Elegant gold and black' },
   { id: 'warm', name: 'Warm Memories', description: 'Soft sepia tones' },
@@ -78,7 +53,6 @@ const _THEMES = [
 ];
 void _THEMES;
 
-// Music track options - kept for future advanced customization
 const _MUSIC_TRACKS = [
   { id: null, name: 'No Music', description: 'Silent slideshow' },
   { id: 'gentle-piano', name: 'Gentle Piano', description: 'Soft, emotional piano' },
@@ -87,6 +61,21 @@ const _MUSIC_TRACKS = [
 ];
 void _MUSIC_TRACKS;
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'transparent',
+  border: '1px solid var(--loom-rule)',
+  borderRadius: 2,
+  padding: '10px 14px',
+  color: 'var(--loom-bone)',
+  fontFamily: "'Source Serif 4', serif",
+  fontSize: 15,
+  lineHeight: 1.7,
+  outline: 'none',
+  boxSizing: 'border-box',
+  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+};
+
 export function StoryArtifact() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -94,14 +83,11 @@ export function StoryArtifact() {
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Wizard state - simplified 3-step flow
-  const [wizardStep, setWizardStep] = useState(1); // 1: Pick template, 2: Select photos, 3: Review
+  const [wizardStep, setWizardStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof STORY_TEMPLATES[0] | null>(null);
 
-  // Feature onboarding
   const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('story-artifacts');
 
-  // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedMemories, setSelectedMemories] = useState<string[]>([]);
@@ -109,10 +95,10 @@ export function StoryArtifact() {
   const [theme, setTheme] = useState('classic');
   const [musicTrack, setMusicTrack] = useState<string | null>(null);
 
-    const { data: artifacts, isLoading } = useQuery<{ artifacts: StoryArtifact[] }>({
-      queryKey: ['story-artifacts'],
-      queryFn: () => api.get('/api/story-artifacts').then((r: { data: { artifacts: StoryArtifact[] } }) => r.data),
-    });
+  const { data: artifacts, isLoading } = useQuery<{ artifacts: StoryArtifactItem[] }>({
+    queryKey: ['story-artifacts'],
+    queryFn: () => api.get('/api/story-artifacts').then((r: { data: { artifacts: StoryArtifactItem[] } }) => r.data),
+  });
 
   const { data: memoriesData } = useQuery({
     queryKey: ['memories-for-artifact'],
@@ -126,7 +112,6 @@ export function StoryArtifact() {
     enabled: showCreate,
   });
 
-  // Normalize API responses - handle multiple response shapes
   const memories: Memory[] = (() => {
     if (!memoriesData) return [];
     if (Array.isArray(memoriesData)) return memoriesData;
@@ -156,13 +141,13 @@ export function StoryArtifact() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['story-artifacts'] }),
   });
 
-    const shareMutation = useMutation({
-      mutationFn: (artifactId: string) => api.post(`/api/story-artifacts/${artifactId}/share`, { expiryDays: 7 }),
-      onSuccess: (response: { data: { shareToken: string } }) => {
-        const baseUrl = window.location.origin;
-        setShareUrl(`${baseUrl}/story/${response.data.shareToken}`);
-      },
-    });
+  const shareMutation = useMutation({
+    mutationFn: (artifactId: string) => api.post(`/api/story-artifacts/${artifactId}/share`, { expiryDays: 7 }),
+    onSuccess: (response: { data: { shareToken: string } }) => {
+      const baseUrl = window.location.origin;
+      setShareUrl(`${baseUrl}/story/${response.data.shareToken}`);
+    },
+  });
 
   const deleteMutation = useMutation({
     mutationFn: (artifactId: string) => api.delete(`/api/story-artifacts/${artifactId}`),
@@ -189,7 +174,6 @@ export function StoryArtifact() {
   };
 
   const handleAutoSelectPhotos = () => {
-    // Auto-select up to 10 most recent photos
     const photoMemories = memories.filter(m => m.type === 'PHOTO').slice(0, 10);
     setSelectedMemories(photoMemories.map(m => m.id));
   };
@@ -206,7 +190,6 @@ export function StoryArtifact() {
     });
   };
 
-  // Legacy create handler - kept for advanced mode
   const _handleCreate = () => {
     if (!title.trim() || selectedMemories.length === 0) return;
     createMutation.mutate({
@@ -231,449 +214,596 @@ export function StoryArtifact() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setIsUploading(true);
     try {
       for (const file of Array.from(files)) {
-        // Get presigned upload URL
-        const { data: uploadData } = await memoriesApi.getUploadUrl({
-          filename: file.name,
-          contentType: file.type,
-        });
-
-        // Upload file to presigned URL
-        await fetch(uploadData.uploadUrl, {
-          method: 'PUT',
-          body: file,
-          headers: { 'Content-Type': file.type },
-        });
-
-        // Create memory record
-        await memoriesApi.create({
-          title: file.name.replace(/\.[^/.]+$/, ''),
-          type: 'PHOTO',
-          fileUrl: uploadData.fileUrl,
-          fileSize: file.size,
-        });
+        const { data: uploadData } = await memoriesApi.getUploadUrl({ filename: file.name, contentType: file.type });
+        await fetch(uploadData.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+        await memoriesApi.create({ title: file.name.replace(/\.[^/.]+$/, ''), type: 'PHOTO', fileUrl: uploadData.fileUrl, fileSize: file.size });
       }
       queryClient.invalidateQueries({ queryKey: ['memories-for-artifact'] });
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen relative bg-void">
-        <Navigation />
-        <div className="flex items-center justify-center h-[60vh]">
-          <ProgressHair label="loading…" width={180} />
+      <AppFrame>
+        <div style={{ padding: '80px 0', display: 'flex', justifyContent: 'center' }}>
+          <ProgressHair label="loading…" width={200} />
         </div>
-      </div>
+      </AppFrame>
     );
   }
 
+  const artifactList = artifacts?.artifacts ?? [];
+
   return (
-    <div className="min-h-screen relative bg-void text-paper antialiased">
-      <Navigation />
-
-      <main className="relative z-10 px-6 md:px-12 pt-24 pb-16 max-w-6xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-12"
-        >
-          <div>
-            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-3">Story Artifacts</p>
-            <h1 className="font-display font-light text-4xl md:text-5xl mb-2 tracking-[-0.018em]">Story Artifacts</h1>
-            <p className="text-paper-70 font-light">
-              Create beautiful micro-documentaries from your memories
-            </p>
-          </div>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="btn btn-primary"
+    <AppFrame>
+      {/* Header */}
+      <header
+        style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 20,
+          marginBottom: 48,
+        }}
+      >
+        <div>
+          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Story Artifacts</p>
+          <h1
+            className="loom-h2"
+            style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
           >
-            Create Story
-          </button>
-        </motion.div>
+            Woven into motion.
+          </h1>
+          <p
+            className="loom-body"
+            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 540, lineHeight: 1.6 }}
+          >
+            A story artifact takes the cloth you've woven and plays it forward — a micro-documentary
+            from your thread.
+          </p>
+        </div>
+        <button type="button" onClick={() => setShowCreate(true)} className="loom-btn">
+          Create story
+        </button>
+      </header>
 
-        {/* Artifacts Grid */}
-        {artifacts?.artifacts && artifacts.artifacts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {artifacts.artifacts.map((artifact, index) => (
-              <motion.div
-                key={artifact.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-void-surface border border-paper-15 rounded-[2px] overflow-hidden group"
+      {/* Artifacts list */}
+      {artifactList.length > 0 ? (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {artifactList.map((artifact) => (
+            <li key={artifact.id} style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}>
+              <article
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto',
+                  gap: 24,
+                  alignItems: 'baseline',
+                }}
               >
-                <div className="aspect-video bg-void-elevated flex items-center justify-center relative border-b border-paper-15">
-                  <span className="font-display text-3xl text-gold" aria-hidden>∞</span>
-                                    {artifact.status === 'READY' && (
-                                      <div className="absolute inset-0 bg-void/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <button
-                                          onClick={() => shareMutation.mutate(artifact.id)}
-                                          className="px-4 py-2 border border-gold-40 text-gold rounded-[2px] hover:text-gold-bright transition-colors"
-                                          aria-label="Share this story"
-                                        >
-                                          Share <span aria-hidden>→</span>
-                                        </button>
-                                      </div>
-                                    )}
-                  <div className="absolute top-3 right-3">
-                    <span className="px-2 py-1 rounded-[2px] text-xs font-mono uppercase tracking-[0.1em] bg-void border border-paper-15 text-paper-70">
-                      {artifact.status}
+                <div>
+                  {/* Status + date rail */}
+                  <div style={{ display: 'flex', gap: 16, marginBottom: 8, alignItems: 'baseline' }}>
+                    <span
+                      className="loom-mono"
+                      style={{
+                        fontSize: 10,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: artifact.status === 'READY' ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                      }}
+                    >
+                      {artifact.status.toLowerCase()}
+                    </span>
+                    <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em' }}>
+                      {JSON.parse(artifact.selected_memories || '[]').length} photos · {artifact.view_count} views
                     </span>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-body mb-1 truncate">{artifact.title}</h3>
+                  <h3 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 6px', lineHeight: 1.25 }}>
+                    {artifact.title}
+                  </h3>
                   {artifact.description && (
-                    <p className="text-sm text-paper-65 mb-3 line-clamp-2">{artifact.description}</p>
+                    <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                      {artifact.description}
+                    </p>
                   )}
-                  <div className="flex items-center justify-between text-sm text-paper-70">
-                    <div className="flex items-center gap-3 font-mono text-xs">
-                      <span>{JSON.parse(artifact.selected_memories || '[]').length} photos</span>
-                      <span>{artifact.view_count} views</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {artifact.status === 'DRAFT' && (
-                        <button
-                          onClick={() => generateMutation.mutate(artifact.id)}
-                          disabled={generateMutation.isPending}
-                          className="text-gold hover:text-gold-bright transition-colors text-sm"
-                        >
-                          Generate
-                        </button>
-                      )}
-                      {artifact.status === 'READY' && (
-                        <button
-                          onClick={() => shareMutation.mutate(artifact.id)}
-                          className="text-paper-70 hover:text-paper transition-colors text-sm"
-                        >
-                          Share
-                        </button>
-                      )}
-                      <button
-                        onClick={() => deleteMutation.mutate(artifact.id)}
-                        className="text-paper-50 hover:text-blood transition-colors text-sm"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <span className="font-display text-4xl text-paper-30 block mb-6" aria-hidden>∞</span>
-            <h3 className="font-body text-xl mb-2">No stories yet</h3>
-            <p className="text-paper-65 mb-6">Create your first micro-documentary from your memories</p>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="btn btn-primary"
-            >
-              Create Your First Story
-            </button>
-          </motion.div>
-        )}
 
-        {/* Share URL Modal */}
-        <AnimatePresence>
-          {shareUrl && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
-              onClick={() => setShareUrl(null)}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full"
-                onClick={e => e.stopPropagation()}
-              >
-                <h3 className="font-body text-xl mb-4">Share Your Story</h3>
-                <p className="text-paper-70 mb-4">Anyone with this link can view your story for 7 days.</p>
-                <div className="flex gap-2 mb-4">
-                  <input
-                    type="text"
-                    value={shareUrl}
-                    readOnly
-                    className="flex-1 bg-void border border-paper-15 rounded-[2px] px-4 py-2 text-sm text-paper font-mono"
-                  />
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                  {artifact.status === 'DRAFT' && (
+                    <button
+                      type="button"
+                      onClick={() => generateMutation.mutate(artifact.id)}
+                      disabled={generateMutation.isPending}
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: 'pointer',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 10,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: 'var(--loom-warm)',
+                        opacity: generateMutation.isPending ? 0.45 : 1,
+                      }}
+                    >
+                      Generate
+                    </button>
+                  )}
+                  {artifact.status === 'READY' && (
+                    <button
+                      type="button"
+                      onClick={() => shareMutation.mutate(artifact.id)}
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: 'pointer',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 10,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: 'var(--loom-bone-dim)',
+                      }}
+                    >
+                      Share
+                    </button>
+                  )}
                   <button
-                    onClick={() => navigator.clipboard.writeText(shareUrl)}
-                    className="btn btn-primary btn-sm"
+                    type="button"
+                    onClick={() => deleteMutation.mutate(artifact.id)}
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      padding: 0,
+                      cursor: 'pointer',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'var(--loom-bone-faint)',
+                    }}
                   >
-                    Copy
+                    Delete
                   </button>
                 </div>
-                <button
-                  onClick={() => setShareUrl(null)}
-                  className="w-full btn btn-ghost"
-                >
-                  Done
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </article>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div style={{ border: '1px solid var(--loom-rule)', padding: '72px 36px', textAlign: 'center' }}>
+          <p style={{ fontFamily: "'Source Serif 4', serif", fontSize: 28, color: 'var(--loom-bone-faint)', marginBottom: 20 }}>∞</p>
+          <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 12px' }}>
+            No stories yet.
+          </h3>
+          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 auto 28px', maxWidth: 400 }}>
+            Create your first micro-documentary from your memories.
+          </p>
+          <button type="button" onClick={() => setShowCreate(true)} className="loom-btn">
+            Create your first story
+          </button>
+        </div>
+      )}
 
-        {/* Create Modal - Simplified Wizard */}
-        <AnimatePresence>
-          {showCreate && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4 overflow-y-auto"
-              onClick={() => resetForm()}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-xl w-full my-8"
-                onClick={e => e.stopPropagation()}
+      {/* Share URL overlay */}
+      {shareUrl && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 50,
+            padding: 16,
+          }}
+          onClick={() => setShareUrl(null)}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 500,
+              width: '100%',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, margin: '0 0 8px' }}>
+              Share your story
+            </h3>
+            <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 20px' }}>
+              Anyone with this link can view your story for 7 days.
+            </p>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+              <input
+                type="text"
+                value={shareUrl}
+                readOnly
+                style={{ ...inputStyle, flex: 1, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}
+              />
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(shareUrl)}
+                className="loom-btn"
+                style={{ padding: '10px 18px', flexShrink: 0 }}
               >
-                {/* Wizard Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    {wizardStep > 1 && (
-                      <button
-                        onClick={() => setWizardStep(wizardStep - 1)}
-                        className="text-paper-50 hover:text-paper transition-colors"
-                        aria-label="Back"
-                      >
-                        <span aria-hidden>←</span>
-                      </button>
-                    )}
+                Copy
+              </button>
+            </div>
+            <button type="button" onClick={() => setShareUrl(null)} className="loom-btn-ghost" style={{ width: '100%' }}>
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Create wizard overlay */}
+      {showCreate && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 50,
+            padding: 16,
+            overflowY: 'auto',
+          }}
+          onClick={() => resetForm()}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 580,
+              width: '100%',
+              margin: '32px auto',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Wizard header */}
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 32 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
+                {wizardStep > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setWizardStep(wizardStep - 1)}
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      cursor: 'pointer',
+                      color: 'var(--loom-bone-faint)',
+                      fontSize: 16,
+                      padding: 0,
+                    }}
+                    aria-label="Back"
+                  >
+                    ←
+                  </button>
+                )}
+                <div>
+                  <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, margin: 0 }}>
+                    {wizardStep === 1 && 'What kind of story?'}
+                    {wizardStep === 2 && 'Select your photos'}
+                    {wizardStep === 3 && 'Review and create'}
+                  </h3>
+                  <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', marginTop: 4 }}>
+                    Step {wizardStep} of 3
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => resetForm()}
+                aria-label="Close"
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  cursor: 'pointer',
+                  color: 'var(--loom-bone-faint)',
+                  fontSize: 18,
+                  lineHeight: 1,
+                  padding: 4,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Step 1 — template selection */}
+            {wizardStep === 1 && (
+              <div style={{ display: 'grid', gap: 1 }}>
+                {STORY_TEMPLATES.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() => handleTemplateSelect(template)}
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--loom-rule)',
+                      padding: '16px 0',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'baseline',
+                      gap: 16,
+                    }}
+                  >
                     <div>
-                      <h3 className="font-body text-xl">
-                        {wizardStep === 1 && 'What kind of story?'}
-                        {wizardStep === 2 && 'Select your photos'}
-                        {wizardStep === 3 && 'Review & Create'}
-                      </h3>
-                      <p className="text-sm text-paper-65 font-mono">Step {wizardStep} of 3</p>
+                      <p className="loom-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 4px' }}>
+                        {template.title}
+                      </p>
+                      <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-dim)', margin: 0 }}>
+                        {template.description}
+                      </p>
                     </div>
-                  </div>
-                  <button onClick={() => resetForm()} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
-                    <span aria-hidden>✕</span>
+                    <span style={{ color: 'var(--loom-bone-faint)', fontSize: 16 }}>→</span>
+                  </button>
+                ))}
+                <div style={{ paddingTop: 16 }}>
+                  <button
+                    type="button"
+                    onClick={() => { setWizardStep(2); setSelectedTemplate(null); }}
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      cursor: 'pointer',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'var(--loom-bone-faint)',
+                      padding: '10px 0',
+                    }}
+                  >
+                    Or create a custom story…
                   </button>
                 </div>
+              </div>
+            )}
 
-                {/* Step 1: Pick Template */}
-                {wizardStep === 1 && (
-                  <div className="space-y-3">
-                    {STORY_TEMPLATES.map((template) => (
-                      <button
-                        key={template.id}
-                        onClick={() => handleTemplateSelect(template)}
-                        className="w-full p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
-                      >
-                        <div className="flex-1">
-                          <h4 className="font-body">{template.title}</h4>
-                          <p className="text-sm text-paper-65">{template.description}</p>
+            {/* Step 2 — select photos */}
+            {wizardStep === 2 && (
+              <div style={{ display: 'grid', gap: 20 }}>
+                {/* Quick actions */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={handleAutoSelectPhotos}
+                    disabled={memories.filter(m => m.type === 'PHOTO').length === 0}
+                    className="loom-btn-ghost"
+                    style={{ flex: 1, opacity: memories.filter(m => m.type === 'PHOTO').length === 0 ? 0.4 : 1 }}
+                  >
+                    Auto-select recent
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="loom-btn-ghost"
+                    style={{ opacity: isUploading ? 0.4 : 1 }}
+                  >
+                    {isUploading ? (
+                      <span style={{ fontStyle: 'italic' }}>Uploading…</span>
+                    ) : (
+                      'Upload'
+                    )}
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileUpload}
+                    style={{ display: 'none' }}
+                  />
+                </div>
+
+                <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em' }}>
+                  {selectedMemories.length}/10 photos selected
+                </p>
+
+                {/* Photo grid */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: 4,
+                    maxHeight: 240,
+                    overflowY: 'auto',
+                    background: 'rgba(14,14,12,0.4)',
+                    padding: 4,
+                  }}
+                >
+                  {memories.filter(m => m.type === 'PHOTO').map((memory) => (
+                    <button
+                      key={memory.id}
+                      type="button"
+                      onClick={() => toggleMemory(memory.id)}
+                      style={{
+                        position: 'relative',
+                        aspectRatio: '1',
+                        overflow: 'hidden',
+                        border: `1px solid ${selectedMemories.includes(memory.id) ? 'var(--loom-warm)' : 'transparent'}`,
+                        cursor: 'pointer',
+                        padding: 0,
+                      }}
+                    >
+                      <img
+                        src={memory.fileUrl}
+                        alt={memory.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                      {selectedMemories.includes(memory.id) && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'rgba(176,122,74,0.35)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <span style={{ color: 'var(--loom-bone)', fontSize: 16 }}>✓</span>
                         </div>
-                        <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
-                      </button>
-                    ))}
-                    <div className="pt-4 border-t border-paper-15">
-                      <button
-                        onClick={() => {
-                          setWizardStep(2);
-                          setSelectedTemplate(null);
-                        }}
-                        className="w-full p-3 text-center text-paper-65 hover:text-paper transition-colors"
-                      >
-                        Or create a custom story...
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 2: Select Photos */}
-                {wizardStep === 2 && (
-                  <div className="space-y-4">
-                    {/* Quick Actions */}
-                    <div className="flex gap-2 mb-4">
-                      <button
-                        onClick={handleAutoSelectPhotos}
-                        disabled={memories.filter(m => m.type === 'PHOTO').length === 0}
-                        className="flex-1 p-3 border border-gold-40 rounded-[2px] text-gold hover:text-gold-bright transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Auto-select recent photos
-                      </button>
+                      )}
+                    </button>
+                  ))}
+                  {memories.filter(m => m.type === 'PHOTO').length === 0 && (
+                    <div
+                      style={{
+                        gridColumn: '1/-1',
+                        textAlign: 'center',
+                        padding: '32px 0',
+                      }}
+                    >
+                      <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', fontStyle: 'italic', marginBottom: 14 }}>
+                        No photos yet.
+                      </p>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                        className="p-3 bg-void border border-paper-15 rounded-[2px] hover:bg-void-elevated transition-colors"
+                        className="loom-btn"
+                        style={{ fontSize: 11, padding: '8px 18px' }}
                       >
-                        {isUploading ? 'Uploading...' : 'Upload'}
+                        Upload your first photo
                       </button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
                     </div>
+                  )}
+                </div>
 
-                    <p className="text-sm text-paper-70 font-mono">
-                      Selected: {selectedMemories.length}/10 photos
-                    </p>
+                <button
+                  type="button"
+                  onClick={() => setWizardStep(3)}
+                  disabled={selectedMemories.length === 0}
+                  className="loom-btn"
+                  style={{ opacity: selectedMemories.length === 0 ? 0.45 : 1 }}
+                >
+                  Continue with {selectedMemories.length} photos
+                </button>
+              </div>
+            )}
 
-                    {/* Photo Grid */}
-                    <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto p-2 bg-void rounded-[2px]">
-                      {memories.filter(m => m.type === 'PHOTO').map((memory) => (
+            {/* Step 3 — review and create */}
+            {wizardStep === 3 && (
+              <div style={{ display: 'grid', gap: 20 }}>
+                {/* Summary */}
+                <div style={{ padding: '14px 18px', border: '1px solid var(--loom-rule-warm)' }}>
+                  <p className="loom-serif" style={{ fontSize: 15, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 4px' }}>
+                    Ready to create
+                  </p>
+                  <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', margin: 0, letterSpacing: '0.1em' }}>
+                    {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom story'} · {selectedMemories.length} photos
+                  </p>
+                </div>
+
+                {/* Title */}
+                <div>
+                  <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                    Story title
+                  </label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Give your story a name…"
+                    style={inputStyle}
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                    Description (optional)
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Add a description…"
+                    rows={2}
+                    style={{ ...inputStyle, resize: 'none' }}
+                  />
+                </div>
+
+                {/* Voice narration */}
+                {voiceRecordings.length > 0 && (
+                  <div>
+                    <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                      Add voice narration (optional)
+                    </label>
+                    <div style={{ display: 'grid', gap: 4, maxHeight: 96, overflowY: 'auto' }}>
+                      {voiceRecordings.slice(0, 3).map((recording) => (
                         <button
-                          key={memory.id}
-                          onClick={() => toggleMemory(memory.id)}
-                          className={`aspect-square rounded-[2px] overflow-hidden relative ${
-                            selectedMemories.includes(memory.id) ? 'ring-1 ring-gold' : ''
-                          }`}
+                          key={recording.id}
+                          type="button"
+                          onClick={() => setSelectedVoice(selectedVoice === recording.id ? null : recording.id)}
+                          style={{
+                            background: 'transparent',
+                            border: `1px solid ${selectedVoice === recording.id ? 'var(--loom-rule-warm)' : 'var(--loom-rule)'}`,
+                            padding: '8px 12px',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            color: selectedVoice === recording.id ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                            fontFamily: "'Source Serif 4', serif",
+                            fontSize: 14,
+                          }}
                         >
-                          <img
-                            src={memory.fileUrl}
-                            alt={memory.title}
-                            className="w-full h-full object-cover"
-                          />
-                          {selectedMemories.includes(memory.id) && (
-                            <div className="absolute inset-0 bg-gold/30 flex items-center justify-center">
-                              <span aria-hidden className="text-paper text-lg">✓</span>
-                            </div>
-                          )}
+                          {recording.title}
                         </button>
                       ))}
-                      {memories.filter(m => m.type === 'PHOTO').length === 0 && (
-                        <div className="col-span-4 text-center py-8">
-                          <p className="text-paper-65 mb-3">No photos yet</p>
-                          <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="btn btn-primary btn-sm"
-                          >
-                            Upload Your First Photo
-                          </button>
-                        </div>
-                      )}
                     </div>
-
-                    {/* Continue Button */}
-                    <button
-                      onClick={() => setWizardStep(3)}
-                      disabled={selectedMemories.length === 0}
-                      className="w-full btn btn-primary mt-4"
-                    >
-                      Continue with {selectedMemories.length} photos
-                    </button>
                   </div>
                 )}
 
-                {/* Step 3: Review & Create */}
-                {wizardStep === 3 && (
-                  <div className="space-y-5">
-                    {/* Summary */}
-                    <div className="p-4 rounded-[2px] bg-void border border-gold-40">
-                      <p className="font-body mb-2">Ready to create</p>
-                      <p className="text-sm text-paper-70">
-                        {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom story'} with {selectedMemories.length} photos
-                      </p>
-                    </div>
+                <button
+                  type="button"
+                  onClick={handleQuickCreate}
+                  disabled={!title.trim() || selectedMemories.length === 0 || createMutation.isPending}
+                  className="loom-btn"
+                  style={{ opacity: !title.trim() || selectedMemories.length === 0 || createMutation.isPending ? 0.45 : 1 }}
+                >
+                  {createMutation.isPending ? (
+                    <span style={{ fontStyle: 'italic' }}>Creating…</span>
+                  ) : (
+                    'Create story'
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-                    {/* Editable Title */}
-                    <div>
-                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Story Title</label>
-                      <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Give your story a name..."
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
-                      />
-                    </div>
-
-                    {/* Optional Description */}
-                    <div>
-                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Description (optional)</label>
-                      <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Add a description..."
-                        rows={2}
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors resize-none"
-                      />
-                    </div>
-
-                    {/* Voice Recording (collapsed by default) */}
-                    {voiceRecordings.length > 0 && (
-                      <div>
-                        <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Add Voice Narration (optional)</label>
-                        <div className="space-y-1 max-h-24 overflow-y-auto">
-                          {voiceRecordings.slice(0, 3).map((recording) => (
-                            <button
-                              key={recording.id}
-                              onClick={() => setSelectedVoice(selectedVoice === recording.id ? null : recording.id)}
-                              className={`w-full p-2 rounded-[2px] flex items-center gap-2 text-sm transition-colors border ${
-                                selectedVoice === recording.id
-                                  ? 'border-gold-40 text-gold'
-                                  : 'border-paper-15 bg-void hover:bg-void-elevated'
-                              }`}
-                            >
-                              <span className="flex-1 text-left truncate">{recording.title}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Create Button */}
-                    <button
-                      onClick={handleQuickCreate}
-                      disabled={!title.trim() || selectedMemories.length === 0 || createMutation.isPending}
-                      className="w-full btn btn-primary"
-                    >
-                      {createMutation.isPending ? 'Creating…' : 'Create Story'}
-                    </button>
-                  </div>
-                )}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
-
-      {/* Help Button */}
+      {/* Help button */}
       <OnboardingHelpButton onClick={openOnboarding} />
 
-      {/* Feature Onboarding */}
+      {/* Feature onboarding */}
       <FeatureOnboarding
         featureKey="story-artifacts"
         isOpen={isOnboardingOpen}
         onComplete={completeOnboarding}
         onDismiss={dismissOnboarding}
       />
-    </div>
+    </AppFrame>
   );
 }
 

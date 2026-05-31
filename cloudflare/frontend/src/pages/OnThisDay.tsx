@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ProgressHair } from '../components/ui/ProgressHair';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 import { engagementApi } from '../services/api';
 
 interface OnThisDayMemory {
@@ -14,7 +13,6 @@ interface OnThisDayMemory {
 }
 
 export function OnThisDay() {
-
   const { data, isLoading } = useQuery({
     queryKey: ['on-this-day'],
     queryFn: () => engagementApi.getOnThisDay().then((r) => r.data),
@@ -22,86 +20,134 @@ export function OnThisDay() {
 
   const memories: OnThisDayMemory[] = data?.memories || [];
   const today = new Date();
-  const dateStr = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  const dateStr = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
 
   const typeLabels: Record<string, string> = {
-    memory: 'Memory',
-    voice: 'Voice',
-    letter: 'Letter',
+    memory: 'memory',
+    voice: 'voice',
+    letter: 'letter',
   };
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
+    <AppFrame>
+      <header style={{ marginBottom: 48, maxWidth: 640 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>On this day</p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        >
+          {dateStr}.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', lineHeight: 1.6 }}
+        >
+          Threads woven on this date in earlier years surface here.
+        </p>
+      </header>
 
-      <main className="relative z-10 px-6 md:px-12 pt-24 pb-32 max-w-2xl mx-auto">
-        <div className="text-center mb-10">
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">On This Day</p>
-          <h1 className="font-body font-light text-3xl md:text-4xl text-paper mb-2 tracking-[-0.014em]">On This Day</h1>
-          <p className="text-paper-65 font-body text-lg">{dateStr}</p>
+      {isLoading ? (
+        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+          Loading…
+        </p>
+      ) : !memories.length ? (
+        <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', maxWidth: 640 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Nothing yet</p>
+          <h2
+            className="loom-serif"
+            style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
+          >
+            The thread remembers what you give it.
+          </h2>
+          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', margin: 0, lineHeight: 1.7 }}>
+            As you write into the thread over the years, entries woven on {dateStr} will surface here each year.
+          </p>
         </div>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {memories.map((memory) => (
+            <li
+              key={memory.id}
+              style={{ padding: '28px 0', borderBottom: '1px solid var(--loom-rule)' }}
+            >
+              <article style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 32, alignItems: 'baseline' }}>
+                {/* Left: date + type */}
+                <div>
+                  <p
+                    className="loom-mono"
+                    style={{ margin: 0, fontSize: 12, color: 'var(--loom-warm)', letterSpacing: '0.06em' }}
+                  >
+                    {memory.years_ago === 1 ? '1 year ago' : `${memory.years_ago} years ago`}
+                  </p>
+                  <p
+                    className="loom-mono"
+                    style={{ margin: '4px 0 0', fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
+                  >
+                    {new Date(memory.created_at).toLocaleDateString(undefined, { year: 'numeric' })} · {typeLabels[memory.type] || 'entry'}
+                  </p>
+                </div>
 
-        {isLoading ? (
-          <div className="flex justify-center py-16">
-            <ProgressHair label="loading…" width={180} />
-          </div>
-        ) : !memories.length ? (
-          <div className="border border-paper-15 bg-void-surface p-10 text-center">
-            <h3 className="font-body font-light text-2xl text-paper mb-2 tracking-[-0.014em]">No memories on this day yet</h3>
-            <p className="text-paper-65 max-w-prose mx-auto leading-relaxed">
-              As your thread accumulates over the years, entries written on this date in earlier years will surface here.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {memories.map((memory) => {
-              return (
-                <div
-                  key={memory.id}
-                  className="bg-void-surface border border-paper-15 p-6 animate-fade-in"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-gold font-body text-sm">
-                      {memory.years_ago === 1 ? '1 year ago' : `${memory.years_ago} years ago`}
-                    </span>
-                    <span className="text-paper-30">&middot;</span>
-                    <span className="text-paper-65 text-sm">
-                      {new Date(memory.created_at).toLocaleDateString('en-US', { year: 'numeric' })}
-                    </span>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    {memory.thumbnail_url ? (
-                      <img
-                        src={memory.thumbnail_url}
-                        alt=""
-                        className="w-20 h-20 rounded-[2px] object-cover flex-shrink-0"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 rounded-[2px] bg-void border border-paper-15 flex items-center justify-center flex-shrink-0">
-                        <span className="font-mono text-[0.6rem] tracking-[0.2em] uppercase text-paper-50">{typeLabels[memory.type] || 'Entry'}</span>
-                      </div>
+                {/* Right: content */}
+                <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+                  {memory.thumbnail_url ? (
+                    <img
+                      src={memory.thumbnail_url}
+                      alt=""
+                      style={{ width: 72, height: 72, objectFit: 'cover', flexShrink: 0, borderRadius: 0 }}
+                    />
+                  ) : null}
+                  <div style={{ flex: 1 }}>
+                    <h3
+                      className="loom-serif"
+                      style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 8px', lineHeight: 1.25 }}
+                    >
+                      {memory.title}
+                    </h3>
+                    {memory.preview && (
+                      <p
+                        className="loom-body"
+                        style={{
+                          fontSize: 15,
+                          color: 'var(--loom-bone-dim)',
+                          margin: 0,
+                          lineHeight: 1.7,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {memory.preview}
+                      </p>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-body text-xl text-paper mb-1">{memory.title}</h3>
-                      {memory.preview && (
-                        <p className="text-paper-70 text-sm line-clamp-3">{memory.preview}</p>
-                      )}
+                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--loom-rule)' }}>
+                      <button
+                        style={{
+                          background: 'none',
+                          border: 0,
+                          padding: 0,
+                          cursor: 'pointer',
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: 10,
+                          letterSpacing: '0.14em',
+                          textTransform: 'uppercase',
+                          color: 'var(--loom-bone-faint)',
+                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--loom-warm)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
+                      >
+                        remember →
+                      </button>
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-end mt-4 pt-3 border-t border-paper-15">
-                    <button className="text-paper-65 hover:text-gold text-xs transition-colors">
-                      Remember
-                    </button>
-                  </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </main>
-    </div>
+              </article>
+            </li>
+          ))}
+        </ul>
+      )}
+    </AppFrame>
   );
 }
 

@@ -64,6 +64,31 @@ const INFLUENCER_TEMPLATES: Record<string, { subject: string; body: string }> = 
   },
 };
 
+/* ── Loom input / select style ─────────────────────────────────────── */
+const inputStyle: React.CSSProperties = {
+  background: 'transparent',
+  border: '1px solid var(--loom-rule)',
+  color: 'var(--loom-bone)',
+  fontFamily: "'JetBrains Mono', monospace",
+  fontSize: 12,
+  letterSpacing: '0.04em',
+  padding: '8px 12px',
+  outline: 'none',
+  borderRadius: 0,
+  width: '100%',
+  transition: 'border-color 180ms var(--loom-ease)',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: "'JetBrains Mono', monospace",
+  fontSize: 10,
+  letterSpacing: '0.18em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--loom-bone-faint)',
+  marginBottom: 6,
+};
+
 export function MarketingTab() {
   const queryClient = useQueryClient();
   const [activeSubTab, setActiveSubTab] = useState<'influencers' | 'campaigns' | 'content' | 'signups'>('influencers');
@@ -75,9 +100,9 @@ export function MarketingTab() {
 
   const { data: influencers, isLoading: loadingInfluencers } = useQuery({
     queryKey: ['marketing-influencers', selectedSegment, selectedStatus],
-    queryFn: () => marketingApi.getInfluencers({ 
-      segment: selectedSegment || undefined, 
-      status: selectedStatus || undefined 
+    queryFn: () => marketingApi.getInfluencers({
+      segment: selectedSegment || undefined,
+      status: selectedStatus || undefined
     }).then(r => r.data),
   });
 
@@ -124,54 +149,62 @@ export function MarketingTab() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="font-body font-light text-xl text-paper">Marketing Automation</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="btn btn-secondary"
-          >
-            Import Influencers
+    <div style={{ color: 'var(--loom-bone)' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+        <div>
+          <p className="loom-eyebrow" style={{ marginBottom: 10 }}>Marketing</p>
+          <h2 className="loom-h2" style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}>
+            Outreach &amp; campaigns.
+          </h2>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => setShowImportModal(true)}>
+            Import CSV
           </button>
-          <button
-            onClick={() => setShowInfluencerModal(true)}
-            className="btn btn-secondary"
-          >
-            Add Influencer
+          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => setShowInfluencerModal(true)}>
+            Add Thread
           </button>
-          <button
-            onClick={() => setShowCampaignModal(true)}
-            className="btn btn-primary"
-          >
+          <button className="loom-btn" style={{ fontSize: 11 }} onClick={() => setShowCampaignModal(true)}>
             New Campaign
           </button>
         </div>
       </div>
 
-      <div className="flex gap-2 border-b border-paper-15 pb-2">
+      {/* Sub-tab nav */}
+      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--loom-rule)', marginBottom: 28 }}>
         {subTabs.map(({ id, label }) => (
           <button
             key={id}
             onClick={() => setActiveSubTab(id as any)}
-            className={`px-4 py-2 transition-colors ${
-              activeSubTab === id
-                ? 'text-gold border-b border-gold'
-                : 'text-paper-65 hover:text-paper'
-            }`}
+            style={{
+              background: 'none',
+              border: 'none',
+              borderBottom: activeSubTab === id ? '1px solid var(--loom-warm)' : '1px solid transparent',
+              marginBottom: -1,
+              padding: '8px 16px',
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: activeSubTab === id ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+              cursor: 'pointer',
+              transition: 'color 180ms var(--loom-ease)',
+            }}
           >
             {label}
           </button>
         ))}
       </div>
 
+      {/* Influencers tab */}
       {activeSubTab === 'influencers' && (
-        <div className="space-y-4">
-          <div className="flex gap-4">
+        <div>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
             <select
               value={selectedSegment}
               onChange={(e) => setSelectedSegment(e.target.value)}
-              className="input w-48"
+              style={{ ...inputStyle, width: 180 }}
             >
               <option value="">All Segments</option>
               {SEGMENTS.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
@@ -179,103 +212,56 @@ export function MarketingTab() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="input w-48"
+              style={{ ...inputStyle, width: 180 }}
             >
               <option value="">All Statuses</option>
               {INFLUENCER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            <div className="text-paper-65 flex items-center">
-              {influencers?.influencers?.length || 0} influencers
-            </div>
+            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+              {influencers?.influencers?.length || 0} threads
+            </span>
           </div>
 
-          <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 overflow-x-auto">
-            <table className="w-full">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr className="border-b border-paper-15">
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Name</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Email</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Platform</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Segment</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Last Contact</th>
+                <tr style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                  {['Name', 'Email', 'Platform', 'Segment', 'Status', 'Last Contact'].map(h => (
+                    <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', fontWeight: 400 }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {loadingInfluencers ? (
-                  <tr><td colSpan={6} className="py-8"><ProgressHair label="Loading…" /></td></tr>
+                  <tr><td colSpan={6} style={{ padding: '32px 16px' }}><ProgressHair label="Loading…" /></td></tr>
                 ) : influencers?.influencers?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper-65">No influencers yet. Import or add some!</td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--loom-bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No threads yet. Import or add some.</td></tr>
                 ) : (
                   influencers?.influencers?.map((inf: any) => (
-                    <tr key={inf.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="text-paper">{inf.name}</div>
-                        {inf.handle && <div className="text-xs text-paper-65">@{inf.handle}</div>}
+                    <tr key={inf.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                      <td style={{ padding: '12px 16px' }}>
+                        <div style={{ color: 'var(--loom-bone)', fontSize: 14 }}>{inf.name}</div>
+                        {inf.handle && <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>@{inf.handle}</div>}
                       </td>
-                      <td className="py-3 px-4 text-paper-70">{inf.email}</td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-1 border border-paper-15 text-paper-70 text-xs rounded-[2px]">
+                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone-dim)', fontSize: 13 }}>{inf.email}</td>
+                      <td style={{ padding: '12px 16px' }}>
+                        <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-dim)' }}>
                           {inf.platform}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-1 border border-paper-15 text-paper-70 text-xs rounded-[2px]">
+                      <td style={{ padding: '12px 16px' }}>
+                        <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-dim)' }}>
                           {inf.segment}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td style={{ padding: '12px 16px' }}>
                         <StatusBadge status={inf.status} />
                       </td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {inf.last_contacted_at ? new Date(inf.last_contacted_at).toLocaleDateString() : '-'}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {activeSubTab === 'campaigns' && (
-        <div className="space-y-4">
-          <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-paper-15">
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Campaign</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Type</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Sent</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Opens</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {campaigns?.campaigns?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper-65">No campaigns yet</td></tr>
-                ) : (
-                  campaigns?.campaigns?.map((c: any) => (
-                    <tr key={c.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="text-paper">{c.name}</div>
-                        <div className="text-xs text-paper-65">{c.subject_line}</div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-1 border border-gold-40 text-gold text-xs rounded-[2px]">
-                          {c.campaign_type}
+                      <td style={{ padding: '12px 16px' }}>
+                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                          {inf.last_contacted_at ? new Date(inf.last_contacted_at).toLocaleDateString() : '—'}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <StatusBadge status={c.status} />
-                      </td>
-                      <td className="py-3 px-4 font-mono text-paper">{c.sent_count || 0}</td>
-                      <td className="py-3 px-4 font-mono text-paper">{c.open_count || 0}</td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {new Date(c.created_at).toLocaleDateString()}
-                      </td>
                     </tr>
                   ))
                 )}
@@ -285,42 +271,89 @@ export function MarketingTab() {
         </div>
       )}
 
+      {/* Campaigns tab */}
+      {activeSubTab === 'campaigns' && (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                {['Campaign', 'Type', 'Status', 'Sent', 'Opens', 'Created'].map(h => (
+                  <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', fontWeight: 400 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {campaigns?.campaigns?.length === 0 ? (
+                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--loom-bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No campaigns yet.</td></tr>
+              ) : (
+                campaigns?.campaigns?.map((c: any) => (
+                  <tr key={c.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                    <td style={{ padding: '12px 16px' }}>
+                      <div style={{ color: 'var(--loom-bone)', fontSize: 14 }}>{c.name}</div>
+                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{c.subject_line}</div>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--loom-rule-warm)', color: 'var(--loom-warm)' }}>
+                        {c.campaign_type}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <StatusBadge status={c.status} />
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span className="loom-mono" style={{ fontSize: 13, color: 'var(--loom-bone)' }}>{c.sent_count || 0}</span>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span className="loom-mono" style={{ fontSize: 13, color: 'var(--loom-bone)' }}>{c.open_count || 0}</span>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                        {new Date(c.created_at).toLocaleDateString()}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Creator Signups tab */}
       {activeSubTab === 'signups' && (
-        <div className="space-y-4">
-          <p className="text-paper-65">
-            Creators who signed up through the public form. Approve them to add to your influencer database.
+        <div>
+          <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginBottom: 20 }}>
+            Creators who signed up through the public form. Approve to add to the thread database.
           </p>
-          <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 overflow-x-auto">
-            <table className="w-full">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr className="border-b border-paper-15">
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Name</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Email</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Platform</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Why Interested</th>
-                  <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                  <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
+                <tr style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                  {['Name', 'Email', 'Platform', 'Why Interested', 'Status', ''].map(h => (
+                    <th key={h} style={{ textAlign: h === '' ? 'right' : 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', fontWeight: 400 }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {creatorSignups?.signups?.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-8 text-paper-65">No signups yet</td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--loom-bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No signups yet.</td></tr>
                 ) : (
                   creatorSignups?.signups?.map((s: any) => (
-                    <tr key={s.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4 text-paper">{s.name}</td>
-                      <td className="py-3 px-4 text-paper-70">{s.email}</td>
-                      <td className="py-3 px-4 text-paper-70">{s.platform || '-'}</td>
-                      <td className="py-3 px-4 text-paper-65 text-sm max-w-xs truncate">{s.why_interested || '-'}</td>
-                      <td className="py-3 px-4">
+                    <tr key={s.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone)', fontSize: 14 }}>{s.name}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone-dim)', fontSize: 13 }}>{s.email}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone-dim)', fontSize: 13 }}>{s.platform || '—'}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone-faint)', fontSize: 13, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.why_interested || '—'}</td>
+                      <td style={{ padding: '12px 16px' }}>
                         <StatusBadge status={s.status} />
                       </td>
-                      <td className="py-3 px-4 text-right">
+                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                         {s.status === 'NEW' && (
                           <button
                             onClick={() => approveSignupMutation.mutate(s.id)}
                             disabled={approveSignupMutation.isPending}
-                            className="btn btn-sm btn-primary"
+                            className="loom-btn"
+                            style={{ fontSize: 10, padding: '4px 12px' }}
                           >
                             Approve
                           </button>
@@ -335,27 +368,28 @@ export function MarketingTab() {
         </div>
       )}
 
+      {/* Content Library tab */}
       {activeSubTab === 'content' && (
-        <div className="space-y-4">
-          <p className="text-paper-65">
-            Store and manage your marketing content, captions, and templates.
+        <div>
+          <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginBottom: 24 }}>
+            Marketing content, captions, and templates.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 1 }}>
             {content?.content?.length === 0 ? (
-              <div className="col-span-full text-center py-8 text-paper-65">No content yet</div>
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 16px', color: 'var(--loom-bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No content yet.</div>
             ) : (
               content?.content?.map((c: any) => (
-                <div key={c.id} className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-paper">{c.title}</h4>
-                    <span className="px-2 py-1 border border-paper-15 text-paper-70 text-xs rounded-[2px]">
+                <div key={c.id} style={{ border: '1px solid var(--loom-rule)', padding: '20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <div style={{ color: 'var(--loom-bone)', fontSize: 14 }}>{c.title}</div>
+                    <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-faint)', flexShrink: 0, marginLeft: 8 }}>
                       {c.platform}
                     </span>
                   </div>
-                  <p className="text-paper-65 text-sm line-clamp-3">{c.caption || c.body}</p>
-                  <div className="flex gap-2 mt-3">
+                  <p style={{ color: 'var(--loom-bone-dim)', fontSize: 13, lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{c.caption || c.body}</p>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
                     <StatusBadge status={c.status} />
-                    {c.theme && <span className="text-xs text-paper-70">{c.theme}</span>}
+                    {c.theme && <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{c.theme}</span>}
                   </div>
                 </div>
               ))
@@ -386,31 +420,49 @@ export function MarketingTab() {
   );
 }
 
+/* ── StatusBadge ─────────────────────────────────────────────────── */
 function StatusBadge({ status }: { status: string }) {
-  // Single warm accent for active/positive states, blood for negative, bone for neutral.
-  const colors: Record<string, string> = {
-    NEW: 'border-paper-15 text-paper-70',
-    CONTACTED: 'border-gold-40 text-gold',
-    RESPONDED: 'border-gold-40 text-gold',
-    INTERESTED: 'border-gold-40 text-gold',
-    PARTNERED: 'border-gold-40 text-gold',
-    DECLINED: 'border-blood text-blood',
-    UNSUBSCRIBED: 'border-paper-15 text-paper-50',
-    DRAFT: 'border-paper-15 text-paper-50',
-    SENDING: 'border-gold-40 text-gold',
-    COMPLETED: 'border-gold-40 text-gold',
-    APPROVED: 'border-gold-40 text-gold',
-    CONVERTED: 'border-gold-40 text-gold',
-  };
+  const WARM = { border: '1px solid var(--loom-rule-warm)', color: 'var(--loom-warm)' };
+  const FAINT = { border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-faint)' };
+  const ERR = { border: '1px solid rgba(194,90,90,0.35)', color: '#c25a5a' };
+
+  const s: React.CSSProperties = (
+    ['CONTACTED','RESPONDED','INTERESTED','PARTNERED','SENDING','COMPLETED','APPROVED','CONVERTED'].includes(status) ? WARM :
+    ['DECLINED','UNSUBSCRIBED'].includes(status) ? ERR :
+    FAINT
+  );
+
   return (
-    <span className={`px-2 py-1 text-xs border rounded-[2px] ${colors[status] || 'border-paper-15 text-paper-50'}`}>
+    <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', letterSpacing: '0.12em', ...s }}>
       {status}
     </span>
   );
 }
 
-function ImportInfluencersModal({ onClose, onImport, isLoading }: { 
-  onClose: () => void; 
+/* ── Loom modal shell ────────────────────────────────────────────── */
+function ModalShell({ title, onClose, wide, children }: { title: string; onClose: () => void; wide?: boolean; children: React.ReactNode }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(14,14,12,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+      <div style={{ background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)', width: '100%', maxWidth: wide ? 900 : 560, maxHeight: '90vh', overflowY: 'auto', padding: '36px 40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, borderBottom: '1px solid var(--loom-rule)', paddingBottom: 20 }}>
+          <h3 className="loom-h2" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: 0 }}>{title}</h3>
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', color: 'var(--loom-bone-faint)', fontSize: 16, cursor: 'pointer', lineHeight: 1, padding: 4 }}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ── ImportInfluencersModal ──────────────────────────────────────── */
+function ImportInfluencersModal({ onClose, onImport, isLoading }: {
+  onClose: () => void;
   onImport: (data: any[]) => void;
   isLoading: boolean;
 }) {
@@ -420,7 +472,7 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
   const parseCSV = () => {
     const lines = csvData.trim().split('\n');
     if (lines.length < 2) return;
-    
+
     const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
     const data = lines.slice(1).map(line => {
       const values = line.split(',').map(v => v.trim());
@@ -437,70 +489,66 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
       });
       return obj;
     }).filter(d => d.name && d.email);
-    
+
     setPreviewData(data);
   };
 
   return (
-    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50">
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-body font-light text-xl text-paper">Import Influencers from CSV</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close">
-            <span aria-hidden>✕</span>
-          </button>
+    <ModalShell title="Import from CSV." onClose={onClose} wide>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div>
+          <label style={labelStyle}>
+            CSV format: name, email, platform, handle, segment, followers, profile_url, notes
+          </label>
+          <textarea
+            value={csvData}
+            onChange={(e) => setCsvData(e.target.value)}
+            placeholder={"name,email,platform,handle,segment,followers,profile_url,notes\nJohn Doe,john@example.com,INSTAGRAM,johndoe,GENEALOGY,50000,https://instagram.com/johndoe,Family history expert"}
+            style={{ ...inputStyle, height: 160, resize: 'vertical', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}
+          />
         </div>
 
-        <div className="space-y-4">
+        <button onClick={parseCSV} className="loom-btn-ghost" style={{ alignSelf: 'flex-start', fontSize: 11 }}>
+          Preview Import
+        </button>
+
+        {previewData.length > 0 && (
           <div>
-            <label className="block text-sm text-paper-70 mb-2">
-              CSV Format: name, email, platform, handle, segment, followers, profile_url, notes
-            </label>
-            <textarea
-              value={csvData}
-              onChange={(e) => setCsvData(e.target.value)}
-              placeholder="name,email,platform,handle,segment,followers,profile_url,notes
-John Doe,john@example.com,INSTAGRAM,johndoe,GENEALOGY,50000,https://instagram.com/johndoe,Family history expert"
-              className="input w-full h-40 font-mono text-sm"
-            />
-          </div>
-
-          <button onClick={parseCSV} className="btn btn-secondary">
-            Preview Import
-          </button>
-
-          {previewData.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-sm text-paper-70">{previewData.length} records to import:</div>
-              <div className="max-h-48 overflow-y-auto bg-void-elevated border border-paper-15 rounded-[2px] p-2">
-                {previewData.slice(0, 10).map((d, i) => (
-                  <div key={i} className="text-sm py-1 border-b border-paper-15">
-                    {d.name} - {d.email} ({d.platform}, {d.segment})
-                  </div>
-                ))}
-                {previewData.length > 10 && (
-                  <div className="text-paper-65 text-sm py-1">...and {previewData.length - 10} more</div>
-                )}
-              </div>
+            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)', display: 'block', marginBottom: 8 }}>
+              {previewData.length} records ready to import
+            </span>
+            <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--loom-rule)', padding: '8px 0' }}>
+              {previewData.slice(0, 10).map((d, i) => (
+                <div key={i} className="loom-mono" style={{ fontSize: 11, padding: '6px 12px', borderBottom: '1px solid var(--loom-rule)', color: 'var(--loom-bone-dim)' }}>
+                  {d.name} — {d.email} ({d.platform}, {d.segment})
+                </div>
+              ))}
+              {previewData.length > 10 && (
+                <div className="loom-mono" style={{ fontSize: 11, padding: '6px 12px', color: 'var(--loom-bone-faint)' }}>
+                  …and {previewData.length - 10} more
+                </div>
+              )}
             </div>
-          )}
-
-          <div className="flex justify-end gap-3">
-            <button onClick={onClose} className="btn btn-secondary">Cancel</button>
-            <button
-              onClick={() => onImport(previewData)}
-              disabled={previewData.length === 0 || isLoading}
-              className="btn btn-primary"
-            >
-              {isLoading ? 'Importing…' : `Import ${previewData.length} Influencers`}
-            </button>
           </div>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+          <button onClick={onClose} className="loom-btn-ghost" style={{ fontSize: 11 }}>Cancel</button>
+          <button
+            onClick={() => onImport(previewData)}
+            disabled={previewData.length === 0 || isLoading}
+            className="loom-btn"
+            style={{ fontSize: 11, opacity: (previewData.length === 0 || isLoading) ? 0.4 : 1 }}
+          >
+            {isLoading ? 'Importing…' : `Import ${previewData.length} threads`}
+          </button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   );
 }
 
+/* ── CreateCampaignModal ─────────────────────────────────────────── */
 function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; influencers: any[] }) {
   const queryClient = useQueryClient();
   const [step, setStep] = useState<'setup' | 'compose' | 'review'>('setup');
@@ -528,7 +576,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
     },
   });
 
-  const sendMutation= useMutation({
+  const sendMutation = useMutation({
     mutationFn: async (campaignId: string) => {
       return marketingApi.sendCampaign(campaignId, {
         segment: formData.targetSegment || undefined,
@@ -538,7 +586,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['marketing-campaigns'] });
-      alert(`Campaign sent! ${data.data.sentCount} emails sent, ${data.data.failedCount} failed.`);
+      alert(`Campaign sent. ${data.data.sentCount} emails sent, ${data.data.failedCount} failed.`);
       onClose();
     },
     onError: (error: any) => {
@@ -549,11 +597,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
   const applyTemplate = (segment: string) => {
     const template = INFLUENCER_TEMPLATES[segment];
     if (template) {
-      setFormData(prev => ({
-        ...prev,
-        subjectLine: template.subject,
-        bodyHtml: template.body,
-      }));
+      setFormData(prev => ({ ...prev, subjectLine: template.subject, bodyHtml: template.body }));
     }
   };
 
@@ -562,182 +606,179 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
     await sendMutation.mutateAsync(campaign.id);
   };
 
-  const filteredInfluencers = formData.targetSegment 
+  const filteredInfluencers = formData.targetSegment
     ? influencers.filter(i => i.segment === formData.targetSegment)
     : influencers;
 
+  const STEPS = ['setup', 'compose', 'review'];
+
   return (
-    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50">
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-body font-light text-xl text-paper">Create Email Campaign</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close">
-            <span aria-hidden>✕</span>
-          </button>
-        </div>
-
-        <div className="flex gap-4 mb-6">
-          {['setup', 'compose', 'review'].map((s, i) => (
-            <div key={s} className={`flex items-center gap-2 ${step === s ? 'text-gold' : 'text-paper-65'}`}>
-              <span className={`w-6 h-6 rounded-[2px] flex items-center justify-center text-sm font-mono border ${
-                step === s ? 'border-gold text-gold' : 'border-paper-15 text-paper-50'
-              }`}>{i + 1}</span>
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </div>
-          ))}
-        </div>
-
-        {step === 'setup' && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Campaign Name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="e.g., Genealogy Influencer Outreach - Dec 2024"
-                className="input w-full"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Target Segment (optional)</label>
-              <select
-                value={formData.targetSegment}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, targetSegment: e.target.value }));
-                  if (e.target.value) applyTemplate(e.target.value);
-                }}
-                className="input w-full"
-              >
-                <option value="">All Segments</option>
-                {SEGMENTS.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
-              </select>
-            </div>
-
-            <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-              <div className="text-sm text-paper-70 mb-2">
-                {formData.targetSegment
-                  ? `${filteredInfluencers.length} influencers in ${formData.targetSegment} segment`
-                  : `${influencers.length} total influencers`
-                }
-              </div>
-              <div className="text-xs text-paper-65">
-                Only influencers with status NEW, CONTACTED, RESPONDED, or INTERESTED will receive emails.
-                Unsubscribed and declined contacts are automatically excluded.
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <button 
-                onClick={() => setStep('compose')}
-                disabled={!formData.name}
-                className="btn btn-primary"
-              >
-                Next: Compose Email
-              </button>
-            </div>
+    <ModalShell title="New campaign." onClose={onClose} wide>
+      {/* Step indicators */}
+      <div style={{ display: 'flex', gap: 20, marginBottom: 28 }}>
+        {STEPS.map((s, i) => (
+          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span className="loom-mono" style={{
+              fontSize: 10,
+              width: 22, height: 22,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: `1px solid ${step === s ? 'var(--loom-warm)' : 'var(--loom-rule)'}`,
+              color: step === s ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+            }}>{i + 1}</span>
+            <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: step === s ? 'var(--loom-bone)' : 'var(--loom-bone-faint)' }}>
+              {s}
+            </span>
           </div>
-        )}
-
-        {step === 'compose' && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Subject Line</label>
-              <input
-                type="text"
-                value={formData.subjectLine}
-                onChange={(e) => setFormData(prev => ({ ...prev, subjectLine: e.target.value }))}
-                placeholder="e.g., Partnership Opportunity: Help Families Preserve Their Stories"
-                className="input w-full"
-              />
-              <div className="text-xs text-paper-65 mt-1">Use [Name] to personalize with recipient's name</div>
-            </div>
-
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Email Body (HTML)</label>
-              <textarea
-                value={formData.bodyHtml}
-                onChange={(e) => setFormData(prev => ({ ...prev, bodyHtml: e.target.value }))}
-                placeholder="<p>Hi [Name],</p><p>Your email content here...</p>"
-                className="input w-full h-64 font-mono text-sm"
-              />
-              <div className="text-xs text-paper-65 mt-1">
-                Use [Name] for personalization. Unsubscribe link is added automatically.
-              </div>
-            </div>
-
-            {formData.targetSegment && INFLUENCER_TEMPLATES[formData.targetSegment] && (
-              <button
-                onClick={() => applyTemplate(formData.targetSegment)}
-                className="btn btn-secondary text-sm"
-              >
-                Reset to {formData.targetSegment} Template
-              </button>
-            )}
-
-            <div className="flex justify-between">
-              <button onClick={() => setStep('setup')} className="btn btn-secondary">Back</button>
-              <button 
-                onClick={() => setStep('review')}
-                disabled={!formData.subjectLine || !formData.bodyHtml}
-                className="btn btn-primary"
-              >
-                Next: Review & Send
-              </button>
-            </div>
-          </div>
-        )}
-
-        {step === 'review' && (
-          <div className="space-y-4">
-            <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px] space-y-3">
-              <div>
-                <span className="text-paper-65">Campaign:</span> {formData.name}
-              </div>
-              <div>
-                <span className="text-paper-65">Segment:</span> {formData.targetSegment || 'All'}
-              </div>
-              <div>
-                <span className="text-paper-65">Recipients:</span> {filteredInfluencers.filter(i =>
-                  !['UNSUBSCRIBED', 'DECLINED'].includes(i.status)
-                ).length} influencers
-              </div>
-              <div>
-                <span className="text-paper-65">Subject:</span> {formData.subjectLine}
-              </div>
-            </div>
-
-            {/* Email HTML preview — white surface is intentional (renders the actual email) */}
-            <div className="p-4 bg-white rounded-[2px]">
-              <div className="text-black text-sm" dangerouslySetInnerHTML={{ __html: formData.bodyHtml }} />
-            </div>
-
-            <div className="p-4 bg-void-elevated border border-gold-40 rounded-[2px]">
-              <div className="text-gold mb-2">Ready to send?</div>
-              <p className="text-paper-70 text-sm">
-                This will send emails to all eligible influencers immediately.
-                Emails include an unsubscribe link for compliance.
-              </p>
-            </div>
-
-            <div className="flex justify-between">
-              <button onClick={() => setStep('compose')} className="btn btn-secondary">Back</button>
-              <button
-                onClick={handleSend}
-                disabled={createMutation.isPending || sendMutation.isPending}
-                className="btn btn-primary"
-              >
-                {createMutation.isPending || sendMutation.isPending ? 'Sending…' : 'Send Campaign'}
-              </button>
-            </div>
-          </div>
-        )}
+        ))}
       </div>
-    </div>
+
+      {step === 'setup' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div>
+            <label style={labelStyle}>Campaign Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="e.g., Genealogy Influencer Outreach — Dec 2025"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Target Segment (optional)</label>
+            <select
+              value={formData.targetSegment}
+              onChange={(e) => {
+                setFormData(prev => ({ ...prev, targetSegment: e.target.value }));
+                if (e.target.value) applyTemplate(e.target.value);
+              }}
+              style={inputStyle}
+            >
+              <option value="">All Segments</option>
+              {SEGMENTS.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+            </select>
+          </div>
+
+          <div style={{ border: '1px solid var(--loom-rule)', padding: '14px 16px' }}>
+            <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)', marginBottom: 6 }}>
+              {formData.targetSegment
+                ? `${filteredInfluencers.length} threads in ${formData.targetSegment} segment`
+                : `${influencers.length} total threads`}
+            </div>
+            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>
+              Only threads with status NEW, CONTACTED, RESPONDED, or INTERESTED receive emails. Unsubscribed and declined are excluded.
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+            <button
+              onClick={() => setStep('compose')}
+              disabled={!formData.name}
+              className="loom-btn"
+              style={{ fontSize: 11, opacity: !formData.name ? 0.4 : 1 }}
+            >
+              Compose email
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 'compose' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div>
+            <label style={labelStyle}>Subject Line</label>
+            <input
+              type="text"
+              value={formData.subjectLine}
+              onChange={(e) => setFormData(prev => ({ ...prev, subjectLine: e.target.value }))}
+              placeholder="e.g., Partnership Opportunity: Help Families Preserve Their Stories"
+              style={inputStyle}
+            />
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', display: 'block', marginTop: 4 }}>Use [Name] to personalise.</span>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Email Body (HTML)</label>
+            <textarea
+              value={formData.bodyHtml}
+              onChange={(e) => setFormData(prev => ({ ...prev, bodyHtml: e.target.value }))}
+              placeholder="<p>Hi [Name],</p><p>Your email content here…</p>"
+              style={{ ...inputStyle, height: 240, resize: 'vertical', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}
+            />
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', display: 'block', marginTop: 4 }}>Unsubscribe link added automatically.</span>
+          </div>
+
+          {formData.targetSegment && INFLUENCER_TEMPLATES[formData.targetSegment] && (
+            <button
+              onClick={() => applyTemplate(formData.targetSegment)}
+              className="loom-btn-ghost"
+              style={{ alignSelf: 'flex-start', fontSize: 11 }}
+            >
+              Reset to {formData.targetSegment} template
+            </button>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+            <button onClick={() => setStep('setup')} className="loom-btn-ghost" style={{ fontSize: 11 }}>Back</button>
+            <button
+              onClick={() => setStep('review')}
+              disabled={!formData.subjectLine || !formData.bodyHtml}
+              className="loom-btn"
+              style={{ fontSize: 11, opacity: (!formData.subjectLine || !formData.bodyHtml) ? 0.4 : 1 }}
+            >
+              Review &amp; Send
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 'review' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ border: '1px solid var(--loom-rule)', padding: '16px' }}>
+            {[
+              ['Campaign', formData.name],
+              ['Segment', formData.targetSegment || 'All'],
+              ['Recipients', `${filteredInfluencers.filter(i => !['UNSUBSCRIBED', 'DECLINED'].includes(i.status)).length} threads`],
+              ['Subject', formData.subjectLine],
+            ].map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', gap: 16, padding: '8px 0', borderBottom: '1px solid var(--loom-rule)' }}>
+                <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', minWidth: 96 }}>{k}</span>
+                <span style={{ color: 'var(--loom-bone)', fontSize: 13 }}>{v}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Email HTML preview — white surface intentional */}
+          <div style={{ padding: '16px', background: '#fff', border: '1px solid var(--loom-rule)' }}>
+            <div style={{ color: '#000', fontSize: 13 }} dangerouslySetInnerHTML={{ __html: formData.bodyHtml }} />
+          </div>
+
+          <div style={{ border: '1px solid var(--loom-rule-warm)', padding: '14px 16px' }}>
+            <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', marginBottom: 6 }}>Ready to send?</div>
+            <p style={{ color: 'var(--loom-bone-dim)', fontSize: 13 }}>
+              This will send emails to all eligible threads immediately. Emails include an unsubscribe link for compliance.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+            <button onClick={() => setStep('compose')} className="loom-btn-ghost" style={{ fontSize: 11 }}>Back</button>
+            <button
+              onClick={handleSend}
+              disabled={createMutation.isPending || sendMutation.isPending}
+              className="loom-btn"
+              style={{ fontSize: 11, opacity: (createMutation.isPending || sendMutation.isPending) ? 0.6 : 1 }}
+            >
+              {createMutation.isPending || sendMutation.isPending ? 'Sending…' : 'Send Campaign'}
+            </button>
+          </div>
+        </div>
+      )}
+    </ModalShell>
   );
 }
 
+/* ── AddInfluencerModal ──────────────────────────────────────────── */
 function AddInfluencerModal({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
@@ -765,115 +806,68 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
     },
   });
 
+  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <div>
+      <label style={labelStyle}>{label}</label>
+      {children}
+    </div>
+  );
+
   return (
-    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50">
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-body font-light text-xl text-paper">Add Influencer</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close">
-            <span aria-hidden>✕</span>
+    <ModalShell title="Add thread." onClose={onClose}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <Field label="Name *">
+            <input type="text" value={formData.name} onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))} style={inputStyle} />
+          </Field>
+          <Field label="Email *">
+            <input type="email" value={formData.email} onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))} style={inputStyle} />
+          </Field>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <Field label="Platform">
+            <select value={formData.platform} onChange={(e) => setFormData(prev => ({ ...prev, platform: e.target.value }))} style={inputStyle}>
+              {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </Field>
+          <Field label="Segment">
+            <select value={formData.segment} onChange={(e) => setFormData(prev => ({ ...prev, segment: e.target.value }))} style={inputStyle}>
+              {SEGMENTS.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+            </select>
+          </Field>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <Field label="Handle">
+            <input type="text" value={formData.handle} onChange={(e) => setFormData(prev => ({ ...prev, handle: e.target.value }))} placeholder="@username" style={inputStyle} />
+          </Field>
+          <Field label="Followers">
+            <input type="number" value={formData.followerCount} onChange={(e) => setFormData(prev => ({ ...prev, followerCount: e.target.value }))} style={inputStyle} />
+          </Field>
+        </div>
+
+        <Field label="Profile URL">
+          <input type="url" value={formData.profileUrl} onChange={(e) => setFormData(prev => ({ ...prev, profileUrl: e.target.value }))} style={inputStyle} />
+        </Field>
+
+        <Field label="Notes">
+          <textarea value={formData.notes} onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))} style={{ ...inputStyle, height: 80, resize: 'vertical' }} />
+        </Field>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+          <button onClick={onClose} className="loom-btn-ghost" style={{ fontSize: 11 }}>Cancel</button>
+          <button
+            onClick={() => createMutation.mutate()}
+            disabled={!formData.name || !formData.email || createMutation.isPending}
+            className="loom-btn"
+            style={{ fontSize: 11, opacity: (!formData.name || !formData.email || createMutation.isPending) ? 0.4 : 1 }}
+          >
+            {createMutation.isPending ? 'Adding…' : 'Add Thread'}
           </button>
         </div>
-
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Name *</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="input w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Email *</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                className="input w-full"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Platform</label>
-              <select
-                value={formData.platform}
-                onChange={(e) => setFormData(prev => ({ ...prev, platform: e.target.value }))}
-                className="input w-full"
-              >
-                {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Segment</label>
-              <select
-                value={formData.segment}
-                onChange={(e) => setFormData(prev => ({ ...prev, segment: e.target.value }))}
-                className="input w-full"
-              >
-                {SEGMENTS.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Handle</label>
-              <input
-                type="text"
-                value={formData.handle}
-                onChange={(e) => setFormData(prev => ({ ...prev, handle: e.target.value }))}
-                placeholder="@username"
-                className="input w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-paper-70 mb-2">Followers</label>
-              <input
-                type="number"
-                value={formData.followerCount}
-                onChange={(e) => setFormData(prev => ({ ...prev, followerCount: e.target.value }))}
-                className="input w-full"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm text-paper-70 mb-2">Profile URL</label>
-            <input
-              type="url"
-              value={formData.profileUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, profileUrl: e.target.value }))}
-              className="input w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-paper-70 mb-2">Notes</label>
-            <textarea
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              className="input w-full h-20"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <button onClick={onClose} className="btn btn-secondary">Cancel</button>
-            <button 
-              onClick={() => createMutation.mutate()}
-              disabled={!formData.name || !formData.email || createMutation.isPending}
-              className="btn btn-primary"
-            >
-              {createMutation.isPending ? 'Adding...' : 'Add Influencer'}
-            </button>
-          </div>
-        </div>
       </div>
-    </div>
+    </ModalShell>
   );
 }
 

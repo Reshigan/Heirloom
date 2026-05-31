@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 import { memoriesApi, lettersApi, voiceApi, exportApi } from '../services/api';
 
 type BookStep = 'select' | 'customize' | 'preview' | 'order';
@@ -19,6 +18,29 @@ interface BookConfig {
   includeDates: boolean;
   dedicationText: string;
 }
+
+const stepOrder: BookStep[] = ['select', 'customize', 'preview', 'order'];
+const stepLabels: Record<BookStep, string> = {
+  select: 'Select',
+  customize: 'Customize',
+  preview: 'Preview',
+  order: 'Order',
+};
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'transparent',
+  border: '1px solid var(--loom-rule)',
+  borderRadius: 2,
+  padding: '10px 14px',
+  color: 'var(--loom-bone)',
+  fontFamily: "'Source Serif 4', serif",
+  fontSize: 15,
+  lineHeight: 1.7,
+  outline: 'none',
+  boxSizing: 'border-box',
+  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+};
 
 export function BookBuilder() {
   const navigate = useNavigate();
@@ -40,12 +62,10 @@ export function BookBuilder() {
     queryKey: ['memories-for-book'],
     queryFn: () => memoriesApi.getAll({ limit: 100 }).then((r) => r.data),
   });
-
   const { data: letters } = useQuery({
     queryKey: ['letters-for-book'],
     queryFn: () => lettersApi.getAll({ limit: 100 }).then((r) => r.data),
   });
-
   const { data: voices } = useQuery({
     queryKey: ['voices-for-book'],
     queryFn: () => voiceApi.getAll({ limit: 100 }).then((r) => r.data),
@@ -54,23 +74,12 @@ export function BookBuilder() {
   const orderMutation = useMutation({
     mutationFn: () => exportApi.bookOrder(config),
     onSuccess: (data) => {
-      if (data.data?.checkoutUrl) {
-        window.location.href = data.data.checkoutUrl;
-      }
+      if (data.data?.checkoutUrl) window.location.href = data.data.checkoutUrl;
     },
   });
 
   const totalItems = config.memoryIds.length + config.letterIds.length + config.voiceIds.length;
   const estimatedPages = Math.max(20, totalItems * 2 + 10);
-
-  const stepLabels: Record<BookStep, string> = {
-    select: 'Select Content',
-    customize: 'Customize',
-    preview: 'Preview',
-    order: 'Order',
-  };
-
-  const stepOrder: BookStep[] = ['select', 'customize', 'preview', 'order'];
   const currentStepIndex = stepOrder.indexOf(step);
 
   const toggleItem = (type: 'memoryIds' | 'letterIds' | 'voiceIds', id: string) => {
@@ -85,263 +94,395 @@ export function BookBuilder() {
   const voiceList = Array.isArray(voices) ? voices : voices?.data || voices?.recordings || [];
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
+    <AppFrame>
+      {/* Header */}
+      <header style={{ marginBottom: 48 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Living Book</p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        >
+          The cloth, bound.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
+        >
+          Print your family thread as a hardback. A keepsake for the shelf; the thread keeps going.
+        </p>
+      </header>
 
-      <main className="relative z-10 px-6 md:px-12 pt-24 pb-32 max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Living Book</p>
-          <h1 className="font-body font-light text-3xl md:text-4xl text-paper mb-2 tracking-[-0.014em]">Living Book</h1>
-          <p className="text-paper-65 font-body">Print your family thread as a hardback. Keepsake for the shelf; the thread keeps going.</p>
-        </div>
+      {/* Step progress — hairline track */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0,
+          marginBottom: 48,
+          borderBottom: '1px solid var(--loom-rule)',
+          paddingBottom: 0,
+        }}
+      >
+        {stepOrder.map((s, i) => (
+          <div key={s} style={{ display: 'flex', alignItems: 'baseline', flex: 1, position: 'relative' }}>
+            <div
+              style={{
+                position: 'absolute',
+                bottom: -1,
+                left: 0,
+                width: '100%',
+                height: 1,
+                background: i <= currentStepIndex ? 'var(--loom-warm)' : 'transparent',
+                transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            />
+            <span
+              className="loom-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: i <= currentStepIndex ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                padding: '0 0 12px',
+                transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              {i + 1} — {stepLabels[s]}
+            </span>
+          </div>
+        ))}
+      </div>
 
-        {/* Progress steps */}
-        <div className="flex items-center gap-2 mb-10">
-          {stepOrder.map((s, i) => (
-            <div key={s} className="flex items-center gap-2 flex-1">
-              <div className={`w-8 h-8 rounded-[2px] flex items-center justify-center text-xs font-mono transition-colors ${
-                i <= currentStepIndex ? 'bg-gold text-void' : 'bg-void-surface border border-paper-15 text-paper-65'
-              }`}>
-                {i < currentStepIndex ? '✓' : i + 1}
-              </div>
-              <span className={`text-xs hidden md:block ${i <= currentStepIndex ? 'text-gold' : 'text-paper-65'}`}>
-                {stepLabels[s]}
-              </span>
-              {i < stepOrder.length - 1 && (
-                <div className={`flex-1 h-px ${i < currentStepIndex ? 'bg-gold' : 'bg-paper-15'}`} />
-              )}
-            </div>
-          ))}
-        </div>
+      {/* Step content */}
+      <div style={{ maxWidth: 640 }}>
+        {/* Select */}
+        {step === 'select' && (
+          <div style={{ display: 'grid', gap: 40 }}>
+            <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: 0 }}>
+              Select the memories, letters, and voice recordings to include in your book.
+            </p>
 
-        {/* Step content */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-          >
-            {step === 'select' && (
-              <div className="space-y-6">
-                <p className="text-paper-70">Select the memories, letters, and voice recordings to include in your book.</p>
-
-                {/* Memories */}
-                <div>
-                  <h3 className="font-body text-lg text-paper mb-3">
-                    Memories ({config.memoryIds.length} selected)
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto">
-                    {memoryList.map((m: { id: string; title?: string }) => (
-                      <button
-                        key={m.id}
-                        onClick={() => toggleItem('memoryIds', m.id)}
-                        className={`p-3 rounded-[2px] border text-left text-xs transition-colors ${
-                          config.memoryIds.includes(m.id) ? 'border-gold-40 bg-void-surface text-gold' : 'border-paper-15 bg-void-surface text-paper-70'
-                        }`}
+            {([
+              { key: 'memoryIds' as const, label: 'Memories', list: memoryList },
+              { key: 'letterIds' as const, label: 'Letters', list: letterList },
+              { key: 'voiceIds' as const, label: 'Voice recordings', list: voiceList },
+            ]).map(({ key, label, list }) => (
+              <div key={key}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 14 }}>
+                  <span className="loom-eyebrow">{label}</span>
+                  <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-warm)' }}>
+                    {config[key].length} selected
+                  </span>
+                  <hr className="loom-hairline" style={{ flex: 1 }} />
+                </div>
+                <div style={{ maxHeight: 180, overflowY: 'auto', display: 'grid', gap: 1 }}>
+                  {list.map((item: { id: string; title?: string; subject?: string }) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => toggleItem(key, item.id)}
+                      style={{
+                        background: config[key].includes(item.id) ? 'rgba(176,122,74,0.06)' : 'transparent',
+                        border: 0,
+                        borderBottom: '1px solid var(--loom-rule)',
+                        padding: '12px 0',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: 12,
+                      }}
+                    >
+                      <span
+                        className="loom-serif"
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 300,
+                          color: config[key].includes(item.id) ? 'var(--loom-warm)' : 'var(--loom-bone)',
+                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        }}
                       >
-                        {m.title || 'Untitled'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Letters */}
-                <div>
-                  <h3 className="font-body text-lg text-paper mb-3">
-                    Letters ({config.letterIds.length} selected)
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto">
-                    {letterList.map((l: { id: string; title?: string; subject?: string }) => (
-                      <button
-                        key={l.id}
-                        onClick={() => toggleItem('letterIds', l.id)}
-                        className={`p-3 rounded-[2px] border text-left text-xs transition-colors ${
-                          config.letterIds.includes(l.id) ? 'border-gold-40 bg-void-surface text-gold' : 'border-paper-15 bg-void-surface text-paper-70'
-                        }`}
-                      >
-                        {l.title || l.subject || 'Untitled'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Voice recordings */}
-                <div>
-                  <h3 className="font-body text-lg text-paper mb-3">
-                    Voice Recordings ({config.voiceIds.length} selected)
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto">
-                    {voiceList.map((v: { id: string; title?: string }) => (
-                      <button
-                        key={v.id}
-                        onClick={() => toggleItem('voiceIds', v.id)}
-                        className={`p-3 rounded-[2px] border text-left text-xs transition-colors ${
-                          config.voiceIds.includes(v.id) ? 'border-gold-40 bg-void-surface text-gold' : 'border-paper-15 bg-void-surface text-paper-70'
-                        }`}
-                      >
-                        {v.title || 'Untitled'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <p className="text-paper-65 text-sm">{totalItems} items selected &middot; ~{estimatedPages} pages</p>
-              </div>
-            )}
-
-            {step === 'customize' && (
-              <div className="space-y-6 max-w-lg">
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Book Title</label>
-                  <input
-                    type="text"
-                    value={config.title}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] font-body text-lg transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Subtitle (optional)</label>
-                  <input
-                    type="text"
-                    value={config.subtitle}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, subtitle: e.target.value }))}
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                    placeholder="A collection of our most precious moments"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Dedication</label>
-                  <textarea
-                    value={config.dedicationText}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, dedicationText: e.target.value }))}
-                    className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 resize-none h-24 transition-colors"
-                    placeholder="For my children, with all my love..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Cover Type</label>
-                  <div className="flex gap-3">
-                    {(['hardcover', 'softcover'] as const).map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
-                        className={`flex-1 p-4 rounded-[2px] border transition-colors ${
-                          config.coverType === type ? 'border-gold-40 bg-void-surface text-gold' : 'border-paper-15 bg-void-surface text-paper-70'
-                        }`}
-                      >
-                        <p className="font-body capitalize">{type}</p>
-                        <p className="text-xs mt-1 text-paper-50">{type === 'hardcover' ? 'Premium quality' : 'Lightweight & flexible'}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {[
-                    { key: 'includePhotos', label: 'Include photos' },
-                    { key: 'includeTranscriptions', label: 'Include voice transcriptions' },
-                    { key: 'includeDates', label: 'Include dates' },
-                  ].map(({ key, label }) => (
-                    <label key={key} className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={config[key as keyof BookConfig] as boolean}
-                        onChange={(e) => setConfig((prev) => ({ ...prev, [key]: e.target.checked }))}
-                        className="w-4 h-4 rounded-[2px] border-paper-15 text-gold focus:ring-gold"
-                      />
-                      <span className="text-paper-70 text-sm">{label}</span>
-                    </label>
+                        {item.title || (item as any).subject || 'Untitled'}
+                      </span>
+                      {config[key].includes(item.id) && (
+                        <span
+                          className="loom-mono"
+                          style={{ fontSize: 9, color: 'var(--loom-warm)', letterSpacing: '0.2em', flexShrink: 0 }}
+                        >
+                          ✓
+                        </span>
+                      )}
+                    </button>
                   ))}
+                  {list.length === 0 && (
+                    <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', fontStyle: 'italic', padding: '12px 0' }}>
+                      No {label.toLowerCase()} yet.
+                    </p>
+                  )}
                 </div>
               </div>
-            )}
+            ))}
 
-            {step === 'preview' && (
-              <div className="text-center py-8">
-                <div className="w-64 h-80 mx-auto mb-8 rounded-[2px] bg-void-surface border border-gold-40 flex flex-col items-center justify-center p-8">
-                  <span className="font-body text-3xl text-gold mb-4" aria-hidden>∞</span>
-                  <h3 className="font-body text-xl text-paper mb-1">{config.title}</h3>
-                  {config.subtitle && <p className="text-paper-70 text-xs">{config.subtitle}</p>}
-                  <div className="mt-auto text-paper-65 text-xs">
-                    <p>{totalItems} items &middot; ~{estimatedPages} pages</p>
-                    <p className="capitalize">{config.coverType}</p>
-                  </div>
-                </div>
-                <p className="text-paper-65 text-sm">
-                  Your book preview is ready. Review the details and place your order.
+            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em' }}>
+              {totalItems} items selected · ~{estimatedPages} pages estimated
+            </p>
+          </div>
+        )}
+
+        {/* Customize */}
+        {step === 'customize' && (
+          <div style={{ display: 'grid', gap: 24 }}>
+            <div>
+              <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Book title</label>
+              <input
+                type="text"
+                value={config.title}
+                onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
+                style={{ ...inputStyle, fontSize: 17 }}
+              />
+            </div>
+            <div>
+              <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Subtitle (optional)</label>
+              <input
+                type="text"
+                value={config.subtitle}
+                onChange={(e) => setConfig((prev) => ({ ...prev, subtitle: e.target.value }))}
+                placeholder="A collection of our most precious moments"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Dedication</label>
+              <textarea
+                value={config.dedicationText}
+                onChange={(e) => setConfig((prev) => ({ ...prev, dedicationText: e.target.value }))}
+                placeholder="For my children, with all my love…"
+                rows={3}
+                style={{ ...inputStyle, resize: 'none' }}
+              />
+            </div>
+            <div>
+              <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 12 }}>Cover type</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {(['hardcover', 'softcover'] as const).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
+                    style={{
+                      background: config.coverType === type ? 'rgba(176,122,74,0.06)' : 'transparent',
+                      border: `1px solid ${config.coverType === type ? 'var(--loom-rule-warm)' : 'var(--loom-rule)'}`,
+                      padding: '16px 18px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                  >
+                    <p
+                      className="loom-serif"
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 300,
+                        textTransform: 'capitalize',
+                        color: config.coverType === type ? 'var(--loom-warm)' : 'var(--loom-bone)',
+                        margin: '0 0 4px',
+                      }}
+                    >
+                      {type}
+                    </p>
+                    <p className="loom-body" style={{ fontSize: 12, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                      {type === 'hardcover' ? 'Premium quality' : 'Lightweight & flexible'}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'grid', gap: 12 }}>
+              {[
+                { key: 'includePhotos', label: 'Include photos' },
+                { key: 'includeTranscriptions', label: 'Include voice transcriptions' },
+                { key: 'includeDates', label: 'Include dates' },
+              ].map(({ key, label }) => (
+                <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={config[key as keyof BookConfig] as boolean}
+                    onChange={(e) => setConfig((prev) => ({ ...prev, [key]: e.target.checked }))}
+                    style={{ width: 14, height: 14, accentColor: 'var(--loom-warm)', cursor: 'pointer' }}
+                  />
+                  <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                    {label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Preview */}
+        {step === 'preview' && (
+          <div style={{ textAlign: 'center' }}>
+            {/* Stylized book cover */}
+            <div
+              style={{
+                width: 200,
+                height: 260,
+                margin: '0 auto 32px',
+                border: '1px solid var(--loom-rule-warm)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 28,
+              }}
+            >
+              <p style={{ fontFamily: "'Source Serif 4', serif", fontSize: 24, color: 'var(--loom-warm)', marginBottom: 12 }}>∞</p>
+              <h3 className="loom-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 6px', textAlign: 'center', lineHeight: 1.3 }}>
+                {config.title}
+              </h3>
+              {config.subtitle && (
+                <p className="loom-body" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', margin: 0, textAlign: 'center' }}>
+                  {config.subtitle}
+                </p>
+              )}
+              <div style={{ marginTop: 'auto' }}>
+                <p className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', margin: '0 0 2px' }}>
+                  {totalItems} items · ~{estimatedPages} pages
+                </p>
+                <p className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', textTransform: 'capitalize' }}>
+                  {config.coverType}
                 </p>
               </div>
-            )}
+            </div>
+            <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: 0, maxWidth: 360, marginInline: 'auto' }}>
+              Your book preview is ready. Review the details and place your order.
+            </p>
+          </div>
+        )}
 
-            {step === 'order' && (
-              <div className="text-center py-8 max-w-md mx-auto">
-                <h3 className="font-body font-light text-2xl text-paper mb-4 tracking-[-0.014em]">Order Summary</h3>
-                <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 mb-6 text-left">
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between text-paper-70">
-                      <span>Book Title</span>
-                      <span className="text-paper">{config.title}</span>
-                    </div>
-                    <div className="flex justify-between text-paper-70">
-                      <span>Cover</span>
-                      <span className="text-paper capitalize">{config.coverType}</span>
-                    </div>
-                    <div className="flex justify-between text-paper-70">
-                      <span>Pages (est.)</span>
-                      <span className="text-paper">{estimatedPages}</span>
-                    </div>
-                    <div className="flex justify-between text-paper-70">
-                      <span>Items included</span>
-                      <span className="text-paper">{totalItems}</span>
-                    </div>
-                    <div className="border-t border-paper-15 pt-3 flex justify-between">
-                      <span className="text-paper">Total</span>
-                      <span className="text-gold">{config.coverType === 'hardcover' ? '$49.99' : '$29.99'}</span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => orderMutation.mutate()}
-                  disabled={orderMutation.isPending}
-                  className="btn btn-primary w-full justify-center"
+        {/* Order */}
+        {step === 'order' && (
+          <div style={{ maxWidth: 420 }}>
+            <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 24px' }}>
+              Order summary
+            </h3>
+            <div style={{ border: '1px solid var(--loom-rule)', marginBottom: 24 }}>
+              {[
+                { label: 'Book title', value: config.title },
+                { label: 'Cover', value: config.coverType, capitalize: true },
+                { label: 'Pages (est.)', value: String(estimatedPages) },
+                { label: 'Items included', value: String(totalItems) },
+              ].map(({ label, value, capitalize }) => (
+                <div
+                  key={label}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                    padding: '12px 20px',
+                    borderBottom: '1px solid var(--loom-rule)',
+                  }}
                 >
-                  Place Order
-                  {!orderMutation.isPending ? <span aria-hidden>→</span> : null}
-                </button>
-                <p className="text-paper-65 text-xs mt-3">You&apos;ll be redirected to Stripe for secure payment</p>
+                  <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>{label}</span>
+                  <span
+                    className="loom-mono"
+                    style={{
+                      fontSize: 12,
+                      color: 'var(--loom-bone)',
+                      letterSpacing: '0.06em',
+                      textTransform: capitalize ? 'capitalize' : 'none',
+                    }}
+                  >
+                    {value}
+                  </span>
+                </div>
+              ))}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  padding: '14px 20px',
+                }}
+              >
+                <span className="loom-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--loom-bone)' }}>Total</span>
+                <span
+                  className="loom-mono"
+                  style={{ fontSize: 13, color: 'var(--loom-warm)', letterSpacing: '0.08em' }}
+                >
+                  {config.coverType === 'hardcover' ? '$49.99' : '$29.99'}
+                </span>
               </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Navigation buttons */}
-        <div className="flex items-center justify-between mt-10">
-          <button
-            onClick={() => {
-              if (currentStepIndex === 0) navigate('/dashboard');
-              else setStep(stepOrder[currentStepIndex - 1]);
-            }}
-            className="inline-flex items-center gap-2 text-paper-70 hover:text-paper transition-colors"
-          >
-            <span aria-hidden>←</span>
-            {currentStepIndex === 0 ? 'Cancel' : 'Back'}
-          </button>
-
-          {step !== 'order' && (
+            </div>
             <button
-              onClick={() => setStep(stepOrder[currentStepIndex + 1])}
-              disabled={step === 'select' && totalItems === 0}
-              className="btn btn-primary"
+              type="button"
+              onClick={() => orderMutation.mutate()}
+              disabled={orderMutation.isPending}
+              className="loom-btn"
+              style={{ width: '100%', opacity: orderMutation.isPending ? 0.45 : 1, marginBottom: 12 }}
             >
-              Continue
-              <span aria-hidden>→</span>
+              {orderMutation.isPending ? (
+                <span style={{ fontStyle: 'italic' }}>Processing…</span>
+              ) : (
+                'Place order'
+              )}
             </button>
-          )}
-        </div>
-      </main>
-    </div>
+            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.12em', textAlign: 'center' }}>
+              You'll be redirected to Stripe for secure payment.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation buttons */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: 56,
+          paddingTop: 20,
+          borderTop: '1px solid var(--loom-rule)',
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            if (currentStepIndex === 0) navigate('/dashboard');
+            else setStep(stepOrder[currentStepIndex - 1]);
+          }}
+          style={{
+            background: 'transparent',
+            border: 0,
+            padding: 0,
+            cursor: 'pointer',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 10,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--loom-bone-faint)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          ← {currentStepIndex === 0 ? 'Cancel' : 'Back'}
+        </button>
+
+        {step !== 'order' && (
+          <button
+            type="button"
+            onClick={() => setStep(stepOrder[currentStepIndex + 1])}
+            disabled={step === 'select' && totalItems === 0}
+            className="loom-btn"
+            style={{ opacity: step === 'select' && totalItems === 0 ? 0.45 : 1 }}
+          >
+            Continue
+          </button>
+        )}
+      </div>
+    </AppFrame>
   );
 }
 

@@ -17,11 +17,21 @@ interface PricingData {
   tiers: PricingTier[];
 }
 
+const FEATURES = [
+  'unlimited threads with full stories',
+  'voice recordings with transcription',
+  'letters to loved ones',
+  'posthumous delivery',
+  'family sharing',
+  'zero-knowledge encryption',
+];
+
 export function GiftPurchase() {
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [selectedTier, setSelectedTier] = useState<string>('FAMILY');
   const [billingCycle, setBillingCycle] = useState<'quarterly' | 'yearly'>('yearly');
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     purchaserEmail: '',
@@ -40,10 +50,10 @@ export function GiftPurchase() {
 
   const handlePurchase = async () => {
     if (!formData.purchaserEmail) {
-      alert('Please enter your email address');
+      setFormError('your email address is required.');
       return;
     }
-
+    setFormError(null);
     setIsLoading(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/checkout`, {
@@ -56,16 +66,15 @@ export function GiftPurchase() {
           ...formData,
         }),
       });
-
       const data = await res.json();
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       } else {
-        alert(data.error || 'Failed to create checkout session');
+        setFormError(data.error || 'Failed to create checkout session.');
       }
     } catch (err) {
       console.error('Checkout error:', err);
-      alert('Failed to start checkout');
+      setFormError('Failed to start checkout.');
     } finally {
       setIsLoading(false);
     }
@@ -75,114 +84,162 @@ export function GiftPurchase() {
   const price = selectedPricing?.[billingCycle];
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <div className="max-w-4xl mx-auto px-6 md:px-12 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <Link to="/" className="inline-flex items-center gap-2 text-paper-50 hover:text-gold mb-10 transition-colors text-sm">
-            <span aria-hidden>←</span> Back to Heirloom
-          </Link>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+      }}
+    >
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '48px 32px 96px' }}>
 
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-6">Gift a subscription</p>
-          <h1
-            className="font-body font-light leading-[1.1] tracking-[-0.018em]"
-            style={{ fontSize: 'clamp(2.25rem, 4vw, 3.25rem)' }}
+        {/* Back link */}
+        <div style={{ marginBottom: 48 }}>
+          <Link
+            to="/"
+            className="loom-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--loom-bone-faint)',
+              textDecoration: 'none',
+            }}
           >
-            Gift a legacy.
-          </h1>
-          <p className="mt-6 text-paper-70 max-w-xl mx-auto leading-relaxed font-light">
-            Give someone special the gift of preserving their memories forever.
-            A Heirloom subscription is a meaningful gift that lasts generations.
-          </p>
+            heirloom
+          </Link>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Header */}
+        <header style={{ marginBottom: 56 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>give a thread</p>
+          <h1
+            className="loom-h2"
+            style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+          >
+            Gift a thread.
+          </h1>
+          <p
+            className="loom-body"
+            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
+          >
+            Give someone the gift of a place on the family thread — a thousand-year archive,
+            preserved and passed down.
+          </p>
+        </header>
+
+        <hr className="loom-hairline" style={{ marginBottom: 56 }} />
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'start' }}>
+
           {/* Left: Plan Selection */}
-          <div className="space-y-6">
-            <div className="bg-void-surface border border-paper-15 p-6">
-              <h2 className="font-body text-lg mb-4">Choose a plan</h2>
+          <div>
+            <p className="loom-eyebrow" style={{ marginBottom: 24 }}>choose a plan</p>
 
-              {/* Billing Toggle */}
-              <div className="flex items-center justify-center gap-2 mb-6 p-1 bg-void border border-paper-15 rounded-[2px]">
+            {/* Billing Toggle */}
+            <div style={{ display: 'flex', gap: 0, marginBottom: 32, borderBottom: '1px solid var(--loom-rule)' }}>
+              {(['quarterly', 'yearly'] as const).map((cycle) => (
                 <button
-                  onClick={() => setBillingCycle('quarterly')}
-                  className={`flex-1 py-2 px-4 rounded-[2px] transition-colors ${
-                    billingCycle === 'quarterly'
-                      ? 'bg-gold/10 text-gold'
-                      : 'text-paper-50 hover:text-paper'
-                  }`}
+                  key={cycle}
+                  onClick={() => setBillingCycle(cycle)}
+                  className="loom-mono"
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    borderBottom: billingCycle === cycle ? '1px solid var(--loom-warm)' : '1px solid transparent',
+                    marginBottom: -1,
+                    padding: '10px 20px 10px 0',
+                    fontSize: 10,
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    color: billingCycle === cycle ? 'var(--loom-bone)' : 'var(--loom-bone-faint)',
+                    cursor: 'pointer',
+                    transition: 'color 180ms var(--loom-ease)',
+                  }}
                 >
-                  3 Months
+                  {cycle === 'quarterly' ? '3 months' : 'annual'}
+                  {cycle === 'yearly' && (
+                    <span style={{ marginLeft: 8, color: 'var(--loom-warm)', fontSize: 9 }}>save 2 months</span>
+                  )}
                 </button>
-                <button
-                  onClick={() => setBillingCycle('yearly')}
-                  className={`flex-1 py-2 px-4 rounded-[2px] transition-colors ${
-                    billingCycle === 'yearly'
-                      ? 'bg-gold/10 text-gold'
-                      : 'text-paper-50 hover:text-paper'
-                  }`}
-                >
-                  Annual
-                  <span className="ml-2 text-xs text-gold">Save 2 months</span>
-                </button>
-              </div>
+              ))}
+            </div>
 
-              {/* Tier Selection */}
-              <div className="space-y-3">
-                {pricing?.tiers.map((tier) => (
-                  <button
-                    key={tier.id}
-                    onClick={() => setSelectedTier(tier.id)}
-                    className={`relative w-full p-4 rounded-[2px] border transition-colors text-left ${
-                      selectedTier === tier.id
-                        ? 'border-gold-40 bg-gold/5'
-                        : 'border-paper-15 hover:border-paper-30 bg-void'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-body text-paper">{tier.name}</span>
-                          {tier.popular && (
-                            <span className="px-2 py-0.5 bg-gold/10 text-gold text-xs rounded-[2px]">
-                              Popular
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-paper-65 text-sm mt-1">{tier.description}</p>
-                        <p className="text-paper-50 text-xs mt-1">{tier.storage} storage</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-body text-xl text-gold">
-                          {tier[billingCycle].display}
-                        </div>
-                        <div className="text-paper-50 text-xs">
-                          {billingCycle === 'yearly' ? '/year' : '/3 months'}
-                        </div>
-                      </div>
-                    </div>
-                    {selectedTier === tier.id && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gold" aria-hidden>·</div>
-                    )}
-                  </button>
-                ))}
-              </div>
+            {/* Tier Selection */}
+            <div style={{ display: 'grid', gap: 1 }}>
+              {pricing?.tiers.map((tier) => (
+                <button
+                  key={tier.id}
+                  onClick={() => setSelectedTier(tier.id)}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    alignItems: 'center',
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '18px 0',
+                    background: 'transparent',
+                    border: 0,
+                    borderBottom: '1px solid var(--loom-rule)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div>
+                    <p
+                      className="loom-body"
+                      style={{
+                        fontSize: 16,
+                        fontStyle: 'italic',
+                        color: selectedTier === tier.id ? 'var(--loom-bone)' : 'var(--loom-bone-dim)',
+                        margin: '0 0 2px',
+                        transition: 'color 180ms var(--loom-ease)',
+                      }}
+                    >
+                      {tier.name}
+                      {tier.popular && (
+                        <span
+                          className="loom-mono"
+                          style={{ marginLeft: 10, fontSize: 9, letterSpacing: '0.16em', color: 'var(--loom-warm)', textTransform: 'uppercase', fontStyle: 'normal' }}
+                        >
+                          popular
+                        </span>
+                      )}
+                    </p>
+                    <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                      {tier.storage} storage
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p
+                      className="loom-body"
+                      style={{
+                        fontSize: 18,
+                        color: selectedTier === tier.id ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                        margin: 0,
+                        transition: 'color 180ms var(--loom-ease)',
+                      }}
+                    >
+                      {tier[billingCycle].display}
+                    </p>
+                    <p className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                      {billingCycle === 'yearly' ? '/year' : '/3 months'}
+                    </p>
+                  </div>
+                </button>
+              ))}
             </div>
 
             {/* Features */}
-            <div className="bg-void-surface border border-paper-15 p-6">
-              <h3 className="text-sm text-paper-50 mb-3 uppercase tracking-[0.22em]">What's included</h3>
-              <ul className="space-y-2 text-sm">
-                {[
-                  'Unlimited memories with stories',
-                  'Voice recordings with AI transcription',
-                  'Letters to loved ones',
-                  'Posthumous delivery system',
-                  'Family tree & sharing',
-                  'Military-grade encryption',
-                ].map((feature, i) => (
-                  <li key={i} className="flex items-baseline gap-3 text-paper-70">
-                    <span className="text-gold font-mono text-sm" aria-hidden>·</span>
+            <div style={{ marginTop: 40 }}>
+              <p className="loom-eyebrow" style={{ marginBottom: 16 }}>what's included</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
+                {FEATURES.map((feature, i) => (
+                  <li
+                    key={i}
+                    className="loom-body"
+                    style={{ display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 14, color: 'var(--loom-bone-dim)' }}
+                  >
+                    <span style={{ color: 'var(--loom-warm)', flexShrink: 0 }}>·</span>
                     {feature}
                   </li>
                 ))}
@@ -190,106 +247,112 @@ export function GiftPurchase() {
             </div>
           </div>
 
-          {/* Right: Gift Details Form */}
-          <div className="space-y-6">
-            <div className="bg-void-surface border border-paper-15 p-6">
-              <h2 className="font-body text-lg mb-4">Your details</h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your email <span className="text-blood" aria-hidden>*</span></label>
-                  <input
-                    type="email"
-                    value={formData.purchaserEmail}
-                    onChange={(e) => setFormData({ ...formData, purchaserEmail: e.target.value })}
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                    placeholder="you@example.com"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your name</label>
-                  <input
-                    type="text"
-                    value={formData.purchaserName}
-                    onChange={(e) => setFormData({ ...formData, purchaserName: e.target.value })}
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                    placeholder="Your name (shown to recipient)"
-                  />
-                </div>
+          {/* Right: Form + Purchase */}
+          <div>
+            <p className="loom-eyebrow" style={{ marginBottom: 24 }}>your details</p>
+            <div style={{ display: 'grid', gap: 24, marginBottom: 40 }}>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  your email <span style={{ color: '#c25a5a' }}>*</span>
+                </label>
+                <input
+                  type="email"
+                  value={formData.purchaserEmail}
+                  onChange={(e) => setFormData({ ...formData, purchaserEmail: e.target.value })}
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  your name
+                </label>
+                <input
+                  type="text"
+                  value={formData.purchaserName}
+                  onChange={(e) => setFormData({ ...formData, purchaserName: e.target.value })}
+                  placeholder="shown to recipient"
+                />
               </div>
             </div>
 
-            <div className="bg-void-surface border border-paper-15 p-6">
-              <h2 className="font-body text-lg mb-4">Recipient details (optional)</h2>
-              <p className="text-paper-50 text-sm mb-4 leading-relaxed">
-                You can send the gift directly to someone, or leave blank to receive the voucher code yourself.
-              </p>
+            <hr className="loom-hairline" style={{ marginBottom: 32 }} />
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Recipient email</label>
-                  <input
-                    type="email"
-                    value={formData.recipientEmail}
-                    onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                    placeholder="recipient@example.com"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Recipient name</label>
-                  <input
-                    type="text"
-                    value={formData.recipientName}
-                    onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                    placeholder="Their name"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Personal message</label>
-                  <textarea
-                    value={formData.recipientMessage}
-                    onChange={(e) => setFormData({ ...formData, recipientMessage: e.target.value })}
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y"
-                    rows={3}
-                    placeholder="Add a personal message to your gift…"
-                  />
-                </div>
+            <p className="loom-eyebrow" style={{ marginBottom: 8 }}>recipient (optional)</p>
+            <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', margin: '0 0 24px' }}>
+              send directly, or leave blank to receive the voucher code yourself.
+            </p>
+            <div style={{ display: 'grid', gap: 24, marginBottom: 40 }}>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  recipient email
+                </label>
+                <input
+                  type="email"
+                  value={formData.recipientEmail}
+                  onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
+                  placeholder="recipient@example.com"
+                />
+              </div>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  recipient name
+                </label>
+                <input
+                  type="text"
+                  value={formData.recipientName}
+                  onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                  placeholder="their name"
+                />
+              </div>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  personal note
+                </label>
+                <textarea
+                  value={formData.recipientMessage}
+                  onChange={(e) => setFormData({ ...formData, recipientMessage: e.target.value })}
+                  placeholder="a few quiet words…"
+                  rows={3}
+                  style={{ resize: 'vertical' }}
+                />
               </div>
             </div>
 
-            {/* Summary & Purchase */}
-            <div className="bg-void-surface border border-gold-40 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-paper-70">Gift summary</span>
-                <span className="text-gold">
-                  {selectedPricing?.name} — {billingCycle === 'yearly' ? '1 Year' : '3 Months'}
-                </span>
-              </div>
+            <hr className="loom-hairline" style={{ marginBottom: 28 }} />
 
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-paper-50">Total</span>
-                <span className="font-body text-2xl text-gold">{price?.display}</span>
-              </div>
+            {/* Summary */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+              <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                {selectedPricing?.name} — {billingCycle === 'yearly' ? '1 year' : '3 months'}
+              </span>
+              <span className="loom-body" style={{ fontSize: 22, color: 'var(--loom-warm)' }}>
+                {price?.display}
+              </span>
+            </div>
 
-              <button
-                onClick={handlePurchase}
-                disabled={isLoading || !formData.purchaserEmail}
-                className="btn btn-primary w-full"
+            {formError && (
+              <p
+                role="alert"
+                className="loom-body"
+                style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 13, margin: '0 0 16px' }}
               >
-                {isLoading ? 'Processing…' : 'Purchase gift'}
-                {!isLoading ? <span aria-hidden>→</span> : null}
-              </button>
-
-              <p className="text-center text-paper-50 text-xs mt-4">
-                Secure payment powered by Stripe. Voucher valid for 1 year.
+                {formError}
               </p>
-            </div>
+            )}
+
+            <button
+              onClick={handlePurchase}
+              disabled={isLoading || !formData.purchaserEmail}
+              className="loom-btn"
+              style={{ width: '100%', opacity: (isLoading || !formData.purchaserEmail) ? 0.5 : 1 }}
+            >
+              {isLoading ? 'preparing checkout…' : 'purchase gift'}
+            </button>
+
+            <p className="loom-mono" style={{ textAlign: 'center', fontSize: 9, letterSpacing: '0.18em', color: 'var(--loom-bone-faint)', marginTop: 16 }}>
+              secure payment via stripe · voucher valid 1 year
+            </p>
           </div>
         </div>
       </div>

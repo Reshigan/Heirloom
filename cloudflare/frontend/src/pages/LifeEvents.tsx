@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
-import { ProgressHair } from '../components/ui/ProgressHair';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 // Quick Create wizard templates
@@ -88,13 +86,40 @@ const _TRIGGER_METHODS = [
   { value: 'DATE', label: 'Scheduled Date', description: 'Auto-trigger on a date' },
   { value: 'RECIPIENT_CONFIRMS', label: 'Recipient Confirms', description: 'They confirm the event' },
 ];
-void _TRIGGER_METHODS; // Suppress unused warning - kept for future advanced options
+void _TRIGGER_METHODS;
 
 const STATUS_CONFIG: Record<string, { label: string }> = {
-  PENDING: { label: 'Pending' },
-  TRIGGERED: { label: 'Triggered' },
-  DELIVERED: { label: 'Delivered' },
-  CANCELLED: { label: 'Cancelled' },
+  PENDING: { label: 'pending' },
+  TRIGGERED: { label: 'triggered' },
+  DELIVERED: { label: 'delivered' },
+  CANCELLED: { label: 'cancelled' },
+};
+
+const fieldStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'transparent',
+  border: '1px solid var(--loom-rule)',
+  borderRadius: 2,
+  color: 'var(--loom-bone)',
+  caretColor: 'var(--loom-warm)',
+  fontFamily: "'Source Serif 4', serif",
+  fontSize: 15,
+  lineHeight: 1.7,
+  padding: '12px 14px',
+  outline: 'none',
+  boxSizing: 'border-box',
+  resize: 'none',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 11,
+  fontWeight: 500,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: 'var(--loom-bone-faint)',
+  marginBottom: 10,
 };
 
 export function LifeEvents() {
@@ -102,14 +127,11 @@ export function LifeEvents() {
   const [showCreate, setShowCreate] = useState(false);
   const [showContentPicker, setShowContentPicker] = useState(false);
 
-  // Wizard state - simplified 3-step flow
-  const [wizardStep, setWizardStep] = useState(1); // 1: Pick template, 2: Pick recipient, 3: Review & customize
+  const [wizardStep, setWizardStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof QUICK_TEMPLATES[0] | null>(null);
 
-  // Feature onboarding
   const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('life-events');
 
-  // Form state
   const [eventType, setEventType] = useState('GRADUATION');
   const [eventName, setEventName] = useState('');
   const [eventDescription, setEventDescription] = useState('');
@@ -120,10 +142,10 @@ export function LifeEvents() {
   const [scheduledDate, setScheduledDate] = useState('');
   const [selectedContent, setSelectedContent] = useState<{ type: string; id: string; title: string }[]>([]);
 
-    const { data: triggers, isLoading } = useQuery<{ triggers: LifeEventTrigger[] }>({
-      queryKey: ['life-events'],
-      queryFn: () => api.get('/api/life-events').then((r: { data: { triggers: LifeEventTrigger[] } }) => r.data),
-    });
+  const { data: triggers, isLoading } = useQuery<{ triggers: LifeEventTrigger[] }>({
+    queryKey: ['life-events'],
+    queryFn: () => api.get('/api/life-events').then((r: { data: { triggers: LifeEventTrigger[] } }) => r.data),
+  });
 
   const { data: familyData } = useQuery({
     queryKey: ['family-for-events'],
@@ -149,7 +171,6 @@ export function LifeEvents() {
     enabled: showContentPicker,
   });
 
-  // Normalize API responses - handle multiple response shapes
   const family: FamilyMember[] = Array.isArray(familyData) ? familyData : (familyData?.members || familyData?.data || []);
   const memories = (() => {
     if (!memoriesData) return [];
@@ -222,7 +243,6 @@ export function LifeEvents() {
     setFamilyMemberId(member.id);
     setRecipientName(member.name);
     setRecipientEmail(member.email || '');
-    // Auto-select recent content for this recipient
     const recentMemories = memories.slice(0, 3).map((m: { id: string; title: string }) => ({ type: 'MEMORY', id: m.id, title: m.title }));
     setSelectedContent(recentMemories);
     setWizardStep(3);
@@ -243,10 +263,8 @@ export function LifeEvents() {
     });
   };
 
-  // Legacy create handler - kept for advanced mode
   const _handleCreate = () => {
     if (!eventName.trim()) return;
-
     createMutation.mutate({
       eventType,
       eventName: eventName.trim(),
@@ -261,7 +279,6 @@ export function LifeEvents() {
   };
   void _handleCreate;
 
-  // Legacy family member select - kept for advanced mode
   const _handleFamilyMemberSelect = (memberId: string) => {
     const member = family.find(m => m.id === memberId);
     if (member) {
@@ -285,493 +302,560 @@ export function LifeEvents() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen relative bg-void">
-        <Navigation />
-        <div className="flex items-center justify-center h-[60vh]">
-          <ProgressHair label="loading…" width={180} />
-        </div>
-      </div>
+      <AppFrame>
+        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+          Loading…
+        </p>
+      </AppFrame>
     );
   }
 
   return (
-    <div className="min-h-screen relative bg-void text-paper antialiased">
-      <Navigation />
-
-      <main className="relative z-10 px-6 md:px-12 pt-24 pb-16 max-w-5xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-12"
+    <AppFrame>
+      <header style={{ marginBottom: 40, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
+        <div>
+          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Life events</p>
+          <h1
+            className="loom-h2"
+            style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+          >
+            Words timed to moments.
+          </h1>
+          <p
+            className="loom-body"
+            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
+          >
+            Prepare messages for the moments in a life that matter most — graduation, marriage, a first child.
+            They arrive when the moment does.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="loom-btn"
+          style={{ flexShrink: 0, marginTop: 8 }}
         >
-          <div>
-            <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-3">Life Events</p>
-            <h1 className="font-display font-light text-4xl md:text-5xl mb-2 tracking-[-0.018em]">Life Event Triggers</h1>
-            <p className="text-paper-70 font-light">
-              Deliver messages when life's special moments happen
-            </p>
-          </div>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="btn btn-primary"
-          >
-            Create Trigger
-          </button>
-        </motion.div>
+          create trigger
+        </button>
+      </header>
 
-        {/* Triggers List */}
-        {triggers?.triggers && triggers.triggers.length > 0 ? (
-          <div className="space-y-4">
-            {triggers.triggers.map((trigger, index) => {
-              const statusConfig = STATUS_CONFIG[trigger.status] || STATUS_CONFIG.PENDING;
-
-              return (
-                <motion.div
-                  key={trigger.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-void-surface border border-paper-15 rounded-[2px] p-5"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h3 className="font-body text-lg">{trigger.event_name}</h3>
-                        <span className="px-2 py-0.5 rounded-[2px] text-xs font-mono uppercase tracking-[0.1em] border border-paper-15 text-paper-70">
-                          {statusConfig.label}
-                        </span>
-                      </div>
-                      {trigger.event_description && (
-                        <p className="text-paper-65 text-sm mb-2">{trigger.event_description}</p>
-                      )}
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-paper-70">
-                        <span>
-                          {trigger.recipient_name || trigger.family_member_name || 'No recipient'}
-                        </span>
-                        {trigger.recipient_email && (
-                          <span className="font-mono text-xs">{trigger.recipient_email}</span>
-                        )}
-                        {trigger.scheduled_date && (
-                          <span className="font-mono text-xs">
-                            {new Date(trigger.scheduled_date).toLocaleDateString()}
-                          </span>
-                        )}
-                        <span>
-                          {JSON.parse(trigger.content_items || '[]').length} items attached
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {trigger.status === 'PENDING' && (
-                        <>
-                          <button
-                            onClick={() => triggerMutation.mutate(trigger.id)}
-                            disabled={triggerMutation.isPending}
-                            className="btn btn-primary btn-sm"
-                          >
-                            Trigger Now
-                          </button>
-                          <button
-                            onClick={() => cancelMutation.mutate(trigger.id)}
-                            className="btn btn-ghost btn-sm text-paper-65"
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      )}
-                      <button
-                        onClick={() => deleteMutation.mutate(trigger.id)}
-                        className="text-paper-50 hover:text-blood transition-colors text-sm p-2"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <span className="font-display text-4xl text-paper-30 block mb-6" aria-hidden>∞</span>
-            <h3 className="font-body text-xl mb-2">No life event triggers yet</h3>
-            <p className="text-paper-65 mb-6">Create triggers to deliver messages at life's special moments</p>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="btn btn-primary"
-            >
-              Create Your First Trigger
-            </button>
-          </motion.div>
-        )}
-
-        {/* Create Modal - Simplified Wizard */}
-        <AnimatePresence>
-          {showCreate && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4 overflow-y-auto"
-              onClick={() => resetForm()}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-xl w-full my-8"
-                onClick={e => e.stopPropagation()}
+      {/* Triggers list */}
+      {triggers?.triggers && triggers.triggers.length > 0 ? (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {triggers.triggers.map((trigger) => {
+            const statusConfig = STATUS_CONFIG[trigger.status] || STATUS_CONFIG.PENDING;
+            return (
+              <li
+                key={trigger.id}
+                style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}
               >
-                {/* Wizard Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    {wizardStep > 1 && (
-                      <button
-                        onClick={() => setWizardStep(wizardStep - 1)}
-                        className="text-paper-50 hover:text-paper transition-colors"
-                        aria-label="Back"
+                <article style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'start' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 8 }}>
+                      <h3
+                        className="loom-serif"
+                        style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: 0 }}
                       >
-                        <span aria-hidden>←</span>
-                      </button>
-                    )}
-                    <div>
-                      <h3 className="font-body text-xl">
-                        {wizardStep === 1 && 'What moment do you want to capture?'}
-                        {wizardStep === 2 && 'Who is this for?'}
-                        {wizardStep === 3 && 'Review & Create'}
+                        {trigger.event_name}
                       </h3>
-                      <p className="text-sm text-paper-65 font-mono">Step {wizardStep} of 3</p>
-                    </div>
-                  </div>
-                  <button onClick={() => resetForm()} className="text-paper-50 hover:text-paper transition-colors" aria-label="Close">
-                    <span aria-hidden>✕</span>
-                  </button>
-                </div>
-
-                {/* Step 1: Pick Template */}
-                {wizardStep === 1 && (
-                  <div className="space-y-3">
-                    {QUICK_TEMPLATES.map((template) => (
-                      <button
-                        key={template.id}
-                        onClick={() => handleTemplateSelect(template)}
-                        className="w-full p-4 rounded-[2px] bg-void border border-paper-15 hover:bg-void-elevated transition-colors flex items-center gap-4 text-left group"
+                      <span
+                        className="loom-mono"
+                        style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
                       >
-                        <div className="flex-1">
-                          <h4 className="font-body">{template.title}</h4>
-                          <p className="text-sm text-paper-65">{template.description}</p>
-                        </div>
-                        <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors">→</span>
-                      </button>
-                    ))}
-                    <div className="pt-4 border-t border-paper-15">
-                      <button
-                        onClick={() => {
-                          setWizardStep(2);
-                          setSelectedTemplate(null);
-                        }}
-                        className="w-full p-3 text-center text-paper-65 hover:text-paper transition-colors"
-                      >
-                        Or create a custom event...
-                      </button>
+                        {statusConfig.label}
+                      </span>
                     </div>
-                  </div>
-                )}
-
-                {/* Step 2: Pick Recipient */}
-                {wizardStep === 2 && (
-                  <div className="space-y-4">
-                    {family.length > 0 ? (
-                      <div className="space-y-2">
-                        <p className="text-sm text-paper-70 mb-3">Select a family member:</p>
-                        {family.map((member) => (
-                          <button
-                            key={member.id}
-                            onClick={() => handleRecipientSelect(member)}
-                            className={`w-full p-4 rounded-[2px] transition-colors flex items-center gap-4 text-left border ${
-                              familyMemberId === member.id
-                                ? 'border-gold-40 text-gold'
-                                : 'border-paper-15 bg-void hover:bg-void-elevated'
-                            }`}
-                          >
-                            <div className="flex-1">
-                              <h4 className="font-body">{member.name}</h4>
-                              <p className="text-sm text-paper-65">{member.relationship}</p>
-                            </div>
-                            <span aria-hidden className="text-paper-50">→</span>
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <h4 className="font-body mb-2">No family members yet</h4>
-                        <p className="text-paper-65 text-sm mb-4">Add family members to easily select recipients</p>
-                        <a href="/family" className="btn btn-primary">
-                          Add Family Members
-                        </a>
-                      </div>
+                    {trigger.event_description && (
+                      <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 8px', lineHeight: 1.6 }}>
+                        {trigger.event_description}
+                      </p>
                     )}
-                    <div className="pt-4 border-t border-paper-15">
-                      <p className="text-sm text-paper-65 mb-2">Or enter manually:</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          value={recipientName}
-                          onChange={(e) => setRecipientName(e.target.value)}
-                          placeholder="Recipient name"
-                          className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-2 placeholder:text-paper-30 transition-colors"
-                        />
-                        <input
-                          type="email"
-                          value={recipientEmail}
-                          onChange={(e) => setRecipientEmail(e.target.value)}
-                          placeholder="Recipient email"
-                          className="bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-2 placeholder:text-paper-30 transition-colors"
-                        />
-                      </div>
-                      {recipientName && (
-                        <button
-                          onClick={() => setWizardStep(3)}
-                          className="w-full mt-3 btn btn-primary"
-                        >
-                          Continue
-                        </button>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
+                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                        {trigger.recipient_name || trigger.family_member_name || 'No recipient'}
+                      </span>
+                      {trigger.recipient_email && (
+                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                          {trigger.recipient_email}
+                        </span>
                       )}
+                      {trigger.scheduled_date && (
+                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                          {new Date(trigger.scheduled_date).toLocaleDateString()}
+                        </span>
+                      )}
+                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                        {JSON.parse(trigger.content_items || '[]').length} items attached
+                      </span>
                     </div>
                   </div>
-                )}
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                    {trigger.status === 'PENDING' && (
+                      <>
+                        <button
+                          onClick={() => triggerMutation.mutate(trigger.id)}
+                          disabled={triggerMutation.isPending}
+                          className="loom-btn"
+                          style={{ padding: '8px 16px', fontSize: 11 }}
+                        >
+                          deliver now
+                        </button>
+                        <button
+                          onClick={() => cancelMutation.mutate(trigger.id)}
+                          className="loom-btn-ghost"
+                          style={{ padding: '8px 16px', fontSize: 11 }}
+                        >
+                          cancel
+                        </button>
+                      </>
+                    )}
+                    <button
+                      onClick={() => deleteMutation.mutate(trigger.id)}
+                      style={{ background: 'none', border: 0, padding: '8px 4px', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.06em', color: 'var(--loom-bone-faint)', transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
+                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
+                    >
+                      remove
+                    </button>
+                  </div>
+                </article>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center' }}>
+          <p className="loom-mono" style={{ fontSize: 22, color: 'var(--loom-warm)', marginBottom: 14 }}>∞</p>
+          <h3
+            className="loom-serif"
+            style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 10px' }}
+          >
+            No triggers yet.
+          </h3>
+          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', margin: '0 0 24px' }}>
+            Create one for the moments still to come.
+          </p>
+          <button onClick={() => setShowCreate(true)} className="loom-btn">
+            create your first trigger
+          </button>
+        </div>
+      )}
 
-                {/* Step 3: Review & Create */}
-                {wizardStep === 3 && (
-                  <div className="space-y-5">
-                    {/* Summary */}
-                    <div className="p-4 rounded-[2px] bg-void border border-gold-40">
-                      <p className="font-body mb-2">Ready to create</p>
-                      <p className="text-sm text-paper-70">
-                        {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom event'} for <strong>{recipientName}</strong>
+      {/* Create wizard overlay */}
+      {showCreate && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 200, padding: 24, overflowY: 'auto',
+          }}
+          onClick={() => resetForm()}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 560,
+              width: '100%',
+              margin: 'auto',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Wizard header */}
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 28 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
+                {wizardStep > 1 && (
+                  <button
+                    onClick={() => setWizardStep(wizardStep - 1)}
+                    style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--loom-bone-faint)' }}
+                    aria-label="Back"
+                  >
+                    ←
+                  </button>
+                )}
+                <div>
+                  <h3 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 2px' }}>
+                    {wizardStep === 1 && 'Choose a moment.'}
+                    {wizardStep === 2 && 'Who is this for?'}
+                    {wizardStep === 3 && 'Review and create.'}
+                  </h3>
+                  <p className="loom-mono" style={{ margin: 0, fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em' }}>
+                    step {wizardStep} of 3
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => resetForm()}
+                style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: 'var(--loom-bone-faint)' }}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Step 1: Pick template */}
+            {wizardStep === 1 && (
+              <div style={{ display: 'grid', gap: 8 }}>
+                {QUICK_TEMPLATES.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => handleTemplateSelect(template)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--loom-rule)',
+                      borderRadius: 0,
+                      padding: '16px 18px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      justifyContent: 'space-between',
+                      gap: 16,
+                      transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--loom-warm)')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--loom-rule)')}
+                  >
+                    <div>
+                      <p className="loom-serif" style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 300, color: 'var(--loom-bone)' }}>
+                        {template.title}
+                      </p>
+                      <p className="loom-body" style={{ margin: 0, fontSize: 13, color: 'var(--loom-bone-faint)' }}>
+                        {template.description}
                       </p>
                     </div>
+                    <span className="loom-mono" style={{ fontSize: 12, color: 'var(--loom-bone-faint)' }}>→</span>
+                  </button>
+                ))}
+                <div style={{ paddingTop: 16, borderTop: '1px solid var(--loom-rule)' }}>
+                  <button
+                    onClick={() => { setWizardStep(2); setSelectedTemplate(null); }}
+                    style={{ background: 'none', border: 0, padding: '8px 0', cursor: 'pointer', width: '100%', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textAlign: 'center' }}
+                  >
+                    or create a custom event
+                  </button>
+                </div>
+              </div>
+            )}
 
-                    {/* Editable Title */}
-                    <div>
-                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Event Title</label>
-                      <input
-                        type="text"
-                        value={eventName}
-                        onChange={(e) => setEventName(e.target.value)}
-                        placeholder="Give this event a name..."
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors"
-                      />
-                    </div>
-
-                    {/* Optional Message */}
-                    <div>
-                      <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Personal Message (optional)</label>
-                      <textarea
-                        value={eventDescription}
-                        onChange={(e) => setEventDescription(e.target.value)}
-                        placeholder="Add a heartfelt message..."
-                        rows={3}
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper rounded-[2px] px-4 py-3 placeholder:text-paper-30 transition-colors resize-none"
-                      />
-                    </div>
-
-                    {/* Auto-selected Content */}
-                    {selectedContent.length > 0 && (
-                      <div>
-                        <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
-                          Included Content ({selectedContent.length} items)
-                        </label>
-                        <div className="space-y-1">
-                          {selectedContent.map((item) => (
-                            <div key={`${item.type}-${item.id}`} className="flex items-center justify-between p-2 bg-void border border-paper-15 rounded-[2px] text-sm">
-                              <span>{item.title}</span>
-                              <button
-                                onClick={() => removeContent(item.type, item.id)}
-                                aria-label="Remove content"
-                                className="text-paper-50 hover:text-blood transition-colors"
-                              >
-                                <span aria-hidden>✕</span>
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        <button
-                          onClick={() => setShowContentPicker(true)}
-                          className="mt-2 text-sm text-gold hover:text-gold-bright transition-colors"
-                        >
-                          + Add more content
-                        </button>
-                      </div>
-                    )}
-
-                    {selectedContent.length === 0 && (
+            {/* Step 2: Pick recipient */}
+            {wizardStep === 2 && (
+              <div style={{ display: 'grid', gap: 12 }}>
+                {family.length > 0 ? (
+                  <>
+                    <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 8px' }}>
+                      Select a family member:
+                    </p>
+                    {family.map((member) => (
                       <button
-                        onClick={() => setShowContentPicker(true)}
-                        className="w-full p-3 border border-dashed border-paper-15 rounded-[2px] text-paper-65 hover:text-paper hover:border-paper-15 transition-colors flex items-center justify-center gap-2"
+                        key={member.id}
+                        onClick={() => handleRecipientSelect(member)}
+                        style={{
+                          background: 'transparent',
+                          border: `1px solid ${familyMemberId === member.id ? 'var(--loom-warm)' : 'var(--loom-rule)'}`,
+                          borderRadius: 0,
+                          padding: '14px 18px',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          justifyContent: 'space-between',
+                          gap: 16,
+                        }}
                       >
-                        <span aria-hidden>+</span>
-                        Add photos, letters, or voice recordings
+                        <div>
+                          <p className="loom-serif" style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 300, color: familyMemberId === member.id ? 'var(--loom-warm)' : 'var(--loom-bone)' }}>
+                            {member.name}
+                          </p>
+                          <p className="loom-mono" style={{ margin: 0, fontSize: 10, color: 'var(--loom-bone-faint)' }}>{member.relationship}</p>
+                        </div>
+                        <span className="loom-mono" style={{ fontSize: 12, color: 'var(--loom-bone-faint)' }}>→</span>
                       </button>
-                    )}
-
-                    {/* Create Button */}
+                    ))}
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                    <p className="loom-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 8px' }}>
+                      No family members yet.
+                    </p>
+                    <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: '0 0 16px' }}>
+                      Add family members first, or enter a recipient manually below.
+                    </p>
+                    <a href="/family" className="loom-btn" style={{ textDecoration: 'none' }}>
+                      add family members
+                    </a>
+                  </div>
+                )}
+                <div style={{ paddingTop: 16, borderTop: '1px solid var(--loom-rule)' }}>
+                  <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', margin: '0 0 10px' }}>Or enter manually:</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <input
+                      type="text"
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                      placeholder="Recipient name"
+                      style={fieldStyle}
+                    />
+                    <input
+                      type="email"
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value)}
+                      placeholder="Recipient email"
+                      style={fieldStyle}
+                    />
+                  </div>
+                  {recipientName && (
                     <button
-                      onClick={handleQuickCreate}
-                      disabled={!eventName.trim() || createMutation.isPending}
-                      className="w-full btn btn-primary"
+                      onClick={() => setWizardStep(3)}
+                      className="loom-btn"
+                      style={{ width: '100%', marginTop: 12 }}
                     >
-                      {createMutation.isPending ? 'Creating…' : 'Create Life Event'}
+                      continue
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Review & create */}
+            {wizardStep === 3 && (
+              <div style={{ display: 'grid', gap: 20 }}>
+                <div style={{ borderLeft: '2px solid var(--loom-warm)', paddingLeft: 14 }}>
+                  <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0 }}>
+                    {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom event'} for{' '}
+                    <span style={{ color: 'var(--loom-bone)' }}>{recipientName}</span>
+                  </p>
+                </div>
+
+                <div>
+                  <label style={labelStyle} htmlFor="le-name">Event title</label>
+                  <input
+                    id="le-name"
+                    type="text"
+                    value={eventName}
+                    onChange={(e) => setEventName(e.target.value)}
+                    placeholder="Give this event a name…"
+                    style={fieldStyle}
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle} htmlFor="le-desc">Personal message (optional)</label>
+                  <textarea
+                    id="le-desc"
+                    value={eventDescription}
+                    onChange={(e) => setEventDescription(e.target.value)}
+                    placeholder="Add words for this moment…"
+                    rows={3}
+                    style={fieldStyle}
+                  />
+                </div>
+
+                {selectedContent.length > 0 && (
+                  <div>
+                    <label style={labelStyle}>
+                      Included content ({selectedContent.length})
+                    </label>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6 }}>
+                      {selectedContent.map((item) => (
+                        <li
+                          key={`${item.type}-${item.id}`}
+                          style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '8px 10px', border: '1px solid var(--loom-rule)' }}
+                        >
+                          <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>{item.title}</span>
+                          <button
+                            onClick={() => removeContent(item.type, item.id)}
+                            aria-label="Remove"
+                            style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--loom-bone-faint)' }}
+                          >
+                            ✕
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      onClick={() => setShowContentPicker(true)}
+                      style={{ background: 'none', border: 0, padding: '8px 0 0', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
+                    >
+                      + add more
                     </button>
                   </div>
                 )}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* Content Picker Modal - Keep existing but simplified */}
-        <AnimatePresence>
-          {showContentPicker && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-void/80 flex items-center justify-center z-[60] p-4"
-              onClick={() => setShowContentPicker(false)}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="bg-void-surface border border-paper-15 rounded-[2px] p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
-                onClick={e => e.stopPropagation()}
-              >
-                <h3 className="font-body text-lg mb-4">Add Content</h3>
-
-                {memories.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">
-                      Photos & Memories ({memories.length})
-                    </h4>
-                    <div className="space-y-1 max-h-32 overflow-y-auto">
-                      {memories.slice(0, 10).map((m: { id: string; title: string }) => (
-                        <button
-                          key={m.id}
-                          onClick={() => addContent('MEMORY', m.id, m.title)}
-                          disabled={selectedContent.some(c => c.id === m.id)}
-                          className="w-full p-2 text-left hover:bg-void-elevated rounded-[2px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {m.title}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {letters.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">
-                      Letters ({letters.length})
-                    </h4>
-                    <div className="space-y-1 max-h-32 overflow-y-auto">
-                      {letters.slice(0, 10).map((l: { id: string; title: string }) => (
-                        <button
-                          key={l.id}
-                          onClick={() => addContent('LETTER', l.id, l.title || 'Untitled Letter')}
-                          disabled={selectedContent.some(c => c.id === l.id)}
-                          className="w-full p-2 text-left hover:bg-void-elevated rounded-[2px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {l.title || 'Untitled Letter'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {voiceRecordings.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-2">
-                      Voice Recordings ({voiceRecordings.length})
-                    </h4>
-                    <div className="space-y-1 max-h-32 overflow-y-auto">
-                      {voiceRecordings.slice(0, 10).map((v: { id: string; title: string }) => (
-                        <button
-                          key={v.id}
-                          onClick={() => addContent('VOICE', v.id, v.title)}
-                          disabled={selectedContent.some(c => c.id === v.id)}
-                          className="w-full p-2 text-left hover:bg-void-elevated rounded-[2px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {v.title}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {memories.length === 0 && letters.length === 0 && voiceRecordings.length === 0 && (
-                  <div className="text-center py-6">
-                    <p className="text-paper-65 mb-4">No content available yet. Create some first:</p>
-                    <div className="space-y-2">
-                      <a
-                        href="/memories"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 p-3 bg-void border border-paper-15 rounded-[2px] text-paper hover:bg-void-elevated transition-colors"
-                      >
-                        Add Photos & Memories
-                        <span aria-hidden>→</span>
-                      </a>
-                      <a
-                        href="/compose"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 p-3 bg-void border border-paper-15 rounded-[2px] text-paper hover:bg-void-elevated transition-colors"
-                      >
-                        Write a Letter
-                        <span aria-hidden>→</span>
-                      </a>
-                      <a
-                        href="/record"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 p-3 bg-void border border-paper-15 rounded-[2px] text-paper hover:bg-void-elevated transition-colors"
-                      >
-                        Record a Voice Message
-                        <span aria-hidden>→</span>
-                      </a>
-                    </div>
-                  </div>
+                {selectedContent.length === 0 && (
+                  <button
+                    onClick={() => setShowContentPicker(true)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px dashed var(--loom-rule)',
+                      borderRadius: 0,
+                      padding: '14px',
+                      cursor: 'pointer',
+                      width: '100%',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: '0.14em',
+                      textTransform: 'uppercase',
+                      color: 'var(--loom-bone-faint)',
+                    }}
+                  >
+                    attach memories, letters, or voice recordings
+                  </button>
                 )}
 
                 <button
-                  onClick={() => setShowContentPicker(false)}
-                  className="w-full btn btn-primary mt-4"
+                  onClick={handleQuickCreate}
+                  disabled={!eventName.trim() || createMutation.isPending}
+                  className="loom-btn"
+                  style={{ width: '100%' }}
                 >
-                  Done
+                  {createMutation.isPending ? 'creating…' : 'create life event'}
                 </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-      {/* Help Button */}
+      {/* Content picker overlay */}
+      {showContentPicker && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 300, padding: 24,
+          }}
+          onClick={() => setShowContentPicker(false)}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 440,
+              width: '100%',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="loom-eyebrow" style={{ marginBottom: 20 }}>Add content</p>
+
+            {memories.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <p className="loom-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
+                  Memories ({memories.length})
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 4, maxHeight: 140, overflowY: 'auto' }}>
+                  {memories.slice(0, 10).map((m: { id: string; title: string }) => (
+                    <li key={m.id}>
+                      <button
+                        onClick={() => addContent('MEMORY', m.id, m.title)}
+                        disabled={selectedContent.some(c => c.id === m.id)}
+                        style={{ background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone-dim)', opacity: selectedContent.some(c => c.id === m.id) ? 0.4 : 1 }}
+                      >
+                        {m.title}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {letters.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <p className="loom-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
+                  Letters ({letters.length})
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 4, maxHeight: 140, overflowY: 'auto' }}>
+                  {letters.slice(0, 10).map((l: { id: string; title: string }) => (
+                    <li key={l.id}>
+                      <button
+                        onClick={() => addContent('LETTER', l.id, l.title || 'Untitled letter')}
+                        disabled={selectedContent.some(c => c.id === l.id)}
+                        style={{ background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone-dim)', opacity: selectedContent.some(c => c.id === l.id) ? 0.4 : 1 }}
+                      >
+                        {l.title || 'Untitled letter'}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {voiceRecordings.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <p className="loom-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
+                  Voice ({voiceRecordings.length})
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 4, maxHeight: 140, overflowY: 'auto' }}>
+                  {voiceRecordings.slice(0, 10).map((v: { id: string; title: string }) => (
+                    <li key={v.id}>
+                      <button
+                        onClick={() => addContent('VOICE', v.id, v.title)}
+                        disabled={selectedContent.some(c => c.id === v.id)}
+                        style={{ background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone-dim)', opacity: selectedContent.some(c => c.id === v.id) ? 0.4 : 1 }}
+                      >
+                        {v.title}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {memories.length === 0 && letters.length === 0 && voiceRecordings.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: '0 0 16px' }}>
+                  No content yet. Add some first:
+                </p>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  {[
+                    { href: '/memories', label: 'Add memories' },
+                    { href: '/compose', label: 'Write a letter' },
+                    { href: '/record', label: 'Record a voice message' },
+                  ].map(({ href, label }) => (
+                    <a
+                      key={href}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'block',
+                        padding: '12px 14px',
+                        border: '1px solid var(--loom-rule)',
+                        textDecoration: 'none',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 10,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        color: 'var(--loom-bone-dim)',
+                      }}
+                    >
+                      {label} →
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button onClick={() => setShowContentPicker(false)} className="loom-btn" style={{ width: '100%', marginTop: 16 }}>
+              done
+            </button>
+          </div>
+        </div>
+      )}
+
       <OnboardingHelpButton onClick={openOnboarding} />
-
-      {/* Feature Onboarding */}
       <FeatureOnboarding
         featureKey="life-events"
         isOpen={isOnboardingOpen}
         onComplete={completeOnboarding}
         onDismiss={dismissOnboarding}
       />
-    </div>
+    </AppFrame>
   );
 }
 

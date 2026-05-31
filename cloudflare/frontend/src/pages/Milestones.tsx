@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation } from '../components/Navigation';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { AppFrame } from '../loom/components/AppFrame';
 import { milestonesApi } from '../services/api';
 
 const milestoneTypes = [
@@ -13,6 +11,32 @@ const milestoneTypes = [
   { id: 'graduation', name: 'Graduation' },
   { id: 'custom', name: 'Custom' },
 ];
+
+const fieldStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'transparent',
+  border: '1px solid var(--loom-rule)',
+  borderRadius: 2,
+  color: 'var(--loom-bone)',
+  caretColor: 'var(--loom-warm)',
+  fontFamily: "'Source Serif 4', serif",
+  fontSize: 15,
+  lineHeight: 1.7,
+  padding: '12px 14px',
+  outline: 'none',
+  boxSizing: 'border-box',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 11,
+  fontWeight: 500,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: 'var(--loom-bone-faint)',
+  marginBottom: 10,
+};
 
 export function Milestones() {
   const queryClient = useQueryClient();
@@ -42,14 +66,7 @@ export function Milestones() {
       queryClient.invalidateQueries({ queryKey: ['milestones'] });
       queryClient.invalidateQueries({ queryKey: ['upcomingMilestones'] });
       setShowCreateModal(false);
-      setFormData({
-        type: 'birthday',
-        name: '',
-        date: '',
-        recurring: true,
-        reminderDays: 7,
-        promptSuggestion: '',
-      });
+      setFormData({ type: 'birthday', name: '', date: '', recurring: true, reminderDays: 7, promptSuggestion: '' });
     },
   });
 
@@ -73,373 +90,365 @@ export function Milestones() {
   const getDaysUntil = (dateStr: string, recurring: boolean) => {
     const date = new Date(dateStr);
     const now = new Date();
-
     if (recurring) {
       const thisYear = new Date(now.getFullYear(), date.getMonth(), date.getDate());
-      if (thisYear < now) {
-        thisYear.setFullYear(thisYear.getFullYear() + 1);
-      }
+      if (thisYear < now) thisYear.setFullYear(thisYear.getFullYear() + 1);
       return Math.ceil((thisYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     }
-
     return Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   };
 
-  const getTypeInfo = (type: string) => {
-    return milestoneTypes.find(t => t.id === type) || milestoneTypes[5];
-  };
+  const getTypeInfo = (type: string) => milestoneTypes.find(t => t.id === type) || milestoneTypes[5];
+
+  const milestoneList: any[] = milestones || [];
+  const upcomingList: any[] = upcoming || [];
 
   return (
-    <div className="min-h-screen bg-void text-paper">
-      <Navigation />
-
-      <main id="main-content" className="pt-24 pb-12 px-6 md:px-12 max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start justify-between mb-8"
-        >
-          <div>
-            <h1 className="font-body font-light text-3xl md:text-4xl mb-2 tracking-[-0.014em]">Milestone Alerts</h1>
-            <p className="text-paper-70">Never miss an important date with smart reminders</p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => autoDetectMutation.mutate()}
-              disabled={autoDetectMutation.isPending}
-              className="btn btn-ghost"
-            >
-              <span>{autoDetectMutation.isPending ? 'Detecting...' : 'Auto-Detect'}</span>
-            </button>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn btn-primary"
-            >
-              <span>Add Milestone</span>
-            </button>
-          </div>
-        </motion.div>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <ProgressHair label="loading…" width={180} />
-          </div>
-        ) : (
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Upcoming Milestones */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="lg:col-span-2 bg-void-surface border border-paper-15 p-6"
-            >
-              <h2 className="text-lg font-medium mb-4">Coming Up (Next 30 Days)</h2>
-
-              {upcoming && upcoming.length > 0 ? (
-                <div className="space-y-3">
-                  {upcoming.map((milestone: any) => {
-                    const typeInfo = getTypeInfo(milestone.milestone_type);
-                    const daysUntil = getDaysUntil(milestone.milestone_date, milestone.recurring);
-
-                    return (
-                      <div
-                        key={milestone.id}
-                        className="p-4 rounded-[2px] border border-paper-15"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-[2px] border border-gold-40 flex items-center justify-center text-gold text-sm">
-                              {typeInfo.name[0]}
-                            </div>
-                            <div>
-                              <div className="font-medium">{milestone.milestone_name}</div>
-                              <div className="text-sm text-paper-70">
-                                {milestone.family_member_name && `${milestone.family_member_name} • `}
-                                {new Date(milestone.milestone_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className={`text-lg font-medium ${daysUntil <= 7 ? 'text-gold' : 'text-paper-70'}`}>
-                              {daysUntil === 0 ? 'Today!' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil} days`}
-                            </div>
-                            {milestone.prompt_suggestion && (
-                              <div className="text-xs text-paper-65 max-w-[200px] truncate">
-                                {milestone.prompt_suggestion}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-paper-65">
-                  <p>No upcoming milestones in the next 30 days</p>
-                </div>
-              )}
-            </motion.div>
-
-            {/* Quick Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-void-surface border border-paper-15 p-6"
-            >
-              <h3 className="text-lg font-medium mb-4">Reminder Settings</h3>
-
-              <div className="space-y-4">
-                <div className="p-4 border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl font-body font-light text-gold mb-1">
-                    {milestones?.length || 0}
-                  </div>
-                  <div className="text-sm text-paper-70">Total Milestones</div>
-                </div>
-
-                <div className="p-4 border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl font-body font-light text-gold mb-1">
-                    {upcoming?.length || 0}
-                  </div>
-                  <div className="text-sm text-paper-70">Coming Up (30 days)</div>
-                </div>
-
-                <div className="text-sm text-paper-70">
-                  <p className="mb-2">You'll receive reminders:</p>
-                  <ul className="space-y-1 text-paper-65">
-                    <li>7 days before each milestone</li>
-                    <li>On the day of the milestone</li>
-                    <li>With memory prompts to help you celebrate</li>
-                  </ul>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* All Milestones */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="lg:col-span-3 bg-void-surface border border-paper-15 p-6"
-            >
-              <h2 className="text-lg font-medium mb-4">All Milestones</h2>
-
-              {milestones && milestones.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="text-left text-paper-65 text-sm border-b border-paper-15">
-                        <th className="pb-3 font-medium">Name</th>
-                        <th className="pb-3 font-medium">Type</th>
-                        <th className="pb-3 font-medium">Date</th>
-                        <th className="pb-3 font-medium">Recurring</th>
-                        <th className="pb-3 font-medium">Reminder</th>
-                        <th className="pb-3 font-medium"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-paper-15">
-                      {milestones.map((milestone: any) => {
-                        const typeInfo = getTypeInfo(milestone.milestone_type);
-
-                        return (
-                          <tr key={milestone.id}>
-                            <td className="py-3">
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-[2px] border border-gold-40 flex items-center justify-center text-gold text-xs">
-                                  {typeInfo.name[0]}
-                                </div>
-                                <div>
-                                  <div className="font-medium">{milestone.milestone_name}</div>
-                                  {milestone.family_member_name && (
-                                    <div className="text-xs text-paper-65">{milestone.family_member_name}</div>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-3 text-paper-70">{typeInfo.name}</td>
-                            <td className="py-3 text-paper-70">
-                              {new Date(milestone.milestone_date).toLocaleDateString()}
-                            </td>
-                            <td className="py-3">
-                              <span className={`inline-flex items-center px-2 py-1 rounded-[2px] text-xs border ${
-                                milestone.recurring ? 'border-gold-40 text-gold' : 'border-paper-15 text-paper-65'
-                              }`}>
-                                {milestone.recurring ? 'Yearly' : 'Once'}
-                              </span>
-                            </td>
-                            <td className="py-3 text-paper-65 text-sm">
-                              {milestone.reminder_days_before} days before
-                            </td>
-                            <td className="py-3">
-                              <button
-                                onClick={() => deleteMutation.mutate(milestone.id)}
-                                className="text-paper-65 hover:text-blood transition-colors"
-                                aria-label="Delete milestone"
-                              >
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-paper-65">
-                  <h3 className="text-lg font-body font-light mb-2">No Milestones Yet</h3>
-                  <p className="mb-4">Add important dates to get reminders and memory prompts</p>
-                  <div className="flex gap-3 justify-center">
-                    <button
-                      onClick={() => autoDetectMutation.mutate()}
-                      disabled={autoDetectMutation.isPending}
-                      className="btn btn-ghost"
-                    >
-                      <span>Auto-Detect from Family</span>
-                    </button>
-                    <button
-                      onClick={() => setShowCreateModal(true)}
-                      className="btn btn-primary"
-                    >
-                      <span>Add Manually</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </main>
-
-      {/* Create Modal */}
-      <AnimatePresence>
-        {showCreateModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-backdrop"
-            onClick={() => setShowCreateModal(false)}
+    <AppFrame>
+      <header style={{ marginBottom: 40, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
+        <div>
+          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Dates in the thread</p>
+          <h1
+            className="loom-h2"
+            style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal max-w-lg"
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="absolute top-4 right-4 text-paper-65 hover:text-paper"
-                aria-label="Close"
-              >
-                <span aria-hidden>×</span>
-              </button>
+            Dates that recur.
+          </h1>
+          <p
+            className="loom-body"
+            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
+          >
+            Birthdays, anniversaries, remembrances. The thread surfaces them before they arrive.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexShrink: 0, paddingTop: 8 }}>
+          <button
+            onClick={() => autoDetectMutation.mutate()}
+            disabled={autoDetectMutation.isPending}
+            className="loom-btn-ghost"
+          >
+            {autoDetectMutation.isPending ? 'detecting…' : 'auto-detect'}
+          </button>
+          <button onClick={() => setShowCreateModal(true)} className="loom-btn">
+            add date
+          </button>
+        </div>
+      </header>
 
-              <h3 className="text-xl font-medium mb-6">Add Milestone</h3>
+      {isLoading ? (
+        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+          Loading…
+        </p>
+      ) : (
+        <div style={{ display: 'grid', gap: 48 }}>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-paper-70 mb-2">Type</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {milestoneTypes.map((type) => {
-                      return (
+          {/* Coming up */}
+          <section>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
+              <p className="loom-eyebrow">Coming up · next 30 days</p>
+              <hr className="loom-hairline" style={{ flex: 1 }} />
+              <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>
+                {upcomingList.length} {upcomingList.length === 1 ? 'date' : 'dates'}
+              </span>
+            </div>
+
+            {upcomingList.length > 0 ? (
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {upcomingList.map((milestone: any) => {
+                  const typeInfo = getTypeInfo(milestone.milestone_type);
+                  const daysUntil = getDaysUntil(milestone.milestone_date, milestone.recurring);
+                  return (
+                    <li
+                      key={milestone.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '180px 1fr auto',
+                        gap: 28,
+                        alignItems: 'baseline',
+                        padding: '18px 0',
+                        borderBottom: '1px solid var(--loom-rule)',
+                      }}
+                    >
+                      <div>
+                        <p className="loom-mono" style={{ margin: 0, fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.04em' }}>
+                          {new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}
+                        </p>
+                        <p className="loom-mono" style={{ margin: '4px 0 0', fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                          {typeInfo.name}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="loom-serif" style={{ margin: '0 0 2px', fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)', lineHeight: 1.25 }}>
+                          {milestone.milestone_name}
+                        </p>
+                        {milestone.family_member_name && (
+                          <p className="loom-body" style={{ margin: 0, fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                            {milestone.family_member_name}
+                          </p>
+                        )}
+                        {milestone.prompt_suggestion && (
+                          <p className="loom-body" style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>
+                            {milestone.prompt_suggestion}
+                          </p>
+                        )}
+                      </div>
+                      <p
+                        className="loom-mono"
+                        style={{
+                          margin: 0,
+                          fontSize: 12,
+                          letterSpacing: '0.04em',
+                          color: daysUntil <= 7 ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                          textAlign: 'right',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : `${daysUntil} days`}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>
+                No dates approaching in the next 30 days.
+              </p>
+            )}
+          </section>
+
+          {/* All dates */}
+          <section>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
+              <p className="loom-eyebrow">All dates</p>
+              <hr className="loom-hairline" style={{ flex: 1 }} />
+              <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>
+                {milestoneList.length} total
+              </span>
+            </div>
+
+            {milestoneList.length > 0 ? (
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {milestoneList.map((milestone: any) => {
+                  const typeInfo = getTypeInfo(milestone.milestone_type);
+                  return (
+                    <li
+                      key={milestone.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '180px 1fr 80px 80px auto',
+                        gap: 20,
+                        alignItems: 'baseline',
+                        padding: '16px 0',
+                        borderBottom: '1px solid var(--loom-rule)',
+                      }}
+                    >
+                      <div>
+                        <p className="loom-serif" style={{ margin: 0, fontSize: 16, fontWeight: 300, color: 'var(--loom-bone)', lineHeight: 1.2 }}>
+                          {milestone.milestone_name}
+                        </p>
+                        {milestone.family_member_name && (
+                          <p className="loom-mono" style={{ margin: '3px 0 0', fontSize: 10, color: 'var(--loom-bone-faint)' }}>
+                            {milestone.family_member_name}
+                          </p>
+                        )}
+                      </div>
+                      <p className="loom-mono" style={{ margin: 0, fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                        {typeInfo.name}
+                      </p>
+                      <p className="loom-mono" style={{ margin: 0, fontSize: 11, color: 'var(--loom-bone-dim)' }}>
+                        {new Date(milestone.milestone_date).toLocaleDateString()}
+                      </p>
+                      <p className="loom-mono" style={{ margin: 0, fontSize: 10, color: milestone.recurring ? 'var(--loom-warm)' : 'var(--loom-bone-faint)', letterSpacing: '0.06em' }}>
+                        {milestone.recurring ? 'yearly' : 'once'}
+                      </p>
+                      <p className="loom-mono" style={{ margin: 0, fontSize: 10, color: 'var(--loom-bone-faint)' }}>
                         <button
-                          key={type.id}
-                          onClick={() => setFormData({ ...formData, type: type.id })}
-                          className={`p-3 rounded-[2px] text-center transition-colors border ${
-                            formData.type === type.id
-                              ? 'border-gold-40 text-gold'
-                              : 'border-paper-15 text-paper-70 hover:border-paper-15'
-                          }`}
+                          onClick={() => deleteMutation.mutate(milestone.id)}
+                          style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit', color: 'var(--loom-bone-faint)' }}
+                          aria-label="Remove date"
                         >
-                          <div className="text-xs">{type.name}</div>
+                          remove
                         </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-paper-70 mb-2">Name *</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., Mom's Birthday, Wedding Anniversary"
-                    className="input w-full"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-paper-70 mb-2">Date *</label>
-                  <input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="input w-full"
-                  />
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="recurring"
-                    checked={formData.recurring}
-                    onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })}
-                    className="w-4 h-4 rounded-[2px] border-paper-15"
-                  />
-                  <label htmlFor="recurring" className="text-sm text-paper-70">
-                    Repeat every year
-                  </label>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-paper-70 mb-2">Remind me</label>
-                  <select
-                    value={formData.reminderDays}
-                    onChange={(e) => setFormData({ ...formData, reminderDays: parseInt(e.target.value) })}
-                    className="input w-full"
-                  >
-                    <option value={1}>1 day before</option>
-                    <option value={3}>3 days before</option>
-                    <option value={7}>1 week before</option>
-                    <option value={14}>2 weeks before</option>
-                    <option value={30}>1 month before</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-paper-70 mb-2">Memory Prompt (optional)</label>
-                  <textarea
-                    value={formData.promptSuggestion}
-                    onChange={(e) => setFormData({ ...formData, promptSuggestion: e.target.value })}
-                    placeholder="e.g., Share a favorite memory of Mom..."
-                    className="input w-full h-20 resize-none"
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div style={{ padding: '48px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center' }}>
+                <p className="loom-eyebrow" style={{ marginBottom: 14 }}>No dates yet</p>
+                <h2 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 20px' }}>
+                  Dates give the thread a rhythm.
+                </h2>
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
                   <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="btn btn-ghost flex-1"
+                    onClick={() => autoDetectMutation.mutate()}
+                    disabled={autoDetectMutation.isPending}
+                    className="loom-btn-ghost"
                   >
-                    Cancel
+                    {autoDetectMutation.isPending ? 'detecting…' : 'auto-detect from family'}
                   </button>
-                  <button
-                    onClick={() => createMutation.mutate()}
-                    disabled={!formData.name.trim() || !formData.date || createMutation.isPending}
-                    className="btn btn-primary flex-1"
-                  >
-                    {createMutation.isPending ? 'Adding...' : 'Add Milestone'}
+                  <button onClick={() => setShowCreateModal(true)} className="loom-btn">
+                    add manually
                   </button>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            )}
+          </section>
+
+          {/* Reminder notes */}
+          <section style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 28 }}>
+            <p className="loom-eyebrow" style={{ marginBottom: 12 }}>When reminders arrive</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6 }}>
+              {['7 days before each date', 'On the day itself', 'With a prompt to help you write into the thread'].map(t => (
+                <li key={t}>
+                  <p className="loom-body" style={{ margin: 0, fontSize: 14, color: 'var(--loom-bone-faint)' }}>— {t}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      )}
+
+      {/* Create overlay */}
+      {showCreateModal && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 200, padding: 24, overflowY: 'auto',
+          }}
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 520,
+              width: '100%',
+              margin: 'auto',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="loom-eyebrow" style={{ marginBottom: 20 }}>Add a date</p>
+
+            <div style={{ display: 'grid', gap: 20 }}>
+              {/* Type */}
+              <div>
+                <label style={labelStyle}>Type</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {milestoneTypes.map((type) => (
+                    <button
+                      key={type.id}
+                      onClick={() => setFormData({ ...formData, type: type.id })}
+                      style={{
+                        background: 'transparent',
+                        border: `1px solid ${formData.type === type.id ? 'var(--loom-warm)' : 'var(--loom-rule)'}`,
+                        borderRadius: 0,
+                        color: formData.type === type.id ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: 11,
+                        fontWeight: 500,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        padding: '8px 14px',
+                        cursor: 'pointer',
+                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    >
+                      {type.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle} htmlFor="ms-name">Name</label>
+                <input
+                  id="ms-name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g. Mother's birthday"
+                  style={fieldStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle} htmlFor="ms-date">Date</label>
+                <input
+                  id="ms-date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  style={fieldStyle}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <input
+                  type="checkbox"
+                  id="ms-recurring"
+                  checked={formData.recurring}
+                  onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })}
+                  style={{ width: 14, height: 14, accentColor: 'var(--loom-warm)' }}
+                />
+                <label
+                  htmlFor="ms-recurring"
+                  className="loom-body"
+                  style={{ fontSize: 14, color: 'var(--loom-bone-dim)', cursor: 'pointer' }}
+                >
+                  Repeat every year
+                </label>
+              </div>
+
+              <div>
+                <label style={labelStyle} htmlFor="ms-reminder">Remind me</label>
+                <select
+                  id="ms-reminder"
+                  value={formData.reminderDays}
+                  onChange={(e) => setFormData({ ...formData, reminderDays: parseInt(e.target.value) })}
+                  style={{ ...fieldStyle, fontFamily: "'Inter', sans-serif", fontSize: 13 }}
+                >
+                  <option value={1}>1 day before</option>
+                  <option value={3}>3 days before</option>
+                  <option value={7}>1 week before</option>
+                  <option value={14}>2 weeks before</option>
+                  <option value={30}>1 month before</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={labelStyle} htmlFor="ms-prompt">Writing prompt (optional)</label>
+                <textarea
+                  id="ms-prompt"
+                  value={formData.promptSuggestion}
+                  onChange={(e) => setFormData({ ...formData, promptSuggestion: e.target.value })}
+                  placeholder="e.g. Share a memory of her from childhood…"
+                  rows={3}
+                  style={{ ...fieldStyle, resize: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
+                <button onClick={() => setShowCreateModal(false)} className="loom-btn-ghost" style={{ flex: 1 }}>
+                  cancel
+                </button>
+                <button
+                  onClick={() => createMutation.mutate()}
+                  disabled={!formData.name.trim() || !formData.date || createMutation.isPending}
+                  className="loom-btn"
+                  style={{ flex: 1 }}
+                >
+                  {createMutation.isPending ? 'adding…' : 'add date'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </AppFrame>
   );
 }

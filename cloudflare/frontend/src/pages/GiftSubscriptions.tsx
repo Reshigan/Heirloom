@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 import { giftSubscriptionsApi } from '../services/api';
 
-const giftStyles = [
-  { id: 'classic', name: 'Classic' },
-  { id: 'elegant', name: 'Elegant' },
-  { id: 'festive', name: 'Festive' },
-  { id: 'birthday', name: 'Birthday' },
-  { id: 'anniversary', name: 'Anniversary' },
+const OCCASION_STYLES = [
+  { id: 'classic', name: 'classic' },
+  { id: 'elegant', name: 'elegant' },
+  { id: 'festive', name: 'festive' },
+  { id: 'birthday', name: 'birthday' },
+  { id: 'anniversary', name: 'anniversary' },
 ];
+
+const STEP_LABELS = ['plan', 'recipient', 'your details', 'review'];
 
 export function GiftSubscriptions() {
   const queryClient = useQueryClient();
@@ -62,343 +63,447 @@ export function GiftSubscriptions() {
     { id: 'FOREVER', name: 'Forever', price: 60, description: '1 year of Forever plan' },
   ];
 
-  const handleNext = () => {
-    if (step < 4) setStep(step + 1);
-  };
-
-  const handleBack = () => {
-    if (step > 1) setStep(step - 1);
-  };
+  const handleNext = () => { if (step < 4) setStep(step + 1); };
+  const handleBack = () => { if (step > 1) setStep(step - 1); };
 
   const canProceed = () => {
     switch (step) {
       case 1: return !!selectedTier;
-      case 2: return formData.recipientName && formData.recipientEmail;
-      case 3: return formData.purchaserName && formData.purchaserEmail;
+      case 2: return !!(formData.recipientName && formData.recipientEmail);
+      case 3: return !!(formData.purchaserName && formData.purchaserEmail);
       default: return true;
     }
   };
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
-
-      <main id="main-content" className="pt-24 pb-12 px-6 md:px-12 max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-8 text-center"
+    <AppFrame>
+      <header style={{ marginBottom: 40 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>give a thread</p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
         >
-          <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Gift a subscription</p>
-          <h1
-            className="font-body font-light mb-2 tracking-[-0.018em]"
-            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
-          >
-            Gift a subscription.
-          </h1>
-          <p className="text-paper-70">Give the gift of preserving memories</p>
-        </motion.div>
+          Gift a subscription.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
+        >
+          Give someone the gift of a family thread — a place to preserve what matters.
+        </p>
+      </header>
 
-        {/* Progress Steps */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          {[1, 2, 3, 4].map((s) => (
-            <div key={s} className="flex items-center">
-              <div className={`w-8 h-8 rounded-[2px] flex items-center justify-center text-sm font-mono ${
-                s === step ? 'bg-gold text-void' : s < step ? 'bg-gold/15 text-gold' : 'bg-void-surface border border-paper-15 text-paper-50'
-              }`}>
-                {s}
-              </div>
-              {s < 4 && <div className={`w-12 h-px ${s < step ? 'bg-gold-40' : 'bg-paper-15'}`} />}
+      <hr className="loom-hairline" style={{ marginBottom: 40 }} />
+
+      {/* Step indicator */}
+      <div style={{ display: 'flex', gap: 32, marginBottom: 40 }}>
+        {STEP_LABELS.map((label, i) => {
+          const s = i + 1;
+          return (
+            <div key={s} style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+              <span
+                className="loom-mono"
+                style={{
+                  fontSize: 9,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: s === step ? 'var(--loom-warm)' : s < step ? 'var(--loom-bone-dim)' : 'var(--loom-bone-faint)',
+                }}
+              >
+                {String(s).padStart(2, '0')} {label}
+              </span>
+              {s < 4 && (
+                <span style={{ width: 20, height: 1, background: s < step ? 'var(--loom-warm)' : 'var(--loom-rule)', display: 'inline-block', alignSelf: 'center' }} />
+              )}
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        <motion.div
-          key={step}
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -12 }}
-          transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-void-surface border border-paper-15 p-6"
-        >
-          {/* Step 1: Choose Plan */}
-          {step === 1 && (
-            <div>
-              <h2 className="font-body text-xl mb-6">Choose a plan</h2>
-              <div className="grid md:grid-cols-3 gap-4">
-                {tiers.map((tier: any) => (
-                  <button
-                    key={tier.id}
-                    onClick={() => setSelectedTier(tier.id)}
-                    className={`p-6 rounded-[2px] text-left border transition-colors ${
-                      selectedTier === tier.id
-                        ? 'bg-gold/5 border-gold-40'
-                        : 'bg-void border-paper-15 hover:border-paper-30'
-                    }`}
+      <div style={{ maxWidth: 640 }}>
+
+        {/* Step 1: Choose Plan */}
+        {step === 1 && (
+          <div>
+            <p className="loom-eyebrow" style={{ marginBottom: 24 }}>choose a plan</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, marginBottom: 40 }}>
+              {tiers.map((tier: any) => (
+                <button
+                  key={tier.id}
+                  onClick={() => setSelectedTier(tier.id)}
+                  style={{
+                    display: 'block',
+                    textAlign: 'left',
+                    padding: '20px',
+                    background: selectedTier === tier.id ? 'rgba(176, 122, 74, 0.06)' : 'transparent',
+                    border: selectedTier === tier.id ? '1px solid var(--loom-warm)' : '1px solid var(--loom-rule)',
+                    cursor: 'pointer',
+                    transition: 'border-color 180ms var(--loom-ease)',
+                  }}
+                >
+                  <p className="loom-body" style={{ fontSize: 16, fontStyle: 'italic', margin: '0 0 8px', color: 'var(--loom-bone)' }}>
+                    {tier.name}
+                  </p>
+                  <p
+                    className="loom-h2"
+                    style={{ fontSize: 28, fontWeight: 300, margin: '0 0 6px', color: 'var(--loom-warm)' }}
                   >
-                    <div className="font-body text-lg mb-1">{tier.name}</div>
-                    <div className="font-body text-3xl font-light text-gold mb-2">${tier.price}</div>
-                    <div className="text-sm text-paper-50">{tier.description}</div>
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-8">
-                <h3 className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-3">Gift card style</h3>
-                <div className="flex gap-3 flex-wrap">
-                  {giftStyles.map((style) => (
-                    <button
-                      key={style.id}
-                      onClick={() => setSelectedStyle(style.id)}
-                      className={`px-4 py-2 rounded-[2px] text-sm border transition-colors ${
-                        selectedStyle === style.id
-                          ? 'bg-gold/10 border-gold-40 text-gold'
-                          : 'bg-void border-paper-15 text-paper-50 hover:text-paper hover:border-paper-30'
-                      }`}
-                    >
-                      {style.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Recipient Details */}
-          {step === 2 && (
-            <div>
-              <h2 className="font-body text-xl mb-6">Who's receiving this gift?</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Recipient's name</label>
-                  <input
-                    type="text"
-                    value={formData.recipientName}
-                    onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                    placeholder="Mom, Dad, Grandma…"
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Recipient's email</label>
-                  <input
-                    type="email"
-                    value={formData.recipientEmail}
-                    onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
-                    placeholder="recipient@example.com"
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Personal message (optional)</label>
-                  <textarea
-                    value={formData.personalMessage}
-                    onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
-                    placeholder="Write a heartfelt message…"
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y h-24"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Schedule delivery (optional)</label>
-                  <input
-                    type="date"
-                    value={formData.scheduledDate}
-                    onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                  />
-                  <p className="text-xs text-paper-50 mt-1">Leave empty to send immediately</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Your Details */}
-          {step === 3 && (
-            <div>
-              <h2 className="font-body text-xl mb-6">Your details</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your name</label>
-                  <input
-                    type="text"
-                    value={formData.purchaserName}
-                    onChange={(e) => setFormData({ ...formData, purchaserName: e.target.value })}
-                    placeholder="Your name"
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your email</label>
-                  <input
-                    type="email"
-                    value={formData.purchaserEmail}
-                    onChange={(e) => setFormData({ ...formData, purchaserEmail: e.target.value })}
-                    placeholder="your@email.com"
-                    className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Review & Pay */}
-          {step === 4 && (
-            <div>
-              <h2 className="font-body text-xl mb-6">Review your gift</h2>
-
-              <div className="bg-void border border-paper-15 p-6 mb-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <div className="text-sm text-paper-50">Gift for</div>
-                    <div className="font-body text-lg">{formData.recipientName}</div>
-                    <div className="text-sm text-paper-70">{formData.recipientEmail}</div>
-                  </div>
-                  <div className="px-4 py-2 rounded-[2px] border border-gold-40 text-gold text-sm">
-                    {giftStyles.find(s => s.id === selectedStyle)?.name}
-                  </div>
-                </div>
-
-                <div className="border-t border-paper-15 pt-4 mb-4">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-paper-50">Plan</span>
-                    <span>{tiers.find((t: any) => t.id === selectedTier)?.name} (1 Year)</span>
-                  </div>
-                  <div className="flex justify-between text-lg">
-                    <span>Total</span>
-                    <span className="font-body text-gold">${tiers.find((t: any) => t.id === selectedTier)?.price}</span>
-                  </div>
-                </div>
-
-                {formData.personalMessage && (
-                  <div className="border-t border-paper-15 pt-4">
-                    <div className="text-sm text-paper-50 mb-1">Your message</div>
-                    <p className="text-paper-70 italic font-body">"{formData.personalMessage}"</p>
-                  </div>
-                )}
-
-                {formData.scheduledDate && (
-                  <div className="mt-4 text-sm text-paper-70">
-                    Scheduled for {new Date(formData.scheduledDate).toLocaleDateString()}
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={() => purchaseMutation.mutate()}
-                disabled={purchaseMutation.isPending}
-                className="btn btn-primary w-full"
-              >
-                <span>{purchaseMutation.isPending ? 'Processing…' : 'Complete purchase'}</span>
-                {!purchaseMutation.isPending ? <span aria-hidden>→</span> : null}
-              </button>
-            </div>
-          )}
-
-          {/* Navigation */}
-          <div className="flex justify-between mt-8 pt-6 border-t border-paper-15">
-            <button
-              onClick={handleBack}
-              disabled={step === 1}
-              className="btn btn-ghost"
-            >
-              <span aria-hidden>←</span> Back
-            </button>
-            {step < 4 && (
-              <button
-                onClick={handleNext}
-                disabled={!canProceed()}
-                className="btn btn-primary"
-              >
-                Continue <span aria-hidden>→</span>
-              </button>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Previous Gifts */}
-        {purchasedGifts && purchasedGifts.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-8 bg-void-surface border border-paper-15 p-6"
-          >
-            <h3 className="font-body text-lg mb-4">Your gift history</h3>
-            <div className="space-y-3">
-              {purchasedGifts.map((gift: any) => (
-                <div key={gift.id} className="flex items-center justify-between p-4 bg-void border border-paper-15">
-                  <div>
-                    <div className="font-body">{gift.recipient_name}</div>
-                    <div className="text-sm text-paper-50">{gift.tier} Plan</div>
-                  </div>
-                  <div className="text-right">
-                    <span className="inline-flex items-center px-2 py-1 rounded-[2px] text-xs font-mono uppercase tracking-[0.1em] bg-void-surface border border-paper-15 text-paper-70">
-                      {gift.status}
-                    </span>
-                    <div className="text-xs text-paper-50 mt-1">
-                      {new Date(gift.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
+                    ${tier.price}
+                  </p>
+                  <p className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                    {tier.description}
+                  </p>
+                </button>
               ))}
             </div>
-          </motion.div>
+
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>occasion</p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {OCCASION_STYLES.map((style) => (
+                <button
+                  key={style.id}
+                  onClick={() => setSelectedStyle(style.id)}
+                  className="loom-mono"
+                  style={{
+                    background: 'transparent',
+                    border: selectedStyle === style.id ? '1px solid var(--loom-warm)' : '1px solid var(--loom-rule)',
+                    padding: '7px 14px',
+                    fontSize: 10,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    color: selectedStyle === style.id ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                    cursor: 'pointer',
+                    transition: 'border-color 180ms var(--loom-ease), color 180ms var(--loom-ease)',
+                  }}
+                >
+                  {style.name}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
-      </main>
 
-      {/* Success Modal */}
-      <AnimatePresence>
-        {showSuccess && giftResult && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-void/80 px-6"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-void-surface border border-gold-40 p-8 max-w-md w-full text-center"
-              role="status"
-            >
-              <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
-              <h3 className="font-body text-2xl mb-2">Gift sent.</h3>
-              <p className="text-paper-70 mb-6 leading-relaxed">
-                {formData.recipientName} will receive their gift {formData.scheduledDate ? `on ${new Date(formData.scheduledDate).toLocaleDateString()}` : 'shortly'}.
-              </p>
-
-              <div className="bg-void border border-paper-15 p-4 mb-6">
-                <div className="text-xs uppercase tracking-[0.22em] text-paper-50 mb-1">Gift code</div>
-                <div className="text-lg font-mono text-gold">{giftResult.giftCode}</div>
+        {/* Step 2: Recipient Details */}
+        {step === 2 && (
+          <div>
+            <p className="loom-eyebrow" style={{ marginBottom: 24 }}>who's receiving this?</p>
+            <div style={{ display: 'grid', gap: 28 }}>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  recipient's name
+                </label>
+                <input
+                  type="text"
+                  value={formData.recipientName}
+                  onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                  placeholder="Mum, Dad, Grandma…"
+                />
               </div>
-
-              <button
-                onClick={() => {
-                  setShowSuccess(false);
-                  setStep(1);
-                  setSelectedTier(null);
-                  setFormData({
-                    recipientName: '',
-                    recipientEmail: '',
-                    purchaserName: '',
-                    purchaserEmail: '',
-                    personalMessage: '',
-                    scheduledDate: '',
-                  });
-                }}
-                className="btn btn-primary"
-              >
-                Done
-              </button>
-            </motion.div>
-          </motion.div>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  recipient's email
+                </label>
+                <input
+                  type="email"
+                  value={formData.recipientEmail}
+                  onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
+                  placeholder="recipient@example.com"
+                />
+              </div>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  a note (optional)
+                </label>
+                <textarea
+                  value={formData.personalMessage}
+                  onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
+                  placeholder="a few quiet words…"
+                  style={{ resize: 'vertical', minHeight: 88 }}
+                />
+              </div>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  schedule delivery (optional)
+                </label>
+                <input
+                  type="date"
+                  value={formData.scheduledDate}
+                  onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+                <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 6 }}>
+                  leave empty to send immediately
+                </p>
+              </div>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
-    </div>
+
+        {/* Step 3: Your Details */}
+        {step === 3 && (
+          <div>
+            <p className="loom-eyebrow" style={{ marginBottom: 24 }}>your details</p>
+            <div style={{ display: 'grid', gap: 28 }}>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  your name
+                </label>
+                <input
+                  type="text"
+                  value={formData.purchaserName}
+                  onChange={(e) => setFormData({ ...formData, purchaserName: e.target.value })}
+                  placeholder="your name"
+                />
+              </div>
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
+                  your email
+                </label>
+                <input
+                  type="email"
+                  value={formData.purchaserEmail}
+                  onChange={(e) => setFormData({ ...formData, purchaserEmail: e.target.value })}
+                  placeholder="your@email.com"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Review */}
+        {step === 4 && (
+          <div>
+            <p className="loom-eyebrow" style={{ marginBottom: 24 }}>review your gift</p>
+            <div
+              style={{
+                border: '1px solid var(--loom-rule)',
+                padding: '24px',
+                marginBottom: 24,
+                display: 'grid',
+                gap: 0,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  paddingBottom: 16,
+                  marginBottom: 16,
+                  borderBottom: '1px solid var(--loom-rule)',
+                }}
+              >
+                <div>
+                  <p className="loom-body" style={{ fontSize: 16, fontStyle: 'italic', margin: '0 0 2px' }}>
+                    {formData.recipientName}
+                  </p>
+                  <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                    {formData.recipientEmail}
+                  </p>
+                </div>
+                <span
+                  className="loom-mono"
+                  style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
+                >
+                  {OCCASION_STYLES.find(s => s.id === selectedStyle)?.name}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--loom-rule)' }}>
+                <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}>plan</span>
+                <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                  {tiers.find((t: any) => t.id === selectedTier)?.name} (1 year)
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0 0' }}>
+                <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}>total</span>
+                <span className="loom-body" style={{ fontSize: 20, color: 'var(--loom-warm)' }}>
+                  ${tiers.find((t: any) => t.id === selectedTier)?.price}
+                </span>
+              </div>
+              {formData.personalMessage && (
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--loom-rule)' }}>
+                  <p className="loom-mono" style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', marginBottom: 8 }}>
+                    your note
+                  </p>
+                  <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)', fontSize: 14, margin: 0 }}>
+                    &ldquo;{formData.personalMessage}&rdquo;
+                  </p>
+                </div>
+              )}
+              {formData.scheduledDate && (
+                <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 12 }}>
+                  scheduled for {new Date(formData.scheduledDate).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+
+            {purchaseMutation.isError && (
+              <p
+                role="alert"
+                className="loom-body"
+                style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 13, marginBottom: 16 }}
+              >
+                Purchase failed. Please try again.
+              </p>
+            )}
+
+            <button
+              onClick={() => purchaseMutation.mutate()}
+              disabled={purchaseMutation.isPending}
+              className="loom-btn"
+              style={{ width: '100%', opacity: purchaseMutation.isPending ? 0.5 : 1 }}
+            >
+              {purchaseMutation.isPending ? 'processing…' : 'complete purchase'}
+            </button>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: 40,
+            paddingTop: 28,
+            borderTop: '1px solid var(--loom-rule)',
+          }}
+        >
+          <button
+            onClick={handleBack}
+            disabled={step === 1}
+            className="loom-btn-ghost"
+            style={{ opacity: step === 1 ? 0.4 : 1 }}
+          >
+            back
+          </button>
+          {step < 4 && (
+            <button
+              onClick={handleNext}
+              disabled={!canProceed()}
+              className="loom-btn"
+              style={{ opacity: !canProceed() ? 0.5 : 1 }}
+            >
+              continue
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Gift History */}
+      {purchasedGifts && purchasedGifts.length > 0 && (
+        <div style={{ maxWidth: 640, marginTop: 64 }}>
+          <hr className="loom-hairline" style={{ marginBottom: 32 }} />
+          <p className="loom-eyebrow" style={{ marginBottom: 24 }}>previous gifts</p>
+          <div style={{ display: 'grid', gap: 1 }}>
+            {purchasedGifts.map((gift: any) => (
+              <div
+                key={gift.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  padding: '14px 0',
+                  borderBottom: '1px solid var(--loom-rule)',
+                }}
+              >
+                <div>
+                  <p className="loom-body" style={{ fontSize: 15, fontStyle: 'italic', margin: '0 0 2px' }}>
+                    {gift.recipient_name}
+                  </p>
+                  <p className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                    {gift.tier} plan
+                  </p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p className="loom-mono" style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', margin: '0 0 2px' }}>
+                    {gift.status}
+                  </p>
+                  <p className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                    {new Date(gift.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Success overlay */}
+      {showSuccess && giftResult && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            display: 'grid',
+            placeItems: 'center',
+            background: 'rgba(14, 14, 12, 0.88)',
+            padding: '24px',
+          }}
+          role="status"
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule-warm)',
+              padding: '48px',
+              maxWidth: 440,
+              width: '100%',
+              textAlign: 'center',
+            }}
+          >
+            <p className="loom-eyebrow" style={{ marginBottom: 20 }}>sent</p>
+            <h3
+              className="loom-h2"
+              style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
+            >
+              Gift sent.
+            </h3>
+            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 15, margin: '0 0 32px', lineHeight: 1.7 }}>
+              {formData.recipientName} will receive their gift{' '}
+              {formData.scheduledDate
+                ? `on ${new Date(formData.scheduledDate).toLocaleDateString()}`
+                : 'shortly'}.
+            </p>
+            {giftResult.giftCode && (
+              <div
+                style={{
+                  borderTop: '1px solid var(--loom-rule)',
+                  borderBottom: '1px solid var(--loom-rule)',
+                  padding: '16px 0',
+                  marginBottom: 32,
+                }}
+              >
+                <p className="loom-eyebrow" style={{ marginBottom: 8, fontSize: 9 }}>gift code</p>
+                <p
+                  className="loom-mono"
+                  style={{ fontSize: 18, letterSpacing: '0.08em', color: 'var(--loom-warm)', margin: 0 }}
+                >
+                  {giftResult.giftCode}
+                </p>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                setShowSuccess(false);
+                setStep(1);
+                setSelectedTier(null);
+                setFormData({
+                  recipientName: '',
+                  recipientEmail: '',
+                  purchaserName: '',
+                  purchaserEmail: '',
+                  personalMessage: '',
+                  scheduledDate: '',
+                });
+              }}
+              className="loom-btn"
+            >
+              done
+            </button>
+          </div>
+        </div>
+      )}
+    </AppFrame>
   );
 }

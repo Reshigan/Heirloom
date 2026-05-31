@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ProgressHair } from '../components/ui/ProgressHair';
 import api from '../services/api';
 
@@ -23,6 +22,23 @@ interface RoomData {
     content: string;
     created_at: string;
   }>;
+}
+
+/** Hairline shuttle used as a loading bar for full-page states. */
+function LoadingState({ label }: { label?: string }) {
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <ProgressHair label={label ?? 'Loading…'} width={200} />
+    </div>
+  );
 }
 
 export function MemoryRoom() {
@@ -75,250 +91,397 @@ export function MemoryRoom() {
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-void flex items-center justify-center">
-        <ProgressHair label="loading…" width={180} />
-      </div>
-    );
-  }
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    background: 'transparent',
+    border: '1px solid var(--loom-rule)',
+    borderRadius: 2,
+    padding: '10px 14px',
+    color: 'var(--loom-bone)',
+    fontFamily: "'Source Serif 4', serif",
+    fontSize: 15,
+    lineHeight: 1.7,
+    outline: 'none',
+    boxSizing: 'border-box',
+    transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+  };
+
+  if (isLoading) return <LoadingState label="loading the room…" />;
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center p-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-body font-light text-paper mb-2">Room Not Found</h1>
-          <p className="text-paper-60">This memory room may not be active or the link may be invalid.</p>
+      <div
+        style={{
+          minHeight: '100vh',
+          background: 'var(--loom-ink)',
+          color: 'var(--loom-bone)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 480 }}>
+          <p style={{ fontFamily: "'Source Serif 4', serif", fontSize: 28, color: 'var(--loom-warm)', marginBottom: 16 }}>∞</p>
+          <h1 className="loom-h2" style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}>
+            Room not found.
+          </h1>
+          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)' }}>
+            This memory room may not be active or the link may be invalid.
+          </p>
         </div>
       </div>
     );
   }
 
   const { room, contributions } = data;
-
-  const contentTypeLabel = (t: string) =>
-    t === 'PHOTO' ? 'Photo' : t === 'VOICE' ? 'Voice' : 'Story';
+  const contentTypeLabel = (t: string) => t === 'PHOTO' ? 'Photo' : t === 'VOICE' ? 'Voice' : 'Story';
 
   return (
-    <div className="min-h-screen bg-void text-paper">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="font-body font-light text-4xl text-paper mb-2 tracking-[-0.014em]">{room.name || `${room.ownerName}'s Memory Room`}</h1>
-          {room.description && (
-            <p className="text-paper-60 max-w-xl mx-auto">{room.description}</p>
-          )}
-          <p className="text-paper-50 text-sm mt-4">
-            A space to share memories and stories about {room.ownerName}
-          </p>
-        </motion.div>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+        fontFamily: "'Source Serif 4', serif",
+      }}
+    >
+      {/* Horizon ambient glow */}
+      <div className="loom-horizon" style={{ pointerEvents: 'none' }} />
+      <div className="loom-grain" style={{ pointerEvents: 'none' }} />
 
-        {submitted && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8 p-4 bg-void-surface border border-gold-40 rounded-[2px] text-center"
-            role="status"
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          maxWidth: 740,
+          margin: '0 auto',
+          padding: '72px 32px 96px',
+        }}
+      >
+        {/* Header */}
+        <header style={{ textAlign: 'center', marginBottom: 56 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
+            Memory Room · {room.ownerName}
+          </p>
+          <h1
+            className="loom-h2"
+            style={{ fontSize: 'clamp(30px,4vw,48px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
           >
-            <p className="text-gold">Thank you for sharing your memory. It means so much.</p>
-          </motion.div>
+            {room.name || `${room.ownerName}'s Memory Room`}
+          </h1>
+          {room.description && (
+            <p
+              className="loom-body"
+              style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '16px auto 0', maxWidth: 540 }}
+            >
+              {room.description}
+            </p>
+          )}
+          <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', marginTop: 12 }}>
+            A space to share memories and stories about {room.ownerName}.
+          </p>
+        </header>
+
+        {/* Success inline status */}
+        {submitted && (
+          <div
+            role="status"
+            style={{
+              marginBottom: 32,
+              padding: '14px 20px',
+              border: '1px solid var(--loom-rule-warm)',
+              textAlign: 'center',
+            }}
+          >
+            <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-warm)', margin: 0, fontStyle: 'italic' }}>
+              Thank you for sharing your memory. It means so much.
+            </p>
+          </div>
         )}
 
+        {/* Contribute CTA */}
         <button
+          type="button"
           onClick={() => setShowContribute(true)}
-          className="w-full mb-8 p-6 bg-void-surface border border-paper-15 rounded-[2px] hover:border-gold-40 transition-colors text-center"
+          style={{
+            width: '100%',
+            marginBottom: 48,
+            padding: '24px 32px',
+            border: '1px solid var(--loom-rule)',
+            background: 'transparent',
+            cursor: 'pointer',
+            textAlign: 'center',
+            transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--loom-rule-warm)')}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--loom-rule)')}
         >
-          <p className="text-paper font-body text-lg">Share a Memory</p>
-          <p className="text-paper-50 text-sm mt-1">Add your own story, photo, or message</p>
+          <p className="loom-serif" style={{ fontSize: 19, fontWeight: 300, color: 'var(--loom-bone)', margin: 0 }}>
+            Share a Memory
+          </p>
+          <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', marginTop: 6 }}>
+            Add your own story, photo, or message.
+          </p>
         </button>
 
+        {/* Contributions list */}
         {contributions.length > 0 ? (
-          <div className="space-y-6">
-            <h2 className="text-xl font-body font-light text-paper mb-4">Shared Memories</h2>
-            {contributions.map((contribution, index) => (
-              <motion.div
-                key={contribution.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-6 bg-void-surface rounded-[2px] border border-paper-15"
-              >
-                <div className="flex items-start gap-4">
-                  <span className="font-mono text-[0.6rem] tracking-[0.18em] uppercase text-gold pt-1 flex-shrink-0">
-                    {contentTypeLabel(contribution.content_type)}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium text-paper">{contribution.contributor_name}</span>
-                      {contribution.contributor_relationship && (
-                        <span className="text-paper-50 text-sm">({contribution.contributor_relationship})</span>
-                      )}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
+              <span className="loom-eyebrow">Shared memories</span>
+              <hr className="loom-hairline" style={{ flex: 1 }} />
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {contributions.map((c) => (
+                <li key={c.id} style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}>
+                  <article style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 28, alignItems: 'baseline' }}>
+                    <div>
+                      <p
+                        className="loom-mono"
+                        style={{
+                          fontSize: 10,
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          color: 'var(--loom-warm)',
+                          margin: 0,
+                        }}
+                      >
+                        {contentTypeLabel(c.content_type)}
+                      </p>
+                      <p
+                        className="loom-mono"
+                        style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: '6px 0 0' }}
+                      >
+                        {new Date(c.created_at).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
                     </div>
-                    {contribution.title && (
-                      <h3 className="font-medium text-gold mb-2">{contribution.title}</h3>
-                    )}
-                    <p className="text-paper-70 whitespace-pre-wrap">{contribution.content}</p>
-                    <p className="text-paper-30 text-sm mt-3">
-                      {new Date(contribution.created_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                    <div>
+                      <p className="loom-serif" style={{ fontSize: 16, fontWeight: 400, color: 'var(--loom-bone)', margin: '0 0 2px' }}>
+                        {c.contributor_name}
+                        {c.contributor_relationship && (
+                          <span className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', marginLeft: 8 }}>
+                            ({c.contributor_relationship})
+                          </span>
+                        )}
+                      </p>
+                      {c.title && (
+                        <p className="loom-serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-warm)', margin: '4px 0 6px' }}>
+                          {c.title}
+                        </p>
+                      )}
+                      <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: 0, whiteSpace: 'pre-wrap', lineHeight: 1.75 }}>
+                        {c.content}
+                      </p>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
           </div>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-paper-50">No memories shared yet. Be the first to contribute.</p>
+          <div style={{ textAlign: 'center', padding: '48px 0' }}>
+            <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>
+              No memories shared yet. Be the first to contribute.
+            </p>
           </div>
         )}
 
-        <AnimatePresence>
-          {showContribute && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
-              onClick={() => setShowContribute(false)}
+        {/* Footer */}
+        <footer style={{ marginTop: 80, textAlign: 'center' }}>
+          <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em' }}>
+            Powered by{' '}
+            <a
+              href="https://heirloom.blue"
+              style={{ color: 'var(--loom-warm)', textDecoration: 'none' }}
             >
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="bg-void-surface rounded-[2px] p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto border border-paper-15"
-                onClick={e => e.stopPropagation()}
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-body font-light text-paper">Share a Memory</h3>
-                  <button onClick={() => setShowContribute(false)} aria-label="Close" className="text-paper-50 hover:text-paper transition-colors text-xl">
-                    <span aria-hidden>×</span>
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="mr-name" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your Name *</label>
-                    <input
-                      id="mr-name"
-                      type="text"
-                      value={contributorName}
-                      onChange={(e) => setContributorName(e.target.value)}
-                      placeholder="Enter your name"
-                      className="w-full bg-void border border-paper-15 rounded-[2px] px-4 py-3 text-paper focus:outline-none focus:border-gold placeholder:text-paper-30 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="mr-email" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your Email (optional)</label>
-                    <input
-                      id="mr-email"
-                      type="email"
-                      value={contributorEmail}
-                      onChange={(e) => setContributorEmail(e.target.value)}
-                      placeholder="Enter your email"
-                      className="w-full bg-void border border-paper-15 rounded-[2px] px-4 py-3 text-paper focus:outline-none focus:border-gold placeholder:text-paper-30 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="mr-rel" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your Relationship (optional)</label>
-                    <input
-                      id="mr-rel"
-                      type="text"
-                      value={contributorRelationship}
-                      onChange={(e) => setContributorRelationship(e.target.value)}
-                      placeholder="e.g., Friend, Colleague, Neighbor"
-                      className="w-full bg-void border border-paper-15 rounded-[2px] px-4 py-3 text-paper focus:outline-none focus:border-gold placeholder:text-paper-30 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Type of Memory</label>
-                    <div className="flex gap-2">
-                      {room.allowText && (
-                        <button
-                          onClick={() => setContentType('TEXT')}
-                          className={`flex-1 p-3 rounded-[2px] flex items-center justify-center transition-colors ${
-                            contentType === 'TEXT' ? 'bg-void border border-gold-40 text-gold' : 'bg-void border border-paper-15 text-paper-50 hover:text-paper'
-                          }`}
-                        >
-                          <span className="text-sm">Story</span>
-                        </button>
-                      )}
-                      {room.allowPhotos && (
-                        <button
-                          onClick={() => setContentType('PHOTO')}
-                          className={`flex-1 p-3 rounded-[2px] flex items-center justify-center transition-colors ${
-                            contentType === 'PHOTO' ? 'bg-void border border-gold-40 text-gold' : 'bg-void border border-paper-15 text-paper-50 hover:text-paper'
-                          }`}
-                        >
-                          <span className="text-sm">Photo</span>
-                        </button>
-                      )}
-                      {room.allowVoice && (
-                        <button
-                          onClick={() => setContentType('VOICE')}
-                          className={`flex-1 p-3 rounded-[2px] flex items-center justify-center transition-colors ${
-                            contentType === 'VOICE' ? 'bg-void border border-gold-40 text-gold' : 'bg-void border border-paper-15 text-paper-50 hover:text-paper'
-                          }`}
-                        >
-                          <span className="text-sm">Voice</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="mr-title" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Title (optional)</label>
-                    <input
-                      id="mr-title"
-                      type="text"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="Give your memory a title"
-                      className="w-full bg-void border border-paper-15 rounded-[2px] px-4 py-3 text-paper focus:outline-none focus:border-gold placeholder:text-paper-30 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="mr-content" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Your Memory *</label>
-                    <textarea
-                      id="mr-content"
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      placeholder="Share your story, memory, or message..."
-                      rows={5}
-                      className="w-full bg-void border border-paper-15 rounded-[2px] px-4 py-3 text-paper focus:outline-none focus:border-gold placeholder:text-paper-30 transition-colors font-body text-base leading-[1.7] resize-y"
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleSubmit}
-                    disabled={!contributorName.trim() || !content.trim() || contributeMutation.isPending}
-                    className="btn btn-primary w-full"
-                  >
-                    {contributeMutation.isPending ? 'Sharing…' : 'Share Memory'}
-                    {!contributeMutation.isPending ? <span aria-hidden>→</span> : null}
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <footer className="mt-16 text-center">
-          <p className="text-paper-30 text-sm">
-            Powered by <a href="https://heirloom.blue" className="text-gold hover:text-gold-bright transition-colors">Heirloom</a>
+              Heirloom
+            </a>
           </p>
         </footer>
       </div>
+
+      {/* Contribute overlay */}
+      {showContribute && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 50,
+            padding: 16,
+          }}
+          onClick={() => setShowContribute(false)}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 540,
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 28 }}>
+              <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, margin: 0 }}>
+                Share a Memory
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowContribute(false)}
+                aria-label="Close"
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  cursor: 'pointer',
+                  color: 'var(--loom-bone-faint)',
+                  fontSize: 20,
+                  lineHeight: 1,
+                  padding: 4,
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gap: 18 }}>
+              {/* Name */}
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  Your Name *
+                </label>
+                <input
+                  id="mr-name"
+                  type="text"
+                  value={contributorName}
+                  onChange={(e) => setContributorName(e.target.value)}
+                  placeholder="Enter your name"
+                  style={inputStyle}
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  Your Email (optional)
+                </label>
+                <input
+                  id="mr-email"
+                  type="email"
+                  value={contributorEmail}
+                  onChange={(e) => setContributorEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  style={inputStyle}
+                />
+              </div>
+
+              {/* Relationship */}
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  Your Relationship (optional)
+                </label>
+                <input
+                  id="mr-rel"
+                  type="text"
+                  value={contributorRelationship}
+                  onChange={(e) => setContributorRelationship(e.target.value)}
+                  placeholder="e.g., Friend, Colleague, Neighbour"
+                  style={inputStyle}
+                />
+              </div>
+
+              {/* Content type */}
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  Type of Memory
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {room.allowText && (
+                    <button
+                      type="button"
+                      onClick={() => setContentType('TEXT')}
+                      className={contentType === 'TEXT' ? 'loom-btn' : 'loom-btn-ghost'}
+                      style={{ flex: 1, fontSize: 11, padding: '10px 0' }}
+                    >
+                      Story
+                    </button>
+                  )}
+                  {room.allowPhotos && (
+                    <button
+                      type="button"
+                      onClick={() => setContentType('PHOTO')}
+                      className={contentType === 'PHOTO' ? 'loom-btn' : 'loom-btn-ghost'}
+                      style={{ flex: 1, fontSize: 11, padding: '10px 0' }}
+                    >
+                      Photo
+                    </button>
+                  )}
+                  {room.allowVoice && (
+                    <button
+                      type="button"
+                      onClick={() => setContentType('VOICE')}
+                      className={contentType === 'VOICE' ? 'loom-btn' : 'loom-btn-ghost'}
+                      style={{ flex: 1, fontSize: 11, padding: '10px 0' }}
+                    >
+                      Voice
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  Title (optional)
+                </label>
+                <input
+                  id="mr-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Give your memory a title"
+                  style={inputStyle}
+                />
+              </div>
+
+              {/* Content */}
+              <div>
+                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  Your Memory *
+                </label>
+                <textarea
+                  id="mr-content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Share your story, memory, or message…"
+                  rows={5}
+                  style={{ ...inputStyle, resize: 'vertical' }}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!contributorName.trim() || !content.trim() || contributeMutation.isPending}
+                className="loom-btn"
+                style={{ opacity: !contributorName.trim() || !content.trim() || contributeMutation.isPending ? 0.45 : 1 }}
+              >
+                {contributeMutation.isPending ? (
+                  <span style={{ fontStyle: 'italic' }}>Sharing…</span>
+                ) : (
+                  'Share Memory'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

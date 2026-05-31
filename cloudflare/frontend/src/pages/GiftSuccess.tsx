@@ -5,6 +5,7 @@ export function GiftSuccess() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code') || '';
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
@@ -14,100 +15,135 @@ export function GiftSuccess() {
 
   const redemptionUrl = `${window.location.origin}/gift/redeem?code=${code}`;
 
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(redemptionUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <div className="max-w-lg mx-auto px-6 md:px-12 py-12">
-        <div className="bg-void-surface border border-paper-15 p-8 md:p-10 text-center">
-          {/* Success Mark */}
-          <span className="font-body text-5xl text-gold block mb-6" aria-hidden>∞</span>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+        display: 'grid',
+        placeItems: 'center',
+        padding: '40px 24px',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 480 }}>
+        {/* Header */}
+        <p className="loom-eyebrow" style={{ marginBottom: 20 }}>purchase complete</p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 52px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
+        >
+          Thank you.
+        </h1>
+        <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 16, margin: '0 0 40px', lineHeight: 1.7 }}>
+          Your gift voucher has been created. share the code or link with the person you're giving it to.
+        </p>
 
-          <h1
-            className="font-body font-light text-paper mb-2 tracking-[-0.014em]"
-            style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+        <hr className="loom-hairline" style={{ marginBottom: 40 }} />
+
+        {/* Code */}
+        <div style={{ marginBottom: 32 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 14, fontSize: 9 }}>your gift code</p>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px 0',
+              borderBottom: '1px solid var(--loom-rule)',
+            }}
           >
-            Thank you.
-          </h1>
-          <p className="text-paper-70 mb-8 leading-relaxed">
-            Your gift voucher has been created successfully.
-          </p>
-
-          {/* Voucher Code */}
-          <div className="bg-void border border-gold-40 p-6 mb-6">
-            <div className="text-paper-50 text-xs uppercase tracking-[0.22em] mb-2">Your gift code</div>
-            <div className="font-mono text-2xl md:text-3xl text-gold tracking-wider mb-4">
+            <span
+              className="loom-mono"
+              style={{ fontSize: 20, letterSpacing: '0.1em', color: 'var(--loom-warm)' }}
+            >
               {code}
-            </div>
+            </span>
             <button
               onClick={handleCopy}
-              className="btn btn-ghost"
+              className="loom-btn-ghost"
+              style={{ padding: '7px 16px' }}
             >
-              {copied ? 'Copied' : 'Copy code'}
+              {copied ? 'copied' : 'copy'}
             </button>
           </div>
-
-          {/* Redemption Link */}
-          <div className="bg-void border border-paper-15 p-4 mb-6">
-            <p className="text-paper-50 text-sm mb-2 text-left">Or share this redemption link:</p>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={redemptionUrl}
-                readOnly
-                className="flex-1 bg-void-surface border border-paper-15 text-paper-70 text-sm px-3 py-2 rounded-[2px]"
-              />
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(redemptionUrl);
-                  alert('Link copied!');
-                }}
-                className="btn btn-ghost px-4"
-                aria-label="Copy redemption link"
-              >
-                Copy
-              </button>
-            </div>
-          </div>
-
-          {/* Next Steps */}
-          <div className="text-left bg-void border border-paper-15 p-4 mb-6">
-            <h3 className="text-gold text-xs uppercase tracking-[0.22em] mb-3">What's next</h3>
-            <ul className="space-y-2 text-paper-70 text-sm">
-              <li className="flex items-baseline gap-3">
-                <span className="text-gold font-mono text-sm" aria-hidden>·</span>
-                <span>Share the code or link with your recipient</span>
-              </li>
-              <li className="flex items-baseline gap-3">
-                <span className="text-gold font-mono text-sm" aria-hidden>·</span>
-                <span>They can redeem it at heirloom.blue/gift/redeem</span>
-              </li>
-              <li className="flex items-baseline gap-3">
-                <span className="text-gold font-mono text-sm" aria-hidden>·</span>
-                <span>The voucher is valid for 1 year</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              to="/gift"
-              className="flex-1 btn btn-ghost text-center"
-            >
-              Buy another gift
-            </Link>
-            <Link
-              to="/"
-              className="flex-1 btn btn-primary text-center"
-            >
-              Go to Heirloom <span aria-hidden>→</span>
-            </Link>
-          </div>
-
-          {/* Receipt Note */}
-          <p className="text-paper-50 text-xs mt-6">
-            A confirmation email has been sent to your email address.
-          </p>
         </div>
+
+        {/* Redemption URL */}
+        <div style={{ marginBottom: 40 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 14, fontSize: 9 }}>or share this link</p>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <input
+              type="text"
+              value={redemptionUrl}
+              readOnly
+              className="loom-mono"
+              style={{ flex: 1, fontSize: 11, color: 'var(--loom-bone-dim)', letterSpacing: '0.02em' }}
+            />
+            <button
+              onClick={handleCopyLink}
+              className="loom-btn-ghost"
+              style={{ padding: '7px 16px', flexShrink: 0 }}
+              aria-label="Copy redemption link"
+            >
+              {linkCopied ? 'copied' : 'copy'}
+            </button>
+          </div>
+        </div>
+
+        <hr className="loom-hairline" style={{ marginBottom: 32 }} />
+
+        {/* Next steps */}
+        <div style={{ marginBottom: 40 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 16, fontSize: 9 }}>what's next</p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
+            {[
+              'share the code or link with your recipient',
+              'they can redeem it at heirloom.blue/gift/redeem',
+              'the voucher is valid for one year',
+            ].map((step, i) => (
+              <li
+                key={i}
+                className="loom-body"
+                style={{ display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 14, color: 'var(--loom-bone-dim)' }}
+              >
+                <span style={{ color: 'var(--loom-warm)', flexShrink: 0 }}>·</span>
+                {step}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <Link
+            to="/gift"
+            className="loom-btn-ghost"
+            style={{ textDecoration: 'none', flex: 1, textAlign: 'center' }}
+          >
+            give another gift
+          </Link>
+          <Link
+            to="/"
+            className="loom-btn"
+            style={{ textDecoration: 'none', flex: 1, textAlign: 'center' }}
+          >
+            heirloom
+          </Link>
+        </div>
+
+        <p
+          className="loom-mono"
+          style={{ textAlign: 'center', fontSize: 9, letterSpacing: '0.18em', color: 'var(--loom-bone-faint)', marginTop: 28 }}
+        >
+          a confirmation has been sent to your email
+        </p>
       </div>
     </div>
   );

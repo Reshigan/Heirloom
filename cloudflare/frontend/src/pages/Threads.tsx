@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Navigation } from '../components/Navigation';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { AppFrame } from '../loom/components/AppFrame';
 import { threadsApi, type ThreadSummary } from '../services/api';
 
 export function Threads() {
@@ -41,130 +39,268 @@ export function Threads() {
   const threads: ThreadSummary[] = data?.threads ?? [];
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <Navigation />
-
-      <main id="main-content" className="pt-24 pb-16 px-6 md:px-12 max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-12"
+    <AppFrame>
+      <header style={{ marginBottom: 40 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+          Family threads · {threads.length} {threads.length === 1 ? 'thread' : 'threads'}
+        </p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
         >
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Family threads</p>
-          <h1 className="font-body font-light leading-[1.1] tracking-[-0.018em]" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
-            The threads you belong to.
-          </h1>
-          <p className="text-paper/65 mt-4 max-w-prose leading-relaxed">
-            Each thread is append-only. Entries you add today can be locked for descendants who don't exist yet.
-            Members across generations can read, comment, and add their own entries — but never alter what came before.
-          </p>
-        </motion.div>
+          The threads you belong to.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
+        >
+          Each thread is append-only. Entries you add today can be locked for descendants who don't exist yet.
+          Members across generations can read, comment, and add their own entries — but never alter what came before.
+        </p>
+      </header>
 
-        {isLoading ? (
-          <div className="py-20 max-w-[220px]">
-            <ProgressHair label="gathering threads" />
-          </div>
-        ) : (
-          <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-              {threads.map((t) => (
-                <Link
-                  key={t.id}
-                  to={`/threads/${t.id}`}
-                  className="group block bg-void-surface border border-paper-15 rounded-xl p-6 hover:border-gold-40 transition-colors"
+      {isLoading ? (
+        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+          Loading…
+        </p>
+      ) : (
+        <>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: 1,
+              marginBottom: 48,
+              border: '1px solid var(--loom-rule)',
+            }}
+          >
+            {threads.map((t) => (
+              <ThreadCard key={t.id} thread={t} />
+            ))}
+
+            {!creating ? (
+              <button
+                type="button"
+                onClick={() => setCreating(true)}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: '32px 28px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  borderLeft: threads.length > 0 ? '1px solid var(--loom-rule)' : 0,
+                  color: 'var(--loom-bone-faint)',
+                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone-dim)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone-faint)'; }}
+              >
+                <p
+                  className="loom-mono"
+                  style={{ margin: '0 0 12px', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase' }}
                 >
-                  <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold/80 mb-3">
-                    {t.role.toLowerCase()} · gen {t.generation_offset}
-                  </p>
-                  <h2 className="font-body text-2xl mb-2 leading-tight">{t.name}</h2>
-                  {t.dedication ? (
-                    <p className="text-paper/55 text-sm leading-relaxed mb-5 line-clamp-3">{t.dedication}</p>
-                  ) : (
-                    <div className="h-5" />
-                  )}
-                  <div className="flex items-center gap-5 font-mono text-[0.7rem] tracking-[0.04em] text-paper/50 mt-auto">
-                    <span>{t.entry_count} {t.entry_count === 1 ? 'entry' : 'entries'}</span>
-                    <span>{t.member_count} {t.member_count === 1 ? 'member' : 'members'}</span>
-                  </div>
-                  <span className="text-gold text-sm mt-5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    open →
-                  </span>
-                </Link>
-              ))}
-
-              {!creating ? (
-                <button
-                  onClick={() => setCreating(true)}
-                  className="border border-dashed border-paper-15 hover:border-gold-40 rounded-xl p-6 text-left transition-colors"
+                  + begin a new thread
+                </p>
+                <p
+                  className="loom-serif"
+                  style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 300 }}
                 >
-                  <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-paper/45 mb-4">＋ new</p>
-                  <p className="font-body text-xl mb-1">Start a new thread</p>
-                  <p className="text-paper/50 text-sm">For a different bloodline, an in-laws line, or a chosen family.</p>
-                </button>
-              ) : (
-                <div className="border border-gold-40 rounded-xl p-6 sm:col-span-2 lg:col-span-3">
-                  <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-gold mb-4">New thread</p>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="t-name" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                        Thread name
-                      </label>
-                      <input
-                        id="t-name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="The Mahmood family"
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-md placeholder:text-paper/30 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="t-ded" className="block text-xs uppercase tracking-[0.22em] text-paper/50 mb-2">
-                        Dedication — optional
-                      </label>
-                      <textarea
-                        id="t-ded"
-                        rows={3}
-                        value={dedication}
-                        onChange={(e) => setDedication(e.target.value)}
-                        placeholder="A line your descendants will see when they open the thread for the first time."
-                        className="w-full bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-md placeholder:text-paper/30 transition-colors font-body text-base leading-[1.7]"
-                      />
-                    </div>
-                    {error ? <p role="alert" className="text-blood text-sm">{error}</p> : null}
-                    <div className="flex items-center gap-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => create.mutate()}
-                        disabled={create.isPending || !name.trim()}
-                        className="btn btn-primary"
-                      >
-                        {create.isPending ? 'Creating…' : 'Begin thread'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCreating(false);
-                          setError(null);
-                        }}
-                        className="text-paper/60 hover:text-paper text-sm"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {threads.length === 0 && !creating ? (
-              <p className="text-paper/50 text-sm">
-                You don't have any threads yet. Your default thread is created on first entry — or you can name one yourself above.
-              </p>
+                  Start a new thread
+                </p>
+                <p
+                  className="loom-body"
+                  style={{ margin: 0, fontSize: 14, color: 'var(--loom-bone-faint)', lineHeight: 1.6 }}
+                >
+                  For a different bloodline, an in-laws line, or a chosen family.
+                </p>
+              </button>
             ) : null}
-          </>
-        )}
-      </main>
-    </div>
+          </div>
+
+          {creating ? (
+            <div
+              style={{
+                border: '1px solid var(--loom-rule-warm)',
+                padding: '32px 28px',
+                marginBottom: 48,
+              }}
+            >
+              <p
+                className="loom-mono"
+                style={{ margin: '0 0 24px', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
+              >
+                New thread
+              </p>
+              <div style={{ display: 'grid', gap: 20, maxWidth: 640 }}>
+                <div>
+                  <label
+                    htmlFor="t-name"
+                    className="loom-eyebrow"
+                    style={{ display: 'block', marginBottom: 8 }}
+                  >
+                    Thread name
+                  </label>
+                  <input
+                    id="t-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="The Mahmood family"
+                    style={{
+                      width: '100%',
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--loom-rule)',
+                      color: 'var(--loom-bone)',
+                      caretColor: 'var(--loom-warm)',
+                      fontFamily: "'Source Serif 4', serif",
+                      fontVariationSettings: "'opsz' 28",
+                      fontSize: 20,
+                      fontWeight: 300,
+                      padding: '8px 0',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="t-ded"
+                    className="loom-eyebrow"
+                    style={{ display: 'block', marginBottom: 8 }}
+                  >
+                    Dedication — optional
+                  </label>
+                  <textarea
+                    id="t-ded"
+                    rows={3}
+                    value={dedication}
+                    onChange={(e) => setDedication(e.target.value)}
+                    placeholder="A line your descendants will see when they open the thread for the first time."
+                    style={{
+                      width: '100%',
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--loom-rule)',
+                      color: 'var(--loom-bone)',
+                      caretColor: 'var(--loom-warm)',
+                      fontFamily: "'Source Serif 4', serif",
+                      fontVariationSettings: "'opsz' 14",
+                      fontSize: 16,
+                      lineHeight: 1.75,
+                      padding: '8px 0',
+                      outline: 'none',
+                      resize: 'vertical',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+
+                {error ? (
+                  <p
+                    role="alert"
+                    className="loom-body"
+                    style={{ margin: 0, fontStyle: 'italic', color: '#c25a5a', fontSize: 14 }}
+                  >
+                    {error}
+                  </p>
+                ) : null}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, paddingTop: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => create.mutate()}
+                    disabled={create.isPending || !name.trim()}
+                    className="loom-btn"
+                    style={{ opacity: create.isPending || !name.trim() ? 0.5 : 1 }}
+                  >
+                    {create.isPending ? 'beginning…' : 'begin thread'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCreating(false);
+                      setError(null);
+                    }}
+                    className="loom-btn-ghost"
+                  >
+                    cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {threads.length === 0 && !creating ? (
+            <p
+              className="loom-body"
+              style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)', fontSize: 15 }}
+            >
+              No threads yet. Your first thread begins with your first entry — or name one yourself above.
+            </p>
+          ) : null}
+        </>
+      )}
+    </AppFrame>
+  );
+}
+
+function ThreadCard({ thread }: { thread: ThreadSummary }) {
+  return (
+    <Link
+      to={`/threads/${thread.id}`}
+      style={{
+        display: 'block',
+        padding: '32px 28px',
+        textDecoration: 'none',
+        borderRight: '1px solid var(--loom-rule)',
+        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(244,236,216,0.02)'; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; }}
+    >
+      <p
+        className="loom-mono"
+        style={{
+          margin: '0 0 12px',
+          fontSize: 10,
+          letterSpacing: '0.28em',
+          textTransform: 'uppercase',
+          color: 'var(--loom-warm)',
+        }}
+      >
+        {thread.role.toLowerCase()} · gen {thread.generation_offset}
+      </p>
+      <h2
+        className="loom-serif"
+        style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 300, color: 'var(--loom-bone)', lineHeight: 1.2 }}
+      >
+        {thread.name}
+      </h2>
+      {thread.dedication ? (
+        <p
+          className="loom-body"
+          style={{
+            margin: '0 0 20px',
+            fontSize: 14,
+            color: 'var(--loom-bone-dim)',
+            lineHeight: 1.65,
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
+          {thread.dedication}
+        </p>
+      ) : (
+        <div style={{ height: 20 }} />
+      )}
+      <p
+        className="loom-mono"
+        style={{ margin: 0, fontSize: 11, letterSpacing: '0.04em', color: 'var(--loom-bone-faint)' }}
+      >
+        · {thread.entry_count} {thread.entry_count === 1 ? 'entry' : 'entries'} &nbsp;·&nbsp; {thread.member_count} {thread.member_count === 1 ? 'member' : 'members'}
+      </p>
+    </Link>
   );
 }

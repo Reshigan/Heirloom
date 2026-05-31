@@ -1,49 +1,65 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 export function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen bg-void text-paper antialiased flex items-center justify-center px-6">
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
-        className="text-center"
-      >
-        <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-8">Error 404</p>
+    <main
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+        display: 'grid',
+        placeItems: 'center',
+        padding: '40px 24px',
+      }}
+    >
+      <div style={{ textAlign: 'center', maxWidth: 480 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 28 }}>Error 404</p>
 
         <h1
-          className="font-body font-light text-paper-30 leading-none mb-8"
-          style={{ fontSize: 'clamp(5rem, 18vw, 11rem)' }}
+          className="loom-display"
+          style={{
+            fontSize: 'clamp(80px, 18vw, 160px)',
+            fontWeight: 200,
+            color: 'var(--loom-bone-faint)',
+            margin: '0 0 28px',
+            lineHeight: 1,
+          }}
         >
           404
         </h1>
 
-        <h2 className="font-body font-light text-2xl md:text-3xl text-paper mb-4 tracking-[-0.012em]">
+        <h2
+          className="loom-h2"
+          style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
+        >
           Page not found.
         </h2>
-        <p className="text-paper-65 max-w-md mx-auto mb-10 leading-relaxed">
-          The page you're looking for seems to have drifted into the void.
-          Let's guide you back to familiar territory.
+        <p
+          className="loom-body"
+          style={{ color: 'var(--loom-bone-dim)', margin: '0 auto 40px', lineHeight: 1.7 }}
+        >
+          The thread you're looking for has drifted from the warp. Let's find your way back.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button
+            type="button"
             onClick={() => navigate(-1)}
-            className="btn btn-ghost"
+            className="loom-btn-ghost"
           >
-            <span aria-hidden>←</span> Go back
+            go back
           </button>
           <button
+            type="button"
             onClick={() => navigate('/')}
-            className="btn btn-primary"
+            className="loom-btn"
           >
-            Return home <span aria-hidden>→</span>
+            return home
           </button>
         </div>
-      </motion.div>
+      </div>
     </main>
   );
 }

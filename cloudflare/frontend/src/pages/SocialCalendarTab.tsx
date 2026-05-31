@@ -39,12 +39,25 @@ const PLATFORM_LABELS: Record<string, string> = {
   threads: 'Threads',
 };
 
-const STATUS_STYLES: Record<string, { className: string; label: string }> = {
-  scheduled: { className: 'border-paper-15 text-paper-70', label: 'Scheduled' },
-  publishing: { className: 'border-gold-40 text-gold', label: 'Publishing' },
-  published: { className: 'border-gold-40 text-gold', label: 'Published' },
-  failed: { className: 'border-blood text-blood', label: 'Failed' },
-  skipped: { className: 'border-paper-15 text-paper-50', label: 'Skipped' },
+const STATUS_TOKENS: Record<string, { border: string; color: string; label: string }> = {
+  scheduled: { border: 'var(--loom-rule)', color: 'var(--loom-bone-dim)', label: 'Scheduled' },
+  publishing: { border: 'var(--loom-rule-warm)', color: 'var(--loom-warm)', label: 'Publishing' },
+  published:  { border: 'var(--loom-rule-warm)', color: 'var(--loom-warm)', label: 'Published' },
+  failed:     { border: 'rgba(194,90,90,0.35)', color: '#c25a5a', label: 'Failed' },
+  skipped:    { border: 'var(--loom-rule)', color: 'var(--loom-bone-faint)', label: 'Skipped' },
+};
+
+const selectStyle: React.CSSProperties = {
+  background: 'transparent',
+  border: '1px solid var(--loom-rule)',
+  color: 'var(--loom-bone)',
+  fontFamily: "'JetBrains Mono', monospace",
+  fontSize: 11,
+  letterSpacing: '0.04em',
+  padding: '6px 10px',
+  outline: 'none',
+  borderRadius: 0,
+  cursor: 'pointer',
 };
 
 export function SocialCalendarTab() {
@@ -92,38 +105,38 @@ export function SocialCalendarTab() {
   const socialStats: SocialStats = stats || { total: 0, published: 0, scheduled: 0, failed: 0, skipped: 0 };
 
   return (
-    <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <StatBox label="Total Posts" value={socialStats.total} />
-        <StatBox label="Published" value={socialStats.published} accent />
-        <StatBox label="Scheduled" value={socialStats.scheduled} />
-        <StatBox label="Failed" value={socialStats.failed} error />
-        <StatBox label="Skipped" value={socialStats.skipped} />
+    <div style={{ color: 'var(--loom-bone)' }}>
+      {/* Stats strip */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1, marginBottom: 32 }}>
+        <StatCell label="Total" value={socialStats.total} />
+        <StatCell label="Published" value={socialStats.published} warm />
+        <StatCell label="Scheduled" value={socialStats.scheduled} />
+        <StatCell label="Failed" value={socialStats.failed} error />
+        <StatCell label="Skipped" value={socialStats.skipped} />
       </div>
 
       {/* Filters */}
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 flex flex-wrap gap-4 items-center">
-        <div className="flex items-center gap-2">
-          <label className="text-paper-65 text-sm">Week:</label>
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}>Week</span>
           <select
             value={selectedWeek || ''}
             onChange={(e) => setSelectedWeek(e.target.value ? parseInt(e.target.value) : undefined)}
-            className="bg-void-elevated border border-paper-15 text-paper text-sm px-3 py-1.5 rounded-[2px] focus:border-gold focus:outline-none"
+            style={selectStyle}
           >
-            <option value="">All Weeks</option>
+            <option value="">All</option>
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i + 1} value={i + 1}>Week {i + 1}</option>
             ))}
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
-          <label className="text-paper-65 text-sm">Status:</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}>Status</span>
           <select
             value={statusFilter || ''}
             onChange={(e) => setStatusFilter(e.target.value || undefined)}
-            className="bg-void-elevated border border-paper-15 text-paper text-sm px-3 py-1.5 rounded-[2px] focus:border-gold focus:outline-none"
+            style={selectStyle}
           >
             <option value="">All</option>
             <option value="scheduled">Scheduled</option>
@@ -134,20 +147,20 @@ export function SocialCalendarTab() {
         </div>
       </div>
 
-      {/* Posts List */}
-      <div className="space-y-3">
+      {/* Posts list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {isLoading ? (
-          <div className="bg-void-surface border border-paper-15 rounded-[2px] p-8">
+          <div style={{ padding: '40px 0' }}>
             <ProgressHair label="Loading posts…" />
           </div>
         ) : posts.length === 0 ? (
-          <div className="bg-void-surface border border-paper-15 rounded-[2px] p-8 text-center">
-            <p className="text-paper-65">No social posts found</p>
-            <p className="text-paper-50 text-sm mt-1">Use the bulk-load API to add content for a week</p>
+          <div style={{ border: '1px solid var(--loom-rule)', padding: '48px 24px', textAlign: 'center' }}>
+            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginBottom: 6 }}>No posts found.</p>
+            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>Use the bulk-load API to add content for a week.</p>
           </div>
         ) : (
           posts.map((post) => (
-            <PostCard
+            <PostRow
               key={post.id}
               post={post}
               onPause={() => pauseMutation.mutate(post.id)}
@@ -161,109 +174,108 @@ export function SocialCalendarTab() {
   );
 }
 
-function StatBox({ label, value, accent, error }: { label: string; value: number; accent?: boolean; error?: boolean }) {
-  const valueColor = error ? 'text-blood' : accent ? 'text-gold' : 'text-paper';
+/* ── StatCell ───────────────────────────────────────────────────── */
+function StatCell({ label, value, warm, error }: { label: string; value: number; warm?: boolean; error?: boolean }) {
+  const valColor = error ? '#c25a5a' : warm ? 'var(--loom-warm)' : 'var(--loom-bone)';
   return (
-    <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 text-center">
-      <div className={`font-mono text-2xl font-light mb-1 ${valueColor}`}>{value}</div>
-      <p className="text-paper-65 text-xs">{label}</p>
+    <div style={{ border: '1px solid var(--loom-rule)', padding: '20px 16px', textAlign: 'center' }}>
+      <div className="loom-mono" style={{ fontSize: 28, fontWeight: 300, color: valColor, lineHeight: 1, marginBottom: 8 }}>{value}</div>
+      <div className="loom-eyebrow" style={{ fontSize: 9 }}>{label}</div>
     </div>
   );
 }
 
-function PostCard({ post, onPause, onRetry, onDelete }: {
+/* ── PostRow ────────────────────────────────────────────────────── */
+function PostRow({ post, onPause, onRetry, onDelete }: {
   post: SocialPost;
   onPause: () => void;
   onRetry: () => void;
   onDelete: () => void;
 }) {
-  const statusStyle = STATUS_STYLES[post.status] || STATUS_STYLES.scheduled;
+  const tok = STATUS_TOKENS[post.status] || STATUS_TOKENS.scheduled;
   const contentText = post.content?.text || post.content?.hook || 'No content';
 
   return (
-    <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          {/* Status + Pillar + Week */}
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={`px-2 py-0.5 text-xs border rounded-[2px] ${statusStyle.className}`}>
-              {statusStyle.label}
+    <div style={{ border: '1px solid var(--loom-rule)', padding: '16px 20px', display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Status / pillar / week */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <span className="loom-mono" style={{ fontSize: 10, padding: '2px 7px', border: `1px solid ${tok.border}`, color: tok.color }}>
+            {tok.label}
+          </span>
+          {post.pillar && (
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{post.pillar}</span>
+          )}
+          {post.campaign_week && (
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>Week {post.campaign_week}</span>
+          )}
+        </div>
+
+        {/* Content preview */}
+        <p style={{ color: 'var(--loom-bone)', fontSize: 14, lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {contentText}
+        </p>
+
+        {/* Platforms */}
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
+          {post.platforms.map((p) => (
+            <span key={p} className="loom-mono" style={{ fontSize: 9, padding: '2px 6px', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-faint)' }}>
+              {PLATFORM_LABELS[p] || p}
             </span>
-            {post.pillar && (
-              <span className="text-xs text-paper-50">
-                {post.pillar}
-              </span>
-            )}
-            {post.campaign_week && (
-              <span className="text-xs text-paper-50">
-                Week {post.campaign_week}
-              </span>
-            )}
-          </div>
-
-          {/* Content preview */}
-          <p className="text-paper text-sm line-clamp-2 mb-2">{contentText}</p>
-
-          {/* Platforms */}
-          <div className="flex flex-wrap gap-1 mb-2">
-            {post.platforms.map((p) => (
-              <span key={p} className="px-1.5 py-0.5 border border-paper-15 text-paper-70 text-xs rounded-[2px]">
-                {PLATFORM_LABELS[p] || p}
-              </span>
-            ))}
-          </div>
-
-          {/* Schedule time */}
-          <div className="text-paper-70 text-xs font-mono">
-            {post.published_at
-              ? `Published: ${new Date(post.published_at).toLocaleString()}`
-              : `Scheduled: ${new Date(post.scheduled_at).toLocaleString()}`}
-          </div>
-
-          {/* Error message */}
-          {post.error && (
-            <div className="mt-2 p-2 border border-blood/40 rounded-[2px] text-blood text-xs">
-              {post.error}
-            </div>
-          )}
+          ))}
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col gap-1">
-          {post.status === 'scheduled' && (
-            <button
-              onClick={onPause}
-              className="px-2 py-1 text-xs text-paper-65 hover:text-gold transition-colors"
-              title="Skip this post"
-              aria-label="Skip this post"
-            >
-              Skip
-            </button>
-          )}
-          {(post.status === 'failed' || post.status === 'skipped') && (
-            <button
-              onClick={onRetry}
-              className="px-2 py-1 text-xs text-paper-65 hover:text-gold transition-colors"
-              title="Retry / Reschedule"
-              aria-label="Retry or reschedule post"
-            >
-              Retry
-            </button>
-          )}
-          {post.status !== 'published' && (
-            <button
-              onClick={onDelete}
-              className="px-2 py-1 text-xs text-paper-65 hover:text-blood transition-colors"
-              title="Delete post"
-              aria-label="Delete post"
-            >
-              Delete
-            </button>
-          )}
-          {post.status === 'published' && (
-            <span className="px-2 py-1 text-xs text-gold" aria-label="Published">Live</span>
-          )}
+        {/* Schedule time */}
+        <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>
+          {post.published_at
+            ? `Published ${new Date(post.published_at).toLocaleString()}`
+            : `Scheduled ${new Date(post.scheduled_at).toLocaleString()}`}
         </div>
+
+        {/* Error */}
+        {post.error && (
+          <div className="loom-mono" style={{ marginTop: 8, padding: '8px 10px', border: '1px solid rgba(194,90,90,0.35)', color: '#c25a5a', fontSize: 11 }}>
+            {post.error}
+          </div>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+        {post.status === 'scheduled' && (
+          <button
+            onClick={onPause}
+            aria-label="Skip this post"
+            className="loom-btn-ghost"
+            style={{ fontSize: 10, padding: '4px 10px' }}
+          >
+            Skip
+          </button>
+        )}
+        {(post.status === 'failed' || post.status === 'skipped') && (
+          <button
+            onClick={onRetry}
+            aria-label="Retry or reschedule post"
+            className="loom-btn-ghost"
+            style={{ fontSize: 10, padding: '4px 10px' }}
+          >
+            Retry
+          </button>
+        )}
+        {post.status !== 'published' && (
+          <button
+            onClick={onDelete}
+            aria-label="Delete post"
+            style={{ background: 'none', border: 'none', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.04em', color: 'var(--loom-bone-faint)', cursor: 'pointer', padding: '4px 10px', transition: 'color 180ms var(--loom-ease)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
+          >
+            Delete
+          </button>
+        )}
+        {post.status === 'published' && (
+          <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-warm)', padding: '4px 10px' }}>Live</span>
+        )}
       </div>
     </div>
   );

@@ -16,41 +16,36 @@ interface FamilyMember {
 }
 
 /**
- * Family — Loom-native rewrite.
+ * Family — Bloodline typographic list.
  *
- * Replaces the constellation visualisation with a typographic kin
- * list grouped by generation:
- *   - Earlier generations (parents, aunts, grandparents)
- *   - Your generation (siblings, partners)
- *   - Descendants (children, grandchildren, placeholders)
- *
- * Adding a member is a single inline form. Each row carries name,
- * relation, optional dates, and the email if known. The constellation
- * stays available at /loom/kin as the design reference.
+ * The Bloodline is rendered as a hairline-divided nameroll grouped by
+ * generation. No constellation graphics, no avatar circles — each
+ * person is their name in loom-serif italic with relation and dates
+ * in loom-mono beneath.
  */
 
 const RELATION_GROUPS: Record<string, string[]> = {
-  'Earlier generations': [
+  'earlier generations': [
     'parent', 'father', 'mother', 'grandparent', 'grandfather', 'grandmother',
     'great-grandparent', 'aunt', 'uncle',
   ],
-  'Your generation': [
+  'your generation': [
     'sibling', 'brother', 'sister', 'spouse', 'partner', 'cousin', 'in-law',
     'sister-in-law', 'brother-in-law',
   ],
-  'Descendants': [
+  'descendants': [
     'child', 'son', 'daughter', 'grandchild', 'grandson', 'granddaughter',
     'great-grandchild', 'niece', 'nephew',
   ],
 };
 
 function groupOf(rel: string | undefined): string {
-  if (!rel) return 'Other';
+  if (!rel) return 'other';
   const r = rel.toLowerCase();
   for (const [group, kinds] of Object.entries(RELATION_GROUPS)) {
     if (kinds.some((k) => r.includes(k))) return group;
   }
-  return 'Other';
+  return 'other';
 }
 
 export function Family() {
@@ -93,28 +88,27 @@ export function Family() {
     },
     {} as Record<string, FamilyMember[]>,
   );
-  const orderedGroups = ['Earlier generations', 'Your generation', 'Descendants', 'Other'].filter(
+  const orderedGroups = ['earlier generations', 'your generation', 'descendants', 'other'].filter(
     (g) => grouped[g]?.length,
   );
 
   return (
-    <AppFrame>
-      <header style={{ marginBottom: 40 }}>
+    <AppFrame width="wide">
+      <header style={{ marginBottom: 48 }}>
         <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-          Family · {members.length} {members.length === 1 ? 'member' : 'members'}
+          Bloodline · {members.length} {members.length === 1 ? 'name' : 'names'}
         </p>
         <h1
           className="loom-h2"
           style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
         >
-          The people in your thread.
+          Every name in the thread.
         </h1>
         <p
           className="loom-body"
           style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
         >
-          Living, deceased, and not-yet-born descendants. The thread is for everyone whose name is
-          here.
+          Living, deceased, and not-yet-born. The weft runs through all of them.
         </p>
       </header>
 
@@ -144,7 +138,7 @@ export function Family() {
             color: 'var(--loom-warm)',
           }}
         >
-          {showAdd ? 'cancel' : 'add a member →'}
+          {showAdd ? 'cancel' : 'add to bloodline →'}
         </button>
       </div>
 
@@ -169,7 +163,7 @@ export function Family() {
           }}
         >
           <p className="loom-eyebrow" style={{ marginBottom: 4 }}>
-            New member
+            new name
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
             <FieldRow label="name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
@@ -193,7 +187,7 @@ export function Family() {
           ) : null}
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <button type="submit" className="loom-btn" disabled={create.isPending}>
-              {create.isPending ? 'adding…' : 'add member'}
+              {create.isPending ? 'weaving in…' : 'add to thread'}
             </button>
           </div>
         </form>
@@ -206,20 +200,20 @@ export function Family() {
       ) : members.length === 0 ? (
         <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center' }}>
           <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-            Just you so far
+            just you so far
           </p>
           <h2
             className="loom-serif"
             style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 18px' }}
           >
-            Add the first member. The thread is for them.
+            Add the first name. The thread holds them all.
           </h2>
           <button
             type="button"
             className="loom-btn"
             onClick={() => setShowAdd(true)}
           >
-            add a member
+            add to bloodline
           </button>
         </div>
       ) : (
@@ -227,9 +221,7 @@ export function Family() {
           {orderedGroups.map((group) => (
             <section key={group}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 18 }}>
-                <span className="loom-eyebrow" style={{ fontSize: 11 }}>
-                  {group}
-                </span>
+                <span className="loom-eyebrow">{group}</span>
                 <hr className="loom-hairline" style={{ flex: 1 }} />
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -238,7 +230,7 @@ export function Family() {
                     key={m.id}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '1fr 220px 140px',
+                      gridTemplateColumns: '1fr 220px',
                       gap: 24,
                       alignItems: 'baseline',
                       padding: '16px 0',
@@ -250,6 +242,7 @@ export function Family() {
                         className="loom-serif"
                         style={{
                           fontSize: 19,
+                          fontStyle: 'italic',
                           fontWeight: 400,
                           color: 'var(--loom-bone)',
                           margin: 0,
@@ -258,26 +251,16 @@ export function Family() {
                       >
                         {m.name}
                       </p>
-                      <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', fontStyle: 'italic', margin: '2px 0 0' }}>
+                      <p
+                        className="loom-mono"
+                        style={{ fontSize: 11, color: 'var(--loom-bone-faint)', margin: '4px 0 0', letterSpacing: '0.04em' }}
+                      >
                         {m.relationship}
                         {m.birthDate ? ` · b. ${new Date(m.birthDate).getFullYear()}` : ''}
                       </p>
                     </div>
                     <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
-                      {m.email ?? '—'}
-                    </div>
-                    <div
-                      style={{
-                        textAlign: 'right',
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: 10,
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        color: 'var(--loom-bone-faint)',
-                      }}
-                    >
-                      {/* placeholder for future actions */}
-                      member
+                      {m.email ?? ''}
                     </div>
                   </li>
                 ))}

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../services/api';
 import { MarketingTab } from './MarketingTab';
 import { SocialCalendarTab } from './SocialCalendarTab';
+import { AppFrame } from '../loom/components/AppFrame';
 
 // Admin auth check
 const useAdminAuth = () => {
@@ -200,83 +201,84 @@ export function AdminDashboard() {
     ];
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased">
-      <div>
-      {/* Header */}
-      <header className="border-b border-paper-15 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-baseline gap-4">
-            <span className="font-body text-2xl text-gold leading-none" aria-hidden>∞</span>
-            <h1 className="font-body font-light text-xl text-paper">Heirloom Admin</h1>
-            <span className="px-2 py-1 border border-gold-40 text-gold text-xs rounded-[2px]">{admin.role}</span>
+    <AppFrame width="wide">
+      {/* Ledger header */}
+      <header style={{ marginBottom: 32, borderBottom: '1px solid var(--loom-rule)', paddingBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <div>
+            <p className="loom-eyebrow" style={{ marginBottom: 8 }}>the ledger · admin</p>
+            <h1 className="loom-h2" style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}>
+              Heirloom Ledger.
+            </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-paper-65 text-sm">{admin.email}</span>
-            <button onClick={handleLogout} className="text-paper-65 hover:text-blood transition-colors text-sm">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>{admin.email}</span>
+            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.12em' }}>{admin.role}</span>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: 'transparent', border: 0, cursor: 'pointer',
+                fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 500,
+                letterSpacing: '0.32em', textTransform: 'uppercase',
+                color: 'var(--loom-bone-faint)', padding: 0,
+              }}
+              onMouseOver={e => (e.currentTarget.style.color = '#c25a5a')}
+              onMouseOut={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
+            >
               Sign out
             </button>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8 flex-wrap">
-          {tabs.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={`px-4 py-2 rounded-[2px] transition-colors ${
-                activeTab === id
-                  ? 'text-gold border-b border-gold'
-                  : 'text-paper-65 hover:text-paper'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+      {/* Tab strip */}
+      <nav style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--loom-rule)', marginBottom: 36, overflowX: 'auto' }}>
+        {tabs.map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            style={{
+              background: 'transparent', border: 0, borderBottom: '1px solid',
+              borderColor: activeTab === id ? 'var(--loom-warm)' : 'transparent',
+              padding: '0 16px 12px', marginBottom: -1, cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 500,
+              letterSpacing: '0.28em', textTransform: 'uppercase',
+              color: activeTab === id ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+              whiteSpace: 'nowrap',
+              transition: 'color 180ms var(--loom-ease)',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      <div>
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="space-y-8">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard
-                label="Total Users"
-                value={overview?.users?.total || 0}
-                subtext={`+${overview?.users?.recentSignups || 0} this week`}
-              />
-              <StatCard
-                label="Active Subscriptions"
-                value={overview?.users?.active || 0}
-                subtext={`${overview?.users?.trialing || 0} trialing`}
-              />
-              <StatCard
-                label="Est. MRR"
-                value={`$${revenue?.mrr?.toFixed(2) || '0.00'}`}
-                subtext={`${revenue?.activeSubscriptions || 0} paying`}
-              />
-              <StatCard
-                label="Total Content"
-                value={(overview?.content?.memories || 0) + (overview?.content?.letters || 0) + (overview?.content?.voiceRecordings || 0)}
-                subtext={`${overview?.content?.memories || 0} memories`}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+              <StatCard label="Total Users" value={overview?.users?.total || 0} subtext={`+${overview?.users?.recentSignups || 0} this week`} />
+              <StatCard label="Active Subscriptions" value={overview?.users?.active || 0} subtext={`${overview?.users?.trialing || 0} trialing`} />
+              <StatCard label="Est. MRR" value={`$${revenue?.mrr?.toFixed(2) || '0.00'}`} subtext={`${revenue?.activeSubscriptions || 0} paying`} />
+              <StatCard label="Total Content" value={(overview?.content?.memories || 0) + (overview?.content?.letters || 0) + (overview?.content?.voiceRecordings || 0)} subtext={`${overview?.content?.memories || 0} memories`} />
             </div>
 
             {/* Subscription Breakdown */}
             <Panel title="Subscription Breakdown">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
                 {[
-                  { key: 'starter', label: 'Starter ($1/mo)' },
-                  { key: 'family', label: 'Family ($2/mo)' },
-                  { key: 'forever', label: 'Forever ($5/mo)' },
+                  { key: 'starter', label: 'Starter · $1/mo' },
+                  { key: 'family', label: 'Family · $2/mo' },
+                  { key: 'forever', label: 'Forever · $5/mo' },
                 ].map(({ key, label }) => (
-                  <div key={key} className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                    <div className="font-mono text-2xl text-gold mb-1">
+                  <div key={key} style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>
                       {overview?.subscriptions?.[key] || overview?.subscriptions?.[key.toUpperCase()] || 0}
                     </div>
-                    <div className="text-paper-65 text-sm">{label}</div>
+                    <div className="loom-eyebrow">{label}</div>
                   </div>
                 ))}
               </div>
@@ -284,40 +286,31 @@ export function AdminDashboard() {
 
             {/* User Activity */}
             <Panel title="User Activity">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="font-mono text-2xl text-paper mb-1">{userAnalytics?.signupsLast30Days || 0}</div>
-                  <div className="text-paper-65 text-sm">Signups (30d)</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="font-mono text-2xl text-paper mb-1">{userAnalytics?.signupsLast7Days || 0}</div>
-                  <div className="text-paper-65 text-sm">Signups (7d)</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="font-mono text-2xl text-paper mb-1">{userAnalytics?.activeUsersLast7Days || 0}</div>
-                  <div className="text-paper-65 text-sm">Active (7d)</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="font-mono text-2xl text-paper mb-1">{userAnalytics?.usersWithContent || 0}</div>
-                  <div className="text-paper-65 text-sm">With Content</div>
-                </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+                {[
+                  { v: userAnalytics?.signupsLast30Days || 0, l: 'Signups · 30d' },
+                  { v: userAnalytics?.signupsLast7Days || 0, l: 'Signups · 7d' },
+                  { v: userAnalytics?.activeUsersLast7Days || 0, l: 'Active · 7d' },
+                  { v: userAnalytics?.usersWithContent || 0, l: 'With Content' },
+                ].map(({ v, l }) => (
+                  <div key={l} style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', marginBottom: 4 }}>{v}</div>
+                    <div className="loom-eyebrow">{l}</div>
+                  </div>
+                ))}
               </div>
             </Panel>
 
             {/* Revenue Stats */}
             <Panel title="Revenue & Discounts">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="font-mono text-2xl text-gold mb-1">
-                    ${revenue?.mrr?.toFixed(2) || '0.00'}
-                  </div>
-                  <div className="text-paper-65 text-sm">Monthly Recurring Revenue</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+                <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>${revenue?.mrr?.toFixed(2) || '0.00'}</div>
+                  <div className="loom-eyebrow">Monthly Recurring Revenue</div>
                 </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="font-mono text-2xl text-paper mb-1">
-                    ${revenue?.totalDiscountsLast30Days?.toFixed(2) || '0.00'}
-                  </div>
-                  <div className="text-paper-65 text-sm">Discounts Given (30d)</div>
+                <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', marginBottom: 4 }}>${revenue?.totalDiscountsLast30Days?.toFixed(2) || '0.00'}</div>
+                  <div className="loom-eyebrow">Discounts Given · 30d</div>
                 </div>
               </div>
             </Panel>
@@ -326,332 +319,243 @@ export function AdminDashboard() {
 
         {/* Usage Analytics Tab */}
         {activeTab === 'usage' && (
-          <div className="space-y-8">
-            <h2 className="font-body font-light text-xl">Usage Analytics</h2>
-            
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <p className="loom-eyebrow" style={{ marginBottom: -16 }}>Usage Analytics</p>
+
             {/* Engagement Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-gold mb-1">{usageAnalytics?.engagement?.totalUsers || 0}</div>
-                <div className="text-paper-65 text-sm">Total Users</div>
-              </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-gold mb-1">{usageAnalytics?.engagement?.activeToday || 0}</div>
-                <div className="text-paper-65 text-sm">Active Today</div>
-              </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-paper-70 mb-1">{usageAnalytics?.engagement?.active7d || 0}</div>
-                <div className="text-paper-65 text-sm">Active (7 days)</div>
-              </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-paper-70 mb-1">{usageAnalytics?.engagement?.active30d || 0}</div>
-                <div className="text-paper-65 text-sm">Active (30 days)</div>
-              </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-blood mb-1">{usageAnalytics?.engagement?.dormant || 0}</div>
-                <div className="text-paper-65 text-sm">Dormant</div>
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+              {[
+                { v: usageAnalytics?.engagement?.totalUsers || 0, l: 'Total Users', accent: true },
+                { v: usageAnalytics?.engagement?.activeToday || 0, l: 'Active Today', accent: true },
+                { v: usageAnalytics?.engagement?.active7d || 0, l: 'Active · 7d', accent: false },
+                { v: usageAnalytics?.engagement?.active30d || 0, l: 'Active · 30d', accent: false },
+                { v: usageAnalytics?.engagement?.dormant || 0, l: 'Dormant', danger: true },
+              ].map(({ v, l, accent, danger }: any) => (
+                <div key={l} style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: danger ? '#c25a5a' : accent ? 'var(--loom-warm)' : 'var(--loom-bone)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-eyebrow">{l}</div>
+                </div>
+              ))}
             </div>
 
             {/* User Funnel */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">User Funnel</h3>
-              <div className="space-y-3">
+            <Panel title="User Funnel">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { label: 'Registered', value: usageAnalytics?.funnel?.registered || 0, color: 'bg-gold' },
-                  { label: 'Email Verified', value: usageAnalytics?.funnel?.verified || 0, color: 'bg-gold/70' },
-                  { label: 'Subscribed', value: usageAnalytics?.funnel?.subscribed || 0, color: 'bg-gold' },
-                  { label: 'Created Memory', value: usageAnalytics?.funnel?.createdMemory || 0, color: 'bg-gold/60' },
-                  { label: 'Added Family', value: usageAnalytics?.funnel?.addedFamily || 0, color: 'bg-gold/50' },
-                  { label: 'Added Legacy Contact', value: usageAnalytics?.funnel?.addedLegacyContact || 0, color: 'bg-gold/40' },
+                  { label: 'Registered', value: usageAnalytics?.funnel?.registered || 0 },
+                  { label: 'Email Verified', value: usageAnalytics?.funnel?.verified || 0 },
+                  { label: 'Subscribed', value: usageAnalytics?.funnel?.subscribed || 0 },
+                  { label: 'Created Memory', value: usageAnalytics?.funnel?.createdMemory || 0 },
+                  { label: 'Added Family', value: usageAnalytics?.funnel?.addedFamily || 0 },
+                  { label: 'Added Legacy Contact', value: usageAnalytics?.funnel?.addedLegacyContact || 0 },
                 ].map((step, i) => {
                   const maxValue = usageAnalytics?.funnel?.registered || 1;
                   const percentage = Math.round((step.value / maxValue) * 100);
                   return (
-                    <div key={i} className="flex items-center gap-4">
-                      <div className="w-40 text-paper-70 text-sm">{step.label}</div>
-                      <div className="flex-1 h-6 bg-void-elevated rounded-[2px] overflow-hidden">
-                        <div 
-                          className={`h-full ${step.color} transition-all duration-500`}
-                          style={{ width: `${percentage}%` }}
-                        />
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div className="loom-mono" style={{ width: 160, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{step.label}</div>
+                      <div style={{ flex: 1, height: 4, background: 'var(--loom-rule)', position: 'relative' }}>
+                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${percentage}%`, background: 'var(--loom-warm)', transition: 'width 500ms var(--loom-ease)' }} />
                       </div>
-                      <div className="w-20 text-right">
-                        <span className="text-paper">{step.value}</span>
-                        <span className="text-paper-65 text-sm ml-1">({percentage}%)</span>
+                      <div className="loom-mono" style={{ width: 80, textAlign: 'right', fontSize: 11 }}>
+                        <span style={{ color: 'var(--loom-bone)' }}>{step.value}</span>
+                        <span style={{ color: 'var(--loom-bone-faint)', marginLeft: 4 }}>({percentage}%)</span>
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </Panel>
 
             {/* Content Engagement */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Content Engagement</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithContent || 0}</div>
-                  <div className="text-paper-65 text-sm">Users with Content</div>
-                  <div className="text-xs text-paper-65 mt-1">
-                    {Math.round(((usageAnalytics?.contentEngagement?.usersWithContent || 0) / (usageAnalytics?.contentEngagement?.totalUsers || 1)) * 100)}% of users
+            <Panel title="Content Engagement">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+                {[
+                  { v: usageAnalytics?.contentEngagement?.usersWithContent || 0, l: 'With Content', sub: `${Math.round(((usageAnalytics?.contentEngagement?.usersWithContent || 0) / (usageAnalytics?.contentEngagement?.totalUsers || 1)) * 100)}% of users` },
+                  { v: usageAnalytics?.contentEngagement?.usersWithMemories || 0, l: 'With Memories', sub: '' },
+                  { v: usageAnalytics?.contentEngagement?.usersWithLetters || 0, l: 'With Letters', sub: '' },
+                  { v: usageAnalytics?.contentEngagement?.usersWithVoice || 0, l: 'With Voice', sub: '' },
+                ].map(({ v, l, sub }) => (
+                  <div key={l} style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', marginBottom: 4 }}>{v}</div>
+                    <div className="loom-eyebrow">{l}</div>
+                    {sub && <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 4 }}>{sub}</div>}
                   </div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithMemories || 0}</div>
-                  <div className="text-paper-65 text-sm">With Memories</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithLetters || 0}</div>
-                  <div className="text-paper-65 text-sm">With Letters</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">{usageAnalytics?.contentEngagement?.usersWithVoice || 0}</div>
-                  <div className="text-paper-65 text-sm">With Voice</div>
-                </div>
+                ))}
               </div>
-            </div>
+            </Panel>
 
             {/* Activity by Hour */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Activity by Hour of Day (Last 30 Days)</h3>
-              <div className="flex items-end gap-1 h-32">
+            <Panel title="Activity by Hour of Day · Last 30 Days">
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 96 }}>
                 {Array.from({ length: 24 }, (_, hour) => {
                   const data = usageAnalytics?.activityByHour?.find((h: any) => h.hour === hour);
                   const count = data?.logins || 0;
                   const maxLogins = Math.max(...(usageAnalytics?.activityByHour?.map((h: any) => h.logins) || [1]));
                   const height = maxLogins > 0 ? (count / maxLogins) * 100 : 0;
                   return (
-                    <div key={hour} className="flex-1 flex flex-col items-center">
-                      <div 
-                        className="w-full bg-gold/60 hover:bg-gold transition-colors rounded-none"
-                        style={{ height: `${Math.max(height, 2)}%` }}
-                        title={`${hour}:00 - ${count} logins`}
-                      />
-                      {hour % 4 === 0 && (
-                        <div className="text-xs text-paper-65 mt-1">{hour}h</div>
-                      )}
+                    <div key={hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{ width: '100%', height: `${Math.max(height, 2)}%`, background: 'var(--loom-warm)', opacity: 0.6 }} title={`${hour}:00 — ${count} logins`} />
+                      {hour % 4 === 0 && <div className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', marginTop: 4 }}>{hour}h</div>}
                     </div>
                   );
                 })}
               </div>
-              <div className="text-xs text-paper-65 mt-2 text-center">Hour of day (UTC)</div>
-            </div>
+              <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 8, textAlign: 'center' }}>Hour of day (UTC)</div>
+            </Panel>
 
-            {/* Activity by Day of Week */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Activity by Day of Week (Last 30 Days)</h3>
-              <div className="flex items-end gap-2 h-32">
+            {/* Activity by Day */}
+            <Panel title="Activity by Day of Week · Last 30 Days">
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 96 }}>
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => {
                   const data = usageAnalytics?.activityByDay?.find((d: any) => d.dayNum === i);
                   const count = data?.logins || 0;
                   const maxLogins = Math.max(...(usageAnalytics?.activityByDay?.map((d: any) => d.logins) || [1]));
                   const height = maxLogins > 0 ? (count / maxLogins) * 100 : 0;
                   return (
-                    <div key={day} className="flex-1 flex flex-col items-center">
-                      <div 
-                        className="w-full bg-gold/60 hover:bg-gold transition-colors rounded-none"
-                        style={{ height: `${Math.max(height, 5)}%` }}
-                        title={`${day} - ${count} logins`}
-                      />
-                      <div className="text-xs text-paper-65 mt-2">{day}</div>
+                    <div key={day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{ width: '100%', height: `${Math.max(height, 5)}%`, background: 'var(--loom-warm)', opacity: 0.6 }} title={`${day} — ${count} logins`} />
+                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 6 }}>{day}</div>
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </Panel>
 
-            {/* Reminder/Dead Man Switch Status */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Dead Man's Switch Status</h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-gold mb-1">{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
-                  <div className="text-paper-65 text-sm">Active Switches</div>
+            {/* Dead Man Switch */}
+            <Panel title="Succession Switch Status">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)', marginBottom: 16 }}>
+                <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
+                  <div className="loom-eyebrow">Active</div>
                 </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-gold mb-1">{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
-                  <div className="text-paper-65 text-sm">Warning Status</div>
+                <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
+                  <div className="loom-eyebrow">Warning</div>
                 </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-blood mb-1">{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
-                  <div className="text-paper-65 text-sm">Triggered</div>
+                <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: '#c25a5a', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
+                  <div className="loom-eyebrow">Triggered</div>
                 </div>
               </div>
-              <p className="text-paper-65 text-sm mt-4">
-                Reminder emails are sent via scheduled cron jobs. Check that CRON_ENABLED=true is set in your worker environment.
+              <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)' }}>
+                Reminder emails are sent via scheduled cron jobs. Ensure CRON_ENABLED=true in the worker environment.
               </p>
-            </div>
+            </Panel>
 
             {/* Recent Sessions */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Recent User Sessions</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-paper-15">
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">User</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Email</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Tier</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Memories</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Letters</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Last Login</th>
+            <Panel title="Recent User Sessions">
+              <div style={{ overflowX: 'auto' }}>
+                <LedgerTable
+                  cols={['User', 'Email', 'Tier', 'Memories', 'Letters', 'Last Login']}
+                  empty="No recent sessions"
+                >
+                  {usageAnalytics?.recentSessions?.map((session: any) => (
+                    <tr key={session.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                      <td style={tdStyle}>{session.name}</td>
+                      <td style={{ ...tdStyle, color: 'var(--loom-bone-dim)' }}>{session.email}</td>
+                      <td style={tdStyle}><StatusWord value={session.tier} /></td>
+                      <td className="loom-mono" style={{ ...tdStyle, color: 'var(--loom-bone-dim)' }}>{session.memoryCount}</td>
+                      <td className="loom-mono" style={{ ...tdStyle, color: 'var(--loom-bone-dim)' }}>{session.letterCount}</td>
+                      <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{session.lastLogin ? new Date(session.lastLogin).toLocaleString() : 'Never'}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {usageAnalytics?.recentSessions?.map((session: any) => (
-                      <tr key={session.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                        <td className="py-3 px-4 text-paper">{session.name}</td>
-                        <td className="py-3 px-4 text-paper-70">{session.email}</td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-1 rounded-[2px] text-xs ${
-                            session.tier === 'FOREVER' ? 'border border-gold-40 text-gold' :
-                            session.tier === 'FAMILY' ? 'border border-paper-15 text-paper-70' :
-                            session.tier === 'STARTER' ? 'border border-gold-40 text-gold' :
-                            'border border-paper-15 text-paper-65'
-                          }`}>
-                            {session.tier}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-paper-70">{session.memoryCount}</td>
-                        <td className="py-3 px-4 text-paper-70">{session.letterCount}</td>
-                        <td className="py-3 px-4 text-paper-65 text-sm">
-                          {session.lastLogin ? new Date(session.lastLogin).toLocaleString() : 'Never'}
-                        </td>
-                      </tr>
-                    ))}
-                    {(!usageAnalytics?.recentSessions || usageAnalytics.recentSessions.length === 0) && (
-                      <tr>
-                        <td colSpan={6} className="text-center py-8 text-paper-65">
-                          No recent sessions
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                  ))}
+                </LedgerTable>
               </div>
-            </div>
+            </Panel>
           </div>
         )}
 
         {/* Encryption Tab */}
         {activeTab === 'encryption' && (
-          <div className="space-y-8">
-            <h2 className="font-body font-light text-xl">Encryption Adoption</h2>
-            
-            {/* Overview Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-gold mb-1">{encryptionStats?.encryptedUsers || 0}</div>
-                <div className="text-paper-65 text-sm">Users with Encryption</div>
-                <div className="text-xs text-paper-65 mt-1">
-                  {encryptionStats?.adoptionRate || 0}% adoption rate
-                </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            <p className="loom-eyebrow" style={{ marginBottom: -16 }}>Encryption Adoption</p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+              <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>{encryptionStats?.encryptedUsers || 0}</div>
+                <div className="loom-eyebrow">Users with Encryption</div>
+                <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 4 }}>{encryptionStats?.adoptionRate || 0}% adoption</div>
               </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-gold mb-1">{encryptionStats?.escrowConfigured || 0}</div>
-                <div className="text-paper-65 text-sm">Key Escrow Configured</div>
+              <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>{encryptionStats?.escrowConfigured || 0}</div>
+                <div className="loom-eyebrow">Key Escrow Configured</div>
               </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-paper-70 mb-1">{encryptionStats?.shamirConfigured || 0}</div>
-                <div className="text-paper-65 text-sm">Shamir Shares Active</div>
+              <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone-dim)', marginBottom: 4 }}>{encryptionStats?.shamirConfigured || 0}</div>
+                <div className="loom-eyebrow">Shamir Shares Active</div>
               </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-3xl text-paper-70 mb-1">{encryptionStats?.recentSetups || 0}</div>
-                <div className="text-paper-65 text-sm">New Setups (30 days)</div>
+              <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone-dim)', marginBottom: 4 }}>{encryptionStats?.recentSetups || 0}</div>
+                <div className="loom-eyebrow">New Setups · 30d</div>
               </div>
             </div>
 
-            {/* Adoption Progress */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Encryption Adoption Progress</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-40 text-paper-70 text-sm">Total Users</div>
-                  <div className="flex-1 h-6 bg-void-elevated rounded-[2px] overflow-hidden">
-                    <div className="h-full bg-paper/30 w-full" />
+            <Panel title="Adoption Progress">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  { label: 'Total Users', value: encryptionStats?.totalUsers || 0, pct: 100 },
+                  { label: 'Encryption Enabled', value: encryptionStats?.encryptedUsers || 0, pct: encryptionStats?.adoptionRate || 0 },
+                  { label: 'Key Escrow Setup', value: encryptionStats?.escrowConfigured || 0, pct: encryptionStats?.totalUsers ? Math.round((encryptionStats.escrowConfigured / encryptionStats.totalUsers) * 100) : 0 },
+                ].map(({ label, value, pct }) => (
+                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div className="loom-mono" style={{ width: 160, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{label}</div>
+                    <div style={{ flex: 1, height: 4, background: 'var(--loom-rule)', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct}%`, background: 'var(--loom-warm)', transition: 'width 500ms var(--loom-ease)' }} />
+                    </div>
+                    <div className="loom-mono" style={{ width: 80, textAlign: 'right', fontSize: 11 }}>
+                      <span style={{ color: 'var(--loom-bone)' }}>{value}</span>
+                      <span style={{ color: 'var(--loom-bone-faint)', marginLeft: 4 }}>({pct}%)</span>
+                    </div>
                   </div>
-                  <div className="w-20 text-right text-paper">{encryptionStats?.totalUsers || 0}</div>
+                ))}
+              </div>
+            </Panel>
+
+            <Panel title="Encrypted Content">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+                <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', marginBottom: 4 }}>{encryptionStats?.encryptedContent?.letters || 0}</div>
+                  <div className="loom-eyebrow">Encrypted Letters</div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-40 text-paper-70 text-sm">Encryption Enabled</div>
-                  <div className="flex-1 h-6 bg-void-elevated rounded-[2px] overflow-hidden">
-                    <div 
-                      className="h-full bg-gold transition-all duration-500"
-                      style={{ width: `${encryptionStats?.adoptionRate || 0}%` }}
-                    />
-                  </div>
-                  <div className="w-20 text-right">
-                    <span className="text-paper">{encryptionStats?.encryptedUsers || 0}</span>
-                    <span className="text-paper-65 text-sm ml-1">({encryptionStats?.adoptionRate || 0}%)</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-40 text-paper-70 text-sm">Key Escrow Setup</div>
-                  <div className="flex-1 h-6 bg-void-elevated rounded-[2px] overflow-hidden">
-                    <div 
-                      className="h-full bg-gold transition-all duration-500"
-                      style={{ width: `${encryptionStats?.totalUsers ? Math.round((encryptionStats.escrowConfigured / encryptionStats.totalUsers) * 100) : 0}%` }}
-                    />
-                  </div>
-                  <div className="w-20 text-right">
-                    <span className="text-paper">{encryptionStats?.escrowConfigured || 0}</span>
-                    <span className="text-paper-65 text-sm ml-1">
-                      ({encryptionStats?.totalUsers ? Math.round((encryptionStats.escrowConfigured / encryptionStats.totalUsers) * 100) : 0}%)
-                    </span>
-                  </div>
+                <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', marginBottom: 4 }}>{encryptionStats?.encryptedContent?.memories || 0}</div>
+                  <div className="loom-eyebrow">Encrypted Memories</div>
                 </div>
               </div>
-            </div>
+            </Panel>
 
-            {/* Encrypted Content */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Encrypted Content</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.letters || 0}</div>
-                  <div className="text-paper-65 text-sm">Encrypted Letters</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">{encryptionStats?.encryptedContent?.memories || 0}</div>
-                  <div className="text-paper-65 text-sm">Encrypted Memories</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Escrow Types Breakdown */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Key Escrow Types</h3>
+            <Panel title="Key Escrow Types">
               {encryptionStats?.escrowTypes && encryptionStats.escrowTypes.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
                   {encryptionStats.escrowTypes.map((type: { escrow_type: string; count: number }) => (
-                    <div key={type.escrow_type} className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                      <div className="text-2xl text-paper mb-1">{type.count}</div>
-                      <div className="text-paper-65 text-sm capitalize">{type.escrow_type.replace(/_/g, ' ').toLowerCase()}</div>
+                    <div key={type.escrow_type} style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                      <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', marginBottom: 4 }}>{type.count}</div>
+                      <div className="loom-eyebrow">{type.escrow_type.replace(/_/g, ' ').toLowerCase()}</div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-paper-65">No escrow configurations yet</p>
+                <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)' }}>No escrow configurations yet</p>
               )}
-            </div>
+            </Panel>
 
-            {/* Zero-Knowledge Info */}
-            <div className="bg-void-surface border border-gold-40 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4 text-gold">Zero-Knowledge Architecture</h3>
-              <div className="space-y-3 text-paper-70">
-                <p>
-                  Heirloom uses true zero-knowledge encryption. User data is encrypted client-side using AES-256-GCM 
-                  before upload. The server never sees plaintext content.
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>Encryption keys are derived from user passphrases using PBKDF2 (100,000 iterations)</li>
-                  <li>Master keys are encrypted before storage - we cannot decrypt them</li>
-                  <li>Shamir Secret Sharing allows key recovery through trusted contacts</li>
-                  <li>All encryption/decryption happens in the browser</li>
-                </ul>
-              </div>
-            </div>
+            <Panel>
+              <p className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 12 }}>Zero-Knowledge Architecture</p>
+              <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginBottom: 12 }}>
+                Heirloom uses true zero-knowledge encryption. User data is encrypted client-side using AES-256-GCM before upload. The server never sees plaintext content.
+              </p>
+              <ul style={{ margin: 0, padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {[
+                  'Encryption keys are derived from user passphrases using PBKDF2 (100,000 iterations)',
+                  'Master keys are encrypted before storage — we cannot decrypt them',
+                  'Shamir Secret Sharing allows key recovery through trusted contacts',
+                  'All encryption/decryption happens in the browser',
+                ].map((item) => (
+                  <li key={item} className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>{item}</li>
+                ))}
+              </ul>
+            </Panel>
           </div>
         )}
 
@@ -660,821 +564,370 @@ export function AdminDashboard() {
 
         {/* Coupons Tab */}
         {activeTab === 'coupons' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-body font-light text-xl">Coupon Management</h2>
-              <button
-                onClick={() => setShowCouponModal(true)}
-                className="btn btn-primary"
-              >
-                Create Coupon
-              </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p className="loom-eyebrow">Coupon Management</p>
+              <button className="loom-btn" onClick={() => setShowCouponModal(true)}>Create Coupon</button>
             </div>
-
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-paper-15">
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Code</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Discount</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Uses</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Valid Until</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {coupons?.map((coupon: any) => (
-                    <CouponRow key={coupon.id} coupon={coupon} />
-                  ))}
-                  {(!coupons || coupons.length === 0) && (
-                    <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper-65">
-                        No coupons created yet
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <Panel>
+              <LedgerTable cols={['Code', 'Discount', 'Uses', 'Valid Until', 'Status', 'Actions']} empty="No coupons created yet">
+                {coupons?.map((coupon: any) => <CouponRow key={coupon.id} coupon={coupon} />)}
+              </LedgerTable>
+            </Panel>
           </div>
         )}
 
         {/* Gift Vouchers Tab */}
         {activeTab === 'vouchers' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-body font-light text-xl">Gift Voucher Management</h2>
-              <button
-                onClick={() => setShowVoucherModal(true)}
-                className="btn btn-primary"
-              >
-                Create Voucher
-              </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p className="loom-eyebrow">Gift Voucher Management</p>
+              <button className="loom-btn" onClick={() => setShowVoucherModal(true)}>Create Voucher</button>
             </div>
 
-            {/* Voucher Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="font-mono text-2xl text-gold">{voucherStats?.stats?.total || 0}</div>
-                <div className="text-paper-65 text-sm">Total Vouchers</div>
-              </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="font-mono text-2xl text-paper">{voucherStats?.stats?.sent || 0}</div>
-                <div className="text-paper-65 text-sm">Sent</div>
-              </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="font-mono text-2xl text-gold">{voucherStats?.stats?.redeemed || 0}</div>
-                <div className="text-paper-65 text-sm">Redeemed</div>
-              </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="font-mono text-2xl text-gold">${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}</div>
-                <div className="text-paper-65 text-sm">Total Revenue</div>
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+              {[
+                { v: voucherStats?.stats?.total || 0, l: 'Total', accent: true },
+                { v: voucherStats?.stats?.sent || 0, l: 'Sent', accent: false },
+                { v: voucherStats?.stats?.redeemed || 0, l: 'Redeemed', accent: true },
+                { v: `$${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}`, l: 'Revenue', accent: true },
+              ].map(({ v, l, accent }) => (
+                <div key={l} style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: accent ? 'var(--loom-warm)' : 'var(--loom-bone)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-eyebrow">{l}</div>
+                </div>
+              ))}
             </div>
 
-            {/* Vouchers Table */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-body font-light text-lg text-paper">All Vouchers</h3>
-                <button onClick={() => refetchVouchers()} className="text-paper-65 hover:text-gold transition-colors text-sm">
-                  Refresh
-                </button>
+            <Panel>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <p className="loom-eyebrow">All Vouchers</p>
+                <button className="loom-btn-ghost" onClick={() => refetchVouchers()}>Refresh</button>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-paper-15">
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Code</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Tier</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Purchaser</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Recipient</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                      <th className="text-left py-3 px-4 text-paper-65 font-normal">Created</th>
-                      <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
+              <div style={{ overflowX: 'auto' }}>
+                <LedgerTable cols={['Code', 'Tier', 'Purchaser', 'Recipient', 'Status', 'Created', 'Actions']} empty="No gift vouchers created yet">
+                  {giftVouchers?.vouchers?.map((voucher: any) => (
+                    <tr key={voucher.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                      <td style={tdStyle}>
+                        <span className="loom-mono" style={{ color: 'var(--loom-warm)', fontSize: 12 }}>{voucher.code}</span>
+                        {' '}
+                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => { navigator.clipboard.writeText(voucher.code); alert('Copied'); }}>copy</button>
+                      </td>
+                      <td style={tdStyle}><StatusWord value={voucher.tier} /></td>
+                      <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{voucher.purchaser_email}</td>
+                      <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{voucher.recipient_email || '—'}</td>
+                      <td style={tdStyle}><StatusWord value={voucher.status} /></td>
+                      <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{new Date(voucher.created_at).toLocaleDateString()}</td>
+                      <td style={{ ...tdStyle, textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                          {voucher.status === 'PAID' && voucher.recipient_email && (
+                            <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={async () => { const token = localStorage.getItem('adminToken'); await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/${voucher.id}/resend`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }); alert('Resent'); }}>Resend</button>
+                          )}
+                          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gift/redeem?code=${voucher.code}`); alert('Copied'); }}>Link</button>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {giftVouchers?.vouchers?.map((voucher: any) => (
-                      <tr key={voucher.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-gold">{voucher.code}</span>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(voucher.code);
-                                alert('Code copied!');
-                              }}
-                              className="text-paper-65 hover:text-gold transition-colors text-xs"
-                              aria-label="Copy code"
-                            >
-                              Copy
-                            </button>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                            voucher.tier === 'FOREVER' ? 'border-gold-40 text-gold' :
-                            'border-paper-15 text-paper-70'
-                          }`}>
-                            {voucher.tier}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-paper-70 text-sm">{voucher.purchaser_email}</td>
-                        <td className="py-3 px-4 text-paper-70 text-sm">{voucher.recipient_email || '-'}</td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                            voucher.status === 'REDEEMED' ? 'border-gold-40 text-gold' :
-                            voucher.status === 'PAID' ? 'border-gold-40 text-gold' :
-                            voucher.status === 'EXPIRED' ? 'border-blood text-blood' :
-                            'border-paper-15 text-paper-70'
-                          }`}>
-                            {voucher.status}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-paper-65 text-sm">
-                          {new Date(voucher.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-3">
-                            {voucher.status === 'PAID' && voucher.recipient_email && (
-                              <button
-                                onClick={async () => {
-                                  const token = localStorage.getItem('adminToken');
-                                  await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/${voucher.id}/resend`, {
-                                    method: 'POST',
-                                    headers: { Authorization: `Bearer ${token}` },
-                                  });
-                                  alert('Email resent!');
-                                }}
-                                className="text-paper-65 hover:text-gold transition-colors text-xs"
-                                aria-label="Resend email"
-                              >
-                                Resend
-                              </button>
-                            )}
-                            <button
-                              onClick={() => {
-                                const url = `${window.location.origin}/gift/redeem?code=${voucher.code}`;
-                                navigator.clipboard.writeText(url);
-                                alert('Redemption link copied!');
-                              }}
-                              className="text-paper-65 hover:text-gold transition-colors text-xs"
-                              aria-label="Copy redemption link"
-                            >
-                              Link
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {(!giftVouchers?.vouchers || giftVouchers.vouchers.length === 0) && (
-                      <tr>
-                        <td colSpan={7} className="text-center py-8 text-paper-65">
-                          No gift vouchers created yet
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                  ))}
+                </LedgerTable>
               </div>
-            </div>
+            </Panel>
           </div>
         )}
 
         {/* Gold Legacy Tab */}
         {activeTab === 'gold-legacy' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <h2 className="font-body font-light text-xl text-gold">Gold Legacy Circle</h2>
-                <p className="text-paper-65 text-sm mt-1">Exclusive lifetime access vouchers for VIP members</p>
+                <p className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 4 }}>Gold Legacy Circle</p>
+                <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>Exclusive lifetime access vouchers for VIP members</p>
               </div>
-              <button
-                onClick={() => setShowGoldLegacyModal(true)}
-                className="btn btn-primary"
-              >
-                Create Gold Legacy Voucher
-              </button>
+              <button className="loom-btn" onClick={() => setShowGoldLegacyModal(true)}>Create Gold Legacy Voucher</button>
             </div>
 
-            {/* Gold Legacy Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-void-surface border border-gold-40 rounded-[2px] p-4">
-                <div className="font-mono text-2xl text-gold">{goldLegacyVouchers?.total || 0}</div>
-                <div className="text-paper-65 text-sm">Total Gold Legacy</div>
-              </div>
-              <div className="bg-void-surface border border-gold-40 rounded-[2px] p-4">
-                <div className="font-mono text-2xl text-gold">
-                  {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'REDEEMED').length || 0}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule-warm)' }}>
+              {[
+                { v: goldLegacyVouchers?.total || 0, l: 'Total Gold Legacy' },
+                { v: goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'REDEEMED').length || 0, l: 'Redeemed' },
+                { v: goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'SENT' || v.status === 'PAID').length || 0, l: 'Pending' },
+              ].map(({ v, l }) => (
+                <div key={l} style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-eyebrow">{l}</div>
                 </div>
-                <div className="text-paper-65 text-sm">Redeemed</div>
-              </div>
-              <div className="bg-void-surface border border-gold-40 rounded-[2px] p-4">
-                <div className="font-mono text-2xl text-paper">
-                  {goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'SENT' || v.status === 'PAID').length || 0}
-                </div>
-                <div className="text-paper-65 text-sm">Pending</div>
-              </div>
+              ))}
             </div>
 
-            {/* Gold Legacy Vouchers Table */}
-            <div className="bg-void-surface border border-gold-40 rounded-[2px] p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-body font-light text-lg text-gold">Gold Legacy Members</h3>
-                <button onClick={() => refetchGoldLegacy()} className="text-paper-65 hover:text-gold transition-colors text-sm">
-                  Refresh
-                </button>
+            <Panel>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <p className="loom-eyebrow" style={{ color: 'var(--loom-warm)' }}>Gold Legacy Members</p>
+                <button className="loom-btn-ghost" onClick={() => refetchGoldLegacy()}>Refresh</button>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gold-40">
-                      <th className="text-left py-3 px-4 text-gold font-normal">Member #</th>
-                      <th className="text-left py-3 px-4 text-gold font-normal">Code</th>
-                      <th className="text-left py-3 px-4 text-gold font-normal">Recipient</th>
-                      <th className="text-left py-3 px-4 text-gold font-normal">Status</th>
-                      <th className="text-left py-3 px-4 text-gold font-normal">Created</th>
-                      <th className="text-right py-3 px-4 text-gold font-normal">Actions</th>
+              <div style={{ overflowX: 'auto' }}>
+                <LedgerTable cols={['Member #', 'Code', 'Recipient', 'Status', 'Created', 'Actions']} empty="No Gold Legacy vouchers created yet">
+                  {goldLegacyVouchers?.vouchers?.map((voucher: any) => (
+                    <tr key={voucher.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                      <td className="loom-mono" style={{ ...tdStyle, color: 'var(--loom-warm)', fontSize: 12 }}>{voucher.gold_member_number || '—'}</td>
+                      <td style={tdStyle}>
+                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)' }}>{voucher.code}</span>
+                        {' '}
+                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => { navigator.clipboard.writeText(voucher.code); alert('Copied'); }}>copy</button>
+                      </td>
+                      <td style={tdStyle}>
+                        <div style={{ color: 'var(--loom-bone)' }}>{voucher.recipient_name || '—'}</div>
+                        <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>{voucher.recipient_email || '—'}</div>
+                      </td>
+                      <td style={tdStyle}><StatusWord value={voucher.status} /></td>
+                      <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{new Date(voucher.created_at).toLocaleDateString()}</td>
+                      <td style={{ ...tdStyle, textAlign: 'right' }}>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gold/redeem?code=${voucher.code}`); alert('Copied'); }}>Link</button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {goldLegacyVouchers?.vouchers?.map((voucher: any) => (
-                      <tr key={voucher.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                        <td className="py-3 px-4">
-                          <span className="font-mono text-gold">{voucher.gold_member_number || '-'}</span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-paper-70">{voucher.code}</span>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(voucher.code);
-                                alert('Code copied!');
-                              }}
-                              className="text-paper-65 hover:text-gold transition-colors text-xs"
-                              aria-label="Copy code"
-                            >
-                              Copy
-                            </button>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="text-paper">{voucher.recipient_name || '-'}</div>
-                          <div className="text-paper-65 text-sm">{voucher.recipient_email || '-'}</div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                            voucher.status === 'REDEEMED' ? 'border-gold-40 text-gold' :
-                            voucher.status === 'SENT' ? 'border-paper-15 text-paper-70' :
-                            'border-gold-40 text-gold'
-                          }`}>
-                            {voucher.status}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-paper-65 text-sm">
-                          {new Date(voucher.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => {
-                                const url = `${window.location.origin}/gold/redeem?code=${voucher.code}`;
-                                navigator.clipboard.writeText(url);
-                                alert('Gold Legacy redemption link copied!');
-                              }}
-                              className="text-paper-65 hover:text-gold transition-colors text-xs"
-                              aria-label="Copy redemption link"
-                            >
-                              Link
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {(!goldLegacyVouchers?.vouchers || goldLegacyVouchers.vouchers.length === 0) && (
-                      <tr>
-                        <td colSpan={6} className="text-center py-8 text-paper-65">
-                          No Gold Legacy vouchers created yet
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                  ))}
+                </LedgerTable>
               </div>
-            </div>
+            </Panel>
           </div>
         )}
 
         {/* Billing Tab */}
         {activeTab === 'billing' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-body font-light text-xl">Billing Analysis & Error Management</h2>
-              <button
-                onClick={() => adminApi.notifyAllFailedBilling().then(() => alert('Notifications sent!'))}
-                className="btn btn-primary"
-              >
-                Notify All Failed
-              </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p className="loom-eyebrow">Billing Analysis &amp; Error Management</p>
+              <button className="loom-btn" onClick={() => adminApi.notifyAllFailedBilling().then(() => alert('Notifications sent!'))}>Notify All Failed</button>
             </div>
 
-            {/* Billing Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-2xl text-blood">{billingStats?.failed || 0}</div>
-                <div className="text-paper-65 text-sm">Failed Payments</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+              <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: '#c25a5a', marginBottom: 4 }}>{billingStats?.failed || 0}</div>
+                <div className="loom-eyebrow">Failed</div>
               </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-2xl text-gold">{billingStats?.pendingRetry || 0}</div>
-                <div className="text-paper-65 text-sm">Pending Retry</div>
+              <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>{billingStats?.pendingRetry || 0}</div>
+                <div className="loom-eyebrow">Pending Retry</div>
               </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-2xl text-gold">{billingStats?.resolved || 0}</div>
-                <div className="text-paper-65 text-sm">Resolved</div>
+              <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>{billingStats?.resolved || 0}</div>
+                <div className="loom-eyebrow">Resolved</div>
               </div>
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4">
-                <div className="text-2xl text-paper-70">{billingStats?.last24Hours || 0}</div>
-                <div className="text-paper-65 text-sm">Last 24 Hours</div>
+              <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone-dim)', marginBottom: 4 }}>{billingStats?.last24Hours || 0}</div>
+                <div className="loom-eyebrow">Last 24 Hours</div>
               </div>
             </div>
 
-            {/* Billing Errors Table */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Billing Errors</h3>
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-paper-15">
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Error Type</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Amount</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Retries</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Date</th>
-                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
+            <Panel title="Billing Errors">
+              <LedgerTable cols={['User', 'Error Type', 'Amount', 'Status', 'Retries', 'Date', 'Actions']} empty="No billing errors — all payments processing successfully">
+                {billingErrors?.data?.map((error: any) => (
+                  <tr key={error.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                    <td style={tdStyle}>
+                      <div style={{ color: 'var(--loom-bone)' }}>{error.userName}</div>
+                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{error.userEmail}</div>
+                    </td>
+                    <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: '#c25a5a' }}>{error.errorType?.replace(/_/g, ' ')}</span></td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-dim)' }}>${((error.amount || 0) / 100).toFixed(2)} {error.currency}</td>
+                    <td style={tdStyle}><StatusWord value={error.status} /></td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{error.retryCount || 0}</td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{new Date(error.createdAt).toLocaleDateString()}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.notifyBillingError(error.id).then(() => alert('Sent!'))}>Notify</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.reprocessBillingError(error.id).then(() => alert('Initiated!'))}>Reprocess</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => adminApi.resolveBillingError(error.id, { resolution: 'Manually resolved' }).then(() => alert('Resolved!'))}>Resolve</button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {billingErrors?.data?.map((error: any) => (
-                    <tr key={error.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="text-paper">{error.userName}</div>
-                        <div className="text-paper-65 text-sm">{error.userEmail}</div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-1 text-xs border border-blood text-blood rounded-[2px]">
-                          {error.errorType?.replace(/_/g, ' ')}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-paper-70">
-                        ${((error.amount || 0) / 100).toFixed(2)} {error.currency}
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                          error.status === 'FAILED' ? 'border-blood text-blood' :
-                          error.status === 'PENDING_RETRY' ? 'border-gold-40 text-gold' :
-                          'border-gold-40 text-gold'
-                        }`}>
-                          {error.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-paper-65">{error.retryCount || 0}</td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {new Date(error.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-3">
-                          <button
-                            onClick={() => adminApi.notifyBillingError(error.id).then(() => alert('Notification sent!'))}
-                            className="text-paper-65 hover:text-gold transition-colors text-xs"
-                            aria-label="Notify user"
-                          >
-                            Notify
-                          </button>
-                          <button
-                            onClick={() => adminApi.reprocessBillingError(error.id).then(() => alert('Reprocessing initiated!'))}
-                            className="text-paper-65 hover:text-paper transition-colors text-xs"
-                            aria-label="Reprocess payment"
-                          >
-                            Reprocess
-                          </button>
-                          <button
-                            onClick={() => adminApi.resolveBillingError(error.id, { resolution: 'Manually resolved' }).then(() => alert('Marked as resolved!'))}
-                            className="text-paper-65 hover:text-gold transition-colors text-xs"
-                            aria-label="Mark resolved"
-                          >
-                            Resolve
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {(!billingErrors?.data || billingErrors.data.length === 0) && (
-                    <tr>
-                      <td colSpan={7} className="text-center py-8 text-paper-65">
-                        No billing errors found - all payments are processing successfully
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </LedgerTable>
+            </Panel>
           </div>
         )}
 
         {/* Users Tab */}
         {activeTab === 'users' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-body font-light text-xl">User Management</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p className="loom-eyebrow">User Management</p>
               <input
                 type="text"
                 placeholder="Search users…"
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
-                className="input w-64"
+                style={{
+                  background: 'var(--loom-ink-card)', border: '1px solid var(--loom-rule)',
+                  borderRadius: 2, padding: '6px 12px', color: 'var(--loom-bone)',
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 12, width: 220,
+                  outline: 'none',
+                }}
               />
             </div>
-
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-paper-15">
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Subscription</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Email Status</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Joined</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Last Active</th>
-                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
+            <Panel>
+              <LedgerTable cols={['User', 'Subscription', 'Email Status', 'Joined', 'Last Active', 'Actions']} empty={userSearch ? `No users matching "${userSearch}"` : 'No users found'}>
+                {users?.data?.map((user: any) => (
+                  <tr key={user.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                    <td style={tdStyle}>
+                      <div style={{ color: 'var(--loom-bone)' }}>{user.firstName} {user.lastName}</div>
+                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{user.email}</div>
+                    </td>
+                    <td style={tdStyle}>
+                      <StatusWord value={user.tier || 'FREE'} />
+                      <div className="loom-mono" style={{ fontSize: 10, color: user.subscriptionStatus === 'ACTIVE' || user.subscriptionStatus === 'TRIALING' ? 'var(--loom-warm)' : 'var(--loom-bone-faint)', marginTop: 2 }}>{user.subscriptionStatus || 'None'}</div>
+                    </td>
+                    <td style={tdStyle}>
+                      <span className="loom-mono" style={{ fontSize: 11, color: user.emailVerified ? 'var(--loom-warm)' : '#c25a5a' }}>{user.emailVerified ? 'VERIFIED' : 'UNVERIFIED'}</span>
+                    </td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                      <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => setSelectedUser(user)}>Manage</button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {users?.data?.map((user: any) => (
-                    <tr key={user.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="text-paper">{user.firstName} {user.lastName}</div>
-                        <div className="text-paper-65 text-sm">{user.email}</div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex flex-col gap-1">
-                          <span className={`px-2 py-1 text-xs inline-block w-fit border rounded-[2px] ${
-                            user.tier === 'FOREVER' ? 'border-paper-15 text-paper-70' :
-                            user.tier === 'FAMILY' ? 'border-gold-40 text-gold' :
-                            user.tier === 'STARTER' ? 'border-paper-15 text-paper-70' :
-                            'border-paper-15 text-paper-65'
-                          }`}>
-                            {user.tier || 'FREE'}
-                          </span>
-                          <span className={`text-xs ${
-                            user.subscriptionStatus === 'ACTIVE' ? 'text-gold' :
-                            user.subscriptionStatus === 'TRIALING' ? 'text-gold' :
-                            'text-paper-65'
-                          }`}>
-                            {user.subscriptionStatus || 'None'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${user.emailVerified ? 'border-gold-40 text-gold' : 'border-blood text-blood'}`}>
-                          {user.emailVerified ? 'Verified' : 'Unverified'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedUser(user)}
-                          className="text-paper-65 hover:text-gold transition-colors text-xs"
-                          aria-label="Manage user"
-                        >
-                          Manage
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {(!users?.data || users.data.length === 0) && (
-                    <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper-65">
-                        {userSearch ? `No users found matching "${userSearch}"` : 'No users found'}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                ))}
+              </LedgerTable>
               {users?.pagination && (
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-paper-15">
-                  <span className="text-paper-65 text-sm">
-                    Showing {users.data?.length || 0} of {users.pagination.total} users (Page {users.pagination.page} of {users.pagination.totalPages})
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--loom-rule)' }}>
+                  <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                    {users.data?.length || 0} of {users.pagination.total} · page {users.pagination.page} / {users.pagination.totalPages}
                   </span>
                 </div>
               )}
-            </div>
+            </Panel>
           </div>
         )}
 
         {/* Support Tab */}
         {activeTab === 'support' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-body font-light text-xl">Support Tickets</h2>
-              <div className="flex gap-2">
-                <span className="px-3 py-1 border border-gold-40 text-gold text-sm rounded-[2px]">
-                  {tickets?.data?.filter((t: any) => t.status === 'OPEN').length || 0} Open
-                </span>
-                <span className="px-3 py-1 border border-paper-15 text-paper-70 text-sm rounded-[2px]">
-                  {tickets?.data?.filter((t: any) => t.status === 'IN_PROGRESS').length || 0} In Progress
-                </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p className="loom-eyebrow">Support Tickets</p>
+              <div style={{ display: 'flex', gap: 16 }}>
+                <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)' }}>{tickets?.data?.filter((t: any) => t.status === 'OPEN').length || 0} OPEN</span>
+                <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>{tickets?.data?.filter((t: any) => t.status === 'IN_PROGRESS').length || 0} IN PROGRESS</span>
               </div>
             </div>
-
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-paper-15">
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Subject</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">User</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Priority</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Created</th>
-                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
+            <Panel>
+              <LedgerTable cols={['Subject', 'User', 'Priority', 'Status', 'Created', 'Actions']} empty="No support tickets">
+                {tickets?.data?.map((ticket: any) => (
+                  <tr key={ticket.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                    <td style={tdStyle}>
+                      <div style={{ color: 'var(--loom-bone)' }}>{ticket.subject}</div>
+                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{ticket.category}</div>
+                    </td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{ticket.user?.email || ticket.email}</td>
+                    <td style={tdStyle}>
+                      <span className="loom-mono" style={{ fontSize: 11, color: ticket.priority === 'HIGH' ? '#c25a5a' : ticket.priority === 'MEDIUM' ? 'var(--loom-warm)' : 'var(--loom-bone-faint)' }}>{ticket.priority}</span>
+                    </td>
+                    <td style={tdStyle}><StatusWord value={ticket.status} /></td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{new Date(ticket.createdAt).toLocaleDateString()}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                      <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => setSelectedTicket(ticket.id)}>View</button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {tickets?.data?.map((ticket: any) => (
-                    <tr key={ticket.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="text-paper">{ticket.subject}</div>
-                        <div className="text-paper-65 text-sm">{ticket.category}</div>
-                      </td>
-                      <td className="py-3 px-4 text-paper-70">{ticket.user?.email || ticket.email}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                          ticket.priority === 'HIGH' ? 'border-blood text-blood' :
-                          ticket.priority === 'MEDIUM' ? 'border-gold-40 text-gold' :
-                          'border-paper-15 text-paper-65'
-                        }`}>
-                          {ticket.priority}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                          ticket.status === 'OPEN' ? 'border-gold-40 text-gold' :
-                          ticket.status === 'IN_PROGRESS' ? 'border-paper-15 text-paper-70' :
-                          ticket.status === 'RESOLVED' ? 'border-gold-40 text-gold' :
-                          'border-paper-15 text-paper-65'
-                        }`}>
-                          {ticket.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {new Date(ticket.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedTicket(ticket.id)}
-                          className="text-paper-65 hover:text-gold transition-colors text-xs"
-                          aria-label="View ticket"
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {(!tickets?.data || tickets.data.length === 0) && (
-                    <tr>
-                      <td colSpan={6} className="text-center py-8 text-paper-65">
-                        No support tickets
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </LedgerTable>
+            </Panel>
           </div>
         )}
 
         {/* System Health Tab */}
         {activeTab === 'system' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-body font-light text-xl">System Health</h2>
-              <span className="px-3 py-1 text-sm border border-gold-40 text-gold rounded-[2px]">
-                {systemHealth?.status || 'Unknown'}
-              </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p className="loom-eyebrow">System Health</p>
+              <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.12em' }}>{(systemHealth?.status || 'UNKNOWN').toUpperCase()}</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {systemHealth?.checks && Object.entries(systemHealth.checks).map(([key, value]) => (
-                key !== 'timestamp' && (
-                  <div key={key} className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                    <div className="flex items-center justify-between">
-                      <span className="text-paper capitalize">{key}</span>
-                      <span className={value === 'healthy' ? 'text-gold' : 'text-blood'}>
-                        {value as string}
-                      </span>
-                    </div>
+            {systemHealth?.checks && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+                {Object.entries(systemHealth.checks).filter(([k]) => k !== 'timestamp').map(([key, value]) => (
+                  <div key={key} style={{ padding: '16px 20px', background: 'var(--loom-ink-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--loom-bone-dim)', textTransform: 'capitalize', fontSize: 13 }}>{key}</span>
+                    <span className="loom-mono" style={{ fontSize: 11, color: value === 'healthy' ? 'var(--loom-warm)' : '#c25a5a' }}>{(value as string).toUpperCase()}</span>
                   </div>
-                )
-              ))}
-            </div>
-
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">System Statistics</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">{systemStats?.users || 0}</div>
-                  <div className="text-paper-65 text-sm">Total Users</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">{systemStats?.openTickets || 0}</div>
-                  <div className="text-paper-65 text-sm">Open Tickets</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">
-                    {((systemStats?.storage?.total || 0) / (1024 * 1024 * 1024)).toFixed(2)} GB
-                  </div>
-                  <div className="text-paper-65 text-sm">Storage Used</div>
-                </div>
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
-                  <div className="text-2xl text-paper mb-1">
-                    {(systemStats?.content?.memories || 0) + (systemStats?.content?.letters || 0)}
-                  </div>
-                  <div className="text-paper-65 text-sm">Total Content</div>
-                </div>
+                ))}
               </div>
-            </div>
+            )}
+
+            <Panel title="System Statistics">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--loom-rule)' }}>
+                {[
+                  { v: systemStats?.users || 0, l: 'Total Users' },
+                  { v: systemStats?.openTickets || 0, l: 'Open Tickets' },
+                  { v: `${((systemStats?.storage?.total || 0) / (1024 * 1024 * 1024)).toFixed(2)} GB`, l: 'Storage Used' },
+                  { v: (systemStats?.content?.memories || 0) + (systemStats?.content?.letters || 0), l: 'Total Content' },
+                ].map(({ v, l }) => (
+                  <div key={l} style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', marginBottom: 4 }}>{v}</div>
+                    <div className="loom-eyebrow">{l}</div>
+                  </div>
+                ))}
+              </div>
+            </Panel>
           </div>
         )}
 
         {/* Audit Logs Tab */}
         {activeTab === 'audit' && (
-          <div className="space-y-6">
-            <h2 className="font-body font-light text-xl">Audit Logs</h2>
-
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-paper-15">
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Action</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Admin</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Details</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Time</th>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <p className="loom-eyebrow">Audit Logs</p>
+            <Panel>
+              <LedgerTable cols={['Action', 'Admin', 'Details', 'Time']} empty="No audit logs">
+                {auditLogs?.data?.map((log: any) => (
+                  <tr key={log.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                    <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone)' }}>{log.action}</span></td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{log.admin?.email || 'System'}</td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 10, color: 'var(--loom-bone-faint)' }}>{log.details ? JSON.stringify(log.details).substring(0, 50) : '—'}</td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{new Date(log.createdAt).toLocaleString()}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {auditLogs?.data?.map((log: any) => (
-                    <tr key={log.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-1 border border-paper-15 text-paper text-xs rounded-[2px]">
-                          {log.action}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-paper-70">{log.admin?.email || 'System'}</td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {log.details ? JSON.stringify(log.details).substring(0, 50) : '-'}
-                      </td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {new Date(log.createdAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                  {(!auditLogs?.data || auditLogs.data.length === 0) && (
-                    <tr>
-                      <td colSpan={4} className="text-center py-8 text-paper-65">
-                        No audit logs
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </LedgerTable>
+            </Panel>
           </div>
         )}
 
         {/* Admin Users Tab */}
         {activeTab === 'admins' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="font-body font-light text-xl">Admin Users</h2>
-              {admin.role === 'SUPER_ADMIN' && (
-                <button
-                  onClick={() => setShowAdminModal(true)}
-                  className="btn btn-primary"
-                >
-                  Add Admin
-                </button>
-              )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p className="loom-eyebrow">Admin Users</p>
+              {admin.role === 'SUPER_ADMIN' && <button className="loom-btn" onClick={() => setShowAdminModal(true)}>Add Admin</button>}
             </div>
-
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-paper-15">
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Name</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Email</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Role</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Last Login</th>
+            <Panel>
+              <LedgerTable cols={['Name', 'Email', 'Role', 'Status', 'Last Login']} empty="No admin users">
+                {adminUsers?.map((adminUser: any) => (
+                  <tr key={adminUser.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                    <td style={{ ...tdStyle, color: 'var(--loom-bone)' }}>{adminUser.firstName} {adminUser.lastName}</td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{adminUser.email}</td>
+                    <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: adminUser.role === 'SUPER_ADMIN' ? 'var(--loom-warm)' : 'var(--loom-bone-faint)' }}>{adminUser.role}</span></td>
+                    <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: adminUser.isActive ? 'var(--loom-warm)' : '#c25a5a' }}>{adminUser.isActive ? 'ACTIVE' : 'INACTIVE'}</span></td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{adminUser.lastLoginAt ? new Date(adminUser.lastLoginAt).toLocaleString() : 'Never'}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {adminUsers?.map((adminUser: any) => (
-                    <tr key={adminUser.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4 text-paper">
-                        {adminUser.firstName} {adminUser.lastName}
-                      </td>
-                      <td className="py-3 px-4 text-paper-70">{adminUser.email}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                          adminUser.role === 'SUPER_ADMIN' ? 'border-gold-40 text-gold' :
-                          'border-paper-15 text-paper-70'
-                        }`}>
-                          {adminUser.role}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                          adminUser.isActive ? 'border-gold-40 text-gold' : 'border-blood text-blood'
-                        }`}>
-                          {adminUser.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {adminUser.lastLoginAt ? new Date(adminUser.lastLoginAt).toLocaleString() : 'Never'}
-                      </td>
-                    </tr>
-                  ))}
-                  {(!adminUsers || adminUsers.length === 0) && (
-                    <tr>
-                      <td colSpan={5} className="text-center py-8 text-paper-65">
-                        No admin users
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </LedgerTable>
+            </Panel>
           </div>
         )}
 
         {/* Emails Tab */}
         {activeTab === 'emails' && (
-          <div className="space-y-6">
-            <h2 className="font-body font-light text-xl">Email Management</h2>
-
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-paper-15">
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">To</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Subject</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Status</th>
-                    <th className="text-left py-3 px-4 text-paper-65 font-normal">Sent</th>
-                    <th className="text-right py-3 px-4 text-paper-65 font-normal">Actions</th>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <p className="loom-eyebrow">Email Management</p>
+            <Panel>
+              <LedgerTable cols={['To', 'Subject', 'Status', 'Sent', 'Actions']} empty="No email logs">
+                {emailLogs?.data?.map((email: any) => (
+                  <tr key={email.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-dim)' }}>{email.to}</td>
+                    <td style={{ ...tdStyle, color: 'var(--loom-bone)' }}>{email.subject}</td>
+                    <td style={tdStyle}><StatusWord value={email.status} /></td>
+                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{email.sentAt ? new Date(email.sentAt).toLocaleString() : '—'}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right' }}>
+                      <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => setSelectedEmail(email.id)}>View</button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {emailLogs?.data?.map((email: any) => (
-                    <tr key={email.id} className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-                      <td className="py-3 px-4 text-paper-70">{email.to}</td>
-                      <td className="py-3 px-4 text-paper">{email.subject}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-                          email.status === 'SENT' ? 'border-gold-40 text-gold' :
-                          email.status === 'FAILED' ? 'border-blood text-blood' :
-                          'border-gold-40 text-gold'
-                        }`}>
-                          {email.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-paper-65 text-sm">
-                        {email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedEmail(email.id)}
-                          className="text-paper-65 hover:text-gold transition-colors text-xs"
-                          aria-label="View email details"
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {(!emailLogs?.data || emailLogs.data.length === 0) && (
-                    <tr>
-                      <td colSpan={5} className="text-center py-8 text-paper-65">
-                        No email logs
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </LedgerTable>
+            </Panel>
           </div>
         )}
 
@@ -1485,120 +938,66 @@ export function AdminDashboard() {
 
         {/* Reports Tab */}
         {activeTab === 'reports' && (
-          <div className="space-y-6">
-            <h2 className="font-body font-light text-xl">Reports & Analytics</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <p className="loom-eyebrow">Reports &amp; Analytics</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Revenue Report */}
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                <h3 className="font-body font-light text-lg mb-4">Revenue Report</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-void-elevated rounded-[2px]">
-                    <span className="text-paper-70">Monthly Recurring Revenue</span>
-                    <span className="text-gold text-xl">${revenueReport?.mrr?.toFixed(2) || '0.00'}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-void-elevated rounded-[2px]">
-                    <span className="text-paper-70">Annual Recurring Revenue</span>
-                    <span className="text-gold text-xl">${revenueReport?.arr?.toFixed(2) || '0.00'}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-void-elevated rounded-[2px]">
-                    <span className="text-paper-70">Active Subscriptions</span>
-                    <span className="text-paper text-xl">{revenueReport?.activeSubscriptions || 0}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* User Growth */}
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                <h3 className="font-body font-light text-lg mb-4">User Growth (Last 30 Days)</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-void-elevated rounded-[2px]">
-                    <span className="text-paper-70">Total New Signups</span>
-                    <span className="text-gold text-xl">{userGrowth?.totalSignups || 0}</span>
-                  </div>
-                  <div className="mt-4">
-                    <div className="text-paper-65 text-sm mb-2">Daily Signups</div>
-                    <div className="flex gap-1 h-20 items-end">
-                      {userGrowth?.data?.slice(-14).map((day: any, i: number) => (
-                        <div
-                          key={i}
-                          className="flex-1 bg-gold/50"
-                          style={{ height: `${Math.max(10, (day.signups / Math.max(...(userGrowth?.data?.map((d: any) => d.signups) || [1]))) * 100)}%` }}
-                          title={`${day.date}: ${day.signups} signups`}
-                        />
-                      ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+              <Panel title="Revenue Report">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid var(--loom-rule)' }}>
+                  {[
+                    { l: 'Monthly Recurring Revenue', v: `$${revenueReport?.mrr?.toFixed(2) || '0.00'}`, accent: true },
+                    { l: 'Annual Recurring Revenue', v: `$${revenueReport?.arr?.toFixed(2) || '0.00'}`, accent: true },
+                    { l: 'Active Subscriptions', v: revenueReport?.activeSubscriptions || 0, accent: false },
+                  ].map(({ l, v, accent }) => (
+                    <div key={l} style={{ padding: '12px 16px', background: 'var(--loom-ink-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)' }}>{l}</span>
+                      <span className="loom-serif" style={{ fontSize: 20, fontWeight: 300, color: accent ? 'var(--loom-warm)' : 'var(--loom-bone)' }}>{v}</span>
                     </div>
+                  ))}
+                </div>
+              </Panel>
+
+              <Panel title="User Growth · Last 30 Days">
+                <div style={{ padding: '12px 16px', background: 'var(--loom-ink-card)', marginBottom: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--loom-rule)' }}>
+                  <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)' }}>Total New Signups</span>
+                  <span className="loom-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-warm)' }}>{userGrowth?.totalSignups || 0}</span>
+                </div>
+                <div style={{ marginTop: 16 }}>
+                  <div className="loom-eyebrow" style={{ marginBottom: 8 }}>Daily Signups</div>
+                  <div style={{ display: 'flex', gap: 2, height: 64, alignItems: 'flex-end' }}>
+                    {(() => {
+                      const vals = userGrowth?.data?.slice(-14) || [];
+                      const maxSig = Math.max(...vals.map((d: any) => d.signups), 1);
+                      return vals.map((day: any, i: number) => (
+                        <div key={i} style={{ flex: 1, background: 'var(--loom-warm)', opacity: 0.6, height: `${Math.max(10, (day.signups / maxSig) * 100)}%` }} title={`${day.date}: ${day.signups}`} />
+                      ));
+                    })()}
                   </div>
                 </div>
-              </div>
+              </Panel>
             </div>
 
-            {/* Export Button */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-              <h3 className="font-body font-light text-lg mb-4">Export Data</h3>
-              <p className="text-paper-65 text-sm mb-4">Download user data for reporting and analysis. Only available to Super Admins.</p>
-              <div className="flex gap-4 flex-wrap">
-                <button
-                  onClick={async () => {
-                    try {
-                      const token = localStorage.getItem('adminToken');
-                      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=csv`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                      });
-                      if (!res.ok) {
-                        const error = await res.json();
-                        alert(error.error || 'Export failed');
-                        return;
-                      }
-                      const blob = await res.blob();
-                      const url = window.URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
-                      document.body.appendChild(a);
-                      a.click();
-                      window.URL.revokeObjectURL(url);
-                      document.body.removeChild(a);
-                    } catch (err) {
-                      alert('Export failed. Please try again.');
-                    }
-                  }}
-                  className="btn btn-secondary"
-                >
-                  Export Users (CSV)
-                </button>
-                <button
-                  onClick={async () => {
-                    try {
-                      const token = localStorage.getItem('adminToken');
-                      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=json`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                      });
-                      if (!res.ok) {
-                        const error = await res.json();
-                        alert(error.error || 'Export failed');
-                        return;
-                      }
-                      const data = await res.json();
-                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                      const url = window.URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `users-export-${new Date().toISOString().split('T')[0]}.json`;
-                      document.body.appendChild(a);
-                      a.click();
-                      window.URL.revokeObjectURL(url);
-                      document.body.removeChild(a);
-                    } catch (err) {
-                      alert('Export failed. Please try again.');
-                    }
-                  }}
-                  className="btn btn-secondary"
-                >
-                  Export Users (JSON)
-                </button>
+            <Panel title="Export Data">
+              <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', marginBottom: 16 }}>Download user data for reporting. Super Admin only.</p>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <button className="loom-btn-ghost" onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('adminToken');
+                    const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=csv`, { headers: { Authorization: `Bearer ${token}` } });
+                    if (!res.ok) { const e = await res.json(); alert(e.error || 'Export failed'); return; }
+                    const blob = await res.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a);
+                  } catch (_err) { alert('Export failed.'); }
+                }}>Export Users (CSV)</button>
+                <button className="loom-btn-ghost" onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('adminToken');
+                    const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=json`, { headers: { Authorization: `Bearer ${token}` } });
+                    if (!res.ok) { const e = await res.json(); alert(e.error || 'Export failed'); return; }
+                    const data = await res.json(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `users-export-${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a);
+                  } catch (_err) { alert('Export failed.'); }
+                }}>Export Users (JSON)</button>
               </div>
-            </div>
+            </Panel>
           </div>
         )}
 
@@ -1627,28 +1026,68 @@ export function AdminDashboard() {
       {selectedTicket && (
         <TicketDetailModal ticketId={selectedTicket} onClose={() => setSelectedTicket(null)} />
       )}
-      </div>
-    </div>
+    </AppFrame>
   );
 }
 
-// Panel — the constitution-aligned card surface (flat, 0/2px radius, hairline border).
-function Panel({ title, children, className = '' }: { title?: string; children: React.ReactNode; className?: string }) {
+// ─── Shared style token ──────────────────────────────────────────────
+const tdStyle: React.CSSProperties = {
+  padding: '10px 16px',
+  verticalAlign: 'top',
+  color: 'var(--loom-bone)',
+  fontSize: 13,
+};
+
+// ─── LedgerTable — zero-chrome hairline table ─────────────────────────
+function LedgerTable({ cols, children, empty }: { cols: string[]; children?: React.ReactNode; empty?: string }) {
   return (
-    <div className={`bg-void-surface border border-paper-15 rounded-[2px] p-6 ${className}`}>
-      {title ? <h3 className="font-body font-light text-lg text-paper mb-4">{title}</h3> : null}
+    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <thead>
+        <tr style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+          {cols.map((c, i) => (
+            <th key={c} className="loom-mono" style={{ padding: '8px 16px', fontWeight: 400, fontSize: 10, textAlign: i === cols.length - 1 ? 'right' : 'left', color: 'var(--loom-bone-faint)', textTransform: 'uppercase', letterSpacing: '0.18em' }}>{c}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {children}
+        {!children && (
+          <tr><td colSpan={cols.length} style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--loom-bone-faint)', fontStyle: 'italic', fontSize: 13 }}>{empty || 'No data'}</td></tr>
+        )}
+      </tbody>
+    </table>
+  );
+}
+
+// ─── StatusWord — loom-mono uppercase status word, no pill/dot ────────
+function StatusWord({ value }: { value: string }) {
+  if (!value) return null;
+  const v = value.toUpperCase();
+  const color =
+    v === 'ACTIVE' || v === 'VERIFIED' || v === 'SENT' || v === 'RESOLVED' || v === 'REDEEMED' || v === 'PAID' || v === 'FOREVER' ? 'var(--loom-warm)' :
+    v === 'FAILED' || v === 'UNVERIFIED' || v === 'INACTIVE' || v === 'EXPIRED' || v === 'TRIGGERED' ? '#c25a5a' :
+    v === 'TRIALING' || v === 'PENDING_RETRY' || v === 'IN_PROGRESS' || v === 'OPEN' ? 'var(--loom-warm)' :
+    'var(--loom-bone-faint)';
+  return <span className="loom-mono" style={{ fontSize: 11, color }}>{v}</span>;
+}
+
+// ─── Panel — flat ink-card surface, hairline border ───────────────────
+function Panel({ title, children }: { title?: string; children: React.ReactNode }) {
+  return (
+    <div style={{ background: 'var(--loom-ink-card)', border: '1px solid var(--loom-rule)', padding: 24 }}>
+      {title && <p className="loom-eyebrow" style={{ marginBottom: 16 }}>{title}</p>}
       {children}
     </div>
   );
 }
 
-// Stat Card Component
+// ─── StatCard — borderless tile used in stat grids ────────────────────
 function StatCard({ label, value, subtext }: { label: string; value: string | number; subtext: string }) {
   return (
-    <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-      <div className="text-paper-65 text-sm mb-1">{label}</div>
-      <div className="font-mono text-2xl text-paper">{value}</div>
-      <div className="text-paper-70 text-sm mt-1">{subtext}</div>
+    <div style={{ padding: '20px 24px', background: 'var(--loom-ink-card)' }}>
+      <div className="loom-eyebrow" style={{ marginBottom: 8 }}>{label}</div>
+      <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', marginBottom: 4 }}>{value}</div>
+      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{subtext}</div>
     </div>
   );
 }
@@ -1672,48 +1111,23 @@ function CouponRow({ coupon }: { coupon: any }) {
   });
 
   return (
-    <tr className="border-b border-paper-15 hover:bg-void-elevated transition-colors">
-      <td className="py-3 px-4">
-        <span className="font-mono text-gold">{coupon.code}</span>
-        {coupon.description && (
-          <div className="text-paper-65 text-sm">{coupon.description}</div>
-        )}
+    <tr style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+      <td style={tdStyle}>
+        <span className="loom-mono" style={{ color: 'var(--loom-warm)', fontSize: 12 }}>{coupon.code}</span>
+        {coupon.description && <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 2 }}>{coupon.description}</div>}
       </td>
-      <td className="py-3 px-4">
-        {coupon.discountType === 'PERCENTAGE' 
-          ? `${coupon.discountValue}%` 
-          : `$${(coupon.discountValue / 100).toFixed(2)}`}
+      <td className="loom-mono" style={{ ...tdStyle, fontSize: 12 }}>
+        {coupon.discountType === 'PERCENTAGE' ? `${coupon.discountValue}%` : `$${(coupon.discountValue / 100).toFixed(2)}`}
       </td>
-      <td className="py-3 px-4 text-paper-70">
-        {coupon.currentUses} / {coupon.maxUses || '∞'}
-      </td>
-      <td className="py-3 px-4 text-paper-65 text-sm">
-        {coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : 'No expiry'}
-      </td>
-      <td className="py-3 px-4">
-        <button
-          onClick={() => toggleMutation.mutate()}
-          className={`px-2 py-1 text-xs border rounded-[2px] ${
-            coupon.isActive
-              ? 'border-gold-40 text-gold'
-              : 'border-paper-15 text-paper-65'
-          }`}
-        >
-          {coupon.isActive ? 'Active' : 'Inactive'}
+      <td className="loom-mono" style={{ ...tdStyle, fontSize: 12, color: 'var(--loom-bone-dim)' }}>{coupon.currentUses} / {coupon.maxUses || '∞'}</td>
+      <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--loom-bone-faint)' }}>{coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : 'No expiry'}</td>
+      <td style={tdStyle}>
+        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => toggleMutation.mutate()}>
+          <span style={{ color: coupon.isActive ? 'var(--loom-warm)' : 'var(--loom-bone-faint)' }}>{coupon.isActive ? 'ACTIVE' : 'INACTIVE'}</span>
         </button>
       </td>
-      <td className="py-3 px-4 text-right">
-        <button
-          onClick={() => {
-            if (confirm('Delete this coupon?')) {
-              deleteMutation.mutate();
-            }
-          }}
-          className="text-paper-65 hover:text-blood transition-colors text-xs"
-          aria-label="Delete coupon"
-        >
-          Delete
-        </button>
+      <td style={{ ...tdStyle, textAlign: 'right' }}>
+        <button className="loom-btn-ghost" style={{ fontSize: 11, color: '#c25a5a' }} onClick={() => { if (confirm('Delete this coupon?')) deleteMutation.mutate(); }}>Delete</button>
       </td>
     </tr>
   );
@@ -1749,101 +1163,41 @@ function CreateCouponModal({ onClose }: { onClose: () => void }) {
   });
 
   return (
-    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-body font-light text-xl">Create Coupon</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
+    <ModalShell onClose={onClose} title="Create Coupon">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <LoomField label="Coupon Code">
+          <LoomInput type="text" value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })} placeholder="SAVE20" />
+        </LoomField>
+        <LoomField label="Description (optional)">
+          <LoomInput type="text" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="20% off for new users" />
+        </LoomField>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <LoomField label="Discount Type">
+            <LoomSelect value={formData.discountType} onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}>
+              <option value="PERCENTAGE">Percentage</option>
+              <option value="FIXED_AMOUNT">Fixed Amount</option>
+            </LoomSelect>
+          </LoomField>
+          <LoomField label={formData.discountType === 'PERCENTAGE' ? 'Percentage (%)' : 'Amount ($)'}>
+            <LoomInput type="number" value={formData.discountValue} onChange={(e) => setFormData({ ...formData, discountValue: parseFloat(e.target.value) })} min={0} max={formData.discountType === 'PERCENTAGE' ? 100 : undefined} />
+          </LoomField>
         </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm text-paper-65 mb-2">Coupon Code</label>
-            <input
-              type="text"
-              value={formData.code}
-              onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-              className="input"
-              placeholder="SAVE20"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-paper-65 mb-2">Description (optional)</label>
-            <input
-              type="text"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="input"
-              placeholder="20% off for new users"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-paper-65 mb-2">Discount Type</label>
-              <select
-                value={formData.discountType}
-                onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
-                className="input"
-              >
-                <option value="PERCENTAGE">Percentage</option>
-                <option value="FIXED_AMOUNT">Fixed Amount</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm text-paper-65 mb-2">
-                {formData.discountType === 'PERCENTAGE' ? 'Percentage (%)' : 'Amount ($)'}
-              </label>
-              <input
-                type="number"
-                value={formData.discountValue}
-                onChange={(e) => setFormData({ ...formData, discountValue: parseFloat(e.target.value) })}
-                className="input"
-                min={0}
-                max={formData.discountType === 'PERCENTAGE' ? 100 : undefined}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-paper-65 mb-2">Max Uses (optional)</label>
-              <input
-                type="number"
-                value={formData.maxUses}
-                onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
-                className="input"
-                placeholder="Unlimited"
-                min={1}
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-paper-65 mb-2">Valid Until (optional)</label>
-              <input
-                type="date"
-                value={formData.validUntil}
-                onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })}
-                className="input"
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <button onClick={onClose} className="btn btn-secondary flex-1">
-              Cancel
-            </button>
-            <button
-              onClick={() => createMutation.mutate()}
-              disabled={!formData.code || createMutation.isPending}
-              className="btn btn-primary flex-1"
-            >
-              {createMutation.isPending ? 'Creating...' : 'Create Coupon'}
-            </button>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <LoomField label="Max Uses (optional)">
+            <LoomInput type="number" value={formData.maxUses} onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })} placeholder="Unlimited" min={1} />
+          </LoomField>
+          <LoomField label="Valid Until (optional)">
+            <LoomInput type="date" value={formData.validUntil} onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })} />
+          </LoomField>
+        </div>
+        <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+          <button className="loom-btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+          <button className="loom-btn" style={{ flex: 1 }} onClick={() => createMutation.mutate()} disabled={!formData.code || createMutation.isPending}>
+            {createMutation.isPending ? 'Creating…' : 'Create Coupon'}
+          </button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   );
 }
 
@@ -1866,73 +1220,33 @@ function CreateAdminModal({ onClose }: { onClose: () => void }) {
   });
 
   return (
-    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-body font-light text-xl">Add Admin User</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
+    <ModalShell onClose={onClose} title="Add Admin User">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <LoomField label="Email">
+          <LoomInput type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="admin@heirloom.blue" />
+        </LoomField>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <LoomField label="First Name">
+            <LoomInput type="text" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
+          </LoomField>
+          <LoomField label="Last Name">
+            <LoomInput type="text" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
+          </LoomField>
         </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm text-paper-65 mb-2">Email</label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="input"
-              placeholder="admin@heirloom.blue"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-paper-65 mb-2">First Name</label>
-              <input
-                type="text"
-                value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                className="input"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-paper-65 mb-2">Last Name</label>
-              <input
-                type="text"
-                value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                className="input"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm text-paper-65 mb-2">Role</label>
-            <select
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="input"
-            >
-              <option value="ADMIN">Admin</option>
-              <option value="SUPER_ADMIN">Super Admin</option>
-            </select>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <button onClick={onClose} className="btn btn-secondary flex-1">
-              Cancel
-            </button>
-            <button
-              onClick={() => createMutation.mutate()}
-              disabled={!formData.email || !formData.firstName || !formData.lastName || createMutation.isPending}
-              className="btn btn-primary flex-1"
-            >
-              {createMutation.isPending ? 'Creating...' : 'Create Admin'}
-            </button>
-          </div>
+        <LoomField label="Role">
+          <LoomSelect value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })}>
+            <option value="ADMIN">Admin</option>
+            <option value="SUPER_ADMIN">Super Admin</option>
+          </LoomSelect>
+        </LoomField>
+        <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+          <button className="loom-btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+          <button className="loom-btn" style={{ flex: 1 }} onClick={() => createMutation.mutate()} disabled={!formData.email || !formData.firstName || !formData.lastName || createMutation.isPending}>
+            {createMutation.isPending ? 'Creating…' : 'Create Admin'}
+          </button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   );
 }
 
@@ -1991,162 +1305,75 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
   });
 
   return (
-    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-body font-light text-xl">Manage User</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
+    <ModalShell onClose={onClose} title="Manage User">
+      {/* User metadata — zero-knowledge: no content, only status */}
+      <div style={{ marginBottom: 24, padding: 16, background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)' }}>
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ color: 'var(--loom-bone)', fontSize: 15, marginBottom: 2 }}>{user.firstName} {user.lastName}</div>
+          <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>{user.email}</div>
         </div>
-
-        {/* User Info Card */}
-        <div className="mb-6 p-4 bg-void-elevated rounded-[2px] border border-paper-15">
-          <div className="mb-4">
-            <div className="text-paper text-lg">{user.firstName} {user.lastName}</div>
-            <div className="text-paper-65 text-sm">{user.email}</div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-paper-65">User ID:</span>
-              <div className="text-paper font-mono text-xs truncate">{user.id}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {[
+            { l: 'User ID', v: user.id, mono: true },
+            { l: 'Joined', v: new Date(user.createdAt).toLocaleDateString() },
+            { l: 'Tier', v: user.tier || 'FREE' },
+            { l: 'Email', v: user.emailVerified ? 'VERIFIED' : 'UNVERIFIED' },
+            { l: 'Subscription', v: user.subscriptionStatus || 'None' },
+            { l: 'Last Active', v: user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never' },
+          ].map(({ l, v, mono }) => (
+            <div key={l}>
+              <div className="loom-eyebrow" style={{ marginBottom: 2 }}>{l}</div>
+              <div className={mono ? 'loom-mono' : ''} style={{ fontSize: mono ? 10 : 12, color: 'var(--loom-bone-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</div>
             </div>
-            <div>
-              <span className="text-paper-65">Joined:</span>
-              <div className="text-paper">{new Date(user.createdAt).toLocaleDateString()}</div>
-            </div>
-            <div>
-              <span className="text-paper-65">Current Tier:</span>
-              <div className={`inline-block px-2 py-0.5 text-xs rounded-[2px] mt-1 ${
-                user.tier === 'FOREVER' ? 'border border-paper-15 text-paper-70' :
-                user.tier === 'FAMILY' ? 'border border-gold-40 text-gold' :
-                user.tier === 'STARTER' ? 'border border-paper-15 text-paper-70' :
-                'border border-paper-15 text-paper-65'
-              }`}>
-                {user.tier || 'FREE'}
-              </div>
-            </div>
-            <div>
-              <span className="text-paper-65">Email Status:</span>
-              <div className={`inline-block px-2 py-0.5 text-xs rounded-[2px] mt-1 ${user.emailVerified ? 'border border-gold-40 text-gold' : 'border border-blood text-blood'}`}>
-                {user.emailVerified ? 'Verified' : 'Unverified'}
-              </div>
-            </div>
-            <div>
-              <span className="text-paper-65">Subscription:</span>
-              <div className={`text-xs mt-1 ${
-                user.subscriptionStatus === 'ACTIVE' ? 'text-gold' :
-                user.subscriptionStatus === 'TRIALING' ? 'text-gold' :
-                'text-paper-65'
-              }`}>
-                {user.subscriptionStatus || 'None'}
-              </div>
-            </div>
-            <div>
-              <span className="text-paper-65">Last Active:</span>
-              <div className="text-paper text-xs">{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          {/* Change Tier */}
-          <div>
-            <label className="block text-sm text-paper-65 mb-2">Change Subscription Tier</label>
-            <div className="flex gap-2">
-              <select
-                value={selectedTier}
-                onChange={(e) => setSelectedTier(e.target.value)}
-                className="input flex-1"
-              >
-                <option value="FREE">Free</option>
-                <option value="STARTER">Starter ($1/mo)</option>
-                <option value="FAMILY">Family ($2/mo)</option>
-                <option value="FOREVER">Forever ($5/mo)</option>
-              </select>
-              <button
-                onClick={() => updateTierMutation.mutate()}
-                disabled={updateTierMutation.isPending || selectedTier === user.tier}
-                className="btn btn-secondary"
-              >
-                {updateTierMutation.isPending ? '...' : 'Update'}
-              </button>
-            </div>
-          </div>
-
-          {/* Extend Trial */}
-          <div>
-            <label className="block text-sm text-paper-65 mb-2">Extend Trial Period</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                value={trialDays}
-                onChange={(e) => setTrialDays(parseInt(e.target.value) || 7)}
-                className="input flex-1"
-                min={1}
-                max={365}
-              />
-              <button
-                onClick={() => extendTrialMutation.mutate()}
-                disabled={extendTrialMutation.isPending}
-                className="btn btn-secondary"
-              >
-                {extendTrialMutation.isPending ? '...' : `+${trialDays} days`}
-              </button>
-            </div>
-          </div>
-
-          {/* Apply Coupon */}
-          <div>
-            <label className="block text-sm text-paper-65 mb-2">Apply Coupon Code</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                className="input flex-1"
-                placeholder="COUPON_CODE"
-              />
-              <button
-                onClick={() => applyCouponMutation.mutate()}
-                disabled={!couponCode || applyCouponMutation.isPending}
-                className="btn btn-secondary"
-              >
-                {applyCouponMutation.isPending ? '...' : 'Apply'}
-              </button>
-            </div>
-          </div>
-
-          {/* Verify Email */}
-          {!user.emailVerified && (
-            <div>
-              <label className="block text-sm text-paper-65 mb-2">Email Verification</label>
-              <button
-                onClick={() => verifyEmailMutation.mutate()}
-                disabled={verifyEmailMutation.isPending}
-                className="btn btn-secondary w-full"
-              >
-                {verifyEmailMutation.isPending ? '...' : 'Mark Email as Verified'}
-              </button>
-            </div>
-          )}
-
-          {/* Danger Zone */}
-          <div className="pt-4 border-t border-paper-15">
-            <div className="text-sm text-blood mb-2">Danger Zone</div>
-            <button
-              onClick={() => {
-                if (confirm('Are you sure you want to cancel this subscription? This action cannot be undone.')) {
-                  cancelSubscriptionMutation.mutate();
-                }
-              }}
-              disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
-              className="btn border border-blood text-blood hover:bg-blood/10 w-full disabled:opacity-50 transition-colors"
-            >
-              {cancelSubscriptionMutation.isPending ? 'Cancelling...' : 'Cancel Subscription'}
-            </button>
-          </div>
+          ))}
         </div>
       </div>
-    </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <LoomField label="Change Subscription Tier">
+          <div style={{ display: 'flex', gap: 8 }}>
+            <LoomSelect value={selectedTier} onChange={(e) => setSelectedTier(e.target.value)} style={{ flex: 1 }}>
+              <option value="FREE">Free</option>
+              <option value="STARTER">Starter ($1/mo)</option>
+              <option value="FAMILY">Family ($2/mo)</option>
+              <option value="FOREVER">Forever ($5/mo)</option>
+            </LoomSelect>
+            <button className="loom-btn-ghost" onClick={() => updateTierMutation.mutate()} disabled={updateTierMutation.isPending || selectedTier === user.tier}>{updateTierMutation.isPending ? '…' : 'Update'}</button>
+          </div>
+        </LoomField>
+
+        <LoomField label="Extend Trial Period">
+          <div style={{ display: 'flex', gap: 8 }}>
+            <LoomInput type="number" value={trialDays} onChange={(e) => setTrialDays(parseInt(e.target.value) || 7)} min={1} max={365} style={{ flex: 1 }} />
+            <button className="loom-btn-ghost" onClick={() => extendTrialMutation.mutate()} disabled={extendTrialMutation.isPending}>{extendTrialMutation.isPending ? '…' : `+${trialDays} days`}</button>
+          </div>
+        </LoomField>
+
+        <LoomField label="Apply Coupon Code">
+          <div style={{ display: 'flex', gap: 8 }}>
+            <LoomInput type="text" value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="COUPON_CODE" style={{ flex: 1 }} />
+            <button className="loom-btn-ghost" onClick={() => applyCouponMutation.mutate()} disabled={!couponCode || applyCouponMutation.isPending}>{applyCouponMutation.isPending ? '…' : 'Apply'}</button>
+          </div>
+        </LoomField>
+
+        {!user.emailVerified && (
+          <LoomField label="Email Verification">
+            <button className="loom-btn-ghost" style={{ width: '100%' }} onClick={() => verifyEmailMutation.mutate()} disabled={verifyEmailMutation.isPending}>{verifyEmailMutation.isPending ? '…' : 'Mark Email as Verified'}</button>
+          </LoomField>
+        )}
+
+        <div style={{ paddingTop: 16, borderTop: '1px solid var(--loom-rule)' }}>
+          <div className="loom-eyebrow" style={{ color: '#c25a5a', marginBottom: 8 }}>Danger Zone</div>
+          <button
+            style={{ width: '100%', background: 'transparent', border: '1px solid #c25a5a', color: '#c25a5a', padding: '8px 16px', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
+            onClick={() => { if (confirm('Cancel this subscription? This cannot be undone.')) cancelSubscriptionMutation.mutate(); }}
+            disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
+          >
+            {cancelSubscriptionMutation.isPending ? 'Cancelling…' : 'Cancel Subscription'}
+          </button>
+        </div>
+      </div>
+    </ModalShell>
   );
 }
 
@@ -2172,92 +1399,47 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
   });
 
   return (
-    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-3xl p-6 max-h-[85vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-body font-light text-xl">Email Details</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
-        </div>
-
-        {isLoading ? (
-          <div className="text-center py-8 text-paper-65">Loading...</div>
-        ) : email ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-void-elevated rounded-[2px]">
-                <div className="text-paper-65 text-xs mb-1">To</div>
-                <div className="text-paper">{email.to}</div>
-              </div>
-              <div className="p-3 bg-void-elevated rounded-[2px]">
-                <div className="text-paper-65 text-xs mb-1">Status</div>
-                <span className={`px-2 py-1 text-xs ${
-                  email.status === 'SENT' ? 'border border-gold-40 text-gold' :
-                  email.status === 'FAILED' ? 'border border-blood text-blood' :
-                  'border border-gold-40 text-gold'
-                }`}>
-                  {email.status}
-                </span>
-              </div>
+    <ModalShell onClose={onClose} title="Email Details" wide>
+      {isLoading ? (
+        <p style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)', padding: '32px 0', textAlign: 'center' }}>Loading…</p>
+      ) : email ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <MetaCell label="To" value={email.to} />
+            <div style={{ padding: '10px 12px', background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)' }}>
+              <div className="loom-eyebrow" style={{ marginBottom: 4 }}>Status</div>
+              <StatusWord value={email.status} />
             </div>
-
-            <div className="p-3 bg-void-elevated rounded-[2px]">
-              <div className="text-paper-65 text-xs mb-1">Subject</div>
-              <div className="text-paper">{email.subject}</div>
-            </div>
-
-            {email.emailType && (
-              <div className="p-3 bg-void-elevated rounded-[2px]">
-                <div className="text-paper-65 text-xs mb-1">Email Type</div>
-                <div className="text-paper font-mono text-sm">{email.emailType}</div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-void-elevated rounded-[2px]">
-                <div className="text-paper-65 text-xs mb-1">Created</div>
-                <div className="text-paper text-sm">{email.createdAt ? new Date(email.createdAt).toLocaleString() : '-'}</div>
-              </div>
-              <div className="p-3 bg-void-elevated rounded-[2px]">
-                <div className="text-paper-65 text-xs mb-1">Sent</div>
-                <div className="text-paper text-sm">{email.sentAt ? new Date(email.sentAt).toLocaleString() : '-'}</div>
-              </div>
-            </div>
-
-            {email.errorMessage && (
-              <div className="p-3 border border-blood rounded-[2px]">
-                <div className="text-blood text-xs mb-1">Error Message</div>
-                <div className="text-blood/80 text-sm">{email.errorMessage}</div>
-              </div>
-            )}
-
-            <div className="p-3 bg-void-elevated rounded-[2px]">
-              <div className="text-paper-65 text-xs mb-2">Email Body (HTML Preview)</div>
-              {/* Email HTML preview — white surface is intentional (renders the actual email) */}
-              <div className="bg-white rounded-[2px] p-4 max-h-96 overflow-y-auto">
-                <div
-                  className="text-black text-sm"
-                  dangerouslySetInnerHTML={{ __html: email.body || '<em>No body content</em>' }}
-                />
-              </div>
-            </div>
-
-            {email.status === 'FAILED' && (
-              <div className="flex justify-end">
-                <button
-                  onClick={() => resendMutation.mutate()}
-                  disabled={resendMutation.isPending}
-                  className="btn btn-primary"
-                >
-                  {resendMutation.isPending ? 'Resending…' : 'Resend Email'}
-                </button>
-              </div>
-            )}
           </div>
-        ) : (
-          <div className="text-center py-8 text-paper-65">Email not found</div>
-        )}
-      </div>
-    </div>
+          <MetaCell label="Subject" value={email.subject} />
+          {email.emailType && <MetaCell label="Email Type" value={email.emailType} mono />}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <MetaCell label="Created" value={email.createdAt ? new Date(email.createdAt).toLocaleString() : '—'} />
+            <MetaCell label="Sent" value={email.sentAt ? new Date(email.sentAt).toLocaleString() : '—'} />
+          </div>
+          {email.errorMessage && (
+            <div style={{ padding: '10px 12px', border: '1px solid #c25a5a' }}>
+              <div className="loom-eyebrow" style={{ marginBottom: 4, color: '#c25a5a' }}>Error</div>
+              <div style={{ fontSize: 13, color: '#c25a5a', opacity: 0.8 }}>{email.errorMessage}</div>
+            </div>
+          )}
+          <div style={{ padding: '10px 12px', background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)' }}>
+            <div className="loom-eyebrow" style={{ marginBottom: 8 }}>Body (HTML Preview)</div>
+            {/* White surface intentional — renders actual email */}
+            <div style={{ background: '#fff', padding: 16, maxHeight: 384, overflowY: 'auto' }}>
+              <div className="text-sm" style={{ color: '#000' }} dangerouslySetInnerHTML={{ __html: email.body || '<em>No body content</em>' }} />
+            </div>
+          </div>
+          {email.status === 'FAILED' && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="loom-btn" onClick={() => resendMutation.mutate()} disabled={resendMutation.isPending}>{resendMutation.isPending ? 'Resending…' : 'Resend Email'}</button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <p style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)', padding: '32px 0', textAlign: 'center' }}>Email not found</p>
+      )}
+    </ModalShell>
   );
 }
 
@@ -2294,109 +1476,47 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
   });
 
   return (
-    <div className="fixed inset-0 bg-void/90 flex items-center justify-center z-50 p-4">
-      <div className="bg-void-surface border border-paper-15 rounded-[2px] w-full max-w-2xl p-6 max-h-[80vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-body font-light text-xl">{ticket?.subject}</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
-        </div>
-
-        <div className="mb-4 flex gap-2">
-          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-            ticket?.status === 'OPEN' ? 'border-gold-40 text-gold' :
-            ticket?.status === 'IN_PROGRESS' ? 'border-paper-15 text-paper-70' :
-            'border-gold-40 text-gold'
-          }`}>
-            {ticket?.status}
-          </span>
-          <span className={`px-2 py-1 text-xs border rounded-[2px] ${
-            ticket?.priority === 'HIGH' ? 'border-blood text-blood' :
-            'border-paper-15 text-paper-65'
-          }`}>
-            {ticket?.priority}
-          </span>
-        </div>
-
-        <div className="mb-4 p-4 bg-void-elevated rounded-[2px]">
-          <div className="text-paper-65 text-sm">From: {ticket?.user?.name} ({ticket?.user?.email})</div>
-        </div>
-
-        {/* Messages */}
-        <div className="space-y-4 mb-6">
-          {ticket?.messages?.map((msg: any) => (
-            <div
-              key={msg.id}
-              className={`p-4 rounded-[2px] border ${
-                msg.senderType === 'ADMIN' ? 'border-gold-40 ml-8' : 'border-paper-15 bg-void-elevated mr-8'
-              }`}
-            >
-              <div className="text-paper-65 text-xs mb-2">
-                {msg.senderType === 'ADMIN' ? 'Admin' : 'User'} - {new Date(msg.createdAt).toLocaleString()}
-              </div>
-              <div className="text-paper">{msg.content}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Reply */}
-        <div className="space-y-4">
-          <textarea
-            value={reply}
-            onChange={(e) => setReply(e.target.value)}
-            className="input w-full h-24"
-            placeholder="Type your reply..."
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={() => replyMutation.mutate()}
-              disabled={!reply || replyMutation.isPending}
-              className="btn btn-primary"
-            >
-              Send Reply
-            </button>
-            {ticket?.status !== 'RESOLVED' && !showResolveForm && (
-              <button
-                onClick={() => setShowResolveForm(true)}
-                className="btn btn-secondary"
-              >
-                Mark Resolved
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Resolution Form */}
-        {showResolveForm && ticket?.status !== 'RESOLVED' && (
-          <div className="mt-4 p-4 bg-void-elevated border border-paper-15 rounded-[2px] space-y-3">
-            <div className="text-gold">Resolve Ticket</div>
-            <textarea
-              value={resolutionNote}
-              onChange={(e) => setResolutionNote(e.target.value)}
-              className="input w-full h-20"
-              placeholder="Optional: Add a resolution note that will be included in the email to the user..."
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => updateStatusMutation.mutate({ status: 'RESOLVED', resolutionNote: resolutionNote || undefined })}
-                disabled={updateStatusMutation.isPending}
-                className="btn btn-primary"
-              >
-                {updateStatusMutation.isPending ? 'Resolving…' : 'Confirm Resolution'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowResolveForm(false);
-                  setResolutionNote('');
-                }}
-                className="btn btn-secondary"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
+    <ModalShell onClose={onClose} title={ticket?.subject || 'Ticket'} wide>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+        <StatusWord value={ticket?.status || ''} />
+        <span style={{ color: 'var(--loom-rule)' }}>·</span>
+        <span className="loom-mono" style={{ fontSize: 11, color: ticket?.priority === 'HIGH' ? '#c25a5a' : 'var(--loom-bone-faint)' }}>{ticket?.priority}</span>
       </div>
-    </div>
+
+      <div style={{ padding: '10px 12px', background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)', marginBottom: 16 }}>
+        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>From: {ticket?.user?.name} ({ticket?.user?.email})</span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+        {ticket?.messages?.map((msg: any) => (
+          <div key={msg.id} style={{ padding: '12px 16px', border: '1px solid var(--loom-rule)', marginLeft: msg.senderType === 'ADMIN' ? 32 : 0, marginRight: msg.senderType === 'USER' ? 32 : 0, background: msg.senderType === 'USER' ? 'var(--loom-ink)' : 'transparent', borderColor: msg.senderType === 'ADMIN' ? 'var(--loom-rule-warm)' : 'var(--loom-rule)' }}>
+            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginBottom: 6 }}>{msg.senderType === 'ADMIN' ? 'Admin' : 'User'} · {new Date(msg.createdAt).toLocaleString()}</div>
+            <div style={{ fontSize: 13, color: 'var(--loom-bone)' }}>{msg.content}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type your reply…" style={{ width: '100%', height: 80, background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone)', padding: '8px 12px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="loom-btn" onClick={() => replyMutation.mutate()} disabled={!reply || replyMutation.isPending}>Send Reply</button>
+          {ticket?.status !== 'RESOLVED' && !showResolveForm && (
+            <button className="loom-btn-ghost" onClick={() => setShowResolveForm(true)}>Mark Resolved</button>
+          )}
+        </div>
+      </div>
+
+      {showResolveForm && ticket?.status !== 'RESOLVED' && (
+        <div style={{ marginTop: 16, padding: 16, background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <p className="loom-eyebrow" style={{ color: 'var(--loom-warm)' }}>Resolve Ticket</p>
+          <textarea value={resolutionNote} onChange={(e) => setResolutionNote(e.target.value)} placeholder="Optional: resolution note for the user…" style={{ width: '100%', height: 64, background: 'var(--loom-ink-card)', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone)', padding: '8px 12px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="loom-btn" onClick={() => updateStatusMutation.mutate({ status: 'RESOLVED', resolutionNote: resolutionNote || undefined })} disabled={updateStatusMutation.isPending}>{updateStatusMutation.isPending ? 'Resolving…' : 'Confirm Resolution'}</button>
+            <button className="loom-btn-ghost" onClick={() => { setShowResolveForm(false); setResolutionNote(''); }}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </ModalShell>
   );
 }
 
@@ -2472,206 +1592,83 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
   };
 
   return (
-    <div className="fixed inset-0 bg-void/90 z-50 overflow-y-auto">
-      <div className="min-h-full flex items-start justify-center p-4 py-8">
-        <div className="bg-void-surface border border-paper-15 rounded-[2px] max-w-lg w-full p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-body font-light text-xl">Create Gift Voucher</h3>
-          <button onClick={onClose} className="text-paper-65 hover:text-paper transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
-        </div>
-
-        {createdCodes.length > 0 ? (
-          <div className="text-center py-6">
-            <span className="font-body text-4xl text-gold block mb-5" aria-hidden>∞</span>
-            <h4 className="font-body font-light text-lg mb-2">{createdCodes.length} Voucher{createdCodes.length > 1 ? 's' : ''} Created</h4>
-            <div className="bg-void-elevated p-4 rounded-[2px] mb-4 max-h-48 overflow-y-auto">
-              {createdCodes.map((code, i) => (
-                <p key={i} className="font-mono text-lg text-gold tracking-wider mb-1">{code}</p>
-              ))}
-            </div>
-            <div className="flex gap-2 justify-center flex-wrap">
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(createdCodes.join('\n'));
-                  alert('All codes copied!');
-                }}
-                className="btn btn-secondary"
-              >
-                Copy All Codes
-              </button>
-              <button
-                onClick={() => {
-                  const urls = createdCodes.map(code => `https://heirloom.blue/gift/redeem?code=${code}`);
-                  navigator.clipboard.writeText(urls.join('\n'));
-                  alert('All redemption links copied!');
-                }}
-                className="btn btn-secondary"
-              >
-                Copy All Links
-              </button>
-              <button onClick={onClose} className="btn btn-primary">
-                Done
-              </button>
-            </div>
+    <ModalShell onClose={onClose} title="Create Gift Voucher">
+      {createdCodes.length > 0 ? (
+        <div style={{ textAlign: 'center', padding: '24px 0' }}>
+          <div className="loom-serif" style={{ fontSize: 40, color: 'var(--loom-warm)', marginBottom: 12 }}>∞</div>
+          <p style={{ color: 'var(--loom-bone)', marginBottom: 16 }}>{createdCodes.length} Voucher{createdCodes.length > 1 ? 's' : ''} Created</p>
+          <div style={{ background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)', padding: 16, marginBottom: 16, maxHeight: 192, overflowY: 'auto' }}>
+            {createdCodes.map((code, i) => <p key={i} className="loom-mono" style={{ fontSize: 16, color: 'var(--loom-warm)', marginBottom: 4, letterSpacing: '0.12em' }}>{code}</p>)}
           </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="flex gap-2 mb-4">
-              <button
-                onClick={() => setMode('single')}
-                className={`flex-1 py-2 px-4 rounded-[2px] text-sm ${mode === 'single' ? 'border border-gold-40 text-gold' : 'bg-void-elevated text-paper-65'}`}
-              >
-                Single Voucher
-              </button>
-              <button
-                onClick={() => setMode('bulk')}
-                className={`flex-1 py-2 px-4 rounded-[2px] text-sm ${mode === 'bulk' ? 'border border-gold-40 text-gold' : 'bg-void-elevated text-paper-65'}`}
-              >
-                Bulk Create
-              </button>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdCodes.join('\n')); alert('Copied!'); }}>Copy All Codes</button>
+            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdCodes.map(c => `https://heirloom.blue/gift/redeem?code=${c}`).join('\n')); alert('Copied!'); }}>Copy All Links</button>
+            <button className="loom-btn" onClick={onClose}>Done</button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 1, border: '1px solid var(--loom-rule)' }}>
+            {(['single', 'bulk'] as const).map(m => (
+              <button key={m} className={mode === m ? 'loom-btn' : 'loom-btn-ghost'} style={{ flex: 1, borderRadius: 0 }} onClick={() => setMode(m)}>{m === 'single' ? 'Single Voucher' : 'Bulk Create'}</button>
+            ))}
+          </div>
+          <LoomField label="Quick Presets">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {PROMO_PRESETS.map(p => <button key={p.name} className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => applyPreset(p)}>{p.name}</button>)}
             </div>
-
-            <div>
-              <label className="block text-paper-65 text-sm mb-2">Quick Presets</label>
-              <div className="flex flex-wrap gap-2">
-                {PROMO_PRESETS.map((preset) => (
-                  <button
-                    key={preset.name}
-                    onClick={() => applyPreset(preset)}
-                    className="px-3 py-1 text-xs border border-paper-15 text-paper-70 hover:text-gold hover:border-gold-40 rounded-[2px] transition-colors"
-                  >
-                    {preset.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-paper-65 text-sm mb-1">Tier</label>
-                <select
-                  value={formData.tier}
-                  onChange={(e) => setFormData({ ...formData, tier: e.target.value })}
-                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
-                >
-                  <option value="STARTER">Starter</option>
-                  <option value="FAMILY">Family</option>
-                  <option value="FOREVER">Forever</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-paper-65 text-sm mb-1">Billing Cycle</label>
-                <select
-                  value={formData.billingCycle}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    billingCycle: e.target.value,
-                    durationMonths: e.target.value === 'yearly' ? 12 : 1
-                  })}
-                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
-                >
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-paper-65 text-sm mb-1">Duration (months)</label>
-                <input
-                  type="number"
-                  value={formData.durationMonths}
-                  onChange={(e) => setFormData({ ...formData, durationMonths: parseInt(e.target.value) || 1 })}
-                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
-                  min="1"
-                  max="120"
-                />
-              </div>
-
-              {mode === 'bulk' && (
-                <div>
-                  <label className="block text-paper-65 text-sm mb-1">Quantity</label>
-                  <input
-                    type="number"
-                    value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: Math.min(50, Math.max(1, parseInt(e.target.value) || 1)) })}
-                    className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
-                    min="1"
-                    max="50"
-                  />
-                  <p className="text-paper-65 text-xs mt-1">Max 50 at a time</p>
-                </div>
-              )}
-            </div>
-
-            {mode === 'single' && (
-              <>
-                <div>
-                  <label className="block text-paper-65 text-sm mb-1">Recipient Email (optional)</label>
-                  <input
-                    type="email"
-                    value={formData.recipientEmail}
-                    onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
-                    className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
-                    placeholder="recipient@example.com"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-paper-65 text-sm mb-1">Recipient Name (optional)</label>
-                  <input
-                    type="text"
-                    value={formData.recipientName}
-                    onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                    className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
-                    placeholder="John Doe"
-                  />
-                </div>
-
-                {formData.recipientEmail && (
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.sendEmail}
-                      onChange={(e) => setFormData({ ...formData, sendEmail: e.target.checked })}
-                      className="w-4 h-4 rounded-[2px] border-paper-15 bg-void-elevated"
-                    />
-                    <span className="text-paper-70 text-sm">Send gift email to recipient immediately</span>
-                  </label>
-                )}
-              </>
+          </LoomField>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <LoomField label="Tier">
+              <LoomSelect value={formData.tier} onChange={e => setFormData({ ...formData, tier: e.target.value })}>
+                <option value="STARTER">Starter</option>
+                <option value="FAMILY">Family</option>
+                <option value="FOREVER">Forever</option>
+              </LoomSelect>
+            </LoomField>
+            <LoomField label="Billing Cycle">
+              <LoomSelect value={formData.billingCycle} onChange={e => setFormData({ ...formData, billingCycle: e.target.value, durationMonths: e.target.value === 'yearly' ? 12 : 1 })}>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </LoomSelect>
+            </LoomField>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <LoomField label="Duration (months)">
+              <LoomInput type="number" value={formData.durationMonths} onChange={e => setFormData({ ...formData, durationMonths: parseInt(e.target.value) || 1 })} min={1} max={120} />
+            </LoomField>
+            {mode === 'bulk' && (
+              <LoomField label="Quantity (max 50)">
+                <LoomInput type="number" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: Math.min(50, Math.max(1, parseInt(e.target.value) || 1)) })} min={1} max={50} />
+              </LoomField>
             )}
-
-            <div>
-              <label className="block text-paper-65 text-sm mb-1">Admin Notes (optional)</label>
-              <textarea
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper"
-                rows={2}
-                placeholder="e.g., Promotional campaign, influencer gift, etc."
-              />
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <button onClick={onClose} className="btn btn-secondary flex-1">
-                Cancel
-              </button>
-              <button
-                onClick={handleCreate}
-                disabled={isLoading}
-                className="btn btn-primary flex-1"
-              >
-                {isLoading ? 'Creating...' : mode === 'bulk' ? `Create ${formData.quantity} Vouchers` : 'Create Voucher'}
-              </button>
-            </div>
           </div>
-        )}
+          {mode === 'single' && (
+            <>
+              <LoomField label="Recipient Email (optional)">
+                <LoomInput type="email" value={formData.recipientEmail} onChange={e => setFormData({ ...formData, recipientEmail: e.target.value })} placeholder="recipient@example.com" />
+              </LoomField>
+              <LoomField label="Recipient Name (optional)">
+                <LoomInput type="text" value={formData.recipientName} onChange={e => setFormData({ ...formData, recipientName: e.target.value })} placeholder="John Doe" />
+              </LoomField>
+              {formData.recipientEmail && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ accentColor: 'var(--loom-warm)' }} />
+                  <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)' }}>Send gift email to recipient immediately</span>
+                </label>
+              )}
+            </>
+          )}
+          <LoomField label="Admin Notes (optional)">
+            <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} placeholder="Promotional campaign, influencer gift…" style={{ width: '100%', background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)', borderRadius: 2, color: 'var(--loom-bone)', padding: '6px 10px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+          </LoomField>
+          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+            <button className="loom-btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+            <button className="loom-btn" style={{ flex: 1 }} onClick={handleCreate} disabled={isLoading}>{isLoading ? 'Creating…' : mode === 'bulk' ? `Create ${formData.quantity} Vouchers` : 'Create Voucher'}</button>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </ModalShell>
   );
 }
 
@@ -2726,139 +1723,111 @@ The Heirloom Team`;
   };
 
   return (
-    <div className="fixed inset-0 bg-void/90 z-50 overflow-y-auto">
-      <div className="min-h-full flex items-start justify-center p-4 py-8">
-        <div className="max-w-lg w-full bg-void-surface border border-gold-40 rounded-[2px]">
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h3 className="font-body font-light text-xl text-gold">Create Gold Legacy Voucher</h3>
-              <p className="text-paper-65 text-sm mt-1">Exclusive lifetime access invitation</p>
-            </div>
-            <button onClick={onClose} className="text-paper-65 hover:text-gold transition-colors" aria-label="Close"><span aria-hidden>✕</span></button>
+    <ModalShell onClose={onClose} title="Create Gold Legacy Voucher">
+      {createdVoucher ? (
+        <div style={{ textAlign: 'center', padding: '24px 0' }}>
+          <div className="loom-serif" style={{ fontSize: 40, color: 'var(--loom-warm)', marginBottom: 12 }}>∞</div>
+          <p className="loom-h2" style={{ fontStyle: 'italic', fontWeight: 300, color: 'var(--loom-warm)', marginBottom: 4 }}>Gold Legacy Voucher Created</p>
+          <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginBottom: 16 }}>Member #{createdVoucher.memberNumber}</p>
+          <div style={{ padding: 16, border: '1px solid var(--loom-rule-warm)', marginBottom: 16 }}>
+            <p className="loom-mono" style={{ fontSize: 16, color: 'var(--loom-warm)', letterSpacing: '0.12em' }}>{createdVoucher.code}</p>
           </div>
-
-          {createdVoucher ? (
-            <div className="text-center py-6">
-              <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
-              <h4 className="font-body font-light text-lg text-gold mb-2">Gold Legacy Voucher Created</h4>
-              <p className="text-paper-70 text-sm mb-4">Member #{createdVoucher.memberNumber}</p>
-              
-              <div className="p-4 rounded-[2px] mb-4 bg-void-elevated border border-gold-40">
-                <p className="font-mono text-lg tracking-wider text-gold">{createdVoucher.code}</p>
-              </div>
-              
-              {createdVoucher.emailSent && (
-                <p className="text-gold text-sm mb-4">Invitation email sent to {createdVoucher.recipientEmail}</p>
-              )}
-              
-              <div className="flex gap-2 justify-center flex-wrap">
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(createdVoucher.code);
-                    alert('Code copied!');
-                  }}
-                  className="btn btn-secondary"
-                >
-                  Copy Code
-                </button>
-                <button
-                  onClick={() => {
-                    const url = `https://heirloom.blue/gold/redeem?code=${createdVoucher.code}`;
-                    navigator.clipboard.writeText(url);
-                    alert('Redemption link copied!');
-                  }}
-                  className="btn btn-primary"
-                >
-                  Copy Invitation Link
-                </button>
-                <button onClick={onClose} className="btn btn-secondary">
-                  Done
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="p-4 rounded-[2px] bg-void-elevated border border-gold-40">
-                <p className="text-paper-70 text-sm">
-                  Gold Legacy vouchers grant lifetime access to all Heirloom features. This is the highest tier of membership and should be reserved for special individuals.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-paper-65 text-sm mb-1">Recipient Name</label>
-                <input
-                  type="text"
-                  value={formData.recipientName}
-                  onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper focus:border-gold focus:outline-none"
-                  placeholder="John Doe"
-                />
-              </div>
-
-              <div>
-                <label className="block text-paper-65 text-sm mb-1">Recipient Email</label>
-                <input
-                  type="email"
-                  value={formData.recipientEmail}
-                  onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
-                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper focus:border-gold focus:outline-none"
-                  placeholder="recipient@example.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-paper-65 text-sm mb-1">Member Number (optional)</label>
-                <input
-                  type="text"
-                  value={formData.memberNumber}
-                  onChange={(e) => setFormData({ ...formData, memberNumber: e.target.value })}
-                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper focus:border-gold focus:outline-none"
-                  placeholder="G-000001 (auto-generated if empty)"
-                />
-              </div>
-
-              <div>
-                <label className="block text-paper-65 text-sm mb-1">Personal Message from Heirloom</label>
-                <textarea
-                  value={formData.personalMessage}
-                  onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
-                  className="w-full bg-void-elevated border border-paper-15 rounded-[2px] px-3 py-2 text-paper focus:border-gold focus:outline-none"
-                  rows={8}
-                  placeholder={DEFAULT_MESSAGE}
-                />
-                <p className="text-paper-65 text-xs mt-1">Leave empty to use the default message</p>
-              </div>
-
-              {formData.recipientEmail && (
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.sendEmail}
-                    onChange={(e) => setFormData({ ...formData, sendEmail: e.target.checked })}
-                    className="w-4 h-4 rounded-[2px] border-paper-15 bg-void-elevated"
-                  />
-                  <span className="text-paper-70 text-sm">Send Gold Legacy invitation email immediately</span>
-                </label>
-              )}
-
-              <div className="flex gap-3 pt-4">
-                <button onClick={onClose} className="btn btn-secondary flex-1">
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCreate}
-                  disabled={isLoading}
-                  className="btn btn-primary flex-1"
-                >
-                  {isLoading ? 'Creating…' : 'Create Gold Legacy Voucher'}
-                </button>
-              </div>
-            </div>
-          )}
+          {createdVoucher.emailSent && <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', marginBottom: 16 }}>Invitation email sent to {createdVoucher.recipientEmail}</p>}
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdVoucher.code); alert('Copied!'); }}>Copy Code</button>
+            <button className="loom-btn" onClick={() => { navigator.clipboard.writeText(`https://heirloom.blue/gold/redeem?code=${createdVoucher.code}`); alert('Copied!'); }}>Copy Invitation Link</button>
+            <button className="loom-btn-ghost" onClick={onClose}>Done</button>
           </div>
         </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ padding: '10px 14px', background: 'var(--loom-ink)', border: '1px solid var(--loom-rule-warm)' }}>
+            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)' }}>Gold Legacy vouchers grant lifetime access. Reserved for special individuals only.</p>
+          </div>
+          <LoomField label="Recipient Name">
+            <LoomInput type="text" value={formData.recipientName} onChange={e => setFormData({ ...formData, recipientName: e.target.value })} placeholder="John Doe" />
+          </LoomField>
+          <LoomField label="Recipient Email">
+            <LoomInput type="email" value={formData.recipientEmail} onChange={e => setFormData({ ...formData, recipientEmail: e.target.value })} placeholder="recipient@example.com" />
+          </LoomField>
+          <LoomField label="Member Number (optional)">
+            <LoomInput type="text" value={formData.memberNumber} onChange={e => setFormData({ ...formData, memberNumber: e.target.value })} placeholder="G-000001 (auto-generated if empty)" />
+          </LoomField>
+          <LoomField label="Personal Message">
+            <textarea value={formData.personalMessage} onChange={e => setFormData({ ...formData, personalMessage: e.target.value })} rows={6} placeholder={DEFAULT_MESSAGE} style={{ width: '100%', background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)', borderRadius: 2, color: 'var(--loom-bone)', padding: '6px 10px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 4 }}>Leave empty to use the default message</div>
+          </LoomField>
+          {formData.recipientEmail && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ accentColor: 'var(--loom-warm)' }} />
+              <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)' }}>Send Gold Legacy invitation email immediately</span>
+            </label>
+          )}
+          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+            <button className="loom-btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
+            <button className="loom-btn" style={{ flex: 1 }} onClick={handleCreate} disabled={isLoading}>{isLoading ? 'Creating…' : 'Create Gold Legacy Voucher'}</button>
+          </div>
+        </div>
+      )}
+    </ModalShell>
+  );
+}
+
+// ─── Shared Modal Primitives ──────────────────────────────────────────
+
+function ModalShell({ onClose, title, children, wide }: { onClose: () => void; title: string; children: React.ReactNode; wide?: boolean }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(14,14,12,0.88)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 50, padding: '32px 16px', overflowY: 'auto' }}>
+      <div style={{ background: 'var(--loom-ink-card)', border: '1px solid var(--loom-rule)', width: '100%', maxWidth: wide ? 720 : 480, padding: 28 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid var(--loom-rule)', paddingBottom: 16 }}>
+          <p className="loom-eyebrow" style={{ color: 'var(--loom-bone-dim)' }}>{title}</p>
+          <button onClick={onClose} style={{ background: 'transparent', border: 0, color: 'var(--loom-bone-faint)', cursor: 'pointer', fontSize: 16, padding: 0, lineHeight: 1 }} aria-label="Close">✕</button>
+        </div>
+        {children}
       </div>
+    </div>
+  );
+}
+
+function LoomField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="loom-eyebrow" style={{ marginBottom: 6 }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+
+const loomInputStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'var(--loom-ink)',
+  border: '1px solid var(--loom-rule)',
+  borderRadius: 2,
+  color: 'var(--loom-bone)',
+  padding: '6px 10px',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 13,
+  outline: 'none',
+  boxSizing: 'border-box',
+};
+
+function LoomInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} style={{ ...loomInputStyle, ...props.style }} />;
+}
+
+function LoomSelect({ children, style, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select {...props} style={{ ...loomInputStyle, ...style }}>
+      {children}
+    </select>
+  );
+}
+
+function MetaCell({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div style={{ padding: '10px 12px', background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)' }}>
+      <div className="loom-eyebrow" style={{ marginBottom: 4 }}>{label}</div>
+      <div className={mono ? 'loom-mono' : ''} style={{ fontSize: mono ? 11 : 13, color: 'var(--loom-bone)' }}>{value}</div>
     </div>
   );
 }

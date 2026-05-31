@@ -1,8 +1,15 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { adminApi } from '../services/api';
 
+/**
+ * AdminLogin — Loom-native reskin.
+ *
+ * Standalone centred column on var(--loom-ink). No app nav.
+ * Same business logic: adminApi.login → localStorage → /admin/dashboard.
+ * Aesthetic: "the loom-keeper's reverse" — same type system, more utilitarian.
+ */
 export function AdminLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -17,7 +24,7 @@ export function AdminLogin() {
       navigate('/admin/dashboard');
     },
     onError: (err: any) => {
-      setError(err.response?.data?.error || 'Invalid credentials');
+      setError(err.response?.data?.error || 'invalid credentials');
     },
   });
 
@@ -28,59 +35,162 @@ export function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-void text-paper antialiased flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <span className="font-body text-5xl text-gold block mb-5" aria-hidden>∞</span>
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">Admin</p>
-          <h1 className="font-body font-light text-3xl tracking-[-0.014em] text-paper">Admin Portal</h1>
-          <p className="text-paper-60 mt-3">Sign in to access the admin dashboard</p>
-        </div>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+        display: 'grid',
+        gridTemplateRows: '60px 1fr',
+      }}
+    >
+      {/* Topbar — same pattern as loom-topbar but stripped to mark only */}
+      <header
+        style={{
+          borderBottom: '1px solid var(--loom-rule)',
+          padding: '0 28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <span className="loom-mark">
+          <span className="infmark">∞</span>heirloom
+        </span>
+        <Link
+          to="/"
+          className="loom-mono"
+          style={{
+            fontSize: 10,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'var(--loom-bone-faint)',
+            textDecoration: 'none',
+          }}
+        >
+          back to main site
+        </Link>
+      </header>
 
-        <form onSubmit={handleSubmit} className="bg-void-surface border border-paper-15 rounded-[2px] p-8 space-y-6">
-          {error && (
-            <p role="alert" className="text-blood text-sm">{error}</p>
-          )}
-
-          <div>
-            <label htmlFor="admin-email" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Email</label>
-            <input
-              id="admin-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-              placeholder="admin@heirloom.blue"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="admin-password" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">Password</label>
-            <input
-              id="admin-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loginMutation.isPending}
-            className="btn btn-primary w-full"
+      {/* Centred form column */}
+      <main
+        style={{
+          display: 'grid',
+          placeItems: 'center',
+          padding: '40px 24px',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 440 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 8 }}>
+            the ledger
+          </p>
+          <p
+            className="loom-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--loom-bone-faint)',
+              marginBottom: 28,
+            }}
           >
-            {loginMutation.isPending ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
+            loom-keeper's console · zero-knowledge · metadata only
+          </p>
 
-        <p className="text-center text-paper-50 text-sm mt-6">
-          <a href="/" className="hover:text-gold transition-colors">Back to main site</a>
-        </p>
-      </div>
+          <h1
+            className="loom-h2"
+            style={{
+              fontSize: 'clamp(28px, 4vw, 44px)',
+              fontWeight: 300,
+              fontStyle: 'italic',
+              margin: '0 0 36px',
+            }}
+          >
+            Sign in.
+          </h1>
+
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 24 }}>
+            <div>
+              <label
+                htmlFor="admin-email"
+                className="loom-eyebrow"
+                style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
+              >
+                email
+              </label>
+              <input
+                id="admin-email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@heirloom.blue"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="admin-password"
+                className="loom-eyebrow"
+                style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
+              >
+                password
+              </label>
+              <input
+                id="admin-password"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            {error ? (
+              <p
+                role="alert"
+                className="loom-body"
+                style={{
+                  fontStyle: 'italic',
+                  color: '#c25a5a',
+                  fontSize: 14,
+                  margin: 0,
+                }}
+              >
+                {error}
+              </p>
+            ) : null}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+              <button
+                type="submit"
+                disabled={loginMutation.isPending || !email.trim() || !password.trim()}
+                className="loom-btn"
+                style={{
+                  opacity: loginMutation.isPending || !email.trim() || !password.trim() ? 0.5 : 1,
+                }}
+              >
+                {loginMutation.isPending ? 'signing in…' : 'sign in'}
+              </button>
+            </div>
+          </form>
+
+          <div
+            className="loom-mono"
+            style={{
+              marginTop: 48,
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--loom-bone-faint)',
+              textAlign: 'center',
+            }}
+          >
+            ∞ &nbsp; admin sees metadata only · entries are sealed
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

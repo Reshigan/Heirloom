@@ -16,6 +16,14 @@ interface GoldLegacyVoucherInfo {
   memberNumber?: string;
 }
 
+const BENEFITS = [
+  'lifetime access to every feature',
+  'unlimited thread storage',
+  'priority support',
+  'gold legacy member designation',
+  'early access to new features',
+];
+
 export function GoldLegacyRedeem() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -40,28 +48,25 @@ export function GoldLegacyRedeem() {
 
   const validateCode = async (voucherCode: string) => {
     if (!voucherCode || voucherCode.length < 10) return;
-
     setIsValidating(true);
     setError(null);
     setVoucherInfo(null);
-
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/validate/${voucherCode.toUpperCase()}`);
       const data = await res.json();
-
       if (data.valid) {
         if (!data.voucher.isGoldLegacy) {
-          setError('This is not a Gold Legacy voucher. Please use the regular gift redemption page.');
+          setError('This is not a Gold Legacy invitation. Please use the regular gift redemption page.');
           return;
         }
         setVoucherInfo(data.voucher);
         setMemberNumber(data.voucher.memberNumber);
       } else {
-        setError(data.error || 'Invalid voucher code');
+        setError(data.error || 'Invalid invitation code.');
       }
     } catch (error) {
       console.error('Voucher validation error:', error);
-      setError('Failed to validate voucher code');
+      setError('Failed to validate invitation code.');
     } finally {
       setIsValidating(false);
     }
@@ -72,10 +77,8 @@ export function GoldLegacyRedeem() {
       navigate(`/login?redirect=/gold/redeem?code=${code}`);
       return;
     }
-
     setIsRedeeming(true);
     setError(null);
-
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/redeem`, {
@@ -86,9 +89,7 @@ export function GoldLegacyRedeem() {
         },
         body: JSON.stringify({ code: code.toUpperCase() }),
       });
-
       const data = await res.json();
-
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ['subscription'] });
         queryClient.invalidateQueries({ queryKey: ['limits'] });
@@ -97,188 +98,247 @@ export function GoldLegacyRedeem() {
           setMemberNumber(data.subscription.memberNumber);
         }
       } else {
-        setError(data.error || 'Failed to redeem voucher');
+        setError(data.error || 'Failed to redeem invitation.');
       }
     } catch (error) {
       console.error('Voucher redemption error:', error);
-      setError('Failed to redeem voucher');
+      setError('Failed to redeem invitation.');
     } finally {
       setIsRedeeming(false);
     }
   };
 
+  const wrapStyle: React.CSSProperties = {
+    minHeight: '100vh',
+    background: 'var(--loom-ink)',
+    color: 'var(--loom-bone)',
+    padding: '48px 24px 96px',
+  };
+
   return (
-    <main className="min-h-screen bg-void text-paper antialiased">
-      <div className="max-w-lg mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <Link to="/" className="inline-flex items-center gap-2 text-paper-50 hover:text-gold transition-colors text-sm mb-12">
-            <span aria-hidden>←</span> Back to Heirloom
-          </Link>
+    <div style={wrapStyle}>
+      <div style={{ maxWidth: 480, margin: '0 auto' }}>
 
-          <p className="font-body text-5xl text-gold leading-none mb-6" aria-hidden>∞</p>
-
-          <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-3">
-            Exclusive lifetime membership
-          </p>
-          <h1
-            className="font-body font-light tracking-[-0.018em]"
-            style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)' }}
+        {/* Back */}
+        <div style={{ marginBottom: 48 }}>
+          <Link
+            to="/"
+            className="loom-mono"
+            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
           >
-            Gold Legacy
-          </h1>
+            heirloom
+          </Link>
         </div>
 
-        {/* Success State */}
-        {redeemSuccess ? (
-          <div className="text-center py-12 px-8 bg-void-surface border border-gold-40 rounded-[2px]">
-            <p className="font-body text-4xl text-gold mb-6" aria-hidden>∞</p>
+        {/* Header */}
+        <header style={{ marginBottom: 48 }}>
+          <p className="loom-eyebrow" style={{ marginBottom: 14, color: 'var(--loom-warm)' }}>
+            exclusive lifetime membership
+          </p>
+          <h1
+            className="loom-h2"
+            style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
+          >
+            Gold Legacy.
+          </h1>
+          <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 15, margin: 0, lineHeight: 1.7 }}>
+            a permanent place on the thread, held for a lifetime.
+          </p>
+        </header>
 
-            <h2 className="font-body font-light text-2xl mb-2 tracking-[-0.012em]">Welcome to Gold Legacy</h2>
-            <p className="text-paper-70 mb-8 leading-relaxed">Your lifetime membership is now active.</p>
+        <hr className="loom-hairline" style={{ marginBottom: 40 }} />
+
+        {/* Success */}
+        {redeemSuccess ? (
+          <div style={{ textAlign: 'center', paddingTop: 8 }} role="status">
+            <p className="loom-eyebrow" style={{ marginBottom: 20, color: 'var(--loom-warm)' }}>
+              membership active
+            </p>
+            <h2
+              className="loom-h2"
+              style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
+            >
+              Welcome to Gold Legacy.
+            </h2>
+            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 15, margin: '0 0 32px', lineHeight: 1.7 }}>
+              Your lifetime membership is now active.
+            </p>
 
             {memberNumber && (
-              <div className="inline-block px-6 py-3 mb-8 border border-paper-15 rounded-[2px]">
-                <p className="text-paper-50 text-[0.65rem] tracking-[0.28em] uppercase mb-1">Member number</p>
-                <p className="font-mono text-xl text-gold">{memberNumber}</p>
+              <div
+                style={{
+                  display: 'inline-block',
+                  borderTop: '1px solid var(--loom-rule)',
+                  borderBottom: '1px solid var(--loom-rule)',
+                  padding: '14px 32px',
+                  marginBottom: 32,
+                  textAlign: 'center',
+                }}
+              >
+                <p className="loom-eyebrow" style={{ marginBottom: 6, fontSize: 9 }}>member number</p>
+                <p className="loom-mono" style={{ fontSize: 18, letterSpacing: '0.1em', color: 'var(--loom-warm)', margin: 0 }}>
+                  {memberNumber}
+                </p>
               </div>
             )}
 
-            <div className="space-y-3 text-left max-w-sm mx-auto mb-10">
-              <p className="text-paper-50 text-[0.65rem] tracking-[0.28em] uppercase text-center mb-4">Your Gold Legacy benefits</p>
-              {[
-                'Lifetime access to all features',
-                'Unlimited memory storage',
-                'Priority support',
-                'Exclusive Gold Legacy badge',
-                'Early access to new features',
-              ].map((benefit, i) => (
-                <div key={i} className="flex items-baseline gap-3">
-                  <span className="text-gold font-mono text-sm" aria-hidden>·</span>
-                  <span className="text-paper-70 text-sm leading-relaxed">{benefit}</span>
-                </div>
-              ))}
+            <div style={{ marginBottom: 40, textAlign: 'left' }}>
+              <p className="loom-eyebrow" style={{ marginBottom: 16, fontSize: 9 }}>your benefits</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
+                {BENEFITS.map((b, i) => (
+                  <li
+                    key={i}
+                    className="loom-body"
+                    style={{ display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 14, color: 'var(--loom-bone-dim)' }}
+                  >
+                    <span style={{ color: 'var(--loom-warm)', flexShrink: 0 }}>·</span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <button onClick={() => navigate('/dashboard')} className="btn btn-primary">
-              Start your legacy <span aria-hidden>→</span>
+            <button onClick={() => navigate('/dashboard')} className="loom-btn">
+              open the thread
             </button>
           </div>
         ) : (
           <>
             {/* Code Input */}
-            <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 mb-6">
-              <label htmlFor="gold-code" className="block text-xs uppercase tracking-[0.22em] text-paper-50 mb-2.5">
-                Invitation Code
+            <div style={{ marginBottom: 28 }}>
+              <label
+                htmlFor="gold-code"
+                className="loom-eyebrow"
+                style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
+              >
+                invitation code
               </label>
-              <div className="flex gap-3">
+              <div style={{ display: 'flex', gap: 12 }}>
                 <input
                   id="gold-code"
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  className="flex-1 bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper font-mono text-lg tracking-wider px-4 py-3 rounded-[2px] placeholder:text-paper-30 transition-colors"
                   placeholder="GOLD-XXXX-XXXX-XXXX"
+                  className="loom-mono"
+                  style={{ flex: 1, fontSize: 16, letterSpacing: '0.08em' }}
                 />
                 <button
                   onClick={() => validateCode(code)}
                   disabled={isValidating || code.length < 10}
-                  className="btn btn-ghost"
+                  className="loom-btn-ghost"
+                  style={{ opacity: (isValidating || code.length < 10) ? 0.5 : 1 }}
                 >
-                  {isValidating ? 'Validating…' : 'Validate'}
+                  {isValidating ? 'checking…' : 'validate'}
                 </button>
               </div>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-4 mb-6" role="alert">
-                <p className="text-blood text-sm">{error}</p>
-              </div>
+              <p
+                role="alert"
+                className="loom-body"
+                style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 13, margin: '0 0 24px' }}
+              >
+                {error}
+              </p>
             )}
 
-            {/* Voucher Info — Certificate */}
+            {/* Certificate */}
             {voucherInfo && (
-              <div className="bg-void-surface border border-gold-40 rounded-[2px] overflow-hidden mb-6">
-                {/* Certificate Header */}
-                <div className="text-center py-6 px-6 border-b border-paper-15">
-                  <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-paper-50 mb-2">
-                    Certificate of membership
+              <div
+                style={{
+                  border: '1px solid var(--loom-rule-warm)',
+                  marginBottom: 28,
+                }}
+              >
+                {/* Certificate header */}
+                <div
+                  style={{
+                    textAlign: 'center',
+                    padding: '28px 24px',
+                    borderBottom: '1px solid var(--loom-rule)',
+                  }}
+                >
+                  <p className="loom-eyebrow" style={{ marginBottom: 8, fontSize: 9 }}>
+                    certificate of membership
                   </p>
-                  <h3 className="font-body font-light text-xl text-gold tracking-[-0.012em]">Gold Legacy Circle</h3>
+                  <p
+                    className="loom-h2"
+                    style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', color: 'var(--loom-warm)', margin: '0 0 8px' }}
+                  >
+                    Gold Legacy Circle
+                  </p>
                   {memberNumber && (
-                    <p className="text-paper-50 text-sm mt-2 font-mono">Member #{memberNumber}</p>
+                    <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                      member #{memberNumber}
+                    </p>
                   )}
                 </div>
 
-                {/* Personal Message */}
+                {/* Personal message */}
                 {voucherInfo.recipientMessage && (
-                  <div className="p-6 border-b border-paper-15">
-                    <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-paper-50 mb-3">
-                      A note from Heirloom
-                    </p>
-                    <div className="pl-4 border-l border-gold-40">
-                      <p className="text-paper-70 text-sm leading-[1.7] whitespace-pre-line font-body italic">
+                  <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--loom-rule)' }}>
+                    <p className="loom-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>a note</p>
+                    <div style={{ borderLeft: '1px solid var(--loom-rule-warm)', paddingLeft: 16 }}>
+                      <p
+                        className="loom-body"
+                        style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)', fontSize: 14, lineHeight: 1.7, margin: 0 }}
+                      >
                         {voucherInfo.recipientMessage}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {/* Benefits */}
-                <div className="p-6 border-b border-paper-15">
-                  <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-paper-50 mb-4">
-                    Your lifetime benefits
-                  </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      'Lifetime Access',
-                      'Unlimited Storage',
-                      'Priority Support',
-                      'Gold Badge',
-                    ].map((benefit, i) => (
-                      <div key={i} className="flex items-baseline gap-2">
-                        <span className="text-gold font-mono text-sm" aria-hidden>·</span>
-                        <span className="text-paper-70 text-sm">{benefit}</span>
+                {/* Benefits grid */}
+                <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--loom-rule)' }}>
+                  <p className="loom-eyebrow" style={{ marginBottom: 16, fontSize: 9 }}>lifetime benefits</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    {['Lifetime Access', 'Unlimited Storage', 'Priority Support', 'Gold Designation'].map((b, i) => (
+                      <div
+                        key={i}
+                        className="loom-body"
+                        style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 13, color: 'var(--loom-bone-dim)' }}
+                      >
+                        <span style={{ color: 'var(--loom-warm)', flexShrink: 0 }}>·</span>
+                        {b}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Accept Button */}
-                <div className="p-6">
+                {/* Accept */}
+                <div style={{ padding: '20px 24px' }}>
                   {isAuthenticated ? (
                     <button
                       onClick={handleRedeem}
                       disabled={isRedeeming}
-                      className="btn btn-primary w-full"
+                      className="loom-btn"
+                      style={{ width: '100%', opacity: isRedeeming ? 0.5 : 1 }}
                     >
-                      {isRedeeming ? (
-                        'Activating membership…'
-                      ) : (
-                        <>
-                          <span aria-hidden>∞</span>
-                          Accept invitation
-                        </>
-                      )}
+                      {isRedeeming ? 'activating membership…' : '∞  accept invitation'}
                     </button>
                   ) : (
-                    <div className="space-y-3">
-                      <p className="text-center text-paper-70 text-sm">
-                        Sign in or create an account to accept your invitation
+                    <div>
+                      <p className="loom-body" style={{ textAlign: 'center', fontSize: 13, color: 'var(--loom-bone-faint)', marginBottom: 16 }}>
+                        sign in or create an account to accept your invitation
                       </p>
-                      <div className="flex gap-3">
+                      <div style={{ display: 'flex', gap: 12 }}>
                         <Link
                           to={`/login?redirect=/gold/redeem?code=${code}`}
-                          className="btn btn-ghost flex-1 justify-center"
+                          className="loom-btn-ghost"
+                          style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}
                         >
-                          Sign In
+                          sign in
                         </Link>
                         <Link
                           to={`/signup?redirect=/gold/redeem?code=${code}`}
-                          className="btn btn-primary flex-1 justify-center"
+                          className="loom-btn"
+                          style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}
                         >
-                          Create Account
+                          begin a thread
                         </Link>
                       </div>
                     </div>
@@ -287,39 +347,40 @@ export function GoldLegacyRedeem() {
               </div>
             )}
 
-            {/* Info when no voucher validated */}
+            {/* Pre-validation info */}
             {!voucherInfo && !error && (
-              <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                <p className="text-center text-paper-50 text-[0.65rem] tracking-[0.28em] uppercase mb-5">
-                  Gold Legacy membership grants you
+              <div style={{ marginTop: 8 }}>
+                <p className="loom-eyebrow" style={{ marginBottom: 16, fontSize: 9 }}>
+                  gold legacy grants you
                 </p>
-                <div className="space-y-3">
-                  {[
-                    'Lifetime access to all Heirloom features',
-                    'Unlimited memory and recording storage',
-                    'Priority customer support',
-                    'Exclusive Gold Legacy member badge',
-                    'Early access to new features',
-                  ].map((feature, i) => (
-                    <div key={i} className="flex items-baseline gap-3">
-                      <span className="text-gold font-mono text-sm" aria-hidden>·</span>
-                      <span className="text-paper-70 text-sm leading-relaxed">{feature}</span>
-                    </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
+                  {BENEFITS.map((f, i) => (
+                    <li
+                      key={i}
+                      className="loom-body"
+                      style={{ display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 14, color: 'var(--loom-bone-dim)' }}
+                    >
+                      <span style={{ color: 'var(--loom-warm)', flexShrink: 0 }}>·</span>
+                      {f}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
           </>
         )}
 
         {/* Footer */}
-        <div className="text-center mt-12">
-          <p className="font-mono text-[0.65rem] tracking-[0.28em] uppercase text-paper-30">
-            Heirloom — your memories, forever
+        <div style={{ textAlign: 'center', marginTop: 56 }}>
+          <p
+            className="loom-mono"
+            style={{ fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+          >
+            heirloom · your memories, forever
           </p>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 

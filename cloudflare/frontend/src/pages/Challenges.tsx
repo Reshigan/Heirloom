@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ProgressHair } from '../components/ui/ProgressHair';
-import { Navigation } from '../components/Navigation';
+import { AppFrame } from '../loom/components/AppFrame';
 import { challengesApi } from '../services/api';
 
 export function Challenges() {
@@ -38,22 +36,18 @@ export function Challenges() {
     },
   });
 
-    const handleShare= (platform: string) => {
+  const handleShare = (platform: string) => {
     const challenge = currentChallenge;
     if (!challenge) return;
-
     const text = `I just shared a memory for the ${challenge.title} challenge on Heirloom! ${challenge.hashtag}`;
     const url = 'https://heirloom.blue/challenges';
-
     let shareUrl = '';
     switch (platform) {
       case 'instagram':
         navigator.clipboard.writeText(`${text}\n\n${url}`);
-        alert('Caption copied! Open Instagram to share.');
         break;
       case 'tiktok':
         navigator.clipboard.writeText(`${text}\n\n${url}`);
-        alert('Caption copied! Open TikTok to share.');
         break;
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
@@ -73,308 +67,371 @@ export function Challenges() {
     return Math.max(0, diff);
   };
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    background: 'transparent',
+    border: '1px solid var(--loom-rule)',
+    borderRadius: 2,
+    color: 'var(--loom-bone)',
+    caretColor: 'var(--loom-warm)',
+    fontFamily: "'Source Serif 4', serif",
+    fontSize: 15,
+    lineHeight: 1.7,
+    padding: '12px 14px',
+    outline: 'none',
+    boxSizing: 'border-box',
+    resize: 'none',
+  };
+
   return (
-    <div className="min-h-screen bg-void text-paper">
-      <Navigation />
-
-      <main id="main-content" className="pt-24 pb-12 px-6 md:px-12 max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+    <AppFrame>
+      <header style={{ marginBottom: 40 }}>
+        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+          Challenges
+        </p>
+        <h1
+          className="loom-h2"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
         >
-          <h1 className="font-body font-light text-3xl md:text-4xl mb-2 tracking-[-0.014em]">Weekly Challenges</h1>
-          <p className="text-paper-70">Join themed memory challenges and share with your community</p>
-        </motion.div>
+          Weekly themes for the thread.
+        </h1>
+        <p
+          className="loom-body"
+          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
+        >
+          Each week a prompt surfaces — a theme to weave into your thread. Add an entry, share it with your bloodline.
+        </p>
+      </header>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <ProgressHair label="loading…" width={180} />
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {/* Current Challenge */}
-            {currentChallenge ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-void-surface border border-paper-15 p-6"
-              >
-                <div className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-4">
-                  This Week's Challenge
-                </div>
+      {isLoading ? (
+        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+          Loading…
+        </p>
+      ) : (
+        <div style={{ display: 'grid', gap: 48 }}>
 
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-body font-light mb-3 tracking-[-0.014em]">{currentChallenge.title}</h2>
-                    <p className="text-paper-70 mb-4">{currentChallenge.description}</p>
+          {/* Current challenge */}
+          {currentChallenge ? (
+            <section>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
+                <p className="loom-eyebrow">This week</p>
+                <hr className="loom-hairline" style={{ flex: 1 }} />
+              </div>
 
-                    <div className="border border-paper-15 rounded-[2px] p-4 mb-6">
-                      <div className="text-sm text-paper-65 mb-2">This week's prompt:</div>
-                      <p className="text-paper font-body italic">"{currentChallenge.prompt}"</p>
-                    </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48 }}>
+                <div>
+                  <h2
+                    className="loom-serif"
+                    style={{ fontSize: 28, fontWeight: 300, margin: '0 0 12px', lineHeight: 1.2 }}
+                  >
+                    {currentChallenge.title}
+                  </h2>
+                  <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 20px', lineHeight: 1.7 }}>
+                    {currentChallenge.description}
+                  </p>
 
-                    <div className="flex flex-wrap gap-4 text-sm text-paper-70 mb-6">
-                      <div className="flex items-center gap-2">
-                        <span className="text-gold">{currentChallenge.hashtag}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span>{getDaysRemaining(currentChallenge.end_date)} days left</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span>{currentChallenge.submissionCount || 0} participants</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        onClick={() => setShowSubmitModal(true)}
-                        className="btn btn-primary"
-                      >
-                        Submit Your Memory
-                      </button>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleShare('instagram')}
-                          className="btn btn-ghost"
-                          aria-label="Share to Instagram"
-                        >
-                          Instagram
-                        </button>
-                        <button
-                          onClick={() => handleShare('tiktok')}
-                          className="btn btn-ghost"
-                          aria-label="Share to TikTok"
-                        >
-                          TikTok
-                        </button>
-                        <button
-                          onClick={() => handleShare('twitter')}
-                          className="btn btn-ghost"
-                          aria-label="Share to Twitter"
-                        >
-                          X
-                        </button>
-                      </div>
-                    </div>
+                  <div
+                    style={{
+                      borderLeft: '1px solid var(--loom-rule)',
+                      paddingLeft: 16,
+                      marginBottom: 24,
+                    }}
+                  >
+                    <p className="loom-eyebrow" style={{ marginBottom: 6 }}>This week's prompt</p>
+                    <p className="loom-body" style={{ fontStyle: 'italic', fontSize: 15, color: 'var(--loom-bone)', margin: 0 }}>
+                      "{currentChallenge.prompt}"
+                    </p>
                   </div>
 
-                  <div className="border border-paper-15 rounded-[2px] p-6">
-                    <h3 className="font-medium mb-4">Recent Submissions</h3>
-                    {submissions && submissions.length > 0 ? (
-                      <div className="space-y-4 max-h-64 overflow-y-auto">
-                        {submissions.slice(0, 5).map((sub: any) => (
-                          <div key={sub.id} className="flex items-start gap-3">
-                            <div className="w-8 h-8 rounded-[2px] border border-paper-15 flex items-center justify-center text-sm text-gold">
-                              {sub.first_name?.[0] || '?'}
-                            </div>
-                            <div className="flex-1">
-                              <div className="text-sm font-medium">{sub.first_name} {sub.last_name?.[0]}.</div>
-                              <div className="text-xs text-paper-65 line-clamp-2">{sub.content}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-paper-65">
-                        <div className="text-2xl text-gold/50 mb-2" aria-hidden>∞</div>
-                        <p>Be the first to submit!</p>
-                      </div>
-                    )}
+                  <div style={{ display: 'flex', gap: 24, marginBottom: 24 }}>
+                    <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.06em' }}>
+                      {currentChallenge.hashtag}
+                    </span>
+                    <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
+                      {getDaysRemaining(currentChallenge.end_date)} days remaining
+                    </span>
+                    <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
+                      {currentChallenge.submissionCount || 0} entries
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => setShowSubmitModal(true)}
+                      className="loom-btn"
+                    >
+                      add to thread
+                    </button>
+                    <button
+                      onClick={() => handleShare('twitter')}
+                      className="loom-btn-ghost"
+                      aria-label="Share to X"
+                    >
+                      share · X
+                    </button>
+                    <button
+                      onClick={() => handleShare('instagram')}
+                      className="loom-btn-ghost"
+                      aria-label="Copy for Instagram"
+                    >
+                      share · Instagram
+                    </button>
+                    <button
+                      onClick={() => handleShare('facebook')}
+                      className="loom-btn-ghost"
+                      aria-label="Share to Facebook"
+                    >
+                      share · Facebook
+                    </button>
                   </div>
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-void-surface border border-paper-15 p-6 text-center py-12"
-              >
-                <div className="text-4xl text-gold/50 mb-4" aria-hidden>∞</div>
-                <h2 className="text-xl font-body font-light mb-2">No Active Challenge</h2>
-                <p className="text-paper-70">Check back soon for the next weekly challenge!</p>
-              </motion.div>
-            )}
 
-            {/* Upcoming Challenges */}
-            {challenges && challenges.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
+                <div style={{ borderLeft: '1px solid var(--loom-rule)', paddingLeft: 32 }}>
+                  <p className="loom-eyebrow" style={{ marginBottom: 16 }}>Recent entries</p>
+                  {submissions && submissions.length > 0 ? (
+                    <div style={{ display: 'grid', gap: 16 }}>
+                      {(submissions as any[]).slice(0, 5).map((sub: any) => (
+                        <div key={sub.id} style={{ paddingBottom: 16, borderBottom: '1px solid var(--loom-rule)' }}>
+                          <p
+                            className="loom-mono"
+                            style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.06em', margin: '0 0 4px' }}
+                          >
+                            {sub.first_name}{sub.last_name ? ` ${sub.last_name[0]}.` : ''}
+                          </p>
+                          <p
+                            className="loom-body"
+                            style={{
+                              fontSize: 14,
+                              color: 'var(--loom-bone-dim)',
+                              margin: 0,
+                              lineHeight: 1.6,
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {sub.content}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ paddingTop: 24, textAlign: 'center' }}>
+                      <p className="loom-mono" style={{ fontSize: 22, color: 'var(--loom-warm)', marginBottom: 8 }}>∞</p>
+                      <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', fontStyle: 'italic', margin: 0 }}>
+                        No entries yet. Be the first to weave this thread.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          ) : (
+            <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center' }}>
+              <p className="loom-mono" style={{ fontSize: 22, color: 'var(--loom-warm)', marginBottom: 12 }}>∞</p>
+              <h2
+                className="loom-serif"
+                style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 8px' }}
               >
-                <h2 className="text-xl font-body font-light mb-4">Upcoming Challenges</h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {challenges.filter((c: any) => new Date(c.start_date) > new Date()).slice(0, 6).map((challenge: any, index: number) => (
-                    <motion.div
+                No active challenge.
+              </h2>
+              <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', margin: 0 }}>
+                Check back soon for the next weekly theme.
+              </p>
+            </div>
+          )}
+
+          {/* Upcoming challenges */}
+          {challenges && (challenges as any[]).filter((c: any) => new Date(c.start_date) > new Date()).length > 0 && (
+            <section>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
+                <p className="loom-eyebrow">Coming threads</p>
+                <hr className="loom-hairline" style={{ flex: 1 }} />
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {(challenges as any[])
+                  .filter((c: any) => new Date(c.start_date) > new Date())
+                  .slice(0, 6)
+                  .map((challenge: any) => (
+                    <li
                       key={challenge.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 + index * 0.05 }}
-                      className="bg-void-surface border border-paper-15 p-6 hover:border-gold-40 transition-colors cursor-pointer"
+                      style={{
+                        padding: '20px 0',
+                        borderBottom: '1px solid var(--loom-rule)',
+                        cursor: 'pointer',
+                      }}
                       onClick={() => setSelectedChallenge(challenge)}
                     >
-                      <div className="text-xs text-gold mb-2">
-                        {new Date(challenge.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </div>
-                      <h3 className="font-medium mb-2">{challenge.title}</h3>
-                      <p className="text-sm text-paper-70 line-clamp-2">{challenge.description}</p>
-                      <div className="mt-3 flex items-center gap-2 text-xs text-paper-65">
-                        <span>{challenge.hashtag}</span>
-                      </div>
-                    </motion.div>
+                      <article style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 32, alignItems: 'baseline' }}>
+                        <p
+                          className="loom-mono"
+                          style={{ margin: 0, fontSize: 11, letterSpacing: '0.04em', color: 'var(--loom-warm)' }}
+                        >
+                          {new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </p>
+                        <div>
+                          <h3
+                            className="loom-serif"
+                            style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 4px', lineHeight: 1.3 }}
+                          >
+                            {challenge.title}
+                          </h3>
+                          <p
+                            className="loom-body"
+                            style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: 0, lineHeight: 1.6 }}
+                          >
+                            {challenge.description}
+                          </p>
+                          <p
+                            className="loom-mono"
+                            style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.12em' }}
+                          >
+                            {challenge.hashtag}
+                          </p>
+                        </div>
+                      </article>
+                    </li>
                   ))}
-                </div>
-              </motion.div>
-            )}
+              </ul>
+            </section>
+          )}
 
-            {/* How It Works */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-void-surface border border-paper-15 p-6"
+          {/* How it works */}
+          <section style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 40 }}>
+            <p className="loom-eyebrow" style={{ marginBottom: 32 }}>How challenges work</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 40 }}>
+              {[
+                { n: '01', h: 'A theme arrives.', b: 'Each week a new prompt surfaces — something to bring from memory into the thread.' },
+                { n: '02', h: 'You write into it.', b: 'Add an entry, a voice note, or a letter. The prompt is the door; what you bring is the thread.' },
+                { n: '03', h: 'The thread continues.', b: 'Share with your bloodline or across platforms. The weaving never stops.' },
+              ].map(({ n, h, b }) => (
+                <div key={n}>
+                  <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.06em', margin: '0 0 10px' }}>{n}</p>
+                  <h3 className="loom-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 8px' }}>{h}</h3>
+                  <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: 0, lineHeight: 1.7 }}>{b}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* Submit overlay */}
+      {showSubmitModal && currentChallenge && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 200, padding: 24,
+          }}
+          onClick={() => setShowSubmitModal(false)}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 520,
+              width: '100%',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="loom-eyebrow" style={{ marginBottom: 12 }}>
+              {currentChallenge.title}
+            </p>
+            <h3
+              className="loom-serif"
+              style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 6px' }}
             >
-              <h2 className="text-xl font-body font-light mb-6">How Challenges Work</h2>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="w-12 h-12 rounded-[2px] border border-gold-40 flex items-center justify-center mx-auto mb-3">
-                    <span className="text-gold font-medium">1</span>
-                  </div>
-                  <h3 className="font-medium mb-2">Join the Challenge</h3>
-                  <p className="text-sm text-paper-70">Each week features a new theme and prompt to inspire your memories</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 rounded-[2px] border border-gold-40 flex items-center justify-center mx-auto mb-3">
-                    <span className="text-gold font-medium">2</span>
-                  </div>
-                  <h3 className="font-medium mb-2">Share Your Story</h3>
-                  <p className="text-sm text-paper-70">Submit a memory, voice recording, or written story that fits the theme</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 rounded-[2px] border border-gold-40 flex items-center justify-center mx-auto mb-3">
-                    <span className="text-gold font-medium">3</span>
-                  </div>
-                  <h3 className="font-medium mb-2">Go Viral</h3>
-                  <p className="text-sm text-paper-70">Share to social media with the hashtag and connect with others</p>
-                </div>
-              </div>
-            </motion.div>
+              Add your entry.
+            </h3>
+            <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 24px', lineHeight: 1.6 }}>
+              {currentChallenge.prompt}
+            </p>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontFamily: "'Inter',sans-serif", fontSize: 11, fontWeight: 500, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', marginBottom: 10 }}>
+                Your memory
+              </label>
+              <textarea
+                value={submissionContent}
+                onChange={(e) => setSubmissionContent(e.target.value)}
+                placeholder="Write here…"
+                rows={5}
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowSubmitModal(false)} className="loom-btn-ghost">
+                cancel
+              </button>
+              <button
+                onClick={() => submitMutation.mutate({ challengeId: currentChallenge.id, content: submissionContent })}
+                disabled={!submissionContent.trim() || submitMutation.isPending}
+                className="loom-btn"
+              >
+                {submitMutation.isPending ? 'weaving…' : 'add to thread'}
+              </button>
+            </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
 
-      {/* Submit Modal */}
-      <AnimatePresence>
-        {showSubmitModal && currentChallenge && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-backdrop"
-            onClick={() => setShowSubmitModal(false)}
+      {/* Challenge detail overlay */}
+      {selectedChallenge && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(14,14,12,0.82)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 200, padding: 24,
+          }}
+          onClick={() => setSelectedChallenge(null)}
+        >
+          <div
+            style={{
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule)',
+              padding: 40,
+              maxWidth: 480,
+              width: '100%',
+            }}
+            onClick={e => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal max-w-lg"
-              onClick={e => e.stopPropagation()}
+            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.06em', margin: '0 0 10px' }}>
+              starts {new Date(selectedChallenge.start_date).toLocaleDateString()}
+            </p>
+            <h3
+              className="loom-serif"
+              style={{ fontSize: 24, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 10px' }}
             >
-              <button
-                onClick={() => setShowSubmitModal(false)}
-                className="absolute top-4 right-4 text-paper-65 hover:text-paper"
-                aria-label="Close"
-              >
-                <span aria-hidden>×</span>
-              </button>
+              {selectedChallenge.title}
+            </h3>
+            <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 20px', lineHeight: 1.7 }}>
+              {selectedChallenge.description}
+            </p>
 
-              <h3 className="text-xl font-medium mb-2">Submit to {currentChallenge.title}</h3>
-              <p className="text-paper-70 text-sm mb-6">{currentChallenge.prompt}</p>
+            <div style={{ borderLeft: '1px solid var(--loom-rule)', paddingLeft: 16, marginBottom: 20 }}>
+              <p className="loom-eyebrow" style={{ marginBottom: 6 }}>Prompt</p>
+              <p className="loom-body" style={{ fontStyle: 'italic', fontSize: 15, color: 'var(--loom-bone)', margin: 0 }}>
+                "{selectedChallenge.prompt}"
+              </p>
+            </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-paper-70 mb-2">Your Memory</label>
-                  <textarea
-                    value={submissionContent}
-                    onChange={(e) => setSubmissionContent(e.target.value)}
-                    placeholder="Share your story..."
-                    className="input w-full h-32 resize-none"
-                  />
-                </div>
+            <div style={{ display: 'flex', gap: 20 }}>
+              <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>{selectedChallenge.hashtag}</span>
+              <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>7 days</span>
+            </div>
 
-                <div className="flex gap-3 justify-end">
-                  <button
-                    onClick={() => setShowSubmitModal(false)}
-                    className="btn btn-ghost"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => submitMutation.mutate({
-                      challengeId: currentChallenge.id,
-                      content: submissionContent,
-                    })}
-                    disabled={!submissionContent.trim() || submitMutation.isPending}
-                    className="btn btn-primary"
-                  >
-                    {submitMutation.isPending ? 'Submitting...' : 'Submit'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Challenge Detail Modal */}
-      <AnimatePresence>
-        {selectedChallenge && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-backdrop"
-            onClick={() => setSelectedChallenge(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal max-w-lg"
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedChallenge(null)}
-                className="absolute top-4 right-4 text-paper-65 hover:text-paper"
-                aria-label="Close"
-              >
-                <span aria-hidden>×</span>
-              </button>
-
-              <div className="text-xs text-gold mb-2">
-                Starts {new Date(selectedChallenge.start_date).toLocaleDateString()}
-              </div>
-              <h3 className="text-xl font-medium mb-2">{selectedChallenge.title}</h3>
-              <p className="text-paper-70 mb-4">{selectedChallenge.description}</p>
-
-              <div className="border border-paper-15 rounded-[2px] p-4 mb-4">
-                <div className="text-sm text-paper-65 mb-2">Prompt:</div>
-                <p className="text-paper font-body italic">"{selectedChallenge.prompt}"</p>
-              </div>
-
-              <div className="flex items-center gap-4 text-sm text-paper-70">
-                <div className="flex items-center gap-2">
-                  <span>{selectedChallenge.hashtag}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>7 days</span>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            <div style={{ marginTop: 24, textAlign: 'right' }}>
+              <button onClick={() => setSelectedChallenge(null)} className="loom-btn-ghost">close</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </AppFrame>
   );
 }

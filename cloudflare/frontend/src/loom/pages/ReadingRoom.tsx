@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { LoomShell } from '../components/LoomShell';
 import { Frame } from '../components/Frame';
+import { ViewToggle } from '../components/ViewToggle';
 
 /**
  * Screen 07 — The Reading Room
@@ -10,8 +11,15 @@ import { Frame } from '../components/Frame';
  * with a photograph. The left rail lists the threads; the centre is
  * the artifact in its medium-appropriate rendering; the right rail
  * is what this thread rhymes with elsewhere in the loom.
+ *
+ * Two view-modes, switched by the loom-mono ViewToggle in the top bar:
+ *   wall — the canonical three-column reader (below)
+ *   book — the descendant's large-type book-spread reader (BookView),
+ *          a generous two-page reading surface with page-turn paging
+ *          and ∞ chapter marks.
  */
 type Kind = 'photo' | 'voice' | 'letter';
+type RoomView = 'wall' | 'book';
 
 interface Thread {
   kind: Kind;
@@ -33,13 +41,40 @@ const GLYPH: Record<Kind, string> = { photo: '◌', voice: '∿', letter: '∞' 
 
 export function ReadingRoom() {
   const [active, setActive] = useState(2);
+  const [view, setView] = useState<RoomView>('wall');
   const t = THREADS[active];
+
+  const toggle = (
+    <ViewToggle<RoomView>
+      value={view}
+      onChange={setView}
+      options={[
+        { value: 'wall', label: 'wall' },
+        { value: 'book', label: 'book' },
+      ]}
+    />
+  );
+
+  if (view === 'book') {
+    return (
+      <LoomShell>
+        <Frame active="weft" right={toggle}>
+          <BookView />
+        </Frame>
+      </LoomShell>
+    );
+  }
 
   return (
     <LoomShell>
       <Frame
         active="weft"
-        right={<span className="loom-mono loom-faint">reading · {t.date}</span>}
+        right={
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+            {toggle}
+            <span className="loom-mono loom-faint">reading · {t.date}</span>
+          </span>
+        }
       >
         <div
           style={{
@@ -618,6 +653,284 @@ function Tag({ children, warm }: { children: ReactNode; warm?: boolean }) {
     >
       {children}
     </span>
+  );
+}
+
+/**
+ * BookView — the descendant's reader.
+ *
+ * A book-spread large-type reading surface: the left page carries the
+ * chapter intro (∞ chapter mark, the title set huge, the byline), the
+ * right page carries the prose set generously in Source Serif 4. Page
+ * turns are a quiet left/right pager, marked with ∞; the running heads
+ * name the thread and the chapter.
+ */
+interface Chapter {
+  numeral: string;
+  eyebrow: string;
+  title: string;
+  byline: string;
+  body: string[];
+  closing: string;
+  leftPage: number;
+  rightPage: number;
+}
+
+const CHAPTERS: Chapter[] = [
+  {
+    numeral: 'i',
+    eyebrow: 'i · the kitchen window · 1986',
+    title: 'The late-may light.',
+    byline:
+      'Written by Eleanor Hartshorn on the 14th of May, 1986. The daffodils were out for the last spring her mother saw them.',
+    body: [
+      'Tonight I sat at the kitchen window. The light came through the daffodils the way it used to when my mother was alive — slanted, low, the colour of a strong tea. I thought I should write this down before it goes.',
+      'I do not know who will read it. Maybe Iris, in some year I will not see. We don’t get to keep each other for as long as we want. But we get the window. We get the late-may light. We get this.',
+    ],
+    closing: 'She kept the daffodils on the sill every May after.',
+    leftPage: 148,
+    rightPage: 149,
+  },
+  {
+    numeral: 'ii',
+    eyebrow: 'ii · humming, sunday · 1992',
+    title: 'The same six notes.',
+    byline:
+      'Recorded by Margaret on a Sunday morning in 1992. A kettle in the background, and a tune she never knew she taught.',
+    body: [
+      'A kettle, a Sunday, six notes I have hummed my whole life without knowing where I learned them. The recorder was on and I had forgotten it. Oh, I forgot you were on — well, Eleanor. The daffodils are out.',
+      'Maya hums them now, thirty years on, calling from a city I have never been to. She learned it without knowing she had. That is how the smallest things travel: under the words, in the breath between them.',
+    ],
+    closing: 'The loom heard the same hum, two generations apart.',
+    leftPage: 150,
+    rightPage: 151,
+  },
+  {
+    numeral: 'iii',
+    eyebrow: 'iii · to my granddaughter · 2024',
+    title: 'For the day you are ready.',
+    byline:
+      'Written by Eleanor Hartshorn on the 2nd of June, 2024. Iris was asleep on the windowsill where Margaret used to sit.',
+    body: [
+      'To my granddaughter, today: you are asleep on the windowsill where my mother used to sit. I do not know who you will become. I am writing so that you will know who we were.',
+      'You do not have to read all of this at once. The thread cannot be deleted, and it will wait. Read it on the day you are ready, and then put it down, and then come back. That is what it is for.',
+    ],
+    closing: 'She didn’t wake her. She just wrote.',
+    leftPage: 152,
+    rightPage: 153,
+  },
+];
+
+function BookView() {
+  const [ch, setCh] = useState(0);
+  const c = CHAPTERS[ch];
+  const turn = (delta: number) =>
+    setCh((p) => Math.min(CHAPTERS.length - 1, Math.max(0, p + delta)));
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}>
+      {/* running heads */}
+      <div
+        className="loom-mono"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: '22px 64px 0',
+          fontSize: 10,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: 'var(--loom-bone-faint)',
+        }}
+      >
+        <span>book mode · the Hartshorn thread</span>
+        <span style={{ color: 'var(--loom-warm)' }}>
+          ∞ &nbsp; chapter {c.numeral} · {c.title.replace(/\.$/, '')}
+        </span>
+      </div>
+
+      {/* two-page spread */}
+      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+        {/* left page — chapter intro */}
+        <div
+          style={{
+            flex: 1,
+            padding: '56px 64px 56px 88px',
+            borderRight: '1px solid var(--loom-rule)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div
+            className="loom-mono"
+            style={{
+              fontSize: 10,
+              color: 'var(--loom-bone-faint)',
+              letterSpacing: '0.32em',
+              textTransform: 'uppercase',
+              marginBottom: 36,
+            }}
+          >
+            {c.eyebrow}
+          </div>
+          <h2
+            className="loom-display"
+            style={{
+              fontSize: 46,
+              fontStyle: 'italic',
+              margin: 0,
+              maxWidth: '14ch',
+              color: 'var(--loom-bone)',
+            }}
+          >
+            {c.title}
+          </h2>
+          <div
+            className="loom-serif"
+            style={{
+              fontStyle: 'italic',
+              fontSize: 17,
+              color: 'var(--loom-bone-dim)',
+              marginTop: 32,
+              maxWidth: '38ch',
+              lineHeight: 1.7,
+            }}
+          >
+            {c.byline}
+          </div>
+          <div style={{ flex: 1 }} />
+          <div
+            className="loom-mono"
+            style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em' }}
+          >
+            p. {c.leftPage}
+          </div>
+        </div>
+
+        {/* right page — body */}
+        <div
+          style={{
+            flex: 1,
+            padding: '56px 88px 56px 64px',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div style={{ maxWidth: '52ch' }}>
+            {c.body.map((p, i) => (
+              <p
+                key={i}
+                className="loom-body"
+                style={{
+                  fontSize: 18,
+                  lineHeight: 1.9,
+                  color: 'var(--loom-bone)',
+                  margin: i === 0 ? '0 0 18px' : '0 0 18px',
+                }}
+              >
+                {p}
+              </p>
+            ))}
+            <div
+              className="loom-serif"
+              style={{
+                fontStyle: 'italic',
+                fontSize: 16,
+                color: 'var(--loom-bone-dim)',
+                marginTop: 10,
+              }}
+            >
+              {c.closing}
+            </div>
+          </div>
+          <div style={{ flex: 1 }} />
+          <div
+            className="loom-mono"
+            style={{
+              fontSize: 10,
+              color: 'var(--loom-bone-faint)',
+              letterSpacing: '0.18em',
+              textAlign: 'right',
+            }}
+          >
+            p. {c.rightPage}
+          </div>
+        </div>
+      </div>
+
+      {/* page-turn pager — ∞ chapter marks */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 64px 24px',
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => turn(-1)}
+          disabled={ch === 0}
+          className="loom-mono"
+          style={{
+            background: 'transparent',
+            border: 0,
+            padding: 0,
+            cursor: ch === 0 ? 'default' : 'pointer',
+            fontSize: 10,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: ch === 0 ? 'var(--loom-bone-ghost)' : 'var(--loom-bone-dim)',
+          }}
+        >
+          ← earlier
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {CHAPTERS.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`chapter ${i + 1}`}
+              aria-current={i === ch}
+              onClick={() => setCh(i)}
+              className="loom-serif"
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                cursor: 'pointer',
+                fontSize: 14,
+                lineHeight: 1,
+                color: i === ch ? 'var(--loom-warm)' : 'var(--loom-bone-ghost)',
+                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              ∞
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => turn(1)}
+          disabled={ch === CHAPTERS.length - 1}
+          className="loom-mono"
+          style={{
+            background: 'transparent',
+            border: 0,
+            padding: 0,
+            cursor: ch === CHAPTERS.length - 1 ? 'default' : 'pointer',
+            fontSize: 10,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color:
+              ch === CHAPTERS.length - 1 ? 'var(--loom-bone-ghost)' : 'var(--loom-warm)',
+          }}
+        >
+          later →
+        </button>
+      </div>
+    </div>
   );
 }
 

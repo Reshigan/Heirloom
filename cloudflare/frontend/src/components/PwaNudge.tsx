@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthStore } from '../stores/authStore';
 import {
   getDeferredPrompt,
@@ -92,6 +91,18 @@ export function PwaNudge() {
     setMode('hidden');
   }, []);
 
+  // A one-shot CSS entrance (rise + fade) on the canonical easing — replaces the
+  // framer-motion mount so the bottom card obeys the constitution's single curve.
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    if (mode === 'hidden') {
+      setShown(false);
+      return;
+    }
+    const r = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(r);
+  }, [mode]);
+
   if (mode === 'hidden') return null;
 
   const copy = {
@@ -119,45 +130,87 @@ export function PwaNudge() {
   }[mode];
 
   return (
-    <AnimatePresence>
-      <motion.aside
-        key={mode}
-        role="dialog"
-        aria-label={copy.title}
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 16 }}
-        transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-x-0 bottom-0 z-[60] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pointer-events-none"
+    <aside
+      role="dialog"
+      aria-label={copy.title}
+      style={{
+        position: 'fixed',
+        insetInline: 0,
+        bottom: 0,
+        zIndex: 60,
+        padding: '0 16px max(16px, env(safe-area-inset-bottom))',
+        pointerEvents: 'none',
+        opacity: shown ? 1 : 0,
+        transform: shown ? 'translateY(0)' : 'translateY(16px)',
+        transition: 'opacity 360ms var(--loom-ease), transform 360ms var(--loom-ease)',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 448,
+          margin: '0 auto',
+          pointerEvents: 'auto',
+          background: 'var(--loom-ink-card)',
+          border: '1px solid var(--loom-rule)',
+          borderTop: '1px solid var(--loom-rule-warm)',
+          borderRadius: 2,
+          padding: 20,
+        }}
       >
-        <div className="mx-auto max-w-md pointer-events-auto bg-void-surface border border-paper-15 rounded-[2px] p-5 shadow-[0_-1px_0_0_rgba(176,122,74,0.25)]">
-          <div className="flex items-start gap-4">
-            <span className="font-body text-2xl text-gold leading-none mt-0.5" aria-hidden>∞</span>
-            <div className="flex-1 min-w-0">
-              <p className="font-mono text-[0.62rem] tracking-[0.3em] uppercase text-gold mb-1.5">{copy.eyebrow}</p>
-              <h2 className="font-body font-light text-lg leading-snug tracking-[-0.01em]">{copy.title}</h2>
-              <p className="mt-2 text-sm text-paper-65 leading-relaxed font-light">{copy.body}</p>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+          <span
+            className="loom-serif"
+            style={{ fontSize: 24, color: 'var(--loom-warm)', lineHeight: 1, marginTop: 2, fontWeight: 300 }}
+            aria-hidden
+          >
+            ∞
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 6 }}>
+              {copy.eyebrow}
+            </p>
+            <h2 className="loom-serif" style={{ fontSize: 18, fontWeight: 300, lineHeight: 1.3, margin: 0, letterSpacing: '-0.01em' }}>
+              {copy.title}
+            </h2>
+            <p className="loom-body" style={{ marginTop: 8, fontSize: 14, lineHeight: 1.7, color: 'var(--loom-bone-dim)' }}>
+              {copy.body}
+            </p>
 
-              <div className="mt-4 flex items-center gap-5">
-                {copy.action ? (
-                  <button type="button" onClick={copy.run} disabled={busy} className="btn btn-primary">
-                    {busy ? 'One moment…' : copy.action}
-                    {!busy ? <span aria-hidden> →</span> : null}
-                  </button>
-                ) : null}
+            <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 20 }}>
+              {copy.action ? (
                 <button
                   type="button"
-                  onClick={dismiss}
-                  className="text-xs text-paper-50 hover:text-paper transition-colors"
+                  onClick={copy.run}
+                  disabled={busy}
+                  className="loom-btn"
+                  style={{ opacity: busy ? 0.5 : 1 }}
                 >
-                  Not now
+                  {busy ? 'one moment…' : copy.action.toLowerCase()}
+                  {!busy ? <span aria-hidden> →</span> : null}
                 </button>
-              </div>
+              ) : null}
+              <button
+                type="button"
+                onClick={dismiss}
+                className="loom-mono"
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontSize: 11,
+                  letterSpacing: '0.06em',
+                  color: 'var(--loom-bone-faint)',
+                  transition: 'color 180ms var(--loom-ease)',
+                }}
+              >
+                not now
+              </button>
             </div>
           </div>
         </div>
-      </motion.aside>
-    </AnimatePresence>
+      </div>
+    </aside>
   );
 }
 

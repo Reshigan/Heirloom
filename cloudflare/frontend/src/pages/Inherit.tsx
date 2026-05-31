@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ProgressHair } from '../components/ui/ProgressHair';
 
 // @ts-ignore - Vite env types
 const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue';
@@ -72,6 +70,65 @@ interface SearchResponse {
   totalItems: number;
 }
 
+/* ── Hairline loading bar ──────────────────────────────────────── */
+function ShuttleBar() {
+  return (
+    <div
+      style={{
+        width: 180,
+        height: 1,
+        background: 'var(--loom-rule)',
+        position: 'relative',
+        overflow: 'hidden',
+        margin: '0 auto',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '40%',
+          background: 'var(--loom-warm)',
+          animation: 'loom-shuttle 1.4s var(--loom-ease) infinite',
+        }}
+      />
+    </div>
+  );
+}
+
+/* ── Standalone page shell (matches Login.tsx pattern) ─────────── */
+function StandalonePage({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--loom-ink)',
+        color: 'var(--loom-bone)',
+        display: 'grid',
+        gridTemplateRows: '68px 1fr',
+      }}
+    >
+      <header
+        style={{
+          borderBottom: '1px solid var(--loom-rule)',
+          padding: '0 28px',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <Link
+          to="/"
+          className="loom-mark"
+          style={{ textDecoration: 'none' }}
+        >
+          <span className="infmark">∞</span>heirloom
+        </Link>
+      </header>
+      <main>{children}</main>
+    </div>
+  );
+}
+
 export function Inherit() {
   const { token } = useParams<{ token: string }>();
   const [loading, setLoading] = useState(true);
@@ -100,10 +157,10 @@ export function Inherit() {
   const [reactionSent, setReactionSent] = useState(false);
 
   const reactionOptions: ReactionOption[] = [
-    { type: 'THANK_YOU', label: 'Thank You', description: 'Let them know this meant something to you' },
-    { type: 'LOVE_THIS', label: 'I Love This', description: 'Share how much this touched your heart' },
-    { type: 'REMEMBER_THIS', label: 'I Remember This Too', description: 'You have your own memory of this moment' },
-    { type: 'CUSTOM', label: 'Write a Note', description: 'Share your own thoughts and feelings' },
+    { type: 'THANK_YOU', label: 'Thank you', description: 'Let them know this meant something to you' },
+    { type: 'LOVE_THIS', label: 'I love this', description: 'Share how much this touched your heart' },
+    { type: 'REMEMBER_THIS', label: 'I remember this too', description: 'You have your own memory of this moment' },
+    { type: 'CUSTOM', label: 'Write a note', description: 'Share your own thoughts and feelings' },
   ];
 
   useEffect(() => {
@@ -194,614 +251,866 @@ export function Inherit() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-    const formatDate = (dateString: string) => {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim() || searchQuery.trim().length < 3 || !sessionToken) return;
+
+    setSearchLoading(true);
+    setSearchError(null);
+    setActiveTab('search');
+
+    try {
+      const response = await fetch(`${API_URL}/api/inherit/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify({ query: searchQuery.trim() }),
       });
-    };
 
-    const handleSearch = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!searchQuery.trim() || searchQuery.trim().length < 3 || !sessionToken) return;
+      const data = await response.json();
 
-      setSearchLoading(true);
-      setSearchError(null);
-      setActiveTab('search');
-
-      try {
-        const response = await fetch(`${API_URL}/api/inherit/search`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: JSON.stringify({ query: searchQuery.trim() }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          setSearchError(data.error || 'Search failed');
-          setSearchLoading(false);
-          return;
-        }
-
-        setSearchResponse(data);
+      if (!response.ok) {
+        setSearchError(data.error || 'Search failed');
         setSearchLoading(false);
-      } catch (err) {
-        setSearchError('Failed to search memories');
-        setSearchLoading(false);
+        return;
       }
-    };
 
-    const clearSearch = () => {
-      setSearchQuery('');
-      setSearchResponse(null);
-      setSearchError(null);
-      setActiveTab('letters');
-    };
+      setSearchResponse(data);
+      setSearchLoading(false);
+    } catch (err) {
+      setSearchError('Failed to search memories');
+      setSearchLoading(false);
+    }
+  };
 
-    const sendReaction = async () => {
-      if (!sessionToken || (!selectedReaction && !reactionMessage.trim())) return;
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResponse(null);
+    setSearchError(null);
+    setActiveTab('letters');
+  };
 
-      setSendingReaction(true);
+  const sendReaction = async () => {
+    if (!sessionToken || (!selectedReaction && !reactionMessage.trim())) return;
 
-      try {
-        const response = await fetch(`${API_URL}/api/inherit/reply`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: JSON.stringify({
-            reactionType: selectedReaction || 'CUSTOM',
-            message: reactionMessage.trim() || null,
-            contentType: 'GENERAL',
-          }),
-        });
+    setSendingReaction(true);
 
-        if (!response.ok) {
-          throw new Error('Failed to send message');
-        }
+    try {
+      const response = await fetch(`${API_URL}/api/inherit/reply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify({
+          reactionType: selectedReaction || 'CUSTOM',
+          message: reactionMessage.trim() || null,
+          contentType: 'GENERAL',
+        }),
+      });
 
-        setReactionSent(true);
-        setTimeout(() => {
-          setShowReactionModal(false);
-          setSelectedReaction(null);
-          setReactionMessage('');
-          setReactionSent(false);
-        }, 2000);
-      } catch (err) {
-        console.error('Failed to send reaction:', err);
-      } finally {
-        setSendingReaction(false);
+      if (!response.ok) {
+        throw new Error('Failed to send message');
       }
-    };
 
-    if (loading) {
+      setReactionSent(true);
+      setTimeout(() => {
+        setShowReactionModal(false);
+        setSelectedReaction(null);
+        setReactionMessage('');
+        setReactionSent(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to send reaction:', err);
+    } finally {
+      setSendingReaction(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
+      <StandalonePage>
+        <div
+          style={{
+            display: 'grid',
+            placeItems: 'center',
+            minHeight: '60vh',
+            textAlign: 'center',
+            padding: '40px 24px',
+          }}
         >
-          <div className="flex justify-center mb-4">
-            <ProgressHair label="unlocking…" width={180} />
+          <div>
+            <ShuttleBar />
+            <p
+              className="loom-mono"
+              style={{
+                marginTop: 20,
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--loom-bone-faint)',
+              }}
+            >
+              unlocking…
+            </p>
           </div>
-          <p className="text-paper-70">Unlocking memories...</p>
-        </motion.div>
-      </div>
+        </div>
+      </StandalonePage>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-void flex items-center justify-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-md"
+      <StandalonePage>
+        <div
+          style={{
+            display: 'grid',
+            placeItems: 'center',
+            minHeight: '60vh',
+            padding: '40px 24px',
+          }}
         >
-          <h1 className="text-2xl font-body font-light text-paper mb-4">{error}</h1>
-          <p className="text-paper-70 mb-8">
-            This link may have expired or is no longer valid. Please contact the person who shared this with you.
-          </p>
-          <Link to="/" className="btn btn-ghost">
-            Return Home
-          </Link>
-        </motion.div>
-      </div>
+          <div style={{ textAlign: 'center', maxWidth: 420 }}>
+            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>access denied</p>
+            <h1
+              className="loom-h2"
+              style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 20px' }}
+            >
+              {error}
+            </h1>
+            <p
+              className="loom-body"
+              style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 32px', lineHeight: 1.7 }}
+            >
+              This link may have expired or is no longer valid. Please contact the person who
+              shared this with you.
+            </p>
+            <Link to="/" className="loom-btn-ghost" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              return home
+            </Link>
+          </div>
+        </div>
+      </StandalonePage>
     );
   }
 
+  /* ── Tab helpers ──────────────────────────────────────────── */
+  const tabs: Array<{ id: TabType; label: string; count: number }> = [
+    { id: 'letters', label: 'letters', count: content?.letters.length ?? 0 },
+    { id: 'memories', label: 'memories', count: content?.memories.length ?? 0 },
+    { id: 'voice', label: 'voice', count: content?.voiceRecordings.length ?? 0 },
+    ...(searchResponse ? [{ id: 'search' as TabType, label: 'search results', count: searchResponse.results.length }] : []),
+  ];
+
+  const tabStyle = (id: TabType): React.CSSProperties => ({
+    background: 'transparent',
+    border: 0,
+    padding: '8px 0',
+    marginRight: 28,
+    cursor: 'pointer',
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 10,
+    letterSpacing: '0.22em',
+    textTransform: 'uppercase' as const,
+    color: activeTab === id ? 'var(--loom-bone)' : 'var(--loom-bone-faint)',
+    borderBottom: activeTab === id ? '1px solid var(--loom-warm)' : '1px solid transparent',
+    transition: 'color 180ms var(--loom-ease), border-color 180ms var(--loom-ease)',
+  });
+
   return (
-    <div className="min-h-screen bg-void text-paper">
-      {/* Header */}
-      <header className="pt-8 pb-6 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center gap-3 mb-4"
-          >
-            <span className="text-3xl text-gold leading-none">∞</span>
-            <span className="text-[0.7rem] tracking-[0.34em] uppercase text-paper-70">Heirloom</span>
-          </motion.div>
+    <StandalonePage>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '48px 28px 120px' }}>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+        {/* Page header */}
+        <header style={{ marginBottom: 48, textAlign: 'center' }}>
+          <span
+            style={{
+              fontFamily: "'Source Serif 4', serif",
+              fontSize: 24,
+              color: 'var(--loom-warm)',
+              display: 'block',
+              marginBottom: 16,
+            }}
           >
-            <h1 className="text-3xl md:text-4xl font-body font-light mb-2 tracking-[-0.014em]">
-              Memories from <span className="text-gold">{ownerName}</span>
-            </h1>
-            <p className="text-paper-70">
-              Shared with you, {recipientName} ({relationship})
-            </p>
-          </motion.div>
+            ∞
+          </span>
+          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
+            a thread left for you
+          </p>
+          <h1
+            className="loom-h2"
+            style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 14px' }}
+          >
+            From{' '}
+            <span style={{ color: 'var(--loom-warm)' }}>{ownerName}</span>.
+          </h1>
+          <p
+            className="loom-body"
+            style={{ fontSize: 15, color: 'var(--loom-bone-dim)', lineHeight: 1.7 }}
+          >
+            Shared with{' '}
+            <span
+              className="loom-serif"
+              style={{ fontStyle: 'italic', color: 'var(--loom-bone)' }}
+            >
+              {recipientName}
+            </span>
+            {relationship ? (
+              <span
+                className="loom-mono"
+                style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginLeft: 8, letterSpacing: '0.04em' }}
+              >
+                {relationship}
+              </span>
+            ) : null}
+          </p>
+        </header>
+
+        {/* Listener search */}
+        <form onSubmit={handleSearch} style={{ marginBottom: 36 }}>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Ask about ${ownerName}'s memories…`}
+              style={{ paddingRight: 88 }}
+            />
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={clearSearch}
+                aria-label="Clear search"
+                style={{
+                  position: 'absolute',
+                  right: 56,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 0,
+                  cursor: 'pointer',
+                  color: 'var(--loom-bone-faint)',
+                  fontSize: 16,
+                  lineHeight: 1,
+                  padding: '4px 6px',
+                }}
+              >
+                ×
+              </button>
+            ) : null}
+            <button
+              type="submit"
+              disabled={searchLoading || searchQuery.trim().length < 3}
+              style={{
+                position: 'absolute',
+                right: 1,
+                top: 1,
+                bottom: 1,
+                padding: '0 14px',
+                background: 'var(--loom-warm)',
+                border: 0,
+                cursor: searchLoading || searchQuery.trim().length < 3 ? 'not-allowed' : 'pointer',
+                opacity: searchLoading || searchQuery.trim().length < 3 ? 0.4 : 1,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 9,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--loom-ink)',
+                transition: 'opacity 180ms var(--loom-ease)',
+              }}
+            >
+              ask
+            </button>
+          </div>
+        </form>
+
+        {/* Tab bar */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'baseline',
+            borderBottom: '1px solid var(--loom-rule)',
+            marginBottom: 36,
+          }}
+        >
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setActiveTab(t.id)}
+              style={tabStyle(t.id)}
+            >
+              {t.label}
+              {t.count > 0 ? (
+                <span
+                  className="loom-mono"
+                  style={{ marginLeft: 6, fontSize: 9, color: 'var(--loom-bone-faint)' }}
+                >
+                  {t.count}
+                </span>
+              ) : null}
+            </button>
+          ))}
         </div>
-            </header>
 
-            {/* AI Search Bar */}
-            <div className="px-6 mb-6">
-              <div className="max-w-2xl mx-auto">
-                <form onSubmit={handleSearch} className="relative">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Ask about memories... e.g., 'When did dad buy his first car?'"
-                      className="w-full pl-4 pr-28 py-4 rounded-[2px] bg-void-surface border border-paper-15 focus:border-gold focus:outline-none text-paper placeholder:text-paper-30 transition-colors"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={clearSearch}
-                        aria-label="Clear search"
-                        className="absolute right-20 top-1/2 -translate-y-1/2 p-1 text-paper-50 hover:text-paper transition-colors"
-                      >
-                        <span aria-hidden>×</span>
-                      </button>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={searchLoading || searchQuery.trim().length < 3}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-[2px] bg-gold text-void font-mono text-xs uppercase tracking-[0.18em] disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:bg-gold-bright"
-                    >
-                      Ask
-                    </button>
-                  </div>
-                  <p className="text-xs text-paper-50 mt-2 text-center">
-                    Ask questions about {ownerName}'s memories, letters, and recordings
+        {/* ── Letters ─────────────────────────────────────────── */}
+        {activeTab === 'letters' && (
+          selectedLetter ? (
+            <div>
+              <button
+                type="button"
+                onClick={() => setSelectedLetter(null)}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--loom-bone-faint)',
+                  marginBottom: 32,
+                }}
+              >
+                ← back to letters
+              </button>
+              <article>
+                <header style={{ marginBottom: 28 }}>
+                  <h2
+                    className="loom-h2"
+                    style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 8px', color: 'var(--loom-warm)' }}
+                  >
+                    {selectedLetter.title}
+                  </h2>
+                  <p
+                    className="loom-mono"
+                    style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}
+                  >
+                    {formatDate(selectedLetter.createdAt)}
                   </p>
-                </form>
-              </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="px-6 mb-8">
-              <div className="max-w-4xl mx-auto">
-                <div className="flex justify-center gap-2 flex-wrap">
-                  {[
-                    { id: 'letters' as TabType, label: 'Letters', count: content?.letters.length || 0 },
-                    { id: 'memories' as TabType, label: 'Photos', count: content?.memories.length || 0 },
-                    { id: 'voice' as TabType, label: 'Voice', count: content?.voiceRecordings.length || 0 },
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-[2px] transition-colors ${
-                        activeTab === tab.id
-                          ? 'bg-gold text-void'
-                          : 'bg-void-surface border border-paper-15 text-paper-70 hover:text-paper'
-                      }`}
-                    >
-                      <span>{tab.label}</span>
-                      {tab.count > 0 && (
-                        <span className={`text-xs px-2 py-0.5 rounded-[2px] ${
-                          activeTab === tab.id ? 'bg-void/20' : 'bg-gold/10 text-gold'
-                        }`}>
-                          {tab.count}
-                        </span>
-                      )}
-                    </button>
-                  ))}
-                  {searchResponse && (
-                    <button
-                      onClick={() => setActiveTab('search')}
-                      className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-[2px] transition-colors ${
-                        activeTab === 'search'
-                          ? 'bg-gold text-void'
-                          : 'bg-void-surface border border-paper-15 text-paper-70 hover:text-paper'
-                      }`}
-                    >
-                      <span>Search Results</span>
-                    </button>
-                  )}
+                </header>
+                <hr className="loom-hairline" style={{ marginBottom: 28 }} />
+                {selectedLetter.salutation ? (
+                  <p
+                    className="loom-body"
+                    style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)', fontSize: 16, marginBottom: 20 }}
+                  >
+                    {selectedLetter.salutation}
+                  </p>
+                ) : null}
+                <div
+                  className="loom-body"
+                  style={{ whiteSpace: 'pre-wrap', fontSize: 16, lineHeight: 1.85, color: 'var(--loom-bone)' }}
+                >
+                  {selectedLetter.body}
                 </div>
-              </div>
+                {selectedLetter.signature ? (
+                  <p
+                    className="loom-body"
+                    style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)', fontSize: 16, marginTop: 28 }}
+                  >
+                    {selectedLetter.signature}
+                  </p>
+                ) : null}
+              </article>
             </div>
-
-      {/* Content */}
-      <main className="px-6 pb-12">
-        <div className="max-w-4xl mx-auto">
-          <AnimatePresence mode="wait">
-            {/* Letters Tab */}
-            {activeTab === 'letters' && (
-              <motion.div
-                key="letters"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                {selectedLetter ? (
-                  <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6">
-                    <button
-                      onClick={() => setSelectedLetter(null)}
-                      className="text-paper-70 hover:text-gold transition-colors mb-6 flex items-center gap-2"
+          ) : content?.letters.length === 0 ? (
+            <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+              No letters have been shared yet.
+            </p>
+          ) : (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {content?.letters.map((letter) => (
+                <li key={letter.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLetter(letter)}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: 'left',
+                      background: 'transparent',
+                      border: 0,
+                      padding: '20px 0',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <p
+                      className="loom-serif"
+                      style={{ fontSize: 18, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 6px' }}
                     >
-                      <span aria-hidden>←</span>
-                      Back to letters
-                    </button>
-                    <div className="max-w-none">
-                      <h2 className="text-2xl font-body font-light text-gold mb-2">{selectedLetter.title}</h2>
-                      <p className="text-paper-70 text-sm mb-6">
-                        Written on {formatDate(selectedLetter.createdAt)}
+                      {letter.title || 'Untitled letter'}
+                    </p>
+                    <p
+                      className="loom-mono"
+                      style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: '0 0 8px' }}
+                    >
+                      {formatDate(letter.createdAt)}
+                    </p>
+                    <p
+                      className="loom-body"
+                      style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0, lineHeight: 1.6 }}
+                    >
+                      {letter.body.substring(0, 150)}…
+                    </p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )
+        )}
+
+        {/* ── Memories ────────────────────────────────────────── */}
+        {activeTab === 'memories' && (
+          content?.memories.length === 0 ? (
+            <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+              No memories have been shared yet.
+            </p>
+          ) : (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                gap: 2,
+              }}
+            >
+              {content?.memories.map((memory) => (
+                <div
+                  key={memory.id}
+                  style={{ position: 'relative', aspectRatio: '1', overflow: 'hidden' }}
+                >
+                  <img
+                    src={memory.fileUrl}
+                    alt={memory.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'rgba(14,14,12,0.72)',
+                      opacity: 0,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-end',
+                      padding: 14,
+                      transition: 'opacity 180ms var(--loom-ease)',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '1'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '0'; }}
+                  >
+                    <p
+                      className="loom-serif"
+                      style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--loom-bone)', margin: 0 }}
+                    >
+                      {memory.title}
+                    </p>
+                    {memory.description ? (
+                      <p
+                        className="loom-body"
+                        style={{ fontSize: 12, color: 'var(--loom-bone-dim)', margin: '4px 0 0', lineHeight: 1.4 }}
+                      >
+                        {memory.description}
                       </p>
-                      {selectedLetter.salutation && (
-                        <p className="text-lg italic text-paper-70 mb-4">{selectedLetter.salutation}</p>
-                      )}
-                      <div className="whitespace-pre-wrap text-paper leading-relaxed">
-                        {selectedLetter.body}
-                      </div>
-                      {selectedLetter.signature && (
-                        <p className="text-lg italic text-paper-70 mt-6">{selectedLetter.signature}</p>
-                      )}
-                    </div>
+                    ) : null}
                   </div>
-                ) : content?.letters.length === 0 ? (
-                  <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 text-center py-12">
-                    <p className="text-paper-70">No letters have been shared yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {content?.letters.map((letter) => (
-                      <button
-                        key={letter.id}
-                        onClick={() => setSelectedLetter(letter)}
-                        className="bg-void-surface border border-paper-15 rounded-[2px] p-6 w-full text-left hover:border-gold-40 transition-colors group"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-medium group-hover:text-gold transition-colors">
-                              {letter.title || 'Untitled Letter'}
-                            </h3>
-                            <p className="text-paper-70 text-sm mt-1">
-                              {formatDate(letter.createdAt)}
-                            </p>
-                            <p className="text-paper-70 mt-2 line-clamp-2">
-                              {letter.body.substring(0, 150)}...
-                            </p>
-                          </div>
-                          <span aria-hidden className="text-paper-50 group-hover:text-gold transition-colors text-xl">→</span>
-                        </div>
-                        {letter.emotion && (
-                          <span className="inline-block mt-3 px-3 py-1 rounded-[2px] bg-gold/10 text-gold text-xs">
-                            {letter.emotion}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            )}
+                </div>
+              ))}
+            </div>
+          )
+        )}
 
-            {/* Memories Tab */}
-            {activeTab === 'memories' && (
-              <motion.div
-                key="memories"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                {content?.memories.length === 0 ? (
-                  <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 text-center py-12">
-                    <p className="text-paper-70">No photos have been shared yet</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {content?.memories.map((memory) => (
-                      <div
-                        key={memory.id}
-                        className="bg-void-surface border border-paper-15 rounded-[2px] overflow-hidden group cursor-pointer"
-                      >
-                        <div className="aspect-square relative">
-                          <img
-                            src={memory.fileUrl}
-                            alt={memory.title}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-void/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                            <div>
-                              <h3 className="font-medium">{memory.title}</h3>
-                              {memory.description && (
-                                <p className="text-sm text-paper-70 line-clamp-2">{memory.description}</p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-            {/* Voice Tab */}
-            {activeTab === 'voice' && (
-              <motion.div
-                key="voice"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                {content?.voiceRecordings.length === 0 ? (
-                  <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 text-center py-12">
-                    <p className="text-paper-70">No voice recordings have been shared yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {content?.voiceRecordings.map((recording) => (
-                      <div
-                        key={recording.id}
-                        className="bg-void-surface border border-paper-15 rounded-[2px] p-6 flex items-center gap-4"
-                      >
-                        <button
-                          onClick={() => playVoice(recording)}
-                          aria-label={playingVoiceId === recording.id ? 'Pause' : 'Play'}
-                          className={`w-14 h-14 rounded-[2px] flex items-center justify-center flex-shrink-0 text-sm font-mono uppercase tracking-[0.12em] transition-colors ${
-                            playingVoiceId === recording.id
-                              ? 'bg-gold text-void'
-                              : 'bg-void border border-gold-40 text-gold hover:bg-void-elevated'
-                          }`}
-                        >
-                          <span aria-hidden>{playingVoiceId === recording.id ? '⏸' : '▶'}</span>
-                        </button>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium truncate">{recording.title}</h3>
-                          <div className="flex items-center gap-4 text-sm text-paper-50 mt-1">
-                            <span>{formatDuration(recording.duration)}</span>
-                            <span>{formatDate(recording.createdAt)}</span>
-                          </div>
-                          {recording.transcript && (
-                            <p className="text-paper-70 text-sm mt-2 line-clamp-2">
-                              {recording.transcript}
-                            </p>
-                          )}
-                        </div>
-                        {recording.emotion && (
-                          <span className="px-3 py-1 rounded-[2px] bg-gold/10 text-gold text-xs">
-                            {recording.emotion}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                      )}
-                    </motion.div>
-                  )}
-
-                  {/* Search Results Tab */}
-                  {activeTab === 'search' && (
-                    <motion.div
-                      key="search"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
+        {/* ── Voice ───────────────────────────────────────────── */}
+        {activeTab === 'voice' && (
+          content?.voiceRecordings.length === 0 ? (
+            <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+              No voice recordings have been shared yet.
+            </p>
+          ) : (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {content?.voiceRecordings.map((recording) => (
+                <li
+                  key={recording.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '56px 1fr',
+                    gap: 20,
+                    alignItems: 'center',
+                    padding: '18px 0',
+                    borderBottom: '1px solid var(--loom-rule)',
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => playVoice(recording)}
+                    aria-label={playingVoiceId === recording.id ? 'Pause' : 'Play'}
+                    style={{
+                      width: 44,
+                      height: 44,
+                      background: playingVoiceId === recording.id ? 'var(--loom-warm)' : 'transparent',
+                      border: '1px solid var(--loom-rule-warm)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: '0.1em',
+                      color: playingVoiceId === recording.id ? 'var(--loom-ink)' : 'var(--loom-warm)',
+                      transition: 'background 180ms var(--loom-ease), color 180ms var(--loom-ease)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {playingVoiceId === recording.id ? 'pause' : 'play'}
+                  </button>
+                  <div>
+                    <p
+                      className="loom-serif"
+                      style={{ fontSize: 16, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 4px' }}
                     >
-                      {searchLoading ? (
-                        <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 text-center py-12">
-                          <div className="flex justify-center mb-4">
-                            <ProgressHair label="searching…" width={180} />
-                          </div>
-                          <p className="text-paper-70">Searching through memories...</p>
-                        </div>
-                      ) : searchError ? (
-                        <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 text-center py-12">
-                          <p className="text-blood">{searchError}</p>
-                          <button
-                            onClick={clearSearch}
-                            className="mt-4 text-gold hover:text-gold-bright transition-colors"
+                      {recording.title}
+                    </p>
+                    <p
+                      className="loom-mono"
+                      style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: 0 }}
+                    >
+                      {formatDuration(recording.duration)} · {formatDate(recording.createdAt)}
+                    </p>
+                    {recording.transcript ? (
+                      <p
+                        className="loom-body"
+                        style={{ fontSize: 13, color: 'var(--loom-bone-dim)', margin: '6px 0 0', lineHeight: 1.6 }}
+                      >
+                        {recording.transcript}
+                      </p>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )
+        )}
+
+        {/* ── Search results ──────────────────────────────────── */}
+        {activeTab === 'search' && (
+          searchLoading ? (
+            <div style={{ padding: '40px 0', textAlign: 'center' }}>
+              <ShuttleBar />
+              <p
+                className="loom-mono"
+                style={{ marginTop: 16, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+              >
+                searching…
+              </p>
+            </div>
+          ) : searchError ? (
+            <div style={{ padding: '20px 0' }}>
+              <p
+                className="loom-body"
+                style={{ fontStyle: 'italic', color: '#c25a5a', marginBottom: 16 }}
+              >
+                {searchError}
+              </p>
+              <button type="button" onClick={clearSearch} className="loom-btn-ghost">
+                try again
+              </button>
+            </div>
+          ) : searchResponse ? (
+            <div>
+              {/* AI answer */}
+              <div
+                style={{
+                  padding: '20px 24px',
+                  border: '1px solid var(--loom-rule-warm)',
+                  background: 'rgba(176,122,74,0.04)',
+                  marginBottom: 32,
+                }}
+              >
+                <p
+                  className="loom-mono"
+                  style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-warm)', marginBottom: 10 }}
+                >
+                  the listener
+                </p>
+                <p className="loom-body" style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--loom-bone)' }}>
+                  {searchResponse.answer}
+                </p>
+              </div>
+
+              {searchResponse.results.length > 0 ? (
+                <>
+                  <p className="loom-eyebrow" style={{ marginBottom: 16 }}>related entries</p>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                    {searchResponse.results.map((result) => (
+                      <li
+                        key={`${result.type}-${result.id}`}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '60px 1fr',
+                          gap: 16,
+                          padding: '16px 0',
+                          borderBottom: '1px solid var(--loom-rule)',
+                          alignItems: 'baseline',
+                        }}
+                      >
+                        <span
+                          className="loom-mono"
+                          style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+                        >
+                          {result.type}
+                        </span>
+                        <div>
+                          <p
+                            className="loom-serif"
+                            style={{ fontSize: 16, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 4px' }}
                           >
-                            Try again
-                          </button>
-                        </div>
-                      ) : searchResponse ? (
-                        <div className="space-y-6">
-                          {/* AI Answer */}
-                          <div className="bg-void-surface border border-gold-40 rounded-[2px] p-6">
-                            <div className="flex items-start gap-3">
-                              <div className="flex-1">
-                                <p className="font-mono text-[0.6rem] tracking-[0.18em] uppercase text-gold mb-2">AI Response</p>
-                                <p className="text-paper leading-relaxed">{searchResponse.answer}</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Related Items */}
-                          {searchResponse.results.length > 0 && (
-                            <div>
-                              <h3 className="text-lg font-body font-light mb-4 text-paper-70">Related Memories</h3>
-                              <div className="space-y-3">
-                                {searchResponse.results.map((result) => (
-                                  <div
-                                    key={`${result.type}-${result.id}`}
-                                    className="bg-void-surface border border-paper-15 rounded-[2px] p-6 hover:border-gold-40 transition-colors"
-                                  >
-                                    <div className="flex items-start gap-4">
-                                      <span className="font-mono text-[0.6rem] tracking-[0.18em] uppercase text-gold pt-1 flex-shrink-0">
-                                        {result.type}
-                                      </span>
-                                      <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                          <span className="text-xs text-paper-50">
-                                            {formatDate(result.date)}
-                                          </span>
-                                        </div>
-                                        <h4 className="font-medium text-paper truncate">{result.title}</h4>
-                                        <p className="text-sm text-paper-50 mt-1 line-clamp-2">{result.snippet}</p>
-                                        {result.emotion && (
-                                          <span className="inline-block mt-2 px-2 py-0.5 rounded-[2px] bg-gold/10 text-gold text-xs">
-                                            {result.emotion}
-                                          </span>
-                                        )}
-                                      </div>
-                                      {result.type === 'memory' && result.fileUrl && (
-                                        <img
-                                          src={result.fileUrl}
-                                          alt={result.title}
-                                          className="w-16 h-16 rounded-[2px] object-cover flex-shrink-0"
-                                        />
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Search Info */}
-                          <p className="text-center text-paper-50 text-sm">
-                            Searched through {searchResponse.totalItems} memories for "{searchResponse.query}"
+                            {result.title}
+                          </p>
+                          <p
+                            className="loom-mono"
+                            style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: '0 0 6px' }}
+                          >
+                            {formatDate(result.date)}
+                          </p>
+                          <p
+                            className="loom-body"
+                            style={{ fontSize: 13, color: 'var(--loom-bone-dim)', margin: 0, lineHeight: 1.6 }}
+                          >
+                            {result.snippet}
                           </p>
                         </div>
-                      ) : (
-                        <div className="bg-void-surface border border-paper-15 rounded-[2px] p-6 text-center py-12">
-                          <p className="text-paper-70">Enter a question above to search through memories</p>
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </main>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
 
-            {/* Floating "Send a Note" Button */}
-            <motion.button
-              onClick={() => setShowReactionModal(true)}
-              className="fixed bottom-20 md:bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-[2px] bg-gold text-void font-medium hover:bg-gold-bright transition-colors"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-            >
-              <span>Send a Note to {ownerName.split(' ')[0]}</span>
-            </motion.button>
+              <p
+                className="loom-mono"
+                style={{ fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', marginTop: 28, textAlign: 'center' }}
+              >
+                searched {searchResponse.totalItems} entries · "{searchResponse.query}"
+              </p>
+            </div>
+          ) : (
+            <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+              Enter a question above to search through the thread.
+            </p>
+          )
+        )}
+      </div>
 
-            {/* Reaction Modal */}
-            <AnimatePresence>
-              {showReactionModal && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-void/80"
-                  onClick={() => !sendingReaction && setShowReactionModal(false)}
+      {/* Floating "Send a note" */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 28,
+          right: 28,
+          zIndex: 50,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setShowReactionModal(true)}
+          className="loom-btn"
+          style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.5)' }}
+        >
+          send a note to {ownerName.split(' ')[0]}
+        </button>
+      </div>
+
+      {/* Reaction modal */}
+      {showReactionModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 60,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+            background: 'rgba(14,14,12,0.80)',
+          }}
+          onClick={() => !sendingReaction && setShowReactionModal(false)}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 480,
+              background: 'var(--loom-ink-card)',
+              border: '1px solid var(--loom-rule)',
+              padding: '32px',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {reactionSent ? (
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <span
+                  style={{
+                    fontFamily: "'Source Serif 4', serif",
+                    fontSize: 28,
+                    color: 'var(--loom-warm)',
+                    display: 'block',
+                    marginBottom: 16,
+                  }}
                 >
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    className="w-full max-w-md bg-void-surface border border-paper-15 rounded-[2px] p-6"
-                    onClick={(e) => e.stopPropagation()}
+                  ∞
+                </span>
+                <h3
+                  className="loom-serif"
+                  style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', margin: '0 0 8px' }}
+                >
+                  Note sent.
+                </h3>
+                <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+                  {ownerName} will receive your note.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    marginBottom: 24,
+                  }}
+                >
+                  <h3
+                    className="loom-serif"
+                    style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', margin: 0 }}
                   >
-                    {reactionSent ? (
-                      <div className="text-center py-8">
-                        <span className="font-body text-4xl text-gold block mb-4" aria-hidden>∞</span>
-                        <h3 className="text-xl font-body font-light mb-2">Message Sent</h3>
-                        <p className="text-paper-70">{ownerName} will receive your note</p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center justify-between mb-6">
-                          <h3 className="text-xl font-body font-light">Send a Note to {ownerName.split(' ')[0]}</h3>
-                          <button
-                            onClick={() => setShowReactionModal(false)}
-                            aria-label="Close"
-                            className="p-2 rounded-[2px] text-paper-50 hover:text-paper transition-colors text-xl"
-                          >
-                            <span aria-hidden>×</span>
-                          </button>
-                        </div>
+                    Send a note to {ownerName.split(' ')[0]}.
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowReactionModal(false)}
+                    aria-label="Close"
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      cursor: 'pointer',
+                      color: 'var(--loom-bone-faint)',
+                      fontSize: 18,
+                      lineHeight: 1,
+                      padding: '4px 6px',
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                <p
+                  className="loom-body"
+                  style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginBottom: 24, lineHeight: 1.7 }}
+                >
+                  Let {ownerName.split(' ')[0]} know these memories mean something to you.
+                </p>
 
-                        <p className="text-paper-70 mb-6">
-                          Let {ownerName.split(' ')[0]} know these memories mean something to you.
-                        </p>
+                <div style={{ display: 'grid', gap: 8, marginBottom: 24 }}>
+                  {reactionOptions.map((option) => (
+                    <button
+                      key={option.type}
+                      type="button"
+                      onClick={() =>
+                        setSelectedReaction(selectedReaction === option.type ? null : option.type)
+                      }
+                      style={{
+                        textAlign: 'left',
+                        background: 'transparent',
+                        border: `1px solid ${selectedReaction === option.type ? 'var(--loom-rule-warm)' : 'var(--loom-rule)'}`,
+                        padding: '14px 16px',
+                        cursor: 'pointer',
+                        transition: 'border-color 180ms var(--loom-ease)',
+                      }}
+                    >
+                      <p
+                        className="loom-serif"
+                        style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 2px' }}
+                      >
+                        {option.label}
+                      </p>
+                      <p
+                        className="loom-body"
+                        style={{ fontSize: 12, color: 'var(--loom-bone-faint)', margin: 0, lineHeight: 1.5 }}
+                      >
+                        {option.description}
+                      </p>
+                    </button>
+                  ))}
+                </div>
 
-                        {/* Reaction Options */}
-                        <div className="space-y-3 mb-6">
-                          {reactionOptions.map((option) => (
-                            <button
-                              key={option.type}
-                              onClick={() => setSelectedReaction(selectedReaction === option.type ? null : option.type)}
-                              className={`w-full p-4 rounded-[2px] text-left transition-colors ${
-                                selectedReaction === option.type
-                                  ? 'bg-void border border-gold-40'
-                                  : 'bg-void border border-paper-15 hover:border-paper-15'
-                              }`}
-                            >
-                              <div className="font-medium">{option.label}</div>
-                              <div className="text-sm text-paper-50">{option.description}</div>
-                            </button>
-                          ))}
-                        </div>
+                {(selectedReaction === 'CUSTOM' || selectedReaction === 'REMEMBER_THIS') ? (
+                  <div style={{ marginBottom: 24 }}>
+                    <textarea
+                      value={reactionMessage}
+                      onChange={(e) => setReactionMessage(e.target.value)}
+                      placeholder={
+                        selectedReaction === 'REMEMBER_THIS'
+                          ? 'Share your own memory of this moment…'
+                          : 'Write your message…'
+                      }
+                      rows={4}
+                      style={{
+                        width: '100%',
+                        background: 'transparent',
+                        border: '1px solid var(--loom-rule)',
+                        padding: '12px 14px',
+                        color: 'var(--loom-bone)',
+                        fontFamily: "'Source Serif 4', serif",
+                        fontSize: 15,
+                        lineHeight: 1.7,
+                        resize: 'vertical',
+                        outline: 0,
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+                ) : null}
 
-                        {/* Custom Message */}
-                        {(selectedReaction === 'CUSTOM' || selectedReaction === 'REMEMBER_THIS') && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="mb-6"
-                          >
-                            <textarea
-                              value={reactionMessage}
-                              onChange={(e) => setReactionMessage(e.target.value)}
-                              placeholder={selectedReaction === 'REMEMBER_THIS'
-                                ? "Share your own memory of this moment..."
-                                : "Write your message..."
-                              }
-                              className="w-full p-4 rounded-[2px] bg-void border border-paper-15 focus:border-gold focus:outline-none text-paper placeholder:text-paper-30 resize-y font-body text-base leading-[1.7] transition-colors"
-                              rows={4}
-                            />
-                          </motion.div>
-                        )}
+                <button
+                  type="button"
+                  onClick={sendReaction}
+                  disabled={sendingReaction || (!selectedReaction && !reactionMessage.trim())}
+                  className="loom-btn"
+                  style={{
+                    width: '100%',
+                    opacity: sendingReaction || (!selectedReaction && !reactionMessage.trim()) ? 0.45 : 1,
+                  }}
+                >
+                  {sendingReaction ? 'sending…' : 'send note'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
-                        {/* Send Button */}
-                        <button
-                          onClick={sendReaction}
-                          disabled={sendingReaction || (!selectedReaction && !reactionMessage.trim())}
-                          className="btn btn-primary w-full"
-                        >
-                          {sendingReaction ? 'Sending…' : 'Send Note'}
-                          {!sendingReaction ? <span aria-hidden>→</span> : null}
-                        </button>
-                      </>
-                    )}
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Footer */}
-      <footer className="py-8 text-center text-paper-50 text-sm">
-        <p className="mb-2">Secured by Heirloom</p>
-        <p>These memories were shared with love</p>
+      {/* Footer */}
+      <footer
+        style={{
+          textAlign: 'center',
+          padding: '28px 0 48px',
+          borderTop: '1px solid var(--loom-rule)',
+        }}
+      >
+        <p
+          className="loom-mono"
+          style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+        >
+          ∞ &nbsp; sealed by heirloom · shared with care
+        </p>
       </footer>
-    </div>
+    </StandalonePage>
   );
 }

@@ -19,7 +19,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v2';
+const CACHE = 'heirloom-v3';
 const SHELL = '/index.html';
 const OFFLINE = '/offline';
 const PRECACHE = [
