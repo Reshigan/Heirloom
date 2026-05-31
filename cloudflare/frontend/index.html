@@ -74,21 +74,11 @@
       <div class="hl-splash-track"><div class="hl-splash-fill"></div></div>
       <div class="hl-splash-label">opening your cloth</div>
     </div>
-    <script>
-      // Fade the splash once the app has had a tick to paint. main.tsx
-      // also removes #hl-splash on mount; this is the safety net so the
-      // splash never lingers if hydration is instant or scripting stalls.
-      (function () {
-        function leave() {
-          var s = document.getElementById('hl-splash');
-          if (!s) return;
-          s.setAttribute('data-leaving', '');
-          setTimeout(function () { if (s && s.parentNode) s.parentNode.removeChild(s); }, 420);
-        }
-        window.__hlSplashLeave = leave;
-        window.addEventListener('load', function () { setTimeout(leave, 600); });
-      })();
-    </script>
+    <!-- Splash teardown. MUST be an external file, not inline: the production
+         CSP (script-src 'self') blocks inline scripts, which previously left
+         this splash covering the whole app. src/main.tsx removes #hl-splash on
+         mount (the fast path); splash-boot.js is the load-event safety net. -->
+    <script src="/splash-boot.js"></script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
