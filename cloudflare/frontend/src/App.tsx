@@ -11,6 +11,7 @@ import {
   removePushNotificationListeners,
 } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
+import { PwaNudge } from './components/PwaNudge';
 import { useLoomTheme } from './loom/theme';
 import './loom/styles/loom.css';
 import './loom/styles/loom-bridge.css';
@@ -178,6 +179,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <PushNotificationHandler />
+          <PwaNudge />
           <LoomShellRoot>
           <Routes>
           {/* Public routes */}

@@ -56,6 +56,47 @@ pushNotificationRoutes.post('/register', async (c) => {
   }
 });
 
+// Web Push (browser PWA) — stores the full PushSubscription so a VAPID sender
+// can fan out later. Reuses device_tokens with platform='web'; the token column
+// holds the serialised subscription (endpoint + p256dh/auth keys). Dormant until
+// VAPID keys + a sender cron are configured; storing subscriptions now is safe.
+pushNotificationRoutes.post('/web-subscribe', async (c) => {
+  const userId = c.get('userId');
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: 'Invalid JSON' }, 400);
+  }
+
+  const sub = body?.subscription ?? body;
+  if (!sub || typeof sub.endpoint !== 'string' || !sub.keys?.p256dh || !sub.keys?.auth) {
+    return c.json({ error: 'A valid PushSubscription (endpoint + keys) is required' }, 400);
+  }
+
+  const token = JSON.stringify({ endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } });
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  const deviceName = (body?.userAgent || c.req.header('user-agent') || 'web browser').slice(0, 180);
+
+  try {
+    await c.env.DB.prepare(`
+      INSERT INTO device_tokens (id, user_id, token, platform, device_name, app_version, os_version, is_active, last_used_at, created_at, updated_at)
+      VALUES (?, ?, ?, 'web', ?, ?, ?, 1, ?, ?, ?)
+      ON CONFLICT(user_id, token) DO UPDATE SET
+        is_active = 1,
+        device_name = excluded.device_name,
+        last_used_at = excluded.last_used_at,
+        updated_at = excluded.updated_at
+    `).bind(id, userId, token, deviceName, 'web', null, now, now, now).run();
+
+    return c.json({ success: true, message: 'Web push subscription saved' });
+  } catch (error: any) {
+    console.error('Failed to save web push subscription:', error);
+    return c.json({ error: 'Failed to save subscription' }, 500);
+  }
+});
+
 pushNotificationRoutes.delete('/unregister', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
