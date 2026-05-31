@@ -18,23 +18,26 @@ import { useLoomTheme } from '../loom/theme';
  * caps with locked tracking.
  */
 const PRIMARY: { to: string; label: string; matchPrefix?: boolean }[] = [
-  { to: '/dashboard', label: 'Today' },
-  { to: '/threads', label: 'Threads', matchPrefix: true },
-  { to: '/memories', label: 'Memories' },
-  { to: '/letters', label: 'Letters' },
-  { to: '/record', label: 'Record' },
+  { to: '/loom/weft', label: 'The Weft', matchPrefix: true },
+  { to: '/loom/compose', label: 'Compose' },
+  { to: '/loom/tied', label: 'Tied Off', matchPrefix: true },
+  { to: '/loom/kin', label: 'Kin' },
   { to: '/family', label: 'Family', matchPrefix: true },
+  { to: '/threads', label: 'Threads', matchPrefix: true },
 ];
 
 const MORE: { to: string; label: string }[] = [
+  { to: '/memories', label: 'Memories' },
+  { to: '/letters', label: 'Letters' },
+  { to: '/record', label: 'Record' },
+  { to: '/on-this-day', label: 'On this day' },
+  { to: '/wrapped', label: 'Wrapped' },
   { to: '/compose', label: 'Write a memory' },
   { to: '/quick', label: 'Quick wizard' },
   { to: '/time-capsules', label: 'Time capsules' },
   { to: '/family-feed', label: 'Family feed' },
-  { to: '/on-this-day', label: 'On this day' },
   { to: '/streaks', label: 'Streaks' },
   { to: '/challenges', label: 'Challenges' },
-  { to: '/wrapped', label: 'Wrapped' },
   { to: '/legacy-plan', label: 'Thread plan' },
   { to: '/life-events', label: 'Life events' },
   { to: '/milestones', label: 'Milestones' },

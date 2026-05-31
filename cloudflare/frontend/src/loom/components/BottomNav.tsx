@@ -108,6 +108,8 @@ export function BottomNav() {
   }, [data, user?.defaultThreadId]);
 
   if (!isAuthenticated) return null;
+  // Hide on the public marketing pages — they have their own CTAs.
+  if (pathname === '/' || pathname === '/loom/marketing') return null;
 
   const items = rowFor(role);
 

@@ -24,7 +24,6 @@ import { NotFound } from './pages/NotFound';
 
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
 const ResetPassword = lazy(() => import('./pages/ResetPassword').then(m => ({ default: m.ResetPassword })));
-const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const Memories = lazy(() => import('./pages/Memories').then(m => ({ default: m.Memories })));
 const Compose = lazy(() => import('./pages/Compose').then(m => ({ default: m.Compose })));
 const Record = lazy(() => import('./pages/Record').then(m => ({ default: m.Record })));
@@ -245,11 +244,7 @@ export default function App() {
                     {/* Protected routes */}
           <Route
             path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
+            element={<Navigate to="/loom" replace />}
           />
           <Route
             path="/memories"
