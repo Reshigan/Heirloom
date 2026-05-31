@@ -7,11 +7,11 @@ interface Letter {
   id: string;
   title?: string | null;
   salutation?: string | null;
-  body: string;
-  delivery_trigger?: string;
-  scheduled_date?: string | null;
-  sealed_at?: string | null;
-  created_at: string;
+  bodyPreview?: string | null;
+  deliveryTrigger?: string;
+  scheduledDate?: string | null;
+  sealedAt?: string | null;
+  createdAt: string;
 }
 
 /**
@@ -88,9 +88,8 @@ export function Letters() {
 }
 
 function LetterRow({ letter }: { letter: Letter }) {
-  const sealed = !!letter.sealed_at;
-  const opens =
-    letter.scheduled_date ?? letter.sealed_at ?? letter.created_at;
+  const sealed = !!letter.sealedAt;
+  const opens = letter.scheduledDate ?? letter.sealedAt ?? letter.createdAt;
   return (
     <li style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}>
       <article style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 32, alignItems: 'baseline' }}>
@@ -133,7 +132,7 @@ function LetterRow({ letter }: { letter: Letter }) {
             {sealed ? <span style={{ color: 'var(--loom-warm)', marginRight: 8 }} aria-hidden>∞</span> : null}
             {letter.title ?? letter.salutation ?? 'Untitled letter'}
           </h3>
-          {!sealed && letter.body ? (
+          {!sealed && letter.bodyPreview ? (
             <p
               className="loom-body"
               style={{
@@ -148,7 +147,7 @@ function LetterRow({ letter }: { letter: Letter }) {
                 overflow: 'hidden',
               }}
             >
-              {letter.body}
+              {letter.bodyPreview}
             </p>
           ) : null}
           {sealed ? (
