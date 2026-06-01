@@ -97,14 +97,18 @@ export function ReadingRoom() {
             <div className="loom-eyebrow" style={{ marginBottom: 18 }}>
               five threads · this rhyme
             </div>
-            <div style={{ display: 'grid', gap: 4 }}>
+            <div style={{ display: 'grid', gap: 0 }}>
               {THREADS.map((th, i) => (
-                <ThreadRow
-                  key={i}
-                  {...th}
-                  active={i === active}
-                  onClick={() => setActive(i)}
-                />
+                <div key={i}>
+                  {i > 0 && (
+                    <hr style={{ border: 0, borderTop: '1px solid var(--loom-rule)', margin: '0' }} />
+                  )}
+                  <ThreadRow
+                    {...th}
+                    active={i === active}
+                    onClick={() => setActive(i)}
+                  />
+                </div>
               ))}
             </div>
             <hr className="loom-hairline" style={{ margin: '26px 0' }} />
@@ -182,7 +186,7 @@ export function ReadingRoom() {
             style={{
               padding: '44px 28px',
               borderLeft: '1px solid var(--loom-rule)',
-              background: 'rgba(244,236,216,0.012)',
+              background: 'var(--loom-ink-card)',
               overflow: 'auto',
             }}
           >
@@ -255,7 +259,7 @@ function ThreadRow({
       style={{
         padding: '10px 12px',
         cursor: 'pointer',
-        background: active ? 'rgba(176,122,74,0.08)' : 'transparent',
+        background: active ? 'var(--loom-warm-ghost, rgba(176,122,74,0.08))' : 'transparent',
         borderLeft: active ? '1px solid var(--loom-warm)' : '1px solid transparent',
         display: 'grid',
         gap: 4,
@@ -409,7 +413,7 @@ function VoiceView({ duration }: { duration: string }) {
         style={{
           padding: '32px 28px',
           border: '1px solid var(--loom-rule)',
-          background: 'rgba(8,8,6,0.4)',
+          background: 'var(--loom-ink-deep, rgba(8,8,6,0.4))',
         }}
       >
         <div
@@ -523,7 +527,7 @@ function LetterView() {
     <div
       style={{
         padding: '28px 32px',
-        background: 'rgba(244,236,216,0.012)',
+        background: 'var(--loom-ink-card)',
         border: '1px solid var(--loom-rule)',
         maxHeight: 460,
         overflow: 'auto',
@@ -805,7 +809,7 @@ function BookView() {
         <div
           style={{
             flex: 1,
-            padding: '56px 88px 56px 64px',
+            padding: '56px 80px',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -816,10 +820,10 @@ function BookView() {
                 key={i}
                 className="loom-body"
                 style={{
-                  fontSize: 18,
+                  fontSize: 19,
                   lineHeight: 1.9,
                   color: 'var(--parchment-ink)',
-                  margin: i === 0 ? '0 0 18px' : '0 0 18px',
+                  margin: '0 0 18px',
                 }}
               >
                 {p}
@@ -935,7 +939,7 @@ function BookView() {
           left: 0,
           right: 0,
           height: 6,
-          background: '#e6dcc4',
+          background: 'var(--parchment-edge, #e6dcc4)',
           borderTop: '1px solid var(--parchment-rule)',
           opacity: 0.6,
           overflow: 'hidden',
@@ -951,7 +955,7 @@ function BookView() {
               bottom: 0,
               left: `${(k / 144) * 100}%`,
               width: 1,
-              background: 'rgba(26,25,22,0.06)',
+              background: 'var(--parchment-grain, rgba(26,25,22,0.06))',
             }}
           />
         ))}
