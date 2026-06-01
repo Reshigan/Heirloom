@@ -125,6 +125,20 @@ jobs:
           fi
           printf '%s' "$STRIPE_SECRET_KEY" | npx --yes wrangler@4 secret put STRIPE_SECRET_KEY
 
+      # Stripe webhook signing secret → Worker secret (never committed).
+      - name: Sync Stripe webhook secret
+        working-directory: cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        run: |
+          if [ -z "$STRIPE_WEBHOOK_SECRET" ]; then
+            echo "STRIPE_WEBHOOK_SECRET not set — webhook verification disabled; skipping."
+            exit 0
+          fi
+          printf '%s' "$STRIPE_WEBHOOK_SECRET" | npx --yes wrangler@4 secret put STRIPE_WEBHOOK_SECRET
+
   deploy-migrations:
     name: Run D1 Migrations
     runs-on: ubuntu-latest
