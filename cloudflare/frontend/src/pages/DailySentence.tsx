@@ -1,23 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { aiApi, engagementApi } from '../services/api';
+import { HLogo } from '../loom/components/HLogo';
+import { TapestryEdge } from '../loom/components/Frame';
 
 /**
  * DailySentence — "the daily sentence · syndication" (§Pass-3, moment 03).
+ * Loom 3 native rewrite: hl-screen dark ink, hl-topbar, TapestryEdge.
  *
  * A public, logged-out-reachable surface. One question a day. The question
  * travels — the answers never do. Today's prompt is pulled from the real AI
  * prompt endpoint when available; otherwise we fall back to a sensible static
  * question (never an invented family count).
- *
- * Loom-native: ink surface, Source Serif 4, hairline-framed shareable tiles
- * (IG square / newsletter / IG vertical), no icons, no spinner.
  */
 
 const FALLBACK_QUESTION = 'What did you almost forget to write down today?';
 
 interface PromptResponse {
-  // The shape is tolerant — the worker may return any of these field names.
   id?: string;
   prompt?: string;
   prompt_text?: string;
@@ -28,51 +27,42 @@ interface PromptResponse {
 function pickPromptText(data: unknown): string | null {
   if (!data || typeof data !== 'object') return null;
   const p = data as PromptResponse & { prompt?: PromptResponse };
-  // Some endpoints nest under { prompt: { ... } }
   const node = (p.prompt && typeof p.prompt === 'object' ? p.prompt : p) as PromptResponse;
   const text = node.prompt_text || node.question || node.text || node.prompt;
   return typeof text === 'string' && text.trim() ? text.trim() : null;
 }
 
-/** A single hairline-framed shareable tile. Fixed pixel sizes per the artboard. */
+/** Hairline-framed shareable tile — fixed artboard dimensions. */
 function Tile({
   question,
   stamp,
   audience,
-  tall = false,
 }: {
   question: string;
   stamp: string;
   audience: string | null;
-  tall?: boolean;
 }) {
   return (
     <div
       style={{
-        width: tall ? 280 : 360,
-        height: 360,
-        background: 'var(--loom-ink)',
-        border: '1px solid var(--loom-rule)',
+        width: 340,
+        background: 'var(--ink)',
+        border: '1px solid var(--rule)',
         padding: '28px 28px 22px',
-        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+      {/* header row: logo + date */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
+        <HLogo size={14} wordmark mono color="var(--bone)" wordColor="var(--bone)" />
         <span
-          className="loom-mark"
-          style={{ fontSize: 14, color: 'var(--loom-bone)' }}
-        >
-          <span className="infmark">∞</span>heirloom
-        </span>
-        <span
-          className="loom-mono"
+          className="hl-mono"
           style={{
             marginLeft: 'auto',
             fontSize: 9,
-            color: 'var(--loom-bone-faint)',
+            color: 'var(--bone-faint)',
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
           }}
@@ -81,48 +71,66 @@ function Tile({
         </span>
       </div>
 
+      {/* audience line */}
       {audience ? (
         <div
-          className="loom-serif"
-          style={{ fontStyle: 'italic', fontSize: 11, color: 'var(--loom-bone-dim)', marginBottom: 8 }}
+          className="hl-serif"
+          style={{
+            fontStyle: 'italic',
+            fontSize: 11,
+            color: 'var(--bone-dim)',
+            marginBottom: 8,
+          }}
         >
           {audience}
         </div>
       ) : null}
 
+      {/* the question */}
       <div
-        className="loom-h2"
+        className="hl-serif"
         style={{
           fontSize: 22,
           lineHeight: 1.18,
           fontWeight: 300,
-          color: 'var(--loom-bone)',
+          color: 'var(--bone)',
           letterSpacing: '-0.014em',
+          flex: 1,
         }}
       >
         {question}
       </div>
 
-      <div style={{ flex: 1 }} />
-
+      {/* footer rule */}
       <div
         style={{
-          borderTop: '1px solid var(--loom-rule)',
+          borderTop: '1px solid var(--rule)',
           paddingTop: 12,
+          marginTop: 20,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
       >
         <span
-          className="loom-mono"
-          style={{ fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}
+          className="hl-mono"
+          style={{
+            fontSize: 9,
+            color: 'var(--bone-faint)',
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+          }}
         >
           the listener · daily
         </span>
         <span
-          className="loom-mono"
-          style={{ fontSize: 9, color: 'var(--loom-warm)', letterSpacing: '0.22em', textTransform: 'uppercase' }}
+          className="hl-mono"
+          style={{
+            fontSize: 9,
+            color: 'var(--warm)',
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+          }}
         >
           heirloom.blue
         </span>
@@ -130,6 +138,12 @@ function Tile({
     </div>
   );
 }
+
+const VARIANTS: { label: string }[] = [
+  { label: 'IG square · 1080' },
+  { label: 'Newsletter top' },
+  { label: 'IG vertical · 1080×1350' },
+];
 
 export function DailySentence() {
   const [question, setQuestion] = useState<string>(FALLBACK_QUESTION);
@@ -169,80 +183,154 @@ export function DailySentence() {
   const stamp = now
     .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     .toLowerCase();
-  const audience = families ? `tonight, across ${families.toLocaleString()} families` : null;
-
-  const variants: { tile: string; tall?: boolean }[] = [
-    { tile: 'IG square · 1080' },
-    { tile: 'Newsletter top' },
-    { tile: 'IG vertical · 1080×1350', tall: true },
-  ];
+  const audience = families
+    ? `tonight, across ${families.toLocaleString()} families`
+    : null;
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        color: 'var(--loom-bone)',
-        boxSizing: 'border-box',
-      }}
-    >
-      {/* minimal standalone top bar */}
-      <header
+    <div className="hl-screen" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+
+      {/* ── topbar ───────────────────────────────────────────────────── */}
+      <div className="hl-topbar">
+        {/* left: logo + surface label */}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+          <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+            <HLogo size={18} wordmark />
+          </Link>
+          <span style={{ color: 'var(--bone-low)' }}>·</span>
+          <span className="hl-mono" style={{ fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+            the daily sentence
+          </span>
+        </span>
+
+        {/* center: counter slot */}
+        <span
+          className="hl-counter hl-mono"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            whiteSpace: 'nowrap',
+            fontSize: 10,
+            color: 'var(--bone-faint)',
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+          }}
+        >
+          one question per day · anonymized
+        </span>
+
+        {/* right: download action */}
+        <span
+          className="hl-link warm hl-mono"
+          style={{
+            fontSize: 10.5,
+            color: 'var(--warm)',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            cursor: 'default',
+          }}
+        >
+          download set →
+        </span>
+      </div>
+
+      {/* ── scrollable body ──────────────────────────────────────────── */}
+      <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '18px 32px',
-          borderBottom: '1px solid var(--loom-rule)',
+          position: 'absolute',
+          top: 56,
+          bottom: 8,
+          left: 0,
+          right: 0,
+          overflowY: 'auto',
+          overflowX: 'hidden',
         }}
       >
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
-          <Link to="/" className="loom-mark" style={{ textDecoration: 'none' }}>
-            <span className="infmark">∞</span>heirloom
-          </Link>
-          <span style={{ color: 'var(--loom-bone-low)' }}>·</span>
-          <span
-            className="loom-mono"
-            style={{ fontSize: 10.5, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
+        {/* headline + lede */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 78,
+            left: 56,
+            right: 56,
+          }}
+        >
+          <h2
+            className="hl-serif"
+            style={{
+              fontSize: 30,
+              fontWeight: 300,
+              lineHeight: 1.18,
+              letterSpacing: '-0.014em',
+              margin: 0,
+              color: 'var(--bone)',
+            }}
           >
-            the daily sentence · syndication
-          </span>
-        </span>
-        <span
-          className="loom-mono"
-          style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}
-        >
-          one question per day · anonymized · multi-format
-        </span>
-      </header>
+            One question a day. The question travels —{' '}
+            <em
+              className="hl-italic"
+              style={{ color: 'var(--warm)', fontStyle: 'italic' }}
+            >
+              the answers never do.
+            </em>
+          </h2>
 
-      <main style={{ padding: '56px 56px 48px', maxWidth: 1280, margin: '0 auto' }}>
-        <h2
-          className="loom-h2"
-          style={{ fontSize: 'clamp(26px, 3.4vw, 34px)', fontWeight: 300, margin: 0, lineHeight: 1.15, maxWidth: '36ch' }}
-        >
-          One question a day. The question travels —{' '}
-          <span className="loom-serif" style={{ fontStyle: 'italic', color: 'var(--loom-warm)' }}>
-            the answers never do.
-          </span>
-        </h2>
-        <p
-          className="loom-body"
-          style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--loom-bone-dim)', marginTop: 14, maxWidth: '64ch' }}
-        >
-          One prompt, generated for the whole archive. Pre-rendered for Instagram (square + vertical),
-          the marketing newsletter, X, and podcasts. No identifying content. The question alone, in our
-          type, on our ink.
-        </p>
+          <p
+            className="hl-serif hl-tight"
+            style={{
+              fontSize: 'clamp(28px, 4vw, 48px)',
+              fontWeight: 300,
+              color: 'var(--bone)',
+              lineHeight: 1.2,
+              margin: '28px 0 8px',
+              maxWidth: '28ch',
+            }}
+          >
+            {question}
+          </p>
 
-        {/* the shareable set */}
-        <div style={{ marginTop: 48, display: 'flex', gap: 40, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          {variants.map((v) => (
-            <div key={v.tile} style={{ flex: '0 0 auto' }}>
-              <div className="loom-eyebrow" style={{ marginBottom: 10 }}>
-                {v.tile}
+          <span
+            className="hl-mono"
+            style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}
+          >
+            {stamp}
+          </span>
+
+          <p
+            className="hl-prose"
+            style={{
+              fontSize: 15,
+              lineHeight: 1.7,
+              color: 'var(--bone-dim)',
+              marginTop: 14,
+              maxWidth: '64ch',
+            }}
+          >
+            One prompt, generated for the whole archive. Pre-rendered for Instagram (square +
+            vertical), the marketing newsletter, X, and podcasts. No identifying content. The
+            question alone, in our type, on our ink.
+          </p>
+        </div>
+
+        {/* tile previews */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 380,
+            left: 56,
+            right: 56,
+            display: 'flex',
+            gap: 40,
+            alignItems: 'flex-start',
+          }}
+        >
+          {VARIANTS.map((v) => (
+            <div key={v.label} style={{ flex: '0 0 auto' }}>
+              <div className="hl-eyebrow" style={{ marginBottom: 10 }}>
+                {v.label}
               </div>
-              <Tile question={question} stamp={stamp} audience={audience} tall={v.tall} />
+              <Tile question={question} stamp={stamp} audience={audience} />
             </div>
           ))}
         </div>
@@ -250,37 +338,31 @@ export function DailySentence() {
         {/* notes */}
         <div
           style={{
-            marginTop: 56,
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1fr) auto',
-            gap: 56,
-            alignItems: 'flex-end',
+            position: 'absolute',
+            top: 380 + 360 + 56,
+            left: 56,
+            right: 56,
           }}
         >
           <p
-            className="loom-serif"
-            style={{ fontSize: 13.5, lineHeight: 1.7, fontStyle: 'italic', color: 'var(--loom-bone-dim)', maxWidth: '60ch', margin: 0 }}
-          >
-            The daily sentence is the product's only ambient surface in the open internet. It performs the
-            brand without performing the family. Like a Penguin paperback ad — type, restraint, and one
-            beautiful thing.
-          </p>
-          <p
-            className="loom-mono"
+            className="hl-serif"
             style={{
-              fontSize: 10,
-              color: 'var(--loom-bone-faint)',
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              textAlign: 'right',
-              lineHeight: 1.8,
+              fontSize: 13.5,
+              lineHeight: 1.7,
+              fontStyle: 'italic',
+              color: 'var(--bone-dim)',
+              maxWidth: '60ch',
               margin: 0,
             }}
           >
-            {families ? `${families.toLocaleString()} families · ` : ''}one question · the answers stay home
+            The daily sentence is the product's only ambient surface in the open internet. It
+            performs the brand without performing the family. Like a Penguin paperback ad — type,
+            restraint, and one beautiful thing.
           </p>
         </div>
-      </main>
+      </div>
+
+      <TapestryEdge />
     </div>
   );
 }
