@@ -1,6 +1,107 @@
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
+import { useAuthStore } from '../../stores/authStore';
+
+const menuItemStyle: React.CSSProperties = {
+  display: 'block',
+  padding: '8px 12px',
+  fontFamily: "'Source Serif 4', serif",
+  fontSize: 14,
+  color: 'var(--loom-bone-dim)',
+  textDecoration: 'none',
+};
+
+function UserMenu() {
+  const { user, logout } = useAuthStore();
+  const [open, setOpen] = useState(false);
+  if (!user) return null;
+  const initials =
+    `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞';
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        onBlur={() => setTimeout(() => setOpen(false), 200)}
+        style={{
+          width: 28,
+          height: 28,
+          background: 'transparent',
+          border: '1px solid var(--loom-rule)',
+          color: 'var(--loom-bone)',
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 10,
+          letterSpacing: '0.04em',
+          cursor: 'pointer',
+        }}
+      >
+        {initials}
+      </button>
+      {open ? (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)',
+            right: 0,
+            minWidth: 220,
+            background: 'var(--loom-ink-card)',
+            border: '1px solid var(--loom-rule)',
+            padding: 8,
+            zIndex: 50,
+            boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
+          }}
+        >
+          <div
+            style={{
+              padding: '8px 12px',
+              borderBottom: '1px solid var(--loom-rule)',
+              marginBottom: 6,
+            }}
+          >
+            <p style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone)' }}>
+              {user.firstName} {user.lastName}
+            </p>
+            <p style={{ margin: '2px 0 0', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
+              {user.email}
+            </p>
+          </div>
+          {/* Data pages not in the 4-link topbar */}
+          <div style={{ padding: '4px 0', borderBottom: '1px solid var(--loom-rule)', marginBottom: 6 }}>
+            {[
+              { to: '/compose', label: 'Write a memory' },
+              { to: '/record', label: 'Voice record' },
+              { to: '/letters', label: 'Letters' },
+              { to: '/family', label: 'Family' },
+              { to: '/threads', label: 'Threads' },
+              { to: '/on-this-day', label: 'On this day' },
+              { to: '/inbox', label: 'Inbox' },
+              { to: '/wrapped', label: 'Wrapped' },
+            ].map((item) => (
+              <Link key={item.to} to={item.to} style={menuItemStyle} onClick={() => setOpen(false)}>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          <Link to="/settings" style={menuItemStyle} onClick={() => setOpen(false)}>
+            Settings
+          </Link>
+          <Link to="/billing" style={menuItemStyle} onClick={() => setOpen(false)}>
+            Billing
+          </Link>
+          <button
+            type="button"
+            onClick={() => { setOpen(false); logout(); }}
+            style={{ ...menuItemStyle, background: 'transparent', border: 0, width: '100%', textAlign: 'left', cursor: 'pointer' }}
+          >
+            Sign out
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 /**
  * Frame — the cross-screen chrome for the Loom.
@@ -132,6 +233,7 @@ export function Frame({
         </nav>
         <span className="right">
           {right}
+          <UserMenu />
           <ThemeToggle />
         </span>
       </div>
