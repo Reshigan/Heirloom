@@ -433,11 +433,7 @@ export default function App() {
                                                                                                     />
                                                                                                     <Route
                                                                                                       path="/memory-cards"
-                                                                                                      element={
-                                                                                                        <ProtectedRoute>
-                                                                                                          <MemoryCards />
-                                                                                                        </ProtectedRoute>
-                                                                                                      }
+                                                                                                      element={<Navigate to="/memories" replace />}
                                                                                                     />
 
                                                                                                     {/* Heirloom v2 Protected Routes */}
