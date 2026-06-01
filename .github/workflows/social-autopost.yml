@@ -22,6 +22,7 @@ on:
           - preview
           - daily
           - metrics
+          - purge
 
 concurrency:
   group: social-autopost

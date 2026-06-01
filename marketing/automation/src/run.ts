@@ -144,6 +144,45 @@ async function daily(): Promise<void> {
   await postAll(source);
 }
 
+// Delete all posts from the Bluesky account and repost today's content.
+// Used to purge old-branding posts when the social image changes.
+async function purgeBluesky(): Promise<void> {
+  const handle = process.env.BLUESKY_HANDLE;
+  const password = process.env.BLUESKY_APP_PASSWORD;
+  if (!handle || !password) { console.log("[purge] BLUESKY_HANDLE or BLUESKY_APP_PASSWORD not set"); return; }
+
+  const sessRes = await fetch("https://bsky.social/xrpc/com.atproto.server.createSession", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier: handle, password }),
+  });
+  const sess = (await sessRes.json().catch(() => ({}))) as { accessJwt?: string; did?: string };
+  if (!sess.accessJwt || !sess.did) { console.error("[purge] auth failed"); return; }
+
+  // List all posts
+  let cursor: string | undefined;
+  const toDelete: { uri: string; rkey: string }[] = [];
+  do {
+    const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${sess.did}&collection=app.bsky.feed.post&limit=100${cursor ? `&cursor=${cursor}` : ""}`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${sess.accessJwt}` } });
+    const j = (await r.json().catch(() => ({}))) as { records?: { uri: string }[]; cursor?: string };
+    for (const rec of j.records ?? []) {
+      const rkey = rec.uri.split("/").pop()!;
+      toDelete.push({ uri: rec.uri, rkey });
+    }
+    cursor = j.cursor;
+  } while (cursor);
+
+  console.log(`[purge] deleting ${toDelete.length} Bluesky posts…`);
+  for (const { rkey } of toDelete) {
+    await fetch("https://bsky.social/xrpc/com.atproto.repo.deleteRecord", {
+      method: "POST", headers: { Authorization: `Bearer ${sess.accessJwt}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ repo: sess.did, collection: "app.bsky.feed.post", rkey }),
+    });
+    console.log(`[purge] deleted ${rkey}`);
+  }
+  console.log("[purge] done — reposting with new image…");
+}
+
 const cmd = process.argv[2] ?? "preview";
 
 // Commands that drive Claude for generation/variants. If the one hard
@@ -171,6 +210,12 @@ const handlers: Record<string, () => Promise<void>> = {
   preview,
   daily,
   metrics,
+  // purge + repost: wipe all Bluesky posts then post fresh with new image
+  purge: async () => {
+    await purgeBluesky();
+    const source = await generate();
+    await postAll(source);
+  },
 };
 
 const handler = handlers[cmd];
