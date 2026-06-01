@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { lettersApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
+import { Frame } from '../loom/components/Frame';
 
 interface Letter {
   id: string;
@@ -14,18 +14,53 @@ interface Letter {
   createdAt: string;
 }
 
+// Natural-dye swatch — deterministic per letter id
+const DYE_VARS = [
+  '--dye-madder',
+  '--dye-cochineal',
+  '--dye-kermes',
+  '--dye-saffron',
+  '--dye-weld',
+  '--dye-walnut',
+  '--dye-oakgall',
+  '--dye-woad',
+  '--dye-indigo',
+  '--dye-iron',
+] as const;
+
+function dyeFor(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return `var(${DYE_VARS[h % DYE_VARS.length]})`;
+}
+
+function formatDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return iso;
+  }
+}
+
 /**
- * Letters — Loom-native rewrite.
+ * Letters — Loom 3 rewrite (§6.x).
  *
- * A list of sealed and unsealed letters. Sealed letters carry the ∞
- * mark and the open date in the left rail; unsealed (drafts) show a
- * "draft" small-caps tag. Body excerpt only when not sealed.
+ * Two-column layout: left = list, right = sticky CTA.
+ * Letter rows: date | title + recipient | dye swatch.
+ * Sealed letters carry the ∞ warm prefix; drafts show a
+ * hl-mono 9px uppercase draft tag.
  */
 export function Letters() {
   const { data, isLoading } = useQuery({
     queryKey: ['letters'],
-    queryFn: () => lettersApi.getAll({ limit: 200 }).then((r) => r.data).catch(() => null),
+    queryFn: () =>
+      lettersApi.getAll({ limit: 200 }).then((r) => r.data).catch(() => null),
   });
+
   const letters: Letter[] = Array.isArray((data as any)?.data)
     ? (data as any).data
     : Array.isArray(data)
@@ -33,160 +68,202 @@ export function Letters() {
     : [];
 
   return (
-    <AppFrame>
-      <header style={{ marginBottom: 40 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-          Letters · {letters.length} {letters.length === 1 ? 'letter' : 'letters'}
-        </p>
-        <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-        >
-          Sealed against time.
-        </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
-        >
-          Letters are entries with a future open. Body encrypted at rest; the recipient and the
-          date are public; the rest opens when the lock resolves.
-        </p>
-      </header>
-
-      <div style={{ display: 'flex', gap: 24, paddingBottom: 14, marginBottom: 28, borderBottom: '1px solid var(--loom-rule)' }}>
-        <span style={{ flex: 1 }} />
-        <Link
-          to="/letters/new"
+    <Frame
+      left="letters"
+      right={<Link to="/letters/new" className="hl-link warm">write a letter →</Link>}
+    >
+      <div
+        style={{
+          padding: '80px 56px 36px 56px',
+          minHeight: '100%',
+        }}
+      >
+        <div
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 10,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-warm)',
-            textDecoration: 'none',
+            display: 'grid',
+            gridTemplateColumns: '1.1fr 1fr',
+            gap: 56,
+            alignItems: 'start',
           }}
         >
-          write a letter →
-        </Link>
-      </div>
+          {/* ── LEFT: letter list ── */}
+          <div>
+            <h1
+              className="hl-serif hl-tight"
+              style={{
+                fontSize: 36,
+                fontWeight: 300,
+                color: 'var(--bone)',
+                marginBottom: 28,
+              }}
+            >
+              The letters you've sealed.
+            </h1>
 
-      {isLoading ? (
-        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
-          Loading…
-        </p>
-      ) : letters.length === 0 ? (
-        <Empty />
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {letters.map((l) => (
-            <LetterRow key={l.id} letter={l} />
-          ))}
-        </ul>
-      )}
-    </AppFrame>
+            {isLoading ? (
+              <p
+                className="hl-serif"
+                style={{ fontStyle: 'italic', color: 'var(--bone-faint)' }}
+              >
+                Loading…
+              </p>
+            ) : letters.length === 0 ? (
+              <p
+                className="hl-serif"
+                style={{ fontStyle: 'italic', color: 'var(--bone-faint)' }}
+              >
+                No letters yet. The future is still unwritten.
+              </p>
+            ) : (
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {letters.map((l) => (
+                  <LetterRow key={l.id} letter={l} />
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* ── RIGHT: sticky CTA ── */}
+          <div style={{ position: 'sticky', top: 0 }}>
+            <h3
+              className="hl-serif"
+              style={{
+                fontSize: 28,
+                fontWeight: 400,
+                color: 'var(--bone)',
+                marginBottom: 14,
+              }}
+            >
+              A letter for the future.
+            </h3>
+            <p
+              className="hl-prose"
+              style={{
+                fontSize: 15,
+                color: 'var(--bone-dim)',
+                marginBottom: 28,
+              }}
+            >
+              Sealed entries last decades. The recipient will read your exact
+              words.
+            </p>
+            <Link
+              to="/letters/new"
+              className="hl-btn"
+              style={{ textDecoration: 'none', display: 'inline-block' }}
+            >
+              Write a letter →
+            </Link>
+          </div>
+        </div>
+      </div>
+    </Frame>
   );
 }
 
 function LetterRow({ letter }: { letter: Letter }) {
   const sealed = !!letter.sealedAt;
-  const opens = letter.scheduledDate ?? letter.sealedAt ?? letter.createdAt;
+  const dateStr = letter.scheduledDate
+    ? formatDate(letter.scheduledDate)
+    : letter.sealedAt
+    ? formatDate(letter.sealedAt)
+    : formatDate(letter.createdAt);
+
+  const title = letter.title ?? letter.salutation ?? 'Untitled letter';
+  const recipient = letter.salutation && letter.title ? letter.salutation : null;
+
   return (
-    <li style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}>
-      <article style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 32, alignItems: 'baseline' }}>
-        <div>
-          <p
-            className="loom-mono"
-            style={{
-              margin: 0,
-              fontSize: 11,
-              letterSpacing: '0.18em',
-              color: 'var(--loom-warm)',
-              textTransform: 'uppercase',
-            }}
-          >
-            {sealed ? '∞ sealed' : 'draft'}
-          </p>
-          <p
-            className="loom-mono"
-            style={{
-              margin: '6px 0 0',
-              fontSize: 11,
-              letterSpacing: '0.04em',
-              color: 'var(--loom-bone-faint)',
-            }}
-          >
-            {opens ? formatDate(opens) : ''}
-          </p>
-        </div>
-        <div>
-          <h3
-            className="loom-serif"
-            style={{
-              fontSize: 22,
-              fontWeight: 300,
-              color: 'var(--loom-bone)',
-              margin: '0 0 6px',
-              lineHeight: 1.25,
-            }}
-          >
-            {sealed ? <span style={{ color: 'var(--loom-warm)', marginRight: 8 }} aria-hidden>∞</span> : null}
-            {letter.title ?? letter.salutation ?? 'Untitled letter'}
-          </h3>
-          {!sealed && letter.bodyPreview ? (
-            <p
-              className="loom-body"
-              style={{
-                fontSize: 15,
-                color: 'var(--loom-bone-dim)',
-                margin: 0,
-                lineHeight: 1.7,
-                fontStyle: 'italic',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-              }}
-            >
-              {letter.bodyPreview}
-            </p>
-          ) : null}
+    <li
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '80px 1fr auto',
+        borderBottom: '1px solid var(--rule)',
+        paddingTop: 18,
+        paddingBottom: 18,
+        alignItems: 'start',
+        gap: 16,
+      }}
+    >
+      {/* date */}
+      <span
+        className="hl-mono"
+        style={{
+          fontSize: 10,
+          color: 'var(--bone-faint)',
+          paddingTop: 2,
+        }}
+      >
+        {dateStr}
+      </span>
+
+      {/* title + recipient + draft tag */}
+      <div>
+        <span
+          className="hl-serif"
+          style={{
+            fontSize: 16,
+            color: 'var(--bone)',
+            display: 'block',
+            lineHeight: 1.3,
+          }}
+        >
           {sealed ? (
-            <p
-              className="loom-body"
-              style={{ margin: 0, fontSize: 14, fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}
+            <span
+              style={{ color: 'var(--warm)', marginRight: 6 }}
+              aria-hidden
             >
-              Sealed. Will open on the date you set.
-            </p>
+              ∞
+            </span>
           ) : null}
-        </div>
-      </article>
+          {title}
+        </span>
+
+        {recipient ? (
+          <span
+            className="hl-serif"
+            style={{
+              fontSize: 13,
+              fontStyle: 'italic',
+              color: 'var(--bone-dim)',
+              display: 'block',
+              marginTop: 3,
+            }}
+          >
+            {recipient}
+          </span>
+        ) : null}
+
+        {!sealed ? (
+          <span
+            className="hl-mono"
+            style={{
+              fontSize: 9,
+              textTransform: 'uppercase',
+              letterSpacing: '0.14em',
+              color: 'var(--bone-low)',
+              border: '1px solid var(--rule)',
+              padding: '1px 6px',
+              display: 'inline-block',
+              marginTop: 6,
+            }}
+          >
+            draft
+          </span>
+        ) : null}
+      </div>
+
+      {/* dye swatch 12×2 */}
+      <span
+        aria-hidden
+        style={{
+          display: 'block',
+          width: 12,
+          height: 2,
+          background: dyeFor(letter.id),
+          marginTop: 8,
+          flexShrink: 0,
+        }}
+      />
     </li>
   );
-}
-
-function Empty() {
-  return (
-    <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center' }}>
-      <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-        No letters yet
-      </p>
-      <h2
-        className="loom-serif"
-        style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 18px' }}
-      >
-        The best letters are written for someone you'll never meet.
-      </h2>
-      <Link to="/letters/new" className="loom-btn" style={{ textDecoration: 'none' }}>
-        write a letter
-      </Link>
-    </div>
-  );
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
-  } catch {
-    return iso;
-  }
 }
