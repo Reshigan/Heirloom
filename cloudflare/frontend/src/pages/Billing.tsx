@@ -95,6 +95,8 @@ export function Billing() {
   const renews = subscription?.currentPeriodEnd ?? null;
   const status = subscription?.status ?? null;
   const trialEndsAt = (subscription as any)?.trial_ends_at ?? null;
+  const trialDaysRemaining = (subscription as any)?.trialDaysRemaining ?? 0;
+  const isTrialing = status === 'TRIALING';
 
   return (
     <AppFrame>
@@ -158,24 +160,41 @@ export function Billing() {
         </div>
         <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)', letterSpacing: '0.04em', textAlign: 'right' }}>
           {renews ? <p style={{ margin: 0 }}>renews {new Date(renews).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</p> : null}
-          <button
-            type="button"
-            onClick={() => portal.mutate()}
-            disabled={portal.isPending}
-            style={{
-              marginTop: 8,
-              background: 'transparent',
-              border: 0,
-              cursor: 'pointer',
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 10,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: 'var(--loom-warm)',
-            }}
-          >
-            {portal.isPending ? 'opening…' : 'manage card →'}
-          </button>
+          {isTrialing ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+              <p style={{ margin: 0, color: 'var(--loom-warm)' }}>
+                {trialDaysRemaining > 0 ? `${trialDaysRemaining} day${trialDaysRemaining !== 1 ? 's' : ''} remaining` : 'trial ended'}
+              </p>
+              <button
+                type="button"
+                onClick={() => { setBusy('FAMILY'); checkout.mutate('FAMILY'); }}
+                disabled={busy === 'FAMILY'}
+                className="loom-btn"
+                style={{ fontSize: 11, padding: '6px 14px' }}
+              >
+                {busy === 'FAMILY' ? 'opening…' : 'subscribe to Family →'}
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => portal.mutate()}
+              disabled={portal.isPending}
+              style={{
+                marginTop: 8,
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--loom-warm)',
+              }}
+            >
+              {portal.isPending ? 'opening…' : 'manage card →'}
+            </button>
+          )}
         </div>
       </section>
 
@@ -239,6 +258,11 @@ export function Billing() {
                 {isCurrent ? (
                   <p className="loom-mono" style={{ margin: 0, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}>
                     ∞ &nbsp; current plan
+                  </p>
+                ) : t.key === 'STARTER' ? (
+                  // Reader is free — no checkout flow; users reach it by cancelling
+                  <p className="loom-mono" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--loom-bone-faint)' }}>
+                    free forever
                   </p>
                 ) : t.to ? (
                   <Link to={t.to} className="loom-btn" style={{ textDecoration: 'none', textAlign: 'center', width: '100%' }}>

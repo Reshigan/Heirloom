@@ -181,7 +181,7 @@ const PRICING: Record<string, {
 const DEFAULT_CURRENCY = 'USD';
 
 // Trial configuration
-const TRIAL_DAYS = 14;
+const TRIAL_DAYS = 30;
 const TRIAL_TIER = 'FAMILY'; // Trial users get Family tier features
 
 // =============================================================================
@@ -489,7 +489,7 @@ billingRoutes.get('/pricing', async (c) => {
       days: TRIAL_DAYS,
       tier: TRIAL_TIER,
       creditCardRequired: true,
-      description: 'Full access to Family tier features for 14 days',
+      description: 'Full access to Family tier features for 30 days',
     },
     annualSavings: '17% off (2 months free)',
   });
@@ -508,20 +508,24 @@ billingRoutes.get('/subscription', async (c) => {
     return c.json({ tier: 'STARTER', status: 'ACTIVE', storage: '500 MB', limits: TIER_LIMITS.STARTER, trialDaysRemaining: 0 });
   }
   
-  const tier = normalizeTier(sub.tier as string);
-  
+  // During a trial, honour the intended TRIAL_TIER so the user gets full
+  // Family-level access without having subscribed yet.
+  const rawTier = normalizeTier(sub.tier as string);
+  const tier = (sub.status === 'TRIALING' ? TRIAL_TIER : rawTier) as keyof typeof TIER_LIMITS;
+
   let trialDaysRemaining = 0;
   if (sub.status === 'TRIALING' && sub.trial_ends_at) {
     const trialEnd = new Date(sub.trial_ends_at as string);
     const now = new Date();
     trialDaysRemaining = Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
   }
-  
+
   return c.json({
     id: sub.id, tier, status: sub.status, billingCycle: sub.billing_cycle,
     currentPeriodEnd: sub.current_period_end, cancelAtPeriodEnd: !!sub.cancel_at_period_end,
-    storage: TIER_LIMITS[tier].maxStorageLabel, limits: TIER_LIMITS[tier],
+    trial_ends_at: sub.trial_ends_at ?? null,
     trialDaysRemaining,
+    storage: TIER_LIMITS[tier].maxStorageLabel, limits: TIER_LIMITS[tier],
   });
 });
 
@@ -530,10 +534,11 @@ billingRoutes.get('/limits', async (c) => {
   const userId = c.get('userId');
   // Prioritize ACTIVE subscriptions over TRIALING, and get the most recent one
   const sub = await c.env.DB.prepare(`
-    SELECT tier FROM subscriptions WHERE user_id = ?
+    SELECT tier, status FROM subscriptions WHERE user_id = ?
     ORDER BY CASE status WHEN 'ACTIVE' THEN 0 WHEN 'TRIALING' THEN 1 ELSE 2 END, created_at DESC
   `).bind(userId).first();
-  const tier = normalizeTier(sub?.tier as string || 'STARTER');
+  const rawTier = normalizeTier(sub?.tier as string || 'STARTER');
+  const tier = (sub?.status === 'TRIALING' ? TRIAL_TIER : rawTier) as keyof typeof TIER_LIMITS;
   const tierLimits = TIER_LIMITS[tier];
   
   const memoriesResult = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?').bind(userId).first();
@@ -776,9 +781,9 @@ billingRoutes.post('/checkout', async (c) => {
     }
     
     const session = await stripeResponse.json() as { id: string; url: string };
-    
+
     return c.json({
-      checkoutUrl: session.url,
+      url: session.url,
       sessionId: session.id,
       tier: normalizedTier,
       billingCycle,
@@ -916,7 +921,7 @@ billingRoutes.post('/portal', async (c) => {
     }
     
     const portal = await portalResponse.json() as { url: string };
-    return c.json({ portalUrl: portal.url });
+    return c.json({ url: portal.url });
   } catch (error) {
     console.error('Portal error:', error);
     return c.json({ error: 'Failed to create portal session' }, 500);
@@ -1013,6 +1018,7 @@ billingRoutes.post('/webhook', async (c) => {
       data: {
         object: {
           id: string;
+          customer?: string;
           customer_email?: string;
           metadata?: { user_id?: string; tier?: string; billing_cycle?: string; type?: string; voucher_code?: string; pledge_id?: string };
           subscription?: string;
@@ -1148,18 +1154,23 @@ billingRoutes.post('/webhook', async (c) => {
         
               if (userId) {
                 const existing = await c.env.DB.prepare('SELECT id FROM subscriptions WHERE user_id = ?').bind(userId).first();
-          
+                const customerId = session.customer || null;
+                const subscriptionId = session.subscription || null;
+
                 if (existing) {
                   await c.env.DB.prepare(`
-                    UPDATE subscriptions 
-                    SET tier = ?, status = 'ACTIVE', billing_cycle = ?, stripe_subscription_id = ?, updated_at = ?
+                    UPDATE subscriptions
+                    SET tier = ?, status = 'ACTIVE', billing_cycle = ?,
+                        stripe_subscription_id = ?,
+                        stripe_customer_id = COALESCE(stripe_customer_id, ?),
+                        trial_ends_at = NULL, updated_at = ?
                     WHERE user_id = ?
-                  `).bind(tier, billingCycle, session.subscription || null, now, userId).run();
+                  `).bind(tier, billingCycle, subscriptionId, customerId, now, userId).run();
                 } else {
                   await c.env.DB.prepare(`
-                    INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, stripe_subscription_id, created_at, updated_at)
-                    VALUES (?, ?, ?, 'ACTIVE', ?, ?, ?, ?)
-                  `).bind(crypto.randomUUID(), userId, tier, billingCycle, session.subscription || null, now, now).run();
+                    INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, stripe_subscription_id, stripe_customer_id, created_at, updated_at)
+                    VALUES (?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?)
+                  `).bind(crypto.randomUUID(), userId, tier, billingCycle, subscriptionId, customerId, now, now).run();
                 }
               }
               break;
