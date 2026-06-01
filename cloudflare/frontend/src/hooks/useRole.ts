@@ -27,7 +27,7 @@ export function useRole(): UserRole {
 
   const tier = (subscription as any)?.tier ?? 'STARTER';
   const status = (subscription as any)?.status ?? null;
-  const isTrialing = status === 'trialing';
+  const isTrialing = status === 'TRIALING';
 
   if (tier === 'FOUNDER') return 'founder';
   if (tier === 'FAMILY' && !isTrialing) return 'family';
