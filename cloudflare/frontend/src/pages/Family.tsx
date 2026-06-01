@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { familyApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
+import { Frame } from '../loom/components/Frame';
 
 interface FamilyMember {
   id: string;
@@ -13,66 +14,47 @@ interface FamilyMember {
   notes?: string | null;
   avatarUrl?: string | null;
   createdAt?: string;
+  role?: string | null;
+  lastEntry?: string | null;
   /** A real dye/category value off the member, if the API carries one. Never invented. */
   dye?: string | null;
 }
 
 /**
  * Natural-dye palette (§2.7) — the only place a dye color may appear.
- * Mapped ONLY from a real `dye` value on a member; never fabricated. The
- * current family API surfaces no dye, so the lead cell renders an honest
- * blank rather than a guessed stripe.
+ * Mapped ONLY from a real `dye` value on a member; never fabricated.
  */
 const DYE_VARS: Record<string, string> = {
-  madder: 'var(--dye-madder)',
+  madder:    'var(--dye-madder)',
   cochineal: 'var(--dye-cochineal)',
-  kermes: 'var(--dye-kermes)',
-  saffron: 'var(--dye-saffron)',
-  weld: 'var(--dye-weld)',
-  walnut: 'var(--dye-walnut)',
-  oakgall: 'var(--dye-oakgall)',
-  woad: 'var(--dye-woad)',
-  indigo: 'var(--dye-indigo)',
-  iron: 'var(--dye-iron)',
+  kermes:    'var(--dye-kermes)',
+  saffron:   'var(--dye-saffron)',
+  weld:      'var(--dye-weld)',
+  walnut:    'var(--dye-walnut)',
+  oakgall:   'var(--dye-oakgall)',
+  woad:      'var(--dye-woad)',
+  indigo:    'var(--dye-indigo)',
+  iron:      'var(--dye-iron)',
 };
 
-/**
- * Family — Bloodline typographic list.
- *
- * The Bloodline is rendered as a hairline-divided nameroll grouped by
- * generation. No constellation graphics, no avatar circles — each
- * person is their name in loom-serif italic with relation and dates
- * in loom-mono beneath.
- */
-
-const RELATION_GROUPS: Record<string, string[]> = {
-  'earlier generations': [
-    'parent', 'father', 'mother', 'grandparent', 'grandfather', 'grandmother',
-    'great-grandparent', 'aunt', 'uncle',
-  ],
-  'your generation': [
-    'sibling', 'brother', 'sister', 'spouse', 'partner', 'cousin', 'in-law',
-    'sister-in-law', 'brother-in-law',
-  ],
-  'descendants': [
-    'child', 'son', 'daughter', 'grandchild', 'grandson', 'granddaughter',
-    'great-grandchild', 'niece', 'nephew',
-  ],
-};
-
-function groupOf(rel: string | undefined): string {
-  if (!rel) return 'other';
-  const r = rel.toLowerCase();
-  for (const [group, kinds] of Object.entries(RELATION_GROUPS)) {
-    if (kinds.some((k) => r.includes(k))) return group;
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return '—';
   }
-  return 'other';
 }
 
 export function Family() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: '', relationship: '', email: '' });
+  const [form, setForm] = useState({ name: '', relationship: '', role: '', email: '' });
   const [error, setError] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -92,7 +74,7 @@ export function Family() {
         .then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
-      setForm({ name: '', relationship: '', email: '' });
+      setForm({ name: '', relationship: '', role: '', email: '' });
       setShowAdd(false);
       setError(null);
     },
@@ -101,209 +83,307 @@ export function Family() {
     },
   });
 
-  const grouped: Record<string, FamilyMember[]> = members.reduce(
-    (acc, m) => {
-      const g = groupOf(m.relationship);
-      (acc[g] = acc[g] ?? []).push(m);
-      return acc;
-    },
-    {} as Record<string, FamilyMember[]>,
-  );
-  const orderedGroups = ['earlier generations', 'your generation', 'descendants', 'other'].filter(
-    (g) => grouped[g]?.length,
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!form.name.trim() || !form.relationship.trim()) {
+      setError('Name and relation are required.');
+      return;
+    }
+    create.mutate();
+  };
+
+  const inviteLink = (
+    <button
+      type="button"
+      onClick={() => setShowAdd((v) => !v)}
+      style={{
+        background: 'transparent',
+        border: 0,
+        padding: 0,
+        cursor: 'pointer',
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.32em',
+        textTransform: 'uppercase' as const,
+        color: 'var(--warm)',
+      }}
+    >
+      {showAdd ? 'cancel →' : 'invite →'}
+    </button>
   );
 
   return (
-    <AppFrame width="wide">
-      <header style={{ marginBottom: 48 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-          Bloodline · {members.length} {members.length === 1 ? 'name' : 'names'}
-        </p>
+    <Frame left="family" right={inviteLink}>
+      <div style={{ position: 'absolute', top: 80, bottom: 36, left: 56, right: 56, overflowY: 'auto' }}>
+
+        {/* heading */}
         <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+          className="hl-serif hl-tight"
+          style={{
+            fontSize: 38,
+            fontWeight: 300,
+            color: 'var(--bone)',
+            margin: '0 0 32px',
+            letterSpacing: '-0.018em',
+            lineHeight: 1.15,
+          }}
         >
-          Every name in the thread.
+          The people on this thread.
         </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
-        >
-          Living, deceased, and not-yet-born. The weft runs through all of them.
-        </p>
-      </header>
 
-      <div
-        style={{
-          display: 'flex',
-          gap: 24,
-          paddingBottom: 14,
-          marginBottom: 28,
-          borderBottom: '1px solid var(--loom-rule)',
-          alignItems: 'baseline',
-        }}
-      >
-        <span style={{ flex: 1 }} />
-        <button
-          type="button"
-          onClick={() => setShowAdd((v) => !v)}
-          style={{
-            background: 'transparent',
-            border: 0,
-            padding: 0,
-            cursor: 'pointer',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 10,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-warm)',
-          }}
-        >
-          {showAdd ? 'cancel' : 'add to bloodline →'}
-        </button>
-      </div>
+        {/* add-member form */}
+        {showAdd && (
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              borderTop: '1px solid var(--rule)',
+              paddingTop: 24,
+              marginBottom: 40,
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 24,
+            }}
+          >
+            <div style={{ gridColumn: '1 / -1' }}>
+              <span
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.32em',
+                  textTransform: 'uppercase' as const,
+                  color: 'var(--bone-faint)',
+                }}
+              >
+                new member
+              </span>
+            </div>
 
-      {showAdd ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setError(null);
-            if (!form.name.trim() || !form.relationship.trim()) {
-              setError('Name and relation are required.');
-              return;
-            }
-            create.mutate();
-          }}
-          style={{
-            padding: '28px 32px',
-            border: '1px solid var(--loom-rule-warm)',
-            background: 'rgba(176,122,74,0.04)',
-            marginBottom: 36,
-            display: 'grid',
-            gap: 18,
-          }}
-        >
-          <p className="loom-eyebrow" style={{ marginBottom: 4 }}>
-            new name
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-            <FieldRow label="name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-            <FieldRow
-              label="relation"
+            <InputField
+              label="name"
+              value={form.name}
+              onChange={(v) => setForm({ ...form, name: v })}
+              placeholder="Margaret Ashworth"
+            />
+            <InputField
+              label="relationship"
               value={form.relationship}
               onChange={(v) => setForm({ ...form, relationship: v })}
-              placeholder="mother · sister · son · grandchild"
+              placeholder="grandmother · sister · son"
             />
-          </div>
-          <FieldRow
-            label="email — optional"
-            value={form.email}
-            onChange={(v) => setForm({ ...form, email: v })}
-            type="email"
-          />
-          {error ? (
-            <p role="alert" className="loom-body" style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}>
-              {error}
-            </p>
-          ) : null}
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="submit" className="loom-btn" disabled={create.isPending}>
-              {create.isPending ? 'weaving in…' : 'add to thread'}
-            </button>
-          </div>
-        </form>
-      ) : null}
+            <InputField
+              label="role — optional"
+              value={form.role}
+              onChange={(v) => setForm({ ...form, role: v })}
+              placeholder="member · steward · reader"
+            />
+            <InputField
+              label="email — optional"
+              value={form.email}
+              onChange={(v) => setForm({ ...form, email: v })}
+              type="email"
+              placeholder="name@example.com"
+            />
 
-      {isLoading ? (
-        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
-          Loading…
-        </p>
-      ) : members.length === 0 ? (
-        <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center' }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-            just you so far
+            {error && (
+              <p
+                role="alert"
+                className="hl-serif"
+                style={{
+                  gridColumn: '1 / -1',
+                  fontStyle: 'italic',
+                  color: 'var(--dye-madder)',
+                  fontSize: 14,
+                  margin: 0,
+                }}
+              >
+                {error}
+              </p>
+            )}
+
+            <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 16, alignItems: 'center', paddingTop: 8 }}>
+              <button
+                type="submit"
+                className="hl-btn"
+                disabled={create.isPending}
+                style={{ opacity: create.isPending ? 0.5 : 1 }}
+              >
+                {create.isPending ? 'adding…' : 'add member'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowAdd(false); setError(null); }}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase' as const,
+                  color: 'var(--bone-faint)',
+                }}
+              >
+                cancel
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* table */}
+        {isLoading ? (
+          <p
+            className="hl-serif"
+            style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0 }}
+          >
+            Loading the thread…
           </p>
-          <h2
-            className="loom-serif"
-            style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 18px' }}
+        ) : members.length === 0 ? (
+          <p
+            className="hl-serif"
+            style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0 }}
           >
-            Add the first name. The thread holds them all.
-          </h2>
-          <button
-            type="button"
-            className="loom-btn"
-            onClick={() => setShowAdd(true)}
-          >
-            add to bloodline
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gap: 56 }}>
-          {orderedGroups.map((group) => (
-            <section key={group}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 18 }}>
-                <span className="loom-eyebrow">{group}</span>
-                <hr className="loom-hairline" style={{ flex: 1 }} />
-              </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {grouped[group].map((m) => (
-                  <li
-                    key={m.id}
+            No one on the thread yet. Invite the first name.
+          </p>
+        ) : (
+          <div>
+            {/* table header */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '14px 2fr 1fr 1fr 0.6fr',
+                gap: 16,
+                paddingBottom: 12,
+                borderBottom: '1px solid var(--rule)',
+                alignItems: 'baseline',
+              }}
+            >
+              <span />
+              {(['name', 'role', 'last entry', 'joined'] as const).map((col) => (
+                <span
+                  key={col}
+                  className="hl-mono"
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: '0.32em',
+                    textTransform: 'uppercase' as const,
+                    color: 'var(--bone-faint)',
+                  }}
+                >
+                  {col}
+                </span>
+              ))}
+            </div>
+
+            {/* data rows */}
+            {members.map((m) => {
+              const dyeKey = m.dye?.toLowerCase() ?? '';
+              const dyeColor = dyeKey && DYE_VARS[dyeKey] ? DYE_VARS[dyeKey] : null;
+              return (
+                <div
+                  key={m.id}
+                  role="row"
+                  tabIndex={0}
+                  onClick={() => navigate(`/person/${m.id}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/person/${m.id}`); }}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '14px 2fr 1fr 1fr 0.6fr',
+                    gap: 16,
+                    paddingTop: 14,
+                    paddingBottom: 14,
+                    borderBottom: '1px solid var(--rule)',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    outline: 'none',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(244,236,216,0.02)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
+                >
+                  {/* dye circle */}
+                  <span
+                    aria-hidden
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '14px 1fr 220px',
-                      gap: 24,
-                      alignItems: 'baseline',
-                      padding: '16px 0',
-                      borderBottom: '1px solid var(--loom-rule)',
+                      display: 'block',
+                      width: 8,
+                      height: 8,
+                      borderRadius: 0,
+                      background: dyeColor ?? 'transparent',
+                      border: dyeColor ? undefined : '1px solid var(--rule)',
+                      flexShrink: 0,
                     }}
-                  >
-                    <span
-                      aria-hidden
+                  />
+
+                  {/* name + relationship */}
+                  <div>
+                    <div
+                      className="hl-serif"
                       style={{
-                        width: 14,
-                        height: 2,
-                        alignSelf: 'center',
-                        background: m.dye ? DYE_VARS[m.dye.toLowerCase()] ?? 'transparent' : 'transparent',
+                        fontSize: 16,
+                        fontWeight: 400,
+                        color: 'var(--bone)',
+                        lineHeight: 1.25,
                       }}
-                    />
-                    <div>
-                      <p
-                        className="loom-serif"
+                    >
+                      {m.name}
+                    </div>
+                    {m.relationship && (
+                      <div
+                        className="hl-serif"
                         style={{
-                          fontSize: 19,
                           fontStyle: 'italic',
-                          fontWeight: 400,
-                          color: 'var(--loom-bone)',
-                          margin: 0,
-                          lineHeight: 1.25,
+                          fontSize: 13,
+                          color: 'var(--bone-dim)',
+                          marginTop: 2,
+                          lineHeight: 1.2,
                         }}
                       >
-                        {m.name}
-                      </p>
-                      <p
-                        className="loom-mono"
-                        style={{ fontSize: 11, color: 'var(--loom-bone-faint)', margin: '4px 0 0', letterSpacing: '0.04em' }}
-                      >
                         {m.relationship}
-                        {m.birthDate ? ` · b. ${new Date(m.birthDate).getFullYear()}` : ''}
-                      </p>
-                    </div>
-                    <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
-                      {m.email ?? ''}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
-      )}
-    </AppFrame>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* role */}
+                  <div
+                    className="hl-mono"
+                    style={{
+                      fontSize: 9.5,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase' as const,
+                      color: 'var(--bone-dim)',
+                    }}
+                  >
+                    {m.role ?? '—'}
+                  </div>
+
+                  {/* last entry */}
+                  <div
+                    className="hl-mono"
+                    style={{ fontSize: 10, color: 'var(--bone-faint)' }}
+                  >
+                    {formatDate(m.lastEntry)}
+                  </div>
+
+                  {/* joined */}
+                  <div
+                    className="hl-mono"
+                    style={{ fontSize: 10, color: 'var(--bone-faint)' }}
+                  >
+                    {formatDate(m.createdAt)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </Frame>
   );
 }
 
-function FieldRow({
+// ── InputField — hairline-border input with hl-serif text ────────────────────
+function InputField({
   label,
   value,
   onChange,
@@ -318,7 +398,17 @@ function FieldRow({
 }) {
   return (
     <label style={{ display: 'block' }}>
-      <span className="loom-eyebrow" style={{ display: 'block', marginBottom: 6, fontSize: 10 }}>
+      <span
+        className="hl-mono"
+        style={{
+          display: 'block',
+          fontSize: 10,
+          letterSpacing: '0.32em',
+          textTransform: 'uppercase' as const,
+          color: 'var(--bone-faint)',
+          marginBottom: 8,
+        }}
+      >
         {label}
       </span>
       <input
@@ -326,6 +416,21 @@ function FieldRow({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%',
+          background: 'transparent',
+          border: 0,
+          borderBottom: '1px solid var(--rule)',
+          outline: 'none',
+          padding: '6px 0',
+          fontFamily: 'var(--serif)',
+          fontSize: 15,
+          color: 'var(--bone)',
+          borderRadius: 0,
+          boxSizing: 'border-box' as const,
+        }}
+        onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+        onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
       />
     </label>
   );
