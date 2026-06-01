@@ -20,7 +20,7 @@ const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 const sourcePostSchema = z.object({
   hook: z.string().min(5).max(200),
   body: z.string().min(40).max(800),
-  cta: z.string().min(5).max(120),
+  cta: z.string().min(5).max(200),
   imagePrompt: z.string().min(20).max(400),
   hashtags: z.array(z.string()).max(8),
 });
