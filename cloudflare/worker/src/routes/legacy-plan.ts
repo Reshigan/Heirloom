@@ -9,69 +9,62 @@ export const legacyPlanRoutes = new Hono<AppEnv>();
 legacyPlanRoutes.get('/', async (c) => {
   const userId = c.get('userId');
 
-  // Get or create legacy plan
-  let plan = await c.env.DB.prepare(
-    'SELECT * FROM legacy_plans WHERE user_id = ?'
-  ).bind(userId).first();
-
-  if (!plan) {
-    // Create new plan with default items from templates
-    const planId = crypto.randomUUID();
-    const shareToken = crypto.randomUUID();
-    
-    await c.env.DB.prepare(`
-      INSERT INTO legacy_plans (id, user_id, share_token, created_at, updated_at)
-      VALUES (?, ?, ?, datetime('now'), datetime('now'))
-    `).bind(planId, userId, shareToken).run();
-
-    // Copy template items to user's plan
-    const templates = await c.env.DB.prepare(
-      'SELECT * FROM legacy_plan_templates WHERE active = 1 ORDER BY category, sort_order'
-    ).all();
-
-    for (const template of templates.results || []) {
-      const itemId = crypto.randomUUID();
-      await c.env.DB.prepare(`
-        INSERT INTO legacy_plan_items (id, user_id, category, title, description, sort_order, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-      `).bind(itemId, userId, template.category, template.title, template.description, template.sort_order).run();
-    }
-
-    plan = await c.env.DB.prepare(
+  try {
+    // Get or create legacy plan
+    let plan = await c.env.DB.prepare(
       'SELECT * FROM legacy_plans WHERE user_id = ?'
     ).bind(userId).first();
-  }
 
-  // Get plan items
-  const items = await c.env.DB.prepare(
-    'SELECT * FROM legacy_plan_items WHERE user_id = ? ORDER BY category, sort_order'
-  ).bind(userId).all();
+    if (!plan) {
+      const planId = crypto.randomUUID();
+      const shareToken = crypto.randomUUID();
 
-  // Calculate progress
-  const totalItems = items.results?.length || 0;
-  const completedItems = items.results?.filter((i: Record<string, unknown>) => i.completed === 1).length || 0;
-  const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+      await c.env.DB.prepare(`
+        INSERT INTO legacy_plans (id, user_id, share_token, created_at, updated_at)
+        VALUES (?, ?, ?, datetime('now'), datetime('now'))
+      `).bind(planId, userId, shareToken).run();
 
-  // Group items by category
-  const itemsByCategory: Record<string, unknown[]> = {};
-  for (const item of items.results || []) {
-    const category = item.category as string;
-    if (!itemsByCategory[category]) {
-      itemsByCategory[category] = [];
+      const templates = await c.env.DB.prepare(
+        'SELECT * FROM legacy_plan_templates WHERE active = 1 ORDER BY category, sort_order'
+      ).all();
+
+      for (const template of templates.results || []) {
+        const itemId = crypto.randomUUID();
+        await c.env.DB.prepare(`
+          INSERT INTO legacy_plan_items (id, user_id, category, title, description, sort_order, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+        `).bind(itemId, userId, template.category, template.title, template.description, template.sort_order).run();
+      }
+
+      plan = await c.env.DB.prepare(
+        'SELECT * FROM legacy_plans WHERE user_id = ?'
+      ).bind(userId).first();
     }
-    itemsByCategory[category].push(item);
-  }
 
-  return c.json({
-    plan: {
-      ...plan,
-      totalItems,
-      completedItems,
-      progressPercent,
-    },
-    items: items.results || [],
-    itemsByCategory,
-  });
+    const items = await c.env.DB.prepare(
+      'SELECT * FROM legacy_plan_items WHERE user_id = ? ORDER BY category, sort_order'
+    ).bind(userId).all();
+
+    const totalItems = items.results?.length || 0;
+    const completedItems = items.results?.filter((i: Record<string, unknown>) => i.completed === 1).length || 0;
+    const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+    const itemsByCategory: Record<string, unknown[]> = {};
+    for (const item of items.results || []) {
+      const category = item.category as string;
+      if (!itemsByCategory[category]) itemsByCategory[category] = [];
+      itemsByCategory[category].push(item);
+    }
+
+    return c.json({
+      plan: { ...plan, totalItems, completedItems, progressPercent },
+      items: items.results || [],
+      itemsByCategory,
+    });
+  } catch (err: any) {
+    console.error('[legacy-plan] GET failed:', err?.message ?? err);
+    return c.json({ plan: null, items: [], itemsByCategory: {} });
+  }
 });
 
 // ============================================

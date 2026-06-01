@@ -10,7 +10,8 @@ export const lifeEventsRoutes = new Hono<AppEnv>();
 lifeEventsRoutes.get('/', async (c) => {
   const userId = c.get('userId');
 
-  const triggers = await c.env.DB.prepare(`
+  try {
+    const triggers = await c.env.DB.prepare(`
       SELECT let.*, fm.name as family_member_name, fm.relationship as family_member_relationship
       FROM life_event_triggers let
       LEFT JOIN family_members fm ON let.family_member_id = fm.id
@@ -19,6 +20,10 @@ lifeEventsRoutes.get('/', async (c) => {
     `).bind(userId).all();
 
     return c.json({ triggers: triggers.results || [] });
+  } catch (err: any) {
+    console.error('[life-events] GET failed:', err?.message ?? err);
+    return c.json({ triggers: [] });
+  }
 });
 
 // ============================================
