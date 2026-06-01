@@ -111,6 +111,20 @@ jobs:
           fi
           printf '%s' "$ENCRYPTION_MASTER_KEY" | npx --yes wrangler@4 secret put ENCRYPTION_MASTER_KEY
 
+      # Stripe secret key → Worker secret (never committed). Skips cleanly when unset.
+      - name: Sync Stripe secret key
+        working-directory: cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          if [ -z "$STRIPE_SECRET_KEY" ]; then
+            echo "STRIPE_SECRET_KEY not set — Stripe billing stays disabled; skipping."
+            exit 0
+          fi
+          printf '%s' "$STRIPE_SECRET_KEY" | npx --yes wrangler@4 secret put STRIPE_SECRET_KEY
+
   deploy-migrations:
     name: Run D1 Migrations
     runs-on: ubuntu-latest
