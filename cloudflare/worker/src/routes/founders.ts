@@ -20,7 +20,7 @@ import { sendEmail } from '../utils/email';
 
 export const founderRoutes = new Hono<AppEnv>();
 
-const PLEDGE_AMOUNT_USD = 999;
+const PLEDGE_AMOUNT_USD = 240;
 const PLEDGE_CAP = 100;
 
 founderRoutes.post('/pledge', async (c) => {

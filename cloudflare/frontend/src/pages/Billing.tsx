@@ -32,8 +32,8 @@ export function Billing() {
   });
 
   const checkout = useMutation({
-    mutationFn: (tier: string) =>
-      billingApi.checkout({ tier, billingCycle: 'monthly' }).then((r) => r.data),
+    mutationFn: (cycle: 'monthly' | 'yearly') =>
+      billingApi.checkout({ tier: 'FAMILY', billingCycle: cycle }).then((r) => r.data),
     onSuccess: (data: any) => {
       if (data?.url) window.location.href = data.url;
       setBusy(null);
@@ -139,7 +139,7 @@ export function Billing() {
               {currentTier === 'FAMILY' && (
                 <button
                   type="button"
-                  onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate('FAMILY'); }}
+                  onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate('yearly'); }}
                   disabled={!!busy}
                   style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}
                 >
@@ -159,7 +159,7 @@ export function Billing() {
               {(currentTier === 'STARTER' || currentTier === 'FREE') && (
                 <button
                   type="button"
-                  onClick={() => { setBusy('FAMILY'); checkout.mutate('FAMILY'); }}
+                  onClick={() => { setBusy('FAMILY'); checkout.mutate('monthly'); }}
                   disabled={!!busy}
                   className="hl-btn"
                   style={{ fontSize: 11, padding: '10px 20px' }}

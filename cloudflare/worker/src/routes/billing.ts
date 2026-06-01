@@ -723,8 +723,11 @@ billingRoutes.post('/checkout', async (c) => {
   try {
     const billingInterval = isYearly ? 'yearly' : 'monthly';
     
-    // Use pre-created Stripe Price IDs for supported currencies (USD, ZAR, EUR, GBP)
-    const stripePriceId = STRIPE_PRICE_IDS[currency]?.[normalizedTier]?.[billingInterval] || null;
+    // Use pre-created Stripe Price IDs only when they're real (start with 'price_1').
+    // Placeholder strings (e.g. 'price_family_monthly_usd') are treated as null so
+    // the price_data fallback below is used instead.
+    const rawPriceId = STRIPE_PRICE_IDS[currency]?.[normalizedTier]?.[billingInterval];
+    const stripePriceId = rawPriceId?.startsWith('price_1') ? rawPriceId : null;
     
     // Build checkout session params
     const userIdStr = userId || '';
