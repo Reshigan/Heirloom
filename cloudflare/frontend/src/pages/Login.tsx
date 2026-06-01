@@ -4,15 +4,10 @@ import { useAuthStore } from '../stores/authStore';
 import { VaultModal } from '../components/VaultModal';
 import { encryptionService } from '../services/encryptionService';
 import { Loom, type LoomEntry } from '../loom/components/Loom';
+import { HLogo } from '../loom/components/HLogo';
 
-/**
- * Login — Loom-native, two-column editorial (artboard: heirloom-auth.jsx).
- *
- * Left: the sign-in form. Right: a specimen of the cloth on ink, captioned
- * — a faithful static woven specimen built from the Loom primitive (the real
- * pan happens after signing in). Same business logic as before: auth, thread
- * unlock, redirect on success. Responsive: the specimen drops below ~900px.
- */
+// Login — Loom 3 two-column parchment layout (heirloom-auth.jsx §Login).
+// Left: sign-in form on parchment. Right: specimen cloth on ink.
 export function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -45,175 +40,109 @@ export function Login() {
     }
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    background: 'var(--loom-ink)',
-    border: '1px solid var(--loom-rule)',
-    borderRadius: 2,
-    color: 'var(--loom-bone)',
-    padding: '11px 14px',
-    fontFamily: "'Inter', sans-serif",
-    fontSize: 16,
-    outline: 'none',
-    boxSizing: 'border-box',
-  };
-
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: '68px 1fr' }}>
-      <header
-        style={{
-          borderBottom: '1px solid var(--loom-rule)',
-          padding: '0 28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Link to="/" className="loom-mark" style={{ textDecoration: 'none' }}>
-          <span className="infmark">∞</span>heirloom
+    <div className="hl-screen parchment" style={{ minHeight: '100vh', position: 'relative' }}>
+      {/* Loom 3 MktBar — parchment top strip */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '24px 56px',
+        borderBottom: '1px solid var(--parchment-rule)',
+      }}>
+        <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+          <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
         </Link>
-        <Link
-          to="/signup"
-          className="loom-mono"
-          style={{
-            fontSize: 11,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-bone-dim)',
-            textDecoration: 'none',
-          }}
-        >
-          new here? begin a thread
-        </Link>
-      </header>
+        <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
+          <Link to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>new here? begin a thread</Link>
+        </span>
+      </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 460px), 1fr))',
-          alignItems: 'stretch',
-        }}
-      >
-        {/* left: form */}
-        <main style={{ display: 'grid', placeItems: 'center', padding: '56px 40px' }}>
-          <div style={{ width: '100%', maxWidth: 400 }}>
-            <div className="loom-eyebrow" style={{ marginBottom: 22 }}>
-              welcome back
-            </div>
-            <h1
-              className="loom-h2"
-              style={{
-                fontSize: 'clamp(34px, 4.4vw, 48px)',
-                fontWeight: 300,
-                lineHeight: 1.08,
-                letterSpacing: '-0.018em',
-                margin: '0 0 36px',
-              }}
-            >
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 460px), 1fr))',
+        minHeight: 'calc(100vh - 73px)',
+      }}>
+        {/* left: form on parchment */}
+        <main style={{ display: 'grid', placeItems: 'center', padding: '56px 88px' }}>
+          <div style={{ width: '100%', maxWidth: 380 }}>
+            <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>welcome back</div>
+            <h1 className="hl-serif hl-tight" style={{
+              fontSize: 'clamp(34px, 4.4vw, 44px)',
+              fontWeight: 300, lineHeight: 1.08,
+              letterSpacing: '-0.018em',
+              margin: '0 0 36px', maxWidth: '14ch',
+              color: 'var(--parchment-ink)',
+            }}>
               Sign in{' '}
-              <span style={{ fontStyle: 'italic', color: 'var(--loom-warm)' }}>to the cloth.</span>
+              <span className="hl-italic" style={{ color: 'var(--warm)' }}>to the cloth.</span>
             </h1>
 
             {sessionExpired ? (
-              <div
-                style={{
-                  marginBottom: 28,
-                  padding: '12px 0',
-                  borderTop: '1px solid var(--loom-rule-warm)',
-                  borderBottom: '1px solid var(--loom-rule-warm)',
-                }}
-                className="loom-mono"
-              >
-                <span style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.04em' }}>
-                  ∞ &nbsp; your session ended. sign in again.
-                </span>
+              <div style={{
+                marginBottom: 28, padding: '12px 0',
+                borderTop: '1px solid rgba(176,122,74,0.3)',
+                borderBottom: '1px solid rgba(176,122,74,0.3)',
+                fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
+                letterSpacing: '0.04em',
+              }}>
+                ∞ &nbsp; your session ended. sign in again.
               </div>
             ) : null}
 
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 26 }}>
               <div>
-                <label
-                  htmlFor="l-email"
-                  className="loom-eyebrow"
-                  style={{ display: 'block', marginBottom: 8, fontSize: 10 }}
-                >
+                <label htmlFor="l-email" className="hl-mono" style={{
+                  display: 'block', marginBottom: 6,
+                  fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
+                  color: 'var(--parchment-faint)',
+                }}>
                   email
                 </label>
                 <input
-                  id="l-email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={inputStyle}
+                  id="l-email" type="email" required autoComplete="email"
+                  value={email} onChange={(e) => setEmail(e.target.value)}
+                  className="hl-input"
                 />
               </div>
 
               <div>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'baseline',
-                    marginBottom: 8,
-                  }}
-                >
-                  <label htmlFor="l-pw" className="loom-eyebrow" style={{ fontSize: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                  <label htmlFor="l-pw" className="hl-mono" style={{
+                    fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
+                    color: 'var(--parchment-faint)',
+                  }}>
                     passphrase
                   </label>
-                  <Link
-                    to="/forgot-password"
-                    className="loom-mono"
-                    style={{
-                      fontSize: 9,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: 'var(--loom-bone-faint)',
-                      textDecoration: 'none',
-                    }}
-                  >
+                  <Link to="/forgot-password" className="hl-mono" style={{
+                    fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase',
+                    color: 'var(--parchment-faint)', textDecoration: 'none',
+                  }}>
                     forgot?
                   </Link>
                 </div>
                 <input
-                  id="l-pw"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={inputStyle}
+                  id="l-pw" type="password" required autoComplete="current-password"
+                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="hl-input"
                 />
-                <p
-                  className="loom-body"
-                  style={{
-                    margin: '14px 0 0',
-                    fontStyle: 'italic',
-                    fontSize: 13.5,
-                    color: 'var(--loom-bone-faint)',
-                    lineHeight: 1.55,
-                  }}
-                >
+                <p className="hl-italic" style={{
+                  fontSize: 13.5, color: 'var(--parchment-faint)', marginTop: 14,
+                  lineHeight: 1.55, fontWeight: 400,
+                }}>
                   We use passphrases — three or four words you choose. Easier to remember, harder to crack.
                 </p>
               </div>
 
               {error ? (
-                <p
-                  role="alert"
-                  className="loom-body"
-                  style={{ fontStyle: 'italic', color: 'var(--loom-warm)', fontSize: 14, margin: 0 }}
-                >
+                <p role="alert" className="hl-italic" style={{ color: 'var(--warm)', fontSize: 14, margin: 0 }}>
                   {error}
                 </p>
               ) : null}
 
-              <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 10 }}>
                 <button
                   type="submit"
                   disabled={isLoading || !email.trim() || !password.trim()}
-                  className="loom-btn"
+                  className="hl-btn"
                   style={{ opacity: isLoading || !email.trim() || !password.trim() ? 0.5 : 1 }}
                 >
                   {isLoading ? 'entering…' : 'Enter the cloth →'}
@@ -221,20 +150,14 @@ export function Login() {
               </div>
             </form>
 
-            <div
-              className="loom-mono"
-              style={{
-                marginTop: 40,
-                paddingTop: 22,
-                borderTop: '1px solid var(--loom-rule)',
-                fontSize: 10.5,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--loom-bone-faint)',
-              }}
-            >
+            <div className="hl-mono" style={{
+              marginTop: 40, paddingTop: 22,
+              borderTop: '1px solid var(--parchment-rule)',
+              fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: 'var(--parchment-faint)',
+            }}>
               new here?{' '}
-              <Link to="/signup" style={{ color: 'var(--loom-warm)', textDecoration: 'none' }}>
+              <Link to="/signup" style={{ color: 'var(--warm)', textDecoration: 'none' }}>
                 begin a thread →
               </Link>
             </div>
@@ -242,18 +165,10 @@ export function Login() {
         </main>
 
         {/* right: specimen cloth on ink */}
-        <aside
-          aria-hidden
-          style={{
-            background: 'var(--loom-ink)',
-            borderLeft: '1px solid var(--loom-rule)',
-            position: 'relative',
-            overflow: 'hidden',
-            minHeight: 360,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
+        <aside aria-hidden style={{
+          background: 'var(--ink)', position: 'relative', overflow: 'hidden',
+          minHeight: 360, display: 'flex', alignItems: 'center',
+        }}>
           <div style={{ width: '100%', padding: '0 8px' }}>
             <Loom
               entries={SPECIMEN_ENTRIES}
@@ -265,18 +180,11 @@ export function Login() {
               ambientShuttle={false}
             />
           </div>
-          <div
-            className="loom-mono"
-            style={{
-              position: 'absolute',
-              left: 28,
-              bottom: 28,
-              fontSize: 10,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
-            }}
-          >
+          <div className="hl-mono" style={{
+            position: 'absolute', left: 28, bottom: 28,
+            fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+          }}>
             specimen · 78 yrs · 4,318 entries · pan after signing in
           </div>
         </aside>
@@ -296,8 +204,7 @@ export function Login() {
   );
 }
 
-// A faithful static woven specimen (no real data) — a dense band of picks
-// across 78 years, kinds varied, a few milestones tied off warm at the edge.
+// Dense static specimen — no real data, same layout as the auth handoff
 const SPECIMEN_KINDS = ['memory', 'photo', 'letter', 'voice', 'memory', 'photo'] as const;
 const SPECIMEN_ENTRIES: LoomEntry[] = Array.from({ length: 96 }, (_, i) => {
   const t = Math.sin(i * 12.9898) * 43758.5453;

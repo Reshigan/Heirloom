@@ -3,21 +3,12 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
+import { HLogo } from '../loom/components/HLogo';
 
-/**
- * Signup — Loom-native three-step inline flow (artboard: heirloom-auth.jsx).
- *
- * step one · the thread's name   — what the family calls itself
- * step two · you                 — name + birth year + email + passphrase
- * step three · how to begin      — Free / Family / Founder (Family pre-selected)
- *
- * The working signup is preserved: register() still receives
- * (email, password, firstName, lastName, consent). The thread name, birth
- * year, and chosen tier are *additional captured state*; since the auth API
- * does not yet take them, they are stashed (sessionStorage SIGNUP_INTENT_KEY)
- * so the coordinator can wire them to family-creation / billing after signup.
- * No charge happens here — the tier is carried, not billed.
- */
+// Signup — Loom 3 three-step inline parchment flow (heirloom-auth.jsx §Signup).
+// step one · the thread's name   — what the family calls itself
+// step two · you                 — name + birth year + email + passphrase
+// step three · how to begin      — Free / Family / Founder (Family pre-selected)
 
 export const SIGNUP_INTENT_KEY = 'heirloom_signup_intent';
 
@@ -90,8 +81,6 @@ export function Signup() {
     setIsLoading(true);
     setErrors({});
     try {
-      // Carry the thread name + birth year + chosen tier through to the
-      // post-signup steps (family-creation / billing) without charging here.
       const intent: SignupIntent = {
         threadName: form.threadName.trim(),
         birthYear: form.birthYear.trim(),
@@ -109,16 +98,12 @@ export function Signup() {
         marketingConsent: form.marketingConsent,
         marketingConsentAt: form.marketingConsent ? new Date().toISOString() : null,
       });
-      // Honor the "name your thread" step. The backend lazy-bootstraps a
-      // generically named default thread on first /me; claim the chosen name
-      // now while none exists yet (duplicate-safe — getOrCreateDefaultThread
-      // adopts the oldest FOUNDER thread, which will be this one).
       if (intent.threadName) {
         try {
           const { threads } = (await threadsApi.list()).data;
           if (threads.length === 0) await threadsApi.create({ name: intent.threadName });
         } catch {
-          /* non-fatal — the default thread still bootstraps on /me */
+          /* non-fatal */
         }
       }
       setShowVaultSetup(true);
@@ -130,73 +115,50 @@ export function Signup() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: '68px 1fr' }}>
-      <header
-        style={{
-          borderBottom: '1px solid var(--loom-rule)',
-          padding: '0 28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Link to="/" className="loom-mark" style={{ textDecoration: 'none' }}>
-          <span className="infmark">∞</span>heirloom
+    <div className="hl-screen parchment" style={{ minHeight: '100vh', position: 'relative' }}>
+      {/* Loom 3 MktBar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '24px 56px',
+        borderBottom: '1px solid var(--parchment-rule)',
+      }}>
+        <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+          <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
         </Link>
-        <Link
-          to="/login"
-          className="loom-mono"
-          style={{
-            fontSize: 11,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-bone-dim)',
-            textDecoration: 'none',
-          }}
-        >
-          have an account? sign in
-        </Link>
-      </header>
+        <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
+          <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>have an account? sign in</Link>
+        </span>
+      </div>
 
-      <main style={{ padding: '52px 40px 100px', overflow: 'auto' }}>
+      <main style={{ padding: '52px 88px 100px', overflow: 'auto' }}>
         <div style={{ maxWidth: 980, margin: '0 auto' }}>
-          <div className="loom-eyebrow" style={{ marginBottom: 18 }}>
+          <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>
             begin · this takes about 90 seconds
           </div>
-          <h1
-            className="loom-h2"
-            style={{
-              fontSize: 'clamp(36px, 5vw, 52px)',
-              fontWeight: 300,
-              lineHeight: 1.06,
-              letterSpacing: '-0.022em',
-              margin: 0,
-              maxWidth: '18ch',
-            }}
-          >
+          <h1 className="hl-serif hl-tight" style={{
+            fontSize: 'clamp(36px, 5vw, 52px)',
+            fontWeight: 300, lineHeight: 1.06, letterSpacing: '-0.022em',
+            margin: 0, maxWidth: '18ch',
+            color: 'var(--parchment-ink)',
+          }}>
             Name your thread. Name{' '}
-            <span style={{ fontStyle: 'italic', color: 'var(--loom-warm)' }}>yourself.</span>
+            <span className="hl-italic" style={{ color: 'var(--warm)' }}>yourself.</span>
           </h1>
 
           <form onSubmit={handleSubmit}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
-                gap: 48,
-                marginTop: 48,
-              }}
-            >
-              {/* step one · the thread's name */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+              gap: 56, marginTop: 56,
+            }}>
+              {/* step one */}
               <section>
                 <StepEyebrow>step one · the thread's name</StepEyebrow>
                 <FieldLabel htmlFor="s-thread">what does your family call itself?</FieldLabel>
-                <Input
-                  id="s-thread"
-                  value={form.threadName}
+                <PInput
+                  id="s-thread" value={form.threadName}
                   onChange={(v) => set({ threadName: v })}
-                  placeholder="The Vance-Okonkwo Thread"
-                  serif
+                  placeholder="The Vance-Okonkwo Thread" serif
                 />
                 {errors.threadName ? <FieldError>{errors.threadName}</FieldError> : null}
                 <Helper>
@@ -205,151 +167,96 @@ export function Signup() {
                 </Helper>
               </section>
 
-              {/* step two · you */}
+              {/* step two */}
               <section>
                 <StepEyebrow>step two · you</StepEyebrow>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                   <div>
-                    <FieldLabel htmlFor="s-first">first name</FieldLabel>
-                    <Input
-                      id="s-first"
-                      value={form.firstName}
-                      onChange={(v) => set({ firstName: v })}
-                      autoComplete="given-name"
-                    />
+                    <FieldLabel htmlFor="s-first">your name</FieldLabel>
+                    <PInput id="s-first" value={form.firstName} onChange={(v) => set({ firstName: v })} autoComplete="given-name" />
                     {errors.firstName ? <FieldError>{errors.firstName}</FieldError> : null}
                   </div>
                   <div>
-                    <FieldLabel htmlFor="s-last">last name</FieldLabel>
-                    <Input
-                      id="s-last"
-                      value={form.lastName}
-                      onChange={(v) => set({ lastName: v })}
-                      autoComplete="family-name"
-                    />
-                    {errors.lastName ? <FieldError>{errors.lastName}</FieldError> : null}
+                    <FieldLabel htmlFor="s-birth">year you were born</FieldLabel>
+                    <PInput id="s-birth" value={form.birthYear} onChange={(v) => set({ birthYear: v })} placeholder="1978" inputMode="numeric" maxLength={4} />
+                    {errors.birthYear ? <FieldError>{errors.birthYear}</FieldError> : null}
                   </div>
                 </div>
-
-                <div style={{ marginTop: 20 }}>
-                  <FieldLabel htmlFor="s-birth">year you were born</FieldLabel>
-                  <Input
-                    id="s-birth"
-                    value={form.birthYear}
-                    onChange={(v) => set({ birthYear: v })}
-                    placeholder="1978"
-                    inputMode="numeric"
-                    maxLength={4}
-                  />
-                  {errors.birthYear ? <FieldError>{errors.birthYear}</FieldError> : null}
+                <div style={{ marginTop: 24 }}>
+                  <FieldLabel htmlFor="s-last">last name</FieldLabel>
+                  <PInput id="s-last" value={form.lastName} onChange={(v) => set({ lastName: v })} autoComplete="family-name" />
+                  {errors.lastName ? <FieldError>{errors.lastName}</FieldError> : null}
                 </div>
-
-                <div style={{ marginTop: 20 }}>
+                <div style={{ marginTop: 24 }}>
                   <FieldLabel htmlFor="s-email">email</FieldLabel>
-                  <Input
-                    id="s-email"
-                    type="email"
-                    value={form.email}
-                    onChange={(v) => set({ email: v })}
-                    autoComplete="email"
-                  />
+                  <PInput id="s-email" type="email" value={form.email} onChange={(v) => set({ email: v })} autoComplete="email" />
                   {errors.email ? <FieldError>{errors.email}</FieldError> : null}
                 </div>
-
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 20 }}>
                   <div>
                     <FieldLabel htmlFor="s-pw">password</FieldLabel>
-                    <Input
-                      id="s-pw"
-                      type="password"
-                      value={form.password}
-                      onChange={(v) => set({ password: v })}
-                      autoComplete="new-password"
-                    />
+                    <PInput id="s-pw" type="password" value={form.password} onChange={(v) => set({ password: v })} autoComplete="new-password" />
                     {errors.password ? <FieldError>{errors.password}</FieldError> : null}
                   </div>
                   <div>
                     <FieldLabel htmlFor="s-pw2">confirm</FieldLabel>
-                    <Input
-                      id="s-pw2"
-                      type="password"
-                      value={form.confirmPassword}
-                      onChange={(v) => set({ confirmPassword: v })}
-                      autoComplete="new-password"
-                    />
+                    <PInput id="s-pw2" type="password" value={form.confirmPassword} onChange={(v) => set({ confirmPassword: v })} autoComplete="new-password" />
                     {errors.confirmPassword ? <FieldError>{errors.confirmPassword}</FieldError> : null}
                   </div>
                 </div>
               </section>
             </div>
 
-            {/* step three · how to begin (tier) */}
-            <div style={{ marginTop: 56 }}>
+            {/* step three — tier */}
+            <div style={{ marginTop: 64, maxWidth: 980 }}>
               <StepEyebrow>step three · how to begin</StepEyebrow>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
-                  borderTop: '1px solid var(--loom-rule)',
-                  borderBottom: '1px solid var(--loom-rule)',
-                }}
-              >
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+                borderTop: '1px solid var(--parchment-rule)',
+                borderBottom: '1px solid var(--parchment-rule)',
+              }}>
                 {TIERS.map((t, i) => {
                   const selected = tier === t.id;
                   return (
                     <button
-                      type="button"
-                      key={t.id}
+                      type="button" key={t.id}
                       onClick={() => setTier(t.id)}
                       aria-pressed={selected}
                       style={{
-                        textAlign: 'left',
-                        cursor: 'pointer',
+                        textAlign: 'left', cursor: 'pointer',
                         padding: '24px 24px 22px',
-                        borderRight: i < TIERS.length - 1 ? '1px solid var(--loom-rule)' : 0,
-                        borderTop: 0,
-                        borderBottom: 0,
-                        borderLeft: 0,
-                        background: selected ? 'var(--loom-ink-card)' : 'transparent',
-                        boxShadow: selected ? 'inset 0 2px 0 var(--loom-warm)' : 'none',
-                        color: 'var(--loom-bone)',
-                        transition: 'background var(--loom-dur-fast) var(--loom-ease)',
+                        borderRight: i < TIERS.length - 1 ? '1px solid var(--parchment-rule)' : 0,
+                        borderTop: 0, borderBottom: 0, borderLeft: 0,
+                        background: selected ? 'var(--ink)' : 'transparent',
+                        color: selected ? 'var(--bone)' : 'var(--parchment-ink)',
+                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
-                      <div
-                        className="loom-mono"
-                        style={{
-                          fontSize: 10,
-                          letterSpacing: '0.32em',
-                          textTransform: 'uppercase',
-                          color: 'var(--loom-bone-faint)',
-                        }}
-                      >
+                      <div className="hl-mono" style={{
+                        fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
+                        color: selected ? 'var(--bone-faint)' : 'var(--parchment-faint)',
+                      }}>
                         {t.name}
-                        {selected ? <span style={{ color: 'var(--loom-warm)' }}> · chosen</span> : null}
+                        {selected && <span style={{ color: 'var(--warm)' }}> · chosen ✓</span>}
                       </div>
-                      <div
-                        className="loom-serif"
-                        style={{ fontSize: 34, fontWeight: 300, marginTop: 12, letterSpacing: '-0.018em', lineHeight: 1 }}
-                      >
+                      <div className="hl-serif" style={{
+                        fontSize: 36, fontWeight: 300, marginTop: 12,
+                        letterSpacing: '-0.018em', lineHeight: 1,
+                      }}>
                         {t.price}
                       </div>
-                      <div
-                        className="loom-mono"
-                        style={{
-                          fontSize: 10,
-                          letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
-                          color: 'var(--loom-bone-faint)',
-                          marginTop: 6,
-                        }}
-                      >
+                      <div className="hl-mono" style={{
+                        fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+                        color: selected ? 'var(--bone-faint)' : 'var(--parchment-faint)', marginTop: 6,
+                      }}>
                         {t.sub}
                       </div>
-                      <div
-                        className="loom-body"
-                        style={{ fontSize: 13.5, lineHeight: 1.55, color: 'var(--loom-bone-dim)', marginTop: 12 }}
-                      >
+                      <div className="hl-serif" style={{
+                        fontSize: 13.5, lineHeight: 1.55,
+                        color: selected ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                        marginTop: 12, fontWeight: 400,
+                      }}>
                         {t.body}
                       </div>
                     </button>
@@ -359,54 +266,40 @@ export function Signup() {
             </div>
 
             {/* terms */}
-            <label
-              style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 28 }}
-            >
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 28 }}>
               <input
-                type="checkbox"
-                checked={form.acceptedTerms}
+                type="checkbox" checked={form.acceptedTerms}
                 onChange={(e) => set({ acceptedTerms: e.target.checked })}
-                style={{ accentColor: 'var(--loom-warm)', marginTop: 4 }}
+                style={{ accentColor: 'var(--warm)', marginTop: 4 }}
               />
-              <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', lineHeight: 1.6 }}>
+              <span className="hl-serif" style={{ fontSize: 14, color: 'var(--parchment-dim)', lineHeight: 1.6, fontWeight: 400 }}>
                 I accept the{' '}
-                <Link to="/terms" style={{ color: 'var(--loom-warm)' }}>
-                  terms
-                </Link>{' '}
-                and the{' '}
-                <Link to="/privacy" style={{ color: 'var(--loom-warm)' }}>
-                  privacy notice
-                </Link>
-                .
+                <Link to="/terms" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid currentColor' }}>terms</Link>
+                {' '}and the{' '}
+                <Link to="/privacy" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid currentColor' }}>privacy notice</Link>.
               </span>
             </label>
             {errors.acceptedTerms ? <FieldError>{errors.acceptedTerms}</FieldError> : null}
             {errors.submit ? <FieldError>{errors.submit}</FieldError> : null}
 
-            <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
-              <button type="submit" disabled={isLoading} className="loom-btn" style={{ opacity: isLoading ? 0.5 : 1 }}>
+            <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
+              <button type="submit" disabled={isLoading} className="hl-btn" style={{ opacity: isLoading ? 0.5 : 1 }}>
                 {isLoading
                   ? 'beginning…'
                   : tier === 'family'
-                    ? 'Begin · 14-day trial of Family'
+                    ? 'Begin · 30-day trial of Family'
                     : 'begin your thread →'}
               </button>
-              <span className="loom-body" style={{ fontStyle: 'italic', fontSize: 14, color: 'var(--loom-bone-dim)' }}>
+              <span className="hl-italic" style={{ fontSize: 14, color: 'var(--parchment-dim)', fontWeight: 400 }}>
                 no card on file · switches to free if not upgraded
               </span>
             </div>
           </form>
 
-          <div
-            className="loom-mono"
-            style={{
-              marginTop: 48,
-              fontSize: 10,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
-            }}
-          >
+          <div className="hl-mono" style={{
+            marginTop: 48, fontSize: 10, letterSpacing: '0.2em',
+            textTransform: 'uppercase', color: 'var(--parchment-faint)',
+          }}>
             ∞ &nbsp; encrypted in browser · key escrow · 2 of 3 contacts
           </div>
         </div>
@@ -432,16 +325,10 @@ export function Signup() {
 
 function StepEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className="loom-mono"
-      style={{
-        fontSize: 10,
-        letterSpacing: '0.32em',
-        textTransform: 'uppercase',
-        color: 'var(--loom-bone-faint)',
-        marginBottom: 22,
-      }}
-    >
+    <div className="hl-mono" style={{
+      fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
+      color: 'var(--parchment-faint)', marginBottom: 22,
+    }}>
       {children}
     </div>
   );
@@ -449,18 +336,11 @@ function StepEyebrow({ children }: { children: React.ReactNode }) {
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
   return (
-    <label
-      htmlFor={htmlFor}
-      className="loom-mono"
-      style={{
-        display: 'block',
-        fontSize: 10,
-        letterSpacing: '0.22em',
-        textTransform: 'uppercase',
-        color: 'var(--loom-bone-faint)',
-        marginBottom: 8,
-      }}
-    >
+    <label htmlFor={htmlFor} className="hl-mono" style={{
+      display: 'block', fontSize: 10,
+      letterSpacing: '0.22em', textTransform: 'uppercase',
+      color: 'var(--parchment-faint)', marginBottom: 8,
+    }}>
       {children}
     </label>
   );
@@ -468,10 +348,10 @@ function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.Re
 
 function Helper({ children }: { children: React.ReactNode }) {
   return (
-    <p
-      className="loom-body"
-      style={{ fontStyle: 'italic', fontSize: 13.5, color: 'var(--loom-bone-faint)', marginTop: 12, lineHeight: 1.55, maxWidth: '46ch' }}
-    >
+    <p className="hl-italic" style={{
+      fontSize: 13.5, color: 'var(--parchment-faint)', marginTop: 12,
+      lineHeight: 1.55, fontWeight: 400, maxWidth: '46ch',
+    }}>
       {children}
     </p>
   );
@@ -479,55 +359,29 @@ function Helper({ children }: { children: React.ReactNode }) {
 
 function FieldError({ children }: { children: React.ReactNode }) {
   return (
-    <p role="alert" className="loom-body" style={{ margin: '8px 0 0', fontSize: 13, fontStyle: 'italic', color: 'var(--loom-warm)' }}>
+    <p role="alert" className="hl-italic" style={{
+      margin: '8px 0 0', fontSize: 13, color: 'var(--warm)',
+    }}>
       {children}
     </p>
   );
 }
 
-function Input({
-  id,
-  value,
-  onChange,
-  type = 'text',
-  placeholder,
-  autoComplete,
-  inputMode,
-  maxLength,
-  serif,
+function PInput({
+  id, value, onChange, type = 'text',
+  placeholder, autoComplete, inputMode, maxLength,
 }: {
-  id: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  placeholder?: string;
-  autoComplete?: string;
-  inputMode?: 'numeric';
-  maxLength?: number;
-  serif?: boolean;
+  id: string; value: string; onChange: (v: string) => void;
+  type?: string; placeholder?: string; autoComplete?: string;
+  inputMode?: 'numeric'; maxLength?: number; serif?: boolean;
 }) {
   return (
     <input
-      id={id}
-      type={type}
-      value={value}
-      placeholder={placeholder}
-      autoComplete={autoComplete}
-      inputMode={inputMode}
-      maxLength={maxLength}
+      id={id} type={type} value={value}
+      placeholder={placeholder} autoComplete={autoComplete}
+      inputMode={inputMode} maxLength={maxLength}
       onChange={(e) => onChange(e.target.value)}
-      style={{
-        width: '100%',
-        background: 'var(--loom-ink)',
-        border: '1px solid var(--loom-rule)',
-        borderRadius: 2,
-        color: 'var(--loom-bone)',
-        padding: '11px 14px',
-        fontFamily: serif ? "'Source Serif 4', serif" : "'Inter', sans-serif",
-        fontSize: serif ? 19 : 16,
-        outline: 'none',
-        boxSizing: 'border-box',
-      }}
+      className="hl-input"
     />
   );
 }
