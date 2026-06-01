@@ -5,17 +5,15 @@ import { useAuthStore } from '../../stores/authStore';
 import { HLogo } from './HLogo';
 
 // ── UserMenu: initials button + dropdown (preserved from v1) ──────────────
-function menuItemStyle(): React.CSSProperties {
-  return {
-    display: 'block',
-    padding: '8px 12px',
-    fontFamily: 'var(--serif)',
-    fontSize: 14,
-    color: 'var(--bone-dim)',
-    textDecoration: 'none',
-    cursor: 'pointer',
-  };
-}
+const menuItemStyle: React.CSSProperties = {
+  display: 'block',
+  padding: '8px 12px',
+  fontFamily: 'var(--serif)',
+  fontSize: 14,
+  color: 'var(--bone-dim)',
+  textDecoration: 'none',
+  cursor: 'pointer',
+};
 
 function UserMenu() {
   const { user, logout } = useAuthStore();
@@ -80,17 +78,17 @@ function UserMenu() {
               { to: '/threads', label: 'Threads' },
               { to: '/family', label: 'Family' },
             ].map((item) => (
-              <Link key={item.to} to={item.to} style={menuItemStyle()} onClick={() => setOpen(false)}>
+              <Link key={item.to} to={item.to} style={menuItemStyle} onClick={() => setOpen(false)}>
                 {item.label}
               </Link>
             ))}
           </div>
-          <Link to="/settings" style={menuItemStyle()} onClick={() => setOpen(false)}>Settings</Link>
-          <Link to="/billing" style={menuItemStyle()} onClick={() => setOpen(false)}>Billing</Link>
+          <Link to="/settings" style={menuItemStyle} onClick={() => setOpen(false)}>Settings</Link>
+          <Link to="/billing" style={menuItemStyle} onClick={() => setOpen(false)}>Billing</Link>
           <button
             type="button"
             onClick={() => { setOpen(false); logout(); }}
-            style={{ ...menuItemStyle(), background: 'transparent', border: 0, width: '100%', textAlign: 'left' }}
+            style={{ ...menuItemStyle, background: 'transparent', border: 0, width: '100%', textAlign: 'left' }}
           >
             Sign out
           </button>

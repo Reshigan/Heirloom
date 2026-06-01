@@ -11,7 +11,7 @@ export function AppFrame({
   left,
   right,
   nav = true,
-  role: _role,
+  role: _role, // TODO(wave-3): consumed by PwaHome role-keyed rendering
 }: {
   children: ReactNode;
   width?: 'reading' | 'wide';
