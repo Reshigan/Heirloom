@@ -140,15 +140,15 @@ export const challengesRoutes = new Hono<AppEnv>();
 
 // Get current and upcoming challenges
 challengesRoutes.get('/', async (c) => {
-  const now = new Date().toISOString();
-  
+  const nowDate = new Date().toISOString().slice(0, 10);
+
   const challenges = await c.env.DB.prepare(`
-    SELECT * FROM weekly_challenges 
-    WHERE end_date >= ? 
+    SELECT * FROM weekly_challenges
+    WHERE end_date >= ?
     ORDER BY start_date ASC
-    LIMIT 5
-  `).bind(now).all();
-  
+    LIMIT 8
+  `).bind(nowDate).all();
+
   return c.json(challenges.results);
 });
 
@@ -156,11 +156,13 @@ challengesRoutes.get('/', async (c) => {
 challengesRoutes.get('/current', async (c) => {
   const now = new Date().toISOString();
   
+  const nowDate = now.slice(0, 10); // YYYY-MM-DD for date comparison
   const challenge = await c.env.DB.prepare(`
-    SELECT * FROM weekly_challenges 
-    WHERE start_date <= ? AND end_date >= ? AND is_active = 1
+    SELECT * FROM weekly_challenges
+    WHERE start_date <= ? AND end_date >= ?
+    ORDER BY start_date DESC
     LIMIT 1
-  `).bind(now, now).first();
+  `).bind(nowDate, nowDate).first();
   
   if (!challenge) {
     return c.json({ message: 'No active challenge' }, 404);
