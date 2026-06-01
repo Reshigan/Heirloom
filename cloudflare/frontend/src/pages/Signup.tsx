@@ -122,7 +122,7 @@ export function Signup() {
       {/* Loom 3 MktBar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '24px 56px',
+        padding: 'clamp(16px, 2.5vh, 24px) clamp(16px, 5vw, 56px)',
         borderBottom: '1px solid var(--parchment-rule)',
       }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
@@ -133,7 +133,7 @@ export function Signup() {
         </span>
       </div>
 
-      <main style={{ padding: '52px 88px 100px', overflow: 'auto' }}>
+      <main style={{ padding: 'clamp(28px, 4vh, 52px) clamp(16px, 6vw, 88px) clamp(56px, 8vh, 100px)', overflow: 'auto' }}>
         <div style={{ maxWidth: 980, margin: '0 auto' }}>
           <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>
             begin · this takes about 90 seconds

@@ -7,13 +7,13 @@ function MktTopbar() {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '24px 56px',
+      padding: 'clamp(16px, 2.5vh, 24px) clamp(16px, 5vw, 56px)',
       borderBottom: '1px solid var(--parchment-rule)',
       fontFamily: 'var(--mono)',
       fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase',
     }}>
       <HLogo size={20} wordmark wordColor="var(--parchment-ink)" />
-      <span style={{ display: 'flex', gap: 32, color: 'var(--parchment-dim)' }}>
+      <span style={{ display: 'flex', gap: 'clamp(14px, 3vw, 32px)', flexWrap: 'wrap', justifyContent: 'flex-end', color: 'var(--parchment-dim)' }}>
         <Link to="/loom/weft" style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
         <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
         <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
@@ -39,7 +39,7 @@ export function Marketing() {
       <MktTopbar />
 
       {/* hero */}
-      <div style={{ padding: '64px 56px 0' }}>
+      <div style={{ padding: 'clamp(36px, 5vh, 64px) clamp(16px, 5vw, 56px) 0' }}>
         <div className="hl-eyebrow dark" style={{ marginBottom: 24 }}>Heirloom · The Family Thread</div>
         <h1
           className="hl-serif hl-tight"
@@ -85,13 +85,13 @@ export function Marketing() {
             warpEvery: 9,
           }}
         />
-        <div style={{ position: 'absolute', left: 56, top: 24, fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.4)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+        <div style={{ position: 'absolute', left: 'clamp(16px, 5vw, 56px)', top: 24, fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.4)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
           specimen · the Okonkwo family thread · 1948 – today · entry 4,318
         </div>
       </div>
 
       {/* five pillars */}
-      <div style={{ padding: '96px 56px 56px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '56px 96px' }}>
+      <div style={{ padding: 'clamp(56px, 7vh, 96px) clamp(16px, 5vw, 56px) clamp(36px, 4vh, 56px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 'clamp(32px, 5vh, 56px) clamp(36px, 6vw, 96px)' }}>
         {[
           ['Perpetual', 'A 1,000-year horizon, not a season.'],
           ['Append-only', 'Edits append. Nothing is silently rewritten.'],
@@ -107,7 +107,7 @@ export function Marketing() {
       </div>
 
       {/* pricing callout */}
-      <div style={{ padding: '0 56px 96px', borderTop: '1px solid var(--parchment-rule)', paddingTop: 56 }}>
+      <div style={{ padding: '0 clamp(16px, 5vw, 56px) clamp(56px, 7vh, 96px)', borderTop: '1px solid var(--parchment-rule)', paddingTop: 'clamp(36px, 4vh, 56px)' }}>
         <div className="hl-eyebrow dark" style={{ marginBottom: 24 }}>Start free. No credit card.</div>
         <Link to="/pricing" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-ink)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>
           See all plans →

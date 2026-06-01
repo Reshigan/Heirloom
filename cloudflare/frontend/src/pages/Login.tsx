@@ -45,7 +45,7 @@ export function Login() {
       {/* Loom 3 MktBar — parchment top strip */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '24px 56px',
+        padding: 'clamp(16px, 2.5vh, 24px) clamp(16px, 5vw, 56px)',
         borderBottom: '1px solid var(--parchment-rule)',
       }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
@@ -62,7 +62,7 @@ export function Login() {
         minHeight: 'calc(100vh - 73px)',
       }}>
         {/* left: form on parchment */}
-        <main style={{ display: 'grid', placeItems: 'center', padding: '56px 88px' }}>
+        <main style={{ display: 'grid', placeItems: 'center', padding: 'clamp(28px, 5vh, 56px) clamp(16px, 6vw, 88px)' }}>
           <div style={{ width: '100%', maxWidth: 380 }}>
             <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>welcome back</div>
             <h1 className="hl-serif hl-tight" style={{

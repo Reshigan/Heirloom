@@ -2066,7 +2066,7 @@ html {
   font-weight: 300;
   color: var(--parchment-ink);
   background: var(--parchment);
-  border: 1px solid var(--parchment-rule);
+  border: 1px solid rgba(26, 25, 22, 0.3);
   border-radius: 2px;
   padding: 10px 14px;
   width: 100%;
