@@ -2074,7 +2074,9 @@ html {
   transition: border-color var(--dur-fast) var(--ease);
 }
 .hl-input:focus { border-color: var(--warm); }
+.hl-input:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
 .hl-input::placeholder { color: var(--parchment-faint); }
+.hl-input:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .hl-tag {
   display: inline-block;
