@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ThemeToggle } from './ThemeToggle';
 import { useAuthStore } from '../../stores/authStore';
+import { HLogo } from './HLogo';
 
-const menuItemStyle: React.CSSProperties = {
-  display: 'block',
-  padding: '8px 12px',
-  fontFamily: "'Source Serif 4', serif",
-  fontSize: 14,
-  color: 'var(--loom-bone-dim)',
-  textDecoration: 'none',
-};
+// ── UserMenu: initials button + dropdown (preserved from v1) ──────────────
+function menuItemStyle(): React.CSSProperties {
+  return {
+    display: 'block',
+    padding: '8px 12px',
+    fontFamily: 'var(--serif)',
+    fontSize: 14,
+    color: 'var(--bone-dim)',
+    textDecoration: 'none',
+    cursor: 'pointer',
+  };
+}
 
 function UserMenu() {
   const { user, logout } = useAuthStore();
@@ -29,17 +33,17 @@ function UserMenu() {
           width: 28,
           height: 28,
           background: 'transparent',
-          border: '1px solid var(--loom-rule)',
+          border: '1px solid var(--rule)',
           borderRadius: 0,
-          color: 'var(--loom-bone)',
-          fontFamily: "'JetBrains Mono', monospace",
+          color: 'var(--bone)',
+          fontFamily: 'var(--mono)',
           fontSize: 10,
           letterSpacing: '0.04em',
           cursor: 'pointer',
-          transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), transform 120ms cubic-bezier(0.16,1,0.3,1)',
+          transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
         }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--loom-warm)')}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--loom-rule)')}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--warm)')}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
       >
         {initials}
       </button>
@@ -50,57 +54,43 @@ function UserMenu() {
             top: 'calc(100% + 8px)',
             right: 0,
             minWidth: 220,
-            background: 'var(--loom-ink-card)',
-            border: '1px solid var(--loom-rule)',
+            background: '#131310',
+            border: '1px solid var(--rule)',
             padding: 8,
             zIndex: 50,
             borderRadius: 0,
             boxShadow: '0 12px 40px rgba(10,10,8,0.60)',
-            transformOrigin: 'top right',
-            animation: 'loom-menu-in 180ms cubic-bezier(0.16,1,0.3,1) both',
           }}
         >
-          <div
-            style={{
-              padding: '8px 12px',
-              borderBottom: '1px solid var(--loom-rule)',
-              marginBottom: 6,
-            }}
-          >
-            <p style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone)' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
+            <p style={{ margin: 0, fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)' }}>
               {user.firstName} {user.lastName}
             </p>
-            <p style={{ margin: '2px 0 0', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
+            <p style={{ margin: '2px 0 0', fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}>
               {user.email}
             </p>
           </div>
-          {/* Data pages not in the 4-link topbar */}
-          <div style={{ padding: '4px 0', borderBottom: '1px solid var(--loom-rule)', marginBottom: 6 }}>
+          <div style={{ padding: '4px 0', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
             {[
-              { to: '/compose', label: 'Write a memory' },
-              { to: '/record', label: 'Voice record' },
-              { to: '/letters', label: 'Letters' },
-              { to: '/family', label: 'Family' },
-              { to: '/threads', label: 'Threads' },
-              { to: '/on-this-day', label: 'On this day' },
+              { to: '/loom/weft', label: 'The weft' },
+              { to: '/loom/compose', label: 'Compose' },
+              { to: '/loom/kin', label: 'Kin' },
               { to: '/inbox', label: 'Inbox' },
-              { to: '/wrapped', label: 'Wrapped' },
+              { to: '/letters', label: 'Letters' },
+              { to: '/threads', label: 'Threads' },
+              { to: '/family', label: 'Family' },
             ].map((item) => (
-              <Link key={item.to} to={item.to} style={menuItemStyle} onClick={() => setOpen(false)}>
+              <Link key={item.to} to={item.to} style={menuItemStyle()} onClick={() => setOpen(false)}>
                 {item.label}
               </Link>
             ))}
           </div>
-          <Link to="/settings" style={menuItemStyle} onClick={() => setOpen(false)}>
-            Settings
-          </Link>
-          <Link to="/billing" style={menuItemStyle} onClick={() => setOpen(false)}>
-            Billing
-          </Link>
+          <Link to="/settings" style={menuItemStyle()} onClick={() => setOpen(false)}>Settings</Link>
+          <Link to="/billing" style={menuItemStyle()} onClick={() => setOpen(false)}>Billing</Link>
           <button
             type="button"
             onClick={() => { setOpen(false); logout(); }}
-            style={{ ...menuItemStyle, background: 'transparent', border: 0, width: '100%', textAlign: 'left', cursor: 'pointer' }}
+            style={{ ...menuItemStyle(), background: 'transparent', border: 0, width: '100%', textAlign: 'left' }}
           >
             Sign out
           </button>
@@ -110,46 +100,13 @@ function UserMenu() {
   );
 }
 
-/**
- * Frame — the cross-screen chrome for the Loom.
- *
- * Top bar: brand mark on the left, the four primary surfaces in the
- * middle (Weft / Compose / Tied Off / Kin), a right slot for whatever
- * the screen wants to surface, and the vault/paper theme toggle.
- *
- * Below the top bar: the persistent TapestryEdge — an 8px woven edge
- * band pinned to the bottom of every authed screen, carrying the warm
- * "now" hairline. This is the cloth persisting across screens (invariant
- * A); it replaces the old radial "horizon" glow (a §2.6 anti-pattern).
- * A very faint paper grain overlay sits above it; children render above
- * both.
- *
- * Adapted from primitives.jsx in the Loom design handoff. See
- * src/loom/DESIGN.md for the principles ("AI is the invisible shuttle";
- * the only icon is ∞).
- */
-export type LoomActive = 'weft' | 'compose' | 'tied' | 'kin';
-
-interface FrameProps {
-  active?: LoomActive;
-  right?: ReactNode;
-  /** show the persistent woven TapestryEdge band (default true). */
-  showHorizon?: boolean;
-  showGrain?: boolean;
-  children: ReactNode;
-}
-
-/**
- * TapestryEdge — the persistent 8px woven edge band. A stack of jittered
- * vertical warp hairlines (so it reads as cloth, not a flat bar) with the
- * warm "now" hairline at `nowFrac`. Pure DOM, no canvas, no glow.
- */
+// ── TapestryEdge — 8px woven band at the bottom of every authed screen ─────
 function jitter(seed: number): number {
   const t = Math.sin(seed * 12.9898) * 43758.5453;
   return t - Math.floor(t);
 }
 
-function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
+export function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
   const hairs = Array.from({ length: 160 }, (_, k) => ({
     left: ((k * 7) / (160 * 7) + (jitter(k * 1.7 + 3) - 0.5) * 0.0008) * 100,
     alpha: 0.05 + jitter(k * 2.3 + 1) * 0.07,
@@ -159,14 +116,11 @@ function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
       aria-hidden
       style={{
         position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: 0,
+        left: 0, right: 0, bottom: 0,
         height: 8,
         background: '#0a0a08',
         overflow: 'hidden',
         pointerEvents: 'none',
-        borderTop: '1px solid var(--loom-rule)',
       }}
     >
       {hairs.map((h, k) => (
@@ -174,23 +128,20 @@ function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
           key={k}
           style={{
             position: 'absolute',
-            top: 0,
-            bottom: 0,
+            top: 0, bottom: 0,
             left: `${h.left}%`,
             width: 1,
             background: `rgba(244,236,216,${h.alpha.toFixed(3)})`,
           }}
         />
       ))}
-      {/* the warm now hairline rides the edge */}
       <span
         style={{
           position: 'absolute',
-          top: -2,
-          bottom: -2,
+          top: -2, bottom: -2,
           left: `${nowFrac * 100}%`,
           width: 1,
-          background: 'var(--loom-warm)',
+          background: 'var(--warm)',
           opacity: 0.9,
         }}
       />
@@ -198,59 +149,113 @@ function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
   );
 }
 
-const NAV: { to: string; label: string; key: LoomActive }[] = [
-  { to: '/loom/weft', label: 'The Weft', key: 'weft' },
-  { to: '/loom/compose', label: 'Compose', key: 'compose' },
-  { to: '/loom/tied', label: 'Tied Off', key: 'tied' },
-  { to: '/loom/kin', label: 'Kin', key: 'kin' },
-];
+// ── Route → label map ─────────────────────────────────────────────────────
+function routeLabel(pathname: string): string {
+  if (pathname.startsWith('/loom/weft'))    return 'the weft';
+  if (pathname.startsWith('/loom/compose')) return 'compose';
+  if (pathname.startsWith('/loom/tied'))    return 'tied off';
+  if (pathname.startsWith('/loom/kin'))     return 'kin';
+  if (pathname.startsWith('/loom/echo'))    return 'echo';
+  if (pathname.startsWith('/loom/read'))    return 'reading room';
+  if (pathname.startsWith('/billing'))      return 'billing';
+  if (pathname.startsWith('/settings'))     return 'settings';
+  if (pathname.startsWith('/family'))       return 'family';
+  if (pathname.startsWith('/letters'))      return 'letters';
+  if (pathname.startsWith('/threads'))      return 'threads';
+  if (pathname.startsWith('/inbox'))        return 'inbox';
+  if (pathname.startsWith('/compose'))      return 'composing';
+  if (pathname.startsWith('/record'))       return 'voice';
+  if (pathname.startsWith('/challenges'))   return 'challenges';
+  if (pathname.startsWith('/ask'))          return 'ask the thread';
+  if (pathname.startsWith('/on-this-day'))  return 'on this day';
+  if (pathname.startsWith('/loom/today'))   return 'today';
+  if (pathname.startsWith('/loom/pwa'))     return 'home';
+  if (pathname.startsWith('/pricing'))      return 'pricing';
+  if (pathname.startsWith('/showcase'))     return 'showcase';
+  if (pathname.startsWith('/memories'))     return 'memories';
+  if (pathname.startsWith('/qa'))           return 'ask the thread';
+  if (pathname.startsWith('/invite'))       return 'invite';
+  if (pathname.startsWith('/wrapped'))      return 'wrapped';
+  return 'heirloom';
+}
 
-export function Frame({
-  active,
-  right,
-  showHorizon = true,
-  showGrain = true,
-  children,
-}: FrameProps) {
+// ── Frame — the Loom 3 screen shell ─────────────────────────────────────
+// Loom 3 spec: hl-topbar is `position: absolute; top: 0` — no nav links,
+// three slots only: left (context), center (counter), right (action + user).
+// TapestryEdge anchors to bottom: 0.
+export interface FrameProps {
+  /** Override the auto-derived left context label */
+  left?: string;
+  /** Primary right-side action link text (defaults to "compose →") */
+  right?: ReactNode;
+  showEdge?: boolean;
+  children: ReactNode;
+  /** @deprecated Loom 3: nav links removed; prop accepted but ignored */
+  active?: string;
+  /** @deprecated Loom 3: horizon removed; prop accepted but ignored */
+  showHorizon?: boolean;
+  /** @deprecated Loom 3: grain removed; prop accepted but ignored */
+  showGrain?: boolean;
+}
+
+export function Frame({ left, right, showEdge = true, children }: FrameProps) {
   const { pathname } = useLocation();
-  const inferredActive: LoomActive | undefined =
-    active ??
-    (pathname.startsWith('/loom/weft') ? 'weft'
-      : pathname.startsWith('/loom/compose') ? 'compose'
-      : pathname.startsWith('/loom/tied') ? 'tied'
-      : pathname.startsWith('/loom/kin') ? 'kin'
-      : undefined);
+  const label = left ?? routeLabel(pathname);
 
   return (
-    <div className="loom-frame">
-      <div className="loom-topbar">
-        <Link to="/loom" className="loom-mark">
-          <span className="infmark">∞</span>heirloom
-        </Link>
-        <nav>
-          {NAV.map((n) => (
-            <Link
-              key={n.key}
-              to={n.to}
-              className={inferredActive === n.key ? 'active' : ''}
-            >
-              {n.label}
-            </Link>
-          ))}
-        </nav>
-        <span className="right">
-          {right}
+    <div
+      className="hl-screen"
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+    >
+      {/* Loom 3 absolute topbar — no nav links */}
+      <div className="hl-topbar">
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+          <Link to="/loom" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+            <HLogo size={18} wordmark />
+          </Link>
+          {label !== 'heirloom' && (
+            <>
+              <span style={{ color: 'var(--bone-low)' }}>·</span>
+              <span>{label}</span>
+            </>
+          )}
+        </span>
+
+        {/* center: thread counter */}
+        <span className="hl-counter" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+          amendment trail visible
+        </span>
+
+        {/* right slot: action + user menu */}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+          {right ? (
+            <span className="hl-link warm">{right}</span>
+          ) : (
+            <Link to="/loom/compose" className="hl-link warm">compose →</Link>
+          )}
           <UserMenu />
-          <ThemeToggle />
         </span>
       </div>
 
-      <div className="loom-frame__body">
+      {/* scrollable content area — sits below the topbar, above the edge */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 56,
+          bottom: showEdge ? 8 : 0,
+          left: 0,
+          right: 0,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
         {children}
-        {showHorizon ? <TapestryEdge /> : null}
-        {showGrain ? <div className="loom-grain" /> : null}
       </div>
+
+      {showEdge && <TapestryEdge />}
     </div>
   );
 }
 
+// legacy type alias kept for any callers that reference LoomActive
+export type LoomActive = 'weft' | 'compose' | 'tied' | 'kin';
