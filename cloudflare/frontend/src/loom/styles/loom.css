@@ -150,6 +150,11 @@
   gap: 18px;
   align-items: center;
 }
+/* Mobile: hide nav links and theme toggle — BottomNav handles mobile navigation */
+@media (max-width: 639px) {
+  .loom-topbar nav { display: none; }
+  .loom-topbar .loom-theme-pill { display: none; }
+}
 .loom-frame__body { position: relative; overflow: hidden; }
 
 /* ─── The horizon: single warm light, bottom 36% ───────────────── */
