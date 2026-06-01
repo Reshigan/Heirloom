@@ -30,12 +30,16 @@ function UserMenu() {
           height: 28,
           background: 'transparent',
           border: '1px solid var(--loom-rule)',
+          borderRadius: 0,
           color: 'var(--loom-bone)',
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: 10,
           letterSpacing: '0.04em',
           cursor: 'pointer',
+          transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), transform 120ms cubic-bezier(0.16,1,0.3,1)',
         }}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--loom-warm)')}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--loom-rule)')}
       >
         {initials}
       </button>
@@ -50,7 +54,10 @@ function UserMenu() {
             border: '1px solid var(--loom-rule)',
             padding: 8,
             zIndex: 50,
-            boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
+            borderRadius: 0,
+            boxShadow: '0 12px 40px rgba(10,10,8,0.60)',
+            transformOrigin: 'top right',
+            animation: 'loom-menu-in 180ms cubic-bezier(0.16,1,0.3,1) both',
           }}
         >
           <div
