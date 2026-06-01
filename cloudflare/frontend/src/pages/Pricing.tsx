@@ -6,7 +6,7 @@ const TIERS = [
     name: 'Free',
     price: '—',
     sub: 'forever',
-    features: ['1 thread', '50 entries', 'Read-only inheritance link', 'Export anytime'],
+    features: ['1 thread', '30 entries / yr', 'Read-only inheritance link', 'Export anytime'],
     cta: 'Begin free',
     to: '/signup',
     warm: false,
@@ -14,7 +14,7 @@ const TIERS = [
   {
     id: 'family',
     name: 'Family',
-    price: '$9',
+    price: '$15',
     sub: '/ month',
     features: ['Unlimited threads', 'Unlimited entries', 'Time-locked entries', 'Voice entries', 'Up to 12 family members', '30-day trial'],
     cta: 'Start 30-day trial',
