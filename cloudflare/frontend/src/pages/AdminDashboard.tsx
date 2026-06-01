@@ -174,6 +174,9 @@ export function AdminDashboard() {
     const [showVoucherModal, setShowVoucherModal] = useState(false);
     const [showGoldLegacyModal, setShowGoldLegacyModal] = useState(false);
 
+  type AdminTab = 'users' | 'tickets' | 'incidents' | 'audit';
+  const [tab, setTab] = useState<AdminTab>('users');
+
     const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
@@ -233,6 +236,70 @@ export function AdminDashboard() {
       <InlineStatus status={status} />
 
       <div>
+
+        {/* ── Ops sub-tabs: users · tickets · incidents · audit ─────────── */}
+        <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--rule)', marginBottom: 40 }}>
+          {(['users', 'tickets', 'incidents', 'audit'] as AdminTab[]).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              style={{
+                background: 'transparent', border: 0, cursor: 'pointer', padding: '16px 24px',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+                color: tab === t ? 'var(--bone)' : 'var(--bone-faint)',
+                borderBottom: tab === t ? '1px solid var(--warm)' : '1px solid transparent',
+                marginBottom: -1,
+                transition: `color var(--dur-fast) var(--ease)`,
+              }}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'tickets' && (
+          <div>
+            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
+              Support queue — zero-knowledge: thread IDs only, no entry content
+            </p>
+            <p className="hl-serif" style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>No open tickets.</p>
+          </div>
+        )}
+
+        {tab === 'incidents' && (
+          <div>
+            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
+              Kill-switches + pins
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid var(--rule)' }}>
+              <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone)' }}>Composer disabled</span>
+              <button type="button" className="hl-tag" style={{ cursor: 'pointer' }}>off</button>
+            </div>
+          </div>
+        )}
+
+        {tab === 'audit' && (
+          <div>
+            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
+              Forensic log — zero-knowledge: metadata only
+            </p>
+            {[
+              { ts: '2026-06-01 09:14', actor: 'admin@heirloom.blue', action: 'user.viewed', resource: 'usr_abc123' },
+              { ts: '2026-06-01 08:52', actor: 'system', action: 'billing.renewed', resource: 'usr_def456' },
+            ].map((entry, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 160px 1fr', gap: '0 24px', padding: '12px 0', borderBottom: '1px solid var(--rule)' }}>
+                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{entry.ts}</span>
+                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-dim)' }}>{entry.actor}</span>
+                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)' }}>{entry.action}</span>
+                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{entry.resource}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab === 'users' && (
+          <>
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
@@ -983,6 +1050,9 @@ export function AdminDashboard() {
         {/* Social Calendar Tab */}
         {activeTab === 'social' && (
           <SocialCalendarTab />
+        )}
+
+          </>
         )}
       </div>
 
