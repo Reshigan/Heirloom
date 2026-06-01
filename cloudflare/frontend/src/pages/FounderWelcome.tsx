@@ -1,123 +1,216 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ProgressHair } from '../components/ui/ProgressHair';
-import { foundersApi, type FounderPledgeStatus } from '../services/api';
+import { HLogo } from '../loom/components/HLogo';
+import { TapestryEdge } from '../loom/components/Frame';
 
 /**
- * /founder/welcome — landing after Stripe Checkout success.
+ * /founder/welcome — Loom 3 rewrite.
  *
- * Polls /api/founders/by-session every 2s until the webhook flips
- * the row to PAID, then surfaces the Founder number.
+ * Reads ?pledgeNumber= and ?name= from URL params.
+ * Standalone dark ink screen — no AppFrame, no polling, no ProgressHair.
+ * The pledge number and name are supplied by the caller (Stripe redirect) via
+ * query params; no client-side polling required at this point.
  */
 export function FounderWelcome() {
   const [params] = useSearchParams();
-  const sessionId = params.get('session_id');
-  const [status, setStatus] = useState<FounderPledgeStatus | null>(null);
-  const [tries, setTries] = useState(0);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 60); return () => clearTimeout(t); }, []);
 
-  useEffect(() => {
-    if (!sessionId) {
-      setStatus({ ok: false });
-      return;
-    }
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const res = await foundersApi.bySession(sessionId);
-        if (cancelled) return;
-        if (res.data.status === 'PAID' || res.data.status === 'ENGRAVED') {
-          setStatus(res.data);
-          return;
-        }
-      } catch {
-        /* keep polling */
-      }
-      setTries((t) => t + 1);
-    };
-    tick();
-    const interval = setInterval(tick, 2000);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, [sessionId, tries]);
+  const rawNumber = params.get('pledgeNumber');
+  const name = params.get('name') ?? 'Founder';
 
-  const isPaid = status && (status.status === 'PAID' || status.status === 'ENGRAVED');
-  const padded = status?.pledge_number ? String(status.pledge_number).padStart(3, '0') : null;
+  // Pad to 4 digits: "0001", "0042", etc.
+  const pledgeDisplay = rawNumber
+    ? String(rawNumber).padStart(4, '0')
+    : '0001';
 
   return (
     <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        color: 'var(--loom-bone)',
-        display: 'grid',
-        placeItems: 'center',
-        padding: '48px 24px',
-      }}
+      className="hl-screen"
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
     >
-      <div style={{ maxWidth: 560, width: '100%', textAlign: 'center' }}>
-        <p
-          className="loom-serif"
-          style={{ fontSize: 48, color: 'var(--loom-warm)', margin: '0 0 40px', lineHeight: 1 }}
-          aria-hidden
+      {/* ── Topbar ────────────────────────────────────────────────── */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 0,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '24px 56px',
+          fontFamily: 'var(--mono)',
+          fontSize: '10.5px',
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: 'var(--bone-faint)',
+          zIndex: 5,
+        }}
+      >
+        {/* Left: logo + wordmark */}
+        <Link
+          to="/loom"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
-          ∞
-        </p>
+          <HLogo size={20} wordmark />
+        </Link>
 
-        {isPaid ? (
-          <>
-            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
-              Founder{padded ? ` · ${padded} of 100` : ''}
-            </p>
-            <h1
-              className="loom-h2"
-              style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 24px' }}
-            >
-              Welcome.
-            </h1>
-            <p
-              className="loom-body"
-              style={{ fontSize: 18, color: 'var(--loom-bone-dim)', margin: '0 auto 18px', maxWidth: 460, lineHeight: 1.7 }}
-            >
-              {status?.family_name ? `The ${status.family_name} family is now ` : 'Your family is now '}
-              part of the first hundred. Lifetime access. Your name will appear in the continuity record
-              we file with the successor non-profit at incorporation.
-            </p>
-            <p
-              className="loom-body"
-              style={{ color: 'var(--loom-bone-faint)', margin: '0 auto 40px', maxWidth: 460, lineHeight: 1.7 }}
-            >
-              We've sent you a welcome letter with the next steps and the date of your first quarterly
-              Founder call.
-            </p>
-            <Link to="/dashboard" className="loom-btn" style={{ textDecoration: 'none' }}>
-              open your family's first thread
-            </Link>
-          </>
-        ) : (
-          <>
-            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
-              Confirming your pledge
-            </p>
-            <h1
-              className="loom-h2"
-              style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 20px' }}
-            >
-              Just a moment.
-            </h1>
-            <p
-              className="loom-body"
-              style={{ color: 'var(--loom-bone-dim)', maxWidth: 440, margin: '0 auto', lineHeight: 1.7 }}
-            >
-              Stripe has us. We're waiting for the confirmation to land — usually a few seconds. If this
-              page hasn't updated in a minute, your card is fine; check your email for the receipt and
-              we'll be in touch.
-            </p>
-            <ProgressHair label="confirming…" width={180} className="mx-auto" />
-          </>
-        )}
+        {/* Center: page label */}
+        <span
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            whiteSpace: 'nowrap',
+            color: 'var(--bone-faint)',
+          }}
+        >
+          welcome · founder
+        </span>
+
+        {/* Right: CTA */}
+        <Link
+          to="/loom"
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: '10.5px',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--warm)',
+            textDecoration: 'none',
+          }}
+        >
+          begin your thread →
+        </Link>
       </div>
+
+      {/* ── Centered content ──────────────────────────────────────── */}
+      <div
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'none' : 'translateY(12px)',
+          transition: `opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease)`,
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '80px 56px 56px',
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: '52ch' }}>
+          {/* Logo glyph */}
+          <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
+            <HLogo size={56} glow />
+          </div>
+
+          {/* Eyebrow */}
+          <p
+            className="hl-eyebrow"
+            style={{ color: 'var(--warm)', marginBottom: 18 }}
+          >
+            your pledge number, engraved just now
+          </p>
+
+          {/* Pledge number — the centrepiece */}
+          <div
+            className="hl-mono"
+            style={{
+              fontSize: 72,
+              color: 'var(--warm)',
+              letterSpacing: '0.12em',
+              fontWeight: 400,
+              lineHeight: 1,
+              marginBottom: 6,
+            }}
+          >
+            {pledgeDisplay}
+          </div>
+          <div style={{ marginBottom: 22 }}>
+            <span className="hl-mono" style={{ fontSize: 13, letterSpacing: '0.14em', color: 'var(--bone-faint)' }}>#{pledgeDisplay}</span>
+          </div>
+
+          {/* Heading */}
+          <h1
+            className="hl-serif hl-tight"
+            style={{
+              fontSize: 40,
+              fontWeight: 300,
+              margin: 0,
+              color: 'var(--bone)',
+            }}
+          >
+            Welcome, {name}.{' '}
+            <span
+              className="hl-italic"
+              style={{ color: 'var(--bone-dim)', fontSize: 38 }}
+            >
+              You are now in the continuity record.
+            </span>
+          </h1>
+
+          {/* Body prose */}
+          <p
+            className="hl-prose"
+            style={{
+              fontSize: 17,
+              color: 'var(--bone-dim)',
+              marginTop: 24,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+          >
+            Your pledge is part of the first hundred. Lifetime access.
+            Your name appears in the continuity record filed with the successor
+            non-profit at incorporation. We've sent your welcome letter with
+            next steps and the date of your first quarterly Founder call.
+          </p>
+
+          {/* Buttons */}
+          <div
+            style={{
+              marginTop: 36,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 16,
+            }}
+          >
+            <Link to="/loom" className="hl-btn" style={{ textDecoration: 'none' }}>
+              Begin the thread →
+            </Link>
+            <span
+              className="hl-mono"
+              style={{
+                fontSize: '10.5px',
+                color: 'var(--bone-dim)',
+                letterSpacing: '0.12em',
+              }}
+            >
+              or come back when ready
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Warm glow at bottom ───────────────────────────────────── */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 160,
+          background:
+            'radial-gradient(ellipse at bottom, rgba(176,122,74,0.16) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* ── TapestryEdge ──────────────────────────────────────────── */}
+      <TapestryEdge nowFrac={0.04} />
     </div>
   );
 }

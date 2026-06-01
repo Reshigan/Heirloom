@@ -1,83 +1,66 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { foundersApi, type FounderCount } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
+import { HLogo } from '../loom/components/HLogo';
+import { TapestryCanvas } from '../loom/components/TapestryCanvas';
 
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  fontFamily: "'Inter', sans-serif",
-  fontSize: 11,
-  fontWeight: 500,
-  letterSpacing: '0.22em',
-  textTransform: 'uppercase',
-  color: 'var(--loom-bone-faint)',
-  marginBottom: 10,
-};
+// ─── mock continuity-record rows (replace with real API when available) ───────
+const MOCK_ROWS: { pledge: string; name: string; location: string }[] = [
+  { pledge: '001', name: 'Yusra Al-Rashid',      location: 'Dubai · UAE'       },
+  { pledge: '002', name: 'Thomas Beaumont-Carr',  location: 'Edinburgh · UK'    },
+  { pledge: '003', name: '— reserved',            location: ''                  },
+  { pledge: '004', name: 'Mei-Ling Sorenson',     location: 'Vancouver · CA'    },
+  { pledge: '005', name: 'Rafael Mendes',         location: 'São Paulo · BR'    },
+  { pledge: '006', name: '— reserved',            location: ''                  },
+  { pledge: '007', name: 'Priya Nair-Holloway',   location: 'London · UK'       },
+  { pledge: '008', name: 'James Okafor',          location: 'Lagos · NG'        },
+  { pledge: '009', name: '— reserved',            location: ''                  },
+  { pledge: '010', name: 'Ingrid Halvorsen',      location: 'Oslo · NO'         },
+  { pledge: '011', name: 'David Chen-Whitfield',  location: 'Sydney · AU'       },
+  { pledge: '012', name: '— reserved',            location: ''                  },
+];
 
-const fieldStyle: React.CSSProperties = {
-  width: '100%',
-  background: 'transparent',
-  border: '1px solid var(--loom-rule)',
-  borderRadius: 2,
-  color: 'var(--loom-bone)',
-  caretColor: 'var(--loom-warm)',
-  fontFamily: "'Source Serif 4', serif",
-  fontSize: 16,
-  lineHeight: 1.7,
-  padding: '12px 14px',
-  outline: 'none',
-  boxSizing: 'border-box',
-};
-
-interface FieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
-  placeholder?: string;
-}
-
-function Field({ id, label, value, onChange, type = 'text', required, placeholder }: FieldProps) {
-  return (
-    <div>
-      <label htmlFor={id} style={labelStyle}>
-        {label}
-        {required ? <span style={{ color: '#c25a5a', marginLeft: 4 }} aria-hidden>*</span> : null}
-      </label>
-      <input
-        id={id}
-        type={type}
-        required={required}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={fieldStyle}
-      />
-    </div>
-  );
-}
-
-function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
-  return (
-    <div style={{ borderLeft: '1px solid var(--loom-rule)', paddingLeft: 20 }}>
-      <p className="loom-eyebrow" style={{ marginBottom: 8 }}>{label}</p>
-      <p className="loom-serif" style={{ fontSize: 28, color: 'var(--loom-bone)', margin: '0 0 4px' }}>{value}</p>
-      <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.08em' }}>{sub}</p>
-    </div>
-  );
-}
+const BENEFITS: { heading: string; body: string }[] = [
+  {
+    heading: 'Lifetime Family-tier access.',
+    body: 'No subscription, no renewal. Your descendants inherit the same plan.',
+  },
+  {
+    heading: 'Your name in the continuity record.',
+    body: 'A physical document filed with the successor non-profit at incorporation — not a webpage that can be deleted.',
+  },
+  {
+    heading: 'Quarterly call with the founder.',
+    body: 'For as long as Heirloom operates. Your input shapes the roadmap.',
+  },
+  {
+    heading: 'You fund the non-profit transition.',
+    body: 'Your pledge seeds the 501(c)(3) that holds the archive if the company winds down.',
+  },
+  {
+    heading: 'Welcome to the Opening Cohort.',
+    body: 'The first hundred families. Letters and dinners where geography allows. Not a Slack.',
+  },
+];
 
 export function Founder() {
+  const demoEntries = Array.from({ length: 80 }, (_, i) => ({
+    date: new Date(1948 + Math.floor(i * 0.65), (i * 3) % 12, 1),
+    n: i,
+    dye: ['madder', 'indigo', 'saffron', 'weld', 'woad', 'cochineal'][i % 6] as string,
+    tier: 'family' as const,
+  }));
+
   const [count, setCount] = useState<FounderCount | null>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+
+  // pledge form state
+  const [name, setName]             = useState('');
+  const [email, setEmail]           = useState('');
   const [familyName, setFamilyName] = useState('');
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes]           = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState<{ message: string } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [done, setDone]             = useState<{ message: string } | null>(null);
+  const [error, setError]           = useState<string | null>(null);
 
   useEffect(() => {
     foundersApi
@@ -92,10 +75,10 @@ export function Founder() {
     setError(null);
     try {
       const res = await foundersApi.pledge({
-        name: name.trim(),
-        email: email.trim(),
+        name:        name.trim(),
+        email:       email.trim(),
         family_name: familyName.trim() || undefined,
-        notes: notes.trim() || undefined,
+        notes:       notes.trim()      || undefined,
       });
       if (res.data.checkout_url) {
         window.location.href = res.data.checkout_url;
@@ -111,201 +94,542 @@ export function Founder() {
     }
   };
 
+  const pledged  = count ? count.cap - count.remaining : null;
+  const cap      = count ? count.cap                   : 100;
+  const remaining = count ? count.remaining            : null;
+
+  // ─── shared input styles ────────────────────────────────────────────────────
+  const inputBase: React.CSSProperties = {
+    width:        '100%',
+    background:   'transparent',
+    border:       '1px solid var(--rule-strong)',
+    borderRadius:  2,
+    color:         'var(--bone)',
+    caretColor:    'var(--warm)',
+    fontFamily:    'var(--serif)',
+    fontSize:       16,
+    lineHeight:     1.7,
+    padding:       '10px 14px',
+    outline:       'none',
+    boxSizing:     'border-box',
+  };
+
+  const labelBase: React.CSSProperties = {
+    display:       'block',
+    fontFamily:    'var(--mono)',
+    fontSize:       10,
+    letterSpacing: '0.28em',
+    textTransform: 'uppercase',
+    color:         'var(--bone-faint)',
+    marginBottom:   8,
+  };
+
   return (
-    <AppFrame>
-      {/* Hero */}
-      <header style={{ marginBottom: 56, maxWidth: 720 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Founder pledge — first 100</p>
-        <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(40px, 6vw, 72px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-        >
-          Found the<br />continuity record.
-        </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 'clamp(17px, 1.5vw, 20px)', color: 'var(--loom-bone-dim)', margin: '20px 0 0', maxWidth: 600, lineHeight: 1.7 }}
-        >
-          One hundred families seed the successor non-profit. Your name is engraved in the public
-          continuity record. Your bloodline gets lifetime Family-tier access. The thread that outlives
-          all of us has its first hundred names — yours among them.
-        </p>
+    <div
+      className="hl-screen"
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+    >
+      {/* ── animated specimen cloth hero ────────────────────────────────── */}
+      <div style={{ background: 'var(--ink)', marginBottom: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <TapestryCanvas
+          width={typeof window !== 'undefined' ? window.innerWidth : 1280}
+          height={240}
+          entries={demoEntries}
+          kind="specimen"
+          animate
+          opts={{ tStart: new Date(1948, 0, 1), tEnd: new Date(2026, 0, 1), background: '#0e0e0c' }}
+        />
+      </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 28, justifyContent: 'start', marginTop: 40 }}>
-          <Stat label="Pledge amount" value="$999" sub="one-time, lifetime" />
-          <Stat label="Cap" value={count ? `${count.cap}` : '100'} sub="ever" />
-          <Stat label="Remaining" value={count ? `${count.remaining}` : '—'} sub={count ? 'as of right now' : 'loading'} />
-        </div>
-      </header>
-
-      <hr style={{ border: 0, borderTop: '1px solid var(--loom-rule)', margin: '0 0 56px' }} />
-
-      {/* Benefits */}
-      <section style={{ marginBottom: 64, maxWidth: 720 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>What you get</p>
-        <h2
-          className="loom-h2"
-          style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 40px' }}
-        >
-          Lifetime, engraved.
-        </h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 28 }}>
-          {[
-            ['Lifetime Family-tier access for your bloodline.', 'No subscription, no renewals, no churn. Your descendants inherit the same plan.'],
-            ['Your name in the continuity record.', 'A real, physical document filed with the successor non-profit at incorporation. Not a webpage that can be deleted — a public-record artifact.'],
-            ['Quarterly call with the founder.', 'For as long as Heirloom is operating. Your input shapes the roadmap.'],
-            ['You fund the successor non-profit.', 'Your pledge directly seeds the 501(c)(3) that takes over the archive if the company is wound down. The promise to outlast us is paid for, not aspirational.'],
-            ['Welcome to the Opening Cohort.', 'A private group with the first hundred families. Quiet, considered. Not a Slack — letters and quarterly dinners where geography allows.'],
-          ].map(([title, body]) => (
-            <li key={title} style={{ display: 'grid', gridTemplateColumns: '20px 1fr', gap: 20, alignItems: 'baseline' }}>
-              <span style={{ color: 'var(--loom-warm)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>·</span>
-              <div>
-                <p className="loom-body" style={{ fontSize: 18, color: 'var(--loom-bone)', margin: '0 0 6px', lineHeight: 1.4 }}>{title}</p>
-                <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: 0, lineHeight: 1.7 }}>{body}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <hr style={{ border: 0, borderTop: '1px solid var(--loom-rule)', margin: '0 0 56px' }} />
-
-      {/* Pledge form */}
-      <section id="pledge" style={{ maxWidth: 560 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Pledge</p>
-        <h2
-          className="loom-h2"
-          style={{ fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 10px' }}
-        >
-          Tell us who you are.
-        </h2>
-        <p
-          className="loom-body"
-          style={{ color: 'var(--loom-bone-dim)', margin: '0 0 40px', lineHeight: 1.7 }}
-        >
-          We respond within two business days with a payment link and the next steps. Pledging here
-          doesn't charge your card — we want to read your note first.
-        </p>
-
-        {done ? (
-          <div
-            role="status"
-            style={{
-              border: '1px solid var(--loom-rule)',
-              padding: 40,
-              textAlign: 'center',
-            }}
-          >
-            <p className="loom-serif" style={{ fontSize: 36, color: 'var(--loom-warm)', margin: '0 0 24px', lineHeight: 1 }} aria-hidden>
-              ∞
-            </p>
-            <h3
-              className="loom-h2"
-              style={{ fontSize: 26, fontWeight: 300, fontStyle: 'italic', margin: '0 0 14px' }}
-            >
-              Pledge received.
-            </h3>
-            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', maxWidth: 400, margin: '0 auto 28px', lineHeight: 1.7 }}>
-              {done.message}
-            </p>
-            <Link
-              to="/"
-              className="loom-mono"
-              style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-warm)', textDecoration: 'none' }}
-            >
-              back to heirloom →
-            </Link>
-          </div>
-        ) : (
-          <form onSubmit={submit} aria-label="Founder pledge intent form" style={{ display: 'grid', gap: 24 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <Field label="Your name" id="f-name" required value={name} onChange={setName} />
-              <Field label="Email" id="f-email" type="email" required value={email} onChange={setEmail} />
-            </div>
-            <Field label="Family name — optional" id="f-family" value={familyName} onChange={setFamilyName} placeholder="The Mahmood family" />
-            <div>
-              <label htmlFor="f-notes" style={labelStyle}>Why this matters to your family — optional</label>
-              <textarea
-                id="f-notes"
-                rows={6}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="A few sentences. Your grandmother. The recipe nobody wrote down. The reason you're putting your hand up for this."
-                style={{ ...fieldStyle, resize: 'vertical' }}
-              />
-            </div>
-
-            {error ? (
-              <p role="alert" className="loom-body" style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}>
-                {error}
-              </p>
-            ) : null}
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingTop: 8 }}>
-              <p
-                className="loom-mono"
-                style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.08em', maxWidth: 220 }}
-              >
-                {count ? `${count.cap - count.remaining}/${count.cap}` : '—/100'} pledges so far. We'll never sell or share your address.
-              </p>
-              <button
-                type="submit"
-                disabled={submitting || !name.trim() || !email.trim()}
-                className="loom-btn"
-                style={{ opacity: submitting || !name.trim() || !email.trim() ? 0.5 : 1 }}
-              >
-                {submitting ? 'submitting…' : 'pledge'}
-              </button>
-            </div>
-          </form>
-        )}
-      </section>
-
-      <div
+      {/* ── topbar ────────────────────────────────────────────────────────── */}
+      <header
         style={{
-          borderTop: '1px solid var(--loom-rule)',
-          marginTop: 96,
-          paddingTop: 28,
-          display: 'flex',
-          gap: 28,
-          alignItems: 'center',
+          display:         'flex',
+          alignItems:      'center',
+          justifyContent:  'space-between',
+          padding:         '24px 56px',
+          fontFamily:      'var(--mono)',
+          fontSize:         10.5,
+          textTransform:   'uppercase',
+          letterSpacing:   '0.22em',
+          color:           'var(--bone-dim)',
+          position:        'absolute',
+          top:              240,
+          left:             0,
+          right:            0,
+          zIndex:           10,
+          flexShrink:       0,
         }}
       >
-        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', marginRight: 'auto' }}>
-          ∞ heirloom
-        </span>
-        <Link
-          to="/"
-          className="loom-mono"
-          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+        {/* left: logo + wordmark */}
+        <HLogo size={20} wordmark mono color="var(--bone-dim)" wordColor="var(--bone-dim)" />
+
+        {/* right: nav */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          <Link
+            to="/loom"
+            style={{
+              fontFamily:     'var(--mono)',
+              fontSize:        10.5,
+              letterSpacing:  '0.22em',
+              textTransform:  'uppercase',
+              color:          'var(--bone-dim)',
+              textDecoration: 'none',
+            }}
+          >
+            see the cloth
+          </Link>
+          <span
+            style={{
+              fontFamily:    'var(--mono)',
+              fontSize:       10.5,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color:         'var(--warm)',
+            }}
+          >
+            founder
+          </span>
+          <Link
+            to="/login"
+            style={{
+              fontFamily:     'var(--mono)',
+              fontSize:        10.5,
+              letterSpacing:  '0.22em',
+              textTransform:  'uppercase',
+              color:          'var(--bone-dim)',
+              textDecoration: 'none',
+            }}
+          >
+            sign in
+          </Link>
+        </nav>
+      </header>
+
+      {/* ── two-column body ──────────────────────────────────────────────── */}
+      <div
+        style={{
+          position:              'absolute',
+          top:                    316,
+          bottom:                 0,
+          left:                   0,
+          right:                  0,
+          display:               'grid',
+          gridTemplateColumns:   '1.1fr 1fr',
+          overflow:              'hidden',
+        }}
+      >
+        {/* ── LEFT: pitch + form ─────────────────────────────────────────── */}
+        <div
+          style={{
+            padding:        '72px 64px 64px',
+            display:        'flex',
+            flexDirection:  'column',
+            overflowY:      'auto',
+          }}
         >
-          Home
-        </Link>
-        <Link
-          to="/privacy"
-          className="loom-mono"
-          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+          {/* eyebrow */}
+          <p
+            className="hl-eyebrow"
+            style={{ marginBottom: 22 }}
+          >
+            founder · $999 · once · lifetime
+          </p>
+
+          {/* headline */}
+          <h1
+            className="hl-serif hl-tight"
+            style={{
+              fontSize:    56,
+              fontWeight:  300,
+              margin:       0,
+              color:       'var(--bone)',
+            }}
+          >
+            Become one of the names{' '}
+            <em style={{ fontStyle: 'italic', color: 'var(--warm)' }}>
+              in the continuity record.
+            </em>
+          </h1>
+
+          {/* prose */}
+          <p
+            className="hl-prose"
+            style={{
+              fontSize:  17,
+              color:     'var(--bone-dim)',
+              marginTop:  28,
+              maxWidth:  '52ch',
+            }}
+          >
+            One hundred families seed the successor non-profit. Your name is
+            engraved in the public continuity record. Your bloodline gets
+            lifetime Family-tier access. The thread that outlives all of us
+            has its first hundred names — yours among them.
+          </p>
+
+          {/* benefits */}
+          <div
+            style={{
+              marginTop: 40,
+              display:   'grid',
+              gap:        0,
+            }}
+          >
+            {BENEFITS.map((b) => (
+              <div
+                key={b.heading}
+                style={{
+                  display:             'grid',
+                  gridTemplateColumns: '14px 1fr',
+                  gap:                  18,
+                  borderTop:           '1px solid var(--rule)',
+                  paddingTop:           12,
+                  paddingBottom:        12,
+                  alignItems:          'baseline',
+                }}
+              >
+                <span
+                  className="hl-serif"
+                  style={{ fontSize: 14, color: 'var(--warm)', lineHeight: 1 }}
+                >
+                  ∞
+                </span>
+                <div>
+                  <p
+                    className="hl-serif"
+                    style={{
+                      fontSize:     16,
+                      color:        'var(--bone)',
+                      margin:       '0 0 3px',
+                      lineHeight:    1.4,
+                    }}
+                  >
+                    {b.heading}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily:  'var(--serif)',
+                      fontStyle:   'italic',
+                      fontSize:     13,
+                      color:       'var(--bone-dim)',
+                      margin:       0,
+                      lineHeight:   1.7,
+                    }}
+                  >
+                    {b.body}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div style={{ marginTop: 40 }}>
+            {done ? (
+              <div
+                role="status"
+                style={{
+                  border:      '1px solid var(--rule)',
+                  padding:      40,
+                  textAlign:   'center',
+                }}
+              >
+                <p
+                  className="hl-serif"
+                  style={{
+                    fontSize:    36,
+                    color:       'var(--warm)',
+                    margin:     '0 0 20px',
+                    lineHeight:   1,
+                  }}
+                  aria-hidden
+                >
+                  ∞
+                </p>
+                <h2
+                  className="hl-serif hl-tight"
+                  style={{
+                    fontSize:   26,
+                    fontWeight: 300,
+                    fontStyle: 'italic',
+                    margin:    '0 0 14px',
+                    color:     'var(--bone)',
+                  }}
+                >
+                  Pledge received.
+                </h2>
+                <p
+                  className="hl-prose"
+                  style={{
+                    fontSize:  15,
+                    color:     'var(--bone-dim)',
+                    maxWidth:  '38ch',
+                    margin:   '0 auto 28px',
+                  }}
+                >
+                  {done.message}
+                </p>
+                <Link
+                  to="/"
+                  className="hl-mono"
+                  style={{
+                    fontSize:       10,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color:         'var(--warm)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  back to heirloom →
+                </Link>
+              </div>
+            ) : (
+              <>
+                <form
+                  onSubmit={submit}
+                  aria-label="Founder pledge form"
+                  style={{ display: 'grid', gap: 20 }}
+                >
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div>
+                      <label htmlFor="f-name" style={labelBase}>
+                        Your name <span style={{ color: 'var(--warm)' }} aria-hidden>*</span>
+                      </label>
+                      <input
+                        id="f-name"
+                        type="text"
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        style={inputBase}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="f-email" style={labelBase}>
+                        Email <span style={{ color: 'var(--warm)' }} aria-hidden>*</span>
+                      </label>
+                      <input
+                        id="f-email"
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={inputBase}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="f-family" style={labelBase}>Family name — optional</label>
+                    <input
+                      id="f-family"
+                      type="text"
+                      value={familyName}
+                      onChange={(e) => setFamilyName(e.target.value)}
+                      placeholder="The Mahmood family"
+                      style={inputBase}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="f-notes" style={labelBase}>Why this matters — optional</label>
+                    <textarea
+                      id="f-notes"
+                      rows={4}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="A few sentences. Your grandmother. The recipe nobody wrote down."
+                      style={{ ...inputBase, resize: 'vertical' }}
+                    />
+                  </div>
+
+                  {error && (
+                    <p
+                      role="alert"
+                      style={{
+                        fontFamily:  'var(--serif)',
+                        fontStyle:   'italic',
+                        fontSize:     14,
+                        color:       'var(--warm)',
+                        margin:       0,
+                      }}
+                    >
+                      {error}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="hl-btn"
+                    disabled={submitting || !name.trim() || !email.trim()}
+                    style={{
+                      opacity:    submitting || !name.trim() || !email.trim() ? 0.5 : 1,
+                      alignSelf: 'flex-start',
+                    }}
+                  >
+                    {submitting ? 'submitting…' : 'Become a founder · $999 once'}
+                  </button>
+                </form>
+
+                <p
+                  className="hl-mono"
+                  style={{
+                    marginTop:     12,
+                    fontSize:       11,
+                    color:         'var(--bone-faint)',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  or gift one →
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* ── RIGHT: continuity record ────────────────────────────────────── */}
+        <div
+          style={{
+            background:   'var(--ink)',
+            padding:      '72px 56px',
+            display:      'flex',
+            flexDirection: 'column',
+            overflowY:    'auto',
+            borderLeft:   '1px solid var(--rule)',
+          }}
         >
-          Privacy
-        </Link>
-        <Link
-          to="/terms"
-          className="loom-mono"
-          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
-        >
-          Terms
-        </Link>
-        <a
-          href="/api/archive/audit"
-          className="loom-mono"
-          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
-        >
-          Audit
-        </a>
-        <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.08em', color: 'var(--loom-bone-faint)' }}>
-          © {new Date().getFullYear()}
-        </span>
+          {/* eyebrow */}
+          <p
+            className="hl-eyebrow"
+            style={{ marginBottom: 22 }}
+          >
+            the continuity record · live
+          </p>
+
+          {/* count summary */}
+          <div
+            style={{
+              display:        'flex',
+              alignItems:     'baseline',
+              gap:             16,
+              marginBottom:    32,
+            }}
+          >
+            <span
+              className="hl-serif"
+              style={{ fontSize: 40, fontWeight: 300, color: 'var(--bone)', lineHeight: 1 }}
+            >
+              {pledged !== null ? pledged : '—'}
+            </span>
+            <span
+              className="hl-mono"
+              style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}
+            >
+              / {cap} founders
+            </span>
+            {remaining !== null && (
+              <span
+                className="hl-mono"
+                style={{
+                  fontSize:       10,
+                  color:         'var(--warm)',
+                  letterSpacing: '0.14em',
+                  marginLeft:    'auto',
+                }}
+              >
+                {remaining} remaining
+              </span>
+            )}
+          </div>
+
+          {/* rows */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {MOCK_ROWS.map((row) => {
+              const isReserved = row.name.startsWith('—');
+              return (
+                <div
+                  key={row.pledge}
+                  style={{
+                    display:        'flex',
+                    alignItems:     'baseline',
+                    gap:             16,
+                    borderBottom:   '1px solid var(--rule)',
+                    paddingTop:      8,
+                    paddingBottom:   8,
+                  }}
+                >
+                  {/* pledge number */}
+                  <span
+                    className="hl-mono"
+                    style={{
+                      width:         56,
+                      flexShrink:     0,
+                      fontSize:       11,
+                      color:         'var(--bone-faint)',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    {row.pledge}
+                  </span>
+
+                  {/* name */}
+                  <span
+                    className="hl-serif"
+                    style={{
+                      flex:       1,
+                      fontSize:   16,
+                      color:      'var(--bone)',
+                      fontStyle:  isReserved ? 'italic' : 'normal',
+                      opacity:    isReserved ? 0.38 : 1,
+                    }}
+                  >
+                    {row.name}
+                  </span>
+
+                  {/* location */}
+                  {row.location && (
+                    <span
+                      className="hl-mono"
+                      style={{
+                        fontSize:       9.5,
+                        textTransform: 'uppercase',
+                        color:         'var(--bone-faint)',
+                        letterSpacing: '0.08em',
+                        flexShrink:     0,
+                      }}
+                    >
+                      {row.location}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* tail — remaining slots */}
+            <div
+              style={{
+                paddingTop:  16,
+                paddingBottom: 8,
+              }}
+            >
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize:       10,
+                  color:         'var(--bone-faint)',
+                  letterSpacing: '0.14em',
+                  margin:         0,
+                }}
+              >
+                {remaining !== null
+                  ? `${remaining} names yet to be written.`
+                  : 'loading record…'}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-    </AppFrame>
+    </div>
   );
 }
