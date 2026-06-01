@@ -2,69 +2,26 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
+import { HLogo } from '../loom/components/HLogo';
+import { TapestryEdge } from '../loom/components/Frame';
 
-/**
- * Billing — Loom-native rewrite.
- *
- * Three blocks:
- *   1. Current plan card with renewal date and the card on file
- *   2. Tier strip (Reader free / Family / Founder $999) with a single
- *      "current plan" marker; links go through billingApi.checkout
- *   3. Stripe portal link for managing card / receipts
- *
- * Same billingApi calls as before. The tier names match the Loom
- * Marketing copy: free / Family / Founder.
- */
+function tierLabel(tier: string): string {
+  switch (tier) {
+    case 'STARTER': case 'FREE': return 'free';
+    case 'FAMILY': return 'family';
+    case 'FOREVER': case 'LEGACY': return 'founder';
+    default: return tier.toLowerCase();
+  }
+}
 
-const TIERS: {
-  key: string;
-  name: string;
-  price: string;
-  sub: string;
-  bullets: string[];
-  cta: string;
-  to?: string;
-}[] = [
-  {
-    key: 'STARTER',
-    name: 'Reader',
-    price: 'free',
-    sub: 'forever',
-    bullets: [
-      'read & contribute to threads you\'re invited to',
-      'no new threads, no time-locks',
-      'everything still encrypted in browser',
-    ],
-    cta: 'current plan',
-  },
-  {
-    key: 'FAMILY',
-    name: 'Family',
-    price: '$15',
-    sub: '/ month',
-    bullets: [
-      '30-day free trial — no card required',
-      'start your own thread',
-      'set time-locks, designate successors',
-      'up to 6 keepers, one weft',
-    ],
-    cta: 'start 30-day trial',
-  },
-  {
-    key: 'FOREVER',
-    name: 'Founder · first 100',
-    price: '$999',
-    sub: 'lifetime',
-    bullets: [
-      'lifetime Family-tier for your bloodline',
-      'name engraved in the continuity record',
-      'funds the successor non-profit',
-    ],
-    cta: 'become a founder',
-    to: '/founder',
-  },
-];
+function tierPrice(tier: string): string {
+  switch (tier) {
+    case 'STARTER': case 'FREE': return 'free';
+    case 'FAMILY': return '$15';
+    case 'FOREVER': case 'LEGACY': return '$999';
+    default: return '—';
+  }
+}
 
 export function Billing() {
   const [busy, setBusy] = useState<string | null>(null);
@@ -97,227 +54,181 @@ export function Billing() {
   const trialEndsAt = (subscription as any)?.trial_ends_at ?? null;
   const trialDaysRemaining = (subscription as any)?.trialDaysRemaining ?? 0;
   const isTrialing = status === 'TRIALING';
+  const priceLabel = tierPrice(currentTier);
+  const isFounder = currentTier === 'FOREVER' || currentTier === 'LEGACY';
+  const counterText = isFounder
+    ? 'founder · once · lifetime'
+    : isTrialing
+    ? `family · trial · ${trialDaysRemaining} days remaining`
+    : `${tierLabel(currentTier)} · $15 / mo · billed monthly`;
 
   return (
-    <AppFrame>
-      <header style={{ marginBottom: 40 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-          Billing
-        </p>
-        <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-        >
-          The cost of being kept.
-        </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
-        >
-          A thread costs almost nothing. A loom that lasts fifty years costs a little more.
-        </p>
-      </header>
+    <div className="hl-screen" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      <div className="hl-topbar">
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+          <Link to="/loom" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+            <HLogo size={18} wordmark />
+          </Link>
+          <span style={{ color: 'var(--bone-low)' }}>·</span>
+          <span>billing</span>
+        </span>
+        <span className="hl-counter" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+          {counterText}
+        </span>
+        <Link to="/settings" className="hl-link warm">back to settings →</Link>
+      </div>
 
-      {/* Current plan card */}
-      <section
-        style={{
-          marginBottom: 56,
-          padding: '28px 36px',
-          border: '1px solid var(--loom-rule-warm)',
-          background: 'rgba(176,122,74,0.04)',
-          display: 'flex',
-          alignItems: 'baseline',
-          justifyContent: 'space-between',
-          gap: 24,
-          flexWrap: 'wrap',
-        }}
-      >
+      <div style={{ position: 'absolute', top: 80, bottom: 36, left: 56, right: 56, overflowY: 'auto', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 64, alignContent: 'start' }}>
+
+        {/* left: tier card + invoices */}
         <div>
-          <p className="loom-eyebrow" style={{ fontSize: 10, marginBottom: 8, color: 'var(--loom-warm)' }}>
-            current plan
-          </p>
-          <p
-            className="loom-serif"
-            style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', margin: 0, fontStyle: 'italic' }}
-          >
-            {labelFor(currentTier)}
-            {status === 'TRIALING' && trialEndsAt ? (
-              <span
-                className="loom-mono"
-                style={{ marginLeft: 14, fontSize: 11, color: 'var(--loom-warm)', fontStyle: 'normal' }}
-              >
-                · trial ends {new Date(trialEndsAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long' })}
+          <div className="hl-eyebrow" style={{ marginBottom: 18 }}>your tier</div>
+          <div style={{ padding: '28px 32px', border: '1px solid var(--rule-strong)', position: 'relative' }}>
+            {/* 3px warm top bar — signature design detail */}
+            <div style={{ position: 'absolute', top: -1, left: 0, right: 0, height: 3, background: 'var(--warm)' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <div>
+                <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.32em', textTransform: 'uppercase' }}>
+                  {tierLabel(currentTier)} · current{isTrialing ? ' · trialing' : ''}
+                </div>
+                <div className="hl-serif" style={{ fontSize: 56, fontWeight: 300, letterSpacing: '-0.022em', marginTop: 12, lineHeight: 1 }}>
+                  {priceLabel}
+                  {currentTier === 'FAMILY' && (
+                    <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-faint)', marginLeft: 4, letterSpacing: '0.1em' }}>/mo</span>
+                  )}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                  {isTrialing && trialEndsAt ? 'trial ends' : renews ? 'next charge' : 'status'}
+                </div>
+                <div className="hl-serif" style={{ fontSize: 17, color: 'var(--bone)', fontWeight: 400, marginTop: 6 }}>
+                  {isTrialing && trialEndsAt
+                    ? new Date(trialEndsAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })
+                    : renews
+                    ? new Date(renews).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'active'}
+                </div>
+              </div>
+            </div>
+
+            {/* usage grid 2×3 */}
+            <div style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid var(--rule)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18 }}>
+              {[
+                ['members',  'unlimited'],
+                ['entries',  'unlimited'],
+                ['voice',    'unlimited'],
+                ['storage',  'unlimited'],
+                ['letters',  'unlimited'],
+                ['sealed',   'unlimited'],
+              ].map(([n, u]) => (
+                <div key={n}>
+                  <div className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', fontWeight: 400, letterSpacing: '-0.005em' }}>{n}</div>
+                  <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 2 }}>of {u}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* action links */}
+            <div style={{ marginTop: 22, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              {!isFounder && (
+                <Link to="/founder" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
+                  become a founder →
+                </Link>
+              )}
+              {currentTier === 'FAMILY' && (
+                <button
+                  type="button"
+                  onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate('FAMILY'); }}
+                  disabled={!!busy}
+                  style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}
+                >
+                  {busy === 'FAMILY_ANNUAL' ? 'opening…' : 'switch to annual'}
+                </button>
+              )}
+              {currentTier !== 'STARTER' && currentTier !== 'FREE' && (
+                <button
+                  type="button"
+                  onClick={() => portal.mutate()}
+                  disabled={portal.isPending}
+                  style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}
+                >
+                  {portal.isPending ? 'opening…' : 'downgrade'}
+                </button>
+              )}
+              {(currentTier === 'STARTER' || currentTier === 'FREE') && (
+                <button
+                  type="button"
+                  onClick={() => { setBusy('FAMILY'); checkout.mutate('FAMILY'); }}
+                  disabled={!!busy}
+                  className="hl-btn"
+                  style={{ fontSize: 11, padding: '10px 20px' }}
+                >
+                  {busy === 'FAMILY' ? 'opening…' : 'start 30-day trial →'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* invoices */}
+          <div className="hl-eyebrow" style={{ marginTop: 40, marginBottom: 14 }}>invoices</div>
+          <div style={{ borderTop: '1px solid var(--rule)' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', padding: '14px 0', borderBottom: '1px solid var(--rule)' }}>
+              <span className="hl-serif" style={{ flex: 1, fontSize: 14, color: 'var(--bone-dim)', fontWeight: 400 }}>
+                Receipts and full invoice history live in the Stripe portal.
               </span>
-            ) : status && status !== 'ACTIVE' ? (
-              <span
-                className="loom-mono"
-                style={{ marginLeft: 14, fontSize: 11, color: 'var(--loom-bone-faint)', fontStyle: 'normal' }}
-              >
-                · {status.toLowerCase()}
-              </span>
-            ) : null}
-          </p>
-        </div>
-        <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)', letterSpacing: '0.04em', textAlign: 'right' }}>
-          {renews ? <p style={{ margin: 0 }}>renews {new Date(renews).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</p> : null}
-          {isTrialing ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-              <p style={{ margin: 0, color: 'var(--loom-warm)' }}>
-                {trialDaysRemaining > 0 ? `${trialDaysRemaining} day${trialDaysRemaining !== 1 ? 's' : ''} remaining` : 'trial ended'}
-              </p>
               <button
                 type="button"
-                onClick={() => { setBusy('FAMILY'); checkout.mutate('FAMILY'); }}
-                disabled={busy === 'FAMILY'}
-                className="loom-btn"
-                style={{ fontSize: 11, padding: '6px 14px' }}
+                onClick={() => portal.mutate()}
+                disabled={portal.isPending}
+                style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0, flexShrink: 0, marginLeft: 24 }}
               >
-                {busy === 'FAMILY' ? 'opening…' : 'subscribe to Family →'}
+                {portal.isPending ? 'opening…' : 'open portal →'}
               </button>
             </div>
-          ) : (
+          </div>
+        </div>
+
+        {/* right: payment + pledge + cancel */}
+        <div>
+          <div className="hl-eyebrow" style={{ marginBottom: 18 }}>payment method</div>
+          <div style={{ padding: '20px 22px', border: '1px solid var(--rule-strong)' }}>
+            <div className="hl-mono" style={{ fontSize: 14, color: 'var(--bone)', letterSpacing: '0.18em' }}>•••• •••• •••• ••••</div>
+            <div className="hl-mono" style={{ fontSize: 10.5, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 8 }}>managed via stripe</div>
             <button
               type="button"
               onClick={() => portal.mutate()}
               disabled={portal.isPending}
-              style={{
-                marginTop: 8,
-                background: 'transparent',
-                border: 0,
-                cursor: 'pointer',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--loom-warm)',
-              }}
+              style={{ display: 'inline-block', marginTop: 12, background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}
             >
-              {portal.isPending ? 'opening…' : 'manage card →'}
+              {portal.isPending ? 'opening…' : 'replace card →'}
             </button>
-          )}
-        </div>
-      </section>
+          </div>
 
-      {/* Tier strip */}
-      <section style={{ marginBottom: 56 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 18 }}>
-          Plans
-        </p>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 1,
-            background: 'var(--loom-rule)',
-            border: '1px solid var(--loom-rule)',
-          }}
-        >
-          {TIERS.map((t) => {
-            const isCurrent = t.key === currentTier;
-            const featured = t.key === 'FAMILY' && !isCurrent;
-            return (
-              <div
-                key={t.key}
-                style={{
-                  background: featured ? 'var(--loom-ink-card)' : 'var(--loom-ink)',
-                  padding: '32px 28px',
-                  display: 'grid',
-                  gridTemplateRows: 'auto auto auto 1fr auto',
-                  gap: 14,
-                  minHeight: 360,
-                }}
-              >
-                <p className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.2em', color: 'var(--loom-warm)', textTransform: 'uppercase', margin: 0 }}>
-                  {t.name}
-                </p>
-                <p className="loom-serif" style={{ fontSize: 44, fontWeight: 200, color: 'var(--loom-bone)', margin: 0, lineHeight: 1, letterSpacing: '-0.02em' }}>
-                  {t.price}
-                  <span className="loom-mono" style={{ marginLeft: 8, fontSize: 12, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}>
-                    {t.sub}
-                  </span>
-                </p>
-                <hr className="loom-hairline" style={{ margin: '4px 0' }} />
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
-                  {t.bullets.map((b) => (
-                    <li
-                      key={b}
-                      style={{
-                        position: 'relative',
-                        paddingLeft: 16,
-                        fontFamily: "'Source Serif 4', serif",
-                        fontSize: 14,
-                        color: 'var(--loom-bone-dim)',
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      <span style={{ position: 'absolute', left: 4, top: -2, color: 'var(--loom-warm)', fontSize: 16 }}>·</span>
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-                {isCurrent ? (
-                  <p className="loom-mono" style={{ margin: 0, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}>
-                    ∞ &nbsp; current plan
-                  </p>
-                ) : t.key === 'STARTER' ? (
-                  // Reader is free — no checkout flow; users reach it by cancelling
-                  <p className="loom-mono" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--loom-bone-faint)' }}>
-                    free forever
-                  </p>
-                ) : t.to ? (
-                  <Link to={t.to} className="loom-btn" style={{ textDecoration: 'none', textAlign: 'center', width: '100%' }}>
-                    {t.cta}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBusy(t.key);
-                      checkout.mutate(t.key);
-                    }}
-                    disabled={busy === t.key}
-                    className={featured ? 'loom-btn' : 'loom-btn-ghost'}
-                    style={{ width: '100%' }}
-                  >
-                    {busy === t.key ? 'opening…' : t.cta}
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
+          <div className="hl-eyebrow" style={{ marginTop: 40, marginBottom: 16 }}>continuity pledge</div>
+          <div className="hl-serif" style={{ fontSize: 14.5, lineHeight: 1.7, fontStyle: 'italic', color: 'var(--bone-dim)', fontWeight: 400 }}>
+            If Heirloom ends, the successor non-profit named in our bylaws inherits the archive. The family export is always free.
+          </div>
+          <div className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 14 }}>
+            pledge no. 0001 — jun 2026
+          </div>
 
-      <p
-        className="loom-mono"
-        style={{
-          fontSize: 10,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'var(--loom-bone-faint)',
-          textAlign: 'center',
-          margin: 0,
-        }}
-      >
-        ∞ &nbsp; receipts and card management open in a Stripe portal · invoices live there
-      </p>
-    </AppFrame>
+          <div className="hl-eyebrow" style={{ marginTop: 40, marginBottom: 14 }}>ending the subscription</div>
+          <div className="hl-serif" style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--bone-dim)', fontWeight: 400 }}>
+            Your thread is never deleted. It freezes in place and is downloadable for life. You can return at any time.
+          </div>
+          <button
+            type="button"
+            onClick={() => portal.mutate()}
+            disabled={portal.isPending}
+            style={{ display: 'inline-block', marginTop: 12, background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}
+          >
+            {portal.isPending ? 'opening…' : 'cancel · gentle exit →'}
+          </button>
+        </div>
+      </div>
+
+      <TapestryEdge nowFrac={0.92} />
+    </div>
   );
-}
-
-function labelFor(tier: string): string {
-  switch (tier) {
-    case 'STARTER':
-    case 'FREE':
-      return 'Reader · free';
-    case 'ESSENTIAL':
-      return 'Essential';
-    case 'FAMILY':
-      return 'Family · $15/month';
-    case 'FOREVER':
-    case 'LEGACY':
-      return 'Founder · lifetime';
-    default:
-      return tier;
-  }
 }
