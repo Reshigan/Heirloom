@@ -65,7 +65,6 @@ const MemoryCards = lazy(() => import('./pages/MemoryCards').then(m => ({ defaul
 const CardView = lazy(() => import('./pages/CardView').then(m => ({ default: m.CardView })));
 
 // Heirloom v2 pages
-const OnboardingWizardPage = lazy(() => import('./pages/OnboardingWizardPage').then(m => ({ default: m.OnboardingWizardPage })));
 const InterviewMode = lazy(() => import('./pages/InterviewMode').then(m => ({ default: m.InterviewMode })));
 const TimeCapsulePage = lazy(() => import('./pages/TimeCapsule').then(m => ({ default: m.TimeCapsule })));
 const MemoryMap = lazy(() => import('./pages/MemoryMap').then(m => ({ default: m.MemoryMap })));
@@ -74,13 +73,24 @@ const FamilyFeed = lazy(() => import('./pages/FamilyFeed').then(m => ({ default:
 const OnThisDay = lazy(() => import('./pages/OnThisDay').then(m => ({ default: m.OnThisDay })));
 const GiftAMemory = lazy(() => import('./pages/GiftAMemory').then(m => ({ default: m.GiftAMemory })));
 const GiftReceive = lazy(() => import('./pages/GiftReceive').then(m => ({ default: m.GiftReceive })));
-const Threads = lazy(() => import('./pages/Threads').then(m => ({ default: m.Threads })));
 const ThreadDetail = lazy(() => import('./pages/ThreadDetail').then(m => ({ default: m.ThreadDetail })));
 const ThreadCompose = lazy(() => import('./pages/ThreadCompose').then(m => ({ default: m.ThreadCompose })));
 const DailySentence = lazy(() => import('./pages/DailySentence').then(m => ({ default: m.DailySentence })));
 const FoundersWall = lazy(() => import('./pages/FoundersWall').then(m => ({ default: m.FoundersWall })));
 const Inbox = lazy(() => import('./pages/Inbox').then(m => ({ default: m.Inbox })));
 const QandA = lazy(() => import('./pages/QandA').then(m => ({ default: m.QandA })));
+
+// Wave 1-3 routes
+const Today           = lazy(() => import('./loom/pages/Today').then(m => ({ default: m.Today })));
+const Pricing         = lazy(() => import('./pages/Pricing').then(m => ({ default: m.Pricing })));
+const Showcase        = lazy(() => import('./pages/Showcase').then(m => ({ default: m.Showcase })));
+const Onboarding      = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
+const InviteCard      = lazy(() => import('./pages/InviteCard').then(m => ({ default: m.InviteCard })));
+const Memories        = lazy(() => import('./pages/Memories').then(m => ({ default: m.Memories })));
+const QA              = lazy(() => import('./pages/QA').then(m => ({ default: m.QA })));
+const ThreadsIndex    = lazy(() => import('./pages/ThreadsIndex').then(m => ({ default: m.ThreadsIndex })));
+const PwaHome         = lazy(() => import('./loom/pages/PwaHome').then(m => ({ default: m.PwaHome })));
+const InheritanceCard = lazy(() => import('./pages/InheritanceCard').then(m => ({ default: m.InheritanceCard })));
 
 // The Loom — the live marketing + design system.
 // See cloudflare/frontend/src/loom/DESIGN.md.
@@ -110,7 +120,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/loom" replace />;
+  return !isAuthenticated ? <>{children}</> : <Navigate to="/loom/today" replace />;
 }
 
 function PushNotificationHandler() {
@@ -209,6 +219,9 @@ export default function App() {
                                                             <Route path="/gold/redeem" element={<GoldLegacyRedeem />} />
                                                             <Route path="/card/:id" element={<CardView />} />
           <Route path="/gift-memory/:token" element={<GiftReceive />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/showcase" element={<Showcase />} />
+          <Route path="/inheritance/:token" element={<InheritanceCard />} />
           <Route
             path="/login"
             element={
@@ -245,9 +258,9 @@ export default function App() {
                     {/* Protected routes */}
           <Route
             path="/dashboard"
-            element={<Navigate to="/loom" replace />}
+            element={<Navigate to="/loom/today" replace />}
           />
-          <Route path="/memories" element={<Navigate to="/loom/weft" replace />} />
+          <Route path="/memories" element={<ProtectedRoute><Memories /></ProtectedRoute>} />
           <Route
             path="/compose"
             element={
@@ -428,9 +441,11 @@ export default function App() {
                                                                                                     />
 
                                                                                                     {/* Heirloom v2 Protected Routes */}
-          <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizardPage /></ProtectedRoute>} />
+          <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
           <Route path="/ask" element={<ProtectedRoute><QandA /></ProtectedRoute>} />
+          <Route path="/qa" element={<ProtectedRoute><QA /></ProtectedRoute>} />
+          <Route path="/invite" element={<ProtectedRoute><InviteCard /></ProtectedRoute>} />
           <Route path="/interview" element={<ProtectedRoute><InterviewMode /></ProtectedRoute>} />
           <Route path="/time-capsules" element={<ProtectedRoute><TimeCapsulePage /></ProtectedRoute>} />
           <Route path="/memory-map" element={<ProtectedRoute><MemoryMap /></ProtectedRoute>} />
@@ -438,7 +453,7 @@ export default function App() {
           <Route path="/family-feed" element={<ProtectedRoute><FamilyFeed /></ProtectedRoute>} />
           <Route path="/on-this-day" element={<ProtectedRoute><OnThisDay /></ProtectedRoute>} />
           <Route path="/gift-a-memory" element={<ProtectedRoute><GiftAMemory /></ProtectedRoute>} />
-          <Route path="/threads" element={<ProtectedRoute><Threads /></ProtectedRoute>} />
+          <Route path="/threads" element={<ProtectedRoute><ThreadsIndex /></ProtectedRoute>} />
           <Route path="/threads/:id" element={<ProtectedRoute><ThreadDetail /></ProtectedRoute>} />
           <Route path="/threads/:id/compose" element={<ProtectedRoute><ThreadCompose /></ProtectedRoute>} />
           <Route path="/letters/new" element={<ProtectedRoute><ComposeLetter /></ProtectedRoute>} />
@@ -452,6 +467,8 @@ export default function App() {
               AI as invisible shuttle. Marketing is mounted at / (above);
               the eight-screen demo lives here. */}
           <Route path="/loom" element={<LoomThreshold />} />
+          <Route path="/loom/today" element={<ProtectedRoute><Today /></ProtectedRoute>} />
+          <Route path="/loom/pwa"   element={<ProtectedRoute><PwaHome /></ProtectedRoute>} />
           <Route path="/loom/weft" element={<ProtectedRoute><LoomWeft /></ProtectedRoute>} />
           <Route path="/loom/compose" element={<ProtectedRoute><LoomComposer /></ProtectedRoute>} />
           <Route path="/loom/tied" element={<ProtectedRoute><LoomTiedOff /></ProtectedRoute>} />
