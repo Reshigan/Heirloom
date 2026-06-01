@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { HLogo } from '../loom/components/HLogo';
 import api from '../services/api';
 
 interface RoomData {
@@ -22,23 +22,6 @@ interface RoomData {
     content: string;
     created_at: string;
   }>;
-}
-
-/** Hairline shuttle used as a loading bar for full-page states. */
-function LoadingState({ label }: { label?: string }) {
-  return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <ProgressHair label={label ?? 'Loading…'} width={200} />
-    </div>
-  );
 }
 
 export function MemoryRoom() {
@@ -94,11 +77,11 @@ export function MemoryRoom() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     background: 'transparent',
-    border: '1px solid var(--loom-rule)',
+    border: '1px solid var(--parchment-rule)',
     borderRadius: 2,
     padding: '10px 14px',
-    color: 'var(--loom-bone)',
-    fontFamily: "'Source Serif 4', serif",
+    color: 'var(--parchment-ink)',
+    fontFamily: 'var(--serif)',
     fontSize: 15,
     lineHeight: 1.7,
     outline: 'none',
@@ -106,27 +89,45 @@ export function MemoryRoom() {
     transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
   };
 
-  if (isLoading) return <LoadingState label="loading the room…" />;
+  if (isLoading) {
+    return (
+      <div
+        className="hl-screen parchment"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <p
+          className="hl-mono"
+          style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}
+        >
+          loading the room…
+        </p>
+      </div>
+    );
+  }
 
   if (error || !data) {
     return (
       <div
-        style={{
-          minHeight: '100vh',
-          background: 'var(--loom-ink)',
-          color: 'var(--loom-bone)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 24,
-        }}
+        className="hl-screen parchment"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
       >
         <div style={{ textAlign: 'center', maxWidth: 480 }}>
-          <p style={{ fontFamily: "'Source Serif 4', serif", fontSize: 28, color: 'var(--loom-warm)', marginBottom: 16 }}>∞</p>
-          <h1 className="loom-h2" style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}>
+          <p
+            className="hl-serif"
+            style={{ fontSize: 28, color: 'var(--warm)', marginBottom: 16 }}
+          >
+            ∞
+          </p>
+          <h1
+            className="hl-serif hl-tight"
+            style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px', color: 'var(--parchment-ink)' }}
+          >
             Room not found.
           </h1>
-          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)' }}>
+          <p
+            className="hl-prose dark"
+            style={{ fontSize: 15, color: 'var(--parchment-dim)', margin: 0 }}
+          >
             This memory room may not be active or the link may be invalid.
           </p>
         </div>
@@ -138,167 +139,221 @@ export function MemoryRoom() {
   const contentTypeLabel = (t: string) => t === 'PHOTO' ? 'Photo' : t === 'VOICE' ? 'Voice' : 'Story';
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        color: 'var(--loom-bone)',
-        fontFamily: "'Source Serif 4', serif",
-      }}
-    >
-      {/* Horizon ambient glow */}
-      <div className="loom-horizon" style={{ pointerEvents: 'none' }} />
-      <div className="loom-grain" style={{ pointerEvents: 'none' }} />
+    <div className="hl-screen parchment" style={{ overflowY: 'auto' }}>
 
+      {/* Custom parchment topbar */}
       <div
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          maxWidth: 740,
-          margin: '0 auto',
-          padding: '72px 32px 96px',
-        }}
+        className="hl-topbar"
+        style={{ borderBottom: '1px solid var(--parchment-rule)' }}
       >
-        {/* Header */}
-        <header style={{ textAlign: 'center', marginBottom: 56 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
-            Memory Room · {room.ownerName}
-          </p>
-          <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(30px,4vw,48px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+        {/* left: logo */}
+        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
+        </span>
+
+        {/* center: room label */}
+        <span
+          className="hl-counter hl-mono"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            whiteSpace: 'nowrap',
+            fontSize: 10,
+            letterSpacing: '0.32em',
+            textTransform: 'uppercase',
+            color: 'var(--parchment-faint)',
+          }}
+        >
+          memory room
+        </span>
+
+        {/* right: contribute action */}
+        <button
+          type="button"
+          onClick={() => setShowContribute(true)}
+          style={{
+            background: 'transparent',
+            border: 0,
+            cursor: 'pointer',
+            padding: 0,
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.32em',
+            textTransform: 'uppercase',
+            color: 'var(--warm)',
+          }}
+        >
+          share a memory →
+        </button>
+      </div>
+
+      {/* Content area — sits below topbar (56px) */}
+      <div style={{ paddingTop: 56 }}>
+
+        {/* H1 */}
+        <h1
+          className="hl-serif hl-tight"
+          style={{
+            fontSize: 48,
+            fontWeight: 300,
+            color: 'var(--parchment-ink)',
+            marginTop: 80,
+            marginLeft: 56,
+            marginBottom: 0,
+            lineHeight: 1.06,
+          }}
+        >
+          A room in the cloth.
+        </h1>
+
+        {/* Room meta */}
+        <div style={{ marginLeft: 56, marginTop: 24, marginRight: 56 }}>
+          <p
+            className="hl-eyebrow dark"
+            style={{ marginBottom: 8 }}
           >
-            {room.name || `${room.ownerName}'s Memory Room`}
-          </h1>
+            {room.ownerName}
+            {room.name ? ` · ${room.name}` : ''}
+          </p>
           {room.description && (
             <p
-              className="loom-body"
-              style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '16px auto 0', maxWidth: 540 }}
+              className="hl-prose dark"
+              style={{ fontSize: 16, color: 'var(--parchment-dim)', margin: '12px 0 0', maxWidth: 540 }}
             >
               {room.description}
             </p>
           )}
-          <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', marginTop: 12 }}>
-            A space to share memories and stories about {room.ownerName}.
-          </p>
-        </header>
+        </div>
 
-        {/* Success inline status */}
+        {/* Inline success status */}
         {submitted && (
           <div
             role="status"
             style={{
-              marginBottom: 32,
+              marginLeft: 56,
+              marginRight: 56,
+              marginTop: 32,
               padding: '14px 20px',
-              border: '1px solid var(--loom-rule-warm)',
-              textAlign: 'center',
+              border: '1px solid var(--warm)',
             }}
           >
-            <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-warm)', margin: 0, fontStyle: 'italic' }}>
+            <p
+              className="hl-prose dark"
+              style={{ fontSize: 14, color: 'var(--warm)', margin: 0, fontStyle: 'italic' }}
+            >
               Thank you for sharing your memory. It means so much.
             </p>
           </div>
         )}
 
-        {/* Contribute CTA */}
-        <button
-          type="button"
-          onClick={() => setShowContribute(true)}
-          style={{
-            width: '100%',
-            marginBottom: 48,
-            padding: '24px 32px',
-            border: '1px solid var(--loom-rule)',
-            background: 'transparent',
-            cursor: 'pointer',
-            textAlign: 'center',
-            transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--loom-rule-warm)')}
-          onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--loom-rule)')}
-        >
-          <p className="loom-serif" style={{ fontSize: 19, fontWeight: 300, color: 'var(--loom-bone)', margin: 0 }}>
-            Share a Memory
-          </p>
-          <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', marginTop: 6 }}>
-            Add your own story, photo, or message.
-          </p>
-        </button>
-
-        {/* Contributions list */}
-        {contributions.length > 0 ? (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
-              <span className="loom-eyebrow">Shared memories</span>
-              <hr className="loom-hairline" style={{ flex: 1 }} />
-            </div>
+        {/* Memory list */}
+        <div style={{ marginLeft: 56, marginRight: 56, marginTop: 56, paddingBottom: 96 }}>
+          {contributions.length > 0 ? (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {contributions.map((c) => (
-                <li key={c.id} style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}>
-                  <article style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 28, alignItems: 'baseline' }}>
-                    <div>
-                      <p
-                        className="loom-mono"
-                        style={{
-                          fontSize: 10,
-                          letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
-                          color: 'var(--loom-warm)',
-                          margin: 0,
-                        }}
+                <li
+                  key={c.id}
+                  style={{
+                    borderTop: '1px solid var(--parchment-rule)',
+                    paddingTop: 28,
+                    marginBottom: 28,
+                  }}
+                >
+                  {/* Title */}
+                  <p
+                    className="hl-serif"
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 400,
+                      color: 'var(--parchment-ink)',
+                      margin: 0,
+                    }}
+                  >
+                    {c.title || c.contributor_name}
+                    {!c.title && c.contributor_relationship && (
+                      <span
+                        className="hl-mono"
+                        style={{ fontSize: 10, color: 'var(--parchment-faint)', marginLeft: 12, letterSpacing: '0.18em', textTransform: 'uppercase' }}
                       >
-                        {contentTypeLabel(c.content_type)}
-                      </p>
-                      <p
-                        className="loom-mono"
-                        style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: '6px 0 0' }}
-                      >
-                        {new Date(c.created_at).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="loom-serif" style={{ fontSize: 16, fontWeight: 400, color: 'var(--loom-bone)', margin: '0 0 2px' }}>
-                        {c.contributor_name}
-                        {c.contributor_relationship && (
-                          <span className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', marginLeft: 8 }}>
-                            ({c.contributor_relationship})
-                          </span>
-                        )}
-                      </p>
-                      {c.title && (
-                        <p className="loom-serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-warm)', margin: '4px 0 6px' }}>
-                          {c.title}
-                        </p>
-                      )}
-                      <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: 0, whiteSpace: 'pre-wrap', lineHeight: 1.75 }}>
-                        {c.content}
-                      </p>
-                    </div>
-                  </article>
+                        {c.contributor_relationship}
+                      </span>
+                    )}
+                  </p>
+                  {/* If title shown separately, show contributor below */}
+                  {c.title && (
+                    <p
+                      className="hl-mono"
+                      style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--parchment-faint)', margin: '6px 0 0' }}
+                    >
+                      {c.contributor_name}
+                      {c.contributor_relationship ? ` · ${c.contributor_relationship}` : ''}
+                      {` · ${contentTypeLabel(c.content_type)}`}
+                    </p>
+                  )}
+                  {/* Body */}
+                  <p
+                    className="hl-prose dark"
+                    style={{
+                      fontSize: 17,
+                      color: 'var(--parchment-dim)',
+                      marginTop: 12,
+                      marginBottom: 0,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {c.content}
+                  </p>
+                  {/* Date */}
+                  <p
+                    className="hl-mono"
+                    style={{
+                      fontSize: 10,
+                      color: 'var(--parchment-faint)',
+                      marginTop: 8,
+                      letterSpacing: '0.18em',
+                    }}
+                  >
+                    {new Date(c.created_at).toLocaleDateString(undefined, {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </p>
                 </li>
               ))}
             </ul>
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '48px 0' }}>
-            <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>
+          ) : (
+            <p
+              className="hl-prose dark"
+              style={{ fontSize: 15, color: 'var(--parchment-dim)', fontStyle: 'italic' }}
+            >
               No memories shared yet. Be the first to contribute.
             </p>
-          </div>
-        )}
+          )}
 
-        {/* Footer */}
-        <footer style={{ marginTop: 80, textAlign: 'center' }}>
-          <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em' }}>
-            Powered by{' '}
-            <a
-              href="https://heirloom.blue"
-              style={{ color: 'var(--loom-warm)', textDecoration: 'none' }}
+          {/* Footer */}
+          <footer style={{ marginTop: 80 }}>
+            <hr className="hl-rule parchment" />
+            <p
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                color: 'var(--parchment-faint)',
+                letterSpacing: '0.18em',
+                marginTop: 18,
+              }}
             >
-              Heirloom
-            </a>
-          </p>
-        </footer>
+              Powered by{' '}
+              <a
+                href="https://heirloom.blue"
+                style={{ color: 'var(--warm)', textDecoration: 'none' }}
+              >
+                Heirloom
+              </a>
+            </p>
+          </footer>
+        </div>
       </div>
 
       {/* Contribute overlay */}
@@ -307,7 +362,7 @@ export function MemoryRoom() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(14,14,12,0.82)',
+            background: 'rgba(250,246,238,0.72)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -318,18 +373,21 @@ export function MemoryRoom() {
         >
           <div
             style={{
-              background: 'var(--loom-ink)',
-              border: '1px solid var(--loom-rule)',
+              background: 'var(--parchment)',
+              border: '1px solid var(--parchment-rule)',
               padding: 40,
               maxWidth: 540,
               width: '100%',
               maxHeight: '90vh',
               overflowY: 'auto',
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 28 }}>
-              <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, margin: 0 }}>
+              <h3
+                className="hl-serif hl-tight"
+                style={{ fontSize: 22, fontWeight: 300, margin: 0, color: 'var(--parchment-ink)' }}
+              >
                 Share a Memory
               </h3>
               <button
@@ -340,10 +398,11 @@ export function MemoryRoom() {
                   background: 'transparent',
                   border: 0,
                   cursor: 'pointer',
-                  color: 'var(--loom-bone-faint)',
+                  color: 'var(--parchment-faint)',
                   fontSize: 20,
                   lineHeight: 1,
                   padding: 4,
+                  fontFamily: 'var(--mono)',
                 }}
               >
                 ×
@@ -353,7 +412,11 @@ export function MemoryRoom() {
             <div style={{ display: 'grid', gap: 18 }}>
               {/* Name */}
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                <label
+                  htmlFor="mr-name"
+                  className="hl-eyebrow dark"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
                   Your Name *
                 </label>
                 <input
@@ -368,7 +431,11 @@ export function MemoryRoom() {
 
               {/* Email */}
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                <label
+                  htmlFor="mr-email"
+                  className="hl-eyebrow dark"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
                   Your Email (optional)
                 </label>
                 <input
@@ -383,7 +450,11 @@ export function MemoryRoom() {
 
               {/* Relationship */}
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                <label
+                  htmlFor="mr-rel"
+                  className="hl-eyebrow dark"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
                   Your Relationship (optional)
                 </label>
                 <input
@@ -398,7 +469,10 @@ export function MemoryRoom() {
 
               {/* Content type */}
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                <label
+                  className="hl-eyebrow dark"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
                   Type of Memory
                 </label>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -406,8 +480,20 @@ export function MemoryRoom() {
                     <button
                       type="button"
                       onClick={() => setContentType('TEXT')}
-                      className={contentType === 'TEXT' ? 'loom-btn' : 'loom-btn-ghost'}
-                      style={{ flex: 1, fontSize: 11, padding: '10px 0' }}
+                      style={{
+                        flex: 1,
+                        fontSize: 11,
+                        padding: '10px 0',
+                        fontFamily: 'var(--mono)',
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        border: '1px solid var(--parchment-rule)',
+                        borderRadius: 0,
+                        cursor: 'pointer',
+                        background: contentType === 'TEXT' ? 'var(--warm)' : 'transparent',
+                        color: contentType === 'TEXT' ? '#fff' : 'var(--parchment-ink)',
+                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
                     >
                       Story
                     </button>
@@ -416,8 +502,20 @@ export function MemoryRoom() {
                     <button
                       type="button"
                       onClick={() => setContentType('PHOTO')}
-                      className={contentType === 'PHOTO' ? 'loom-btn' : 'loom-btn-ghost'}
-                      style={{ flex: 1, fontSize: 11, padding: '10px 0' }}
+                      style={{
+                        flex: 1,
+                        fontSize: 11,
+                        padding: '10px 0',
+                        fontFamily: 'var(--mono)',
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        border: '1px solid var(--parchment-rule)',
+                        borderRadius: 0,
+                        cursor: 'pointer',
+                        background: contentType === 'PHOTO' ? 'var(--warm)' : 'transparent',
+                        color: contentType === 'PHOTO' ? '#fff' : 'var(--parchment-ink)',
+                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
                     >
                       Photo
                     </button>
@@ -426,8 +524,20 @@ export function MemoryRoom() {
                     <button
                       type="button"
                       onClick={() => setContentType('VOICE')}
-                      className={contentType === 'VOICE' ? 'loom-btn' : 'loom-btn-ghost'}
-                      style={{ flex: 1, fontSize: 11, padding: '10px 0' }}
+                      style={{
+                        flex: 1,
+                        fontSize: 11,
+                        padding: '10px 0',
+                        fontFamily: 'var(--mono)',
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        border: '1px solid var(--parchment-rule)',
+                        borderRadius: 0,
+                        cursor: 'pointer',
+                        background: contentType === 'VOICE' ? 'var(--warm)' : 'transparent',
+                        color: contentType === 'VOICE' ? '#fff' : 'var(--parchment-ink)',
+                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
                     >
                       Voice
                     </button>
@@ -437,7 +547,11 @@ export function MemoryRoom() {
 
               {/* Title */}
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                <label
+                  htmlFor="mr-title"
+                  className="hl-eyebrow dark"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
                   Title (optional)
                 </label>
                 <input
@@ -452,7 +566,11 @@ export function MemoryRoom() {
 
               {/* Content */}
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                <label
+                  htmlFor="mr-content"
+                  className="hl-eyebrow dark"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
                   Your Memory *
                 </label>
                 <textarea
@@ -469,8 +587,10 @@ export function MemoryRoom() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!contributorName.trim() || !content.trim() || contributeMutation.isPending}
-                className="loom-btn"
-                style={{ opacity: !contributorName.trim() || !content.trim() || contributeMutation.isPending ? 0.45 : 1 }}
+                className="hl-btn"
+                style={{
+                  opacity: !contributorName.trim() || !content.trim() || contributeMutation.isPending ? 0.45 : 1,
+                }}
               >
                 {contributeMutation.isPending ? (
                   <span style={{ fontStyle: 'italic' }}>Sharing…</span>

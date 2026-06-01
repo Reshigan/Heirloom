@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '../services/api';
+import { HLogo } from '../loom/components/HLogo';
 
+// ResetPassword — Loom 3 parchment layout (§ResetPassword).
+// Marketing/unauthenticated page → parchment background, parchment-ink text.
+// No AppFrame. Topbar: HLogo left, "sign in →" right.
 export function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -9,8 +13,6 @@ export function ResetPassword() {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -40,7 +42,6 @@ export function ResetPassword() {
     try {
       await authApi.resetPassword({ token: token!, password });
       setSuccess(true);
-      // Redirect to login after 3 seconds
       setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to reset password. Please try again.');
@@ -50,236 +51,221 @@ export function ResetPassword() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: '68px 1fr' }}>
-      <header
-        style={{
-          borderBottom: '1px solid var(--loom-rule)',
-          padding: '0 28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Link to="/" className="loom-mark" style={{ textDecoration: 'none' }}>
-          <span className="infmark">∞</span>heirloom
+    <div className="hl-screen parchment" style={{ minHeight: '100vh', position: 'relative' }}>
+      {/* Topbar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '24px 56px',
+        borderBottom: '1px solid var(--parchment-rule)',
+      }}>
+        <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+          <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
         </Link>
         <Link
           to="/login"
-          className="loom-mono"
+          className="hl-mono"
           style={{
-            fontSize: 11,
-            letterSpacing: '0.2em',
+            fontSize: 10.5,
+            letterSpacing: '0.32em',
             textTransform: 'uppercase',
-            color: 'var(--loom-bone-dim)',
+            color: 'var(--parchment-dim)',
             textDecoration: 'none',
           }}
         >
-          back to sign in
+          sign in →
         </Link>
-      </header>
+      </div>
 
-      <main
-        style={{
-          display: 'grid',
-          placeItems: 'center',
-          padding: '40px 24px',
-        }}
-      >
+      {/* Centered content */}
+      <main style={{ display: 'grid', placeItems: 'center', padding: '72px 24px', minHeight: 'calc(100vh - 73px)' }}>
         <div style={{ width: '100%', maxWidth: 440 }}>
+
           {!token ? (
+            /* Invalid link state */
             <div role="status">
-              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
-                reset password
-              </div>
               <h1
-                className="loom-h2"
+                className="hl-serif hl-tight"
                 style={{
-                  fontSize: 'clamp(36px, 5vw, 56px)',
-                  fontStyle: 'italic',
+                  fontSize: 36,
                   fontWeight: 300,
-                  margin: '0 0 24px',
+                  margin: '0 0 28px',
+                  color: 'var(--parchment-ink)',
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.018em',
                 }}
               >
                 Invalid reset link.
               </h1>
               <p
-                className="loom-body"
-                style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.7, margin: '0 0 32px' }}
+                className="hl-mono"
+                style={{ fontSize: 13, color: 'var(--parchment-dim)', lineHeight: 1.7, margin: '0 0 32px', letterSpacing: '0.04em' }}
               >
                 This link has expired or is no longer valid.
               </p>
-              <Link to="/forgot-password" className="loom-btn" style={{ textDecoration: 'none' }}>
+              <Link to="/forgot-password" className="hl-btn" style={{ textDecoration: 'none' }}>
                 request a new link
               </Link>
             </div>
           ) : success ? (
+            /* Success state */
             <div role="status">
-              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
-                reset password
-              </div>
               <h1
-                className="loom-h2"
+                className="hl-serif hl-tight"
                 style={{
-                  fontSize: 'clamp(36px, 5vw, 56px)',
-                  fontStyle: 'italic',
+                  fontSize: 36,
                   fontWeight: 300,
-                  margin: '0 0 24px',
+                  margin: '0 0 28px',
+                  color: 'var(--parchment-ink)',
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.018em',
                 }}
               >
                 Password reset.
               </h1>
               <p
-                className="loom-body"
-                style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.7, margin: '0 0 32px' }}
+                className="hl-mono"
+                style={{ fontSize: 13, color: 'var(--parchment-dim)', lineHeight: 1.7, margin: '0 0 32px', letterSpacing: '0.04em' }}
               >
                 Your thread is secured. Returning you to sign in…
               </p>
-              <Link to="/login" className="loom-btn" style={{ textDecoration: 'none' }}>
-                go to sign in
+              <Link to="/login" className="hl-btn" style={{ textDecoration: 'none' }}>
+                go to sign in →
               </Link>
             </div>
           ) : (
+            /* Main form */
             <>
-              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
-                reset password
-              </div>
               <h1
-                className="loom-h2"
+                className="hl-serif hl-tight"
                 style={{
-                  fontSize: 'clamp(36px, 5vw, 56px)',
-                  fontStyle: 'italic',
+                  fontSize: 36,
                   fontWeight: 300,
-                  margin: '0 0 16px',
+                  margin: '0 0 28px',
+                  color: 'var(--parchment-ink)',
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.018em',
                 }}
               >
-                Choose a new password.
+                New password.
               </h1>
-              <p
-                className="loom-body"
-                style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.7, margin: '0 0 40px' }}
-              >
-                Enter your new password below.
-              </p>
 
-              <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 28 }}>
-                <div>
-                  <div
+              <form onSubmit={handleSubmit} style={{ display: 'grid' }}>
+                {/* Password input */}
+                <div style={{ marginBottom: 18 }}>
+                  <label
+                    htmlFor="rp-password"
+                    className="hl-mono"
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'baseline',
-                      marginBottom: 8,
+                      display: 'block',
+                      marginBottom: 6,
+                      fontSize: 10,
+                      letterSpacing: '0.32em',
+                      textTransform: 'uppercase',
+                      color: 'var(--parchment-faint)',
                     }}
                   >
-                    <label htmlFor="rp-password" className="loom-eyebrow" style={{ fontSize: 10 }}>
-                      new password
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="loom-mono"
+                    new password
+                  </label>
+                  <div style={{ borderBottom: '1px solid var(--parchment-ink)', paddingBottom: 6 }}>
+                    <input
+                      id="rp-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
                       style={{
+                        width: '100%',
                         background: 'transparent',
                         border: 0,
-                        cursor: 'pointer',
-                        fontSize: 9,
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        color: 'var(--loom-bone-faint)',
-                        padding: 0,
+                        outline: 'none',
+                        fontFamily: 'var(--serif)',
+                        fontSize: 17,
+                        color: 'var(--parchment-ink)',
+                        padding: '6px 0',
                       }}
-                    >
-                      {showPassword ? 'hide' : 'show'}
-                    </button>
+                    />
                   </div>
-                  <input
-                    id="rp-password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                  />
                   <p
-                    className="loom-mono"
-                    style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em' }}
+                    className="hl-mono"
+                    style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.06em' }}
                   >
                     at least 8 characters
                   </p>
                 </div>
 
-                <div>
-                  <div
+                {/* Confirm input */}
+                <div style={{ marginBottom: 24 }}>
+                  <label
+                    htmlFor="rp-confirm"
+                    className="hl-mono"
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'baseline',
-                      marginBottom: 8,
+                      display: 'block',
+                      marginBottom: 6,
+                      fontSize: 10,
+                      letterSpacing: '0.32em',
+                      textTransform: 'uppercase',
+                      color: 'var(--parchment-faint)',
                     }}
                   >
-                    <label htmlFor="rp-confirm" className="loom-eyebrow" style={{ fontSize: 10 }}>
-                      confirm password
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="loom-mono"
+                    confirm password
+                  </label>
+                  <div style={{ borderBottom: '1px solid var(--parchment-ink)', paddingBottom: 6 }}>
+                    <input
+                      id="rp-confirm"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      autoComplete="new-password"
                       style={{
+                        width: '100%',
                         background: 'transparent',
                         border: 0,
-                        cursor: 'pointer',
-                        fontSize: 9,
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        color: 'var(--loom-bone-faint)',
-                        padding: 0,
+                        outline: 'none',
+                        fontFamily: 'var(--serif)',
+                        fontSize: 17,
+                        color: 'var(--parchment-ink)',
+                        padding: '6px 0',
                       }}
-                    >
-                      {showConfirmPassword ? 'hide' : 'show'}
-                    </button>
+                    />
                   </div>
-                  <input
-                    id="rp-confirm"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                  />
                 </div>
 
+                {/* Error */}
                 {error ? (
                   <p
                     role="alert"
-                    className="loom-body"
-                    style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}
+                    className="hl-mono"
+                    style={{ fontSize: 10, color: 'var(--warm)', margin: '0 0 16px', letterSpacing: '0.06em' }}
                   >
                     {error}
                   </p>
                 ) : null}
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                {/* Submit */}
+                <div>
                   <button
                     type="submit"
                     disabled={isLoading || !password.trim() || !confirmPassword.trim()}
-                    className="loom-btn"
+                    className="hl-btn"
                     style={{ opacity: isLoading || !password.trim() || !confirmPassword.trim() ? 0.5 : 1 }}
                   >
-                    {isLoading ? 'resetting…' : 'reset password'}
+                    {isLoading ? 'setting…' : 'Set password →'}
                   </button>
                 </div>
               </form>
 
-              <div style={{ marginTop: 40 }}>
+              <div style={{ marginTop: 40, paddingTop: 22, borderTop: '1px solid var(--parchment-rule)' }}>
                 <Link
                   to="/login"
-                  className="loom-mono"
+                  className="hl-mono"
                   style={{
-                    fontSize: 10,
+                    fontSize: 10.5,
                     letterSpacing: '0.18em',
                     textTransform: 'uppercase',
-                    color: 'var(--loom-bone-faint)',
+                    color: 'var(--parchment-faint)',
                     textDecoration: 'none',
                   }}
                 >
@@ -289,19 +275,6 @@ export function ResetPassword() {
             </>
           )}
 
-          <div
-            className="loom-mono"
-            style={{
-              marginTop: 64,
-              fontSize: 10,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
-              textAlign: 'center',
-            }}
-          >
-            ∞ &nbsp; encrypted in browser · since 2026
-          </div>
         </div>
       </main>
     </div>

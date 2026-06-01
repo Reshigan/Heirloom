@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AppFrame } from '../loom/components/AppFrame';
-import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
+import { Frame } from '../loom/components/Frame';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 // Quick Create wizard templates
@@ -30,7 +29,7 @@ const QUICK_TEMPLATES = [
   {
     id: 'milestone-birthday',
     title: 'Milestone Birthday',
-    description: 'For a special birthday (18, 21, 30...)',
+    description: 'For a special birthday (18, 21, 30…)',
     eventType: 'BIRTHDAY',
     suggestedTitle: 'Happy Milestone Birthday!',
   },
@@ -98,10 +97,10 @@ const STATUS_CONFIG: Record<string, { label: string }> = {
 const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--loom-rule)',
+  border: '1px solid var(--rule)',
   borderRadius: 2,
-  color: 'var(--loom-bone)',
-  caretColor: 'var(--loom-warm)',
+  color: 'var(--bone)',
+  caretColor: 'var(--warm)',
   fontFamily: "'Source Serif 4', serif",
   fontSize: 15,
   lineHeight: 1.7,
@@ -113,12 +112,12 @@ const fieldStyle: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontFamily: "'Inter', sans-serif",
-  fontSize: 11,
+  fontFamily: "'JetBrains Mono', monospace",
+  fontSize: 10,
   fontWeight: 500,
   letterSpacing: '0.22em',
   textTransform: 'uppercase',
-  color: 'var(--loom-bone-faint)',
+  color: 'var(--bone-faint)',
   marginBottom: 10,
 };
 
@@ -129,8 +128,6 @@ export function LifeEvents() {
 
   const [wizardStep, setWizardStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof QUICK_TEMPLATES[0] | null>(null);
-
-  const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('life-events');
 
   const [eventType, setEventType] = useState('GRADUATION');
   const [eventName, setEventName] = useState('');
@@ -302,143 +299,182 @@ export function LifeEvents() {
 
   if (isLoading) {
     return (
-      <AppFrame>
-        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
-          Loading…
-        </p>
-      </AppFrame>
+      <Frame left="life events">
+        <div style={{ padding: '80px 48px' }}>
+          <div
+            style={{
+              height: 1,
+              background: 'var(--warm)',
+              width: 0,
+              animation: 'hl-load 1400ms cubic-bezier(0.16,1,0.3,1) forwards',
+            }}
+          />
+        </div>
+      </Frame>
     );
   }
 
   return (
-    <AppFrame>
-      <header style={{ marginBottom: 40, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
-        <div>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Life events</p>
-          <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-          >
-            Words timed to moments.
-          </h1>
-          <p
-            className="loom-body"
-            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
-          >
-            Prepare messages for the moments in a life that matter most — graduation, marriage, a first child.
-            They arrive when the moment does.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="loom-btn"
-          style={{ flexShrink: 0, marginTop: 8 }}
-        >
-          create trigger
-        </button>
-      </header>
+    <Frame left="life events">
+      <div style={{ padding: '48px 48px 80px', maxWidth: 860, margin: '0 auto' }}>
 
-      {/* Triggers list */}
-      {triggers?.triggers && triggers.triggers.length > 0 ? (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {triggers.triggers.map((trigger) => {
-            const statusConfig = STATUS_CONFIG[trigger.status] || STATUS_CONFIG.PENDING;
-            return (
-              <li
-                key={trigger.id}
-                style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}
-              >
-                <article style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'start' }}>
+        {/* Page header */}
+        <header style={{ marginBottom: 48, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
+          <div>
+            <h1
+              className="hl-serif"
+              style={{ fontSize: 36, fontWeight: 300, margin: '0 0 28px', lineHeight: 1.2 }}
+            >
+              The moments that shaped the cloth.
+            </h1>
+          </div>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="hl-btn"
+            style={{ flexShrink: 0 }}
+          >
+            add event
+          </button>
+        </header>
+
+        {/* Timeline list */}
+        {triggers?.triggers && triggers.triggers.length > 0 ? (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {triggers.triggers.map((trigger) => {
+              const statusConfig = STATUS_CONFIG[trigger.status] || STATUS_CONFIG.PENDING;
+              const dateStr = trigger.scheduled_date
+                ? new Date(trigger.scheduled_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                : trigger.created_at
+                  ? new Date(trigger.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                  : '—';
+              return (
+                <li
+                  key={trigger.id}
+                  style={{
+                    padding: '22px 0',
+                    borderBottom: '1px solid var(--rule)',
+                    display: 'grid',
+                    gridTemplateColumns: '120px 1fr auto',
+                    gap: 24,
+                    alignItems: 'start',
+                  }}
+                >
+                  {/* Date column */}
+                  <span
+                    className="hl-mono"
+                    style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.06em', paddingTop: 3 }}
+                  >
+                    {dateStr}
+                  </span>
+
+                  {/* Event content column */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 8 }}>
-                      <h3
-                        className="loom-serif"
-                        style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: 0 }}
-                      >
-                        {trigger.event_name}
-                      </h3>
-                      <span
-                        className="loom-mono"
-                        style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
-                      >
-                        {statusConfig.label}
-                      </span>
-                    </div>
+                    <p
+                      className="hl-serif"
+                      style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}
+                    >
+                      {trigger.event_name}
+                    </p>
                     {trigger.event_description && (
-                      <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 8px', lineHeight: 1.6 }}>
+                      <p
+                        className="hl-serif"
+                        style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 6px', lineHeight: 1.6 }}
+                      >
                         {trigger.event_description}
                       </p>
                     )}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
-                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
-                        {trigger.recipient_name || trigger.family_member_name || 'No recipient'}
-                      </span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 4 }}>
+                      {(trigger.recipient_name || trigger.family_member_name) && (
+                        <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
+                          {trigger.recipient_name || trigger.family_member_name}
+                        </span>
+                      )}
                       {trigger.recipient_email && (
-                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                        <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
                           {trigger.recipient_email}
                         </span>
                       )}
-                      {trigger.scheduled_date && (
-                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
-                          {new Date(trigger.scheduled_date).toLocaleDateString()}
-                        </span>
-                      )}
-                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                      <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
                         {JSON.parse(trigger.content_items || '[]').length} items attached
                       </span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                    {trigger.status === 'PENDING' && (
-                      <>
-                        <button
-                          onClick={() => triggerMutation.mutate(trigger.id)}
-                          disabled={triggerMutation.isPending}
-                          className="loom-btn"
-                          style={{ padding: '8px 16px', fontSize: 11 }}
-                        >
-                          deliver now
-                        </button>
-                        <button
-                          onClick={() => cancelMutation.mutate(trigger.id)}
-                          className="loom-btn-ghost"
-                          style={{ padding: '8px 16px', fontSize: 11 }}
-                        >
-                          cancel
-                        </button>
-                      </>
-                    )}
-                    <button
-                      onClick={() => deleteMutation.mutate(trigger.id)}
-                      style={{ background: 'none', border: 0, padding: '8px 4px', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.06em', color: 'var(--loom-bone-faint)', transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
-                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
+
+                  {/* Category / status + actions column */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
+                    <span
+                      className="hl-mono"
+                      style={{ fontSize: 9.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-low)' }}
                     >
-                      remove
-                    </button>
+                      {statusConfig.label}
+                    </span>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      {trigger.status === 'PENDING' && (
+                        <>
+                          <button
+                            onClick={() => triggerMutation.mutate(trigger.id)}
+                            disabled={triggerMutation.isPending}
+                            className="hl-btn"
+                            style={{ padding: '6px 14px', fontSize: 10 }}
+                          >
+                            deliver now
+                          </button>
+                          <button
+                            onClick={() => cancelMutation.mutate(trigger.id)}
+                            style={{
+                              background: 'none',
+                              border: '1px solid var(--rule)',
+                              borderRadius: 0,
+                              padding: '6px 14px',
+                              cursor: 'pointer',
+                              fontFamily: "'JetBrains Mono', monospace",
+                              fontSize: 10,
+                              letterSpacing: '0.06em',
+                              color: 'var(--bone-faint)',
+                              transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--warm)')}
+                            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
+                          >
+                            cancel
+                          </button>
+                        </>
+                      )}
+                      <button
+                        onClick={() => deleteMutation.mutate(trigger.id)}
+                        style={{
+                          background: 'none',
+                          border: 0,
+                          padding: '6px 4px',
+                          cursor: 'pointer',
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: 10,
+                          letterSpacing: '0.06em',
+                          color: 'var(--bone-faint)',
+                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+                      >
+                        remove
+                      </button>
+                    </div>
                   </div>
-                </article>
-              </li>
-            );
-          })}
-        </ul>
-      ) : (
-        <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', textAlign: 'center' }}>
-          <p className="loom-mono" style={{ fontSize: 22, color: 'var(--loom-warm)', marginBottom: 14 }}>∞</p>
-          <h3
-            className="loom-serif"
-            style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 10px' }}
-          >
-            No triggers yet.
-          </h3>
-          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', margin: '0 0 24px' }}>
-            Create one for the moments still to come.
-          </p>
-          <button onClick={() => setShowCreate(true)} className="loom-btn">
-            create your first trigger
-          </button>
-        </div>
-      )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div style={{ padding: '60px 36px', border: '1px solid var(--rule)', textAlign: 'center' }}>
+            <p
+              className="hl-serif hl-italic"
+              style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone-faint)', margin: 0 }}
+            >
+              No life events yet.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Create wizard overlay */}
       {showCreate && (
@@ -453,8 +489,8 @@ export function LifeEvents() {
         >
           <div
             style={{
-              background: 'var(--loom-ink-card)',
-              border: '1px solid var(--loom-rule)',
+              background: '#0e0e0c',
+              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 560,
               width: '100%',
@@ -468,26 +504,32 @@ export function LifeEvents() {
                 {wizardStep > 1 && (
                   <button
                     onClick={() => setWizardStep(wizardStep - 1)}
-                    style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--loom-bone-faint)' }}
+                    style={{
+                      background: 'none', border: 0, padding: 0, cursor: 'pointer',
+                      fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--bone-faint)',
+                    }}
                     aria-label="Back"
                   >
                     ←
                   </button>
                 )}
                 <div>
-                  <h3 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 2px' }}>
+                  <h3 className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone)', margin: '0 0 2px' }}>
                     {wizardStep === 1 && 'Choose a moment.'}
                     {wizardStep === 2 && 'Who is this for?'}
                     {wizardStep === 3 && 'Review and create.'}
                   </h3>
-                  <p className="loom-mono" style={{ margin: 0, fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em' }}>
+                  <p className="hl-mono" style={{ margin: 0, fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
                     step {wizardStep} of 3
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => resetForm()}
-                style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: 'var(--loom-bone-faint)' }}
+                style={{
+                  background: 'none', border: 0, padding: 0, cursor: 'pointer',
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: 'var(--bone-faint)',
+                }}
                 aria-label="Close"
               >
                 ✕
@@ -503,7 +545,7 @@ export function LifeEvents() {
                     onClick={() => handleTemplateSelect(template)}
                     style={{
                       background: 'transparent',
-                      border: '1px solid var(--loom-rule)',
+                      border: '1px solid var(--rule)',
                       borderRadius: 0,
                       padding: '16px 18px',
                       cursor: 'pointer',
@@ -514,24 +556,28 @@ export function LifeEvents() {
                       gap: 16,
                       transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--loom-warm)')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--loom-rule)')}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--warm)')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
                   >
                     <div>
-                      <p className="loom-serif" style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 300, color: 'var(--loom-bone)' }}>
+                      <p className="hl-serif" style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 300, color: 'var(--bone)' }}>
                         {template.title}
                       </p>
-                      <p className="loom-body" style={{ margin: 0, fontSize: 13, color: 'var(--loom-bone-faint)' }}>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--bone-faint)', fontFamily: "'Source Serif 4', serif" }}>
                         {template.description}
                       </p>
                     </div>
-                    <span className="loom-mono" style={{ fontSize: 12, color: 'var(--loom-bone-faint)' }}>→</span>
+                    <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-faint)' }}>→</span>
                   </button>
                 ))}
-                <div style={{ paddingTop: 16, borderTop: '1px solid var(--loom-rule)' }}>
+                <div style={{ paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
                   <button
                     onClick={() => { setWizardStep(2); setSelectedTemplate(null); }}
-                    style={{ background: 'none', border: 0, padding: '8px 0', cursor: 'pointer', width: '100%', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textAlign: 'center' }}
+                    style={{
+                      background: 'none', border: 0, padding: '8px 0', cursor: 'pointer', width: '100%',
+                      fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em',
+                      textTransform: 'uppercase', color: 'var(--bone-faint)', textAlign: 'center',
+                    }}
                   >
                     or create a custom event
                   </button>
@@ -544,7 +590,7 @@ export function LifeEvents() {
               <div style={{ display: 'grid', gap: 12 }}>
                 {family.length > 0 ? (
                   <>
-                    <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 8px' }}>
+                    <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 8px' }}>
                       Select a family member:
                     </p>
                     {family.map((member) => (
@@ -553,7 +599,7 @@ export function LifeEvents() {
                         onClick={() => handleRecipientSelect(member)}
                         style={{
                           background: 'transparent',
-                          border: `1px solid ${familyMemberId === member.id ? 'var(--loom-warm)' : 'var(--loom-rule)'}`,
+                          border: `1px solid ${familyMemberId === member.id ? 'var(--warm)' : 'var(--rule)'}`,
                           borderRadius: 0,
                           padding: '14px 18px',
                           cursor: 'pointer',
@@ -565,30 +611,30 @@ export function LifeEvents() {
                         }}
                       >
                         <div>
-                          <p className="loom-serif" style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 300, color: familyMemberId === member.id ? 'var(--loom-warm)' : 'var(--loom-bone)' }}>
+                          <p className="hl-serif" style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 300, color: familyMemberId === member.id ? 'var(--warm)' : 'var(--bone)' }}>
                             {member.name}
                           </p>
-                          <p className="loom-mono" style={{ margin: 0, fontSize: 10, color: 'var(--loom-bone-faint)' }}>{member.relationship}</p>
+                          <p className="hl-mono" style={{ margin: 0, fontSize: 10, color: 'var(--bone-faint)' }}>{member.relationship}</p>
                         </div>
-                        <span className="loom-mono" style={{ fontSize: 12, color: 'var(--loom-bone-faint)' }}>→</span>
+                        <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-faint)' }}>→</span>
                       </button>
                     ))}
                   </>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                    <p className="loom-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 8px' }}>
+                    <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 8px' }}>
                       No family members yet.
                     </p>
-                    <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: '0 0 16px' }}>
+                    <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-faint)', margin: '0 0 16px' }}>
                       Add family members first, or enter a recipient manually below.
                     </p>
-                    <a href="/family" className="loom-btn" style={{ textDecoration: 'none' }}>
+                    <a href="/family" className="hl-btn" style={{ textDecoration: 'none' }}>
                       add family members
                     </a>
                   </div>
                 )}
-                <div style={{ paddingTop: 16, borderTop: '1px solid var(--loom-rule)' }}>
-                  <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', margin: '0 0 10px' }}>Or enter manually:</p>
+                <div style={{ paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
+                  <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', margin: '0 0 10px', letterSpacing: '0.08em' }}>Or enter manually:</p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <input
                       type="text"
@@ -608,7 +654,7 @@ export function LifeEvents() {
                   {recipientName && (
                     <button
                       onClick={() => setWizardStep(3)}
-                      className="loom-btn"
+                      className="hl-btn"
                       style={{ width: '100%', marginTop: 12 }}
                     >
                       continue
@@ -621,10 +667,10 @@ export function LifeEvents() {
             {/* Step 3: Review & create */}
             {wizardStep === 3 && (
               <div style={{ display: 'grid', gap: 20 }}>
-                <div style={{ borderLeft: '2px solid var(--loom-warm)', paddingLeft: 14 }}>
-                  <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0 }}>
+                <div style={{ borderLeft: '2px solid var(--warm)', paddingLeft: 14 }}>
+                  <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: 0 }}>
                     {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom event'} for{' '}
-                    <span style={{ color: 'var(--loom-bone)' }}>{recipientName}</span>
+                    <span style={{ color: 'var(--bone)' }}>{recipientName}</span>
                   </p>
                 </div>
 
@@ -661,13 +707,19 @@ export function LifeEvents() {
                       {selectedContent.map((item) => (
                         <li
                           key={`${item.type}-${item.id}`}
-                          style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '8px 10px', border: '1px solid var(--loom-rule)' }}
+                          style={{
+                            display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+                            padding: '8px 10px', border: '1px solid var(--rule)',
+                          }}
                         >
-                          <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>{item.title}</span>
+                          <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)' }}>{item.title}</span>
                           <button
                             onClick={() => removeContent(item.type, item.id)}
                             aria-label="Remove"
-                            style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--loom-bone-faint)' }}
+                            style={{
+                              background: 'none', border: 0, padding: 0, cursor: 'pointer',
+                              fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--bone-faint)',
+                            }}
                           >
                             ✕
                           </button>
@@ -676,7 +728,11 @@ export function LifeEvents() {
                     </ul>
                     <button
                       onClick={() => setShowContentPicker(true)}
-                      style={{ background: 'none', border: 0, padding: '8px 0 0', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
+                      style={{
+                        background: 'none', border: 0, padding: '8px 0 0', cursor: 'pointer',
+                        fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em',
+                        textTransform: 'uppercase', color: 'var(--warm)',
+                      }}
                     >
                       + add more
                     </button>
@@ -688,7 +744,7 @@ export function LifeEvents() {
                     onClick={() => setShowContentPicker(true)}
                     style={{
                       background: 'transparent',
-                      border: '1px dashed var(--loom-rule)',
+                      border: '1px dashed var(--rule)',
                       borderRadius: 0,
                       padding: '14px',
                       cursor: 'pointer',
@@ -697,7 +753,7 @@ export function LifeEvents() {
                       fontSize: 10,
                       letterSpacing: '0.14em',
                       textTransform: 'uppercase',
-                      color: 'var(--loom-bone-faint)',
+                      color: 'var(--bone-faint)',
                     }}
                   >
                     attach memories, letters, or voice recordings
@@ -707,7 +763,7 @@ export function LifeEvents() {
                 <button
                   onClick={handleQuickCreate}
                   disabled={!eventName.trim() || createMutation.isPending}
-                  className="loom-btn"
+                  className="hl-btn"
                   style={{ width: '100%' }}
                 >
                   {createMutation.isPending ? 'creating…' : 'create life event'}
@@ -731,8 +787,8 @@ export function LifeEvents() {
         >
           <div
             style={{
-              background: 'var(--loom-ink-card)',
-              border: '1px solid var(--loom-rule)',
+              background: '#0e0e0c',
+              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 440,
               width: '100%',
@@ -741,11 +797,11 @@ export function LifeEvents() {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <p className="loom-eyebrow" style={{ marginBottom: 20 }}>Add content</p>
+            <p className="hl-eyebrow" style={{ marginBottom: 20 }}>Add content</p>
 
             {memories.length > 0 && (
               <div style={{ marginBottom: 20 }}>
-                <p className="loom-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
+                <p className="hl-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
                   Memories ({memories.length})
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 4, maxHeight: 140, overflowY: 'auto' }}>
@@ -754,7 +810,11 @@ export function LifeEvents() {
                       <button
                         onClick={() => addContent('MEMORY', m.id, m.title)}
                         disabled={selectedContent.some(c => c.id === m.id)}
-                        style={{ background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone-dim)', opacity: selectedContent.some(c => c.id === m.id) ? 0.4 : 1 }}
+                        style={{
+                          background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%',
+                          textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14,
+                          color: 'var(--bone-dim)', opacity: selectedContent.some(c => c.id === m.id) ? 0.4 : 1,
+                        }}
                       >
                         {m.title}
                       </button>
@@ -766,7 +826,7 @@ export function LifeEvents() {
 
             {letters.length > 0 && (
               <div style={{ marginBottom: 20 }}>
-                <p className="loom-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
+                <p className="hl-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
                   Letters ({letters.length})
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 4, maxHeight: 140, overflowY: 'auto' }}>
@@ -775,7 +835,11 @@ export function LifeEvents() {
                       <button
                         onClick={() => addContent('LETTER', l.id, l.title || 'Untitled letter')}
                         disabled={selectedContent.some(c => c.id === l.id)}
-                        style={{ background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone-dim)', opacity: selectedContent.some(c => c.id === l.id) ? 0.4 : 1 }}
+                        style={{
+                          background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%',
+                          textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14,
+                          color: 'var(--bone-dim)', opacity: selectedContent.some(c => c.id === l.id) ? 0.4 : 1,
+                        }}
                       >
                         {l.title || 'Untitled letter'}
                       </button>
@@ -787,7 +851,7 @@ export function LifeEvents() {
 
             {voiceRecordings.length > 0 && (
               <div style={{ marginBottom: 20 }}>
-                <p className="loom-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
+                <p className="hl-eyebrow" style={{ marginBottom: 10, fontSize: 9 }}>
                   Voice ({voiceRecordings.length})
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 4, maxHeight: 140, overflowY: 'auto' }}>
@@ -796,7 +860,11 @@ export function LifeEvents() {
                       <button
                         onClick={() => addContent('VOICE', v.id, v.title)}
                         disabled={selectedContent.some(c => c.id === v.id)}
-                        style={{ background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14, color: 'var(--loom-bone-dim)', opacity: selectedContent.some(c => c.id === v.id) ? 0.4 : 1 }}
+                        style={{
+                          background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%',
+                          textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14,
+                          color: 'var(--bone-dim)', opacity: selectedContent.some(c => c.id === v.id) ? 0.4 : 1,
+                        }}
                       >
                         {v.title}
                       </button>
@@ -808,7 +876,7 @@ export function LifeEvents() {
 
             {memories.length === 0 && letters.length === 0 && voiceRecordings.length === 0 && (
               <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: '0 0 16px' }}>
+                <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-faint)', margin: '0 0 16px' }}>
                   No content yet. Add some first:
                 </p>
                 <div style={{ display: 'grid', gap: 8 }}>
@@ -825,13 +893,13 @@ export function LifeEvents() {
                       style={{
                         display: 'block',
                         padding: '12px 14px',
-                        border: '1px solid var(--loom-rule)',
+                        border: '1px solid var(--rule)',
                         textDecoration: 'none',
                         fontFamily: "'JetBrains Mono', monospace",
                         fontSize: 10,
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
-                        color: 'var(--loom-bone-dim)',
+                        color: 'var(--bone-dim)',
                       }}
                     >
                       {label} →
@@ -841,21 +909,13 @@ export function LifeEvents() {
               </div>
             )}
 
-            <button onClick={() => setShowContentPicker(false)} className="loom-btn" style={{ width: '100%', marginTop: 16 }}>
+            <button onClick={() => setShowContentPicker(false)} className="hl-btn" style={{ width: '100%', marginTop: 16 }}>
               done
             </button>
           </div>
         </div>
       )}
-
-      <OnboardingHelpButton onClick={openOnboarding} />
-      <FeatureOnboarding
-        featureKey="life-events"
-        isOpen={isOnboardingOpen}
-        onComplete={completeOnboarding}
-        onDismiss={dismissOnboarding}
-      />
-    </AppFrame>
+    </Frame>
   );
 }
 

@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
+import { HLogo } from '../loom/components/HLogo';
 
+// ── Types ─────────────────────────────────────────────────────────────────────
 interface VoucherInfo {
   code: string;
   tier: string;
@@ -14,14 +16,51 @@ interface VoucherInfo {
   expiresAt: string;
 }
 
-const FEATURES = [
-  'preserve threads with photographs, recordings & stories',
-  'voice messages for those you love',
-  'letters for future delivery',
-  'posthumous delivery',
-  'zero-knowledge encryption',
-];
+// ── MktBar ────────────────────────────────────────────────────────────────────
+function MktBar() {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '24px 56px',
+        borderBottom: '1px solid var(--parchment-rule)',
+      }}
+    >
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
+      </Link>
+      <nav
+        style={{
+          display: 'flex',
+          gap: 32,
+          fontFamily: 'var(--mono)',
+          fontSize: 10.5,
+          letterSpacing: '0.32em',
+          textTransform: 'uppercase',
+          color: 'var(--parchment-dim)',
+        }}
+      >
+        {[
+          { to: '/',      label: 'home'    },
+          { to: '/gift',  label: 'gift'    },
+          { to: '/login', label: 'sign in' },
+        ].map(({ to, label }) => (
+          <Link
+            key={to}
+            to={to}
+            style={{ color: 'inherit', textDecoration: 'none' }}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+    </div>
+  );
+}
 
+// ── GiftRedeem ────────────────────────────────────────────────────────────────
 export function GiftRedeem() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -49,14 +88,16 @@ export function GiftRedeem() {
     setError(null);
     setVoucherInfo(null);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/validate/${voucherCode.toUpperCase()}`);
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/validate/${voucherCode.toUpperCase()}`
+      );
       const data = await res.json();
       if (data.valid) {
         setVoucherInfo(data.voucher);
       } else {
         setError(data.error || 'Invalid voucher code.');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to validate voucher code.');
     } finally {
       setIsValidating(false);
@@ -72,14 +113,17 @@ export function GiftRedeem() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/redeem`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ code: code.toUpperCase() }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/redeem`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ code: code.toUpperCase() }),
+        }
+      );
       const data = await res.json();
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ['subscription'] });
@@ -88,219 +132,308 @@ export function GiftRedeem() {
       } else {
         setError(data.error || 'Failed to redeem voucher.');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to redeem voucher.');
     } finally {
       setIsRedeeming(false);
     }
   };
 
-  const formatTier = (tier: string) => tier.charAt(0) + tier.slice(1).toLowerCase();
-
-  const wrapStyle: React.CSSProperties = {
-    minHeight: '100vh',
-    background: 'var(--loom-ink)',
-    color: 'var(--loom-bone)',
-    padding: '48px 24px 96px',
-  };
+  const formatTier = (tier: string) =>
+    tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase();
 
   return (
-    <div style={wrapStyle}>
-      <div style={{ maxWidth: 480, margin: '0 auto' }}>
+    <div className="hl-screen parchment" style={{ position: 'absolute', inset: 0, overflowY: 'auto' }}>
+      <MktBar />
 
-        {/* Back */}
-        <div style={{ marginBottom: 48 }}>
-          <Link
-            to="/"
-            className="loom-mono"
-            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
-          >
-            heirloom
-          </Link>
-        </div>
+      {/* centered content area */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 'calc(100% - 73px)',
+          padding: '48px 24px 80px',
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 440, width: '100%' }}>
 
-        {/* Header */}
-        <header style={{ marginBottom: 48 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>redeem your gift</p>
-          <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
-          >
-            Begin your thread.
-          </h1>
-          <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 15, margin: 0, lineHeight: 1.7 }}>
-            enter your gift code to activate your place on the family thread.
-          </p>
-        </header>
+          {redeemSuccess ? (
+            // ── Success state ──────────────────────────────────────────────
+            <div role="status">
+              <p
+                className="hl-eyebrow dark"
+                style={{ marginBottom: 20, textAlign: 'center' }}
+              >
+                activated
+              </p>
+              <h1
+                className="hl-serif hl-tight"
+                style={{
+                  fontSize: 48,
+                  fontWeight: 300,
+                  fontStyle: 'italic',
+                  color: 'var(--parchment-ink)',
+                  margin: '0 0 20px',
+                  lineHeight: 1.06,
+                }}
+              >
+                Your thread is live.
+              </h1>
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 15,
+                  color: 'var(--parchment-dim)',
+                  margin: '0 0 40px',
+                  lineHeight: 1.7,
+                  fontWeight: 300,
+                }}
+              >
+                Your {formatTier(voucherInfo?.tier || '')} thread is now active.
+                {voucherInfo?.durationMonths
+                  ? ` ${voucherInfo.durationMonths} month${voucherInfo.durationMonths > 1 ? 's' : ''} to fill it.`
+                  : ''}
+              </p>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="hl-btn"
+                style={{ cursor: 'pointer' }}
+              >
+                open the thread
+              </button>
+            </div>
+          ) : (
+            // ── Redeem form ────────────────────────────────────────────────
+            <>
+              <h1
+                className="hl-serif hl-tight"
+                style={{
+                  fontSize: 48,
+                  fontWeight: 300,
+                  color: 'var(--parchment-ink)',
+                  margin: '0 0 28px',
+                  lineHeight: 1.06,
+                }}
+              >
+                Your gift is here.
+              </h1>
 
-        <hr className="loom-hairline" style={{ marginBottom: 40 }} />
+              {/* Code input */}
+              <input
+                type="text"
+                value={code}
+                onChange={(e) => {
+                  setCode(e.target.value.toUpperCase());
+                  setError(null);
+                  setVoucherInfo(null);
+                }}
+                onBlur={() => validateCode(code)}
+                placeholder="HRLM-XXXX-XXXX-XXXX"
+                className="hl-mono"
+                style={{
+                  fontSize: 24,
+                  letterSpacing: '0.16em',
+                  textAlign: 'center',
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: '1px solid var(--parchment-rule)',
+                  outline: 'none',
+                  padding: '8px 0',
+                  marginBottom: 24,
+                  color: 'var(--parchment-ink)',
+                  fontFamily: 'var(--mono)',
+                }}
+                autoComplete="off"
+                spellCheck={false}
+              />
 
-        {/* Success */}
-        {redeemSuccess ? (
-          <div style={{ textAlign: 'center', paddingTop: 16 }} role="status">
-            <p className="loom-eyebrow" style={{ marginBottom: 20 }}>activated</p>
-            <h2
-              className="loom-h2"
-              style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
-            >
-              Your thread is live.
-            </h2>
-            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 15, margin: '0 0 40px', lineHeight: 1.7 }}>
-              Your {formatTier(voucherInfo?.tier || '')} thread is now active.
-              {voucherInfo?.durationMonths
-                ? ` ${voucherInfo.durationMonths} month${voucherInfo.durationMonths > 1 ? 's' : ''} to fill it.`
-                : ''}
-            </p>
-            <button onClick={() => navigate('/dashboard')} className="loom-btn">
-              open the thread
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* Code Input */}
-            <div style={{ marginBottom: 28 }}>
-              <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
-                voucher code
-              </label>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <input
-                  type="text"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder="HRLM-XXXX-XXXX-XXXX"
-                  className="loom-mono"
-                  style={{ flex: 1, fontSize: 16, letterSpacing: '0.08em' }}
-                />
+              {/* Error */}
+              {error && (
+                <p
+                  role="alert"
+                  className="hl-mono"
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: '0.08em',
+                    color: 'var(--warm)',
+                    margin: '0 0 20px',
+                    textAlign: 'center',
+                  }}
+                >
+                  {error}
+                </p>
+              )}
+
+              {/* Voucher detail */}
+              {voucherInfo && (
+                <div
+                  style={{
+                    textAlign: 'left',
+                    borderTop: '1px solid var(--parchment-rule)',
+                    paddingTop: 28,
+                    marginBottom: 28,
+                  }}
+                >
+                  <p
+                    className="hl-eyebrow dark"
+                    style={{ marginBottom: 16, color: 'var(--warm)' }}
+                  >
+                    valid gift
+                  </p>
+
+                  {voucherInfo.fromName && (
+                    <p
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontSize: 15,
+                        color: 'var(--parchment-dim)',
+                        marginBottom: 16,
+                        fontWeight: 300,
+                      }}
+                    >
+                      from{' '}
+                      <span style={{ color: 'var(--parchment-ink)' }}>
+                        {voucherInfo.fromName}
+                      </span>
+                    </p>
+                  )}
+
+                  {voucherInfo.recipientMessage && (
+                    <div
+                      style={{
+                        borderLeft: '1px solid var(--warm)',
+                        paddingLeft: 16,
+                        marginBottom: 24,
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontFamily: 'var(--serif)',
+                          fontStyle: 'italic',
+                          color: 'var(--parchment-dim)',
+                          fontSize: 14,
+                          lineHeight: 1.7,
+                          margin: 0,
+                          fontWeight: 300,
+                        }}
+                      >
+                        &ldquo;{voucherInfo.recipientMessage}&rdquo;
+                      </p>
+                    </div>
+                  )}
+
+                  <div style={{ marginBottom: 28 }}>
+                    {[
+                      { label: 'plan',     value: formatTier(voucherInfo.tier) },
+                      { label: 'duration', value: `${voucherInfo.durationMonths} month${voucherInfo.durationMonths > 1 ? 's' : ''}` },
+                      { label: 'expires',  value: new Date(voucherInfo.expiresAt).toLocaleDateString() },
+                    ].map(({ label, value }) => (
+                      <div
+                        key={label}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          padding: '10px 0',
+                          borderBottom: '1px solid var(--parchment-rule)',
+                        }}
+                      >
+                        <span
+                          className="hl-mono"
+                          style={{
+                            fontSize: 10,
+                            letterSpacing: '0.14em',
+                            textTransform: 'uppercase',
+                            color: 'var(--parchment-faint)',
+                          }}
+                        >
+                          {label}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: 'var(--serif)',
+                            fontSize: 14,
+                            color: 'var(--parchment-dim)',
+                            fontWeight: 300,
+                          }}
+                        >
+                          {value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {isAuthenticated ? (
+                    <button
+                      onClick={handleRedeem}
+                      disabled={isRedeeming}
+                      className="hl-btn"
+                      style={{
+                        width: '100%',
+                        opacity: isRedeeming ? 0.5 : 1,
+                        cursor: isRedeeming ? 'default' : 'pointer',
+                      }}
+                    >
+                      {isRedeeming ? 'activating…' : 'Redeem →'}
+                    </button>
+                  ) : (
+                    <div>
+                      <p
+                        style={{
+                          textAlign: 'center',
+                          fontFamily: 'var(--mono)',
+                          fontSize: 10,
+                          letterSpacing: '0.08em',
+                          color: 'var(--parchment-faint)',
+                          marginBottom: 16,
+                        }}
+                      >
+                        sign in or create an account to redeem
+                      </p>
+                      <div style={{ display: 'flex', gap: 12 }}>
+                        <Link
+                          to={`/login?redirect=/gift/redeem?code=${code}`}
+                          className="hl-btn ghost"
+                          style={{
+                            flex: 1,
+                            textAlign: 'center',
+                            textDecoration: 'none',
+                            color: 'var(--parchment-ink)',
+                          }}
+                        >
+                          sign in
+                        </Link>
+                        <Link
+                          to={`/signup?redirect=/gift/redeem?code=${code}`}
+                          className="hl-btn"
+                          style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}
+                        >
+                          begin a thread
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Redeem button (pre-validation or after entry) */}
+              {!voucherInfo && (
                 <button
                   onClick={() => validateCode(code)}
                   disabled={isValidating || code.length < 10}
-                  className="loom-btn-ghost"
-                  style={{ opacity: (isValidating || code.length < 10) ? 0.5 : 1 }}
+                  className="hl-btn"
+                  style={{
+                    opacity: isValidating || code.length < 10 ? 0.45 : 1,
+                    cursor: isValidating || code.length < 10 ? 'default' : 'pointer',
+                  }}
                 >
-                  {isValidating ? 'checking…' : 'validate'}
+                  {isValidating ? 'checking…' : 'Redeem →'}
                 </button>
-              </div>
-            </div>
-
-            {/* Error */}
-            {error && (
-              <p
-                role="alert"
-                className="loom-body"
-                style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 13, margin: '0 0 24px' }}
-              >
-                {error}
-              </p>
-            )}
-
-            {/* Voucher Info */}
-            {voucherInfo && (
-              <div style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 32, marginBottom: 32 }}>
-                <p className="loom-eyebrow" style={{ marginBottom: 16, color: 'var(--loom-warm)' }}>
-                  valid gift
-                </p>
-                {voucherInfo.fromName && (
-                  <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', marginBottom: 16 }}>
-                    from <span style={{ color: 'var(--loom-bone)' }}>{voucherInfo.fromName}</span>
-                  </p>
-                )}
-                {voucherInfo.recipientMessage && (
-                  <div
-                    style={{
-                      borderLeft: '1px solid var(--loom-rule-warm)',
-                      paddingLeft: 16,
-                      marginBottom: 24,
-                    }}
-                  >
-                    <p
-                      className="loom-body"
-                      style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)', fontSize: 14, lineHeight: 1.7, margin: 0 }}
-                    >
-                      &ldquo;{voucherInfo.recipientMessage}&rdquo;
-                    </p>
-                  </div>
-                )}
-
-                <div style={{ display: 'grid', gap: 0, marginBottom: 28 }}>
-                  {[
-                    { label: 'plan', value: formatTier(voucherInfo.tier) },
-                    { label: 'duration', value: `${voucherInfo.durationMonths} month${voucherInfo.durationMonths > 1 ? 's' : ''}` },
-                    { label: 'expires', value: new Date(voucherInfo.expiresAt).toLocaleDateString() },
-                  ].map(({ label, value }) => (
-                    <div
-                      key={label}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        padding: '10px 0',
-                        borderBottom: '1px solid var(--loom-rule)',
-                      }}
-                    >
-                      <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}>
-                        {label}
-                      </span>
-                      <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
-                        {value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {isAuthenticated ? (
-                  <button
-                    onClick={handleRedeem}
-                    disabled={isRedeeming}
-                    className="loom-btn"
-                    style={{ width: '100%', opacity: isRedeeming ? 0.5 : 1 }}
-                  >
-                    {isRedeeming ? 'activating…' : 'redeem gift'}
-                  </button>
-                ) : (
-                  <div>
-                    <p className="loom-body" style={{ textAlign: 'center', fontSize: 13, color: 'var(--loom-bone-faint)', marginBottom: 16 }}>
-                      sign in or create an account to redeem
-                    </p>
-                    <div style={{ display: 'flex', gap: 12 }}>
-                      <Link
-                        to={`/login?redirect=/gift/redeem?code=${code}`}
-                        className="loom-btn-ghost"
-                        style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}
-                      >
-                        sign in
-                      </Link>
-                      <Link
-                        to={`/signup?redirect=/gift/redeem?code=${code}`}
-                        className="loom-btn"
-                        style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}
-                      >
-                        begin a thread
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Features (pre-validation) */}
-            {!voucherInfo && (
-              <div style={{ marginTop: 12 }}>
-                <p className="loom-eyebrow" style={{ marginBottom: 16 }}>what you'll receive</p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
-                  {FEATURES.map((f, i) => (
-                    <li
-                      key={i}
-                      className="loom-body"
-                      style={{ display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 14, color: 'var(--loom-bone-dim)' }}
-                    >
-                      <span style={{ color: 'var(--loom-warm)', flexShrink: 0 }}>·</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

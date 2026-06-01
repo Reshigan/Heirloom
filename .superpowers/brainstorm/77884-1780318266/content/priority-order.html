@@ -1,0 +1,80 @@
+<h2>Q2 — Which sections should we build first?</h2>
+<p class="subtitle">Select all that belong in the first pass. We'll plan them together; the rest become future passes.</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;font-family:system-ui,sans-serif">
+
+  <div class="option" data-choice="today-home" onclick="toggleSelect(this)" style="margin:0">
+    <div class="letter">1</div>
+    <div class="content">
+      <h3>Today — new default home</h3>
+      <p>Replaces Tapestry as the landing screen after login. 8pm prompt, family strip, daily hook. Structural change with the most user-facing impact.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="adoption-landing" onclick="toggleSelect(this)" style="margin:0">
+    <div class="letter">2</div>
+    <div class="content">
+      <h3>Adoption — public landing + pricing</h3>
+      <p>New landing with daily hook lead + free tier. New Pricing page (Free / Family / Founder tiers). Drives conversion — public-facing.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="pwa-roles" onclick="toggleSelect(this)" style="margin:0">
+    <div class="letter">3</div>
+    <div class="content">
+      <h3>PWA role-keyed homes (10 variants)</h3>
+      <p>Different home screen per role: Visitor, Trial, Family, Founder, Author, Reader, Successor, FutureMember, Legacy, AdminSupport. Core to the "installable" story.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="auth-settings" onclick="toggleSelect(this)" style="margin:0">
+    <div class="letter">4</div>
+    <div class="content">
+      <h3>Auth / Settings / Legal / Founder</h3>
+      <p>Login · Signup · Settings · Billing · Founder · FounderWelcome · Privacy · Terms — all exist but need the design-system refresh (bone/ink/warm tokens, no icons, 0px radius).</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="product-index" onclick="toggleSelect(this)" style="margin:0">
+    <div class="letter">5</div>
+    <div class="content">
+      <h3>Product index — missing screens</h3>
+      <p>Threads index · Memories mosaic · Q&amp;A (RAG/cited) · Listener spec · MemberProfile. These are new screens not yet in the app.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="loom-core" onclick="toggleSelect(this)" style="margin:0">
+    <div class="letter">6</div>
+    <div class="content">
+      <h3>Core product (loom/) visual refresh</h3>
+      <p>Tapestry home · Composer · Wall/ReadingRoom · Unlock · Inherit — already in loom/ but may need layout/token updates to match the new design canvas.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="shareable-moments" onclick="toggleSelect(this)" style="margin:0">
+    <div class="letter">7</div>
+    <div class="content">
+      <h3>Shareable moments</h3>
+      <p>Heirloom Wrapped · Inheritance Card · Daily Sentence (refresh) · Founders' Wall (refresh). Growth surfaces — high polish, lower urgency.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="admin-console" onclick="toggleSelect(this)" style="margin:0">
+    <div class="letter">8</div>
+    <div class="content">
+      <h3>Admin full console</h3>
+      <p>Tickets · Incidents · Audit tabs added to existing AdminDashboard. Operational tooling — internal only.</p>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:16px;background:#f0f4ff;border:1px solid #c0c8e8;border-radius:6px;padding:12px;font-size:13px;color:#2a3060">
+  <strong>Multi-select:</strong> pick as many as belong in the first pass. We'll spec and plan them together before writing any code.
+</div>
+
+<script>
+// override to allow multi-select here
+document.querySelector('[data-choice]')?.closest('.options') ||
+document.querySelectorAll('[data-choice]').forEach(el => el.parentElement.setAttribute('data-multiselect',''));
+</script>

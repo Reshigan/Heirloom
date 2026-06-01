@@ -1,11 +1,12 @@
-import { useState, type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AppFrame } from '../loom/components/AppFrame';
+import { Frame, TapestryEdge } from '../loom/components/Frame';
 import { threadsApi, type ThreadSummary } from '../services/api';
 
 export function Threads() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
   const [dedication, setDedication] = useState('');
@@ -24,12 +25,15 @@ export function Threads() {
           dedication: dedication.trim() || undefined,
         })
         .then((r) => r.data),
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['threads'] });
       setCreating(false);
       setName('');
       setDedication('');
       setError(null);
+      if (result?.thread?.id) {
+        navigate(`/threads/${result.thread.id}`);
+      }
     },
     onError: (err: { response?: { data?: { error?: string } }; message?: string }) => {
       setError(err?.response?.data?.error ?? err?.message ?? 'Could not create thread.');
@@ -39,296 +43,341 @@ export function Threads() {
   const threads: ThreadSummary[] = data?.threads ?? [];
 
   return (
-    <AppFrame>
-      <header style={{ marginBottom: 40 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-          Family threads · {threads.length} {threads.length === 1 ? 'thread' : 'threads'}
-        </p>
+    <Frame
+      left="threads"
+      right={<Link to="/loom" className="hl-link warm">the loom →</Link>}
+    >
+      {/* scrollable content area */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 80,
+          bottom: 36,
+          left: 56,
+          right: 56,
+          overflowY: 'auto',
+        }}
+      >
         <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+          className="hl-serif hl-tight"
+          style={{
+            fontSize: 44,
+            fontWeight: 300,
+            letterSpacing: '-0.022em',
+            marginBottom: 32,
+            marginTop: 0,
+            color: 'var(--bone)',
+          }}
         >
-          The threads you belong to.
+          The threads you hold.
         </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
-        >
-          Each thread is append-only. Entries you add today can be locked for descendants who don't exist yet.
-          Members across generations can read, comment, and add their own entries — but never alter what came before.
-        </p>
-      </header>
 
-      {isLoading ? (
-        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
-          Loading…
-        </p>
-      ) : (
-        <>
-          {threads.length > 0 ? (
-            <div style={{ marginBottom: 36 }}>
-              {/* column header — typeset mono, hairline-ruled */}
-              <div
+        {isLoading ? (
+          <p
+            className="hl-mono"
+            style={{
+              fontSize: 11,
+              color: 'var(--bone-faint)',
+              textAlign: 'center',
+              letterSpacing: '0.1em',
+              marginTop: 80,
+            }}
+          >
+            loading…
+          </p>
+        ) : (
+          <>
+            {threads.length > 0 ? (
+              <div style={{ marginBottom: 48 }}>
+                {/* column headers */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '2fr 1.4fr 0.9fr 0.7fr 0.6fr',
+                    borderBottom: '1px solid var(--rule)',
+                    paddingBottom: 12,
+                  }}
+                >
+                  {(['thread', 'entries', 'members', 'last entry', ''] as const).map((col) => (
+                    <span
+                      key={col}
+                      className="hl-mono"
+                      style={{
+                        fontSize: 10,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.22em',
+                        color: 'var(--bone-faint)',
+                      }}
+                    >
+                      {col}
+                    </span>
+                  ))}
+                </div>
+
+                {/* data rows */}
+                {threads.map((t) => (
+                  <ThreadRow key={t.id} thread={t} />
+                ))}
+              </div>
+            ) : null}
+
+            {threads.length === 0 && !creating ? (
+              <p
+                className="hl-serif hl-italic"
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 0.9fr 0.7fr 0.6fr 0.6fr',
-                  gap: 24,
-                  padding: '12px 0',
-                  borderBottom: '1px solid var(--loom-rule-warm)',
+                  fontSize: 17,
+                  color: 'var(--bone-dim)',
+                  marginBottom: 48,
                 }}
               >
-                <span className="loom-mono" style={COL_HEAD}>thread</span>
-                <span className="loom-mono" style={COL_HEAD}>founded</span>
-                <span className="loom-mono" style={COL_HEAD}>your role</span>
-                <span className="loom-mono" style={{ ...COL_HEAD, textAlign: 'right' }}>members</span>
-                <span className="loom-mono" style={{ ...COL_HEAD, textAlign: 'right' }}>entries</span>
-              </div>
-              {threads.map((t) => (
-                <ThreadRow key={t.id} thread={t} />
-              ))}
-            </div>
-          ) : null}
-
-          {!creating ? (
-            <button
-              type="button"
-              onClick={() => setCreating(true)}
-              style={{
-                background: 'transparent',
-                border: 0,
-                padding: 0,
-                cursor: 'pointer',
-                marginBottom: 48,
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 11,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                color: 'var(--loom-warm)',
-              }}
-            >
-              + begin a new thread →
-            </button>
-          ) : null}
-
-          {creating ? (
-            <div
-              style={{
-                border: '1px solid var(--loom-rule-warm)',
-                padding: '32px 28px',
-                marginBottom: 48,
-              }}
-            >
-              <p
-                className="loom-mono"
-                style={{ margin: '0 0 24px', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
-              >
-                New thread
+                no threads yet
               </p>
-              <div style={{ display: 'grid', gap: 20, maxWidth: 640 }}>
-                <div>
-                  <label
-                    htmlFor="t-name"
-                    className="loom-eyebrow"
-                    style={{ display: 'block', marginBottom: 8 }}
-                  >
-                    Thread name
-                  </label>
-                  <input
-                    id="t-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="The Mahmood family"
-                    style={{
-                      width: '100%',
-                      background: 'transparent',
-                      border: 0,
-                      borderBottom: '1px solid var(--loom-rule)',
-                      color: 'var(--loom-bone)',
-                      caretColor: 'var(--loom-warm)',
-                      fontFamily: "'Source Serif 4', serif",
-                      fontVariationSettings: "'opsz' 28",
-                      fontSize: 20,
-                      fontWeight: 300,
-                      padding: '8px 0',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="t-ded"
-                    className="loom-eyebrow"
-                    style={{ display: 'block', marginBottom: 8 }}
-                  >
-                    Dedication — optional
-                  </label>
-                  <textarea
-                    id="t-ded"
-                    rows={3}
-                    value={dedication}
-                    onChange={(e) => setDedication(e.target.value)}
-                    placeholder="A line your descendants will see when they open the thread for the first time."
-                    style={{
-                      width: '100%',
-                      background: 'transparent',
-                      border: 0,
-                      borderBottom: '1px solid var(--loom-rule)',
-                      color: 'var(--loom-bone)',
-                      caretColor: 'var(--loom-warm)',
-                      fontFamily: "'Source Serif 4', serif",
-                      fontVariationSettings: "'opsz' 14",
-                      fontSize: 16,
-                      lineHeight: 1.75,
-                      padding: '8px 0',
-                      outline: 'none',
-                      resize: 'vertical',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
+            ) : null}
 
-                {error ? (
-                  <p
-                    role="alert"
-                    className="loom-body"
-                    style={{ margin: 0, fontStyle: 'italic', color: '#c25a5a', fontSize: 14 }}
-                  >
-                    {error}
-                  </p>
-                ) : null}
+            {/* new thread trigger */}
+            {!creating ? (
+              <button
+                type="button"
+                onClick={() => setCreating(true)}
+                className="hl-mono"
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontSize: 11,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                }}
+              >
+                begin a new thread →
+              </button>
+            ) : null}
+          </>
+        )}
+      </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, paddingTop: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => create.mutate()}
-                    disabled={create.isPending || !name.trim()}
-                    className="loom-btn"
-                    style={{ opacity: create.isPending || !name.trim() ? 0.5 : 1 }}
-                  >
-                    {create.isPending ? 'beginning…' : 'begin thread'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCreating(false);
-                      setError(null);
-                    }}
-                    className="loom-btn-ghost"
-                  >
-                    cancel
-                  </button>
-                </div>
+      {/* create dialog overlay */}
+      {creating ? (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(14,14,12,0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+          }}
+        >
+          <div
+            style={{
+              background: '#131310',
+              border: '1px solid var(--rule-strong)',
+              padding: '36px 40px',
+              maxWidth: 480,
+              width: '100%',
+            }}
+          >
+            <p
+              className="hl-mono"
+              style={{
+                margin: '0 0 28px',
+                fontSize: 10,
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              new thread
+            </p>
+
+            <div style={{ display: 'grid', gap: 24 }}>
+              <div>
+                <label
+                  htmlFor="t-name"
+                  className="hl-eyebrow"
+                  style={{ display: 'block', marginBottom: 8 }}
+                >
+                  Thread name
+                </label>
+                <input
+                  id="t-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="The Mahmood family"
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    background: 'transparent',
+                    border: 0,
+                    borderBottom: '1px solid var(--rule)',
+                    color: 'var(--bone)',
+                    caretColor: 'var(--warm)',
+                    fontFamily: 'var(--serif)',
+                    fontVariationSettings: "'opsz' 28",
+                    fontSize: 17,
+                    fontWeight: 300,
+                    padding: '8px 0',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    borderRadius: 0,
+                  }}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="t-ded"
+                  className="hl-eyebrow"
+                  style={{ display: 'block', marginBottom: 8 }}
+                >
+                  Dedication — optional
+                </label>
+                <input
+                  id="t-ded"
+                  value={dedication}
+                  onChange={(e) => setDedication(e.target.value)}
+                  placeholder="A line your descendants will read first."
+                  style={{
+                    width: '100%',
+                    background: 'transparent',
+                    border: 0,
+                    borderBottom: '1px solid var(--rule)',
+                    color: 'var(--bone)',
+                    caretColor: 'var(--warm)',
+                    fontFamily: 'var(--serif)',
+                    fontVariationSettings: "'opsz' 14",
+                    fontSize: 17,
+                    fontWeight: 300,
+                    padding: '8px 0',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    borderRadius: 0,
+                  }}
+                />
+              </div>
+
+              {error ? (
+                <p
+                  role="alert"
+                  className="hl-mono"
+                  style={{ margin: 0, fontSize: 11, color: '#c25a5a', letterSpacing: '0.04em' }}
+                >
+                  {error}
+                </p>
+              ) : null}
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, paddingTop: 4 }}>
+                <button
+                  type="button"
+                  onClick={() => create.mutate()}
+                  disabled={create.isPending || !name.trim()}
+                  className="hl-btn"
+                  style={{ opacity: create.isPending || !name.trim() ? 0.45 : 1 }}
+                >
+                  {create.isPending ? 'creating…' : 'create thread'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCreating(false);
+                    setError(null);
+                  }}
+                  className="hl-mono"
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: 0,
+                    cursor: 'pointer',
+                    fontSize: 11,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                  }}
+                >
+                  cancel
+                </button>
               </div>
             </div>
-          ) : null}
+          </div>
+        </div>
+      ) : null}
 
-          {threads.length === 0 && !creating ? (
-            <p
-              className="loom-body"
-              style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)', fontSize: 15 }}
-            >
-              No threads yet. Your first thread begins with your first entry — or name one yourself above.
-            </p>
-          ) : null}
-        </>
-      )}
-    </AppFrame>
+      <TapestryEdge />
+    </Frame>
   );
 }
 
-const COL_HEAD: CSSProperties = {
-  fontSize: 10,
-  color: 'var(--loom-bone-faint)',
-  letterSpacing: '0.22em',
-  textTransform: 'uppercase',
-};
-
-/* ── One thread as a hairline-ruled mono table row (the design's ThreadsIndex) ── */
+/* ── Single thread data row ─────────────────────────────────────────────── */
 function ThreadRow({ thread }: { thread: ThreadSummary }) {
-  const isFounder = thread.role === 'FOUNDER';
+  const dyeKey = (thread as ThreadSummary & { dye?: string }).dye ?? 'walnut';
   return (
-    <Link
-      to={`/threads/${thread.id}`}
+    <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '2fr 0.9fr 0.7fr 0.6fr 0.6fr',
-        gap: 24,
-        padding: '20px 0',
-        borderBottom: '1px solid var(--loom-rule)',
-        alignItems: 'baseline',
-        textDecoration: 'none',
+        gridTemplateColumns: '2fr 1.4fr 0.9fr 0.7fr 0.6fr',
+        borderBottom: '1px solid var(--rule)',
+        paddingTop: 14,
+        paddingBottom: 14,
+        alignItems: 'center',
       }}
     >
-      {/* thread name (+ dedication as a quiet sub-line) */}
-      <div>
-        <span
-          className="loom-serif"
-          style={{ fontSize: 21, color: 'var(--loom-bone)', fontWeight: 400, letterSpacing: '-0.008em' }}
-        >
-          {thread.name}
-        </span>
-        {thread.dedication ? (
-          <span
-            className="loom-serif"
-            style={{
-              display: 'block',
-              fontStyle: 'italic',
-              fontSize: 13,
-              color: 'var(--loom-bone-dim)',
-              marginTop: 4,
-              maxWidth: '52ch',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {thread.dedication}
-          </span>
-        ) : null}
-      </div>
-
-      {/* founded — created_at */}
-      <span
-        className="loom-mono"
-        style={{ fontSize: 11, color: 'var(--loom-bone-dim)', letterSpacing: '0.06em' }}
-      >
-        {formatFounded(thread.created_at)}
-      </span>
-
-      {/* your role */}
-      <span
-        className="loom-mono"
+      {/* thread name */}
+      <Link
+        to={`/threads/${thread.id}`}
+        className="hl-serif"
         style={{
-          fontSize: 10,
-          color: isFounder ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
-          letterSpacing: '0.22em',
-          textTransform: 'uppercase',
+          fontSize: 16,
+          fontWeight: 300,
+          color: 'var(--warm)',
+          textDecoration: 'none',
+          letterSpacing: '-0.008em',
         }}
       >
-        {thread.role.toLowerCase()}
+        {thread.name}
+      </Link>
+
+      {/* entry count */}
+      <span
+        className="hl-mono"
+        style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.06em' }}
+      >
+        {thread.entry_count.toLocaleString()}
       </span>
 
-      {/* members */}
+      {/* member count */}
       <span
-        className="loom-mono"
-        style={{ fontSize: 13, color: 'var(--loom-bone-dim)', letterSpacing: '0.08em', textAlign: 'right' }}
+        className="hl-mono"
+        style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.06em' }}
       >
         {thread.member_count}
       </span>
 
-      {/* entries */}
+      {/* last entry / created_at */}
       <span
-        className="loom-mono"
-        style={{ fontSize: 13, color: 'var(--loom-bone)', letterSpacing: '0.08em', textAlign: 'right' }}
+        className="hl-mono"
+        style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}
       >
-        {thread.entry_count.toLocaleString()}
+        {formatDate(thread.created_at)}
       </span>
-    </Link>
+
+      {/* dye swatch */}
+      <span
+        aria-hidden
+        style={{
+          display: 'inline-block',
+          width: 14,
+          height: 2,
+          background: `var(--dye-${dyeKey})`,
+        }}
+      />
+    </div>
   );
 }
 
-function formatFounded(iso: string): string {
+function formatDate(iso: string): string {
   try {
     return new Date(iso)
       .toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })

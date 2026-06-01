@@ -1,8 +1,6 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
-import { ProgressHair } from '../components/ui/ProgressHair';
-import { AppFrame } from '../loom/components/AppFrame';
+import { Frame } from '../loom/components/Frame';
 import api, { memoriesApi, voiceApi } from '../services/api';
 
 // Quick Create wizard templates
@@ -12,6 +10,15 @@ const STORY_TEMPLATES = [
   { id: 'life-journey', title: 'Life Journey', description: 'Highlights from through the years', suggestedTitle: 'A Life Well Lived', theme: 'vintage' },
   { id: 'special-moments', title: 'Special Moments', description: 'Your most treasured memories', suggestedTitle: 'Moments to Remember', theme: 'modern' },
 ];
+
+// Natural-dye swatches — one per template slot + default
+const DYE_SWATCHES: Record<string, string> = {
+  warm:    'var(--dye-madder)',
+  classic: 'var(--dye-walnut)',
+  vintage: 'var(--dye-oakgall)',
+  modern:  'var(--dye-woad)',
+  default: 'var(--dye-iron)',
+};
 
 interface Memory {
   id: string;
@@ -64,11 +71,11 @@ void _MUSIC_TRACKS;
 const inputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--loom-rule)',
+  border: '1px solid var(--rule)',
   borderRadius: 2,
   padding: '10px 14px',
-  color: 'var(--loom-bone)',
-  fontFamily: "'Source Serif 4', serif",
+  color: 'var(--bone)',
+  fontFamily: 'var(--serif)',
   fontSize: 15,
   lineHeight: 1.7,
   outline: 'none',
@@ -85,8 +92,6 @@ export function StoryArtifact() {
 
   const [wizardStep, setWizardStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof STORY_TEMPLATES[0] | null>(null);
-
-  const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('story-artifacts');
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -230,171 +235,201 @@ export function StoryArtifact() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <AppFrame>
-        <div style={{ padding: '80px 0', display: 'flex', justifyContent: 'center' }}>
-          <ProgressHair label="loading…" width={200} />
-        </div>
-      </AppFrame>
-    );
-  }
-
   const artifactList = artifacts?.artifacts ?? [];
 
   return (
-    <AppFrame>
-      {/* Header */}
-      <header
+    <Frame left="story artifact">
+      {/* Loading bar */}
+      {isLoading && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'var(--warm)', opacity: 0.6 }} />
+      )}
+
+      {/* Content container */}
+      <div
         style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 20,
-          marginBottom: 48,
+          background: '#0a0a08',
+          padding: '40px 48px',
+          maxWidth: 640,
+          margin: '0 auto',
+          minHeight: '100%',
+          boxSizing: 'border-box',
         }}
       >
-        <div>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Story Artifacts</p>
+        {/* Page header */}
+        <header style={{ marginBottom: 48 }}>
           <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+            className="hl-serif"
+            style={{ fontSize: 36, fontWeight: 300, margin: '0 0 28px', lineHeight: 1.15 }}
           >
-            Woven into motion.
+            A piece of the cloth.
           </h1>
-          <p
-            className="loom-body"
-            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 540, lineHeight: 1.6 }}
-          >
-            A story artifact takes the cloth you've woven and plays it forward — a micro-documentary
-            from your thread.
-          </p>
-        </div>
-        <button type="button" onClick={() => setShowCreate(true)} className="loom-btn">
-          Create story
-        </button>
-      </header>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
+            <p
+              className="hl-prose"
+              style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, maxWidth: 400, lineHeight: 1.6 }}
+            >
+              A story artifact takes the cloth you've woven and plays it forward — a micro-documentary
+              from your thread.
+            </p>
+            <button type="button" onClick={() => setShowCreate(true)} className="hl-btn">
+              Create story
+            </button>
+          </div>
+        </header>
 
-      {/* Artifacts list */}
-      {artifactList.length > 0 ? (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {artifactList.map((artifact) => (
-            <li key={artifact.id} style={{ padding: '24px 0', borderBottom: '1px solid var(--loom-rule)' }}>
-              <article
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto',
-                  gap: 24,
-                  alignItems: 'baseline',
-                }}
-              >
-                <div>
-                  {/* Status + date rail */}
-                  <div style={{ display: 'flex', gap: 16, marginBottom: 8, alignItems: 'baseline' }}>
-                    <span
-                      className="loom-mono"
-                      style={{
-                        fontSize: 10,
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        color: artifact.status === 'READY' ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
-                      }}
-                    >
-                      {artifact.status.toLowerCase()}
-                    </span>
-                    <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em' }}>
-                      {JSON.parse(artifact.selected_memories || '[]').length} photos · {artifact.view_count} views
-                    </span>
-                  </div>
-                  <h3 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 6px', lineHeight: 1.25 }}>
-                    {artifact.title}
-                  </h3>
-                  {artifact.description && (
-                    <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                      {artifact.description}
-                    </p>
-                  )}
-                </div>
+        <hr className="hl-rule" style={{ margin: '0 0 36px' }} />
 
-                {/* Actions */}
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                  {artifact.status === 'DRAFT' && (
-                    <button
-                      type="button"
-                      onClick={() => generateMutation.mutate(artifact.id)}
-                      disabled={generateMutation.isPending}
-                      style={{
-                        background: 'transparent',
-                        border: 0,
-                        padding: 0,
-                        cursor: 'pointer',
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: 10,
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        color: 'var(--loom-warm)',
-                        opacity: generateMutation.isPending ? 0.45 : 1,
-                      }}
-                    >
-                      Generate
-                    </button>
-                  )}
-                  {artifact.status === 'READY' && (
-                    <button
-                      type="button"
-                      onClick={() => shareMutation.mutate(artifact.id)}
-                      style={{
-                        background: 'transparent',
-                        border: 0,
-                        padding: 0,
-                        cursor: 'pointer',
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: 10,
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        color: 'var(--loom-bone-dim)',
-                      }}
-                    >
-                      Share
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => deleteMutation.mutate(artifact.id)}
+        {/* Artifacts list */}
+        {artifactList.length > 0 ? (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {artifactList.map((artifact) => {
+              const dyeColor = DYE_SWATCHES[artifact.theme] ?? DYE_SWATCHES.default;
+              return (
+                <li key={artifact.id} style={{ padding: '28px 0', borderBottom: '1px solid var(--rule)' }}>
+                  {/* Dye swatch */}
+                  <div
+                    aria-hidden
                     style={{
-                      background: 'transparent',
-                      border: 0,
-                      padding: 0,
-                      cursor: 'pointer',
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 10,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: 'var(--loom-bone-faint)',
+                      width: 24,
+                      height: 3,
+                      background: dyeColor,
+                      marginBottom: 16,
+                    }}
+                  />
+                  <article
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto',
+                      gap: 24,
+                      alignItems: 'baseline',
                     }}
                   >
-                    Delete
-                  </button>
-                </div>
-              </article>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div style={{ border: '1px solid var(--loom-rule)', padding: '72px 36px', textAlign: 'center' }}>
-          <p style={{ fontFamily: "'Source Serif 4', serif", fontSize: 28, color: 'var(--loom-bone-faint)', marginBottom: 20 }}>∞</p>
-          <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 12px' }}>
-            No stories yet.
-          </h3>
-          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 auto 28px', maxWidth: 400 }}>
-            Create your first micro-documentary from your memories.
-          </p>
-          <button type="button" onClick={() => setShowCreate(true)} className="loom-btn">
-            Create your first story
-          </button>
-        </div>
-      )}
+                    <div>
+                      {/* Status + date rail */}
+                      <div style={{ display: 'flex', gap: 16, marginBottom: 8, alignItems: 'baseline' }}>
+                        <span
+                          className="hl-mono"
+                          style={{
+                            fontSize: 10,
+                            letterSpacing: '0.18em',
+                            textTransform: 'uppercase',
+                            color: artifact.status === 'READY' ? 'var(--warm)' : 'var(--bone-faint)',
+                          }}
+                        >
+                          {artifact.status.toLowerCase()}
+                        </span>
+                        <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
+                          {JSON.parse(artifact.selected_memories || '[]').length} photos · {artifact.view_count} views
+                        </span>
+                      </div>
+                      <h3
+                        className="hl-serif"
+                        style={{ fontSize: 28, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.2 }}
+                      >
+                        {artifact.title}
+                      </h3>
+                      {artifact.description && (
+                        <p
+                          className="hl-prose"
+                          style={{ fontSize: 18, color: 'var(--bone-dim)', margin: '16px 0 0', lineHeight: 1.65, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+                        >
+                          {artifact.description}
+                        </p>
+                      )}
+                      {/* Author / date lines */}
+                      <p
+                        className="hl-serif hl-italic"
+                        style={{ fontSize: 16, color: 'var(--bone-dim)', margin: '20px 0 0', fontStyle: 'italic' }}
+                      >
+                        your bloodline
+                      </p>
+                      <p
+                        className="hl-mono"
+                        style={{ fontSize: 10, color: 'var(--bone-faint)', margin: '8px 0 0', letterSpacing: '0.06em' }}
+                      >
+                        {new Date(artifact.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                      {/* Download / share */}
+                      <div style={{ marginTop: 28, display: 'flex', gap: 24, alignItems: 'baseline' }}>
+                        {artifact.status === 'DRAFT' && (
+                          <button
+                            type="button"
+                            onClick={() => generateMutation.mutate(artifact.id)}
+                            disabled={generateMutation.isPending}
+                            style={{
+                              background: 'transparent',
+                              border: 0,
+                              padding: 0,
+                              cursor: 'pointer',
+                              fontFamily: 'var(--mono)',
+                              fontSize: 10,
+                              letterSpacing: '0.32em',
+                              textTransform: 'uppercase',
+                              color: 'var(--warm)',
+                              opacity: generateMutation.isPending ? 0.45 : 1,
+                            }}
+                          >
+                            generate →
+                          </button>
+                        )}
+                        {artifact.status === 'READY' && (
+                          <button
+                            type="button"
+                            onClick={() => shareMutation.mutate(artifact.id)}
+                            className="hl-link warm"
+                            style={{
+                              background: 'transparent',
+                              border: 0,
+                              padding: 0,
+                              cursor: 'pointer',
+                              fontFamily: 'var(--mono)',
+                              fontSize: 10,
+                              letterSpacing: '0.32em',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            share →
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => deleteMutation.mutate(artifact.id)}
+                          style={{
+                            background: 'transparent',
+                            border: 0,
+                            padding: 0,
+                            cursor: 'pointer',
+                            fontFamily: 'var(--mono)',
+                            fontSize: 10,
+                            letterSpacing: '0.32em',
+                            textTransform: 'uppercase',
+                            color: 'var(--bone-faint)',
+                          }}
+                        >
+                          delete
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                </li>
+              );
+            })}
+          </ul>
+        ) : !isLoading ? (
+          <div style={{ border: '1px solid var(--rule)', padding: '72px 36px', textAlign: 'center' }}>
+            <p className="hl-serif" style={{ fontSize: 28, color: 'var(--bone-faint)', marginBottom: 20 }}>∞</p>
+            <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone)', margin: '0 0 12px' }}>
+              No stories yet.
+            </h3>
+            <p className="hl-prose" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '0 auto 28px', maxWidth: 400 }}>
+              Create your first micro-documentary from your memories.
+            </p>
+            <button type="button" onClick={() => setShowCreate(true)} className="hl-btn">
+              Create your first story
+            </button>
+          </div>
+        ) : null}
+      </div>
 
       {/* Share URL overlay */}
       {shareUrl && (
@@ -413,18 +448,18 @@ export function StoryArtifact() {
         >
           <div
             style={{
-              background: 'var(--loom-ink)',
-              border: '1px solid var(--loom-rule)',
+              background: 'var(--ink)',
+              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 500,
               width: '100%',
             }}
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, margin: '0 0 8px' }}>
+            <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, margin: '0 0 8px' }}>
               Share your story
             </h3>
-            <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 20px' }}>
+            <p className="hl-prose" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 20px' }}>
               Anyone with this link can view your story for 7 days.
             </p>
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
@@ -432,18 +467,33 @@ export function StoryArtifact() {
                 type="text"
                 value={shareUrl}
                 readOnly
-                style={{ ...inputStyle, flex: 1, fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}
+                style={{ ...inputStyle, flex: 1, fontFamily: 'var(--mono)', fontSize: 12 }}
               />
               <button
                 type="button"
                 onClick={() => navigator.clipboard.writeText(shareUrl)}
-                className="loom-btn"
+                className="hl-btn"
                 style={{ padding: '10px 18px', flexShrink: 0 }}
               >
                 Copy
               </button>
             </div>
-            <button type="button" onClick={() => setShareUrl(null)} className="loom-btn-ghost" style={{ width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setShareUrl(null)}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: '1px solid var(--rule)',
+                padding: '10px 0',
+                color: 'var(--bone-dim)',
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+              }}
+            >
               Done
             </button>
           </div>
@@ -468,8 +518,8 @@ export function StoryArtifact() {
         >
           <div
             style={{
-              background: 'var(--loom-ink)',
-              border: '1px solid var(--loom-rule)',
+              background: 'var(--ink)',
+              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 580,
               width: '100%',
@@ -488,7 +538,7 @@ export function StoryArtifact() {
                       background: 'transparent',
                       border: 0,
                       cursor: 'pointer',
-                      color: 'var(--loom-bone-faint)',
+                      color: 'var(--bone-faint)',
                       fontSize: 16,
                       padding: 0,
                     }}
@@ -498,12 +548,12 @@ export function StoryArtifact() {
                   </button>
                 )}
                 <div>
-                  <h3 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, margin: 0 }}>
+                  <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, margin: 0 }}>
                     {wizardStep === 1 && 'What kind of story?'}
                     {wizardStep === 2 && 'Select your photos'}
                     {wizardStep === 3 && 'Review and create'}
                   </h3>
-                  <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', marginTop: 4 }}>
+                  <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', marginTop: 4 }}>
                     Step {wizardStep} of 3
                   </p>
                 </div>
@@ -516,7 +566,7 @@ export function StoryArtifact() {
                   background: 'transparent',
                   border: 0,
                   cursor: 'pointer',
-                  color: 'var(--loom-bone-faint)',
+                  color: 'var(--bone-faint)',
                   fontSize: 18,
                   lineHeight: 1,
                   padding: 4,
@@ -537,7 +587,7 @@ export function StoryArtifact() {
                     style={{
                       background: 'transparent',
                       border: 0,
-                      borderBottom: '1px solid var(--loom-rule)',
+                      borderBottom: '1px solid var(--rule)',
                       padding: '16px 0',
                       cursor: 'pointer',
                       textAlign: 'left',
@@ -548,14 +598,14 @@ export function StoryArtifact() {
                     }}
                   >
                     <div>
-                      <p className="loom-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 4px' }}>
+                      <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}>
                         {template.title}
                       </p>
-                      <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-dim)', margin: 0 }}>
+                      <p className="hl-prose" style={{ fontSize: 13, color: 'var(--bone-dim)', margin: 0 }}>
                         {template.description}
                       </p>
                     </div>
-                    <span style={{ color: 'var(--loom-bone-faint)', fontSize: 16 }}>→</span>
+                    <span style={{ color: 'var(--bone-faint)', fontSize: 16 }}>→</span>
                   </button>
                 ))}
                 <div style={{ paddingTop: 16 }}>
@@ -566,11 +616,11 @@ export function StoryArtifact() {
                       background: 'transparent',
                       border: 0,
                       cursor: 'pointer',
-                      fontFamily: "'JetBrains Mono', monospace",
+                      fontFamily: 'var(--mono)',
                       fontSize: 10,
                       letterSpacing: '0.18em',
                       textTransform: 'uppercase',
-                      color: 'var(--loom-bone-faint)',
+                      color: 'var(--bone-faint)',
                       padding: '10px 0',
                     }}
                   >
@@ -589,8 +639,19 @@ export function StoryArtifact() {
                     type="button"
                     onClick={handleAutoSelectPhotos}
                     disabled={memories.filter(m => m.type === 'PHOTO').length === 0}
-                    className="loom-btn-ghost"
-                    style={{ flex: 1, opacity: memories.filter(m => m.type === 'PHOTO').length === 0 ? 0.4 : 1 }}
+                    style={{
+                      flex: 1,
+                      background: 'transparent',
+                      border: '1px solid var(--rule)',
+                      padding: '9px 14px',
+                      color: 'var(--bone-dim)',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      opacity: memories.filter(m => m.type === 'PHOTO').length === 0 ? 0.4 : 1,
+                    }}
                   >
                     Auto-select recent
                   </button>
@@ -598,14 +659,20 @@ export function StoryArtifact() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="loom-btn-ghost"
-                    style={{ opacity: isUploading ? 0.4 : 1 }}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--rule)',
+                      padding: '9px 14px',
+                      color: 'var(--bone-dim)',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      opacity: isUploading ? 0.4 : 1,
+                    }}
                   >
-                    {isUploading ? (
-                      <span style={{ fontStyle: 'italic' }}>Uploading…</span>
-                    ) : (
-                      'Upload'
-                    )}
+                    {isUploading ? 'Uploading…' : 'Upload'}
                   </button>
                   <input
                     ref={fileInputRef}
@@ -617,7 +684,7 @@ export function StoryArtifact() {
                   />
                 </div>
 
-                <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em' }}>
+                <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>
                   {selectedMemories.length}/10 photos selected
                 </p>
 
@@ -642,7 +709,7 @@ export function StoryArtifact() {
                         position: 'relative',
                         aspectRatio: '1',
                         overflow: 'hidden',
-                        border: `1px solid ${selectedMemories.includes(memory.id) ? 'var(--loom-warm)' : 'transparent'}`,
+                        border: `1px solid ${selectedMemories.includes(memory.id) ? 'var(--warm)' : 'transparent'}`,
                         cursor: 'pointer',
                         padding: 0,
                       }}
@@ -663,26 +730,20 @@ export function StoryArtifact() {
                             justifyContent: 'center',
                           }}
                         >
-                          <span style={{ color: 'var(--loom-bone)', fontSize: 16 }}>✓</span>
+                          <span style={{ color: 'var(--bone)', fontSize: 16 }}>✓</span>
                         </div>
                       )}
                     </button>
                   ))}
                   {memories.filter(m => m.type === 'PHOTO').length === 0 && (
-                    <div
-                      style={{
-                        gridColumn: '1/-1',
-                        textAlign: 'center',
-                        padding: '32px 0',
-                      }}
-                    >
-                      <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', fontStyle: 'italic', marginBottom: 14 }}>
+                    <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '32px 0' }}>
+                      <p className="hl-prose" style={{ fontSize: 14, color: 'var(--bone-faint)', fontStyle: 'italic', marginBottom: 14 }}>
                         No photos yet.
                       </p>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="loom-btn"
+                        className="hl-btn"
                         style={{ fontSize: 11, padding: '8px 18px' }}
                       >
                         Upload your first photo
@@ -695,7 +756,7 @@ export function StoryArtifact() {
                   type="button"
                   onClick={() => setWizardStep(3)}
                   disabled={selectedMemories.length === 0}
-                  className="loom-btn"
+                  className="hl-btn"
                   style={{ opacity: selectedMemories.length === 0 ? 0.45 : 1 }}
                 >
                   Continue with {selectedMemories.length} photos
@@ -707,18 +768,18 @@ export function StoryArtifact() {
             {wizardStep === 3 && (
               <div style={{ display: 'grid', gap: 20 }}>
                 {/* Summary */}
-                <div style={{ padding: '14px 18px', border: '1px solid var(--loom-rule-warm)' }}>
-                  <p className="loom-serif" style={{ fontSize: 15, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 4px' }}>
+                <div style={{ padding: '14px 18px', border: '1px solid var(--rule)', borderLeft: '3px solid var(--warm)' }}>
+                  <p className="hl-serif" style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}>
                     Ready to create
                   </p>
-                  <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', margin: 0, letterSpacing: '0.1em' }}>
+                  <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', margin: 0, letterSpacing: '0.1em' }}>
                     {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom story'} · {selectedMemories.length} photos
                   </p>
                 </div>
 
                 {/* Title */}
                 <div>
-                  <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
                     Story title
                   </label>
                   <input
@@ -732,7 +793,7 @@ export function StoryArtifact() {
 
                 {/* Description */}
                 <div>
-                  <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
                     Description (optional)
                   </label>
                   <textarea
@@ -747,7 +808,7 @@ export function StoryArtifact() {
                 {/* Voice narration */}
                 {voiceRecordings.length > 0 && (
                   <div>
-                    <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
                       Add voice narration (optional)
                     </label>
                     <div style={{ display: 'grid', gap: 4, maxHeight: 96, overflowY: 'auto' }}>
@@ -758,12 +819,12 @@ export function StoryArtifact() {
                           onClick={() => setSelectedVoice(selectedVoice === recording.id ? null : recording.id)}
                           style={{
                             background: 'transparent',
-                            border: `1px solid ${selectedVoice === recording.id ? 'var(--loom-rule-warm)' : 'var(--loom-rule)'}`,
+                            border: `1px solid ${selectedVoice === recording.id ? 'var(--warm)' : 'var(--rule)'}`,
                             padding: '8px 12px',
                             cursor: 'pointer',
                             textAlign: 'left',
-                            color: selectedVoice === recording.id ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
-                            fontFamily: "'Source Serif 4', serif",
+                            color: selectedVoice === recording.id ? 'var(--warm)' : 'var(--bone-dim)',
+                            fontFamily: 'var(--serif)',
                             fontSize: 14,
                           }}
                         >
@@ -778,32 +839,17 @@ export function StoryArtifact() {
                   type="button"
                   onClick={handleQuickCreate}
                   disabled={!title.trim() || selectedMemories.length === 0 || createMutation.isPending}
-                  className="loom-btn"
+                  className="hl-btn"
                   style={{ opacity: !title.trim() || selectedMemories.length === 0 || createMutation.isPending ? 0.45 : 1 }}
                 >
-                  {createMutation.isPending ? (
-                    <span style={{ fontStyle: 'italic' }}>Creating…</span>
-                  ) : (
-                    'Create story'
-                  )}
+                  {createMutation.isPending ? 'Creating…' : 'Create story'}
                 </button>
               </div>
             )}
           </div>
         </div>
       )}
-
-      {/* Help button */}
-      <OnboardingHelpButton onClick={openOnboarding} />
-
-      {/* Feature onboarding */}
-      <FeatureOnboarding
-        featureKey="story-artifacts"
-        isOpen={isOnboardingOpen}
-        onComplete={completeOnboarding}
-        onDismiss={dismissOnboarding}
-      />
-    </AppFrame>
+    </Frame>
   );
 }
 

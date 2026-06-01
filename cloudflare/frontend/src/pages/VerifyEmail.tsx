@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { emailVerificationApi } from '../services/api';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { HLogo } from '../loom/components/HLogo';
+
+// VerifyEmail — Loom 3 parchment rewrite.
+// Marketing/auth page → parchment bg, ink text. No AppFrame, no icons.
+// Preserved: token verification API, useSearchParams/useEffect, resend flow.
 
 export function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -53,96 +57,137 @@ export function VerifyEmail() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: '68px 1fr' }}>
-      <header
+    <div
+      className="hl-screen parchment"
+      style={{ minHeight: '100vh', position: 'relative', overflowY: 'auto' }}
+    >
+      {/* Parchment topbar */}
+      <div
+        className="hl-topbar"
         style={{
-          borderBottom: '1px solid var(--loom-rule)',
-          padding: '0 28px',
-          display: 'flex',
-          alignItems: 'center',
+          position: 'relative',
+          borderBottom: '1px solid var(--parchment-rule)',
+          color: 'var(--parchment-dim)',
         }}
       >
-        <Link to="/" className="loom-mark" style={{ textDecoration: 'none' }}>
-          <span className="infmark">∞</span>heirloom
+        <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+          <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
         </Link>
-      </header>
+      </div>
 
-      <main
+      {/* Centered content */}
+      <div
         style={{
-          display: 'grid',
-          placeItems: 'center',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: 'calc(100vh - 57px)',
           padding: '40px 24px',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 440 }}>
+        <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
 
+          {/* ── Pending ── */}
           {status === 'loading' && (
             <div role="status">
-              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
-                verify email
-              </div>
-              <h1
-                className="loom-h2"
+              <div
+                className="hl-serif"
                 style={{
-                  fontSize: 'clamp(36px, 5vw, 56px)',
-                  fontStyle: 'italic',
+                  fontSize: 56,
                   fontWeight: 300,
-                  margin: '0 0 32px',
+                  color: 'var(--warm)',
+                  lineHeight: 1,
+                  marginBottom: 18,
+                }}
+              >
+                ∞
+              </div>
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 11,
+                  color: 'var(--parchment-faint)',
+                  margin: 0,
+                  letterSpacing: '0.08em',
                 }}
               >
                 Verifying…
-              </h1>
-              <ProgressHair label="confirming your thread…" width={240} />
+              </p>
             </div>
           )}
 
+          {/* ── Success ── */}
           {status === 'success' && (
             <div role="status">
-              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
-                verify email
-              </div>
-              <h1
-                className="loom-h2"
+              <div
+                className="hl-serif"
                 style={{
-                  fontSize: 'clamp(36px, 5vw, 56px)',
-                  fontStyle: 'italic',
+                  fontSize: 56,
                   fontWeight: 300,
-                  margin: '0 0 24px',
+                  color: 'var(--warm)',
+                  lineHeight: 1,
+                  marginBottom: 18,
                 }}
               >
-                Email verified.
-              </h1>
-              <p
-                className="loom-body"
-                style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.7, margin: '0 0 36px' }}
+                ∞
+              </div>
+              <h1
+                className="hl-serif"
+                style={{
+                  fontSize: 36,
+                  fontWeight: 300,
+                  color: 'var(--parchment-ink)',
+                  margin: '0 0 0',
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.2,
+                }}
               >
-                {message}
-              </p>
-              <Link to="/dashboard" className="loom-btn" style={{ textDecoration: 'none' }}>
-                enter the tapestry
-              </Link>
+                Your account is confirmed.
+              </h1>
+              <div style={{ marginTop: 24 }}>
+                <Link
+                  to="/loom"
+                  className="hl-mono"
+                  style={{
+                    color: 'var(--warm)',
+                    textDecoration: 'none',
+                    fontSize: 13,
+                    letterSpacing: '0.08em',
+                    borderBottom: '1px solid var(--warm)',
+                    paddingBottom: 1,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                >
+                  begin your thread →
+                </Link>
+              </div>
             </div>
           )}
 
+          {/* ── Error ── */}
           {status === 'error' && (
             <div role="status">
-              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
-                verify email
-              </div>
-              <h1
-                className="loom-h2"
+              <p
+                className="hl-serif hl-italic"
                 style={{
-                  fontSize: 'clamp(36px, 5vw, 56px)',
-                  fontStyle: 'italic',
-                  fontWeight: 300,
+                  fontSize: 17,
+                  color: 'var(--parchment-dim)',
                   margin: '0 0 24px',
+                  lineHeight: 1.5,
                 }}
               >
-                Verification failed.
-              </h1>
+                Something went wrong.
+              </p>
               <p
-                className="loom-body"
-                style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.7, margin: '0 0 32px' }}
+                className="hl-mono"
+                style={{
+                  fontSize: 11,
+                  color: 'var(--parchment-faint)',
+                  margin: '0 0 32px',
+                  letterSpacing: '0.06em',
+                  lineHeight: 1.7,
+                }}
               >
                 {message}
               </p>
@@ -152,17 +197,37 @@ export function VerifyEmail() {
                   type="button"
                   onClick={handleResendVerification}
                   disabled={isResending}
-                  className="loom-btn-ghost"
-                  style={{ opacity: isResending ? 0.5 : 1 }}
+                  className="hl-mono"
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: 0,
+                    cursor: isResending ? 'default' : 'pointer',
+                    color: 'var(--warm)',
+                    fontSize: 13,
+                    letterSpacing: '0.08em',
+                    borderBottom: '1px solid var(--warm)',
+                    paddingBottom: 1,
+                    display: 'inline-block',
+                    opacity: isResending ? 0.5 : 1,
+                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                  onMouseEnter={e => { if (!isResending) e.currentTarget.style.opacity = '0.7'; }}
+                  onMouseLeave={e => { if (!isResending) e.currentTarget.style.opacity = '1'; }}
                 >
-                  {isResending ? 'sending…' : 'resend verification email'}
+                  {isResending ? 'sending…' : 'resend verification email →'}
                 </button>
 
                 {resendStatus === 'success' && (
                   <p
                     role="status"
-                    className="loom-mono"
-                    style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.04em', margin: 0 }}
+                    className="hl-mono"
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--warm)',
+                      letterSpacing: '0.06em',
+                      margin: 0,
+                    }}
                   >
                     ∞ &nbsp; verification email sent.
                   </p>
@@ -170,8 +235,8 @@ export function VerifyEmail() {
                 {resendStatus === 'error' && (
                   <p
                     role="alert"
-                    className="loom-body"
-                    style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}
+                    className="hl-serif hl-italic"
+                    style={{ fontSize: 14, color: 'var(--parchment-dim)', margin: 0 }}
                   >
                     Failed to send email. Please try again.
                   </p>
@@ -179,14 +244,15 @@ export function VerifyEmail() {
 
                 <Link
                   to="/login"
-                  className="loom-mono"
+                  className="hl-mono"
                   style={{
                     fontSize: 10,
-                    letterSpacing: '0.18em',
+                    letterSpacing: '0.22em',
                     textTransform: 'uppercase',
-                    color: 'var(--loom-bone-faint)',
+                    color: 'var(--parchment-faint)',
                     textDecoration: 'none',
                     marginTop: 8,
+                    display: 'inline-block',
                   }}
                 >
                   ← back to sign in
@@ -195,25 +261,43 @@ export function VerifyEmail() {
             </div>
           )}
 
+          {/* ── No token ── */}
           {status === 'no-token' && (
             <div role="status">
-              <div className="loom-eyebrow" style={{ marginBottom: 24 }}>
-                verify email
+              <div
+                className="hl-serif"
+                style={{
+                  fontSize: 56,
+                  fontWeight: 300,
+                  color: 'var(--warm)',
+                  lineHeight: 1,
+                  marginBottom: 18,
+                }}
+              >
+                ∞
               </div>
               <h1
-                className="loom-h2"
+                className="hl-serif"
                 style={{
-                  fontSize: 'clamp(36px, 5vw, 56px)',
-                  fontStyle: 'italic',
+                  fontSize: 36,
                   fontWeight: 300,
-                  margin: '0 0 24px',
+                  color: 'var(--parchment-ink)',
+                  margin: '0 0 20px',
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.2,
                 }}
               >
                 Verify your email.
               </h1>
               <p
-                className="loom-body"
-                style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.7, margin: '0 0 32px' }}
+                className="hl-mono"
+                style={{
+                  fontSize: 11,
+                  color: 'var(--parchment-faint)',
+                  margin: '0 0 32px',
+                  letterSpacing: '0.06em',
+                  lineHeight: 1.7,
+                }}
               >
                 Check your inbox for a verification link, or request a new one below.
               </p>
@@ -223,17 +307,37 @@ export function VerifyEmail() {
                   type="button"
                   onClick={handleResendVerification}
                   disabled={isResending}
-                  className="loom-btn"
-                  style={{ opacity: isResending ? 0.5 : 1 }}
+                  className="hl-mono"
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: 0,
+                    cursor: isResending ? 'default' : 'pointer',
+                    color: 'var(--warm)',
+                    fontSize: 13,
+                    letterSpacing: '0.08em',
+                    borderBottom: '1px solid var(--warm)',
+                    paddingBottom: 1,
+                    display: 'inline-block',
+                    opacity: isResending ? 0.5 : 1,
+                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                  onMouseEnter={e => { if (!isResending) e.currentTarget.style.opacity = '0.7'; }}
+                  onMouseLeave={e => { if (!isResending) e.currentTarget.style.opacity = '1'; }}
                 >
-                  {isResending ? 'sending…' : 'send verification email'}
+                  {isResending ? 'sending…' : 'send verification email →'}
                 </button>
 
                 {resendStatus === 'success' && (
                   <p
                     role="status"
-                    className="loom-mono"
-                    style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.04em', margin: 0 }}
+                    className="hl-mono"
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--warm)',
+                      letterSpacing: '0.06em',
+                      margin: 0,
+                    }}
                   >
                     ∞ &nbsp; verification email sent.
                   </p>
@@ -241,8 +345,8 @@ export function VerifyEmail() {
                 {resendStatus === 'error' && (
                   <p
                     role="alert"
-                    className="loom-body"
-                    style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}
+                    className="hl-serif hl-italic"
+                    style={{ fontSize: 14, color: 'var(--parchment-dim)', margin: 0 }}
                   >
                     Failed to send email. Please log in first.
                   </p>
@@ -250,14 +354,15 @@ export function VerifyEmail() {
 
                 <Link
                   to="/login"
-                  className="loom-mono"
+                  className="hl-mono"
                   style={{
                     fontSize: 10,
-                    letterSpacing: '0.18em',
+                    letterSpacing: '0.22em',
                     textTransform: 'uppercase',
-                    color: 'var(--loom-bone-faint)',
+                    color: 'var(--parchment-faint)',
                     textDecoration: 'none',
                     marginTop: 8,
+                    display: 'inline-block',
                   }}
                 >
                   ← back to sign in
@@ -266,21 +371,21 @@ export function VerifyEmail() {
             </div>
           )}
 
+          {/* Footer mark */}
           <div
-            className="loom-mono"
+            className="hl-mono"
             style={{
-              marginTop: 64,
+              marginTop: 72,
               fontSize: 10,
-              letterSpacing: '0.2em',
+              letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
-              textAlign: 'center',
+              color: 'var(--parchment-faint)',
             }}
           >
             ∞ &nbsp; encrypted in browser · since 2026
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

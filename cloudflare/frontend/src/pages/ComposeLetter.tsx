@@ -2,18 +2,17 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { familyApi, lettersApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
-import { ComposerModes, ComposerRail } from '../loom/components/ComposerChrome';
+import { HLogo } from '../loom/components/HLogo';
+import { TapestryEdge } from '../loom/components/Frame';
 
 /**
- * ComposeLetter — ComposerLetter (Claude Design · loom3).
+ * ComposeLetter — loom3 standalone rewrite (§6.3 Composer · letter mode).
  *
- * A letter you write by hand to one person, optionally sealed until a date.
- * The sheet carries the date stamp ("∞ sealed until · …"), an italic
- * salutation and signature, and a floating sealed marker at top-right. The
- * rail holds the real controls: recipient and lock. Wired to lettersApi —
- * "save as draft" creates it unsealed; "seal the letter" creates then seals
- * (which schedules delivery to the recipient on the date).
+ * A letter written by hand to one person, optionally sealed until a date.
+ * Wired to lettersApi — "save draft →" creates unsealed; "seal and save →"
+ * creates then seals (scheduling delivery to recipient on date).
+ *
+ * No AppFrame. hl-screen dark ink standalone. TapestryEdge anchors bottom.
  */
 
 interface FamilyMember {
@@ -22,12 +21,6 @@ interface FamilyMember {
   relationship?: string;
   email?: string | null;
 }
-
-const todayLabel = new Date().toLocaleDateString(undefined, {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
 
 export function ComposeLetter() {
   const navigate = useNavigate();
@@ -38,25 +31,42 @@ export function ComposeLetter() {
   const [signature, setSignature] = useState('');
   const [recipientIdx, setRecipientIdx] = useState(0);
   const [scheduledDate, setScheduledDate] = useState('');
-  const [lockOpen, setLockOpen] = useState<'now' | 'date'>('now');
+  const [deliveryTrigger, setDeliveryTrigger] = useState<'now' | 'date' | 'death' | 'milestone'>(
+    'now',
+  );
   const [error, setError] = useState<string | null>(null);
 
   const { data: family } = useQuery({
     queryKey: ['family'],
-    queryFn: () => familyApi.getAll().then((r) => r.data as FamilyMember[]).catch(() => []),
+    queryFn: () =>
+      familyApi
+        .getAll()
+        .then((r) => r.data as FamilyMember[])
+        .catch(() => []),
   });
   const members: FamilyMember[] = Array.isArray(family) ? family : [];
   const recipient = members[recipientIdx] ?? null;
 
   const sealedUntil = useMemo(() => {
-    if (lockOpen !== 'date' || !scheduledDate) return null;
+    if (deliveryTrigger !== 'date' || !scheduledDate) return null;
     const d = new Date(`${scheduledDate}T00:00:00`);
     if (Number.isNaN(d.getTime())) return null;
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-  }, [lockOpen, scheduledDate]);
+    return d.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }, [deliveryTrigger, scheduledDate]);
 
   const persist = async (seal: boolean) => {
-    const trigger = lockOpen === 'date' && scheduledDate ? 'SCHEDULED' : 'IMMEDIATE';
+    const trigger =
+      deliveryTrigger === 'date' && scheduledDate
+        ? 'SCHEDULED'
+        : deliveryTrigger === 'death'
+          ? 'AFTER_DEATH'
+          : deliveryTrigger === 'milestone'
+            ? 'MILESTONE'
+            : 'IMMEDIATE';
     const { data } = await lettersApi.create({
       title: salutation.trim() || 'A letter',
       salutation: salutation.trim() || null,
@@ -78,7 +88,8 @@ export function ComposeLetter() {
       queryClient.invalidateQueries({ queryKey: ['letters'] });
       navigate('/letters');
     },
-    onError: (e: any) => setError(e?.response?.data?.error ?? 'Could not save the letter.'),
+    onError: (e: any) =>
+      setError(e?.response?.data?.error ?? 'Could not save the letter.'),
   });
 
   const seal = useMutation({
@@ -87,284 +98,395 @@ export function ComposeLetter() {
       queryClient.invalidateQueries({ queryKey: ['letters'] });
       navigate('/letters');
     },
-    onError: (e: any) => setError(e?.response?.data?.error ?? 'Could not seal the letter.'),
+    onError: (e: any) =>
+      setError(e?.response?.data?.error ?? 'Could not seal the letter.'),
   });
 
   const busy = draft.isPending || seal.isPending;
 
-  return (
-    <AppFrame>
-      <div style={{ position: 'relative', maxWidth: 700, margin: '0 auto' }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 18, color: 'var(--loom-warm)' }}>
-          ∞ &nbsp; letter · across time
-        </p>
-        <ComposerModes active="letter" />
+  const triggerOptions: { value: typeof deliveryTrigger; label: string }[] = [
+    { value: 'now', label: 'open now' },
+    { value: 'date', label: 'on a date' },
+    { value: 'death', label: 'after death' },
+    { value: 'milestone', label: 'on a milestone' },
+  ];
 
-        {/* the sealed marker, floating top-right */}
-        {recipient ? (
-          <div
+  return (
+    <div
+      className="hl-screen"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        overflow: 'hidden',
+        background: 'var(--ink)',
+        color: 'var(--bone)',
+      }}
+    >
+      {/* hl-topbar */}
+      <div
+        className="hl-topbar"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 56,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 32px',
+          borderBottom: '1px solid var(--rule)',
+        }}
+      >
+        {/* left: logo · letter */}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <HLogo
+            size={18}
+            wordmark
+            mono
+            color="var(--bone-dim)"
+            wordColor="var(--bone-dim)"
+            glow={false}
+          />
+          <span
             style={{
-              position: 'absolute',
-              top: 4,
-              right: 0,
-              textAlign: 'center',
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 10.5,
-              color: 'var(--loom-bone-dim)',
-              letterSpacing: '0.06em',
+              color: 'var(--bone-dim)',
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.08em',
             }}
           >
-            <div
-              className="loom-serif"
-              style={{ color: 'var(--loom-warm)', fontSize: 24, fontWeight: 300, lineHeight: 1, marginBottom: 8 }}
-            >
-              ∞
-            </div>
-            <div>{sealedUntil ? `until ${new Date(`${scheduledDate}T00:00:00`).getFullYear()}` : 'open now'} — for</div>
-            <div className="loom-serif" style={{ fontStyle: 'italic', color: 'var(--loom-bone)' }}>
-              {recipient.name}
-            </div>
-          </div>
-        ) : null}
+            {' '}·{' '}letter
+          </span>
+        </span>
 
-        {/* date stamp row */}
-        <div
+        {/* center: sealed counter */}
+        <span
+          className="hl-counter"
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'baseline',
-            margin: '8px 0 26px',
-            fontFamily: "'JetBrains Mono', monospace",
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontFamily: 'var(--mono)',
             fontSize: 11,
-            color: 'var(--loom-bone-faint)',
-            letterSpacing: '0.12em',
-            flexWrap: 'wrap',
-            gap: 8,
+            letterSpacing: '0.14em',
+            color: 'var(--bone-faint)',
+            textTransform: 'lowercase',
+            whiteSpace: 'nowrap',
           }}
         >
-          <span>{todayLabel}</span>
-          {sealedUntil ? (
-            <span style={{ color: 'var(--loom-warm)' }}>∞ &nbsp;sealed until · {sealedUntil}</span>
-          ) : null}
-        </div>
+          sealed · for the future
+        </span>
 
-        {/* salutation */}
-        <input
-          value={salutation}
-          onChange={(e) => setSalutation(e.target.value)}
-          placeholder="To Maya, on her 25th birthday,"
-          style={{
-            width: '100%',
-            border: 0,
-            background: 'transparent',
-            caretColor: 'var(--loom-warm)',
-            fontFamily: "'Source Serif 4', serif",
-            fontStyle: 'italic',
-            fontSize: 19,
-            fontWeight: 400,
-            color: 'var(--loom-bone-dim)',
-            outline: 'none',
-            padding: 0,
-            marginBottom: 22,
+        {/* right: save draft */}
+        <button
+          type="button"
+          onClick={() => {
+            setError(null);
+            if (!body.trim()) {
+              setError('Write the letter first — even a line.');
+              return;
+            }
+            draft.mutate();
           }}
-        />
-
-        {/* body */}
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="When you read this you will be older than I was when I had you…"
+          disabled={busy}
           style={{
-            width: '100%',
-            border: 0,
-            background: 'transparent',
-            caretColor: 'var(--loom-warm)',
-            fontFamily: "'Source Serif 4', serif",
-            fontSize: 20,
-            lineHeight: 1.85,
-            color: 'var(--loom-bone)',
-            minHeight: 300,
-            maxWidth: '58ch',
-            outline: 'none',
-            resize: 'vertical',
+            background: 'none',
+            border: 'none',
+            cursor: busy ? 'not-allowed' : 'pointer',
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.08em',
+            color: 'var(--warm)',
             padding: 0,
+            opacity: busy ? 0.5 : 1,
+            transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
           }}
-        />
+        >
+          {draft.isPending ? 'saving…' : 'save draft →'}
+        </button>
+      </div>
 
-        {/* signature */}
-        <input
-          value={signature}
-          onChange={(e) => setSignature(e.target.value)}
-          placeholder="— Mum"
+      {/* scrollable content */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 56,
+          bottom: 28,
+          left: 0,
+          right: 0,
+          overflowY: 'auto',
+        }}
+      >
+        <div
           style={{
-            width: '100%',
-            border: 0,
-            background: 'transparent',
-            caretColor: 'var(--loom-warm)',
-            fontFamily: "'Source Serif 4', serif",
-            fontStyle: 'italic',
-            fontSize: 18,
-            fontWeight: 400,
-            color: 'var(--loom-bone-dim)',
-            outline: 'none',
-            padding: 0,
-            marginTop: 32,
+            maxWidth: 720,
+            margin: '0 auto',
+            padding: '40px 56px 96px',
           }}
-        />
-
-        {error ? (
+        >
+          {/* eyebrow */}
           <p
-            role="alert"
-            className="loom-body"
-            style={{ marginTop: 24, fontStyle: 'italic', color: '#c25a5a', fontSize: 14 }}
+            className="hl-eyebrow"
+            style={{ marginBottom: 22 }}
           >
-            {error}
+            a letter to the future
           </p>
-        ) : null}
 
-        {/* the control rail — recipient · lock · state */}
-        <ComposerRail>
-          <span>
-            <span style={{ color: 'var(--loom-bone-faint)' }}>recipient ·</span>{' '}
-            {members.length === 0 ? (
-              <button
-                type="button"
-                onClick={() => navigate('/family')}
-                style={railLink('var(--loom-warm)')}
-              >
-                add a recipient →
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setRecipientIdx((i) => (i + 1) % members.length)}
-                title="cycle recipient"
-                className="loom-serif"
-                style={{ ...railLink('var(--loom-bone)'), fontStyle: 'italic', letterSpacing: 0, fontSize: 13 }}
-              >
-                {recipient?.name}
-              </button>
-            )}
-          </span>
+          {/* salutation */}
+          <input
+            value={salutation}
+            onChange={(e) => setSalutation(e.target.value)}
+            placeholder="To Maya, on her 25th birthday,"
+            style={{
+              width: '100%',
+              border: 0,
+              borderBottom: '1px solid var(--rule)',
+              background: 'transparent',
+              caretColor: 'var(--warm)',
+              fontFamily: 'var(--serif)',
+              fontSize: 20,
+              fontWeight: 400,
+              color: 'var(--bone)',
+              outline: 'none',
+              padding: '0 0 8px',
+              marginBottom: 24,
+            }}
+          />
 
-          <span>
-            <span style={{ color: 'var(--loom-bone-faint)' }}>lock ·</span>{' '}
-            <button
-              type="button"
-              onClick={() => setLockOpen('now')}
-              style={railLink(lockOpen === 'now' ? 'var(--loom-warm)' : 'var(--loom-bone-dim)')}
-            >
-              open now
-            </button>
-            <span style={{ margin: '0 6px', color: 'var(--loom-bone-faint)' }}>/</span>
-            <button
-              type="button"
-              onClick={() => setLockOpen('date')}
-              style={railLink(lockOpen === 'date' ? 'var(--loom-warm)' : 'var(--loom-bone-dim)')}
-            >
-              on a date
-            </button>
-            {lockOpen === 'date' ? (
+          {/* body */}
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="When you read this you will be older than I was when I had you…"
+            rows={12}
+            style={{
+              width: '100%',
+              border: 0,
+              background: 'transparent',
+              caretColor: 'var(--warm)',
+              fontFamily: 'var(--serif)',
+              fontSize: 18,
+              fontWeight: 400,
+              lineHeight: 1.85,
+              color: 'var(--bone)',
+              minHeight: 280,
+              outline: 'none',
+              resize: 'none',
+              padding: 0,
+            }}
+          />
+
+          {/* signature */}
+          <input
+            value={signature}
+            onChange={(e) => setSignature(e.target.value)}
+            placeholder="— Mum"
+            style={{
+              width: '100%',
+              border: 0,
+              background: 'transparent',
+              caretColor: 'var(--warm)',
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontSize: 18,
+              fontWeight: 400,
+              color: 'var(--bone-dim)',
+              outline: 'none',
+              padding: 0,
+              marginTop: 32,
+            }}
+          />
+
+          {/* delivery trigger row */}
+          <div
+            style={{
+              marginTop: 32,
+              display: 'flex',
+              gap: 24,
+              flexWrap: 'wrap',
+              alignItems: 'center',
+            }}
+          >
+            {triggerOptions.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setDeliveryTrigger(opt.value)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.32em',
+                  textTransform: 'uppercase',
+                  color:
+                    deliveryTrigger === opt.value
+                      ? 'var(--warm)'
+                      : 'var(--bone-faint)',
+                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+
+            {deliveryTrigger === 'date' && (
               <input
                 type="date"
                 value={scheduledDate}
                 onChange={(e) => setScheduledDate(e.target.value)}
                 style={{
-                  marginLeft: 10,
                   background: 'transparent',
-                  border: '1px solid var(--loom-rule)',
-                  color: 'var(--loom-bone)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 10.5,
+                  border: '1px solid var(--rule)',
+                  color: 'var(--bone)',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.08em',
                   padding: '3px 6px',
                   colorScheme: 'dark',
-                  borderRadius: 1,
+                  borderRadius: 0,
+                  outline: 'none',
                 }}
               />
-            ) : null}
-          </span>
+            )}
+          </div>
 
-          <span style={{ color: 'var(--loom-bone-faint)' }}>
-            {busy ? 'sealing…' : 'draft · unsealed'}
-          </span>
-        </ComposerRail>
+          {/* recipient row */}
+          {members.length > 0 ? (
+            <div
+              style={{
+                marginTop: 16,
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              <span style={{ color: 'var(--bone-faint)' }}>for · </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setRecipientIdx((i) => (i + 1) % members.length)
+                }
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--serif)',
+                  fontStyle: 'italic',
+                  fontSize: 13,
+                  letterSpacing: 0,
+                  color: 'var(--bone-dim)',
+                  padding: 0,
+                }}
+              >
+                {recipient?.name}
+              </button>
+            </div>
+          ) : (
+            <div
+              style={{
+                marginTop: 16,
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              <span>for · </span>
+              <button
+                type="button"
+                onClick={() => navigate('/family')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  padding: 0,
+                }}
+              >
+                add a recipient →
+              </button>
+            </div>
+          )}
 
-        <div
-          style={{
-            marginTop: 28,
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            gap: 24,
-            flexWrap: 'wrap',
-          }}
-        >
-          <p
-            className="loom-mono"
+          <hr className="hl-rule" style={{ marginTop: 28 }} />
+
+          {/* error / success feedback */}
+          {error ? (
+            <p
+              role="alert"
+              className="hl-mono"
+              style={{
+                marginTop: 16,
+                fontSize: 10,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'var(--dye-madder)',
+              }}
+            >
+              {error}
+            </p>
+          ) : null}
+
+          {(draft.isSuccess || seal.isSuccess) ? (
+            <p
+              className="hl-mono"
+              style={{
+                marginTop: 16,
+                fontSize: 10,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+              }}
+            >
+              {seal.isSuccess ? 'letter sealed ·' : 'draft saved ·'} navigating…
+            </p>
+          ) : null}
+
+          {/* primary CTA */}
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              if (!body.trim()) {
+                setError('Write the letter first — even a line.');
+                return;
+              }
+              if (deliveryTrigger === 'date' && !scheduledDate) {
+                setError('Choose the date this letter unseals.');
+                return;
+              }
+              seal.mutate();
+            }}
+            disabled={busy}
+            className="hl-btn"
             style={{
-              margin: 0,
-              fontSize: 10,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
-              maxWidth: 440,
+              marginTop: 24,
+              opacity: busy ? 0.5 : 1,
+              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+              cursor: busy ? 'not-allowed' : 'pointer',
             }}
           >
-            a sealed letter cannot be edited · it is delivered to your recipient {sealedUntil ? `on ${sealedUntil}` : 'as soon as it is sealed'}
-          </p>
-          <div style={{ display: 'flex', gap: 16 }}>
-            <button
-              type="button"
-              onClick={() => {
-                setError(null);
-                if (!body.trim()) {
-                  setError('Write the letter first — even a line.');
-                  return;
-                }
-                draft.mutate();
-              }}
-              disabled={busy || !body.trim()}
-              className="loom-btn-ghost"
-              style={{ opacity: busy || !body.trim() ? 0.5 : 1 }}
-            >
-              save as draft
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setError(null);
-                if (!body.trim()) {
-                  setError('Write the letter first — even a line.');
-                  return;
-                }
-                if (lockOpen === 'date' && !scheduledDate) {
-                  setError('Choose the date this letter unseals.');
-                  return;
-                }
-                seal.mutate();
-              }}
-              disabled={busy || !body.trim()}
-              className="loom-btn"
-              style={{ opacity: busy || !body.trim() ? 0.5 : 1 }}
-            >
-              {seal.isPending ? 'sealing…' : sealedUntil ? `seal until ${sealedUntil}` : 'seal the letter'}
-            </button>
-          </div>
+            {seal.isPending
+              ? 'sealing…'
+              : sealedUntil
+                ? `seal until ${sealedUntil}`
+                : 'seal and save →'}
+          </button>
         </div>
       </div>
-    </AppFrame>
-  );
-}
 
-function railLink(color: string): React.CSSProperties {
-  return {
-    background: 'transparent',
-    border: 0,
-    padding: 0,
-    cursor: 'pointer',
-    font: 'inherit',
-    letterSpacing: 'inherit',
-    color,
-    transition: 'color 180ms var(--loom-ease)',
-  };
+      <TapestryEdge />
+    </div>
+  );
 }

@@ -1,7 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
-import { AppFrame } from '../loom/components/AppFrame';
+import { Frame } from '../loom/components/Frame';
 import { memoryCardsApi } from '../services/api';
 
+// ── Dye swatch colours (10-stop natural-dye palette) ─────────────────────────
+const DYE_VARS = [
+  'var(--dye-madder)',
+  'var(--dye-cochineal)',
+  'var(--dye-kermes)',
+  'var(--dye-saffron)',
+  'var(--dye-weld)',
+  'var(--dye-walnut)',
+  'var(--dye-oakgall)',
+  'var(--dye-woad)',
+  'var(--dye-indigo)',
+  'var(--dye-iron)',
+] as const;
+
+function dyeForType(type: string): string {
+  const map: Record<string, string> = {
+    memory:  DYE_VARS[0],  // madder
+    voice:   DYE_VARS[7],  // woad
+    letter:  DYE_VARS[3],  // saffron
+  };
+  return map[type] ?? DYE_VARS[6]; // oakgall fallback
+}
+
+// ── Types ────────────────────────────────────────────────────────────────────
 interface OnThisDayMemory {
   id: string;
   type: string;
@@ -12,6 +36,7 @@ interface OnThisDayMemory {
   yearsAgo: number;
 }
 
+// ── Component ────────────────────────────────────────────────────────────────
 export function OnThisDay() {
   const { data, isLoading } = useQuery({
     queryKey: ['on-this-day'],
@@ -22,135 +47,145 @@ export function OnThisDay() {
     ...((data as any)?.memoriesFromThisDay || []),
     ...((data as any)?.createdOnThisDay || []),
   ];
+
   const today = new Date();
   const dateStr = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
 
-  const typeLabels: Record<string, string> = {
-    memory: 'memory',
-    voice: 'voice',
-    letter: 'letter',
-  };
-
   return (
-    <AppFrame>
-      <header style={{ marginBottom: 48, maxWidth: 640 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>On this day</p>
+    <Frame left="on this day">
+      <div
+        style={{
+          padding: '48px 48px 80px',
+          maxWidth: 720,
+          margin: '0 auto',
+        }}
+      >
+        {/* ── Header ───────────────────────────────────────────────────── */}
         <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+          className="hl-serif"
+          style={{
+            fontSize: 36,
+            fontWeight: 300,
+            color: 'var(--bone)',
+            margin: '0 0 8px',
+            lineHeight: 1.1,
+          }}
         >
-          {dateStr}.
+          On this day.
         </h1>
+
         <p
-          className="loom-body"
-          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', lineHeight: 1.6 }}
+          className="hl-mono"
+          style={{
+            fontSize: 11,
+            color: 'var(--bone-faint)',
+            margin: '0 0 32px',
+            letterSpacing: '0.04em',
+          }}
         >
-          Threads woven on this date in earlier years surface here.
+          {dateStr}
         </p>
-      </header>
 
-      {isLoading ? (
-        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
-          Loading…
-        </p>
-      ) : !memories.length ? (
-        <div style={{ padding: '60px 36px', border: '1px solid var(--loom-rule)', maxWidth: 640 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Nothing yet</p>
-          <h2
-            className="loom-serif"
-            style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
+        {/* ── States ───────────────────────────────────────────────────── */}
+        {isLoading ? (
+          <div
+            style={{
+              height: 1,
+              background: 'var(--warm)',
+              width: 120,
+              opacity: 0.5,
+              marginTop: 40,
+            }}
+          />
+        ) : !memories.length ? (
+          <p
+            className="hl-prose hl-italic"
+            style={{
+              fontSize: 15,
+              color: 'var(--bone-faint)',
+              margin: 0,
+            }}
           >
-            The thread remembers what you give it.
-          </h2>
-          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', margin: 0, lineHeight: 1.7 }}>
-            As you write into the thread over the years, entries woven on {dateStr} will surface here each year.
+            nothing written on this date yet
           </p>
-        </div>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {memories.map((memory) => (
-            <li
-              key={memory.id}
-              style={{ padding: '28px 0', borderBottom: '1px solid var(--loom-rule)' }}
-            >
-              <article style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 32, alignItems: 'baseline' }}>
-                {/* Left: date + type */}
-                <div>
-                  <p
-                    className="loom-mono"
-                    style={{ margin: 0, fontSize: 12, color: 'var(--loom-warm)', letterSpacing: '0.06em' }}
-                  >
-                    {memory.yearsAgo === 1 ? '1 year ago' : `${memory.yearsAgo} years ago`}
-                  </p>
-                  <p
-                    className="loom-mono"
-                    style={{ margin: '4px 0 0', fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
-                  >
-                    {new Date(memory.date).toLocaleDateString(undefined, { year: 'numeric' })} · {typeLabels[memory.type] || 'entry'}
-                  </p>
-                </div>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {memories.map((memory) => (
+              <li
+                key={memory.id}
+                style={{
+                  borderTop: '1px solid var(--rule)',
+                  paddingTop: 22,
+                  marginBottom: 22,
+                }}
+              >
+                {/* year label */}
+                <p
+                  className="hl-mono"
+                  style={{
+                    fontSize: 10,
+                    color: 'var(--warm)',
+                    margin: '0 0 6px',
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {new Date(memory.date).getFullYear()}
+                  {memory.yearsAgo > 0
+                    ? ` · ${memory.yearsAgo === 1 ? '1 year ago' : `${memory.yearsAgo} years ago`}`
+                    : ''}
+                </p>
 
-                {/* Right: content */}
-                <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
-                  {memory.photoUrl ? (
-                    <img
-                      src={memory.photoUrl}
-                      alt=""
-                      style={{ width: 72, height: 72, objectFit: 'cover', flexShrink: 0, borderRadius: 0 }}
-                    />
-                  ) : null}
-                  <div style={{ flex: 1 }}>
-                    <h3
-                      className="loom-serif"
-                      style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 8px', lineHeight: 1.25 }}
-                    >
-                      {memory.title}
-                    </h3>
-                    {memory.description && (
-                      <p
-                        className="loom-body"
-                        style={{
-                          fontSize: 15,
-                          color: 'var(--loom-bone-dim)',
-                          margin: 0,
-                          lineHeight: 1.7,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {memory.description}
-                      </p>
-                    )}
-                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--loom-rule)' }}>
-                      <button
-                        style={{
-                          background: 'none',
-                          border: 0,
-                          padding: 0,
-                          cursor: 'pointer',
-                          fontFamily: "'JetBrains Mono', monospace",
-                          fontSize: 10,
-                          letterSpacing: '0.14em',
-                          textTransform: 'uppercase',
-                          color: 'var(--loom-bone-faint)',
-                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--loom-warm)')}
-                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
-                      >
-                        remember →
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </li>
-          ))}
-        </ul>
-      )}
-    </AppFrame>
+                {/* title */}
+                <h2
+                  className="hl-serif"
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 300,
+                    color: 'var(--bone)',
+                    margin: 0,
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {memory.title}
+                </h2>
+
+                {/* excerpt */}
+                {memory.description && (
+                  <p
+                    className="hl-prose"
+                    style={{
+                      fontSize: 15,
+                      color: 'var(--bone-dim)',
+                      margin: '8px 0 0',
+                      lineHeight: 1.7,
+                      maxWidth: '60ch',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {memory.description}
+                  </p>
+                )}
+
+                {/* dye swatch 12×2 */}
+                <div
+                  aria-hidden
+                  style={{
+                    marginTop: 10,
+                    width: 12,
+                    height: 2,
+                    background: dyeForType(memory.type),
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Frame>
   );
 }
 

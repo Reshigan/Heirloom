@@ -2,37 +2,36 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
+import { Frame } from '../loom/components/Frame';
 
 /**
- * FutureLetter — Loom-native rewrite.
+ * FutureLetter — Loom 3 rewrite (§6 Listener surface).
  *
  * A letter written from your 80-year-old self, generated from the values,
  * hopes and fears you note today. Distinct from the hand-written Letter
- * composer (/letters/new) — this one the Listener drafts for you. Reskinned
- * off the retired void/paper/gold tokens onto the loom constitution: one
- * Source Serif 4 column, ink/bone/warm, hairline progress, no chrome.
+ * composer (/letters/new) — this one the Listener drafts for you.
+ * No AppFrame, no icons, no glassmorphism. One column, ink ground, bone cloth.
  */
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontFamily: "'Inter', sans-serif",
-  fontSize: 11,
-  fontWeight: 500,
-  letterSpacing: '0.22em',
+  fontFamily: 'var(--mono)',
+  fontSize: 10,
+  fontWeight: 400,
+  letterSpacing: '0.32em',
   textTransform: 'uppercase',
-  color: 'var(--loom-bone-faint)',
+  color: 'var(--bone-faint)',
   marginBottom: 10,
 };
 
 const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--loom-rule)',
+  border: '1px solid var(--rule)',
   borderRadius: 2,
-  color: 'var(--loom-bone)',
-  caretColor: 'var(--loom-warm)',
-  fontFamily: "'Source Serif 4', serif",
+  color: 'var(--bone)',
+  caretColor: 'var(--warm)',
+  fontFamily: 'var(--serif)',
   fontSize: 16,
   lineHeight: 1.7,
   padding: '12px 14px',
@@ -99,12 +98,19 @@ export function FutureLetter() {
   const set = (patch: Partial<typeof formData>) => setFormData({ ...formData, ...patch });
 
   return (
-    <AppFrame>
-      <div style={{ maxWidth: 980, margin: '0 auto' }}>
+    <Frame left="future letter">
+      <div
+        style={{
+          maxWidth: 980,
+          margin: '0 auto',
+          padding: '48px 32px 80px',
+        }}
+      >
+        {/* back link */}
         <button
           type="button"
           onClick={() => navigate('/memories')}
-          className="loom-mono"
+          className="hl-mono"
           style={{
             background: 'transparent',
             border: 0,
@@ -113,35 +119,49 @@ export function FutureLetter() {
             fontSize: 10,
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            color: 'var(--loom-bone-faint)',
+            color: 'var(--bone-faint)',
             marginBottom: 36,
+            display: 'block',
           }}
         >
-          ← back to the thread
+          back to the thread
         </button>
 
-        <header style={{ marginBottom: 44, maxWidth: 640 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14, color: 'var(--loom-warm)' }}>
-            ∞ &nbsp; a letter across time
+        {/* page heading */}
+        <header style={{ marginBottom: 48, maxWidth: 640 }}>
+          <p className="hl-eyebrow" style={{ marginBottom: 14, color: 'var(--warm)' }}>
+            a letter across time
           </p>
           <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(32px, 4.5vw, 48px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+            className="hl-serif"
+            style={{
+              fontSize: 36,
+              fontWeight: 300,
+              margin: '0 0 28px',
+              lineHeight: 1.15,
+              color: 'var(--bone)',
+            }}
           >
-            Letter from your future self.
+            A letter from the past.
           </h1>
           <p
-            className="loom-body"
-            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', lineHeight: 1.6 }}
+            className="hl-prose"
+            style={{ fontSize: 17, color: 'var(--bone-dim)', margin: 0 }}
           >
             Written from your 80-year-old self, reflecting on the values, hopes and fears you hold
             today. A quiet reminder of what truly matters — drafted by the Listener, kept by you.
           </p>
         </header>
 
-        <div style={{ display: 'grid', gap: 48, gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}>
+        <hr className="hl-rule" style={{ marginBottom: 48 }} />
+
+        <div style={{ display: 'grid', gap: 64, gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}>
+          {/* left: input form */}
           <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 24, alignContent: 'start' }}>
-            <h2 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, margin: 0 }}>
+            <h2
+              className="hl-serif"
+              style={{ fontSize: 22, fontWeight: 300, margin: 0, color: 'var(--bone)' }}
+            >
               Tell the Listener about yourself
             </h2>
 
@@ -210,35 +230,55 @@ export function FutureLetter() {
             <button
               type="submit"
               disabled={generateMutation.isPending}
-              className="loom-btn"
+              className="hl-btn"
               style={{ opacity: generateMutation.isPending ? 0.5 : 1, justifySelf: 'start' }}
             >
               {generateMutation.isPending ? 'writing across time…' : 'generate my letter'}
             </button>
 
             {generateMutation.isPending ? (
-              <div style={{ height: 1, background: 'var(--loom-rule)', overflow: 'hidden' }}>
+              <div style={{ height: 1, background: 'var(--rule)', overflow: 'hidden' }}>
                 <div
                   style={{
                     height: '100%',
                     width: '40%',
-                    background: 'var(--loom-warm)',
-                    animation: 'loom-shuttle 1.4s var(--loom-ease) infinite',
+                    background: 'var(--warm)',
+                    animation: 'loom-shuttle 1.4s cubic-bezier(0.16,1,0.3,1) infinite',
                   }}
                 />
               </div>
             ) : null}
           </form>
 
-          <div style={{ display: 'grid', gap: 24, alignContent: 'start' }}>
+          {/* right: letter display + previous letters */}
+          <div style={{ display: 'grid', gap: 32, alignContent: 'start' }}>
             {generatedLetter ? (
-              <div style={{ border: '1px solid var(--loom-rule)', borderRadius: 2, padding: 28 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 20 }}>
-                  <h2 className="loom-serif" style={{ fontSize: 20, fontWeight: 300, margin: 0 }}>Your letter</h2>
+              /* parchment-deep inner letter card */
+              <div
+                style={{
+                  background: 'var(--parchment-deep)',
+                  padding: '40px 48px',
+                  maxWidth: 640,
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    marginBottom: 28,
+                  }}
+                >
+                  <h2
+                    className="hl-serif"
+                    style={{ fontSize: 18, fontWeight: 300, margin: 0, color: 'var(--parchment-ink)' }}
+                  >
+                    Your letter
+                  </h2>
                   <button
                     type="button"
                     onClick={handleShare}
-                    className="loom-mono"
+                    className="hl-mono"
                     style={{
                       background: 'transparent',
                       border: 0,
@@ -246,61 +286,151 @@ export function FutureLetter() {
                       fontSize: 10,
                       letterSpacing: '0.18em',
                       textTransform: 'uppercase',
-                      color: copied ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                      color: copied ? 'var(--warm)' : 'var(--parchment-faint)',
+                      padding: 0,
                     }}
                   >
-                    {copied ? 'copied ✓' : 'copy'}
+                    {copied ? 'copied' : 'copy'}
                   </button>
                 </div>
+
+                {/* salutation */}
+                <p
+                  className="hl-serif"
+                  style={{
+                    fontSize: 16,
+                    fontStyle: 'italic',
+                    color: 'var(--parchment-dim)',
+                    margin: '0 0 18px',
+                  }}
+                >
+                  Dear younger self,
+                </p>
+
+                {/* body */}
                 <div
-                  className="loom-body"
-                  style={{ whiteSpace: 'pre-wrap', fontSize: 17, color: 'var(--loom-bone)', lineHeight: 1.85 }}
+                  className="hl-prose"
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    fontSize: 17,
+                    color: 'var(--parchment-ink)',
+                    lineHeight: 1.85,
+                    maxWidth: 'none',
+                  }}
                 >
                   {generatedLetter.content}
                 </div>
+
+                {/* author */}
+                <p
+                  className="hl-serif"
+                  style={{
+                    fontSize: 16,
+                    fontStyle: 'italic',
+                    color: 'var(--parchment-dim)',
+                    marginTop: 20,
+                    marginBottom: 0,
+                  }}
+                >
+                  Your future self
+                </p>
+
+                {/* date */}
+                <p
+                  className="hl-mono"
+                  style={{
+                    fontSize: 10,
+                    color: 'var(--bone-faint)',
+                    marginTop: 8,
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  {new Date().toLocaleDateString()}
+                </p>
               </div>
             ) : (
               <div
                 style={{
-                  border: '1px solid var(--loom-rule)',
-                  borderRadius: 2,
+                  border: '1px solid var(--rule)',
+                  borderRadius: 0,
                   textAlign: 'center',
                   padding: '64px 28px',
                 }}
               >
-                <p className="loom-serif" style={{ fontSize: 30, color: 'var(--loom-bone-faint)', margin: '0 0 16px' }} aria-hidden>
+                <p
+                  className="hl-serif"
+                  style={{ fontSize: 30, color: 'var(--bone-faint)', margin: '0 0 16px' }}
+                  aria-hidden
+                >
                   ∞
                 </p>
-                <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 15 }}>
-                  Fill in the lines and the Listener will write you a letter from the far end of your life.
+                <p
+                  className="hl-prose"
+                  style={{ color: 'var(--bone-dim)', fontSize: 15, margin: '0 auto' }}
+                >
+                  Fill in the lines and the Listener will write you a letter from the far end of
+                  your life.
                 </p>
               </div>
             )}
 
+            {/* previous letters list */}
             {previousLetters?.letters && previousLetters.letters.length > 0 ? (
-              <div style={{ border: '1px solid var(--loom-rule)', borderRadius: 2, padding: 28 }}>
-                <h3 className="loom-serif" style={{ fontSize: 17, fontWeight: 300, margin: '0 0 18px' }}>
+              <div>
+                <h3
+                  className="hl-serif"
+                  style={{ fontSize: 17, fontWeight: 300, margin: '0 0 8px', color: 'var(--bone)' }}
+                >
                   Previous letters
                 </h3>
-                <div style={{ display: 'grid', gap: 16, maxHeight: 300, overflowY: 'auto' }}>
+                <hr className="hl-rule" style={{ marginBottom: 0 }} />
+                <div>
                   {previousLetters.letters.map((letter: any) => (
-                    <div key={letter.id} style={{ borderLeft: '1px solid var(--loom-rule)', paddingLeft: 16 }}>
-                      <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: '0 0 6px', letterSpacing: '0.06em' }}>
-                        {new Date(letter.createdAt).toLocaleDateString()}
-                      </p>
+                    <div
+                      key={letter.id}
+                      style={{
+                        borderBottom: '1px solid var(--rule)',
+                        paddingTop: 18,
+                        paddingBottom: 18,
+                      }}
+                    >
+                      {/* title */}
                       <p
-                        className="loom-body"
+                        className="hl-serif"
                         style={{
-                          color: 'var(--loom-bone-dim)',
-                          fontSize: 14,
-                          lineHeight: 1.7,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
+                          fontSize: 16,
+                          fontWeight: 300,
+                          color: 'var(--bone)',
+                          margin: '0 0 4px',
                         }}
                       >
-                        {letter.letterContent}
+                        Letter from your future self
+                      </p>
+
+                      {/* recipient */}
+                      <p
+                        className="hl-serif"
+                        style={{
+                          fontSize: 14,
+                          fontStyle: 'italic',
+                          color: 'var(--bone-dim)',
+                          margin: '0 0 6px',
+                        }}
+                      >
+                        to {letter.recipientName ?? 'you'}
+                      </p>
+
+                      {/* delivery date */}
+                      <p
+                        className="hl-mono"
+                        style={{
+                          fontSize: 10,
+                          color: 'var(--warm)',
+                          margin: 0,
+                          letterSpacing: '0.06em',
+                        }}
+                      >
+                        {new Date(letter.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   ))}
@@ -310,6 +440,6 @@ export function FutureLetter() {
           </div>
         </div>
       </div>
-    </AppFrame>
+    </Frame>
   );
 }

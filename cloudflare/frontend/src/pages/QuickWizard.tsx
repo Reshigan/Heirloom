@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { AppFrame } from '../loom/components/AppFrame';
+import { HLogo } from '../loom/components/HLogo';
+import { TapestryEdge } from '../loom/components/Frame';
 import { familyApi } from '../services/api';
 
-// Template options for quick start
+// ── Template options ────────────────────────────────────────────────────────
 const TEMPLATES = [
   {
     id: 'birthday',
@@ -15,7 +16,7 @@ const TEMPLATES = [
   {
     id: 'if-not-here',
     name: "If I'm Not Here",
-    description: 'Words of comfort for when you\'re gone',
+    description: "Words of comfort for when you're gone",
     defaultPrompt: "If I'm not there to tell you this in person…",
   },
   {
@@ -26,7 +27,7 @@ const TEMPLATES = [
   },
   {
     id: 'proud',
-    name: 'Why I\'m Proud of You',
+    name: "Why I'm Proud of You",
     description: 'Celebrate who they are',
     defaultPrompt: 'I want you to know how proud I am of you because…',
   },
@@ -52,34 +53,113 @@ interface PersonPrompt {
 type WizardStep = 'person' | 'template' | 'type' | 'prompt' | 'create' | 'preview';
 type ContentType = 'voice' | 'letter';
 
-/* ─── Hairline progress track ──────────────────────────────── */
-function StepTrack({ current, total }: { current: number; total: number }) {
+// ── Step metadata ───────────────────────────────────────────────────────────
+const STEP_NUMBER: Record<WizardStep, number> = {
+  person:   1,
+  template: 2,
+  type:     3,
+  prompt:   4,
+  create:   5,
+  preview:  5,
+};
+
+const TOTAL_STEPS = 5;
+
+// ── Step config (question + description) ───────────────────────────────────
+function stepConfig(
+  step: WizardStep,
+  selectedPerson: FamilyMember | null,
+): { question: string; description: string } {
+  switch (step) {
+    case 'person':
+      return {
+        question: 'Who is this for?',
+        description: 'Choose the person you want to leave a thread for.',
+      };
+    case 'template':
+      return {
+        question: 'What would you like to say?',
+        description: `Pick a thread to get started quickly${selectedPerson ? ` for ${selectedPerson.name}` : ''}.`,
+      };
+    case 'type':
+      return {
+        question: 'How do you want to weave it?',
+        description: 'Choose your medium.',
+      };
+    case 'prompt':
+      return {
+        question: 'Where to begin?',
+        description: 'Pick a suggested beginning or write your own.',
+      };
+    case 'preview':
+    case 'create':
+      return {
+        question: 'Your thread is ready.',
+        description: selectedPerson
+          ? `Here is what ${selectedPerson.name} will receive.`
+          : 'Review your thread before weaving.',
+      };
+  }
+}
+
+// ── Voice rings placeholder ─────────────────────────────────────────────────
+function VoiceRings() {
   return (
-    <div style={{ marginBottom: 48 }}>
-      <p
-        className="loom-mono"
-        style={{ fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', marginBottom: 10 }}
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, height: 64 }}>
+      {[0, 1, 2, 3].map((i) => (
+        <div
+          key={i}
+          style={{
+            width: 4,
+            height: 12 + i * 10,
+            background: 'var(--bone-faint)',
+            borderRadius: 0,
+            animation: `hl-waveform 1.2s ease-in-out ${i * 0.15}s infinite alternate`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── Hairline loading bar ────────────────────────────────────────────────────
+function LoadingBar({ label }: { label?: string }) {
+  return (
+    <div style={{ paddingTop: 28 }}>
+      <div
+        style={{
+          height: 1,
+          background: 'var(--rule)',
+          position: 'relative',
+          overflow: 'hidden',
+          maxWidth: 160,
+        }}
       >
-        step {current} of {total}
-      </p>
-      <div style={{ height: 1, background: 'var(--loom-rule)', position: 'relative' }}>
         <div
           style={{
             position: 'absolute',
             left: 0,
             top: 0,
             height: '100%',
-            width: `${(current / total) * 100}%`,
-            background: 'var(--loom-warm)',
-            transition: 'width 360ms var(--loom-ease)',
+            width: '40%',
+            background: 'var(--warm)',
+            animation: 'loom-shuttle 1.4s cubic-bezier(0.16,1,0.3,1) infinite',
           }}
         />
       </div>
+      {label && (
+        <p
+          className="hl-mono"
+          style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 10, letterSpacing: '0.1em' }}
+        >
+          {label}
+        </p>
+      )}
     </div>
   );
 }
 
-/* ─── Selection row ─────────────────────────────────────────── */
+// ── Selection row ───────────────────────────────────────────────────────────
 function SelectRow({
   label,
   sub,
@@ -102,7 +182,7 @@ function SelectRow({
         padding: '14px 0',
         background: 'none',
         border: 'none',
-        borderBottom: '1px solid var(--loom-rule)',
+        borderBottom: '1px solid var(--rule)',
         cursor: 'pointer',
         textAlign: 'left',
         gap: 16,
@@ -110,19 +190,26 @@ function SelectRow({
     >
       <span>
         <span
-          className="loom-body"
+          className="hl-serif"
           style={{
             fontSize: 16,
-            color: selected ? 'var(--loom-warm)' : 'var(--loom-bone)',
+            color: selected ? 'var(--warm)' : 'var(--bone)',
             display: 'block',
+            fontWeight: 400,
           }}
         >
           {label}
         </span>
         {sub && (
           <span
-            className="loom-mono"
-            style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em', display: 'block', marginTop: 3 }}
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              color: 'var(--bone-faint)',
+              letterSpacing: '0.06em',
+              display: 'block',
+              marginTop: 3,
+            }}
           >
             {sub}
           </span>
@@ -130,8 +217,8 @@ function SelectRow({
       </span>
       {selected && (
         <span
-          className="loom-mono"
-          style={{ fontSize: 10, color: 'var(--loom-warm)', letterSpacing: '0.16em', flexShrink: 0 }}
+          className="hl-mono"
+          style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.16em', flexShrink: 0 }}
         >
           selected
         </span>
@@ -140,6 +227,27 @@ function SelectRow({
   );
 }
 
+// ── Preview summary row ─────────────────────────────────────────────────────
+function SummaryRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <>
+      <div style={{ display: 'flex', gap: 24, alignItems: 'baseline', padding: '12px 0' }}>
+        <span
+          className="hl-mono"
+          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', minWidth: 72 }}
+        >
+          {label}
+        </span>
+        <span className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', fontWeight: 400 }}>
+          {value}
+        </span>
+      </div>
+      <hr className="hl-rule" />
+    </>
+  );
+}
+
+// ── Main component ──────────────────────────────────────────────────────────
 export function QuickWizard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -152,13 +260,14 @@ export function QuickWizard() {
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<PersonPrompt[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState('');
 
   const preselectedPersonId = searchParams.get('for');
   const preselectedPrompt = searchParams.get('prompt');
 
   const { data: family, isLoading: familyLoading } = useQuery({
     queryKey: ['family'],
-    queryFn: () => familyApi.getAll().then(r => r.data),
+    queryFn: () => familyApi.getAll().then((r) => r.data),
   });
 
   useEffect(() => {
@@ -188,7 +297,7 @@ export function QuickWizard() {
     try {
       const token = localStorage.getItem('accessToken');
       const response = await fetch(`${API_URL}/api/ai/person-prompts/${selectedPerson.id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       setPrompts(data.prompts || []);
@@ -262,395 +371,411 @@ export function QuickWizard() {
     }
   };
 
-  const stepNumber = {
-    person: 1,
-    template: 2,
-    type: 3,
-    prompt: 4,
-    create: 5,
-    preview: 5,
-  };
-
+  const currentStep = STEP_NUMBER[step];
+  const { question, description } = stepConfig(step, selectedPerson);
   const familyMembers = Array.isArray(family) ? family : [];
+  const canGoBack = step !== 'person';
 
   return (
-    <AppFrame>
-      <div style={{ maxWidth: 600, margin: '0 auto' }}>
-        <StepTrack current={stepNumber[step]} total={5} />
+    <div
+      className="hl-screen"
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+    >
+      {/* ── Topbar ──────────────────────────────────────────────────────── */}
+      <div className="hl-topbar">
+        {/* left: logo + label */}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
+          <Link to="/loom" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+            <HLogo size={18} wordmark />
+          </Link>
+          <span style={{ color: 'var(--bone-low)' }}>·</span>
+          <span style={{ color: 'var(--bone-dim)' }}>quick start</span>
+        </span>
 
-        {/* Step 1: Select Person */}
-        {step === 'person' && (
-          <div>
-            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>begin a thread</p>
-            <h1
-              className="loom-h2"
-              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
-            >
-              Who is this for?
-            </h1>
-            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
-              Choose the person you want to leave a thread for.
-            </p>
+        {/* center: counter */}
+        <span
+          className="hl-counter"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            whiteSpace: 'nowrap',
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+          }}
+        >
+          begin in 60 seconds
+        </span>
 
-            {familyLoading ? (
-              <div style={{ padding: '40px 0' }}>
-                <div
-                  style={{
-                    height: 1,
-                    background: 'var(--loom-rule)',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    maxWidth: 180,
-                  }}
-                >
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: 0,
-                      top: 0,
-                      height: '100%',
-                      width: '40%',
-                      background: 'var(--loom-warm)',
-                      animation: 'loom-shuttle 1.4s var(--loom-ease) infinite',
-                    }}
-                  />
-                </div>
-                <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 10, letterSpacing: '0.1em' }}>
-                  loading…
-                </p>
-              </div>
-            ) : familyMembers.length === 0 ? (
-              <div style={{ paddingTop: 40 }}>
-                <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 24 }}>
-                  No bloodline members yet.
-                </p>
-                <button
-                  onClick={() => navigate('/family')}
-                  className="loom-btn"
-                >
-                  add family member
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gap: 0 }}>
-                {familyMembers.map((person: FamilyMember) => (
+        {/* right: skip */}
+        <Link
+          to="/loom"
+          className="hl-link warm"
+          style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase' }}
+        >
+          skip →
+        </Link>
+      </div>
+
+      {/* ── Centered content area ───────────────────────────────────────── */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '80px 32px',
+          overflowY: 'auto',
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 540, width: '100%' }}>
+
+          {/* Step indicator */}
+          <p
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              color: 'var(--bone-faint)',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              marginBottom: 18,
+            }}
+          >
+            step {currentStep} of {TOTAL_STEPS}
+          </p>
+
+          {/* Step question */}
+          <h2
+            className="hl-serif"
+            style={{
+              fontSize: 28,
+              fontWeight: 400,
+              letterSpacing: '-0.012em',
+              color: 'var(--bone)',
+              margin: 0,
+            }}
+          >
+            {question}
+          </h2>
+
+          {/* Step description */}
+          <p
+            className="hl-prose"
+            style={{
+              fontSize: 14.5,
+              color: 'var(--bone-dim)',
+              marginTop: 14,
+              marginBottom: 0,
+              lineHeight: 1.6,
+              maxWidth: '100%',
+            }}
+          >
+            {description}
+          </p>
+
+          {/* ── Input area ─────────────────────────────────────────────── */}
+          <div style={{ marginTop: 28 }}>
+
+            {/* Step 1: person */}
+            {step === 'person' && (
+              <>
+                {familyLoading ? (
+                  <LoadingBar label="loading…" />
+                ) : familyMembers.length === 0 ? (
+                  <div style={{ paddingTop: 20 }}>
+                    <p
+                      className="hl-prose"
+                      style={{ fontSize: 14.5, color: 'var(--bone-dim)', marginBottom: 22 }}
+                    >
+                      No bloodline members yet.
+                    </p>
+                    <button onClick={() => navigate('/family')} className="hl-btn">
+                      add family member
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'left' }}>
+                    {familyMembers.map((person: FamilyMember) => (
+                      <SelectRow
+                        key={person.id}
+                        label={person.name}
+                        sub={person.relationship}
+                        onClick={() => handlePersonSelect(person)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Step 2: template */}
+            {step === 'template' && (
+              <div style={{ textAlign: 'left' }}>
+                {TEMPLATES.map((template) => (
                   <SelectRow
-                    key={person.id}
-                    label={person.name}
-                    sub={person.relationship}
-                    onClick={() => handlePersonSelect(person)}
+                    key={template.id}
+                    label={template.name}
+                    sub={template.description}
+                    onClick={() => handleTemplateSelect(template)}
                   />
                 ))}
               </div>
             )}
-          </div>
-        )}
 
-        {/* Step 2: Select Template */}
-        {step === 'template' && (
-          <div>
-            <button
-              onClick={goBack}
-              className="loom-mono"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--loom-bone-faint)',
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                marginBottom: 32,
-                padding: 0,
-              }}
-            >
-              ← back
-            </button>
-
-            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
-              for {selectedPerson?.name}
-            </p>
-            <h1
-              className="loom-h2"
-              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
-            >
-              What would you like to say?
-            </h1>
-            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
-              Pick a thread to get started quickly.
-            </p>
-
-            <div style={{ display: 'grid', gap: 0 }}>
-              {TEMPLATES.map((template) => (
+            {/* Step 3: type (voice / letter) */}
+            {step === 'type' && (
+              <div style={{ textAlign: 'left' }}>
                 <SelectRow
-                  key={template.id}
-                  label={template.name}
-                  sub={template.description}
-                  onClick={() => handleTemplateSelect(template)}
+                  label="Voice"
+                  sub="a personal recording — ≈ 60 seconds"
+                  selected={contentType === 'voice'}
+                  onClick={() => handleTypeSelect('voice')}
                 />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Select Type */}
-        {step === 'type' && (
-          <div>
-            <button
-              onClick={goBack}
-              className="loom-mono"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--loom-bone-faint)',
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                marginBottom: 32,
-                padding: 0,
-              }}
-            >
-              ← back
-            </button>
-
-            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>
-              for {selectedPerson?.name}
-            </p>
-            <h1
-              className="loom-h2"
-              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
-            >
-              How do you want to weave it?
-            </h1>
-            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
-              Choose your medium.
-            </p>
-
-            <div style={{ display: 'grid', gap: 0 }}>
-              <SelectRow
-                label="Voice"
-                sub="a personal recording — ≈ 60 seconds"
-                selected={contentType === 'voice'}
-                onClick={() => handleTypeSelect('voice')}
-              />
-              <SelectRow
-                label="Written letter"
-                sub="a composed thread — ≈ 5 minutes"
-                selected={contentType === 'letter'}
-                onClick={() => handleTypeSelect('letter')}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Select Prompt */}
-        {step === 'prompt' && (
-          <div>
-            <button
-              onClick={goBack}
-              className="loom-mono"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--loom-bone-faint)',
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                marginBottom: 32,
-                padding: 0,
-              }}
-            >
-              ← back
-            </button>
-
-            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>suggested beginnings</p>
-            <h1
-              className="loom-h2"
-              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
-            >
-              Where to begin?
-            </h1>
-            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
-              Pick a prompt or write your own.
-            </p>
-
-            {loadingPrompts ? (
-              <div style={{ padding: '40px 0' }}>
-                <div
-                  style={{
-                    height: 1,
-                    background: 'var(--loom-rule)',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    maxWidth: 180,
-                  }}
-                >
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: 0,
-                      top: 0,
-                      height: '100%',
-                      width: '40%',
-                      background: 'var(--loom-warm)',
-                      animation: 'loom-shuttle 1.4s var(--loom-ease) infinite',
-                    }}
-                  />
-                </div>
-                <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 10, letterSpacing: '0.1em' }}>
-                  the Listener is thinking…
-                </p>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gap: 0 }}>
-                {prompts.map((prompt) => (
-                  <button
-                    key={prompt.id}
-                    onClick={() => handlePromptSelect(prompt.prompt)}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      padding: '14px 0',
-                      background: 'none',
-                      border: 'none',
-                      borderBottom: '1px solid var(--loom-rule)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <span
-                      className="loom-body"
-                      style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)', fontSize: 15 }}
-                    >
-                      "{prompt.prompt}"
-                    </span>
-                    <span
-                      className="loom-mono"
-                      style={{ display: 'block', fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', marginTop: 4 }}
-                    >
-                      {prompt.category}
-                    </span>
-                  </button>
-                ))}
-
-                <button
-                  onClick={() => handlePromptSelect('')}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    padding: '14px 0',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                  }}
-                >
-                  <span
-                    className="loom-body"
-                    style={{ color: 'var(--loom-bone-faint)', fontSize: 15 }}
-                  >
-                    I'll write my own thread
-                  </span>
-                </button>
+                <SelectRow
+                  label="Written letter"
+                  sub="a composed thread — ≈ 5 minutes"
+                  selected={contentType === 'letter'}
+                  onClick={() => handleTypeSelect('letter')}
+                />
               </div>
             )}
-          </div>
-        )}
 
-        {/* Step 5: Preview & Create */}
-        {step === 'preview' && (
-          <div>
-            <button
-              onClick={goBack}
-              className="loom-mono"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--loom-bone-faint)',
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                marginBottom: 32,
-                padding: 0,
-              }}
-            >
-              ← back
-            </button>
-
-            <p className="loom-eyebrow" style={{ marginBottom: 16 }}>ready to weave</p>
-            <h1
-              className="loom-h2"
-              style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
-            >
-              Your thread is ready.
-            </h1>
-            <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', marginBottom: 48, maxWidth: 440 }}>
-              Here is what {selectedPerson?.name} will receive.
-            </p>
-
-            {/* Summary */}
-            <div style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 24, marginBottom: 40 }}>
-              <div style={{ display: 'grid', gap: 16 }}>
-                <div style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
-                  <span className="loom-eyebrow" style={{ minWidth: 80 }}>for</span>
-                  <span className="loom-body" style={{ color: 'var(--loom-bone)' }}>
-                    {selectedPerson?.name}
-                    {selectedPerson?.relationship && (
-                      <span style={{ color: 'var(--loom-bone-faint)', marginLeft: 8 }}>
-                        · {selectedPerson.relationship}
-                      </span>
-                    )}
-                  </span>
-                </div>
-                <div style={{ height: 1, background: 'var(--loom-rule)' }} />
-                <div style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
-                  <span className="loom-eyebrow" style={{ minWidth: 80 }}>medium</span>
-                  <span className="loom-body" style={{ color: 'var(--loom-bone)' }}>
-                    {contentType === 'voice' ? 'voice recording' : 'written letter'}
-                  </span>
-                </div>
-                {selectedPrompt && (
+            {/* Step 4: prompt */}
+            {step === 'prompt' && (
+              <>
+                {loadingPrompts ? (
+                  <LoadingBar label="the Listener is thinking…" />
+                ) : (
                   <>
-                    <div style={{ height: 1, background: 'var(--loom-rule)' }} />
-                    <div style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
-                      <span className="loom-eyebrow" style={{ minWidth: 80 }}>prompt</span>
-                      <span
-                        className="loom-body"
-                        style={{ fontStyle: 'italic', color: 'var(--loom-bone-dim)' }}
+                    {/* Voice rings if voice type */}
+                    {contentType === 'voice' && (
+                      <div style={{ marginBottom: 24 }}>
+                        <VoiceRings />
+                      </div>
+                    )}
+
+                    {/* Text input for custom prompt (letter type) */}
+                    {contentType === 'letter' && (
+                      <input
+                        type="text"
+                        value={customPrompt}
+                        onChange={(e) => setCustomPrompt(e.target.value)}
+                        placeholder="write your own beginning…"
+                        className="hl-serif"
+                        style={{
+                          width: '100%',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: '1px solid var(--rule)',
+                          outline: 'none',
+                          fontSize: 20,
+                          fontWeight: 400,
+                          color: 'var(--bone)',
+                          padding: '8px 0',
+                          fontFamily: 'var(--serif)',
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && customPrompt.trim()) {
+                            handlePromptSelect(customPrompt.trim());
+                          }
+                        }}
+                      />
+                    )}
+
+                    {/* Progress bar placeholder */}
+                    {prompts.length > 0 && (
+                      <div style={{ marginTop: 24, textAlign: 'left' }}>
+                        <p
+                          className="hl-mono"
+                          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', marginBottom: 8 }}
+                        >
+                          suggested beginnings
+                        </p>
+                        {prompts.map((prompt) => (
+                          <button
+                            key={prompt.id}
+                            onClick={() => handlePromptSelect(prompt.prompt)}
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              padding: '14px 0',
+                              background: 'none',
+                              border: 'none',
+                              borderBottom: '1px solid var(--rule)',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                            }}
+                          >
+                            <span
+                              className="hl-serif"
+                              style={{ fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 15, fontWeight: 400 }}
+                            >
+                              "{prompt.prompt}"
+                            </span>
+                            <span
+                              className="hl-mono"
+                              style={{
+                                display: 'block',
+                                fontSize: 9,
+                                color: 'var(--bone-faint)',
+                                letterSpacing: '0.14em',
+                                marginTop: 4,
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              {prompt.category}
+                            </span>
+                          </button>
+                        ))}
+
+                        <button
+                          onClick={() => handlePromptSelect('')}
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            padding: '14px 0',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                          }}
+                        >
+                          <span
+                            className="hl-serif"
+                            style={{ color: 'var(--bone-faint)', fontSize: 15, fontWeight: 400 }}
+                          >
+                            I'll write my own thread
+                          </span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Next button for custom prompt (letter) */}
+                    {contentType === 'letter' && customPrompt.trim() && (
+                      <button
+                        onClick={() => handlePromptSelect(customPrompt.trim())}
+                        className="hl-btn"
+                        style={{ marginTop: 22 }}
                       >
-                        "{selectedPrompt}"
-                      </span>
-                    </div>
+                        next →
+                      </button>
+                    )}
+
+                    {/* Voice: proceed without custom text */}
+                    {contentType === 'voice' && (
+                      <button
+                        onClick={() => handlePromptSelect('')}
+                        className="hl-btn"
+                        style={{ marginTop: 22 }}
+                      >
+                        next →
+                      </button>
+                    )}
                   </>
                 )}
-                <div style={{ height: 1, background: 'var(--loom-rule)' }} />
-                <div style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
-                  <span className="loom-eyebrow" style={{ minWidth: 80 }}>reply</span>
-                  <span className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 14 }}>
-                    {selectedPerson?.name} can respond after viewing
-                  </span>
+              </>
+            )}
+
+            {/* Step 5: preview */}
+            {(step === 'preview' || step === 'create') && (
+              <div style={{ textAlign: 'left' }}>
+                <hr className="hl-rule" />
+                {selectedPerson && (
+                  <SummaryRow
+                    label="for"
+                    value={
+                      <>
+                        {selectedPerson.name}
+                        {selectedPerson.relationship && (
+                          <span style={{ color: 'var(--bone-faint)', marginLeft: 8 }}>
+                            · {selectedPerson.relationship}
+                          </span>
+                        )}
+                      </>
+                    }
+                  />
+                )}
+                <SummaryRow
+                  label="medium"
+                  value={contentType === 'voice' ? 'voice recording' : 'written letter'}
+                />
+                {selectedPrompt && (
+                  <SummaryRow
+                    label="prompt"
+                    value={
+                      <span style={{ fontStyle: 'italic', color: 'var(--bone-dim)' }}>
+                        "{selectedPrompt}"
+                      </span>
+                    }
+                  />
+                )}
+                {selectedPerson && (
+                  <SummaryRow
+                    label="reply"
+                    value={
+                      <span style={{ color: 'var(--bone-dim)', fontSize: 13 }}>
+                        {selectedPerson.name} can respond after viewing
+                      </span>
+                    }
+                  />
+                )}
+
+                <button onClick={handleCreate} className="hl-btn" style={{ marginTop: 22 }}>
+                  {contentType === 'voice' ? 'start recording →' : 'start writing →'}
+                </button>
+
+                <div style={{ marginTop: 14 }}>
+                  <button
+                    onClick={() => navigate('/life-events')}
+                    className="hl-mono"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--bone-faint)',
+                      fontSize: 10,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      padding: 0,
+                    }}
+                  >
+                    schedule for a milestone instead →
+                  </button>
                 </div>
               </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <button onClick={handleCreate} className="loom-btn" style={{ alignSelf: 'flex-start' }}>
-                {contentType === 'voice' ? 'start recording' : 'start writing'}
-              </button>
-              <button
-                onClick={() => navigate('/life-events')}
-                className="loom-btn-ghost"
-                style={{ alignSelf: 'flex-start' }}
-              >
-                schedule for a milestone instead
-              </button>
-            </div>
+            )}
           </div>
-        )}
+
+          {/* ── Back link ────────────────────────────────────────────────── */}
+          {canGoBack && (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={goBack}
+              onKeyDown={(e) => e.key === 'Enter' && goBack()}
+              className="hl-mono"
+              style={{
+                marginTop: 14,
+                fontSize: 10,
+                color: 'var(--bone-faint)',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                userSelect: 'none',
+              }}
+            >
+              ← back
+            </div>
+          )}
+        </div>
       </div>
-    </AppFrame>
+
+      {/* ── Tapestry edge ────────────────────────────────────────────────── */}
+      <TapestryEdge nowFrac={0.1} />
+    </div>
   );
 }

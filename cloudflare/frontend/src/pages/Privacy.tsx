@@ -1,187 +1,96 @@
 import { Link } from 'react-router-dom';
-import { AppFrame } from '../loom/components/AppFrame';
+import { HLogo } from '../loom/components/HLogo';
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function MktBar() {
   return (
-    <section style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 40, marginTop: 40 }}>
-      <h2
-        className="loom-h2"
-        style={{ fontSize: 22, fontWeight: 300, margin: '0 0 20px', fontStyle: 'normal' }}
-      >
-        {title}
-      </h2>
-      <div className="loom-body" style={{ color: 'var(--loom-bone-dim)', lineHeight: 1.85 }}>
-        {children}
-      </div>
-    </section>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 56px', borderBottom: '1px solid var(--parchment-rule)' }}>
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
+      </Link>
+      <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
+        <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
+        <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
+        <Link to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
+        <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
+      </span>
+    </div>
   );
 }
 
+const SECTIONS = [
+  {
+    n: 'one',
+    h: 'We cannot read your entries.',
+    b: 'The architecture forbids it. Entry content is end-to-end encrypted with keys held by your thread — not by us. Our administrators see metadata and account state, never prose. If we are subpoenaed, we hand over what we have, which is account-level metadata. Not your stories.',
+  },
+  {
+    n: 'two',
+    h: 'The thread outlives the company.',
+    b: 'A successor non-profit is named in our bylaws and funded by Founder-tier payments. If Heirloom ends, the IPFS archive continues, and the family export tooling is open-sourced on day one of any wind-down.',
+  },
+  {
+    n: 'three',
+    h: 'You can always download everything.',
+    b: 'Full export in plain text + original photographs + voice WAV files. No proprietary format. Updated nightly. Free at all tiers. You own this.',
+  },
+  {
+    n: 'four',
+    h: 'We never sell, share, or advertise.',
+    b: 'No third-party trackers, no ad pixels, no analytics that identify individuals. Aggregate metrics only, in service of operating the platform. Pinky promise, codified in the bylaws.',
+  },
+  {
+    n: 'five',
+    h: 'Time-locked entries stay locked.',
+    b: 'Even from us. The cryptographic keys to a sealed note are released only when the release-condition is met — a date, a member\'s verified age, an author\'s verified death. We cannot peek.',
+  },
+  {
+    n: 'six',
+    h: 'You can ask us to forget you.',
+    b: 'A request to delete the account erases personal identifiers within 30 days. Content remains in the thread under whatever recipient grants you set. The 30-day grace exists because grief sometimes asks for things grief later regrets.',
+  },
+];
+
 export function Privacy() {
   return (
-    <AppFrame>
-      <div style={{ maxWidth: '70ch', margin: '0 auto' }}>
-        <Link
-          to="/"
-          className="loom-mono"
-          style={{
-            display: 'inline-block',
-            fontSize: 10,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-bone-faint)',
-            textDecoration: 'none',
-            marginBottom: 48,
-          }}
-        >
-          ← back to heirloom
-        </Link>
+    <div className="hl-screen parchment" style={{ overflow: 'auto' }}>
+      <MktBar />
+      <div style={{ padding: '64px 88px 80px', maxWidth: 920, margin: '0 auto' }}>
+        <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>privacy · plain words version</div>
+        <h1 className="hl-serif hl-tight" style={{ fontSize: 52, lineHeight: 1.06, fontWeight: 300, margin: 0, letterSpacing: '-0.022em', color: 'var(--parchment-ink)' }}>
+          Six things you should know.
+        </h1>
 
-        <header style={{ marginBottom: 40 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Privacy Policy</p>
-          <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-          >
-            Your memories are sacred.
-          </h1>
-          <p
-            className="loom-mono"
-            style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginTop: 18, letterSpacing: '0.08em' }}
-          >
-            Last updated: December 16, 2025
-          </p>
-        </header>
+        {SECTIONS.map((s) => (
+          <div key={s.n} style={{ marginTop: 56, display: 'grid', gridTemplateColumns: '100px 1fr', gap: 32, borderTop: '1px solid var(--parchment-rule)', paddingTop: 28 }}>
+            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.32em', textTransform: 'uppercase' }}>{s.n}</div>
+            <div>
+              <h2 className="hl-serif hl-tight" style={{ fontSize: 28, fontWeight: 400, margin: 0, letterSpacing: '-0.012em', color: 'var(--parchment-ink)' }}>{s.h}</h2>
+              <p className="hl-prose dark" style={{ fontSize: 17, lineHeight: 1.8, marginTop: 14, color: 'var(--parchment-ink)' }}>{s.b}</p>
+            </div>
+          </div>
+        ))}
 
-        <Section title="Our commitment to privacy">
-          <p>
-            At Heirloom, we believe your memories are sacred. We've built our platform with privacy as a
-            fundamental principle, not an afterthought. This policy explains how we protect your data and
-            respect your privacy rights.
-          </p>
-        </Section>
+        <div style={{ marginTop: 64, paddingTop: 36, borderTop: '1px solid var(--parchment-rule)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 14, color: 'var(--parchment-dim)', fontWeight: 400 }}>
+            The legal-formal version is below. We promise it says the same thing in more words.
+          </div>
+          <div className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', flexShrink: 0, marginLeft: 32 }}>
+            last updated · 14 nov 2025 · v 3.2
+          </div>
+        </div>
 
-        <Section title="Information we collect">
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Account information.</strong>{' '}
-            When you create an account, we collect your email address, name, and password (which is hashed
-            and never stored in plain text).
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Content you create.</strong>{' '}
-            Photos, voice recordings, letters, and other content you upload are encrypted on your device
-            before transmission. We cannot read or access this content.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Usage data.</strong>{' '}
-            We collect anonymized usage statistics to improve our service, such as feature usage patterns
-            and performance metrics.
-          </p>
-          <p>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Payment information.</strong>{' '}
-            Payment processing is handled by Stripe. We never store your full credit card number.
-          </p>
-        </Section>
-
-        <Section title="Zero-knowledge encryption">
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>AES-256 encryption.</strong>{' '}
-            All your content is encrypted using AES-256, the same standard used by the U.S. government
-            for classified information.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Zero-knowledge architecture.</strong>{' '}
-            Your encryption keys are derived from your password and never leave your device. We cannot
-            decrypt your content, even if compelled by law enforcement.
-          </p>
-          <p>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>End-to-end encryption.</strong>{' '}
-            Data is encrypted before leaving your device and can only be decrypted by you or your
-            designated beneficiaries.
-          </p>
-        </Section>
-
-        <Section title="Data storage &amp; security">
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Secure infrastructure.</strong>{' '}
-            Your data is stored on Cloudflare's global network with enterprise-grade security, redundancy,
-            and 99.99% uptime.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Geographic distribution.</strong>{' '}
-            Data is replicated across multiple secure data centers to ensure availability and disaster recovery.
-          </p>
-          <p>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Regular audits.</strong>{' '}
-            We conduct regular security audits and penetration testing to identify and address vulnerabilities.
-          </p>
-        </Section>
-
-        <Section title="Your rights &amp; data deletion">
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Access your data.</strong>{' '}
-            You can export all your data at any time from your account settings.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Delete your data.</strong>{' '}
-            You can delete your account and all associated data at any time. Deletion is permanent
-            and irreversible.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>GDPR compliance.</strong>{' '}
-            We comply with GDPR and respect your rights to access, rectification, erasure, and data portability.
-          </p>
-          <p>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>CCPA compliance.</strong>{' '}
-            California residents have additional rights under CCPA, including the right to know what data
-            we collect and the right to opt-out of data sales (we don't sell data).
-          </p>
-        </Section>
-
-        <Section title="Contact us">
-          <p>
-            If you have questions about this privacy policy or your data, please write to us at{' '}
-            <a
-              href="mailto:privacy@heirloom.blue"
-              style={{ color: 'var(--loom-warm)', textDecoration: 'none', borderBottom: '1px solid var(--loom-rule-warm)' }}
-            >
-              privacy@heirloom.blue
-            </a>.
-          </p>
-        </Section>
-
-        <div
-          style={{
-            borderTop: '1px solid var(--loom-rule)',
-            marginTop: 64,
-            paddingTop: 28,
-            display: 'flex',
-            gap: 28,
-            alignItems: 'center',
-          }}
-        >
-          <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', marginRight: 'auto' }}>
-            ∞ heirloom
-          </span>
-          <Link
-            to="/terms"
-            className="loom-mono"
-            style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
-          >
+        <div style={{ marginTop: 56, paddingTop: 28, borderTop: '1px solid var(--parchment-rule)', display: 'flex', gap: 28, alignItems: 'center' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <HLogo size={14} wordmark mono color="var(--parchment-faint)" wordColor="var(--parchment-faint)" />
+          </Link>
+          <Link to="/terms" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--parchment-faint)', textDecoration: 'none' }}>
             Terms
           </Link>
-          <a
-            href="mailto:support@heirloom.blue"
-            className="loom-mono"
-            style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
-          >
+          <a href="mailto:support@heirloom.blue" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--parchment-faint)', textDecoration: 'none' }}>
             Contact
           </a>
-          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.08em', color: 'var(--loom-bone-faint)' }}>
-            © {new Date().getFullYear()}
-          </span>
         </div>
       </div>
-    </AppFrame>
+    </div>
   );
 }

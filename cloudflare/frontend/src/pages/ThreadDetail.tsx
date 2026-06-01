@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AppFrame } from '../loom/components/AppFrame';
-import { ViewToggle } from '../loom/components/ViewToggle';
+import { Frame, TapestryEdge } from '../loom/components/Frame';
 import { threadsApi, type ThreadRole, type ThreadEntry } from '../services/api';
 
 /**
@@ -14,9 +13,9 @@ const DYES = [
   'iron', 'walnut', 'cochineal', 'kermes', 'madder',
   'saffron', 'weld', 'oakgall', 'woad', 'indigo',
 ] as const;
-const dyeVar = (i: number) => `var(--dye-${DYES[i % DYES.length]})`;
 
-type WallView = 'wall' | 'book';
+type DyeName = typeof DYES[number];
+const dyeOf = (i: number): DyeName => DYES[i % DYES.length];
 
 export function ThreadDetail() {
   const { id } = useParams<{ id: string }>();
@@ -30,7 +29,6 @@ export function ThreadDetail() {
   const [inviteRole, setInviteRole] = useState<Exclude<ThreadRole, 'FOUNDER'>>('READER');
   const [inviteGen, setInviteGen] = useState<number>(0);
   const [inviteError, setInviteError] = useState<string | null>(null);
-  const [wallView, setWallView] = useState<WallView>('wall');
 
   const { data: detail, isLoading, error } = useQuery({
     queryKey: ['thread', threadId],
@@ -102,47 +100,36 @@ export function ThreadDetail() {
     },
   });
 
+  const threadName = detail?.thread.name;
+
   if (isLoading) {
     return (
-      <AppFrame>
-        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
+      <Frame
+        left="the wall · …"
+        right={<Link to="/threads" className="hl-link warm">threads →</Link>}
+      >
+        <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-dim)', padding: '56px 56px' }}>
           Loading…
         </p>
-      </AppFrame>
+      </Frame>
     );
   }
 
   if (error || !detail) {
     return (
-      <AppFrame>
-        <Link
-          to="/threads"
-          style={{
-            display: 'inline-block',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 10,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-bone-faint)',
-            textDecoration: 'none',
-            marginBottom: 40,
-          }}
-        >
-          ← all threads
-        </Link>
-        <h1
-          className="loom-serif"
-          style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', marginBottom: 12 }}
-        >
-          Thread not available.
-        </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 16, color: 'var(--loom-bone-dim)', lineHeight: 1.65 }}
-        >
-          You may not be a member of this thread, or it may have been archived.
-        </p>
-      </AppFrame>
+      <Frame
+        left="the wall"
+        right={<Link to="/threads" className="hl-link warm">threads →</Link>}
+      >
+        <div style={{ padding: '56px 56px' }}>
+          <h1 className="hl-serif" style={{ fontSize: 28, fontWeight: 400, fontStyle: 'italic', marginBottom: 12 }}>
+            Thread not available.
+          </h1>
+          <p className="hl-prose" style={{ color: 'var(--bone-dim)', maxWidth: 560 }}>
+            You may not be a member of this thread, or it may have been archived.
+          </p>
+        </div>
+      </Frame>
     );
   }
 
@@ -161,715 +148,506 @@ export function ThreadDetail() {
       : null;
 
   return (
-    <AppFrame>
-      {/* Back */}
-      <Link
-        to="/threads"
+    <Frame
+      left={`the wall · ${threadName ?? 'thread'}`}
+      right={<Link to="/threads" className="hl-link warm">threads →</Link>}
+      showEdge={false}
+    >
+      {/* ── Full-screen Wall layout ── */}
+      <div
         style={{
-          display: 'inline-block',
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 10,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'var(--loom-bone-faint)',
-          textDecoration: 'none',
-          marginBottom: 40,
-          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+          position: 'absolute',
+          top: 70,
+          bottom: 40,
+          left: 0,
+          right: 0,
+          overflow: 'hidden',
+          display: 'flex',
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--loom-bone-dim)'; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--loom-bone-faint)'; }}
       >
-        ← all threads
-      </Link>
-
-      {/* Thread header */}
-      <header style={{ marginBottom: 56 }}>
-        <p
-          className="loom-mono"
+        {/* Left date gutter */}
+        <div
           style={{
-            margin: '0 0 14px',
-            fontSize: 10,
-            letterSpacing: '0.28em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-warm)',
+            width: 132,
+            flexShrink: 0,
+            paddingTop: 56,
+            paddingLeft: 32,
           }}
         >
-          {(thread.role ?? '').toLowerCase()} · gen {thread.generation_offset}
-        </p>
-        <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-        >
-          {thread.name}
-        </h1>
-        {thread.dedication ? (
-          <p
-            className="loom-body"
-            style={{ fontSize: 18, color: 'var(--loom-bone-dim)', margin: '18px 0 0', maxWidth: 640, lineHeight: 1.65 }}
-          >
-            {thread.dedication}
-          </p>
-        ) : null}
-
-        <p
-          className="loom-mono"
-          style={{ margin: '20px 0 0', fontSize: 11, letterSpacing: '0.04em', color: 'var(--loom-bone-faint)' }}
-        >
-          · {entryRows.length} {entryRows.length === 1 ? 'entry' : 'entries'} &nbsp;·&nbsp; {memberRows.length} {memberRows.length === 1 ? 'member' : 'members'} &nbsp;·&nbsp; {(thread.default_visibility ?? '').toLowerCase()}
-        </p>
-
-        <div style={{ display: 'flex', gap: 12, marginTop: 24, flexWrap: 'wrap' }}>
-          <Link
-            to={`/threads/${threadId}/compose`}
-            className="loom-btn"
-            style={{ textDecoration: 'none' }}
-          >
-            add entry
-          </Link>
-          {canInvite ? (
-            <button
-              type="button"
-              onClick={() => setInviteOpen((v) => !v)}
-              className="loom-btn-ghost"
-            >
-              {inviteOpen ? 'close' : 'invite member'}
-            </button>
-          ) : null}
-        </div>
-      </header>
-
-      {/* Members */}
-      <section style={{ marginBottom: 56 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
-          <span className="loom-eyebrow">Members</span>
-          <hr className="loom-hairline" style={{ flex: 1 }} />
-        </div>
-
-        {inviteOpen && canInvite ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setInviteError(null);
-              if (!inviteName.trim()) {
-                setInviteError('Display name is required.');
-                return;
-              }
-              invite.mutate();
-            }}
-            style={{
-              border: '1px solid var(--loom-rule-warm)',
-              padding: '24px 28px',
-              marginBottom: 24,
-              display: 'grid',
-              gap: 20,
-            }}
-          >
-            <p
-              className="loom-mono"
-              style={{ margin: 0, fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
-            >
-              Invite a member
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 20 }}>
-              <FieldInput id="m-name" label="Display name" value={inviteName} onChange={setInviteName} placeholder="Aunt Faiza" />
-              <FieldInput id="m-email" label="Email — optional" type="email" value={inviteEmail} onChange={setInviteEmail} placeholder="faiza@example.com" />
-              <FieldInput id="m-rel" label="Relation" value={inviteRelation} onChange={setInviteRelation} placeholder="aunt, son, grandchild" />
-              <div>
-                <label htmlFor="m-role" className="loom-eyebrow" style={{ display: 'block', marginBottom: 8 }}>
-                  Role
-                </label>
-                <select
-                  id="m-role"
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value as typeof inviteRole)}
-                  style={fieldSelectStyle}
-                >
-                  <option value="READER">Reader — can read, can't write</option>
-                  <option value="AUTHOR">Author — can read and add entries</option>
-                  <option value="SUCCESSOR">Successor — inherits if you step away</option>
-                  <option value="PLACEHOLDER">Placeholder — descendant not yet born</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="m-gen" className="loom-eyebrow" style={{ display: 'block', marginBottom: 8 }}>
-                  Generation offset
-                </label>
-                <input
-                  id="m-gen"
-                  type="number"
-                  min={-3}
-                  max={5}
-                  value={inviteGen}
-                  onChange={(e) => setInviteGen(parseInt(e.target.value, 10) || 0)}
-                  style={fieldInputStyle}
-                />
-                <p
-                  className="loom-mono"
-                  style={{ margin: '6px 0 0', fontSize: 9, letterSpacing: '0.06em', color: 'var(--loom-bone-faint)' }}
-                >
-                  0 = you · +1 = your children · -1 = your parents
-                </p>
-              </div>
-            </div>
-
-            {inviteError ? (
-              <p
-                role="alert"
-                className="loom-body"
-                style={{ margin: 0, fontStyle: 'italic', color: '#c25a5a', fontSize: 14 }}
+          {entryRows.map((e) => {
+            const active = e.id === activeEntryId;
+            return (
+              <div
+                key={e.id}
+                style={{
+                  marginBottom: 130,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  color: active ? 'var(--bone)' : 'var(--bone-faint)',
+                }}
               >
-                {inviteError}
-              </p>
-            ) : null}
-
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button
-                type="submit"
-                disabled={invite.isPending || !inviteName.trim()}
-                className="loom-btn"
-                style={{ opacity: invite.isPending || !inviteName.trim() ? 0.5 : 1 }}
-              >
-                {invite.isPending ? 'adding…' : 'add member'}
-              </button>
-              <button type="button" onClick={() => setInviteOpen(false)} className="loom-btn-ghost">
-                cancel
-              </button>
-            </div>
-          </form>
-        ) : null}
-
-        {memberRows.length === 0 ? (
-          <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)', fontSize: 15 }}>
-            Just you so far.
-          </p>
-        ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {memberRows.map((m) => (
-              <li
-                key={m.id}
-                style={{ padding: '16px 0', borderBottom: '1px solid var(--loom-rule)' }}
-              >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'baseline', gap: 16 }}>
-                  <div>
-                    <p
-                      className="loom-serif"
-                      style={{ margin: 0, fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)' }}
-                    >
-                      {m.display_name}
-                    </p>
-                    {m.relation_label || m.email ? (
-                      <p
-                        className="loom-mono"
-                        style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}
-                      >
-                        {m.relation_label}{m.relation_label && m.email ? ' · ' : ''}{m.email}
-                      </p>
-                    ) : null}
-                    {canGovern && m.role !== 'FOUNDER' ? (
-                      <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm(`Revoke ${m.display_name}'s membership? Their past entries stay attributed to them; they lose future access.`)) {
-                              revoke.mutate(m.id);
-                            }
-                          }}
-                          disabled={revoke.isPending}
-                          style={ghostActionStyle}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#c25a5a'; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone-faint)'; }}
-                        >
-                          revoke
-                        </button>
-                        {m.role !== 'SUCCESSOR' && m.role !== 'PLACEHOLDER' ? (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              designate.mutate({ successor_member_id: m.id, rank: (successors?.successors.length ?? 0) + 1 })
-                            }
-                            disabled={designate.isPending}
-                            style={ghostActionStyle}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-warm)'; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--loom-bone-faint)'; }}
-                          >
-                            make successor
-                          </button>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </div>
-                  <span
-                    className="loom-mono"
-                    style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
-                  >
-                    {(m.role ?? '').toLowerCase()}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Successors */}
-      {(successors?.successors.length ?? 0) > 0 || canGovern ? (
-        <section style={{ marginBottom: 56 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 14 }}>
-            <span className="loom-eyebrow">Succession line</span>
-            <hr className="loom-hairline" style={{ flex: 1 }} />
-          </div>
-          <p
-            className="loom-body"
-            style={{ fontSize: 14, color: 'var(--loom-bone-dim)', lineHeight: 1.65, maxWidth: 560, margin: '0 0 20px' }}
-          >
-            If the Founder steps away or dies, the highest-ranked active Successor takes over — keeping the thread going without breaking continuity.
-          </p>
-          {successors?.successors.length ? (
-            <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {successors.successors.map((s) => (
-                <li
-                  key={s.id}
+                <span
+                  aria-hidden
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: '32px 1fr auto',
-                    alignItems: 'baseline',
-                    gap: 16,
-                    padding: '14px 0',
-                    borderBottom: '1px solid var(--loom-rule)',
+                    width: 14,
+                    height: 1,
+                    background: active ? 'var(--warm)' : 'var(--bone-low)',
+                    display: 'inline-block',
+                    flexShrink: 0,
                   }}
+                />
+                <span
+                  className="hl-mono"
+                  style={{ fontSize: '10.5px', letterSpacing: '0.04em' }}
                 >
-                  <span
-                    className="loom-mono"
-                    style={{ fontSize: 10, color: 'var(--loom-warm)', letterSpacing: '0.1em' }}
-                  >
-                    #{s.rank}
-                  </span>
-                  <span
-                    className="loom-serif"
-                    style={{ fontSize: 18, fontWeight: 300, color: 'var(--loom-bone)' }}
-                  >
-                    {s.display_name}
-                  </span>
-                  <span
-                    className="loom-mono"
-                    style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
-                  >
-                    {(s.role ?? '').toLowerCase()}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p
-              className="loom-body"
-              style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)', fontSize: 15 }}
-            >
-              None designated yet. Use "make successor" on a member above to begin the chain.
+                  {formatDate(e.created_at)}
+                </span>
+              </div>
+            );
+          })}
+
+          {entryRows.length === 0 && (
+            <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 13 }}>
+              no entries
             </p>
           )}
-        </section>
-      ) : null}
-
-      {/* Entries — the Wall */}
-      <section>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 28 }}>
-          <span className="loom-eyebrow">The Wall</span>
-          <hr className="loom-hairline" style={{ flex: 1 }} />
-          {entryRows.length > 0 ? (
-            <ViewToggle<WallView>
-              value={wallView}
-              onChange={setWallView}
-              options={[
-                { value: 'wall', label: 'wall' },
-                { value: 'book', label: 'book' },
-              ]}
-            />
-          ) : null}
-          <span
-            className="loom-mono"
-            style={{ fontSize: 10, letterSpacing: '0.1em', color: 'var(--loom-bone-faint)' }}
-          >
-            · {entryRows.length} {entryRows.length === 1 ? 'entry' : 'entries'}
-          </span>
         </div>
 
-        {entryRows.length === 0 ? (
-          <div style={{ padding: '48px 0', textAlign: 'center', border: '1px solid var(--loom-rule)' }}>
-            <p className="loom-eyebrow" style={{ marginBottom: 12 }}>Nothing woven yet</p>
-            <h2
-              className="loom-serif"
-              style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 20px' }}
-            >
-              The first entry starts the cloth.
-            </h2>
-            <Link
-              to={`/threads/${threadId}/compose`}
-              className="loom-btn"
-              style={{ textDecoration: 'none' }}
-            >
-              add the first entry
-            </Link>
-          </div>
-        ) : wallView === 'book' ? (
-          <BookReader entries={entryRows} authorOf={authorOf} threadName={thread.name} />
-        ) : (
-          <div>
-            {entryRows.map((e, i) => (
-              <WallEntry
-                key={e.id}
-                entry={e}
-                dyeIndex={i}
-                author={authorOf(e)}
-                visibility={thread.default_visibility}
-                active={e.id === activeEntryId}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-    </AppFrame>
-  );
-}
-
-/**
- * WallEntry — one weft thread rendered in the design's Wall treatment:
- * a dye chapter-mark (swatch + label), the author italic byline, the
- * FULL serif prose body (hero prose, ~17px, ~60ch), and a meta line.
- * The active/current entry carries a warm left-border spine.
- *
- * The body is read from `body_ciphertext` (which the composer currently
- * stores as plaintext — see ThreadCompose). Sealed entries (pending_lock)
- * never render their body; we show the seal instead. Nothing is invented:
- * if no body exists, we say so quietly.
- */
-function WallEntry({
-  entry: e,
-  dyeIndex,
-  author,
-  visibility,
-  active,
-}: {
-  entry: ThreadEntry;
-  dyeIndex: number;
-  author: string;
-  visibility: string;
-  active: boolean;
-}) {
-  const sealed = !!e.pending_lock;
-  const body = !sealed ? (e.body_ciphertext ?? '').trim() : '';
-  const paras = body ? body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean) : [];
-
-  // meta line — REAL fields only; no fabricated amendment/comment counts.
-  const metaBits: string[] = [(e.visibility ?? visibility).toLowerCase()];
-  if (e.era_label) metaBits.push(e.era_label);
-  else if (e.era_year) metaBits.push(String(e.era_year));
-  if (e.memory_id) metaBits.push('photograph');
-  if (e.voice_recording_id) metaBits.push('voice');
-
-  return (
-    <article
-      style={{
-        maxWidth: 680,
-        padding: '32px 0',
-        borderBottom: '1px solid var(--loom-rule)',
-        ...(active
-          ? { borderLeft: '1px solid var(--loom-warm)', paddingLeft: 22, marginLeft: -22 }
-          : null),
-      }}
-    >
-      {/* dye chapter-mark */}
-      <div
-        className="loom-mono"
-        style={{
-          fontSize: 10,
-          color: 'var(--loom-bone-faint)',
-          letterSpacing: '0.22em',
-          textTransform: 'uppercase',
-          marginBottom: 10,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-        <span
-          aria-hidden
-          style={{ display: 'inline-block', width: 12, height: 2, background: dyeVar(dyeIndex) }}
-        />
-        <span>
-          {sealed ? `∞ ${e.pending_lock?.toLowerCase()} lock` : formatDate(e.created_at)}
-        </span>
-      </div>
-
-      {/* author italic byline */}
-      <div
-        className="loom-serif"
-        style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--loom-bone-dim)', marginBottom: 4 }}
-      >
-        {author}
-      </div>
-
-      {/* title */}
-      <h3
-        className="loom-serif"
-        style={{
-          margin: 0,
-          fontSize: active ? 28 : 26,
-          fontWeight: 400,
-          color: 'var(--loom-bone)',
-          lineHeight: 1.2,
-          letterSpacing: '-0.008em',
-        }}
-      >
-        {sealed ? (
-          <span style={{ color: 'var(--loom-warm)', marginRight: 8 }} aria-hidden>∞</span>
-        ) : null}
-        {e.title ?? <em style={{ color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>Untitled entry</em>}
-      </h3>
-
-      {/* FULL serif prose body */}
-      {sealed ? (
-        <p
-          className="loom-body"
-          style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone-faint)', margin: '14px 0 0', maxWidth: '60ch', lineHeight: 1.7 }}
-        >
-          Sealed until its unlock condition is met. The thread holds it until then.
-        </p>
-      ) : paras.length > 0 ? (
-        <div style={{ marginTop: 14 }}>
-          {paras.map((p, k) => (
-            <p
-              key={k}
-              className="loom-serif"
-              style={{
-                fontSize: 17,
-                lineHeight: 1.7,
-                color: active ? 'var(--loom-bone)' : 'var(--loom-bone-dim)',
-                margin: k === 0 ? 0 : '14px 0 0',
-                maxWidth: '60ch',
-              }}
-            >
-              {p}
-            </p>
-          ))}
-        </div>
-      ) : (
-        <p
-          className="loom-body"
-          style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--loom-bone-faint)', margin: '14px 0 0' }}
-        >
-          No words yet — only the title was woven.
-        </p>
-      )}
-
-      {/* meta line */}
-      <div
-        className="loom-mono"
-        style={{ marginTop: 14, fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.12em' }}
-      >
-        {metaBits.join(' · ')}
-      </div>
-    </article>
-  );
-}
-
-/**
- * BookReader — the WallBook continuum, driven by REAL entries. One
- * entry per spread: left page carries the chapter intro (∞-free dye
- * eyebrow, title, author byline, folio); right page carries the full
- * serif prose. A loom-mono text pager + ∞ chapter-dot row turns pages.
- * Rendered on the parchment surface (deliberate physical-book shift).
- *
- * Sealed entries are shown as a sealed page (no body) — never invented.
- */
-function BookReader({
-  entries,
-  authorOf,
-  threadName,
-}: {
-  entries: ThreadEntry[];
-  authorOf: (e: ThreadEntry) => string;
-  threadName: string;
-}) {
-  const [idx, setIdx] = useState(0);
-  const e = entries[idx];
-  const sealed = !!e.pending_lock;
-  const body = !sealed ? (e.body_ciphertext ?? '').trim() : '';
-  const paras = body ? body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean) : [];
-  const turn = (d: number) => setIdx((p) => Math.min(entries.length - 1, Math.max(0, p + d)));
-
-  return (
-    <div
-      style={{
-        background: 'var(--parchment)',
-        color: 'var(--parchment-ink)',
-        border: '1px solid var(--parchment-rule)',
-        position: 'relative',
-      }}
-    >
-      {/* running head */}
-      <div
-        className="loom-mono"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          padding: '20px 40px 0',
-          fontSize: 10,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'var(--parchment-faint)',
-        }}
-      >
-        <span>book mode · {threadName}</span>
-        <span style={{ color: 'var(--loom-warm)' }}>∞ &nbsp; entry {idx + 1} of {entries.length}</span>
-      </div>
-
-      {/* two-page spread */}
-      <div style={{ display: 'flex', minHeight: 420 }}>
-        {/* left page — chapter intro */}
+        {/* Right entries column */}
         <div
           style={{
             flex: 1,
-            padding: '40px 40px 40px 56px',
-            borderRight: '1px solid var(--parchment-rule)',
-            display: 'flex',
-            flexDirection: 'column',
+            paddingTop: 36,
+            paddingRight: 56,
+            overflowY: 'auto',
           }}
         >
-          <div
-            className="loom-mono"
-            style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.32em', textTransform: 'uppercase', marginBottom: 28 }}
-          >
-            {e.era_label ?? (e.era_year ? String(e.era_year) : formatDate(e.created_at))}
-          </div>
-          <h2
-            className="loom-serif"
-            style={{ fontSize: 38, lineHeight: 1.1, fontWeight: 300, margin: 0, color: 'var(--parchment-ink)', letterSpacing: '-0.018em', maxWidth: '16ch' }}
-          >
-            {sealed ? (
-              <span style={{ color: 'var(--loom-warm)', marginRight: 8 }} aria-hidden>∞</span>
-            ) : null}
-            {e.title ?? <em style={{ color: 'var(--parchment-faint)' }}>Untitled entry</em>}
-          </h2>
-          <div
-            className="loom-serif"
-            style={{ fontStyle: 'italic', fontSize: 16, color: 'var(--parchment-dim)', marginTop: 24, fontWeight: 400 }}
-          >
-            Written by {authorOf(e)} · {formatDate(e.created_at)}
-          </div>
-          <div style={{ flex: 1 }} />
-          <div className="loom-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.18em' }}>
-            p. {idx * 2 + 1}
-          </div>
-        </div>
-
-        {/* right page — body */}
-        <div style={{ flex: 1, padding: '40px 56px 40px 40px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ maxWidth: '52ch' }}>
-            {sealed ? (
-              <p className="loom-serif" style={{ fontSize: 17, fontStyle: 'italic', lineHeight: 1.85, color: 'var(--parchment-dim)', margin: 0 }}>
-                This entry is sealed until its unlock condition is met. When the day comes, it will open here.
+          {entryRows.length === 0 ? (
+            <div style={{ paddingTop: 20 }}>
+              <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 18 }}>
+                The first entry starts the cloth.
               </p>
-            ) : paras.length > 0 ? (
-              paras.map((p, k) => (
-                <p
-                  key={k}
-                  className="loom-serif"
-                  style={{ fontSize: 18, lineHeight: 1.9, color: 'var(--parchment-ink)', margin: k === 0 ? 0 : '16px 0 0', fontWeight: 400 }}
+              <Link
+                to={`/threads/${threadId}/compose`}
+                className="hl-btn"
+                style={{ textDecoration: 'none', display: 'inline-block', marginTop: 24 }}
+              >
+                add the first entry
+              </Link>
+            </div>
+          ) : (
+            <>
+              {entryRows.map((e, i) => {
+                const active = e.id === activeEntryId;
+                const sealed = !!e.pending_lock;
+                const body = !sealed ? (e.body_ciphertext ?? '').trim() : '';
+                const paras = body ? body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean) : [];
+                const metaBits: string[] = [(e.visibility ?? thread.default_visibility).toLowerCase()];
+                if (e.era_label) metaBits.push(e.era_label);
+                else if (e.era_year) metaBits.push(String(e.era_year));
+                if (e.memory_id) metaBits.push('photograph');
+                if (e.voice_recording_id) metaBits.push('voice');
+                const dye = dyeOf(i);
+
+                return (
+                  <div key={e.id}>
+                    <div
+                      style={{
+                        maxWidth: 640,
+                        marginBottom: 56,
+                        ...(active
+                          ? {
+                              borderLeft: '1px solid var(--warm)',
+                              paddingLeft: 22,
+                              marginLeft: -22,
+                            }
+                          : null),
+                      }}
+                    >
+                      {/* Dye row */}
+                      <div
+                        className="hl-mono"
+                        style={{
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.22em',
+                          color: 'var(--bone-faint)',
+                          marginBottom: 8,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                        }}
+                      >
+                        <span
+                          aria-hidden
+                          style={{
+                            width: 12,
+                            height: 2,
+                            display: 'inline-block',
+                            background: `var(--dye-${dye})`,
+                          }}
+                        />
+                        <span>
+                          dye · {dye} · entry {i + 1}
+                        </span>
+                      </div>
+
+                      {/* Author byline */}
+                      <div
+                        className="hl-serif"
+                        style={{
+                          fontSize: 14,
+                          fontStyle: 'italic',
+                          color: 'var(--bone-dim)',
+                          marginBottom: 4,
+                        }}
+                      >
+                        {authorOf(e)}
+                      </div>
+
+                      {/* Title */}
+                      <h3
+                        className="hl-serif"
+                        style={{
+                          margin: 0,
+                          fontSize: 26,
+                          fontWeight: 400,
+                          letterSpacing: '-0.008em',
+                          color: 'var(--bone)',
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {sealed ? (
+                          <span style={{ color: 'var(--warm)', marginRight: 6 }} aria-hidden>∞</span>
+                        ) : null}
+                        {e.title ?? (
+                          <em style={{ color: 'var(--bone-faint)', fontStyle: 'italic' }}>
+                            Untitled entry
+                          </em>
+                        )}
+                      </h3>
+
+                      {/* Prose body */}
+                      {sealed ? (
+                        <p
+                          className="hl-prose"
+                          style={{
+                            marginTop: 14,
+                            fontStyle: 'italic',
+                            color: 'var(--bone-faint)',
+                          }}
+                        >
+                          Sealed until its unlock condition is met.
+                        </p>
+                      ) : paras.length > 0 ? (
+                        <div style={{ marginTop: 14 }}>
+                          {paras.map((p, k) => (
+                            <p
+                              key={k}
+                              className="hl-prose"
+                              style={{
+                                fontSize: 17,
+                                color: active ? 'var(--bone)' : 'var(--bone-dim)',
+                                margin: k === 0 ? 0 : '14px 0 0',
+                              }}
+                            >
+                              {p}
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                        <p
+                          className="hl-prose"
+                          style={{
+                            marginTop: 14,
+                            fontStyle: 'italic',
+                            color: 'var(--bone-faint)',
+                          }}
+                        >
+                          No words yet — only the title was woven.
+                        </p>
+                      )}
+
+                      {/* Meta line */}
+                      <div
+                        className="hl-mono"
+                        style={{
+                          marginTop: 14,
+                          fontSize: 10,
+                          color: 'var(--bone-faint)',
+                          letterSpacing: '0.12em',
+                        }}
+                      >
+                        {metaBits.join(' · ')}
+                      </div>
+                    </div>
+
+                    {/* Hairline rule between entries */}
+                    {i < entryRows.length - 1 && (
+                      <hr
+                        className="hl-rule"
+                        style={{ maxWidth: 640, marginBottom: 56 }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Members section */}
+              <div style={{ maxWidth: 640, marginTop: 80, marginBottom: 56 }}>
+                <hr className="hl-rule" style={{ marginBottom: 28 }} />
+                <p className="hl-eyebrow" style={{ marginBottom: 20 }}>members</p>
+
+                {/* Invite form */}
+                {canInvite && (
+                  <div style={{ marginBottom: 24 }}>
+                    <button
+                      type="button"
+                      onClick={() => setInviteOpen((v) => !v)}
+                      className="hl-mono"
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: 'pointer',
+                        fontSize: 10,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: 'var(--bone-faint)',
+                        marginBottom: inviteOpen ? 20 : 0,
+                        transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+                    >
+                      {inviteOpen ? 'close ×' : 'invite member +'}
+                    </button>
+
+                    {inviteOpen && (
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          setInviteError(null);
+                          if (!inviteName.trim()) {
+                            setInviteError('Display name is required.');
+                            return;
+                          }
+                          invite.mutate();
+                        }}
+                        style={{
+                          border: '1px solid var(--rule)',
+                          padding: '24px 28px',
+                          display: 'grid',
+                          gap: 20,
+                        }}
+                      >
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 20 }}>
+                          <FieldInput id="m-name" label="Display name" value={inviteName} onChange={setInviteName} placeholder="Aunt Faiza" />
+                          <FieldInput id="m-email" label="Email — optional" type="email" value={inviteEmail} onChange={setInviteEmail} placeholder="faiza@example.com" />
+                          <FieldInput id="m-rel" label="Relation" value={inviteRelation} onChange={setInviteRelation} placeholder="aunt, son, grandchild" />
+                          <div>
+                            <label htmlFor="m-role" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>
+                              Role
+                            </label>
+                            <select
+                              id="m-role"
+                              value={inviteRole}
+                              onChange={(e) => setInviteRole(e.target.value as typeof inviteRole)}
+                              style={fieldSelectStyle}
+                            >
+                              <option value="READER">Reader — can read, can't write</option>
+                              <option value="AUTHOR">Author — can read and add entries</option>
+                              <option value="SUCCESSOR">Successor — inherits if you step away</option>
+                              <option value="PLACEHOLDER">Placeholder — descendant not yet born</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label htmlFor="m-gen" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>
+                              Generation offset
+                            </label>
+                            <input
+                              id="m-gen"
+                              type="number"
+                              min={-3}
+                              max={5}
+                              value={inviteGen}
+                              onChange={(e) => setInviteGen(parseInt(e.target.value, 10) || 0)}
+                              style={fieldInputStyle}
+                            />
+                            <p
+                              className="hl-mono"
+                              style={{ margin: '6px 0 0', fontSize: 9, letterSpacing: '0.06em', color: 'var(--bone-faint)' }}
+                            >
+                              0 = you · +1 = your children · -1 = your parents
+                            </p>
+                          </div>
+                        </div>
+
+                        {inviteError ? (
+                          <p role="alert" className="hl-serif" style={{ margin: 0, fontStyle: 'italic', color: '#c25a5a', fontSize: 14 }}>
+                            {inviteError}
+                          </p>
+                        ) : null}
+
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          <button
+                            type="submit"
+                            disabled={invite.isPending || !inviteName.trim()}
+                            className="hl-btn"
+                            style={{ opacity: invite.isPending || !inviteName.trim() ? 0.5 : 1 }}
+                          >
+                            {invite.isPending ? 'adding…' : 'add member'}
+                          </button>
+                          <button type="button" onClick={() => setInviteOpen(false)} style={ghostActionStyle}>
+                            cancel
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
+
+                {memberRows.length === 0 ? (
+                  <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 15 }}>
+                    Just you so far.
+                  </p>
+                ) : (
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                    {memberRows.map((m) => (
+                      <li
+                        key={m.id}
+                        style={{ padding: '16px 0', borderBottom: '1px solid var(--rule)' }}
+                      >
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'baseline', gap: 16 }}>
+                          <div>
+                            <p className="hl-serif" style={{ margin: 0, fontSize: 18, fontWeight: 300, color: 'var(--bone)' }}>
+                              {m.display_name}
+                            </p>
+                            {(m.relation_label || m.email) ? (
+                              <p className="hl-mono" style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}>
+                                {m.relation_label}{m.relation_label && m.email ? ' · ' : ''}{m.email}
+                              </p>
+                            ) : null}
+                            {canGovern && m.role !== 'FOUNDER' ? (
+                              <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (confirm(`Revoke ${m.display_name}'s membership? Their past entries stay attributed to them; they lose future access.`)) {
+                                      revoke.mutate(m.id);
+                                    }
+                                  }}
+                                  disabled={revoke.isPending}
+                                  style={ghostActionStyle}
+                                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#c25a5a'; }}
+                                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                                >
+                                  revoke
+                                </button>
+                                {m.role !== 'SUCCESSOR' && m.role !== 'PLACEHOLDER' ? (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      designate.mutate({ successor_member_id: m.id, rank: (successors?.successors.length ?? 0) + 1 })
+                                    }
+                                    disabled={designate.isPending}
+                                    style={ghostActionStyle}
+                                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                                  >
+                                    make successor
+                                  </button>
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+                          <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                            {(m.role ?? '').toLowerCase()}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Succession section */}
+              {((successors?.successors.length ?? 0) > 0 || canGovern) && (
+                <div style={{ maxWidth: 640, marginBottom: 56 }}>
+                  <hr className="hl-rule" style={{ marginBottom: 28 }} />
+                  <p className="hl-eyebrow" style={{ marginBottom: 14 }}>succession line</p>
+                  <p
+                    className="hl-prose"
+                    style={{ fontSize: 14, color: 'var(--bone-dim)', maxWidth: 560, marginBottom: 20 }}
+                  >
+                    If the Founder steps away or dies, the highest-ranked active Successor takes over — keeping the thread going without breaking continuity.
+                  </p>
+                  {successors?.successors.length ? (
+                    <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                      {successors.successors.map((s) => (
+                        <li
+                          key={s.id}
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '32px 1fr auto',
+                            alignItems: 'baseline',
+                            gap: 16,
+                            padding: '14px 0',
+                            borderBottom: '1px solid var(--rule)',
+                          }}
+                        >
+                          <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em' }}>
+                            #{s.rank}
+                          </span>
+                          <span className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)' }}>
+                            {s.display_name}
+                          </span>
+                          <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                            {(s.role ?? '').toLowerCase()}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 15 }}>
+                      None designated yet. Use "make successor" on a member above to begin the chain.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Add entry CTA */}
+              <div style={{ maxWidth: 640, marginBottom: 80 }}>
+                <hr className="hl-rule" style={{ marginBottom: 28 }} />
+                <Link
+                  to={`/threads/${threadId}/compose`}
+                  className="hl-btn"
+                  style={{ textDecoration: 'none', display: 'inline-block' }}
                 >
-                  {p}
-                </p>
-              ))
-            ) : (
-              <p className="loom-serif" style={{ fontSize: 17, fontStyle: 'italic', lineHeight: 1.85, color: 'var(--parchment-dim)', margin: 0 }}>
-                No words yet — only the title was woven.
-              </p>
-            )}
-          </div>
-          <div style={{ flex: 1 }} />
-          <div className="loom-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.18em', textAlign: 'right' }}>
-            p. {idx * 2 + 2}
-          </div>
+                  add entry
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* pager — mono text + ∞ chapter-dot row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 40px 16px' }}>
-        <button
-          type="button"
-          onClick={() => turn(-1)}
-          disabled={idx === 0}
-          className="loom-mono"
-          style={{
-            background: 'transparent', border: 0, padding: 0,
-            cursor: idx === 0 ? 'default' : 'pointer',
-            fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-            color: idx === 0 ? 'var(--parchment-faint)' : 'var(--parchment-dim)',
-          }}
-        >
-          ← earlier
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', maxWidth: '60%', justifyContent: 'center' }}>
-          {entries.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              aria-label={`entry ${i + 1}`}
-              aria-current={i === idx}
-              onClick={() => setIdx(i)}
-              className="loom-serif"
-              style={{
-                background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                fontSize: 13, lineHeight: 1,
-                color: i === idx ? 'var(--loom-warm)' : 'var(--parchment-faint)',
-                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-              }}
-            >
-              ∞
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => turn(1)}
-          disabled={idx === entries.length - 1}
-          className="loom-mono"
-          style={{
-            background: 'transparent', border: 0, padding: 0,
-            cursor: idx === entries.length - 1 ? 'default' : 'pointer',
-            fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-            color: idx === entries.length - 1 ? 'var(--parchment-faint)' : 'var(--loom-warm)',
-          }}
-        >
-          later →
-        </button>
-      </div>
-
-      {/* parchment edge — paler, ~6px */}
-      <div
-        aria-hidden
-        style={{ height: 6, background: '#e6dcc4', borderTop: '1px solid var(--parchment-rule)', opacity: 0.6, position: 'relative', overflow: 'hidden' }}
-      >
-        {Array.from({ length: 120 }, (_, k) => (
-          <span
-            key={k}
-            style={{ position: 'absolute', top: 0, bottom: 0, left: `${(k / 120) * 100}%`, width: 1, background: 'rgba(26,25,22,0.06)' }}
-          />
-        ))}
-      </div>
-    </div>
+      <TapestryEdge />
+    </Frame>
   );
 }
 
-/* ── Small field helpers ── */
+/* ── Field helpers ── */
 
 const fieldInputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
   border: 0,
-  borderBottom: '1px solid var(--loom-rule)',
-  color: 'var(--loom-bone)',
-  caretColor: 'var(--loom-warm)',
-  fontFamily: "'Inter', sans-serif",
+  borderBottom: '1px solid var(--rule)',
+  color: 'var(--bone)',
+  caretColor: 'var(--warm)',
+  fontFamily: 'var(--mono)',
   fontSize: 13,
   padding: '7px 0',
   outline: 'none',
@@ -887,11 +665,11 @@ const ghostActionStyle: React.CSSProperties = {
   border: 0,
   padding: 0,
   cursor: 'pointer',
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: 'var(--mono)',
   fontSize: 10,
   letterSpacing: '0.18em',
   textTransform: 'uppercase',
-  color: 'var(--loom-bone-faint)',
+  color: 'var(--bone-faint)',
   transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
 };
 
@@ -912,7 +690,7 @@ function FieldInput({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="loom-eyebrow" style={{ display: 'block', marginBottom: 8 }}>
+      <label htmlFor={id} className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>
         {label}
       </label>
       <input

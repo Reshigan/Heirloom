@@ -1,18 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { voiceApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
-import { ComposerModes } from '../loom/components/ComposerChrome';
+import { HLogo } from '../loom/components/HLogo';
+import { TapestryEdge } from '../loom/components/Frame';
 
 /**
- * Record — ComposerSpeak (Claude Design · loom3).
+ * Record — ComposerSpeak (Loom 3 · §6.3).
  *
- * The voice mode, designed for the patriarch: one prompt, concentric breath
- * rings, an oversized mono timer, and two plain text controls (stop · pause).
- * Recording is the real MediaRecorder flow — start, pause/resume, stop —
- * uploaded via the signed URL and persisted with voiceApi.create. Title and
- * transcript move below the ring, quiet, for after you've spoken.
+ * Standalone dark ink screen. Three concentric breath rings, oversized mono
+ * timer, plain-text stop control, prompt carousel at bottom. Full MediaRecorder
+ * flow: start → pause/resume → stop → save via signed URL + voiceApi.create.
  */
 
 const PROMPTS = [
@@ -137,10 +135,11 @@ export function Record() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memories'] });
-      navigate('/memories');
+      navigate('/loom');
     },
-    onError: (err: any) => {
-      setError(err?.message ?? 'Could not save the recording.');
+    onError: (err: unknown) => {
+      const msg = err instanceof Error ? err.message : 'Could not save the recording.';
+      setError(msg);
     },
   });
 
@@ -149,268 +148,357 @@ export function Record() {
   const live = recordingState === 'recording' || recordingState === 'paused';
 
   return (
-    <AppFrame>
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 18, color: 'var(--loom-warm)' }}>
-          ∞ &nbsp; voice · in your own voice
-        </p>
-        <ComposerModes active="speak" />
+    <div
+      className="hl-screen"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'var(--ink)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* ── topbar ───────────────────────────────────────────────── */}
+      <div className="hl-topbar">
+        {/* left: HLogo */}
+        <Link
+          to="/loom"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+        >
+          <HLogo size={18} wordmark />
+        </Link>
 
-        {/* the prompt + breath rings — the hero */}
-        <div style={{ textAlign: 'center', padding: '24px 0 8px' }}>
-          <p
-            className="loom-serif"
+        {/* center: context label */}
+        <span
+          className="hl-counter"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          voice recording
+        </span>
+
+        {/* right: cancel */}
+        <Link to="/loom" className="hl-link warm" style={{ fontSize: 14 }}>
+          cancel →
+        </Link>
+      </div>
+
+      {/* ── ring + timer stage ───────────────────────────────────── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 56,
+          bottom: 80,
+          left: 0,
+          right: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 0,
+        }}
+      >
+        {/* three concentric rings */}
+        <div style={{ position: 'relative', width: 240, height: 240, flexShrink: 0 }}>
+          {/* outer */}
+          <span
             style={{
-              fontSize: 22,
-              fontStyle: 'italic',
-              fontWeight: 400,
-              color: 'var(--loom-bone-dim)',
-              margin: '0 0 36px',
-              minHeight: 30,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: 240,
+              height: 240,
+              border: '1px solid var(--bone-dim)',
+              borderRadius: '50%',
+              animation:
+                recordingState === 'recording'
+                  ? 'loom-breathe 1400ms cubic-bezier(0.16,1,0.3,1) infinite'
+                  : 'none',
+            }}
+          />
+          {/* inner — 196px: offset (240-196)/2 = 22 */}
+          <span
+            style={{
+              position: 'absolute',
+              top: 22,
+              left: 22,
+              width: 196,
+              height: 196,
+              border: '1px solid var(--bone-low)',
+              borderRadius: '50%',
+              animation:
+                recordingState === 'recording'
+                  ? 'loom-breathe 1400ms cubic-bezier(0.16,1,0.3,1) infinite 360ms'
+                  : 'none',
+            }}
+          />
+          {/* innermost — 152px: offset (240-152)/2 = 44 */}
+          <span
+            style={{
+              position: 'absolute',
+              top: 44,
+              left: 44,
+              width: 152,
+              height: 152,
+              border: '1px solid var(--bone-faint)',
+              borderRadius: '50%',
+              opacity: 0.5,
+              animation:
+                recordingState === 'recording'
+                  ? 'loom-breathe 1400ms cubic-bezier(0.16,1,0.3,1) infinite 720ms'
+                  : 'none',
+            }}
+          />
+
+          {/* center: timer or begin tap */}
+          <span
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {recordingState === 'idle' ? (
+              <button
+                type="button"
+                onClick={start}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                }}
+              >
+                begin
+              </button>
+            ) : (
+              <span
+                className="hl-mono"
+                style={{
+                  fontSize: 48,
+                  letterSpacing: '0.04em',
+                  color: recordingState === 'paused' ? 'var(--bone-dim)' : 'var(--bone)',
+                  lineHeight: 1,
+                }}
+              >
+                {mm}:{ss}
+              </span>
+            )}
+          </span>
+        </div>
+
+        {/* stop button */}
+        {live ? (
+          <div style={{ marginTop: 32, display: 'flex', gap: 32, alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={stop}
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: '0 0 2px',
+                cursor: 'pointer',
+                color: 'var(--warm)',
+                fontFamily: 'var(--sans)',
+                fontSize: 18,
+                fontWeight: 400,
+                letterSpacing: '-0.005em',
+                borderBottom: '1px solid currentColor',
+              }}
+            >
+              stop
+            </button>
+            <button
+              type="button"
+              onClick={togglePause}
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                cursor: 'pointer',
+                color: 'var(--bone-dim)',
+                fontFamily: 'var(--sans)',
+                fontSize: 15,
+                fontWeight: 400,
+              }}
+            >
+              {recordingState === 'paused' ? 'resume' : 'pause'}
+            </button>
+          </div>
+        ) : null}
+
+        {/* current prompt (idle only) */}
+        {recordingState === 'idle' ? (
+          <p
+            className="hl-serif hl-italic"
+            style={{
+              marginTop: 32,
+              fontSize: 17,
+              color: 'var(--bone-dim)',
+              textAlign: 'center',
+              maxWidth: 380,
+              lineHeight: 1.5,
             }}
           >
             {PROMPTS[promptIdx]}
           </p>
-
-          <button
-            type="button"
-            onClick={recordingState === 'idle' ? start : undefined}
-            disabled={recordingState !== 'idle'}
-            aria-label={recordingState === 'idle' ? 'Begin recording' : 'Recording'}
-            style={{
-              position: 'relative',
-              width: 280,
-              height: 280,
-              margin: '0 auto',
-              background: 'transparent',
-              border: 0,
-              padding: 0,
-              cursor: recordingState === 'idle' ? 'pointer' : 'default',
-              display: 'block',
-            }}
-          >
-            <span
-              style={{
-                position: 'absolute',
-                inset: 0,
-                border: '1px solid var(--loom-bone-dim)',
-                borderRadius: '50%',
-                animation: recordingState === 'recording' ? 'loom-breathe 1400ms var(--loom-ease) infinite' : 'none',
-              }}
-            />
-            <span
-              style={{
-                position: 'absolute',
-                inset: 22,
-                border: '1px solid var(--loom-bone-ghost)',
-                borderRadius: '50%',
-                animation: recordingState === 'recording' ? 'loom-breathe 1400ms var(--loom-ease) infinite 360ms' : 'none',
-              }}
-            />
-            <span
-              style={{
-                position: 'absolute',
-                inset: 56,
-                border: '1px solid var(--loom-bone-faint)',
-                borderRadius: '50%',
-                opacity: 0.5,
-                animation: recordingState === 'recording' ? 'loom-breathe 1400ms var(--loom-ease) infinite 720ms' : 'none',
-              }}
-            />
-            <span
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                gap: 6,
-              }}
-            >
-              {recordingState === 'idle' ? (
-                <span
-                  className="loom-mono"
-                  style={{
-                    fontSize: 12,
-                    letterSpacing: '0.28em',
-                    textTransform: 'uppercase',
-                    color: 'var(--loom-warm)',
-                  }}
-                >
-                  begin
-                </span>
-              ) : (
-                <span
-                  className="loom-mono"
-                  style={{
-                    fontSize: 48,
-                    letterSpacing: '0.04em',
-                    color: recordingState === 'paused' ? 'var(--loom-bone-dim)' : 'var(--loom-bone)',
-                  }}
-                >
-                  {mm}:{ss}
-                </span>
-              )}
-            </span>
-          </button>
-
-          {/* controls */}
-          <div style={{ marginTop: 36, display: 'flex', justifyContent: 'center', gap: 32, alignItems: 'center', minHeight: 30 }}>
-            {live ? (
-              <>
-                <button type="button" onClick={stop} style={textLink('var(--loom-warm)', 22, true)}>
-                  stop
-                </button>
-                <button type="button" onClick={togglePause} style={textLink('var(--loom-bone-dim)', 18, false)}>
-                  {recordingState === 'paused' ? 'resume' : 'pause'}
-                </button>
-              </>
-            ) : recordingState === 'recorded' ? (
-              <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                {audioUrl ? <audio controls src={audioUrl} style={{ height: 36 }} /> : null}
-                <button type="button" onClick={reset} className="loom-btn-ghost" style={{ padding: '8px 16px' }}>
-                  redo
-                </button>
-              </div>
-            ) : null}
-          </div>
-
-          {recordingState === 'idle' ? (
-            <p
-              className="loom-serif"
-              style={{ marginTop: 24, color: 'var(--loom-bone-faint)', fontStyle: 'italic', fontSize: 15 }}
-            >
-              We'll transcribe it for you. You can read it back before saving.
-            </p>
-          ) : null}
-        </div>
-
-        {/* prompt cards row */}
-        {recordingState === 'idle' ? (
-          <div
-            style={{
-              margin: '28px 0 8px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'baseline',
-              gap: 24,
-              fontFamily: "'Source Serif 4', serif",
-              fontStyle: 'italic',
-              fontSize: 15,
-              flexWrap: 'wrap',
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setPromptIdx((i) => (i - 1 + PROMPTS.length) % PROMPTS.length)}
-              style={{ ...promptCard(), opacity: 0.4 }}
-            >
-              ← {PROMPTS[(promptIdx - 1 + PROMPTS.length) % PROMPTS.length]}
-            </button>
-            <button
-              type="button"
-              onClick={() => setPromptIdx((i) => (i + 1) % PROMPTS.length)}
-              style={{ ...promptCard(), opacity: 0.4 }}
-            >
-              {PROMPTS[(promptIdx + 1) % PROMPTS.length]} →
-            </button>
-          </div>
         ) : null}
 
-        <hr className="loom-hairline" style={{ margin: '36px 0' }} />
+        {/* transcription result — editable after recording stops */}
+        {recordingState === 'recorded' ? (
+          <textarea
+            value={transcript}
+            onChange={(e) => setTranscript(e.target.value)}
+            placeholder="Transcript will appear here — or write your own."
+            rows={3}
+            style={{
+              marginTop: 28,
+              maxWidth: 640,
+              width: '100%',
+              padding: '0 24px',
+              background: 'transparent',
+              border: 0,
+              borderBottom: '1px solid var(--rule)',
+              color: 'var(--bone-dim)',
+              fontFamily: 'var(--serif)',
+              fontSize: 17,
+              fontStyle: 'italic',
+              lineHeight: 1.6,
+              textAlign: 'center',
+              resize: 'none',
+              outline: 'none',
+            }}
+          />
+        ) : null}
 
-        {/* title + transcript — quiet, for after */}
-        <div style={{ display: 'grid', gap: 28 }}>
-          <label>
-            <span className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
-              title
-            </span>
+        {/* save / discard row (after recording) */}
+        {recordingState === 'recorded' ? (
+          <div
+            style={{
+              marginTop: 32,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+            }}
+          >
+            {audioUrl ? (
+              <audio controls src={audioUrl} style={{ height: 32, opacity: 0.7 }} />
+            ) : null}
+
+            {/* title field */}
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="What this recording is about, in a sentence"
+              placeholder={PROMPTS[promptIdx]}
+              style={{
+                width: 280,
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--rule)',
+                color: 'var(--bone)',
+                fontFamily: 'var(--serif)',
+                fontSize: 15,
+                padding: '4px 0',
+                outline: 'none',
+              }}
             />
-          </label>
 
-          <label>
-            <span className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
-              transcript — optional
-            </span>
-            <textarea
-              value={transcript}
-              onChange={(e) => setTranscript(e.target.value)}
-              placeholder="Add your own transcript after recording — or leave blank and the loom will transcribe the audio."
-              rows={6}
-              style={{ minHeight: 140 }}
-            />
-          </label>
-        </div>
-
-        {error ? (
-          <p role="alert" className="loom-body" style={{ marginTop: 24, fontStyle: 'italic', color: '#c25a5a', fontSize: 14 }}>
-            {error}
-          </p>
-        ) : null}
-
-        <div
-          style={{
-            marginTop: 48,
-            paddingTop: 24,
-            borderTop: '1px solid var(--loom-rule)',
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            gap: 24,
-            flexWrap: 'wrap',
-          }}
-        >
-          <p
-            className="loom-mono"
-            style={{
-              margin: 0,
-              fontSize: 10,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
-              maxWidth: 480,
-            }}
-          >
-            captured locally · uploaded encrypted · the recording goes into your thread alongside the transcript
-          </p>
-          <div style={{ display: 'flex', gap: 16 }}>
-            <button type="button" onClick={() => navigate('/memories')} className="loom-btn-ghost">
-              cancel
-            </button>
             <button
               type="button"
               onClick={() => save.mutate()}
               disabled={save.isPending || !audioBlob}
-              className="loom-btn"
+              className="hl-btn"
               style={{ opacity: save.isPending || !audioBlob ? 0.5 : 1 }}
             >
-              {save.isPending ? 'saving…' : 'save voice entry'}
+              {save.isPending ? 'saving…' : 'save'}
+            </button>
+
+            <button
+              type="button"
+              onClick={reset}
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: '0 0 2px',
+                cursor: 'pointer',
+                color: 'var(--bone-dim)',
+                fontFamily: 'var(--sans)',
+                fontSize: 14,
+                borderBottom: '1px solid var(--rule)',
+              }}
+            >
+              discard
             </button>
           </div>
-        </div>
-      </div>
-    </AppFrame>
-  );
-}
+        ) : null}
 
-function textLink(color: string, fontSize: number, underline: boolean): React.CSSProperties {
-  return {
-    background: 'transparent',
-    border: 0,
-    padding: underline ? '0 0 3px' : 0,
-    cursor: 'pointer',
-    color,
-    fontFamily: "'Inter', sans-serif",
-    fontSize,
-    fontWeight: 400,
-    letterSpacing: '-0.005em',
-    borderBottom: underline ? '1px solid currentColor' : 0,
-  };
+        {/* error */}
+        {error ? (
+          <p
+            role="alert"
+            className="hl-serif"
+            style={{
+              marginTop: 20,
+              fontSize: 14,
+              fontStyle: 'italic',
+              color: '#c25a5a',
+              textAlign: 'center',
+            }}
+          >
+            {error}
+          </p>
+        ) : null}
+      </div>
+
+      {/* ── prompt cards — horizontal scroll at bottom ───────────── */}
+      {recordingState === 'idle' ? (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 24,
+            left: 0,
+            right: 0,
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'center',
+            gap: 24,
+            overflowX: 'auto',
+            padding: '0 32px',
+            scrollbarWidth: 'none',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setPromptIdx((i) => (i - 1 + PROMPTS.length) % PROMPTS.length)}
+            style={promptCard()}
+          >
+            ← {PROMPTS[(promptIdx - 1 + PROMPTS.length) % PROMPTS.length]}
+          </button>
+          <button
+            type="button"
+            onClick={() => setPromptIdx((i) => (i + 1) % PROMPTS.length)}
+            style={promptCard()}
+          >
+            {PROMPTS[(promptIdx + 1) % PROMPTS.length]} →
+          </button>
+        </div>
+      ) : null}
+
+      <TapestryEdge />
+    </div>
+  );
 }
 
 function promptCard(): React.CSSProperties {
@@ -419,11 +507,14 @@ function promptCard(): React.CSSProperties {
     border: 0,
     padding: 0,
     cursor: 'pointer',
-    color: 'var(--loom-bone-faint)',
-    fontFamily: "'Source Serif 4', serif",
+    color: 'var(--bone-faint)',
+    fontFamily: 'var(--serif)',
     fontStyle: 'italic',
-    fontSize: 15,
+    fontSize: 14,
     maxWidth: '22ch',
     textAlign: 'center',
+    opacity: 0.55,
+    lineHeight: 1.45,
+    whiteSpace: 'normal',
   };
 }

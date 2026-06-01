@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ProgressHair } from '../components/ui/ProgressHair';
+import { HLogo } from '../loom/components/HLogo';
 import axios from 'axios';
 
 interface CardData {
@@ -18,6 +19,26 @@ interface CardData {
   memoryDate: string | null;
   memoryTitle: string;
   shareUrl: string;
+}
+
+// ── Parchment topbar — logo left, label right ────────────────────────────
+function CardTopbar() {
+  return (
+    <div
+      className="hl-topbar"
+      style={{ color: 'var(--parchment-dim)', borderBottom: '1px solid var(--parchment-rule)' }}
+    >
+      <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+        <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
+      </Link>
+      <span
+        className="hl-eyebrow dark"
+        style={{ color: 'var(--parchment-dim)' }}
+      >
+        a card from the cloth
+      </span>
+    </div>
+  );
 }
 
 export function CardView() {
@@ -70,158 +91,213 @@ export function CardView() {
     }
   };
 
-  const pageStyle: React.CSSProperties = {
-    minHeight: '100vh',
-    background: 'var(--loom-ink)',
-    color: 'var(--loom-bone)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  };
-
   if (loading) {
     return (
-      <div style={pageStyle}>
-        <ProgressHair label="loading…" width={200} />
+      <div
+        className="hl-screen parchment"
+        style={{ position: 'absolute', inset: 0 }}
+      >
+        <CardTopbar />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ProgressHair label="loading…" width={200} />
+        </div>
       </div>
     );
   }
 
   if (error || !card) {
     return (
-      <div style={{ ...pageStyle, flexDirection: 'column', textAlign: 'center' }}>
-        <p style={{ fontFamily: "'Source Serif 4', serif", fontSize: 32, color: 'var(--loom-warm)', marginBottom: 20 }}>∞</p>
-        <h1 className="loom-h2" style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}>
-          Card not found.
-        </h1>
-        <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 32px', maxWidth: 380 }}>
-          This memory card may have been removed or the link is invalid.
-        </p>
-        <Link to="/" className="loom-btn" style={{ textDecoration: 'none' }}>
-          Discover Heirloom
-        </Link>
+      <div
+        className="hl-screen parchment"
+        style={{ position: 'absolute', inset: 0 }}
+      >
+        <CardTopbar />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: '0 24px',
+          }}
+        >
+          <p
+            className="hl-serif"
+            style={{ fontSize: 32, color: 'var(--warm)', marginBottom: 20 }}
+          >
+            ∞
+          </p>
+          <h1
+            className="hl-serif hl-italic hl-tight"
+            style={{ fontSize: 28, fontWeight: 300, margin: '0 0 16px', color: 'var(--parchment-ink)' }}
+          >
+            Card not found.
+          </h1>
+          <p
+            className="hl-prose dark"
+            style={{ fontSize: 15, color: 'var(--parchment-dim)', margin: '0 0 32px', maxWidth: 380 }}
+          >
+            This memory card may have been removed or the link is invalid.
+          </p>
+          <Link to="/" className="hl-btn" style={{ textDecoration: 'none' }}>
+            Discover Heirloom
+          </Link>
+        </div>
       </div>
     );
   }
 
+  // resolve dye swatch from styleConfig accent or bgColor
+  const dyeColor = card.styleConfig.accentColor || card.styleConfig.bgColor || null;
+
   return (
     <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        color: 'var(--loom-bone)',
-      }}
+      className="hl-screen parchment"
+      style={{ position: 'absolute', inset: 0 }}
     >
-      {/* Ambient glow */}
-      <div className="loom-horizon" style={{ pointerEvents: 'none' }} />
-      <div className="loom-grain" style={{ pointerEvents: 'none' }} />
+      <CardTopbar />
 
+      {/* content — centered in the remaining viewport */}
       <div
         style={{
-          position: 'relative',
-          zIndex: 1,
-          minHeight: '100vh',
+          position: 'absolute',
+          inset: 0,
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '48px 24px',
+          padding: '72px 24px 32px',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 520 }}>
-          {/* Card display */}
-          <div
-            style={{
-              border: '1px solid rgba(244,236,216,0.14)',
-              padding: 40,
-              marginBottom: 28,
-              background: card.styleConfig.bgColor,
-              color: card.styleConfig.textColor,
-            }}
-          >
-            {card.photoUrl && (
-              <div
-                style={{
-                  border: '1px solid rgba(244,236,216,0.14)',
-                  marginBottom: 24,
-                  overflow: 'hidden',
-                }}
-              >
-                <img
-                  src={card.photoUrl}
-                  alt="Memory"
-                  style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }}
-                />
-              </div>
-            )}
-
-            <blockquote
-              style={{
-                fontFamily: "'Source Serif 4', serif",
-                fontStyle: 'italic',
-                fontSize: 21,
-                lineHeight: 1.65,
-                margin: '0 0 20px',
-                borderLeft: '2px solid var(--loom-warm)',
-                paddingLeft: 18,
-              }}
-            >
-              "{card.quote}"
-            </blockquote>
-
-            <div style={{ fontSize: 14, opacity: 0.7 }}>
-              <p style={{ margin: 0, fontWeight: 500 }}>— {card.authorName}</p>
-              {card.memoryDate && (
-                <p style={{ margin: '4px 0 0', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.06em' }}>
-                  {card.memoryDate}
-                </p>
-              )}
-            </div>
-
-            <div
-              style={{
-                marginTop: 24,
-                paddingTop: 16,
-                borderTop: `1px solid ${card.styleConfig.textColor}18`,
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: 8,
-              }}
-            >
-              <span style={{ color: 'var(--loom-warm)' }}>∞</span>
-              <span
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 10,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  opacity: 0.5,
-                }}
-              >
-                Made with Heirloom
-              </span>
-            </div>
+        <div
+          style={{
+            background: 'var(--parchment-deep)',
+            padding: '52px 56px',
+            maxWidth: 600,
+            width: '100%',
+            boxShadow: '0 24px 64px rgba(26,25,22,0.16)',
+          }}
+        >
+          {/* Logo centered */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+            <HLogo size={22} mono color="var(--parchment-ink)" />
           </div>
 
-          {/* Actions */}
-          <button type="button" onClick={handleShare} className="loom-btn" style={{ width: '100%', marginBottom: 36 }}>
+          <hr className="hl-rule parchment" style={{ marginBottom: 20 }} />
+
+          {/* Dye swatch — only if a color is present */}
+          {dyeColor && (
+            <div
+              aria-hidden
+              style={{
+                width: 12,
+                height: 12,
+                background: dyeColor,
+                marginBottom: 20,
+              }}
+            />
+          )}
+
+          {/* Photo if present */}
+          {card.photoUrl && (
+            <div
+              style={{
+                border: '1px solid var(--parchment-rule)',
+                marginBottom: 28,
+                overflow: 'hidden',
+              }}
+            >
+              <img
+                src={card.photoUrl}
+                alt="Memory"
+                style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }}
+              />
+            </div>
+          )}
+
+          {/* Quote content */}
+          <blockquote
+            className="hl-prose dark"
+            style={{
+              fontStyle: 'italic',
+              fontSize: 18,
+              lineHeight: 1.7,
+              margin: '0 0 24px',
+              padding: 0,
+              borderLeft: '1px solid var(--warm)',
+              paddingLeft: 18,
+              color: 'var(--parchment-ink)',
+            }}
+          >
+            &#8220;{card.quote}&#8221;
+          </blockquote>
+
+          <hr className="hl-rule parchment" style={{ marginBottom: 20 }} />
+
+          {/* Author */}
+          <p
+            className="hl-italic"
+            style={{
+              fontSize: 14,
+              color: 'var(--parchment-dim)',
+              margin: '0 0 6px',
+            }}
+          >
+            — {card.authorName}
+          </p>
+
+          {/* Date */}
+          {card.memoryDate && (
+            <p
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                color: 'var(--parchment-faint)',
+                margin: '0 0 28px',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {card.memoryDate}
+            </p>
+          )}
+
+          {/* Share */}
+          <button
+            type="button"
+            onClick={handleShare}
+            className="hl-btn"
+            style={{ width: '100%', marginBottom: 20 }}
+          >
             {copied ? 'Link copied' : 'Share'}
           </button>
 
           {/* CTA */}
           <div style={{ textAlign: 'center' }}>
-            <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 16px' }}>
+            <p
+              className="hl-prose dark"
+              style={{ fontSize: 13, color: 'var(--parchment-dim)', margin: '0 0 10px' }}
+            >
               Preserve your own memories for future generations.
             </p>
             <Link
               to="/signup"
+              className="hl-mono"
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
                 fontSize: 10,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                color: 'var(--loom-warm)',
+                color: 'var(--warm)',
                 textDecoration: 'none',
               }}
             >

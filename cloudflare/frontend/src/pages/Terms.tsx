@@ -1,234 +1,92 @@
 import { Link } from 'react-router-dom';
-import { AppFrame } from '../loom/components/AppFrame';
+import { HLogo } from '../loom/components/HLogo';
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function MktBar() {
   return (
-    <section style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 40, marginTop: 40 }}>
-      <h2
-        className="loom-h2"
-        style={{ fontSize: 22, fontWeight: 300, margin: '0 0 20px', fontStyle: 'normal' }}
-      >
-        {title}
-      </h2>
-      <div className="loom-body" style={{ color: 'var(--loom-bone-dim)', lineHeight: 1.85 }}>
-        {children}
-      </div>
-    </section>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 56px', borderBottom: '1px solid var(--parchment-rule)' }}>
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
+      </Link>
+      <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
+        <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
+        <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
+        <Link to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
+        <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
+      </span>
+    </div>
   );
 }
 
+const SECTIONS = [
+  {
+    n: 'i',
+    h: 'You write. We hold it.',
+    b: 'Your entries are yours. You grant Heirloom only the technical permission needed to store, encrypt, replicate, and present them back to the people you\'ve authorized. We claim no rights beyond that.',
+  },
+  {
+    n: 'ii',
+    h: 'Append-only, with grace.',
+    b: 'Entries cannot be silently edited. Amendments are visible. There is a 30-day delete grace window for the original author only. After 30 days, the entry is immutable until the thread\'s end-of-time.',
+  },
+  {
+    n: 'iii',
+    h: 'Members and successors.',
+    b: 'You may invite members and designate successors. Roles are granular: author, reader, future-member, legacy contact, successor. The succession order is binding and visible in the audit log.',
+  },
+  {
+    n: 'iv',
+    h: 'The dead-man\'s switch.',
+    b: 'You may arm a check-in interval. Missed check-ins issue a warning, then a 48-hour cancel window, then a trigger. On trigger, your designated successor inherits administrative authority over the thread. Time-locked entries with "on death" conditions release.',
+  },
+  {
+    n: 'v',
+    h: 'Payment and continuity.',
+    b: 'Subscription fees keep the platform running. Founder-tier payments fund the successor non-profit named in the bylaws. We do not promise immortality. We promise reasonable, codified provisions for what happens if we cease.',
+  },
+  {
+    n: 'vi',
+    h: 'Conduct.',
+    b: 'Threads are private by default. We do not moderate private prose. We do moderate public-historian opt-in entries for the usual reasons (illegality, abuse). We reserve the right to suspend accounts that publish abusive material to the open archive.',
+  },
+  {
+    n: 'vii',
+    h: 'Disputes and venue.',
+    b: 'Governed by the laws of the State of Delaware, USA. Disputes are arbitrated. Class actions are not waived; we do not believe in those waivers.',
+  },
+];
+
 export function Terms() {
   return (
-    <AppFrame>
-      <div style={{ maxWidth: '70ch', margin: '0 auto' }}>
-        <Link
-          to="/"
-          className="loom-mono"
-          style={{
-            display: 'inline-block',
-            fontSize: 10,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-bone-faint)',
-            textDecoration: 'none',
-            marginBottom: 48,
-          }}
-        >
-          ← back to heirloom
-        </Link>
+    <div className="hl-screen parchment" style={{ overflow: 'auto' }}>
+      <MktBar />
+      <div style={{ padding: '64px 88px 80px', maxWidth: 920, margin: '0 auto' }}>
+        <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>terms · plain words version</div>
+        <h1 className="hl-serif hl-tight" style={{ fontSize: 52, lineHeight: 1.06, fontWeight: 300, margin: 0, letterSpacing: '-0.022em', color: 'var(--parchment-ink)' }}>
+          What we owe each other.
+        </h1>
 
-        <header style={{ marginBottom: 40 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Terms of Service</p>
-          <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-          >
-            How we work together.
-          </h1>
-          <p
-            className="loom-mono"
-            style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginTop: 18, letterSpacing: '0.08em' }}
-          >
-            Last updated: December 16, 2025
-          </p>
-        </header>
+        {SECTIONS.map((s) => (
+          <div key={s.n} style={{ marginTop: 48, display: 'grid', gridTemplateColumns: '80px 1fr', gap: 32, borderTop: '1px solid var(--parchment-rule)', paddingTop: 24 }}>
+            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.32em', textTransform: 'uppercase' }}>{s.n}</div>
+            <div>
+              <h2 className="hl-serif hl-tight" style={{ fontSize: 24, fontWeight: 400, margin: 0, letterSpacing: '-0.012em', color: 'var(--parchment-ink)' }}>{s.h}</h2>
+              <p className="hl-prose dark" style={{ fontSize: 16, lineHeight: 1.75, marginTop: 10, color: 'var(--parchment-ink)' }}>{s.b}</p>
+            </div>
+          </div>
+        ))}
 
-        <Section title="Agreement to terms">
-          <p>
-            By accessing or using Heirloom ("the Service"), you agree to be bound by these Terms of
-            Service. If you disagree with any part of these terms, you may not access the Service. These
-            terms apply to all visitors, users, and others who access or use the Service.
-          </p>
-        </Section>
-
-        <Section title="Account terms">
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Age requirement.</strong>{' '}
-            You must be at least 18 years old to use this Service. By using the Service, you represent
-            that you are at least 18 years of age.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Account security.</strong>{' '}
-            You are responsible for maintaining the security of your account and password. Heirloom
-            cannot and will not be liable for any loss or damage from your failure to comply with this
-            security obligation.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Accurate information.</strong>{' '}
-            You must provide accurate, complete, and current information when creating your account.
-            Failure to do so constitutes a breach of these Terms.
-          </p>
-          <p>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>One account per person.</strong>{' '}
-            You may not create multiple accounts. Each person may only have one account.
-          </p>
-        </Section>
-
-        <Section title="Subscription &amp; payments">
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Free trial.</strong>{' '}
-            New users receive a 14-day free trial. No credit card is required to start your trial.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Billing.</strong>{' '}
-            Paid subscriptions are billed in advance on a monthly or yearly basis. You will be charged
-            at the beginning of each billing period.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Price changes.</strong>{' '}
-            We reserve the right to modify our prices. Any price changes will be communicated to you
-            at least 30 days in advance.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Refunds.</strong>{' '}
-            We offer a 30-day money-back guarantee for new subscribers. After 30 days, refunds are
-            provided at our discretion.
-          </p>
-          <p>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Cancellation.</strong>{' '}
-            You may cancel your subscription at any time. Your subscription will remain active until
-            the end of your current billing period.
-          </p>
-        </Section>
-
-        <Section title="Acceptable use">
-          <p style={{ marginBottom: 14 }}>You agree not to use the Service to:</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
-            {[
-              'Upload, post, or transmit any content that is unlawful, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable.',
-              'Impersonate any person or entity, or falsely state or misrepresent your affiliation with a person or entity.',
-              'Upload content that infringes any patent, trademark, trade secret, copyright, or other proprietary rights.',
-              'Interfere with or disrupt the Service or servers or networks connected to the Service.',
-              'Attempt to gain unauthorized access to any portion of the Service or any other systems or networks.',
-              'Use the Service for any illegal purpose or in violation of any local, state, national, or international law.',
-            ].map((item) => (
-              <li key={item} style={{ display: 'flex', gap: 14, alignItems: 'baseline' }}>
-                <span style={{ color: 'var(--loom-warm)', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>·</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
-
-        <Section title="Content ownership &amp; rights">
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Your content.</strong>{' '}
-            You retain all rights to the content you upload to Heirloom. We do not claim ownership of
-            your photos, voice recordings, letters, or any other content you create.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>License to operate.</strong>{' '}
-            By uploading content, you grant us a limited license to store, process, and transmit your
-            content solely for the purpose of providing the Service to you.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Encryption.</strong>{' '}
-            Due to our zero-knowledge encryption, we cannot access, view, or modify your content. You
-            are solely responsible for maintaining backups of your encryption keys.
-          </p>
-          <p>
-            <strong style={{ color: 'var(--loom-bone)', fontWeight: 400 }}>Posthumous delivery.</strong>{' '}
-            Content designated for posthumous delivery will be released to your designated beneficiaries
-            according to your instructions and the verification process you have configured.
-          </p>
-        </Section>
-
-        <Section title="Limitation of liability">
-          <p style={{ marginBottom: 14 }}>
-            In no event shall Heirloom, its directors, employees, partners, agents, suppliers, or
-            affiliates, be liable for any indirect, incidental, special, consequential, or punitive
-            damages, including without limitation, loss of profits, data, use, goodwill, or other
-            intangible losses, resulting from:
-          </p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
-            {[
-              'Your access to or use of or inability to access or use the Service.',
-              'Any conduct or content of any third party on the Service.',
-              'Any content obtained from the Service.',
-              'Unauthorized access, use, or alteration of your transmissions or content.',
-            ].map((item) => (
-              <li key={item} style={{ display: 'flex', gap: 14, alignItems: 'baseline' }}>
-                <span style={{ color: 'var(--loom-warm)', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>·</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
-
-        <Section title="Changes to terms">
-          <p>
-            We reserve the right to modify or replace these Terms at any time. If a revision is
-            material, we will provide at least 30 days' notice prior to any new terms taking effect.
-            What constitutes a material change will be determined at our sole discretion. By continuing
-            to access or use our Service after those revisions become effective, you agree to be bound
-            by the revised terms.
-          </p>
-        </Section>
-
-        <Section title="Contact us">
-          <p>
-            If you have questions about these Terms of Service, please write to us at{' '}
-            <a
-              href="mailto:legal@heirloom.blue"
-              style={{ color: 'var(--loom-warm)', textDecoration: 'none', borderBottom: '1px solid var(--loom-rule-warm)' }}
-            >
-              legal@heirloom.blue
-            </a>.
-          </p>
-        </Section>
-
-        <div
-          style={{
-            borderTop: '1px solid var(--loom-rule)',
-            marginTop: 64,
-            paddingTop: 28,
-            display: 'flex',
-            gap: 28,
-            alignItems: 'center',
-          }}
-        >
-          <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', marginRight: 'auto' }}>
-            ∞ heirloom
-          </span>
-          <Link
-            to="/privacy"
-            className="loom-mono"
-            style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
-          >
+        <div style={{ marginTop: 56, paddingTop: 28, borderTop: '1px solid var(--parchment-rule)', display: 'flex', gap: 28, alignItems: 'center' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <HLogo size={14} wordmark mono color="var(--parchment-faint)" wordColor="var(--parchment-faint)" />
+          </Link>
+          <Link to="/privacy" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--parchment-faint)', textDecoration: 'none' }}>
             Privacy
           </Link>
-          <a
-            href="mailto:support@heirloom.blue"
-            className="loom-mono"
-            style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
-          >
+          <a href="mailto:support@heirloom.blue" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--parchment-faint)', textDecoration: 'none' }}>
             Contact
           </a>
-          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.08em', color: 'var(--loom-bone-faint)' }}>
-            © {new Date().getFullYear()}
-          </span>
         </div>
       </div>
-    </AppFrame>
+    </div>
   );
 }

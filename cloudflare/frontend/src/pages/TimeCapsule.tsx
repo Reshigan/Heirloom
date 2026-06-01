@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AppFrame } from '../loom/components/AppFrame';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { Frame } from '../loom/components/Frame';
 import { capsulesApi, threadsApi } from '../services/api';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
@@ -19,8 +18,8 @@ function ThreadComposeBanner() {
     <div
       style={{
         marginBottom: 32,
-        border: '1px solid var(--loom-rule-warm)',
-        padding: '16px 20px',
+        borderBottom: '1px solid var(--rule)',
+        paddingBottom: 24,
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'space-between',
@@ -29,22 +28,34 @@ function ThreadComposeBanner() {
       }}
     >
       <div>
-        <p className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 6 }}>
+        <p
+          className="hl-eyebrow"
+          style={{ color: 'var(--warm)', marginBottom: 6 }}
+        >
           Now part of your family thread
         </p>
-        <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: 0, maxWidth: 520, lineHeight: 1.6 }}>
-          Time-locked entries are now first-class on the thread. New writes go there alongside everything else;
-          existing capsules keep working below.
+        <p
+          className="hl-prose"
+          style={{
+            fontSize: 14,
+            color: 'var(--bone-dim)',
+            margin: 0,
+            maxWidth: 520,
+            lineHeight: 1.6,
+          }}
+        >
+          Time-locked entries are now first-class on the thread. New writes go
+          there alongside everything else; existing capsules keep working below.
         </p>
       </div>
       <Link
         to={`/threads/${featured.id}/compose`}
+        className="hl-mono"
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
           fontSize: 10,
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
-          color: 'var(--loom-warm)',
+          color: 'var(--warm)',
           textDecoration: 'none',
           flexShrink: 0,
           alignSelf: 'center',
@@ -69,13 +80,29 @@ interface Capsule {
   created_at: string;
 }
 
-function CapsuleRow({ capsule, onClick, isSelected }: { capsule: Capsule; onClick: () => void; isSelected?: boolean }) {
-  const status: CapsuleStatus = capsule.opened_at ? 'unlocked' : capsule.sealed_at ? 'sealed' : 'open';
-  const unlockDate = new Date(capsule.unlock_date);
-  const daysUntilUnlock = Math.ceil((unlockDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  const canOpen = status === 'sealed' && daysUntilUnlock <= 0;
+function formatUnlockDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString(undefined, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
-  const statusColor = status === 'sealed' ? 'var(--loom-warm)' : 'var(--loom-bone-faint)';
+function CapsuleRow({
+  capsule,
+  onClick,
+  isSelected,
+}: {
+  capsule: Capsule;
+  onClick: () => void;
+  isSelected?: boolean;
+}) {
+  const status: CapsuleStatus = capsule.opened_at
+    ? 'unlocked'
+    : capsule.sealed_at
+    ? 'sealed'
+    : 'open';
 
   return (
     <li>
@@ -86,104 +113,83 @@ function CapsuleRow({ capsule, onClick, isSelected }: { capsule: Capsule; onClic
           width: '100%',
           background: isSelected ? 'rgba(176,122,74,0.04)' : 'transparent',
           border: 0,
-          borderBottom: '1px solid var(--loom-rule)',
-          padding: '24px 0',
+          borderBottom: '1px solid var(--rule)',
+          padding: '18px 0',
           cursor: 'pointer',
           textAlign: 'left',
           display: 'grid',
-          gridTemplateColumns: '160px 1fr auto',
-          gap: 28,
+          gridTemplateColumns: '56px 1fr auto',
+          gap: 20,
           alignItems: 'baseline',
           transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
         }}
       >
-        {/* Left rail — status */}
-        <div>
-          <p
-            className="loom-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: statusColor,
-              margin: 0,
-            }}
-          >
-            {status === 'unlocked' ? '∞ opened' : status === 'sealed' ? '∞ sealed' : 'open'}
-          </p>
-          <p
-            className="loom-mono"
-            style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: '6px 0 0', letterSpacing: '0.06em' }}
-          >
-            {unlockDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
-          </p>
-        </div>
+        {/* Left — ∞ mark */}
+        <span
+          className="hl-serif"
+          style={{
+            fontSize: 28,
+            fontWeight: 300,
+            lineHeight: 1,
+            color: 'var(--warm)',
+            userSelect: 'none',
+          }}
+        >
+          ∞
+        </span>
 
-        {/* Title + description */}
+        {/* Middle — title + recipient */}
         <div>
-          <h3
-            className="loom-serif"
+          <p
+            className="hl-serif"
             style={{
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: 300,
-              color: 'var(--loom-bone)',
-              margin: '0 0 6px',
-              lineHeight: 1.25,
+              color: 'var(--bone)',
+              margin: 0,
+              lineHeight: 1.35,
             }}
           >
             {capsule.title}
-          </h3>
+          </p>
           {capsule.description && (
             <p
-              className="loom-body"
+              className="hl-serif hl-italic"
               style={{
-                fontSize: 14,
-                color: 'var(--loom-bone-dim)',
-                margin: '0 0 8px',
+                fontSize: 13,
+                color: 'var(--bone-dim)',
+                margin: '4px 0 0',
+                lineHeight: 1.5,
                 overflow: 'hidden',
                 display: '-webkit-box',
-                WebkitLineClamp: 2,
+                WebkitLineClamp: 1,
                 WebkitBoxOrient: 'vertical',
               }}
             >
               {capsule.description}
             </p>
           )}
-          <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: 0, letterSpacing: '0.06em' }}>
-            {capsule.contributor_count} contributors · {capsule.item_count} items
-          </p>
         </div>
 
-        {/* Right — open state badge */}
-        {canOpen && (
-          <span
-            className="loom-mono"
-            style={{
-              fontSize: 9,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'var(--loom-warm)',
-              border: '1px solid var(--loom-rule-warm)',
-              padding: '4px 10px',
-              flexShrink: 0,
-            }}
-          >
-            Ready to open
-          </span>
-        )}
-        {!canOpen && status === 'sealed' && daysUntilUnlock > 0 && (
-          <span
-            className="loom-mono"
-            style={{
-              fontSize: 9,
-              letterSpacing: '0.16em',
-              color: 'var(--loom-bone-faint)',
-              flexShrink: 0,
-            }}
-          >
-            {daysUntilUnlock}d
-          </span>
-        )}
+        {/* Right — unlock label */}
+        <span
+          className="hl-mono"
+          style={{
+            fontSize: 10,
+            letterSpacing: '0.1em',
+            color:
+              status === 'unlocked'
+                ? 'var(--bone-faint)'
+                : 'var(--warm)',
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
+            alignSelf: 'center',
+          }}
+        >
+          {status === 'unlocked'
+            ? 'unlocked'
+            : `unlocks ${formatUnlockDate(capsule.unlock_date)}`}
+        </span>
       </button>
     </li>
   );
@@ -199,11 +205,11 @@ const COVER_STYLES = [
 const inputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--loom-rule)',
+  border: '1px solid var(--rule)',
   borderRadius: 2,
   padding: '10px 14px',
-  color: 'var(--loom-bone)',
-  fontFamily: "'Source Serif 4', serif",
+  color: 'var(--bone)',
+  fontFamily: 'var(--serif)',
   fontSize: 15,
   lineHeight: 1.7,
   outline: 'none',
@@ -232,75 +238,95 @@ export function TimeCapsule() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['capsules'] });
       setShowCreateModal(false);
-      setNewCapsule({ title: '', description: '', unlock_date: '', cover_style: 'classic' });
+      setNewCapsule({
+        title: '',
+        description: '',
+        unlock_date: '',
+        cover_style: 'classic',
+      });
     },
   });
 
   return (
-    <AppFrame>
-      <ThreadComposeBanner />
-
-      {/* Header */}
-      <header
+    <Frame left="time capsules">
+      <div
         style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 20,
-          marginBottom: 40,
+          maxWidth: 720,
+          margin: '0 auto',
+          padding: '64px 32px 80px',
         }}
       >
-        <div>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Time Capsules</p>
-          <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-          >
-            Sealed against time.
-          </h1>
-          <p
-            className="loom-body"
-            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 540, lineHeight: 1.6 }}
-          >
-            Seal memories today; open them when the time is right. The cloth remembers.
-          </p>
-        </div>
-        <button type="button" onClick={() => setShowCreateModal(true)} className="loom-btn">
-          New capsule
-        </button>
-      </header>
+        <ThreadComposeBanner />
 
-      {/* Capsule list */}
-      {isLoading ? (
-        <div style={{ padding: '64px 0', display: 'flex', justifyContent: 'center' }}>
-          <ProgressHair label="loading…" width={200} />
-        </div>
-      ) : !capsules?.length ? (
-        <div style={{ border: '1px solid var(--loom-rule)', padding: '72px 36px', textAlign: 'center' }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 16 }}>No capsules yet</p>
-          <h3 className="loom-serif" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 16px' }}>
-            The best time to seal a memory was years ago.
-          </h3>
-          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 auto 28px', maxWidth: 400 }}>
-            Create your first time capsule and fill it with memories, messages, and photos.
-          </p>
-          <button type="button" onClick={() => setShowCreateModal(true)} className="loom-btn">
-            Create time capsule
-          </button>
-        </div>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {capsules.map((capsule: Capsule) => (
-            <CapsuleRow
-              key={capsule.id}
-              capsule={capsule}
-              isSelected={selectedCapsule === capsule.id}
-              onClick={() => setSelectedCapsule(capsule.id)}
+        {/* Header */}
+        <header style={{ marginBottom: 48 }}>
+          <h1
+            className="hl-serif"
+            style={{
+              fontSize: 36,
+              fontWeight: 300,
+              color: 'var(--bone)',
+              margin: '0 0 28px',
+              lineHeight: 1.2,
+            }}
+          >
+            Entries sealed for the future.
+          </h1>
+        </header>
+
+        {/* Capsule list */}
+        {isLoading ? (
+          <div
+            style={{
+              borderBottom: '1px solid var(--rule)',
+              paddingBottom: 32,
+            }}
+          >
+            <div
+              style={{
+                height: 1,
+                background: 'var(--warm)',
+                width: 120,
+                opacity: 0.4,
+              }}
             />
-          ))}
-        </ul>
-      )}
+          </div>
+        ) : !capsules?.length ? (
+          <div style={{ paddingTop: 40 }}>
+            <p
+              className="hl-serif hl-italic"
+              style={{
+                fontSize: 17,
+                fontWeight: 300,
+                color: 'var(--bone-dim)',
+                margin: '0 0 32px',
+                lineHeight: 1.5,
+              }}
+            >
+              Nothing sealed yet. The cloth is waiting.
+            </p>
+            <Link to="/compose" className="hl-btn">
+              seal a note →
+            </Link>
+          </div>
+        ) : (
+          <>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px' }}>
+              {capsules.map((capsule: Capsule) => (
+                <CapsuleRow
+                  key={capsule.id}
+                  capsule={capsule}
+                  isSelected={selectedCapsule === capsule.id}
+                  onClick={() => setSelectedCapsule(capsule.id)}
+                />
+              ))}
+            </ul>
+            <Link to="/compose" className="hl-btn">
+              seal a note →
+            </Link>
+          </>
+        )}
+      </div>
 
       {/* Create overlay */}
       {showCreateModal && (
@@ -321,14 +347,24 @@ export function TimeCapsule() {
             style={{
               width: '100%',
               maxWidth: 520,
-              background: 'var(--loom-ink)',
-              border: '1px solid var(--loom-rule)',
+              background: 'var(--ink)',
+              border: '1px solid var(--rule)',
               padding: 40,
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 28 }}>
-              <h2 className="loom-serif" style={{ fontSize: 22, fontWeight: 300, margin: 0 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
+                marginBottom: 28,
+              }}
+            >
+              <h2
+                className="hl-serif"
+                style={{ fontSize: 22, fontWeight: 300, margin: 0, color: 'var(--bone)' }}
+              >
                 Create Time Capsule
               </h2>
               <button
@@ -339,33 +375,52 @@ export function TimeCapsule() {
                   background: 'transparent',
                   border: 0,
                   cursor: 'pointer',
-                  color: 'var(--loom-bone-faint)',
-                  fontSize: 18,
+                  color: 'var(--bone-faint)',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.12em',
                   lineHeight: 1,
                   padding: 4,
                 }}
               >
-                ✕
+                close
               </button>
             </div>
 
             <div style={{ display: 'grid', gap: 18 }}>
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Capsule name</label>
+                <label
+                  className="hl-eyebrow"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
+                  Capsule name
+                </label>
                 <input
                   type="text"
                   value={newCapsule.title}
-                  onChange={(e) => setNewCapsule((prev) => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) =>
+                    setNewCapsule((prev) => ({ ...prev, title: e.target.value }))
+                  }
                   placeholder="Family Christmas 2025"
                   style={inputStyle}
                 />
               </div>
 
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Description (optional)</label>
+                <label
+                  className="hl-eyebrow"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
+                  Description (optional)
+                </label>
                 <textarea
                   value={newCapsule.description}
-                  onChange={(e) => setNewCapsule((prev) => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setNewCapsule((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   placeholder="A collection of memories from this special year…"
                   rows={3}
                   style={{ ...inputStyle, resize: 'none' }}
@@ -373,39 +428,83 @@ export function TimeCapsule() {
               </div>
 
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Unlock date</label>
+                <label
+                  className="hl-eyebrow"
+                  style={{ display: 'block', marginBottom: 10 }}
+                >
+                  Unlock date
+                </label>
                 <input
                   type="date"
                   value={newCapsule.unlock_date}
-                  onChange={(e) => setNewCapsule((prev) => ({ ...prev, unlock_date: e.target.value }))}
-                  min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
-                  style={{ ...inputStyle, fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}
+                  onChange={(e) =>
+                    setNewCapsule((prev) => ({
+                      ...prev,
+                      unlock_date: e.target.value,
+                    }))
+                  }
+                  min={
+                    new Date(Date.now() + 86400000).toISOString().split('T')[0]
+                  }
+                  style={{
+                    ...inputStyle,
+                    fontFamily: 'var(--mono)',
+                    fontSize: 13,
+                  }}
                 />
               </div>
 
               <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 12 }}>Cover style</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <label
+                  className="hl-eyebrow"
+                  style={{ display: 'block', marginBottom: 12 }}
+                >
+                  Cover style
+                </label>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: 8,
+                  }}
+                >
                   {COVER_STYLES.map((style) => (
                     <button
                       key={style.id}
                       type="button"
-                      onClick={() => setNewCapsule((prev) => ({ ...prev, cover_style: style.id }))}
+                      onClick={() =>
+                        setNewCapsule((prev) => ({
+                          ...prev,
+                          cover_style: style.id,
+                        }))
+                      }
                       style={{
-                        background: newCapsule.cover_style === style.id ? 'rgba(176,122,74,0.06)' : 'transparent',
-                        border: `1px solid ${newCapsule.cover_style === style.id ? 'var(--loom-rule-warm)' : 'var(--loom-rule)'}`,
+                        background:
+                          newCapsule.cover_style === style.id
+                            ? 'rgba(176,122,74,0.06)'
+                            : 'transparent',
+                        border: `1px solid ${
+                          newCapsule.cover_style === style.id
+                            ? 'var(--warm)'
+                            : 'var(--rule)'
+                        }`,
+                        borderRadius: 0,
                         padding: '10px 14px',
                         cursor: 'pointer',
                         textAlign: 'left',
-                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition:
+                          'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
                       <span
-                        className="loom-serif"
+                        className="hl-serif"
                         style={{
                           fontSize: 14,
                           fontWeight: 300,
-                          color: newCapsule.cover_style === style.id ? 'var(--loom-warm)' : 'var(--loom-bone)',
+                          color:
+                            newCapsule.cover_style === style.id
+                              ? 'var(--warm)'
+                              : 'var(--bone)',
                         }}
                       >
                         {style.label}
@@ -416,28 +515,55 @@ export function TimeCapsule() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 28 }}>
-              <button type="button" onClick={() => setShowCreateModal(false)} className="loom-btn-ghost">
-                Cancel
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 12,
+                marginTop: 28,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="hl-btn"
+                style={{
+                  background: 'transparent',
+                  color: 'var(--bone-dim)',
+                  border: '1px solid var(--rule)',
+                }}
+              >
+                cancel
               </button>
               <button
                 type="button"
                 onClick={() => createMutation.mutate(newCapsule)}
-                disabled={!newCapsule.title || !newCapsule.unlock_date || createMutation.isPending}
-                className="loom-btn"
-                style={{ opacity: !newCapsule.title || !newCapsule.unlock_date || createMutation.isPending ? 0.45 : 1 }}
+                disabled={
+                  !newCapsule.title ||
+                  !newCapsule.unlock_date ||
+                  createMutation.isPending
+                }
+                className="hl-btn"
+                style={{
+                  opacity:
+                    !newCapsule.title ||
+                    !newCapsule.unlock_date ||
+                    createMutation.isPending
+                      ? 0.45
+                      : 1,
+                }}
               >
                 {createMutation.isPending ? (
-                  <span style={{ fontStyle: 'italic' }}>Creating…</span>
+                  <span style={{ fontStyle: 'italic' }}>creating…</span>
                 ) : (
-                  'Create capsule'
+                  'create capsule'
                 )}
               </button>
             </div>
           </div>
         </div>
       )}
-    </AppFrame>
+    </Frame>
   );
 }
 

@@ -1,11 +1,32 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AppFrame } from '../loom/components/AppFrame';
+import { Frame } from '../loom/components/Frame';
 import { streaksApi, challengesApi } from '../services/api';
+
+// Dye names in rotation for activity grid cells
+const DYE_NAMES = [
+  'madder', 'cochineal', 'kermes', 'saffron', 'weld',
+  'walnut', 'oakgall', 'woad', 'indigo', 'iron',
+] as const;
+
+function dyeForDate(dateStr: string): string {
+  // deterministic dye from date string
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = (hash * 31 + dateStr.charCodeAt(i)) >>> 0;
+  }
+  return DYE_NAMES[hash % DYE_NAMES.length];
+}
+
+interface ActivityDay {
+  date: string;   // YYYY-MM-DD
+  hasEntry: boolean;
+}
 
 export function Streaks() {
   const queryClient = useQueryClient();
   const [showFreezeModal, setShowFreezeModal] = useState(false);
+  const [tooltip, setTooltip] = useState<{ date: string; x: number; y: number } | null>(null);
 
   const { data: streak, isLoading: streakLoading } = useQuery({
     queryKey: ['streak'],
@@ -30,12 +51,12 @@ export function Streaks() {
     },
   });
 
-  // Plain continuity markers — no trophy/badge labels
+  // Continuity marks — plain labels, no trophy/badge language
   const continuityMarks = [
-    { days: 7, label: '7 days running' },
-    { days: 14, label: '14 days running' },
-    { days: 30, label: '30 days running' },
-    { days: 60, label: '60 days running' },
+    { days: 7,   label: '7 days running' },
+    { days: 14,  label: '14 days running' },
+    { days: 30,  label: '30 days running' },
+    { days: 60,  label: '60 days running' },
     { days: 100, label: '100 days running' },
     { days: 365, label: 'one year running' },
   ];
@@ -44,280 +65,533 @@ export function Streaks() {
   const longestStreak: number = streak?.longestStreak || 0;
   const totalMemories: number = streak?.totalMemoriesCreated || 0;
 
+  // Build last 91 days (13 weeks × 7) for activity grid
+  const activityDays: ActivityDay[] = (() => {
+    const days: ActivityDay[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const activeDatesSet = new Set<string>(
+      (streak?.activeDates as string[] | undefined) ?? [],
+    );
+    for (let i = 90; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const iso = d.toISOString().slice(0, 10);
+      days.push({ date: iso, hasEntry: activeDatesSet.has(iso) });
+    }
+    return days;
+  })();
+
   return (
-    <AppFrame>
-      <header style={{ marginBottom: 48 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Thread continuity</p>
+    <Frame left="streaks">
+      <div
+        style={{
+          maxWidth: 720,
+          margin: '0 auto',
+          padding: '64px 32px 80px',
+        }}
+      >
+        {/* ── H1 ── */}
         <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+          className="hl-serif"
+          style={{
+            fontSize: 36,
+            fontWeight: 300,
+            color: 'var(--bone)',
+            margin: '0 0 28px',
+            lineHeight: 1.1,
+          }}
         >
-          The thread keeps going.
+          The thread unbroken.
         </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
-        >
-          Every day you add to the thread, the cloth grows. Here is a quiet record of that continuity.
-        </p>
-      </header>
 
-      {streakLoading ? (
-        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
-          Loading…
-        </p>
-      ) : (
-        <div style={{ display: 'grid', gap: 48 }}>
+        {streakLoading ? (
+          <p
+            className="hl-serif hl-italic"
+            style={{ color: 'var(--bone-faint)', fontSize: 16 }}
+          >
+            Reading the thread…
+          </p>
+        ) : (
+          <div style={{ display: 'grid', gap: 56 }}>
 
-          {/* Main count */}
-          <section>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 32 }}>
-              <p className="loom-eyebrow">Consecutive days</p>
-              <hr className="loom-hairline" style={{ flex: 1 }} />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48 }}>
-              {/* Count block */}
-              <div>
-                <p
-                  className="loom-mono"
-                  style={{ fontSize: 64, letterSpacing: '-0.02em', color: 'var(--loom-bone)', margin: '0 0 4px', lineHeight: 1 }}
+            {/* ── Current streak ── */}
+            <section>
+              {/* Current streak number */}
+              <div style={{ marginBottom: 4 }}>
+                <span
+                  className="hl-serif"
+                  style={{
+                    fontSize: 72,
+                    fontWeight: 300,
+                    letterSpacing: '-0.022em',
+                    color: 'var(--warm)',
+                    lineHeight: 1,
+                    display: 'block',
+                  }}
                 >
                   {currentStreak}
-                </p>
-                <p className="loom-body" style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '0 0 20px' }}>
-                  {currentStreak === 1
-                    ? 'day in the thread'
-                    : currentStreak === 0
-                    ? 'days — thread resting'
-                    : 'days in the thread'}
-                </p>
+                </span>
+                <span
+                  className="hl-mono"
+                  style={{
+                    fontSize: 10,
+                    color: 'var(--bone-faint)',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    display: 'block',
+                    marginTop: 4,
+                  }}
+                >
+                  days
+                </span>
+              </div>
 
+              {/* Status line */}
+              <div style={{ marginTop: 16 }}>
                 {streak?.isStreakActive ? (
-                  <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0 }}>
+                  <span
+                    className="hl-mono"
+                    style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+                  >
                     active
-                  </p>
+                  </span>
                 ) : streak?.canExtendStreak ? (
-                  <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: 0 }}>
+                  <span
+                    className="hl-mono"
+                    style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
+                  >
                     Add an entry today to continue the thread.
-                  </p>
+                  </span>
                 ) : (
-                  <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em', margin: 0 }}>
+                  <span
+                    className="hl-mono"
+                    style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
+                  >
                     Begin a new thread today.
-                  </p>
+                  </span>
                 )}
-
                 {streak?.streakFrozenUntil && (
-                  <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)', letterSpacing: '0.04em', margin: '12px 0 0' }}>
+                  <span
+                    className="hl-mono"
+                    style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em', display: 'block', marginTop: 8 }}
+                  >
                     Thread held until {new Date(streak.streakFrozenUntil).toLocaleDateString()}.
-                  </p>
+                  </span>
                 )}
               </div>
 
-              {/* Supporting counts */}
-              <div style={{ borderLeft: '1px solid var(--loom-rule)', paddingLeft: 32 }}>
-                <div style={{ marginBottom: 28 }}>
-                  <p className="loom-mono" style={{ fontSize: 28, color: 'var(--loom-bone)', margin: '0 0 4px', lineHeight: 1 }}>
-                    {longestStreak}
-                  </p>
-                  <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: 0 }}>
-                    longest run
-                  </p>
-                </div>
-                <div style={{ marginBottom: 28 }}>
-                  <p className="loom-mono" style={{ fontSize: 28, color: 'var(--loom-bone)', margin: '0 0 4px', lineHeight: 1 }}>
-                    {totalMemories}
-                  </p>
-                  <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: 0 }}>
-                    total entries
-                  </p>
-                </div>
+              {/* Longest + total — secondary row */}
+              <div
+                style={{
+                  marginTop: 12,
+                  display: 'flex',
+                  gap: 40,
+                  alignItems: 'baseline',
+                }}
+              >
+                <span
+                  className="hl-mono"
+                  style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
+                >
+                  longest {longestStreak}d
+                </span>
+                <span
+                  className="hl-mono"
+                  style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
+                >
+                  {totalMemories} entries total
+                </span>
                 {streak?.streakStartedAt && (
+                  <span
+                    className="hl-mono"
+                    style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
+                  >
+                    since {new Date(streak.streakStartedAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
+
+              {/* Hold thread option */}
+              {streak?.isStreakActive && !streak?.streakFrozenUntil && (
+                <div
+                  style={{
+                    marginTop: 28,
+                    paddingTop: 20,
+                    borderTop: '1px solid var(--rule)',
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    gap: 24,
+                  }}
+                >
                   <div>
-                    <p className="loom-mono" style={{ fontSize: 28, color: 'var(--loom-bone)', margin: '0 0 4px', lineHeight: 1 }}>
-                      {Math.ceil((Date.now() - new Date(streak.streakStartedAt).getTime()) / (1000 * 60 * 60 * 24))}
+                    <p
+                      className="hl-serif"
+                      style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)', margin: '0 0 3px' }}
+                    >
+                      Hold the thread for one day.
                     </p>
-                    <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: 0 }}>
-                      days since first entry
+                    <p
+                      className="hl-mono"
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.04em' }}
+                    >
+                      Rest without losing continuity. Once per week.
                     </p>
+                  </div>
+                  <button
+                    onClick={() => setShowFreezeModal(true)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--rule)',
+                      color: 'var(--bone-dim)',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      padding: '6px 14px',
+                      cursor: 'pointer',
+                      borderRadius: 0,
+                      flexShrink: 0,
+                      transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = 'var(--warm)';
+                      e.currentTarget.style.color = 'var(--warm)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'var(--rule)';
+                      e.currentTarget.style.color = 'var(--bone-dim)';
+                    }}
+                  >
+                    hold thread
+                  </button>
+                </div>
+              )}
+            </section>
+
+            {/* ── Activity grid ── */}
+            <section>
+              <p
+                className="hl-eyebrow"
+                style={{ marginBottom: 16 }}
+              >
+                91 days
+              </p>
+
+              {/* Tooltip */}
+              <div style={{ position: 'relative' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(7, 1fr)',
+                    gap: 4,
+                    marginTop: 40,
+                  }}
+                >
+                  {activityDays.map(day => (
+                    <div
+                      key={day.date}
+                      onMouseEnter={e => {
+                        const r = e.currentTarget.getBoundingClientRect();
+                        setTooltip({ date: day.date, x: r.left + r.width / 2, y: r.top - 8 });
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 0,
+                        background: day.hasEntry
+                          ? `var(--dye-${dyeForDate(day.date)})`
+                          : '#1a1916',
+                        cursor: 'default',
+                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                      onMouseOver={e => { e.currentTarget.style.opacity = '0.8'; }}
+                      onMouseOut={e => { e.currentTarget.style.opacity = '1'; }}
+                    />
+                  ))}
+                </div>
+
+                {/* Tooltip overlay */}
+                {tooltip && (
+                  <div
+                    style={{
+                      position: 'fixed',
+                      left: tooltip.x,
+                      top: tooltip.y,
+                      transform: 'translate(-50%, -100%)',
+                      background: '#131310',
+                      border: '1px solid var(--rule)',
+                      padding: '4px 8px',
+                      pointerEvents: 'none',
+                      zIndex: 100,
+                    }}
+                  >
+                    <span
+                      className="hl-mono"
+                      style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}
+                    >
+                      {tooltip.date}
+                    </span>
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Hold the thread option */}
-            {streak?.isStreakActive && !streak?.streakFrozenUntil && (
-              <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--loom-rule)', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                <div>
-                  <p className="loom-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 4px' }}>
-                    Hold the thread for one day.
-                  </p>
-                  <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-faint)', margin: 0 }}>
-                    Rest without losing continuity. Once per week.
-                  </p>
-                </div>
-                <button onClick={() => setShowFreezeModal(true)} className="loom-btn-ghost">
-                  hold thread
-                </button>
-              </div>
-            )}
-          </section>
-
-          {/* Continuity marks */}
-          <section>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
-              <p className="loom-eyebrow">Continuity marks</p>
-              <hr className="loom-hairline" style={{ flex: 1 }} />
-            </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {continuityMarks.map((mark) => {
-                const reached = longestStreak >= mark.days;
-                const progress = Math.min(100, (currentStreak / mark.days) * 100);
-                return (
-                  <li
-                    key={mark.days}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '200px 1fr 80px',
-                      gap: 24,
-                      alignItems: 'center',
-                      padding: '14px 0',
-                      borderBottom: '1px solid var(--loom-rule)',
-                    }}
-                  >
-                    <p
-                      className="loom-mono"
-                      style={{ margin: 0, fontSize: 12, letterSpacing: '0.06em', color: reached ? 'var(--loom-warm)' : 'var(--loom-bone-faint)' }}
-                    >
-                      {reached ? '∞ ' : ''}{mark.label}
-                    </p>
-                    <div style={{ height: 1, background: 'var(--loom-rule)', position: 'relative', overflow: 'hidden' }}>
-                      {!reached && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            left: 0, top: 0, bottom: 0,
-                            width: `${progress}%`,
-                            background: 'var(--loom-warm)',
-                            transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
-                          }}
-                        />
-                      )}
-                    </div>
-                    <p
-                      className="loom-mono"
-                      style={{ margin: 0, fontSize: 10, color: 'var(--loom-bone-faint)', textAlign: 'right', letterSpacing: '0.04em' }}
-                    >
-                      {mark.days}d
-                    </p>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-
-          {/* Current challenge cross-link */}
-          {currentChallenge && (
-            <section style={{ borderTop: '1px solid var(--loom-rule)', paddingTop: 32 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                <div>
-                  <p className="loom-eyebrow" style={{ marginBottom: 6 }}>This week's theme</p>
-                  <h3
-                    className="loom-serif"
-                    style={{ fontSize: 20, fontWeight: 300, color: 'var(--loom-bone)', margin: '0 0 6px' }}
-                  >
-                    {currentChallenge.title}
-                  </h3>
-                  <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 6px', lineHeight: 1.6 }}>
-                    {currentChallenge.description}
-                  </p>
-                  <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
-                    {currentChallenge.hashtag} · {currentChallenge.submissionCount || 0} entries
-                  </p>
-                </div>
-                <a
-                  href="/challenges"
-                  className="loom-btn"
-                  style={{ textDecoration: 'none', flexShrink: 0, marginLeft: 32 }}
-                >
-                  join theme
-                </a>
-              </div>
             </section>
-          )}
 
-          {/* Upcoming themes */}
-          {challenges && (challenges as any[]).length > 0 && (
+            {/* ── Continuity marks ── */}
             <section>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
-                <p className="loom-eyebrow">Coming themes</p>
-                <hr className="loom-hairline" style={{ flex: 1 }} />
+                <p className="hl-eyebrow">Continuity marks</p>
+                <hr
+                  style={{
+                    flex: 1,
+                    border: 0,
+                    borderTop: '1px solid var(--rule)',
+                    margin: 0,
+                  }}
+                />
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {(challenges as any[]).slice(0, 4).map((challenge: any) => (
-                  <li
-                    key={challenge.id}
-                    style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 24, padding: '14px 0', borderBottom: '1px solid var(--loom-rule)', alignItems: 'baseline' }}
-                  >
-                    <p className="loom-mono" style={{ margin: 0, fontSize: 11, color: 'var(--loom-warm)', letterSpacing: '0.04em' }}>
-                      {new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </p>
-                    <div>
-                      <p className="loom-serif" style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 300, color: 'var(--loom-bone)' }}>
-                        {challenge.title}
-                      </p>
-                      <p className="loom-mono" style={{ margin: 0, fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.06em' }}>
-                        {challenge.theme}
-                      </p>
-                    </div>
-                  </li>
-                ))}
+                {continuityMarks.map(mark => {
+                  const reached = longestStreak >= mark.days;
+                  const progress = Math.min(100, (currentStreak / mark.days) * 100);
+                  return (
+                    <li
+                      key={mark.days}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '200px 1fr 60px',
+                        gap: 20,
+                        alignItems: 'center',
+                        padding: '12px 0',
+                        borderBottom: '1px solid var(--rule)',
+                      }}
+                    >
+                      <span
+                        className="hl-mono"
+                        style={{
+                          fontSize: 11,
+                          letterSpacing: '0.04em',
+                          color: reached ? 'var(--warm)' : 'var(--bone-faint)',
+                          margin: 0,
+                        }}
+                      >
+                        {reached ? '∞ ' : ''}{mark.label}
+                      </span>
+                      <div
+                        style={{
+                          height: 1,
+                          background: 'var(--rule)',
+                          position: 'relative',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {!reached && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              left: 0, top: 0, bottom: 0,
+                              width: `${progress}%`,
+                              background: 'var(--warm)',
+                              transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
+                            }}
+                          />
+                        )}
+                      </div>
+                      <span
+                        className="hl-mono"
+                        style={{
+                          fontSize: 10,
+                          color: 'var(--bone-faint)',
+                          textAlign: 'right',
+                          letterSpacing: '0.04em',
+                          margin: 0,
+                        }}
+                      >
+                        {mark.days}d
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
-          )}
-        </div>
-      )}
 
-      {/* Hold thread overlay */}
+            {/* ── Current challenge cross-link ── */}
+            {currentChallenge && (
+              <section style={{ borderTop: '1px solid var(--rule)', paddingTop: 28 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 32 }}>
+                  <div>
+                    <p className="hl-eyebrow" style={{ marginBottom: 8 }}>This week's theme</p>
+                    <h3
+                      className="hl-serif"
+                      style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px' }}
+                    >
+                      {currentChallenge.title}
+                    </h3>
+                    <p
+                      className="hl-serif"
+                      style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 8px', lineHeight: 1.6, fontWeight: 300 }}
+                    >
+                      {currentChallenge.description}
+                    </p>
+                    <span
+                      className="hl-mono"
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
+                    >
+                      {currentChallenge.hashtag} · {currentChallenge.submissionCount || 0} entries
+                    </span>
+                  </div>
+                  <a
+                    href="/challenges"
+                    className="hl-btn"
+                    style={{
+                      textDecoration: 'none',
+                      flexShrink: 0,
+                      padding: '8px 16px',
+                      fontSize: 10,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    join theme
+                  </a>
+                </div>
+              </section>
+            )}
+
+            {/* ── Upcoming themes ── */}
+            {challenges && (challenges as any[]).length > 0 && (
+              <section>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 16 }}>
+                  <p className="hl-eyebrow">Coming themes</p>
+                  <hr
+                    style={{
+                      flex: 1,
+                      border: 0,
+                      borderTop: '1px solid var(--rule)',
+                      margin: 0,
+                    }}
+                  />
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {(challenges as any[]).slice(0, 4).map((challenge: any) => (
+                    <li
+                      key={challenge.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '100px 1fr',
+                        gap: 20,
+                        padding: '12px 0',
+                        borderBottom: '1px solid var(--rule)',
+                        alignItems: 'baseline',
+                      }}
+                    >
+                      <span
+                        className="hl-mono"
+                        style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.04em' }}
+                      >
+                        {new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </span>
+                      <div>
+                        <p
+                          className="hl-serif"
+                          style={{ margin: '0 0 2px', fontSize: 15, fontWeight: 300, color: 'var(--bone)' }}
+                        >
+                          {challenge.title}
+                        </p>
+                        <span
+                          className="hl-mono"
+                          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}
+                        >
+                          {challenge.theme}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Hold thread overlay ── */}
       {showFreezeModal && (
         <div
           style={{
-            position: 'fixed', inset: 0,
-            background: 'rgba(14,14,12,0.82)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 200, padding: 24,
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(14,14,12,0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 200,
+            padding: 24,
           }}
           onClick={() => setShowFreezeModal(false)}
         >
           <div
             style={{
-              background: 'var(--loom-ink-card)',
-              border: '1px solid var(--loom-rule)',
-              padding: 40,
+              background: '#131310',
+              border: '1px solid var(--rule)',
+              padding: '40px 36px',
               maxWidth: 400,
               width: '100%',
               textAlign: 'center',
+              borderRadius: 0,
             }}
             onClick={e => e.stopPropagation()}
           >
-            <p className="loom-mono" style={{ fontSize: 22, color: 'var(--loom-warm)', marginBottom: 16 }}>∞</p>
+            <p
+              className="hl-mono"
+              style={{ fontSize: 20, color: 'var(--warm)', marginBottom: 14, letterSpacing: '0.02em' }}
+            >
+              ∞
+            </p>
             <h3
-              className="loom-serif"
-              style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', color: 'var(--loom-bone)', margin: '0 0 10px' }}
+              className="hl-serif hl-italic"
+              style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone)', margin: '0 0 10px' }}
             >
               Hold the thread?
             </h3>
-            <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: '0 0 28px', lineHeight: 1.7 }}>
+            <p
+              className="hl-serif"
+              style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 28px', lineHeight: 1.7, fontWeight: 300 }}
+            >
               Your continuity is preserved for 24 hours. You may hold the thread once per week.
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <button onClick={() => setShowFreezeModal(false)} className="loom-btn-ghost">
+              <button
+                onClick={() => setShowFreezeModal(false)}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--rule)',
+                  color: 'var(--bone-dim)',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  padding: '8px 16px',
+                  cursor: 'pointer',
+                  borderRadius: 0,
+                }}
+              >
                 cancel
               </button>
               <button
                 onClick={() => freezeMutation.mutate()}
                 disabled={freezeMutation.isPending}
-                className="loom-btn"
+                className="hl-btn"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  padding: '8px 16px',
+                  borderRadius: 0,
+                  opacity: freezeMutation.isPending ? 0.5 : 1,
+                  cursor: freezeMutation.isPending ? 'not-allowed' : 'pointer',
+                }}
               >
                 {freezeMutation.isPending ? 'holding…' : 'hold thread'}
               </button>
@@ -325,6 +599,6 @@ export function Streaks() {
           </div>
         </div>
       )}
-    </AppFrame>
+    </Frame>
   );
 }

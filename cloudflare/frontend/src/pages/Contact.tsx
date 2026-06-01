@@ -1,59 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AppFrame } from '../loom/components/AppFrame';
+import { HLogo } from '../loom/components/HLogo';
 
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  fontFamily: "'Inter', sans-serif",
-  fontSize: 11,
-  fontWeight: 500,
-  letterSpacing: '0.22em',
-  textTransform: 'uppercase',
-  color: 'var(--loom-bone-faint)',
-  marginBottom: 10,
-};
-
-const fieldStyle: React.CSSProperties = {
-  width: '100%',
-  background: 'transparent',
-  border: '1px solid var(--loom-rule)',
-  borderRadius: 2,
-  color: 'var(--loom-bone)',
-  caretColor: 'var(--loom-warm)',
-  fontFamily: "'Source Serif 4', serif",
-  fontSize: 16,
-  lineHeight: 1.7,
-  padding: '12px 14px',
-  outline: 'none',
-  boxSizing: 'border-box',
-};
-
-function Field({
-  id,
-  label,
-  type = 'text',
-  value,
-  onChange,
-  placeholder,
-}: {
-  id: string;
-  label: string;
-  type?: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-}) {
+function MktBar() {
   return (
-    <div>
-      <label htmlFor={id} style={labelStyle}>{label}</label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={fieldStyle}
-      />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 56px', borderBottom: '1px solid var(--parchment-rule)' }}>
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
+      </Link>
+      <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
+        <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
+        <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
+        <Link to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
+        <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
+      </span>
     </div>
   );
 }
@@ -93,152 +53,148 @@ export function Contact() {
     }
   };
 
-  return (
-    <AppFrame>
-      <div style={{ maxWidth: 640 }}>
-        <Link
-          to="/"
-          className="loom-mono"
-          style={{
-            display: 'inline-block',
-            fontSize: 10,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--loom-bone-faint)',
-            textDecoration: 'none',
-            marginBottom: 48,
-          }}
-        >
-          ← back to heirloom
-        </Link>
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '1px solid var(--parchment-rule)',
+    borderRadius: 0,
+    color: 'var(--parchment-ink)',
+    caretColor: 'var(--warm)',
+    fontFamily: 'var(--serif)',
+    fontSize: 16,
+    lineHeight: 1.7,
+    padding: '10px 0',
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
 
+  return (
+    <div className="hl-screen parchment" style={{ overflow: 'auto' }}>
+      <MktBar />
+
+      <div style={{ padding: '64px 56px', maxWidth: 640, margin: '0 auto' }}>
         {isSubmitted ? (
-          <div
-            role="status"
-            style={{
-              paddingTop: 40,
-              textAlign: 'center',
-              opacity: 1,
-              animation: 'none',
-            }}
-          >
+          <div role="status" style={{ paddingTop: 40 }}>
             <p
-              className="loom-serif"
-              style={{ fontSize: 36, color: 'var(--loom-warm)', margin: '0 0 28px', lineHeight: 1 }}
+              className="hl-serif"
+              style={{ fontSize: 36, color: 'var(--warm)', margin: '0 0 28px', lineHeight: 1 }}
               aria-hidden
             >
               ∞
             </p>
             <h1
-              className="loom-h2"
-              style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 14px' }}
+              className="hl-serif hl-tight"
+              style={{ fontSize: 52, fontWeight: 300, margin: '0 0 20px', color: 'var(--parchment-ink)' }}
             >
               Message sent.
             </h1>
             <p
-              className="loom-body"
-              style={{ color: 'var(--loom-bone-dim)', maxWidth: 480, margin: '0 auto 32px', lineHeight: 1.7 }}
+              className="hl-prose"
+              style={{ fontSize: 17, color: 'var(--parchment-dim)', margin: '0 0 40px', lineHeight: 1.7 }}
             >
-              Thank you for reaching out. We'll get back to you within 24–48 hours.
+              Thank you for reaching out. We'll get back to you within two business days.
             </p>
-            <Link
-              to="/"
-              className="loom-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--loom-warm)',
-                textDecoration: 'none',
-              }}
-            >
+            <Link to="/" className="hl-link warm" style={{ fontSize: 15 }}>
               return home →
             </Link>
           </div>
         ) : (
           <>
-            <header style={{ marginBottom: 40 }}>
-              <p className="loom-eyebrow" style={{ marginBottom: 14 }}>Contact</p>
-              <h1
-                className="loom-h2"
-                style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-              >
-                Say something.
-              </h1>
-              <p
-                className="loom-body"
-                style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', lineHeight: 1.6 }}
-              >
-                A question, a worry, a story you want to tell us first. We read every message.
-              </p>
-            </header>
+            <h1
+              className="hl-serif hl-tight"
+              style={{ fontSize: 52, fontWeight: 300, margin: '0 0 20px', color: 'var(--parchment-ink)' }}
+            >
+              Write to us.
+            </h1>
+            <p
+              className="hl-prose"
+              style={{ fontSize: 17, color: 'var(--parchment-dim)', margin: '0 0 40px', lineHeight: 1.6 }}
+            >
+              We respond within two business days.
+            </p>
 
-            <form onSubmit={handleSubmit} aria-label="Contact form" style={{ display: 'grid', gap: 24 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <Field id="c-name" label="Your name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="Jane Doe" />
-                <Field id="c-email" label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} placeholder="you@example.com" />
+            <form onSubmit={handleSubmit} aria-label="Contact form" noValidate>
+              <div style={{ marginBottom: 18 }}>
+                <input
+                  id="c-name"
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Your name"
+                  aria-label="Your name"
+                  style={inputStyle}
+                />
               </div>
-              <Field id="c-subject" label="Subject" value={form.subject} onChange={(v) => setForm({ ...form, subject: v })} placeholder="How can we help?" />
-              <div>
-                <label htmlFor="c-message" style={labelStyle}>Message</label>
+              <div style={{ marginBottom: 18 }}>
+                <input
+                  id="c-email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="Email address"
+                  aria-label="Email address"
+                  style={inputStyle}
+                />
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <input
+                  id="c-subject"
+                  type="text"
+                  value={form.subject}
+                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                  placeholder="Subject"
+                  aria-label="Subject"
+                  style={inputStyle}
+                />
+              </div>
+              <div style={{ marginBottom: 24 }}>
                 <textarea
                   id="c-message"
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  placeholder="Tell us more about your question or concern."
-                  rows={6}
-                  style={{ ...fieldStyle, resize: 'vertical' }}
+                  placeholder="Your message"
+                  aria-label="Your message"
+                  style={{
+                    ...inputStyle,
+                    minHeight: 160,
+                    resize: 'vertical',
+                    paddingBottom: 12,
+                  }}
                 />
               </div>
 
               {error ? (
-                <p role="alert" className="loom-body" style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: 0 }}>
+                <p role="alert" className="hl-prose" style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: '0 0 18px' }}>
                   {error}
                 </p>
               ) : null}
 
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 16,
-                  paddingTop: 8,
-                }}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="hl-btn"
+                style={{ opacity: isSubmitting ? 0.5 : 1 }}
               >
-                <p
-                  className="loom-mono"
-                  style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.08em', maxWidth: 260 }}
-                >
-                  Or write directly to{' '}
-                  <a
-                    href="mailto:support@heirloom.blue"
-                    style={{ color: 'var(--loom-warm)', textDecoration: 'none', borderBottom: '1px solid var(--loom-rule-warm)' }}
-                  >
-                    support@heirloom.blue
-                  </a>
-                </p>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="loom-btn"
-                  style={{ opacity: isSubmitting ? 0.5 : 1 }}
-                >
-                  {isSubmitting ? 'sending…' : 'send message'}
-                </button>
-              </div>
+                {isSubmitting ? 'sending…' : 'Send →'}
+              </button>
             </form>
 
             <p
-              className="loom-mono"
-              style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 48, letterSpacing: '0.08em' }}
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                color: 'var(--parchment-dim)',
+                marginTop: 48,
+                letterSpacing: '0.08em',
+              }}
             >
               131 Continental Dr Suite 305, Newark, DE 19713, US
             </p>
           </>
         )}
       </div>
-    </AppFrame>
+    </div>
   );
 }
 

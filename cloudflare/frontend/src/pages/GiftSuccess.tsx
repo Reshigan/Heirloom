@@ -1,149 +1,73 @@
 import { useSearchParams, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { HLogo } from '../loom/components/HLogo';
 
 export function GiftSuccess() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code') || '';
-  const [copied, setCopied] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const redemptionUrl = `${window.location.origin}/gift/redeem?code=${code}`;
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(redemptionUrl);
-    setLinkCopied(true);
-    setTimeout(() => setLinkCopied(false), 2000);
-  };
 
   return (
     <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        color: 'var(--loom-bone)',
-        display: 'grid',
-        placeItems: 'center',
-        padding: '40px 24px',
-      }}
+      className="hl-screen"
+      data-gift-code={code}
+      style={{ background: 'var(--parchment)', color: 'var(--ink)' }}
     >
-      <div style={{ width: '100%', maxWidth: 480 }}>
-        {/* Header */}
-        <p className="loom-eyebrow" style={{ marginBottom: 20 }}>purchase complete</p>
-        <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 52px)', fontWeight: 300, fontStyle: 'italic', margin: '0 0 16px' }}
-        >
-          Thank you.
-        </h1>
-        <p className="loom-body" style={{ color: 'var(--loom-bone-dim)', fontSize: 16, margin: '0 0 40px', lineHeight: 1.7 }}>
-          Your gift voucher has been created. share the code or link with the person you're giving it to.
-        </p>
+      {/* Topbar */}
+      <div className="hl-topbar">
+        <HLogo size={18} />
+      </div>
 
-        <hr className="loom-hairline" style={{ marginBottom: 40 }} />
+      {/* Centered content */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 440, padding: '0 24px' }}>
+          <HLogo
+            size={40}
+            glow
+            style={{ marginBottom: 24, justifyContent: 'center' }}
+          />
 
-        {/* Code */}
-        <div style={{ marginBottom: 32 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14, fontSize: 9 }}>your gift code</p>
-          <div
+          <h1
+            className="hl-serif hl-tight"
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '16px 0',
-              borderBottom: '1px solid var(--loom-rule)',
+              fontSize: 40,
+              fontWeight: 300,
+              margin: '0 0 18px',
             }}
           >
-            <span
-              className="loom-mono"
-              style={{ fontSize: 20, letterSpacing: '0.1em', color: 'var(--loom-warm)' }}
-            >
-              {code}
-            </span>
-            <button
-              onClick={handleCopy}
-              className="loom-btn-ghost"
-              style={{ padding: '7px 16px' }}
-            >
-              {copied ? 'copied' : 'copy'}
-            </button>
-          </div>
-        </div>
+            The gift is on its way.
+          </h1>
 
-        {/* Redemption URL */}
-        <div style={{ marginBottom: 40 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14, fontSize: 9 }}>or share this link</p>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <input
-              type="text"
-              value={redemptionUrl}
-              readOnly
-              className="loom-mono"
-              style={{ flex: 1, fontSize: 11, color: 'var(--loom-bone-dim)', letterSpacing: '0.02em' }}
-            />
-            <button
-              onClick={handleCopyLink}
-              className="loom-btn-ghost"
-              style={{ padding: '7px 16px', flexShrink: 0 }}
-              aria-label="Copy redemption link"
-            >
-              {linkCopied ? 'copied' : 'copy'}
-            </button>
-          </div>
-        </div>
-
-        <hr className="loom-hairline" style={{ marginBottom: 32 }} />
-
-        {/* Next steps */}
-        <div style={{ marginBottom: 40 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 16, fontSize: 9 }}>what's next</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
-            {[
-              'share the code or link with your recipient',
-              'they can redeem it at heirloom.blue/gift/redeem',
-              'the voucher is valid for one year',
-            ].map((step, i) => (
-              <li
-                key={i}
-                className="loom-body"
-                style={{ display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 14, color: 'var(--loom-bone-dim)' }}
-              >
-                <span style={{ color: 'var(--loom-warm)', flexShrink: 0 }}>·</span>
-                {step}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <Link
-            to="/gift"
-            className="loom-btn-ghost"
-            style={{ textDecoration: 'none', flex: 1, textAlign: 'center' }}
+          <p
+            className="hl-prose"
+            style={{
+              fontSize: 17,
+              color: 'var(--bone-dim)',
+              margin: '0 0 28px',
+            }}
           >
-            give another gift
-          </Link>
+            You'll receive confirmation by email.
+          </p>
+
           <Link
             to="/"
-            className="loom-btn"
-            style={{ textDecoration: 'none', flex: 1, textAlign: 'center' }}
+            className="hl-link warm hl-mono"
+            style={{
+              fontSize: 10.5,
+              textTransform: 'uppercase',
+              letterSpacing: '0.14em',
+              textDecoration: 'none',
+            }}
           >
-            heirloom
+            return to the cloth →
           </Link>
         </div>
-
-        <p
-          className="loom-mono"
-          style={{ textAlign: 'center', fontSize: 9, letterSpacing: '0.18em', color: 'var(--loom-bone-faint)', marginTop: 28 }}
-        >
-          a confirmation has been sent to your email
-        </p>
       </div>
     </div>
   );

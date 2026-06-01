@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { HLogo } from '../loom/components/HLogo';
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface PricingTier {
   id: string;
@@ -17,14 +20,53 @@ interface PricingData {
   tiers: PricingTier[];
 }
 
-const FEATURES = [
-  'unlimited threads with full stories',
-  'voice recordings with transcription',
-  'letters to loved ones',
-  'posthumous delivery',
-  'family sharing',
-  'zero-knowledge encryption',
-];
+// ── MktBar ────────────────────────────────────────────────────────────────────
+
+function MktBar() {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '24px 56px',
+        borderBottom: '1px solid var(--parchment-rule)',
+      }}
+    >
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
+      </Link>
+      <nav
+        style={{
+          display: 'flex',
+          gap: 32,
+          fontFamily: 'var(--mono)',
+          fontSize: 10.5,
+          letterSpacing: '0.32em',
+          textTransform: 'uppercase',
+          color: 'var(--parchment-dim)',
+        }}
+      >
+        {[
+          { to: '/',         label: 'home'    },
+          { to: '/founders', label: 'pledge'  },
+          { to: '/gift',     label: 'gift'    },
+          { to: '/login',    label: 'sign in' },
+        ].map(({ to, label }) => (
+          <Link
+            key={to}
+            to={to}
+            style={{ color: 'inherit', textDecoration: 'none' }}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+// ── GiftPurchase ──────────────────────────────────────────────────────────────
 
 export function GiftPurchase() {
   const [pricing, setPricing] = useState<PricingData | null>(null);
@@ -42,9 +84,11 @@ export function GiftPurchase() {
   });
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/pricing`)
-      .then(res => res.json())
-      .then(data => setPricing(data))
+    fetch(
+      `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/pricing`,
+    )
+      .then((res) => res.json())
+      .then((data) => setPricing(data))
       .catch(console.error);
   }, []);
 
@@ -56,16 +100,19 @@ export function GiftPurchase() {
     setFormError(null);
     setIsLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/checkout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tier: selectedTier,
-          billingCycle,
-          currency: pricing?.currency || 'USD',
-          ...formData,
-        }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/checkout`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tier: selectedTier,
+            billingCycle,
+            currency: pricing?.currency || 'USD',
+            ...formData,
+          }),
+        },
+      );
       const data = await res.json();
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
@@ -80,280 +127,470 @@ export function GiftPurchase() {
     }
   };
 
-  const selectedPricing = pricing?.tiers.find(t => t.id === selectedTier);
+  const selectedPricing = pricing?.tiers.find((t) => t.id === selectedTier);
   const price = selectedPricing?.[billingCycle];
 
   return (
     <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        color: 'var(--loom-bone)',
-      }}
+      className="hl-screen parchment"
+      style={{ overflowY: 'auto' }}
     >
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '48px 32px 96px' }}>
+      <MktBar />
 
-        {/* Back link */}
-        <div style={{ marginBottom: 48 }}>
-          <Link
-            to="/"
-            className="loom-mono"
+      {/* Content */}
+      <div style={{ padding: '64px 56px' }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+
+          {/* H1 */}
+          <h1
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 10,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
-              textDecoration: 'none',
+              fontSize: 48,
+              fontWeight: 300,
+              color: 'var(--parchment-ink)',
+              margin: '0 0 32px',
+              letterSpacing: '-0.022em',
+              lineHeight: 1.08,
             }}
           >
-            heirloom
-          </Link>
-        </div>
-
-        {/* Header */}
-        <header style={{ marginBottom: 56 }}>
-          <p className="loom-eyebrow" style={{ marginBottom: 14 }}>give a thread</p>
-          <h1
-            className="loom-h2"
-            style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
-          >
-            Gift a thread.
+            Give a thread to someone.
           </h1>
-          <p
-            className="loom-body"
-            style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 560, lineHeight: 1.6 }}
+
+          {/* Billing cycle toggle */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 0,
+              marginBottom: 28,
+              borderBottom: '1px solid var(--parchment-rule)',
+            }}
           >
-            Give someone the gift of a place on the family thread — a thousand-year archive,
-            preserved and passed down.
-          </p>
-        </header>
+            {(['quarterly', 'yearly'] as const).map((cycle) => (
+              <button
+                key={cycle}
+                onClick={() => setBillingCycle(cycle)}
+                className="hl-mono"
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  borderBottom:
+                    billingCycle === cycle
+                      ? '1px solid var(--warm)'
+                      : '1px solid transparent',
+                  marginBottom: -1,
+                  padding: '10px 20px 10px 0',
+                  fontSize: 10,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color:
+                    billingCycle === cycle
+                      ? 'var(--parchment-ink)'
+                      : 'var(--parchment-faint)',
+                  cursor: 'pointer',
+                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+              >
+                {cycle === 'quarterly' ? '3 months' : 'annual'}
+                {cycle === 'yearly' && (
+                  <span
+                    style={{
+                      marginLeft: 8,
+                      color: 'var(--warm)',
+                      fontSize: 9,
+                    }}
+                  >
+                    save 2 months
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
 
-        <hr className="loom-hairline" style={{ marginBottom: 56 }} />
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'start' }}>
-
-          {/* Left: Plan Selection */}
-          <div>
-            <p className="loom-eyebrow" style={{ marginBottom: 24 }}>choose a plan</p>
-
-            {/* Billing Toggle */}
-            <div style={{ display: 'flex', gap: 0, marginBottom: 32, borderBottom: '1px solid var(--loom-rule)' }}>
-              {(['quarterly', 'yearly'] as const).map((cycle) => (
-                <button
-                  key={cycle}
-                  onClick={() => setBillingCycle(cycle)}
-                  className="loom-mono"
-                  style={{
-                    background: 'transparent',
-                    border: 0,
-                    borderBottom: billingCycle === cycle ? '1px solid var(--loom-warm)' : '1px solid transparent',
-                    marginBottom: -1,
-                    padding: '10px 20px 10px 0',
-                    fontSize: 10,
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    color: billingCycle === cycle ? 'var(--loom-bone)' : 'var(--loom-bone-faint)',
-                    cursor: 'pointer',
-                    transition: 'color 180ms var(--loom-ease)',
-                  }}
-                >
-                  {cycle === 'quarterly' ? '3 months' : 'annual'}
-                  {cycle === 'yearly' && (
-                    <span style={{ marginLeft: 8, color: 'var(--loom-warm)', fontSize: 9 }}>save 2 months</span>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {/* Tier Selection */}
-            <div style={{ display: 'grid', gap: 1 }}>
-              {pricing?.tiers.map((tier) => (
+          {/* Tier selection: 2-column grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              marginBottom: 36,
+            }}
+          >
+            {(
+              pricing?.tiers ?? [
+                {
+                  id: 'FAMILY',
+                  name: 'Family',
+                  description: '1 year of Family plan',
+                  storage: '25 GB',
+                  quarterly: { amount: 0, display: '—' },
+                  yearly: { amount: 0, display: '—' },
+                },
+              ]
+            ).map((tier, idx) => {
+              const isSelected = selectedTier === tier.id;
+              const isFirst = idx === 0;
+              return (
                 <button
                   key={tier.id}
                   onClick={() => setSelectedTier(tier.id)}
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr auto',
-                    alignItems: 'center',
-                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
                     textAlign: 'left',
-                    padding: '18px 0',
-                    background: 'transparent',
-                    border: 0,
-                    borderBottom: '1px solid var(--loom-rule)',
+                    padding: '16px 18px',
                     cursor: 'pointer',
+                    background: isSelected ? 'var(--ink)' : 'transparent',
+                    color: isSelected ? 'var(--bone)' : 'var(--parchment-ink)',
+                    border: '1px solid var(--parchment-rule)',
+                    borderLeft: isFirst ? '1px solid var(--parchment-rule)' : 'none',
+                    outline: 'none',
+                    transition:
+                      'background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
                   }}
                 >
-                  <div>
-                    <p
-                      className="loom-body"
-                      style={{
-                        fontSize: 16,
-                        fontStyle: 'italic',
-                        color: selectedTier === tier.id ? 'var(--loom-bone)' : 'var(--loom-bone-dim)',
-                        margin: '0 0 2px',
-                        transition: 'color 180ms var(--loom-ease)',
-                      }}
-                    >
-                      {tier.name}
-                      {tier.popular && (
-                        <span
-                          className="loom-mono"
-                          style={{ marginLeft: 10, fontSize: 9, letterSpacing: '0.16em', color: 'var(--loom-warm)', textTransform: 'uppercase', fontStyle: 'normal' }}
-                        >
-                          popular
-                        </span>
-                      )}
-                    </p>
-                    <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', margin: 0 }}>
-                      {tier.storage} storage
-                    </p>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <p
-                      className="loom-body"
-                      style={{
-                        fontSize: 18,
-                        color: selectedTier === tier.id ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
-                        margin: 0,
-                        transition: 'color 180ms var(--loom-ease)',
-                      }}
-                    >
-                      {tier[billingCycle].display}
-                    </p>
-                    <p className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', margin: 0 }}>
-                      {billingCycle === 'yearly' ? '/year' : '/3 months'}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {/* Features */}
-            <div style={{ marginTop: 40 }}>
-              <p className="loom-eyebrow" style={{ marginBottom: 16 }}>what's included</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
-                {FEATURES.map((feature, i) => (
-                  <li
-                    key={i}
-                    className="loom-body"
-                    style={{ display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 14, color: 'var(--loom-bone-dim)' }}
+                  <span
+                    className="hl-mono"
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: '0.28em',
+                      textTransform: 'uppercase',
+                      color: isSelected ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                      marginBottom: 8,
+                    }}
                   >
-                    <span style={{ color: 'var(--loom-warm)', flexShrink: 0 }}>·</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    {tier.name}
+                    {tier.popular && (
+                      <span
+                        style={{
+                          marginLeft: 8,
+                          color: 'var(--warm)',
+                          fontSize: 9,
+                        }}
+                      >
+                        popular
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className="hl-serif"
+                    style={{
+                      fontStyle: 'italic',
+                      fontSize: 14,
+                      color: isSelected ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                      marginBottom: 10,
+                    }}
+                  >
+                    {tier.description}
+                  </span>
+                  <span
+                    className="hl-serif hl-tight"
+                    style={{
+                      fontSize: 28,
+                      fontWeight: 300,
+                      lineHeight: 1,
+                      color: isSelected ? 'var(--bone)' : 'var(--parchment-ink)',
+                    }}
+                  >
+                    {tier[billingCycle].display}
+                  </span>
+                  <span
+                    className="hl-mono"
+                    style={{
+                      fontSize: 9,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      color: isSelected ? 'var(--bone-faint)' : 'var(--parchment-faint)',
+                      marginTop: 4,
+                    }}
+                  >
+                    {billingCycle === 'yearly' ? '/ year' : '/ 3 months'}
+                    {' · '}
+                    {tier.storage} storage
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Right: Form + Purchase */}
-          <div>
-            <p className="loom-eyebrow" style={{ marginBottom: 24 }}>your details</p>
-            <div style={{ display: 'grid', gap: 24, marginBottom: 40 }}>
-              <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
-                  your email <span style={{ color: '#c25a5a' }}>*</span>
-                </label>
-                <input
-                  type="email"
-                  value={formData.purchaserEmail}
-                  onChange={(e) => setFormData({ ...formData, purchaserEmail: e.target.value })}
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-              <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
-                  your name
-                </label>
-                <input
-                  type="text"
-                  value={formData.purchaserName}
-                  onChange={(e) => setFormData({ ...formData, purchaserName: e.target.value })}
-                  placeholder="shown to recipient"
-                />
-              </div>
-            </div>
+          {/* Hairline rule */}
+          <hr
+            style={{
+              height: 1,
+              border: 0,
+              background: 'var(--parchment-rule)',
+              margin: '0 0 28px',
+            }}
+          />
 
-            <hr className="loom-hairline" style={{ marginBottom: 32 }} />
-
-            <p className="loom-eyebrow" style={{ marginBottom: 8 }}>recipient (optional)</p>
-            <p className="loom-body" style={{ fontSize: 13, color: 'var(--loom-bone-faint)', margin: '0 0 24px' }}>
-              send directly, or leave blank to receive the voucher code yourself.
-            </p>
-            <div style={{ display: 'grid', gap: 24, marginBottom: 40 }}>
-              <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
-                  recipient email
-                </label>
-                <input
-                  type="email"
-                  value={formData.recipientEmail}
-                  onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
-                  placeholder="recipient@example.com"
-                />
-              </div>
-              <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
-                  recipient name
-                </label>
-                <input
-                  type="text"
-                  value={formData.recipientName}
-                  onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                  placeholder="their name"
-                />
-              </div>
-              <div>
-                <label className="loom-eyebrow" style={{ display: 'block', marginBottom: 8, fontSize: 10 }}>
-                  personal note
-                </label>
-                <textarea
-                  value={formData.recipientMessage}
-                  onChange={(e) => setFormData({ ...formData, recipientMessage: e.target.value })}
-                  placeholder="a few quiet words…"
-                  rows={3}
-                  style={{ resize: 'vertical' }}
-                />
-              </div>
-            </div>
-
-            <hr className="loom-hairline" style={{ marginBottom: 28 }} />
-
-            {/* Summary */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-              <span className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)' }}>
-                {selectedPricing?.name} — {billingCycle === 'yearly' ? '1 year' : '3 months'}
-              </span>
-              <span className="loom-body" style={{ fontSize: 22, color: 'var(--loom-warm)' }}>
-                {price?.display}
-              </span>
-            </div>
-
-            {formError && (
-              <p
-                role="alert"
-                className="loom-body"
-                style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 13, margin: '0 0 16px' }}
-              >
-                {formError}
-              </p>
-            )}
-
-            <button
-              onClick={handlePurchase}
-              disabled={isLoading || !formData.purchaserEmail}
-              className="loom-btn"
-              style={{ width: '100%', opacity: (isLoading || !formData.purchaserEmail) ? 0.5 : 1 }}
+          {/* Recipient email */}
+          <div style={{ marginBottom: 18 }}>
+            <label
+              className="hl-mono"
+              style={{
+                display: 'block',
+                fontSize: 10,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
+                color: 'var(--parchment-dim)',
+                marginBottom: 8,
+              }}
             >
-              {isLoading ? 'preparing checkout…' : 'purchase gift'}
-            </button>
-
-            <p className="loom-mono" style={{ textAlign: 'center', fontSize: 9, letterSpacing: '0.18em', color: 'var(--loom-bone-faint)', marginTop: 16 }}>
-              secure payment via stripe · voucher valid 1 year
-            </p>
+              recipient email
+            </label>
+            <input
+              type="email"
+              value={formData.recipientEmail}
+              onChange={(e) =>
+                setFormData({ ...formData, recipientEmail: e.target.value })
+              }
+              placeholder="recipient@example.com"
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--parchment-rule)',
+                padding: '10px 0',
+                fontFamily: 'var(--serif)',
+                fontSize: 17,
+                color: 'var(--parchment-ink)',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
           </div>
+
+          {/* Recipient name */}
+          <div style={{ marginBottom: 18 }}>
+            <label
+              className="hl-mono"
+              style={{
+                display: 'block',
+                fontSize: 10,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
+                color: 'var(--parchment-dim)',
+                marginBottom: 8,
+              }}
+            >
+              recipient name
+            </label>
+            <input
+              type="text"
+              value={formData.recipientName}
+              onChange={(e) =>
+                setFormData({ ...formData, recipientName: e.target.value })
+              }
+              placeholder="their name"
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--parchment-rule)',
+                padding: '10px 0',
+                fontFamily: 'var(--serif)',
+                fontSize: 17,
+                color: 'var(--parchment-ink)',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          {/* Personal note */}
+          <div style={{ marginBottom: 18 }}>
+            <label
+              className="hl-mono"
+              style={{
+                display: 'block',
+                fontSize: 10,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
+                color: 'var(--parchment-dim)',
+                marginBottom: 8,
+              }}
+            >
+              personal note
+            </label>
+            <textarea
+              value={formData.recipientMessage}
+              onChange={(e) =>
+                setFormData({ ...formData, recipientMessage: e.target.value })
+              }
+              placeholder="a few quiet words…"
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--parchment-rule)',
+                padding: '10px 0',
+                fontFamily: 'var(--serif)',
+                fontSize: 17,
+                color: 'var(--parchment-ink)',
+                outline: 'none',
+                resize: 'vertical',
+                minHeight: 100,
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          {/* Purchaser section */}
+          <hr
+            style={{
+              height: 1,
+              border: 0,
+              background: 'var(--parchment-rule)',
+              margin: '10px 0 28px',
+            }}
+          />
+
+          <div style={{ marginBottom: 18 }}>
+            <label
+              className="hl-mono"
+              style={{
+                display: 'block',
+                fontSize: 10,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
+                color: 'var(--parchment-dim)',
+                marginBottom: 8,
+              }}
+            >
+              your email <span style={{ color: 'var(--warm)' }}>*</span>
+            </label>
+            <input
+              type="email"
+              value={formData.purchaserEmail}
+              onChange={(e) =>
+                setFormData({ ...formData, purchaserEmail: e.target.value })
+              }
+              placeholder="you@example.com"
+              required
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--parchment-rule)',
+                padding: '10px 0',
+                fontFamily: 'var(--serif)',
+                fontSize: 17,
+                color: 'var(--parchment-ink)',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 18 }}>
+            <label
+              className="hl-mono"
+              style={{
+                display: 'block',
+                fontSize: 10,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
+                color: 'var(--parchment-dim)',
+                marginBottom: 8,
+              }}
+            >
+              your name
+            </label>
+            <input
+              type="text"
+              value={formData.purchaserName}
+              onChange={(e) =>
+                setFormData({ ...formData, purchaserName: e.target.value })
+              }
+              placeholder="shown to recipient"
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--parchment-rule)',
+                padding: '10px 0',
+                fontFamily: 'var(--serif)',
+                fontSize: 17,
+                color: 'var(--parchment-ink)',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          {/* Summary line */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              paddingTop: 20,
+              borderTop: '1px solid var(--parchment-rule)',
+              marginTop: 8,
+            }}
+          >
+            <span
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'var(--parchment-dim)',
+              }}
+            >
+              {selectedPricing?.name ?? '—'} &middot;{' '}
+              {billingCycle === 'yearly' ? '1 year' : '3 months'}
+            </span>
+            <span
+              className="hl-serif"
+              style={{ fontSize: 22, color: 'var(--warm)' }}
+            >
+              {price?.display ?? '—'}
+            </span>
+          </div>
+
+          {/* Error */}
+          {formError && (
+            <p
+              role="alert"
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.12em',
+                color: 'var(--warm)',
+                marginTop: 12,
+                marginBottom: 0,
+              }}
+            >
+              {formError}
+            </p>
+          )}
+
+          {/* CTA */}
+          <button
+            onClick={handlePurchase}
+            disabled={isLoading || !formData.purchaserEmail}
+            className="hl-btn"
+            style={{
+              marginTop: 24,
+              width: '100%',
+              opacity: isLoading || !formData.purchaserEmail ? 0.45 : 1,
+            }}
+          >
+            {isLoading ? 'preparing checkout…' : 'Purchase →'}
+          </button>
+
+          <p
+            className="hl-mono"
+            style={{
+              textAlign: 'center',
+              fontSize: 9,
+              letterSpacing: '0.18em',
+              color: 'var(--parchment-faint)',
+              marginTop: 16,
+            }}
+          >
+            secure payment via stripe · voucher valid 1 year
+          </p>
+
         </div>
       </div>
     </div>

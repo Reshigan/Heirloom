@@ -1,10 +1,8 @@
-// FamilyFeed — Loom-native reskin.
-// A quiet chronological hairline list of thread additions. No avatars,
-// no reactions, no social feed chrome. Each entry is the author's name
-// in loom-serif italic + content kind + title.
-import { useNavigate } from 'react-router-dom';
+// FamilyFeed — Loom 3 native.
+// §A Tapestry-is-the-interface: hairline list of family thread additions.
+// No avatars, no reactions, no social chrome.
 import { useQuery } from '@tanstack/react-query';
-import { AppFrame } from '../loom/components/AppFrame';
+import { Frame } from '../loom/components/Frame';
 import { engagementApi } from '../services/api';
 
 interface FeedItem {
@@ -24,15 +22,26 @@ const typeVerb: Record<string, string> = {
   letter: 'sealed a letter',
 };
 
-const typeKind: Record<string, string> = {
-  memory: 'memory',
-  voice: 'voice',
-  letter: 'letter',
+// 10-stop natural-dye palette cycled by type + id hash
+const dyeByType: Record<string, string> = {
+  memory: 'madder',
+  voice: 'woad',
+  letter: 'walnut',
 };
 
-export function FamilyFeed() {
-  const navigate = useNavigate();
+function itemDye(item: FeedItem): string {
+  return dyeByType[item.type] ?? 'oakgall';
+}
 
+function fmtDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+export function FamilyFeed() {
   const { data: feedData, isLoading } = useQuery({
     queryKey: ['family-feed'],
     queryFn: () => engagementApi.getFamilyFeed().then((r) => r.data),
@@ -41,151 +50,113 @@ export function FamilyFeed() {
   const items: FeedItem[] = feedData?.items || [];
 
   return (
-    <AppFrame>
-      <header style={{ marginBottom: 48 }}>
-        <p className="loom-eyebrow" style={{ marginBottom: 14 }}>
-          the thread · recent additions
-        </p>
+    <Frame left="family · this week">
+      <div
+        style={{
+          padding: '56px 48px 80px',
+          maxWidth: 760,
+          margin: '0 auto',
+        }}
+      >
+        {/* H1 */}
         <h1
-          className="loom-h2"
-          style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}
+          className="hl-serif"
+          style={{
+            fontSize: 36,
+            fontWeight: 300,
+            fontStyle: 'normal',
+            margin: '0 0 28px',
+            color: 'var(--bone)',
+            lineHeight: 1.15,
+          }}
         >
-          What the bloodline is weaving.
+          What your family wrote.
         </h1>
-        <p
-          className="loom-body"
-          style={{ fontSize: 17, color: 'var(--loom-bone-dim)', margin: '14px 0 0', maxWidth: 640, lineHeight: 1.6 }}
-        >
-          Every entry added by your kin, in the order it entered the cloth.
-        </p>
-      </header>
 
-      <hr className="loom-hairline" style={{ marginBottom: 36 }} />
+        {/* hairline rule */}
+        <hr
+          className="hl-rule"
+          style={{ marginBottom: 0 }}
+        />
 
-      {isLoading ? (
-        <p className="loom-body" style={{ fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}>
-          Loading…
-        </p>
-      ) : !items.length ? (
-        <div style={{ padding: '60px 0', textAlign: 'center' }}>
-          <span
-            style={{
-              fontFamily: "'Source Serif 4', serif",
-              fontSize: 28,
-              color: 'var(--loom-warm)',
-              display: 'block',
-              marginBottom: 20,
-            }}
-          >
-            ∞
-          </span>
-          <h2
-            className="loom-serif"
-            style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}
-          >
-            The feed is quiet.
-          </h2>
+        {/* list */}
+        {isLoading ? (
           <p
-            className="loom-body"
-            style={{ fontSize: 15, color: 'var(--loom-bone-dim)', maxWidth: 420, margin: '0 auto 32px', lineHeight: 1.7 }}
+            className="hl-serif hl-italic"
+            style={{ padding: '28px 0', color: 'var(--bone-faint)', fontSize: 15 }}
           >
-            When your kin add entries — memories, voice, letters — they surface here. Invite them
-            to begin their weft.
+            Loading…
           </p>
-          <button
-            type="button"
-            onClick={() => navigate('/family')}
-            className="loom-btn"
+        ) : !items.length ? (
+          <p
+            className="hl-serif hl-italic"
+            style={{ padding: '28px 0', color: 'var(--bone-faint)', fontSize: 15 }}
           >
-            manage bloodline
-          </button>
-        </div>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {items.map((item) => (
-            <li
-              key={item.id}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '96px 1fr auto',
-                gap: 24,
-                alignItems: 'baseline',
-                padding: '20px 0',
-                borderBottom: '1px solid var(--loom-rule)',
-              }}
-            >
-              {/* date */}
-              <time
-                className="loom-mono"
-                dateTime={item.created_at}
-                style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.04em' }}
+            Nothing written yet — be the first to add a thread.
+          </p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {items.map((item) => (
+              <li
+                key={item.id}
+                style={{
+                  borderBottom: '1px solid var(--rule)',
+                  paddingTop: 14,
+                  paddingBottom: 14,
+                  display: 'grid',
+                  gridTemplateColumns: '14px 1fr auto',
+                  alignItems: 'center',
+                  gap: 14,
+                }}
               >
-                {new Date(item.created_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </time>
+                {/* dye swatch */}
+                <span
+                  aria-hidden
+                  style={{
+                    width: 14,
+                    height: 2,
+                    background: `var(--dye-${itemDye(item)})`,
+                    display: 'block',
+                    flexShrink: 0,
+                  }}
+                />
 
-              {/* body */}
-              <div>
-                <p style={{ margin: 0, lineHeight: 1.3 }}>
+                {/* main text */}
+                <p
+                  className="hl-serif"
+                  style={{ margin: 0, fontSize: 15.5, lineHeight: 1.35 }}
+                >
                   <span
-                    className="loom-serif"
-                    style={{ fontSize: 17, fontStyle: 'italic', color: 'var(--loom-bone)' }}
+                    style={{ fontStyle: 'italic', color: 'var(--bone-dim)' }}
                   >
                     {item.author_name}
                   </span>
-                  <span
-                    className="loom-body"
-                    style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginLeft: 8 }}
-                  >
+                  {' '}
+                  <span style={{ fontStyle: 'normal', color: 'var(--bone)' }}>
                     {typeVerb[item.type] ?? 'added an entry'}
+                    {item.title ? ` · ${item.title}` : ''}
                   </span>
                 </p>
-                <p
-                  className="loom-body"
-                  style={{ fontSize: 15, color: 'var(--loom-bone)', margin: '6px 0 0', lineHeight: 1.5 }}
-                >
-                  {item.title}
-                </p>
-                {item.preview ? (
-                  <p
-                    className="loom-body"
-                    style={{
-                      fontSize: 13,
-                      color: 'var(--loom-bone-dim)',
-                      margin: '4px 0 0',
-                      lineHeight: 1.6,
-                      overflow: 'hidden',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                    }}
-                  >
-                    {item.preview}
-                  </p>
-                ) : null}
-              </div>
 
-              {/* kind tag */}
-              <span
-                className="loom-mono"
-                style={{
-                  fontSize: 9,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: 'var(--loom-bone-faint)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {typeKind[item.type] ?? item.type}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </AppFrame>
+                {/* date */}
+                <time
+                  className="hl-mono"
+                  dateTime={item.created_at}
+                  style={{
+                    fontSize: 10.5,
+                    color: 'var(--bone-faint)',
+                    letterSpacing: '0.04em',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {fmtDate(item.created_at)}
+                </time>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Frame>
   );
 }
 

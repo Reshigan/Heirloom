@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
+import { HLogo } from '../loom/components/HLogo';
 import {
   ComposerModes,
   ComposerRail,
@@ -61,7 +61,91 @@ export function Compose() {
   });
 
   return (
-    <AppFrame>
+    <div
+      className="hl-screen"
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: 'var(--ink)', color: 'var(--bone)' }}
+    >
+      {/* hl-topbar */}
+      <div
+        className="hl-topbar"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 56,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 32px',
+          borderBottom: '1px solid var(--rule)',
+        }}
+      >
+        {/* left: logo + wordmark · compose */}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <HLogo size={18} wordmark mono color="var(--bone-dim)" wordColor="var(--bone-dim)" glow={false} />
+          <span style={{ color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.08em' }}>
+            {' '}·{' '}compose
+          </span>
+        </span>
+
+        {/* center: date stamp */}
+        <span
+          className="hl-counter"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.14em',
+            color: 'var(--bone-faint)',
+            textTransform: 'lowercase',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {stamp}
+        </span>
+
+        {/* right: save status / back */}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
+          {save.isPending ? (
+            <span
+              className="hl-mono"
+              style={{ fontSize: 11, letterSpacing: '0.08em', color: 'var(--warm)' }}
+            >
+              weaving…
+            </span>
+          ) : save.isSuccess ? (
+            <span
+              className="hl-mono"
+              style={{ fontSize: 11, letterSpacing: '0.08em', color: 'var(--warm)' }}
+            >
+              woven ✓
+            </span>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => navigate('/memories')}
+            className="hl-link warm"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.08em',
+              color: 'var(--warm)',
+              padding: 0,
+            }}
+          >
+            back →
+          </button>
+        </span>
+      </div>
+
+      {/* scrollable content area */}
+      <div style={{ position: 'absolute', top: 56, bottom: 28, left: 0, right: 0, overflowY: 'auto', padding: '48px 32px 0' }}>
       <div style={{ position: 'relative', maxWidth: 720, margin: '0 auto' }}>
         {/* header: mode switcher (left) · the Listener (right margin) */}
         <div
@@ -207,6 +291,7 @@ export function Compose() {
           </div>
         </div>
       </div>
-    </AppFrame>
+      </div>
+    </div>
   );
 }

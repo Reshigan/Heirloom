@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ProgressHair } from '../components/ui/ProgressHair';
+import { HLogo } from '../loom/components/HLogo';
+import { TapestryEdge } from '../loom/components/Frame';
 import api from '../services/api';
 
 interface StoryData {
@@ -31,31 +33,35 @@ export function StoryView() {
     enabled: !!token,
   });
 
-  const pageBase: React.CSSProperties = {
-    minHeight: '100vh',
-    background: 'var(--loom-ink)',
-    color: 'var(--loom-bone)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  };
-
+  // ── Loading ──────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div style={pageBase}>
+      <div
+        className="hl-screen parchment"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
         <ProgressHair label="loading…" width={200} />
       </div>
     );
   }
 
+  // ── Error ────────────────────────────────────────────────────────────────
   if (error || !data) {
     return (
-      <div style={{ ...pageBase, flexDirection: 'column', textAlign: 'center' }}>
-        <h1 className="loom-h2" style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px' }}>
+      <div
+        className="hl-screen parchment"
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 40px' }}
+      >
+        <h1
+          className="hl-serif hl-tight"
+          style={{ fontSize: 36, fontWeight: 300, fontStyle: 'italic', color: 'var(--parchment-ink)', margin: '0 0 16px' }}
+        >
           Story not found.
         </h1>
-        <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)' }}>
+        <p
+          className="hl-prose dark"
+          style={{ fontSize: 15 }}
+        >
           This story may have expired or the link may be invalid.
         </p>
       </div>
@@ -70,222 +76,333 @@ export function StoryView() {
   const atStart = currentIndex === 0;
   const atEnd = currentIndex === memories.length - 1;
 
+  // ── Main render ──────────────────────────────────────────────────────────
   return (
     <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        color: 'var(--loom-bone)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+      className="hl-screen parchment"
+      style={{ background: 'var(--parchment)' }}
     >
-      {/* Paper grain — no radial glow (a §2.6 anti-pattern) */}
-      <div className="loom-grain" style={{ pointerEvents: 'none' }} />
 
-      {/* Header */}
-      <header
+      {/* Topbar — parchment above the spread */}
+      <div
         style={{
-          position: 'relative',
-          zIndex: 1,
-          padding: '48px 24px 32px',
-          textAlign: 'center',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 64,
+          background: 'var(--parchment)',
+          borderBottom: '1px solid var(--parchment-rule)',
+          padding: '20px 56px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          zIndex: 10,
         }}
       >
-        <h1
-          className="loom-h2"
+        <HLogo mono color="var(--parchment-ink)" size={18} />
+        <span
+          className="hl-mono"
           style={{
-            fontSize: 'clamp(28px,4vw,44px)',
-            fontWeight: 300,
-            fontStyle: 'italic',
-            color: 'var(--loom-bone)',
-            margin: '0 0 12px',
+            fontSize: 10.5,
+            letterSpacing: '0.28em',
+            textTransform: 'uppercase',
+            color: 'var(--parchment-faint)',
           }}
         >
-          {artifact.title}
-        </h1>
-        {artifact.description && (
-          <p className="loom-body" style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '0 auto 8px', maxWidth: 520 }}>
-            {artifact.description}
-          </p>
-        )}
-        <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-          Created by {artifact.creatorName}
-        </p>
-      </header>
+          family story
+        </span>
+        <span
+          className="hl-mono"
+          style={{
+            fontSize: 10.5,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--parchment-faint)',
+          }}
+        >
+          heirloom.blue
+        </span>
+      </div>
 
-      {/* Main content */}
-      <main
+      {/* Two-page spread */}
+      <div
         style={{
-          flex: 1,
-          position: 'relative',
-          zIndex: 1,
+          position: 'absolute',
+          top: 64,
+          bottom: 56,
+          left: 0,
+          right: 0,
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '0 24px 48px',
         }}
       >
-        {memories.length > 0 ? (
-          <>
-            {/* Image frame */}
-            <div
+        {/* Left page — title + meta */}
+        <div
+          style={{
+            flex: 1,
+            padding: '56px 64px 56px 88px',
+            borderRight: '1px solid var(--parchment-rule)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <span
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              color: 'var(--parchment-faint)',
+              marginBottom: 36,
+            }}
+          >
+            family story
+          </span>
+
+          <h2
+            className="hl-serif hl-tight"
+            style={{
+              fontSize: 44,
+              fontWeight: 300,
+              color: 'var(--parchment-ink)',
+              margin: 0,
+            }}
+          >
+            {artifact.title}
+          </h2>
+
+          {artifact.description && (
+            <p
+              className="hl-italic"
               style={{
-                width: '100%',
-                maxWidth: 900,
-                position: 'relative',
-                border: '1px solid var(--loom-rule)',
-                overflow: 'hidden',
-                aspectRatio: '16/9',
-                background: 'var(--loom-ink)',
+                fontSize: 15,
+                color: 'var(--parchment-dim)',
+                marginTop: 32,
+                marginBottom: 0,
               }}
             >
-              {/* Current image */}
-              <div
-                key={currentIndex}
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
-                }}
-              >
-                <img
-                  src={currentMemory?.fileUrl}
-                  alt={currentMemory?.title || 'Memory'}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', background: 'var(--loom-ink)' }}
-                />
-              </div>
-            </div>
+              {artifact.description}
+            </p>
+          )}
 
-            {/* Caption — flat ink bar, hairline-separated (no scrim gradient) */}
-            {currentMemory?.title && (
+          <div style={{ flex: 1 }} />
+
+          {/* Creator byline */}
+          <span
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--parchment-faint)',
+            }}
+          >
+            {artifact.creatorName}
+          </span>
+        </div>
+
+        {/* Right page — memory body */}
+        <div
+          style={{
+            flex: 1,
+            padding: '56px 88px 56px 64px',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {memories.length > 0 ? (
+            <>
+              {/* Image frame */}
               <div
                 style={{
                   width: '100%',
-                  maxWidth: 900,
-                  marginTop: -1,
-                  padding: '12px 4px',
-                  borderTop: '1px solid var(--loom-rule)',
+                  flex: '0 0 auto',
+                  aspectRatio: '4/3',
+                  border: '1px solid var(--parchment-rule)',
+                  overflow: 'hidden',
+                  background: 'var(--parchment-deep)',
+                  position: 'relative',
                 }}
               >
-                <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-dim)', margin: 0, textAlign: 'center' }}>
+                <img
+                  key={currentIndex}
+                  src={currentMemory?.fileUrl}
+                  alt={currentMemory?.title || 'Memory'}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    display: 'block',
+                    background: 'var(--parchment-deep)',
+                    transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                />
+              </div>
+
+              {/* Caption */}
+              {currentMemory?.title && (
+                <p
+                  className="hl-prose dark"
+                  style={{
+                    fontSize: 18,
+                    lineHeight: 1.9,
+                    color: 'var(--parchment-ink)',
+                    marginTop: 24,
+                    marginBottom: 0,
+                  }}
+                >
                   {currentMemory.title}
                 </p>
-              </div>
-            )}
+              )}
 
-            {/* Page-turn pager — loom-mono word labels (manual reading, no media-player) */}
-            <div
-              style={{
-                width: '100%',
-                maxWidth: 900,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: 20,
-              }}
-            >
-              <button
-                type="button"
-                onClick={goToPrevious}
-                disabled={atStart}
-                className="loom-mono"
+              <div style={{ flex: 1 }} />
+
+              {/* Pager */}
+              <div
                 style={{
-                  background: 'transparent',
-                  border: 0,
-                  padding: 0,
-                  cursor: atStart ? 'default' : 'pointer',
-                  fontSize: 11,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: atStart ? 'var(--loom-rule)' : 'var(--loom-bone-dim)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: 20,
+                  borderTop: '1px solid var(--parchment-rule)',
+                  paddingTop: 16,
                 }}
               >
-                ← earlier
-              </button>
+                <button
+                  type="button"
+                  onClick={goToPrevious}
+                  disabled={atStart}
+                  className="hl-mono"
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: 0,
+                    cursor: atStart ? 'default' : 'pointer',
+                    fontSize: 10.5,
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    color: atStart ? 'var(--parchment-rule)' : 'var(--parchment-dim)',
+                  }}
+                >
+                  earlier
+                </button>
 
-              {/* ∞ chapter-dot row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {/* ∞ chapter marks */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {memories.map((_, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      aria-label={`Go to photo ${index + 1}`}
+                      aria-current={index === currentIndex}
+                      onClick={() => setCurrentIndex(index)}
+                      className="hl-serif"
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: 'pointer',
+                        fontSize: 13,
+                        lineHeight: 1,
+                        color: index === currentIndex ? 'var(--warm)' : 'var(--parchment-rule)',
+                        transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    >
+                      ∞
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={goToNext}
+                  disabled={atEnd}
+                  className="hl-mono"
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: 0,
+                    cursor: atEnd ? 'default' : 'pointer',
+                    fontSize: 10.5,
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    color: atEnd ? 'var(--parchment-rule)' : 'var(--warm)',
+                  }}
+                >
+                  later
+                </button>
+              </div>
+
+              {/* Hairline progress marks */}
+              <div aria-hidden style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
                 {memories.map((_, index) => (
-                  <button
+                  <span
                     key={index}
-                    type="button"
-                    aria-label={`Go to photo ${index + 1}`}
-                    aria-current={index === currentIndex}
-                    onClick={() => setCurrentIndex(index)}
-                    className="loom-serif"
                     style={{
-                      background: 'transparent',
-                      border: 0,
-                      padding: 0,
-                      cursor: 'pointer',
-                      fontSize: 13,
-                      lineHeight: 1,
-                      color: index === currentIndex ? 'var(--loom-warm)' : 'var(--loom-rule)',
-                      transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      height: 1,
+                      width: index === currentIndex ? 24 : 8,
+                      background: index === currentIndex ? 'var(--warm)' : 'var(--parchment-rule)',
+                      transition: 'width 360ms cubic-bezier(0.16,1,0.3,1), background 180ms cubic-bezier(0.16,1,0.3,1)',
                     }}
-                  >
-                    ∞
-                  </button>
+                  />
                 ))}
               </div>
 
-              <button
-                type="button"
-                onClick={goToNext}
-                disabled={atEnd}
-                className="loom-mono"
+              <p
+                className="hl-mono"
                 style={{
-                  background: 'transparent',
-                  border: 0,
-                  padding: 0,
-                  cursor: atEnd ? 'default' : 'pointer',
-                  fontSize: 11,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: atEnd ? 'var(--loom-rule)' : 'var(--loom-warm)',
+                  fontSize: 10,
+                  color: 'var(--parchment-faint)',
+                  letterSpacing: '0.14em',
+                  marginTop: 10,
+                  marginBottom: 0,
                 }}
               >
-                later →
-              </button>
-            </div>
-
-            {/* Hairline progress indicators — passive position marks */}
-            <div aria-hidden style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 16 }}>
-              {memories.map((_, index) => (
-                <span
-                  key={index}
-                  style={{
-                    height: 1,
-                    width: index === currentIndex ? 24 : 8,
-                    background: index === currentIndex ? 'var(--loom-warm)' : 'var(--loom-rule)',
-                    transition: 'width 360ms cubic-bezier(0.16,1,0.3,1), background 180ms cubic-bezier(0.16,1,0.3,1)',
-                  }}
-                />
-              ))}
-            </div>
-
-            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.14em', marginTop: 12 }}>
-              {currentIndex + 1} of {memories.length}
+                {currentIndex + 1} of {memories.length}
+              </p>
+            </>
+          ) : (
+            <p
+              className="hl-prose dark hl-italic"
+              style={{ fontSize: 18, lineHeight: 1.9, color: 'var(--parchment-dim)' }}
+            >
+              No photos in this story yet.
             </p>
-          </>
-        ) : (
-          <p className="loom-body" style={{ fontSize: 15, color: 'var(--loom-bone-faint)', fontStyle: 'italic' }}>
-            No photos in this story yet.
-          </p>
-        )}
-      </main>
+          )}
+        </div>
+      </div>
 
-      {/* Footer */}
-      <footer style={{ position: 'relative', zIndex: 1, padding: '24px', textAlign: 'center' }}>
-        <p className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em' }}>
-          Powered by{' '}
-          <a href="https://heirloom.blue" style={{ color: 'var(--loom-warm)', textDecoration: 'none' }}>
-            Heirloom
-          </a>
-        </p>
-      </footer>
+      {/* Bottom edge bar */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 56,
+          background: 'var(--parchment)',
+          borderTop: '1px solid var(--parchment-rule)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10,
+        }}
+      >
+        <span
+          className="hl-mono"
+          style={{
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--parchment-faint)',
+          }}
+        >
+          Heirloom — the family thread
+        </span>
+      </div>
+
+      {/* TapestryEdge woven border at absolute bottom */}
+      <TapestryEdge nowFrac={memories.length > 0 ? (currentIndex + 1) / memories.length : 0.5} />
     </div>
   );
 }
