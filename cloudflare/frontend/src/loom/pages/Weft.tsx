@@ -22,6 +22,9 @@ import { useAuthStore } from '../../stores/authStore';
  *   pull    — one thread at a time, vertical paging (WeftPull)
  *   century — the whole archive compressed (WeftCentury)
  *   empty   — warp-only, forced (for reviewers)
+ *
+ * Token audit (2.1): ambientShuttle confirmed, EmptyThread on empty state
+ * confirmed, zero raw hex colors, zero icon-library imports.
  */
 type WeftMode = 'canon' | 'pull' | 'century' | 'empty';
 
