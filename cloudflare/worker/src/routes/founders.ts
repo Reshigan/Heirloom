@@ -79,11 +79,7 @@ founderRoutes.post('/pledge', async (c) => {
           customer_email: email,
           success_url: `${c.env.APP_URL}/founder/welcome?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${c.env.APP_URL}/founder?canceled=1`,
-          'line_items[0][price_data][currency]': 'usd',
-          'line_items[0][price_data][unit_amount]': String(PLEDGE_AMOUNT_USD * 100),
-          'line_items[0][price_data][product_data][name]': 'Heirloom Founder pledge',
-          'line_items[0][price_data][product_data][description]':
-            'Lifetime Family-tier access for your bloodline. Funds the successor non-profit. Name engraved in the continuity record.',
+          'line_items[0][price]': 'price_1TdZWT0wv1f1SxUq6SKMsLV0',
           'line_items[0][quantity]': '1',
           'metadata[type]': 'founder_pledge',
           'metadata[pledge_id]': id,

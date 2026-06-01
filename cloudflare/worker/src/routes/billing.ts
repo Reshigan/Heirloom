@@ -333,19 +333,19 @@ const LEGACY_MAP: Record<string, string> = {
 // =============================================================================
 const STRIPE_PRICE_IDS: Record<string, Record<string, Record<string, string>>> = {
   USD: {
-    STARTER: { monthly: 'price_starter_monthly_usd', yearly: 'price_starter_yearly_usd' },
-    FAMILY: { monthly: 'price_family_monthly_usd', yearly: 'price_family_yearly_usd' },
-    LEGACY: { monthly: 'price_legacy_monthly_usd', yearly: 'price_legacy_yearly_usd' },
+    STARTER: { monthly: '', yearly: '' },
+    FAMILY: { monthly: 'price_1TdZWS0wv1f1SxUquiLv7wes', yearly: 'price_1TdZWT0wv1f1SxUq9UtXdiVx' },
+    LEGACY: { monthly: '', yearly: '' },
   },
   GBP: {
-    STARTER: { monthly: 'price_starter_monthly_gbp', yearly: 'price_starter_yearly_gbp' },
-    FAMILY: { monthly: 'price_family_monthly_gbp', yearly: 'price_family_yearly_gbp' },
-    LEGACY: { monthly: 'price_legacy_monthly_gbp', yearly: 'price_legacy_yearly_gbp' },
+    STARTER: { monthly: '', yearly: '' },
+    FAMILY: { monthly: '', yearly: '' },
+    LEGACY: { monthly: '', yearly: '' },
   },
   EUR: {
-    STARTER: { monthly: 'price_starter_monthly_eur', yearly: 'price_starter_yearly_eur' },
-    FAMILY: { monthly: 'price_family_monthly_eur', yearly: 'price_family_yearly_eur' },
-    LEGACY: { monthly: 'price_legacy_monthly_eur', yearly: 'price_legacy_yearly_eur' },
+    STARTER: { monthly: '', yearly: '' },
+    FAMILY: { monthly: '', yearly: '' },
+    LEGACY: { monthly: '', yearly: '' },
   },
   ZAR: {
     STARTER: { monthly: 'price_starter_monthly_zar', yearly: 'price_starter_yearly_zar' },
