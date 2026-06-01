@@ -224,7 +224,7 @@ export const welcomeEmail = (name: string) => ({
   html: baseTemplate(`
     <h2>Welcome, ${name}</h2>
     <p>Thank you for joining Heirloom. You've taken the first step in preserving your most precious memories for generations to come.</p>
-    <p>Your <span class="gold">14-day free trial</span> has begun. During this time, you'll have access to all features.</p>
+    <p>Your <span class="gold">30-day free trial</span> has begun. During this time, you'll have access to all features.</p>
     <p>Here's what you can do:</p>
     <ul>
       <li>Upload photos and videos with stories</li>

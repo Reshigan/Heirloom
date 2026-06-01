@@ -44,11 +44,12 @@ const TIERS: {
     price: '$15',
     sub: '/ month',
     bullets: [
+      '30-day free trial — no card required',
       'start your own thread',
       'set time-locks, designate successors',
       'up to 6 keepers, one weft',
     ],
-    cta: 'choose family',
+    cta: 'start 30-day trial',
   },
   {
     key: 'FOREVER',
@@ -93,6 +94,7 @@ export function Billing() {
   const currentTier = (subscription?.tier ?? 'STARTER') as string;
   const renews = subscription?.currentPeriodEnd ?? null;
   const status = subscription?.status ?? null;
+  const trialEndsAt = (subscription as any)?.trial_ends_at ?? null;
 
   return (
     <AppFrame>
@@ -137,7 +139,14 @@ export function Billing() {
             style={{ fontSize: 28, fontWeight: 300, color: 'var(--loom-bone)', margin: 0, fontStyle: 'italic' }}
           >
             {labelFor(currentTier)}
-            {status && status !== 'ACTIVE' ? (
+            {status === 'TRIALING' && trialEndsAt ? (
+              <span
+                className="loom-mono"
+                style={{ marginLeft: 14, fontSize: 11, color: 'var(--loom-warm)', fontStyle: 'normal' }}
+              >
+                · trial ends {new Date(trialEndsAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long' })}
+              </span>
+            ) : status && status !== 'ACTIVE' ? (
               <span
                 className="loom-mono"
                 style={{ marginLeft: 14, fontSize: 11, color: 'var(--loom-bone-faint)', fontStyle: 'normal' }}

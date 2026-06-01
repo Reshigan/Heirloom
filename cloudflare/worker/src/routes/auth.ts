@@ -114,7 +114,7 @@ authRoutes.post('/register', async (c) => {
     }
   } else {
     // No pending voucher - create trial subscription
-    const trialEnds = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+    const trialEnds = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
     
     await c.env.DB.prepare(`
       INSERT INTO subscriptions (id, user_id, tier, status, trial_ends_at, created_at, updated_at)
