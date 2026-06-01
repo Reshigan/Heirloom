@@ -383,23 +383,23 @@
 
 /* ─── Buttons ───────────────────────────────────────────────────── */
 .loom-btn {
-  background: var(--loom-warm);
-  color: var(--loom-ink);
-  border: 0;
+  background: transparent;
+  color: var(--loom-warm);
+  border: 1px solid var(--loom-warm);
   padding: 11px 22px;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
+  font-family: var(--loom-mono), 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 1px;
+  border-radius: 0;
   transition:
-    background-color var(--loom-dur-fast) var(--loom-ease),
+    background var(--loom-dur-fast) var(--loom-ease),
     transform var(--loom-dur-fast) var(--loom-ease);
 }
-.loom-btn:hover { background: var(--loom-warm-bright); }
-.loom-btn:active { transform: scale(0.97); background: var(--loom-warm-dim); }
+.loom-btn:hover { background: rgba(176,122,74,0.10); }
+.loom-btn:active { transform: scale(0.97); background: rgba(176,122,74,0.06); }
 .loom-btn-ghost {
   background: transparent;
   color: var(--loom-bone);

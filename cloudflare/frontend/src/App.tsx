@@ -12,7 +12,6 @@ import {
 } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
 import { PwaNudge } from './components/PwaNudge';
-import { InstallBanner } from './components/InstallBanner';
 import { BottomNav } from './loom/components/BottomNav';
 import { OfflineGate } from './loom/pages/Offline';
 import { useLoomTheme } from './loom/theme';
@@ -194,7 +193,6 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <PushNotificationHandler />
-          <InstallBanner />
           <PwaNudge />
           <LoomShellRoot>
           <OfflineGate>

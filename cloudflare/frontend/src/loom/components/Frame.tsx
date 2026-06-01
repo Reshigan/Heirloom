@@ -239,7 +239,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
       <div
         style={{
           position: 'absolute',
-          top: 56,
+          top: 'calc(56px + env(safe-area-inset-top, 0px))',
           bottom: showEdge ? 8 : 0,
           left: 0,
           right: 0,

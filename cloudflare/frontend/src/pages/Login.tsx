@@ -45,7 +45,7 @@ export function Login() {
       {/* Loom 3 MktBar — parchment top strip */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: 'clamp(16px, 2.5vh, 24px) clamp(16px, 5vw, 56px)',
+        padding: 'calc(clamp(16px, 2.5vh, 24px) + env(safe-area-inset-top, 0px)) clamp(16px, 5vw, 56px) clamp(16px, 2.5vh, 24px)',
         borderBottom: '1px solid var(--parchment-rule)',
       }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>

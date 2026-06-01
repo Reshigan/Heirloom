@@ -28,7 +28,7 @@ import { enableWebPush, notificationPermission, webPushEnabled } from '../lib/we
  */
 type Mode = 'hidden' | 'install' | 'ios' | 'notify';
 
-const APPEAR_DELAY_MS = 18_000;
+const APPEAR_DELAY_MS = 8_000;
 
 export function PwaNudge() {
   const { isAuthenticated } = useAuthStore();
@@ -139,9 +139,9 @@ export function PwaNudge() {
       style={{
         position: 'fixed',
         insetInline: 0,
-        bottom: 0,
+        bottom: isAuthenticated ? 'calc(52px + env(safe-area-inset-bottom, 0px))' : 0,
         zIndex: 60,
-        padding: '0 16px max(16px, env(safe-area-inset-bottom))',
+        padding: isAuthenticated ? '0 16px 16px' : '0 16px max(16px, env(safe-area-inset-bottom, 0px))',
         pointerEvents: 'none',
         opacity: shown ? 1 : 0,
         transform: shown ? 'translateY(0)' : 'translateY(16px)',
