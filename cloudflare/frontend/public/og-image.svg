@@ -1,28 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <!-- Bone background -->
-  <rect width="1200" height="630" fill="#f4ecd8"/>
+  <!-- Left text panel — bone -->
+  <rect x="0" y="0" width="634" height="630" fill="#f4ecd8"/>
 
-  <!-- Top hairline -->
-  <line x1="88" y1="102" x2="1112" y2="102" stroke="#0e0e0c" stroke-width="1"/>
+  <!-- Right tapestry panel — ink -->
+  <rect x="634" y="0" width="566" height="630" fill="#0e0e0c"/>
 
-  <!-- ∞ mark (warm) -->
-  <text x="88" y="90" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="300" fill="#b07a4a">∞</text>
+  <!-- Panel separator hairline -->
+  <line x1="634" y1="0" x2="634" y2="630" stroke="rgba(244,236,216,0.12)" stroke-width="1"/>
 
-  <!-- Eyebrow label -->
-  <text x="118" y="87" font-family="'Courier New', monospace" font-size="10" fill="rgba(14,14,12,0.45)" letter-spacing="4.5">FAMILY THREAD</text>
+  <!-- Top hairline (left panel) -->
+  <line x1="68" y1="100" x2="566" y2="100" stroke="#0e0e0c" stroke-width="1"/>
 
-  <!-- Main headline -->
-  <text x="88" y="218" font-family="Georgia, 'Times New Roman', serif" font-size="92" font-weight="300" fill="#0e0e0c" letter-spacing="-2">Start your</text>
-  <text x="88" y="320" font-family="Georgia, 'Times New Roman', serif" font-size="92" font-weight="300" fill="#0e0e0c" letter-spacing="-2">family's</text>
-  <text x="88" y="422" font-family="Georgia, 'Times New Roman', serif" font-size="92" font-weight="300" fill="#0e0e0c" letter-spacing="-2">thousand-year</text>
-  <text x="88" y="524" font-family="Georgia, 'Times New Roman', serif" font-size="92" font-weight="300" fill="#0e0e0c" letter-spacing="-2">thread.</text>
+  <!-- ∞ mark in warm -->
+  <text x="68" y="90" font-family="Georgia,'Times New Roman',serif" font-size="26" font-weight="300" fill="#b07a4a">∞</text>
 
-  <!-- Bottom hairline -->
-  <line x1="88" y1="556" x2="1112" y2="556" stroke="#0e0e0c" stroke-width="1"/>
+  <!-- Eyebrow -->
+  <text x="98" y="86" font-family="'Courier New',monospace" font-size="9" fill="rgba(14,14,12,0.38)" letter-spacing="4">FAMILY THREAD</text>
 
-  <!-- Bottom left wordmark -->
-  <text x="88" y="580" font-family="'Courier New', monospace" font-size="11" fill="#0e0e0c" letter-spacing="4">HEIRLOOM</text>
+  <!-- Headline -->
+  <text x="68" y="210" font-family="Georgia,'Times New Roman',serif" font-size="82" font-weight="300" fill="#0e0e0c" letter-spacing="-2">Start your</text>
+  <text x="68" y="305" font-family="Georgia,'Times New Roman',serif" font-size="82" font-weight="300" fill="#0e0e0c" letter-spacing="-2">family's</text>
+  <text x="68" y="400" font-family="Georgia,'Times New Roman',serif" font-size="82" font-weight="300" fill="#0e0e0c" letter-spacing="-2">thousand-year</text>
+  <text x="68" y="495" font-family="Georgia,'Times New Roman',serif" font-size="82" font-weight="300" fill="#0e0e0c" letter-spacing="-2">thread.</text>
 
-  <!-- Bottom right URL -->
-  <text x="1112" y="580" text-anchor="end" font-family="'Courier New', monospace" font-size="11" fill="rgba(14,14,12,0.38)" letter-spacing="2">heirloom.blue</text>
+  <!-- Bottom hairline (left panel) -->
+  <line x1="68" y1="544" x2="566" y2="544" stroke="#0e0e0c" stroke-width="1"/>
+
+  <!-- Wordmark -->
+  <text x="68" y="567" font-family="'Courier New',monospace" font-size="10" fill="rgba(14,14,12,0.9)" letter-spacing="4">HEIRLOOM</text>
+
+  <!-- URL -->
+  <text x="566" y="567" text-anchor="end" font-family="'Courier New',monospace" font-size="10" fill="rgba(14,14,12,0.32)" letter-spacing="2">heirloom.blue</text>
+
+  <!--
+    Right panel: tapestry cloth rendered as PNG (the SVG fallback shows ink background
+    with representative weft threads). See og-image.png for the canvas-rendered version.
+  -->
+  <!-- Representative weft samples -->
+  <g opacity="0.88">
+    <line x1="649" y1="68"  x2="671" y2="68"  stroke="#9f3a2a" stroke-width="2.8"/>
+    <line x1="658" y1="96"  x2="685" y2="96"  stroke="#c69a3a" stroke-width="2.1"/>
+    <line x1="641" y1="122" x2="663" y2="122" stroke="#3a4a6a" stroke-width="1.9"/>
+    <line x1="668" y1="148" x2="692" y2="148" stroke="#b14a4a" stroke-width="2.5"/>
+    <line x1="645" y1="174" x2="670" y2="174" stroke="#a89248" stroke-width="2.2"/>
+    <line x1="661" y1="200" x2="683" y2="200" stroke="#1f3a5b" stroke-width="2.0"/>
+    <line x1="638" y1="226" x2="664" y2="226" stroke="#7a1f2b" stroke-width="2.7"/>
+    <line x1="672" y1="252" x2="695" y2="252" stroke="#9f3a2a" stroke-width="1.8"/>
+    <line x1="647" y1="278" x2="673" y2="278" stroke="#c69a3a" stroke-width="2.3"/>
+    <line x1="655" y1="304" x2="679" y2="304" stroke="#3a4a6a" stroke-width="2.1"/>
+    <line x1="642" y1="330" x2="667" y2="330" stroke="#b14a4a" stroke-width="2.6"/>
+    <line x1="669" y1="356" x2="691" y2="356" stroke="#a89248" stroke-width="1.9"/>
+    <line x1="651" y1="382" x2="675" y2="382" stroke="#1f3a5b" stroke-width="2.2"/>
+    <line x1="663" y1="408" x2="684" y2="408" stroke="#7a1f2b" stroke-width="2.4"/>
+  </g>
+  <!-- warm now-hairline -->
+  <line x1="700" y1="0" x2="700" y2="630" stroke="#b07a4a" stroke-width="1" opacity="0.8"/>
+  <!-- year labels -->
+  <text x="703" y="618" font-family="'Courier New',monospace" font-size="8" fill="rgba(244,236,216,0.52)">2025</text>
+  <text x="836" y="618" font-family="'Courier New',monospace" font-size="8" fill="rgba(244,236,216,0.28)">2030</text>
+  <text x="968" y="618" font-family="'Courier New',monospace" font-size="8" fill="rgba(244,236,216,0.28)">2035</text>
+  <text x="1100" y="618" font-family="'Courier New',monospace" font-size="8" fill="rgba(244,236,216,0.28)">2040</text>
+  <!-- sealed ∞ pegs -->
+  <text x="860" y="48" font-family="Georgia,serif" font-size="13" fill="#b07a4a" text-anchor="middle" opacity="0.72">∞</text>
+  <text x="990" y="48" font-family="Georgia,serif" font-size="13" fill="#b07a4a" text-anchor="middle" opacity="0.72">∞</text>
+  <text x="1100" y="48" font-family="Georgia,serif" font-size="13" fill="#b07a4a" text-anchor="middle" opacity="0.72">∞</text>
 </svg>
