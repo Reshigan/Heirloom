@@ -61,7 +61,6 @@ const Referrals = lazy(() => import('./pages/Referrals').then(m => ({ default: m
 const GiftSubscriptions = lazy(() => import('./pages/GiftSubscriptions').then(m => ({ default: m.GiftSubscriptions })));
 const Memorials = lazy(() => import('./pages/Memorials').then(m => ({ default: m.Memorials })));
 const Milestones = lazy(() => import('./pages/Milestones').then(m => ({ default: m.Milestones })));
-const MemoryCards = lazy(() => import('./pages/MemoryCards').then(m => ({ default: m.MemoryCards })));
 const CardView = lazy(() => import('./pages/CardView').then(m => ({ default: m.CardView })));
 
 // Heirloom v2 pages
