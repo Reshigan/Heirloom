@@ -17,8 +17,8 @@ function tierLabel(tier: string): string {
 function tierPrice(tier: string): string {
   switch (tier) {
     case 'STARTER': case 'FREE': return 'free';
-    case 'FAMILY': return '$15';
-    case 'FOREVER': case 'LEGACY': return '$999';
+    case 'FAMILY': return '$9.99';
+    case 'FOREVER': case 'LEGACY': return '$240';
     default: return '—';
   }
 }
@@ -60,7 +60,7 @@ export function Billing() {
     ? 'founder · once · lifetime'
     : isTrialing
     ? `family · trial · ${trialDaysRemaining} days remaining`
-    : `${tierLabel(currentTier)} · $15 / mo · billed monthly`;
+    : `${tierLabel(currentTier)} · $9.99 / mo · billed monthly`;
 
   return (
     <div className="hl-screen" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>

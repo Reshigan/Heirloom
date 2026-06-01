@@ -28,8 +28,8 @@ const TIERS: {
   body: string;
 }[] = [
   { id: 'free', name: 'Free', price: 'free', sub: 'forever', body: '1 thread · 30 entries / yr · read everything' },
-  { id: 'family', name: 'Family', price: '$15', sub: 'per month', body: 'unlimited · all members · voice · sealed notes' },
-  { id: 'founder', name: 'Founder', price: '$999', sub: 'once · lifetime', body: 'family forever · name in continuity record' },
+  { id: 'family', name: 'Family', price: '$9.99', sub: '/ month', body: 'unlimited · all members · voice · sealed notes' },
+  { id: 'founder', name: 'Founder', price: '$240', sub: 'once · lifetime', body: 'family forever · name in continuity record' },
 ];
 
 export function Signup() {
@@ -37,6 +37,9 @@ export function Signup() {
   const [searchParams] = useSearchParams();
   const { register } = useAuthStore();
   const redirectUrl = searchParams.get('redirect');
+  const [cycle, setCycle] = useState<'monthly' | 'annual'>(() =>
+    searchParams.get('cycle') === 'annual' ? 'annual' : 'monthly'
+  );
 
   const [form, setForm] = useState({
     threadName: '',
@@ -210,6 +213,33 @@ export function Signup() {
             {/* step three — tier */}
             <div style={{ marginTop: 64, maxWidth: 980 }}>
               <StepEyebrow>step three · how to begin</StepEyebrow>
+              {/* billing cycle toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+                <button
+                  type="button"
+                  onClick={() => setCycle('monthly')}
+                  style={{
+                    background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
+                    fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+                    color: cycle !== 'annual' ? 'var(--parchment-ink)' : 'var(--parchment-faint)',
+                    borderBottom: cycle !== 'annual' ? '1px solid var(--parchment-ink)' : '1px solid transparent',
+                  }}
+                >
+                  monthly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCycle('annual')}
+                  style={{
+                    background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
+                    fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+                    color: cycle === 'annual' ? 'var(--parchment-ink)' : 'var(--parchment-faint)',
+                    borderBottom: cycle === 'annual' ? '1px solid var(--warm)' : '1px solid transparent',
+                  }}
+                >
+                  annually · 2 months free
+                </button>
+              </div>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
@@ -244,13 +274,13 @@ export function Signup() {
                         fontSize: 36, fontWeight: 300, marginTop: 12,
                         letterSpacing: '-0.018em', lineHeight: 1,
                       }}>
-                        {t.price}
+                        {t.id === 'family' && cycle === 'annual' ? '$99' : t.price}
                       </div>
                       <div className="hl-mono" style={{
                         fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
                         color: selected ? 'var(--bone-faint)' : 'var(--parchment-faint)', marginTop: 6,
                       }}>
-                        {t.sub}
+                        {t.id === 'family' && cycle === 'annual' ? '/ year · 2 months free' : t.sub}
                       </div>
                       <div className="hl-serif" style={{
                         fontSize: 13.5, lineHeight: 1.55,

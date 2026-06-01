@@ -233,7 +233,7 @@ export function Founder() {
             className="hl-eyebrow"
             style={{ marginBottom: 22 }}
           >
-            founder · $999 · once · lifetime
+            founder · $240 · once · lifetime
           </p>
 
           {/* headline */}
@@ -468,7 +468,7 @@ export function Founder() {
                       alignSelf: 'flex-start',
                     }}
                   >
-                    {submitting ? 'submitting…' : 'Become a founder · $999 once'}
+                    {submitting ? 'submitting…' : 'Become a founder · $240 once'}
                   </button>
                 </form>
 
