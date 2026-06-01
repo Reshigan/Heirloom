@@ -23,6 +23,7 @@ on:
           - daily
           - metrics
           - purge
+          - update-profile
 
 concurrency:
   group: social-autopost

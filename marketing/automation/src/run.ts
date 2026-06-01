@@ -144,6 +144,66 @@ async function daily(): Promise<void> {
   await postAll(source);
 }
 
+// Update Bluesky profile avatar + description with the tapestry icon.
+// Reads icon-512.png from the sibling cloudflare/frontend/public tree.
+async function updateBlueskyProfile(): Promise<void> {
+  const handle   = process.env.BLUESKY_HANDLE;
+  const password = process.env.BLUESKY_APP_PASSWORD;
+  if (!handle || !password) { console.log("[profile] BLUESKY_HANDLE or BLUESKY_APP_PASSWORD not set"); return; }
+
+  const sessRes = await fetch("https://bsky.social/xrpc/com.atproto.server.createSession", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier: handle, password }),
+  });
+  const sess = (await sessRes.json().catch(() => ({}))) as { accessJwt?: string; did?: string };
+  if (!sess.accessJwt || !sess.did) { console.error("[profile] auth failed"); return; }
+
+  // Load icon — try repo-relative path first, then fall back to live URL
+  let iconBytes: Buffer;
+  const iconRelPath = path.resolve(process.cwd(), "../../cloudflare/frontend/public/icons/icon-512.png");
+  try {
+    iconBytes = await fs.readFile(iconRelPath);
+    console.log("[profile] loaded icon from repo");
+  } catch {
+    console.log("[profile] icon not found locally, fetching from live site…");
+    const r = await fetch("https://heirloom.blue/icons/icon-512.png");
+    if (!r.ok) { console.error("[profile] could not fetch icon"); return; }
+    iconBytes = Buffer.from(await r.arrayBuffer()) as Buffer;
+  }
+
+  const blobRes = await fetch("https://bsky.social/xrpc/com.atproto.repo.uploadBlob", {
+    method: "POST",
+    headers: { "Content-Type": "image/png", Authorization: `Bearer ${sess.accessJwt}` },
+    body: iconBytes as unknown as BodyInit,
+  });
+  const { blob: avatarBlob } = (await blobRes.json().catch(() => ({}))) as { blob?: object };
+  if (!avatarBlob) { console.error("[profile] uploadBlob failed"); return; }
+  console.log("[profile] avatar blob uploaded");
+
+  // Fetch existing profile to preserve other fields
+  const prRes = await fetch(
+    `https://bsky.social/xrpc/com.atproto.repo.getRecord?repo=${sess.did}&collection=app.bsky.actor.profile&rkey=self`,
+    { headers: { Authorization: `Bearer ${sess.accessJwt}` } },
+  );
+  const existing = prRes.ok ? ((await prRes.json().catch(() => ({}))) as { value?: Record<string, unknown> }) : {};
+  const current = existing.value ?? {};
+
+  const newProfile = {
+    ...current,
+    $type: "app.bsky.actor.profile",
+    displayName: current.displayName ?? "Heirloom",
+    description: "Start your family's thousand-year thread. Every memory, every voice, every generation — woven together forever.\n\nheirloom.blue",
+    avatar: avatarBlob,
+  };
+
+  await fetch("https://bsky.social/xrpc/com.atproto.repo.putRecord", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${sess.accessJwt}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ repo: sess.did, collection: "app.bsky.actor.profile", rkey: "self", record: newProfile }),
+  });
+  console.log("[profile] ✓ profile updated — avatar, description refreshed");
+}
+
 // Delete all posts from the Bluesky account and repost today's content.
 // Used to purge old-branding posts when the social image changes.
 async function purgeBluesky(): Promise<void> {
@@ -191,7 +251,7 @@ const cmd = process.argv[2] ?? "preview";
 // already optional (post() routes to the queue when tokens are missing), so a
 // dormant key is the only thing that should ever stop a run, and it stops it
 // quietly. Add the secret in repo settings to wake the engine.
-const NEEDS_CLAUDE = new Set(["generate", "daily", "preview", "post"]);
+const NEEDS_CLAUDE = new Set(["generate", "daily", "preview", "post", "purge"]);
 if (NEEDS_CLAUDE.has(cmd) && !process.env.ANTHROPIC_API_KEY) {
   console.log(
     "[dormant] ANTHROPIC_API_KEY not set — marketing engine is idle. " +
@@ -215,6 +275,10 @@ const handlers: Record<string, () => Promise<void>> = {
     await purgeBluesky();
     const source = await generate();
     await postAll(source);
+  },
+  // update-profile: refresh Bluesky avatar + bio (no post generated)
+  "update-profile": async () => {
+    await updateBlueskyProfile();
   },
 };
 
