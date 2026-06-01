@@ -9,7 +9,8 @@ name: Social autopost
 
 on:
   schedule:
-    - cron: "0 14 * * *"
+    - cron: "0 14 * * *"   # 10am ET — morning peak
+    - cron: "0 21 * * *"   # 5pm ET — end-of-workday peak
   workflow_dispatch:
     inputs:
       mode:

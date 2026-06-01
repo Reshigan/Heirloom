@@ -88,9 +88,20 @@ async function postAll(source?: SourcePost): Promise<void> {
   const dateKey = new Date().toISOString().slice(0, 10);
   await writeJson(`output/${dateKey}/variants.json`, variants);
 
+  // Bluesky thread: body + CTA as replies to the hook post, last gets link card
+  const blueskyThread = today
+    ? [today.body.slice(0, 280), today.cta.slice(0, 200)]
+    : undefined;
+
   console.log(`[post] dispatching ${variants.length} posts… (image: ${SOCIAL_IMAGE_URL})`);
   const results = await Promise.all(
-    variants.map((v) => post({ variant: v, imageUrl: SOCIAL_IMAGE_URL })),
+    variants.map((v) =>
+      post({
+        variant: v,
+        imageUrl: SOCIAL_IMAGE_URL,
+        ...(v.platform === "bluesky" && blueskyThread ? { blueskyThread } : {}),
+      }),
+    ),
   );
 
   for (const r of results) {

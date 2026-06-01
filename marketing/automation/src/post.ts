@@ -30,6 +30,9 @@ export interface PostInput {
   imageUrl?: string;
   videoUrl?: string;
   scheduleAt?: string;
+  // Bluesky thread: additional post texts posted as replies to variant.caption.
+  // Last part gets a heirloom.blue link card embed.
+  blueskyThread?: string[];
 }
 
 export interface PostResult {
@@ -264,6 +267,31 @@ async function postPinterest(input: PostInput): Promise<PostResult> {
   return { platform: input.variant.platform, ok: true, id: json.id, mode: "direct" };
 }
 
+type BlueskyBlob = {
+  $type: "blob";
+  ref: { $link: string };
+  mimeType: string;
+  size: number;
+};
+
+async function uploadBlueskyBlob(imageUrl: string, token: string): Promise<BlueskyBlob | null> {
+  try {
+    const imgRes = await fetch(imageUrl);
+    if (!imgRes.ok) return null;
+    const mimeType = imgRes.headers.get("content-type") ?? "image/jpeg";
+    const bytes = await imgRes.arrayBuffer();
+    const res = await fetch("https://bsky.social/xrpc/com.atproto.repo.uploadBlob", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": mimeType },
+      body: bytes,
+    });
+    const json = (await res.json().catch(() => ({}))) as { blob?: BlueskyBlob };
+    return json.blob ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function postBluesky(input: PostInput): Promise<PostResult> {
   const handle = process.env.BLUESKY_HANDLE;
   const password = process.env.BLUESKY_APP_PASSWORD;
@@ -279,24 +307,75 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
     return { platform: input.variant.platform, ok: false, error: "auth failed", mode: "direct" };
   }
 
-  const recordRes = await fetch("https://bsky.social/xrpc/com.atproto.repo.createRecord", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${session.accessJwt}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      repo: session.did,
-      collection: "app.bsky.feed.post",
-      record: {
-        $type: "app.bsky.feed.post",
-        text: caption(input.variant).slice(0, 300),
-        createdAt: new Date().toISOString(),
-      },
-    }),
-  });
-  const json = (await recordRes.json().catch(() => ({}))) as { uri?: string; error?: string };
-  if (!recordRes.ok) {
-    return { platform: input.variant.platform, ok: false, error: json.error ?? `HTTP ${recordRes.status}`, mode: "direct" };
+  const imageBlob = input.imageUrl
+    ? await uploadBlueskyBlob(input.imageUrl, session.accessJwt)
+    : null;
+
+  const threadPosts = [
+    caption(input.variant).slice(0, 300),
+    ...(input.blueskyThread ?? []),
+  ];
+
+  let rootUri = "";
+  let rootCid = "";
+  let parentUri = "";
+  let parentCid = "";
+
+  for (let i = 0; i < threadPosts.length; i++) {
+    const isFirst = i === 0;
+    const isLast = i === threadPosts.length - 1;
+
+    const record: Record<string, unknown> = {
+      $type: "app.bsky.feed.post",
+      text: threadPosts[i].slice(0, 300),
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!isFirst) {
+      record.reply = {
+        root: { uri: rootUri, cid: rootCid },
+        parent: { uri: parentUri, cid: parentCid },
+      };
+    }
+
+    if (isFirst && imageBlob) {
+      record.embed = {
+        $type: "app.bsky.embed.images",
+        images: [{ image: imageBlob, alt: "Heirloom — start your family's thousand-year thread." }],
+      };
+    }
+
+    // Last post in a multi-post thread gets the link card
+    if (isLast && !isFirst) {
+      record.embed = {
+        $type: "app.bsky.embed.external",
+        external: {
+          uri: "https://heirloom.blue",
+          title: "Heirloom",
+          description: "Start your family's thousand-year thread.",
+        },
+      };
+    }
+
+    const res = await fetch("https://bsky.social/xrpc/com.atproto.repo.createRecord", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session.accessJwt}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ repo: session.did, collection: "app.bsky.feed.post", record }),
+    });
+    const json = (await res.json().catch(() => ({}))) as { uri?: string; cid?: string; error?: string };
+    if (!res.ok || !json.uri || !json.cid) {
+      return { platform: input.variant.platform, ok: false, error: json.error ?? `HTTP ${res.status}`, mode: "direct" };
+    }
+
+    if (isFirst) {
+      rootUri = json.uri;
+      rootCid = json.cid;
+    }
+    parentUri = json.uri;
+    parentCid = json.cid;
   }
-  return { platform: input.variant.platform, ok: true, id: json.uri, mode: "direct" };
+
+  return { platform: input.variant.platform, ok: true, id: rootUri || undefined, mode: "direct" };
 }
 
 // --- Queue mode (free fallback) --------------------------------------------
