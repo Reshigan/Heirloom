@@ -225,7 +225,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           {label !== 'heirloom' && (
             <>
               <span style={{ color: 'var(--bone-low)' }}>·</span>
-              <span>{label}</span>
+              <span style={{ color: 'var(--warm)' }}>{label}</span>
             </>
           )}
         </span>

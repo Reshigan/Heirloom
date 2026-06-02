@@ -57,8 +57,6 @@ function DyeSwatch({ dye }: { dye?: string | null }) {
   );
 }
 
-/* ── grid columns shared by both table sections ── */
-const GRID = '14px 56px 1fr 1fr 1.1fr';
 
 export function Inbox() {
   const upcomingQ = useQuery({
@@ -87,19 +85,22 @@ export function Inbox() {
       {/* scrollable content column */}
       <div
         style={{
-          position: 'absolute',
-          top: 80,
-          bottom: 36,
-          left: 56,
-          right: 56,
-          overflowY: 'auto',
+          padding: 'clamp(16px, 4vw, 56px)',
+          paddingBottom: 80,
           overflowX: 'hidden',
         }}
       >
+        <style>{`
+          .inbox-row { grid-template-columns: 14px minmax(0,56px) 1fr 1fr 1.1fr; }
+          @media (max-width: 600px) {
+            .inbox-row { grid-template-columns: 14px 1fr auto; }
+            .inbox-col-hide { display: none; }
+          }
+        `}</style>
         <h1
           className="hl-serif hl-tight"
           style={{
-            fontSize: 44,
+            fontSize: 'clamp(28px, 6vw, 44px)',
             fontWeight: 300,
             margin: '0 0 40px',
             color: 'var(--bone)',
@@ -165,9 +166,9 @@ export function Inbox() {
 function OpenedRow({ item }: { item: RecentUnlock }) {
   return (
     <div
+      className="inbox-row"
       style={{
         display: 'grid',
-        gridTemplateColumns: GRID,
         alignItems: 'center',
         borderBottom: '1px solid var(--rule)',
         paddingTop: 14,
@@ -195,7 +196,7 @@ function OpenedRow({ item }: { item: RecentUnlock }) {
 
       {/* col 3: thread name */}
       <span
-        className="hl-serif"
+        className="hl-serif inbox-col-hide"
         style={{ fontSize: 14, color: 'var(--bone-dim)', paddingRight: 12 }}
       >
         {item.thread_name}
@@ -203,7 +204,7 @@ function OpenedRow({ item }: { item: RecentUnlock }) {
 
       {/* col 4: from / resolution note (italic dim) */}
       <span
-        className="hl-serif"
+        className="hl-serif inbox-col-hide"
         style={{
           fontSize: 14,
           fontStyle: 'italic',
@@ -236,9 +237,9 @@ function SealedRow({ item }: { item: UpcomingUnlock }) {
   const unlockLabel = sealedUntilLabel(item);
   return (
     <div
+      className="inbox-row"
       style={{
         display: 'grid',
-        gridTemplateColumns: GRID,
         alignItems: 'center',
         borderBottom: '1px solid var(--rule)',
         paddingTop: 14,
@@ -275,7 +276,7 @@ function SealedRow({ item }: { item: UpcomingUnlock }) {
 
       {/* col 3: thread name */}
       <span
-        className="hl-serif"
+        className="hl-serif inbox-col-hide"
         style={{ fontSize: 14, color: 'var(--bone-dim)', paddingRight: 12 }}
       >
         {item.thread_name}
@@ -283,7 +284,7 @@ function SealedRow({ item }: { item: UpcomingUnlock }) {
 
       {/* col 4: from (target / lock kind) */}
       <span
-        className="hl-serif"
+        className="hl-serif inbox-col-hide"
         style={{
           fontSize: 14,
           fontStyle: 'italic',

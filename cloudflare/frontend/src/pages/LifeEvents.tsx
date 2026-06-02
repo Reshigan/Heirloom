@@ -306,7 +306,7 @@ export function LifeEvents() {
   if (isLoading) {
     return (
       <Frame left="life events">
-        <div style={{ padding: '80px 48px' }}>
+        <div style={{ padding: 'clamp(16px, 4vw, 48px)' }}>
           <div
             style={{
               height: 1,
@@ -322,14 +322,14 @@ export function LifeEvents() {
 
   return (
     <Frame left="life events">
-      <div style={{ padding: '48px 48px 80px', maxWidth: 860, margin: '0 auto' }}>
+      <div style={{ padding: 'clamp(16px, 4vw, 48px)', paddingBottom: 80, maxWidth: 860, margin: '0 auto' }}>
 
         {/* Page header */}
         <header style={{ marginBottom: 48, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
           <div>
             <h1
               className="hl-serif"
-              style={{ fontSize: 36, fontWeight: 300, margin: '0 0 28px', lineHeight: 1.2 }}
+              style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 300, margin: '0 0 28px', lineHeight: 1.2 }}
             >
               The moments that shaped the cloth.
             </h1>
@@ -360,8 +360,8 @@ export function LifeEvents() {
                     padding: '22px 0',
                     borderBottom: '1px solid var(--rule)',
                     display: 'grid',
-                    gridTemplateColumns: '120px 1fr auto',
-                    gap: 24,
+                    gridTemplateColumns: 'clamp(72px, 15vw, 120px) 1fr auto',
+                    gap: 'clamp(12px, 2vw, 24px)',
                     alignItems: 'start',
                   }}
                 >
@@ -471,7 +471,7 @@ export function LifeEvents() {
             })}
           </ul>
         ) : (
-          <div style={{ padding: '60px 36px', border: '1px solid var(--rule)', textAlign: 'center' }}>
+          <div style={{ padding: 'clamp(24px, 5vw, 60px) clamp(16px, 3vw, 36px)', border: '1px solid var(--rule)', textAlign: 'center' }}>
             <p
               className="hl-serif hl-italic"
               style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone-faint)', margin: 0 }}
@@ -641,7 +641,7 @@ export function LifeEvents() {
                 )}
                 <div style={{ paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
                   <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', margin: '0 0 10px', letterSpacing: '0.08em' }}>Or enter manually:</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 10 }}>
                     <input
                       type="text"
                       value={recipientName}

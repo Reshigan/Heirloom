@@ -48,9 +48,9 @@
   --gold-05: rgba(176, 122, 74, 0.05);
 
   /* BLOOD — destructive/record only, tuned into the natural-dye world */
-  --blood: #c84038;
-  --blood-light: #d85054;
-  --blood-glow: rgba(200, 64, 56, 0.4);
+  --blood: #e03428;
+  --blood-light: #ec4458;
+  --blood-glow: rgba(224, 52, 40, 0.4);
 
   /* STATUS COLORS */
   --emerald: #5ab88a;
@@ -96,16 +96,16 @@
   --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
 
   /* natural-dye palette — only inside the cloth (woven threads) */
-  --dye-madder: #c84038;
-  --dye-cochineal: #a02848;
-  --dye-kermes: #d85054;
-  --dye-saffron: #e8b840;
-  --dye-weld: #cca840;
-  --dye-walnut: #7a5030;
-  --dye-oakgall: #584430;
-  --dye-woad: #5080a8;
-  --dye-indigo: #3868a8;
-  --dye-iron: #2e2e2c;
+  --dye-madder:    #e03428;
+  --dye-cochineal: #c02050;
+  --dye-kermes:    #ec4458;
+  --dye-saffron:   #f4c030;
+  --dye-weld:      #e8a828;
+  --dye-walnut:    #8a6038;
+  --dye-oakgall:   #685040;
+  --dye-woad:      #3a8cc8;
+  --dye-indigo:    #2860d0;
+  --dye-iron:      #3a3a38;
   
   /* Timing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -2115,6 +2115,8 @@ html {
 .hl-topbar .hl-link.warm { color: var(--warm); }
 /* hide compose → on mobile — BottomNav already provides it */
 @media (max-width: 639px) { .hl-topbar-action { display: none !important; } }
+/* hide center counter on mobile — left+right fill the bar */
+@media (max-width: 639px) { .hl-topbar .hl-counter { display: none !important; } }
 
 /* user menu trigger: 28px visual, 44px tap target via pseudo-element */
 .hl-topbar-user-btn {

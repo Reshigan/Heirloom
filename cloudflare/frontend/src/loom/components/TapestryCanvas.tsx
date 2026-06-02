@@ -5,16 +5,16 @@ import { useEffect, useRef } from 'react';
 
 // ─── Natural-dye palette (only inside the cloth) ─────────────────────────────
 export const HL_DYE_HEX: Record<string, string> = {
-  madder:    '#c84038',
-  cochineal: '#a02848',
-  kermes:    '#d85054',
-  saffron:   '#e8b840',
-  weld:      '#cca840',
-  walnut:    '#7a5030',
-  oakgall:   '#584430',
-  woad:      '#5080a8',
-  indigo:    '#3868a8',
-  iron:      '#2e2e2c',
+  madder:    '#e03428',
+  cochineal: '#c02050',
+  kermes:    '#ec4458',
+  saffron:   '#f4c030',
+  weld:      '#e8a828',
+  walnut:    '#8a6038',
+  oakgall:   '#685040',
+  woad:      '#3a8cc8',
+  indigo:    '#2860d0',
+  iron:      '#3a3a38',
 };
 
 function hlSeed(s: number) {

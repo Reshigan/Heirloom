@@ -55,7 +55,8 @@ export function OnThisDay() {
     <Frame left="on this day">
       <div
         style={{
-          padding: '48px 48px 80px',
+          padding: 'clamp(16px, 4vw, 48px)',
+          paddingBottom: 80,
           maxWidth: 720,
           margin: '0 auto',
         }}
@@ -64,7 +65,7 @@ export function OnThisDay() {
         <h1
           className="hl-serif"
           style={{
-            fontSize: 36,
+            fontSize: 'clamp(24px, 5vw, 36px)',
             fontWeight: 300,
             color: 'var(--bone)',
             margin: '0 0 8px',

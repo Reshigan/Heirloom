@@ -88,10 +88,10 @@ export function Challenges() {
       <div style={{ padding: '40px 0' }}>
 
         {/* Page header */}
-        <header style={{ marginBottom: 40, padding: '0 40px' }}>
+        <header style={{ marginBottom: 40, padding: '0 clamp(16px, 4vw, 40px)' }}>
           <h1
             className="hl-serif hl-tight"
-            style={{ fontSize: 36, fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
+            style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
           >
             Your challenges.
           </h1>
@@ -100,7 +100,7 @@ export function Challenges() {
         {isLoading ? (
           <p
             className="hl-serif hl-italic"
-            style={{ color: 'var(--bone-faint)', padding: '0 40px' }}
+            style={{ color: 'var(--bone-faint)', padding: '0 clamp(16px, 4vw, 40px)' }}
           >
             Loading…
           </p>
@@ -112,12 +112,23 @@ export function Challenges() {
               <section
                 style={{
                   borderTop: '1px solid var(--rule)',
-                  padding: '20px 40px',
+                  padding: '20px clamp(16px, 4vw, 40px)',
                 }}
               >
                 <p className="hl-eyebrow" style={{ marginBottom: 20 }}>This week</p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48 }}>
+                <style>{`
+                  .challenges-current { grid-template-columns: 1fr 1fr; }
+                  .challenges-how { grid-template-columns: repeat(3, 1fr); }
+                  .challenges-upcoming { grid-template-columns: 140px 1fr; }
+                  @media (max-width: 680px) {
+                    .challenges-current { grid-template-columns: 1fr; }
+                    .challenges-how { grid-template-columns: 1fr; }
+                    .challenges-upcoming { grid-template-columns: 1fr; }
+                    .challenges-upcoming-date { margin-bottom: 4px; }
+                  }
+                `}</style>
+                <div className="challenges-current" style={{ display: 'grid', gap: 48 }}>
                   <div>
                     <h2
                       className="hl-serif"
@@ -245,7 +256,7 @@ export function Challenges() {
               <div
                 style={{
                   borderTop: '1px solid var(--rule)',
-                  padding: '60px 40px',
+                  padding: 'clamp(24px, 5vw, 60px) clamp(16px, 4vw, 40px)',
                   textAlign: 'center',
                 }}
               >
@@ -267,7 +278,7 @@ export function Challenges() {
 
             {/* Upcoming challenges */}
             {challenges && (challenges as any[]).filter((c: any) => new Date(c.start_date) > new Date()).length > 0 && (
-              <section style={{ borderTop: '1px solid var(--rule)', padding: '20px 40px' }}>
+              <section style={{ borderTop: '1px solid var(--rule)', padding: '20px clamp(16px, 4vw, 40px)' }}>
                 <p className="hl-eyebrow" style={{ marginBottom: 20 }}>Coming threads</p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {(challenges as any[])
@@ -283,7 +294,7 @@ export function Challenges() {
                         }}
                         onClick={() => setSelectedChallenge(challenge)}
                       >
-                        <article style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 32, alignItems: 'baseline' }}>
+                        <article className="challenges-upcoming" style={{ display: 'grid', gap: 32, alignItems: 'baseline' }}>
                           <p
                             className="hl-mono"
                             style={{ margin: 0, fontSize: 10, letterSpacing: '0.04em', color: 'var(--warm)' }}
@@ -318,9 +329,9 @@ export function Challenges() {
             )}
 
             {/* How it works */}
-            <section style={{ borderTop: '1px solid var(--rule)', padding: '20px 40px' }}>
+            <section style={{ borderTop: '1px solid var(--rule)', padding: '20px clamp(16px, 4vw, 40px)' }}>
               <p className="hl-eyebrow" style={{ marginBottom: 32 }}>How challenges work</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 40 }}>
+              <div className="challenges-how" style={{ display: 'grid', gap: 40 }}>
                 {[
                   { n: '01', h: 'A theme arrives.', b: 'Each week a new prompt surfaces — something to bring from memory into the thread.' },
                   { n: '02', h: 'You write into it.', b: 'Add an entry, a voice note, or a letter. The prompt is the door; what you bring is the thread.' },

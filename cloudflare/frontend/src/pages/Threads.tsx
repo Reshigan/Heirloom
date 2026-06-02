@@ -50,18 +50,15 @@ export function Threads() {
       {/* scrollable content area */}
       <div
         style={{
-          position: 'absolute',
-          top: 80,
-          bottom: 36,
-          left: 56,
-          right: 56,
-          overflowY: 'auto',
+          padding: 'clamp(16px, 4vw, 56px)',
+          paddingBottom: 80,
+          overflowX: 'hidden',
         }}
       >
         <h1
           className="hl-serif hl-tight"
           style={{
-            fontSize: 44,
+            fontSize: 'clamp(28px, 6vw, 44px)',
             fontWeight: 300,
             letterSpacing: '-0.022em',
             marginBottom: 32,
@@ -89,11 +86,18 @@ export function Threads() {
           <>
             {threads.length > 0 ? (
               <div style={{ marginBottom: 48 }}>
+                <style>{`
+                  .threads-row { grid-template-columns: 2fr 1.4fr 0.9fr 0.7fr 0.6fr; }
+                  @media (max-width: 600px) {
+                    .threads-row { grid-template-columns: 1fr auto; }
+                    .threads-col-hide { display: none; }
+                  }
+                `}</style>
                 {/* column headers */}
                 <div
+                  className="threads-row"
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '2fr 1.4fr 0.9fr 0.7fr 0.6fr',
                     borderBottom: '1px solid var(--rule)',
                     paddingBottom: 12,
                   }}
@@ -101,7 +105,7 @@ export function Threads() {
                   {(['thread', 'entries', 'members', 'last entry', ''] as const).map((col) => (
                     <span
                       key={col}
-                      className="hl-mono"
+                      className={`hl-mono${col !== 'thread' && col !== '' ? ' threads-col-hide' : ''}`}
                       style={{
                         fontSize: 10,
                         textTransform: 'uppercase',
@@ -315,9 +319,9 @@ function ThreadRow({ thread }: { thread: ThreadSummary }) {
   const dyeKey = (thread as ThreadSummary & { dye?: string }).dye ?? 'walnut';
   return (
     <div
+      className="threads-row"
       style={{
         display: 'grid',
-        gridTemplateColumns: '2fr 1.4fr 0.9fr 0.7fr 0.6fr',
         borderBottom: '1px solid var(--rule)',
         paddingTop: 14,
         paddingBottom: 14,
@@ -341,7 +345,7 @@ function ThreadRow({ thread }: { thread: ThreadSummary }) {
 
       {/* entry count */}
       <span
-        className="hl-mono"
+        className="hl-mono threads-col-hide"
         style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.06em' }}
       >
         {thread.entry_count.toLocaleString()}
@@ -349,7 +353,7 @@ function ThreadRow({ thread }: { thread: ThreadSummary }) {
 
       {/* member count */}
       <span
-        className="hl-mono"
+        className="hl-mono threads-col-hide"
         style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.06em' }}
       >
         {thread.member_count}
@@ -357,7 +361,7 @@ function ThreadRow({ thread }: { thread: ThreadSummary }) {
 
       {/* last entry / created_at */}
       <span
-        className="hl-mono"
+        className="hl-mono threads-col-hide"
         style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}
       >
         {formatDate(thread.created_at)}

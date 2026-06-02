@@ -92,14 +92,14 @@ export function Memorials() {
 
   return (
     <Frame left="memorials">
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '72px 32px 64px' }}>
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: 'clamp(16px, 4vw, 32px)', paddingBottom: 80 }}>
 
         {/* Page header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 64 }}>
           <h1
             className="hl-serif"
             style={{
-              fontSize: 36,
+              fontSize: 'clamp(24px, 5vw, 36px)',
               fontWeight: 300,
               letterSpacing: '-0.018em',
               margin: 0,
@@ -281,7 +281,7 @@ export function Memorials() {
         {/* How it works */}
         <section style={{ borderTop: '1px solid var(--rule)', paddingTop: 40 }}>
           <p className="hl-eyebrow" style={{ marginBottom: 32 }}>How QR memorials work</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: 32 }}>
             {[
               { n: '01', h: 'Create the page.', b: 'Add name, dates, a biography, and an epitaph.' },
               { n: '02', h: 'Receive a QR code.', b: 'Download a weather-resistant code for physical placement.' },
@@ -351,7 +351,7 @@ export function Memorials() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: 16 }}>
                 <div>
                   <label style={labelStyle} htmlFor="mem-born">Birth date</label>
                   <input

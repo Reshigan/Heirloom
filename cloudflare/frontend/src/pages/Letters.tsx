@@ -75,15 +75,20 @@ export function Letters() {
     >
       <div
         style={{
-          padding: '80px 56px 36px 56px',
+          padding: 'clamp(24px, 5vw, 56px)',
+          paddingBottom: 80,
           minHeight: '100%',
         }}
       >
+        <style>{`
+          .letters-grid { grid-template-columns: clamp(280px, 55%, 660px) minmax(0, 1fr); }
+          @media (max-width: 680px) { .letters-grid { grid-template-columns: 1fr; } .letters-cta { display: none; } }
+        `}</style>
         <div
+          className="letters-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: '1.1fr 1fr',
-            gap: 56,
+            gap: 'clamp(24px, 4vw, 56px)',
             alignItems: 'start',
           }}
         >
@@ -92,7 +97,7 @@ export function Letters() {
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 36,
+                fontSize: 'clamp(24px, 5vw, 36px)',
                 fontWeight: 300,
                 color: 'var(--bone)',
                 marginBottom: 28,
@@ -125,7 +130,7 @@ export function Letters() {
           </div>
 
           {/* ── RIGHT: sticky CTA ── */}
-          <div style={{ position: 'sticky', top: 0 }}>
+          <div className="letters-cta" style={{ position: 'sticky', top: 0 }}>
             <h3
               className="hl-serif"
               style={{

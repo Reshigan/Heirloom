@@ -6,6 +6,7 @@ import { useListener } from '../../hooks/useListener';
 import { useAuthStore } from '../../stores/authStore';
 import { useLoomTheme } from '../theme';
 import { TapestryCanvas } from '../components/TapestryCanvas';
+import { PwaWizard, shouldShowWizard } from '../components/PwaWizard';
 import type { UserRole } from '../../hooks/useRole';
 import type { CanvasEntry } from '../components/TapestryCanvas';
 
@@ -225,65 +226,120 @@ function MiniCloth({ entries }: { entries: CanvasEntry[] }) {
   );
 }
 
-function RoleContent({ role, entries, prompt }: { role: UserRole; entries: CanvasEntry[]; prompt: string }) {
+function RoleContent({ role, entries, prompt, paperFirst }: { role: UserRole; entries: CanvasEntry[]; prompt: string; paperFirst?: boolean }) {
+  const P = 'clamp(20px, 5vw, 28px)';
+
+  const WriteBlock = ({ eyebrow, cta, ctaTo, secondary, secondaryTo }: {
+    eyebrow: string; cta: string; ctaTo: string;
+    secondary?: string; secondaryTo?: string;
+  }) => (
+    <div style={{ padding: `24px ${P}`, flex: 1 }}>
+      <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>{eyebrow}</span>
+      <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(18px, 5vw, 22px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px', lineHeight: 1.3 }}>
+        {prompt}
+      </h2>
+      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Link to={ctaTo} className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>{cta}</Link>
+        {secondary && secondaryTo && (
+          <Link to={secondaryTo} className="hl-btn text" style={{ fontSize: 12 }}>{secondary}</Link>
+        )}
+      </div>
+    </div>
+  );
+
   switch (role) {
     case 'visitor':
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>preview</span>
-          <h2 className="hl-serif hl-tight" style={{ fontSize: 24, fontWeight: 300, color: 'var(--bone)', margin: '0 0 24px' }}>
-            Start your family's thousand-year thread.
-          </h2>
-          <MiniCloth entries={entries} />
-          <div style={{ marginTop: 32 }}>
-            <Link to="/signup" className="hl-btn">Begin free →</Link>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: `24px ${P} 0` }}>
+            <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>preview</span>
+            <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(20px, 5vw, 24px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px' }}>
+              Start your family&#39;s thousand-year thread.
+            </h2>
+            <Link to="/signup" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>Begin free →</Link>
+          </div>
+          <div style={{ paddingTop: 32 }}>
+            <MiniCloth entries={entries} />
           </div>
         </div>
       );
 
     case 'trial':
+      if (paperFirst) {
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <WriteBlock eyebrow="trial" cta="write now" ctaTo="/compose" secondary="upgrade →" secondaryTo="/billing" />
+            <QuickLinks />
+            <div style={{ paddingTop: 8 }}><MiniCloth entries={entries} /></div>
+          </div>
+        );
+      }
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>trial</span>
-          <h2 className="hl-serif hl-tight" style={{ fontSize: 22, fontWeight: 300, color: 'var(--bone)', margin: '0 0 16px' }}>
-            {prompt}
-          </h2>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: `24px ${P} 0` }}>
+            <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>trial</span>
+            <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(18px, 5vw, 22px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px', lineHeight: 1.3 }}>
+              {prompt}
+            </h2>
+          </div>
           <MiniCloth entries={entries} />
-          <div style={{ marginTop: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
-            <Link to="/compose" className="hl-btn">write now</Link>
-            <Link to="/billing" className="hl-btn text" style={{ fontSize: 13 }}>upgrade →</Link>
+          <div style={{ padding: `16px ${P}` }}>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+              <Link to="/compose" className="hl-btn" style={{ fontSize: 13 }}>write now</Link>
+              <Link to="/billing" className="hl-btn text" style={{ fontSize: 12 }}>upgrade →</Link>
+            </div>
           </div>
         </div>
       );
 
     case 'family':
     case 'founder':
+      if (paperFirst) {
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <WriteBlock eyebrow={role === 'founder' ? 'founder' : 'today'} cta="write now" ctaTo="/compose" />
+            <QuickLinks />
+            <div style={{ paddingTop: 8 }}><MiniCloth entries={entries} /></div>
+          </div>
+        );
+      }
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>
-            {role === 'founder' ? 'founder' : 'today'}
-          </span>
-          <h2 className="hl-serif hl-tight" style={{ fontSize: 22, fontWeight: 300, color: 'var(--bone)', margin: '0 0 16px' }}>
-            {prompt}
-          </h2>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: `24px ${P} 0` }}>
+            <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>{role === 'founder' ? 'founder' : 'today'}</span>
+            <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(18px, 5vw, 22px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px', lineHeight: 1.3 }}>
+              {prompt}
+            </h2>
+          </div>
           <MiniCloth entries={entries} />
-          <div style={{ marginTop: 24 }}>
-            <Link to="/compose" className="hl-btn">write now</Link>
+          <div style={{ padding: `16px ${P} 0` }}>
+            <Link to="/compose" className="hl-btn" style={{ fontSize: 13 }}>write now</Link>
           </div>
           <QuickLinks />
         </div>
       );
 
     case 'author':
+      if (paperFirst) {
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <WriteBlock eyebrow="author" cta="write now" ctaTo="/compose" />
+            <QuickLinks />
+            <div style={{ paddingTop: 8 }}><MiniCloth entries={entries} /></div>
+          </div>
+        );
+      }
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>author</span>
-          <h2 className="hl-serif hl-tight" style={{ fontSize: 22, fontWeight: 300, color: 'var(--bone)', margin: '0 0 16px' }}>
-            {prompt}
-          </h2>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: `24px ${P} 0` }}>
+            <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>author</span>
+            <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(18px, 5vw, 22px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px', lineHeight: 1.3 }}>
+              {prompt}
+            </h2>
+          </div>
           <MiniCloth entries={entries} />
-          <div style={{ marginTop: 24 }}>
-            <Link to="/compose" className="hl-btn">write now</Link>
+          <div style={{ padding: `16px ${P} 0` }}>
+            <Link to="/compose" className="hl-btn" style={{ fontSize: 13 }}>write now</Link>
           </div>
           <QuickLinks />
         </div>
@@ -291,31 +347,31 @@ function RoleContent({ role, entries, prompt }: { role: UserRole; entries: Canva
 
     case 'reader':
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>reading</span>
-          <MiniCloth entries={entries} />
-          <div style={{ marginTop: 24 }}>
-            <Link to="/loom/read" className="hl-btn">open the thread →</Link>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: `24px ${P} 0` }}>
+            <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>reading</span>
+            <Link to="/loom/read" className="hl-btn" style={{ fontSize: 13 }}>open the thread →</Link>
           </div>
+          <div style={{ paddingTop: 32 }}><MiniCloth entries={entries} /></div>
         </div>
       );
 
     case 'successor':
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>inheritance</span>
-          <h2 className="hl-serif hl-tight" style={{ fontSize: 22, fontWeight: 300, color: 'var(--bone)', margin: '0 0 24px' }}>
+        <div style={{ padding: `24px ${P}` }}>
+          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>inheritance</span>
+          <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(18px, 5vw, 22px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px' }}>
             A thread has been passed to you.
           </h2>
-          <Link to="/loom/weft" className="hl-btn">Open the cloth →</Link>
+          <Link to="/loom/weft" className="hl-btn" style={{ fontSize: 13 }}>Open the cloth →</Link>
         </div>
       );
 
     case 'future_member':
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>awaiting</span>
-          <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.6 }}>
+        <div style={{ padding: `24px ${P}` }}>
+          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>awaiting</span>
+          <p className="hl-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.6 }}>
             A thread is being prepared for you.
           </p>
         </div>
@@ -323,12 +379,12 @@ function RoleContent({ role, entries, prompt }: { role: UserRole; entries: Canva
 
     case 'legacy':
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>legacy access</span>
-          <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone-dim)', lineHeight: 1.6 }}>
+        <div style={{ padding: `24px ${P}` }}>
+          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>legacy access</span>
+          <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.6 }}>
             Verify your identity to access the archive.
           </p>
-          <Link to="/inherit" className="hl-btn ghost" style={{ marginTop: 24, display: 'inline-block' }}>
+          <Link to="/inherit" className="hl-btn ghost" style={{ marginTop: 20, display: 'inline-block', fontSize: 13 }}>
             Verify →
           </Link>
         </div>
@@ -336,9 +392,9 @@ function RoleContent({ role, entries, prompt }: { role: UserRole; entries: Canva
 
     case 'admin':
       return (
-        <div style={{ padding: '32px 22px' }}>
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>support</span>
-          <Link to="/admin" className="hl-btn">Open admin console →</Link>
+        <div style={{ padding: `24px ${P}` }}>
+          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>support</span>
+          <Link to="/admin" className="hl-btn" style={{ fontSize: 13 }}>Open admin console →</Link>
         </div>
       );
 
@@ -351,9 +407,14 @@ export function PwaHome() {
   const role = useRole();
   const entries = useTapestryEntries();
   const prompt = useListener();
+  const { theme } = useLoomTheme();
+  const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
 
   return (
     <div className="hl-screen" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      {/* First-time onboarding wizard */}
+      {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}
+
       {/* Topbar — profile menu + wordmark on mobile PWA home */}
       <div className="hl-topbar" style={{ borderBottom: '1px solid var(--rule)', zIndex: 10 }}>
         <span
@@ -371,7 +432,7 @@ export function PwaHome() {
         <PwaMenu />
       </div>
 
-      {/* Content */}
+      {/* Content — paper (light) mode shows actions first, cloth below */}
       <div
         className="hl-frame-scroll"
         style={{
@@ -383,7 +444,7 @@ export function PwaHome() {
           overflowY: 'auto',
         }}
       >
-        <RoleContent role={role} entries={entries} prompt={prompt} />
+        <RoleContent role={role} entries={entries} prompt={prompt} paperFirst={theme === 'light'} />
       </div>
     </div>
   );
