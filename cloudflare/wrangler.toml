@@ -66,7 +66,7 @@ crons = [
 ENVIRONMENT = "production"
 APP_URL = "https://heirloom.blue"
 API_URL = "https://api.heirloom.blue"
-ADMIN_NOTIFICATION_EMAIL = "reshigan@vantax.co.za"
+ADMIN_NOTIFICATION_EMAIL = "reshigan@gonxt.tech"
 
 # Web Push (VAPID). Public key + subject are NOT secret (the public key is sent to
 # every browser as the applicationServerKey); the matching private key is the
