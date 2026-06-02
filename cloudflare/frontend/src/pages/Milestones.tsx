@@ -70,12 +70,14 @@ export function Milestones() {
     },
   });
 
+  const [autoDetectMsg, setAutoDetectMsg] = useState<string | null>(null);
   const autoDetectMutation = useMutation({
     mutationFn: () => milestonesApi.autoDetect(),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['milestones'] });
       queryClient.invalidateQueries({ queryKey: ['upcomingMilestones'] });
-      alert(`Auto-detected ${response.data.created} new milestones!`);
+      setAutoDetectMsg(`${response.data.created} new milestones detected`);
+      setTimeout(() => setAutoDetectMsg(null), 4000);
     },
   });
 
@@ -166,6 +168,12 @@ export function Milestones() {
             </button>
           </div>
         </header>
+
+        {autoDetectMsg && (
+          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+            {autoDetectMsg}
+          </p>
+        )}
 
         {isLoading ? (
           <p

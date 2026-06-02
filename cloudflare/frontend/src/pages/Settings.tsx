@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { settingsApi } from '../services/api';
@@ -19,10 +19,26 @@ function Row({ label, children, hint }: { label: string; children: React.ReactNo
 }
 
 export function Settings() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [savedFlash, setSavedFlash] = useState(false);
+
+  // delete account
+  const [deleteStage, setDeleteStage] = useState<'idle' | 'confirm' | 'password'>('idle');
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const deleteMutation = useMutation({
+    mutationFn: () => settingsApi.deleteAccount(deletePassword),
+    onSuccess: async () => {
+      await logout();
+      navigate('/', { replace: true });
+    },
+    onError: (err: any) => {
+      setDeleteError(err?.response?.data?.error ?? 'Incorrect password.');
+    },
+  });
 
   const save = useMutation({
     mutationFn: () => settingsApi.updateProfile({ firstName, lastName }).then((r) => r.data),
@@ -155,9 +171,81 @@ export function Settings() {
                 support@heirloom.blue →
               </a>
             </Row>
+
+            <div className="hl-eyebrow" style={{ margin: '36px 0 18px', color: 'var(--dye-madder)' }}>danger</div>
+            <div style={{ padding: '18px 0', borderTop: '1px solid var(--rule)' }}>
+              <button
+                type="button"
+                onClick={() => setDeleteStage('confirm')}
+                style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--dye-madder)' }}
+              >
+                delete account →
+              </button>
+              <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-dim)', marginTop: 4, fontWeight: 400 }}>
+                permanent · all data erased
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Delete account — password-gated, three-stage */}
+      {deleteStage !== 'idle' && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(14,14,12,0.88)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+        }}>
+          <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: '40px 48px', maxWidth: 440, width: '100%' }}>
+            {deleteStage === 'confirm' ? (
+              <>
+                <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 16 }}>delete account</div>
+                <p className="hl-serif" style={{ fontSize: 16, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 28px' }}>
+                  This permanently deletes your thread, all entries, letters, and voice recordings. It cannot be undone.
+                </p>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <button type="button" onClick={() => setDeleteStage('password')}
+                    style={{ background: 'transparent', border: '1px solid var(--dye-madder)', color: 'var(--dye-madder)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer' }}>
+                    I understand — continue
+                  </button>
+                  <button type="button" onClick={() => setDeleteStage('idle')}
+                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                    cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 16 }}>confirm password</div>
+                <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 20px', lineHeight: 1.6 }}>
+                  Enter your password to permanently delete your account.
+                </p>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(null); }}
+                  onKeyDown={(e) => e.key === 'Enter' && deletePassword && deleteMutation.mutate()}
+                  placeholder="your password"
+                  autoFocus
+                  style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
+                />
+                {deleteError && (
+                  <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>{deleteError}</p>
+                )}
+                <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
+                  <button type="button" onClick={() => deleteMutation.mutate()} disabled={!deletePassword || deleteMutation.isPending}
+                    style={{ background: 'var(--dye-madder)', border: 0, color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 20px', cursor: 'pointer', opacity: (!deletePassword || deleteMutation.isPending) ? 0.5 : 1 }}>
+                    {deleteMutation.isPending ? 'deleting…' : 'delete forever'}
+                  </button>
+                  <button type="button" onClick={() => { setDeleteStage('idle'); setDeletePassword(''); setDeleteError(null); }}
+                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                    cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <TapestryEdge nowFrac={0.95} />
     </div>

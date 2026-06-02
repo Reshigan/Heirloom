@@ -21,7 +21,7 @@ const TIERS = [
     priceBilledAnnually: '$99',
     sub: '/ month',
     subAnnual: '/ year · 2 months free',
-    features: ['Unlimited threads', 'Unlimited entries', 'Time-locked entries', 'Voice entries', 'Up to 12 family members', '30-day trial'],
+    features: ['Unlimited threads', 'Unlimited entries', 'Time-locked entries', 'Voice entries', 'Up to 5 family members', '30-day trial'],
     cta: 'Start 30-day trial',
     to: '/signup?tier=family',
     warm: true,
@@ -79,7 +79,7 @@ export function Pricing() {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, borderTop: '1px solid var(--parchment-rule)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 0, borderTop: '1px solid var(--parchment-rule)' }}>
           {TIERS.map((tier) => (
             <div
               key={tier.id}

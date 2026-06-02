@@ -54,7 +54,7 @@ export function Memories() {
               {new Date(m.createdAt ?? m.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
             </div>
             <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: 0 }}>
-              {(m.text as string)?.slice(0, 200)}{((m.text as string)?.length ?? 0) > 200 ? '…' : ''}
+              {(m.description as string)?.slice(0, 200)}{((m.description as string)?.length ?? 0) > 200 ? '…' : ''}
             </p>
           </div>
         ))}

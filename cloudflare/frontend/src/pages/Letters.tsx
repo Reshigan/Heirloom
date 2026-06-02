@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { lettersApi } from '../services/api';
 import { Frame } from '../loom/components/Frame';
@@ -162,7 +163,10 @@ export function Letters() {
 }
 
 function LetterRow({ letter }: { letter: Letter }) {
+  const navigate = useNavigate();
   const sealed = !!letter.sealedAt;
+  const [expanded, setExpanded] = useState(false);
+
   const dateStr = letter.scheduledDate
     ? formatDate(letter.scheduledDate)
     : letter.sealedAt
@@ -172,98 +176,87 @@ function LetterRow({ letter }: { letter: Letter }) {
   const title = letter.title ?? letter.salutation ?? 'Untitled letter';
   const recipient = letter.salutation && letter.title ? letter.salutation : null;
 
-  return (
-    <li
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '80px 1fr auto',
-        borderBottom: '1px solid var(--rule)',
-        paddingTop: 18,
-        paddingBottom: 18,
-        alignItems: 'start',
-        gap: 16,
-      }}
-    >
-      {/* date */}
-      <span
-        className="hl-mono"
-        style={{
-          fontSize: 10,
-          color: 'var(--bone-faint)',
-          paddingTop: 2,
-        }}
-      >
-        {dateStr}
-      </span>
+  function handleClick() {
+    if (!sealed) {
+      navigate(`/letters/new?id=${letter.id}`);
+    } else {
+      setExpanded((v) => !v);
+    }
+  }
 
-      {/* title + recipient + draft tag */}
-      <div>
-        <span
-          className="hl-serif"
-          style={{
-            fontSize: 16,
-            color: 'var(--bone)',
-            display: 'block',
-            lineHeight: 1.3,
-          }}
-        >
-          {sealed ? (
-            <span
-              style={{ color: 'var(--warm)', marginRight: 6 }}
-              aria-hidden
-            >
-              ∞
-            </span>
-          ) : null}
-          {title}
+  return (
+    <li style={{ borderBottom: '1px solid var(--rule)' }}>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={handleClick}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(); }}
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '80px 1fr auto',
+          paddingTop: 18,
+          paddingBottom: 18,
+          alignItems: 'start',
+          gap: 16,
+          cursor: 'pointer',
+          outline: 'none',
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '0.8'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '1'; }}
+      >
+        {/* date */}
+        <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', paddingTop: 2 }}>
+          {dateStr}
         </span>
 
-        {recipient ? (
-          <span
-            className="hl-serif"
-            style={{
-              fontSize: 13,
-              fontStyle: 'italic',
-              color: 'var(--bone-dim)',
-              display: 'block',
-              marginTop: 3,
-            }}
-          >
-            {recipient}
+        {/* title + recipient + draft tag */}
+        <div>
+          <span className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', display: 'block', lineHeight: 1.3 }}>
+            {sealed ? <span style={{ color: 'var(--warm)', marginRight: 6 }} aria-hidden>∞</span> : null}
+            {title}
           </span>
-        ) : null}
 
-        {!sealed ? (
-          <span
-            className="hl-mono"
-            style={{
-              fontSize: 9,
-              textTransform: 'uppercase',
-              letterSpacing: '0.14em',
-              color: 'var(--bone-low)',
-              border: '1px solid var(--rule)',
-              padding: '1px 6px',
-              display: 'inline-block',
-              marginTop: 6,
-            }}
-          >
-            draft
-          </span>
-        ) : null}
+          {recipient ? (
+            <span className="hl-serif" style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--bone-dim)', display: 'block', marginTop: 3 }}>
+              {recipient}
+            </span>
+          ) : null}
+
+          {!sealed ? (
+            <span className="hl-mono" style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--bone-low)', border: '1px solid var(--rule)', padding: '1px 6px', display: 'inline-block', marginTop: 6 }}>
+              draft
+            </span>
+          ) : null}
+        </div>
+
+        {/* dye swatch + expand indicator */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+          <span aria-hidden style={{ display: 'block', width: 12, height: 2, background: dyeFor(letter.id), marginTop: 8, flexShrink: 0 }} />
+          {sealed && (
+            <span className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>
+              {expanded ? '↑' : '↓'}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* dye swatch 12×2 */}
-      <span
-        aria-hidden
-        style={{
-          display: 'block',
-          width: 12,
-          height: 2,
-          background: dyeFor(letter.id),
-          marginTop: 8,
-          flexShrink: 0,
-        }}
-      />
+      {/* Expanded detail for sealed letters */}
+      {expanded && sealed && (
+        <div style={{ paddingBottom: 20, paddingLeft: 96, borderTop: '1px solid var(--rule)', paddingTop: 16 }}>
+          {letter.bodyPreview && (
+            <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.75, color: 'var(--bone-dim)', margin: '0 0 14px', maxWidth: '60ch' }}>
+              {letter.bodyPreview}
+            </p>
+          )}
+          <div className="hl-mono" style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+            {letter.scheduledDate
+              ? `sealed · opens ${formatDate(letter.scheduledDate)}`
+              : letter.deliveryTrigger
+              ? `sealed · opens on ${letter.deliveryTrigger.toLowerCase().replace('_', ' ')}`
+              : 'sealed · time-locked'}
+          </div>
+        </div>
+      )}
     </li>
   );
 }

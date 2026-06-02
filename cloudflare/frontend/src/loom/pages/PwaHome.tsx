@@ -6,6 +6,45 @@ import { TapestryCanvas } from '../components/TapestryCanvas';
 import type { UserRole } from '../../hooks/useRole';
 import type { CanvasEntry } from '../components/TapestryCanvas';
 
+const QUICK_LINKS = [
+  { label: 'family',  to: '/family' },
+  { label: 'wrapped', to: '/wrapped' },
+  { label: 'book',    to: '/book-builder' },
+  { label: 'letters', to: '/letters' },
+  { label: 'memories', to: '/memories' },
+];
+
+function QuickLinks() {
+  return (
+    <div style={{ marginTop: 40, borderTop: '1px solid var(--rule)', paddingTop: 24 }}>
+      <div className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 16 }}>
+        more
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {QUICK_LINKS.map((item) => (
+          <Link
+            key={item.label}
+            to={item.to}
+            style={{
+              display: 'block',
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-dim)',
+              textDecoration: 'none',
+              padding: '8px 0',
+              borderBottom: '1px solid var(--rule)',
+            }}
+          >
+            {item.label} →
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function MiniCloth({ entries }: { entries: CanvasEntry[] }) {
   return (
     <TapestryCanvas
@@ -64,6 +103,7 @@ function RoleContent({ role, entries, prompt }: { role: UserRole; entries: Canva
           <div style={{ marginTop: 24 }}>
             <Link to="/loom/compose" className="hl-btn">write now</Link>
           </div>
+          <QuickLinks />
         </div>
       );
 
@@ -78,6 +118,7 @@ function RoleContent({ role, entries, prompt }: { role: UserRole; entries: Canva
           <div style={{ marginTop: 24 }}>
             <Link to="/loom/compose" className="hl-btn">write now</Link>
           </div>
+          <QuickLinks />
         </div>
       );
 

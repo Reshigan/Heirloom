@@ -200,12 +200,15 @@ threadsRoutes.post('/:id/members', async (c) => {
     return c.json({ error: 'Invalid role' }, 400);
   }
 
+  // Atomic: INSERT only executes when the subquery confirms fewer than 5 active members.
+  // This eliminates the TOCTOU race between a separate COUNT and INSERT.
   const id = crypto.randomUUID();
-  await c.env.DB.prepare(
+  const result = await c.env.DB.prepare(
     `INSERT INTO thread_members
       (id, thread_id, display_name, email, relation_label, role, age_gate_years, target_role,
        birth_date, parent_member_id, generation_offset, granted_by_member_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+     WHERE (SELECT COUNT(*) FROM thread_members WHERE thread_id = ? AND revoked_at IS NULL) < 5`,
   )
     .bind(
       id,
@@ -220,8 +223,13 @@ threadsRoutes.post('/:id/members', async (c) => {
       body.parent_member_id ?? null,
       body.generation_offset ?? 0,
       inviter.id,
+      threadId,
     )
     .run();
+
+  if (result.meta.changes === 0) {
+    return c.json({ error: 'Family threads are limited to 5 members' }, 400);
+  }
 
   // TODO: send invitation email if email is set; record audit trail.
 

@@ -317,7 +317,6 @@ app.use('/api/auth/*', async (c, next) => {
 
 // Public routes (no auth required)
 app.route('/api/auth', authRoutes);
-app.route('/api/billing/webhook', billingRoutes);
 app.route('/api/inherit', inheritRoutes);
 // Public share surfaces (OG meta + SVG cards) — zero-budget viral reach.
 app.route('/api/share', shareRoutes);
@@ -720,6 +719,7 @@ const PUBLIC_API_PREFIXES = [
   '/api/founders/pledge',     // public pledge intake
   '/api/founders/by-session', // public lookup post-Stripe-checkout
   '/api/book-orders/webhook', // Lulu webhook (HMAC verified)
+  '/api/billing/webhook',     // Stripe webhook (HMAC verified inside handler)
 ];
 
 // JWT middleware for protected routes. Bypasses for paths in

@@ -93,7 +93,12 @@ export function Family() {
     create.mutate();
   };
 
-  const inviteLink = (
+  const atLimit = members.length >= 5;
+  const inviteLink = atLimit && !showAdd ? (
+    <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+      5 / 5 full
+    </span>
+  ) : (
     <button
       type="button"
       onClick={() => setShowAdd((v) => !v)}
@@ -118,19 +123,26 @@ export function Family() {
       <div style={{ position: 'absolute', top: 80, bottom: 36, left: 56, right: 56, overflowY: 'auto' }}>
 
         {/* heading */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 38,
-            fontWeight: 300,
-            color: 'var(--bone)',
-            margin: '0 0 32px',
-            letterSpacing: '-0.018em',
-            lineHeight: 1.15,
-          }}
-        >
-          The people on this thread.
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 32 }}>
+          <h1
+            className="hl-serif hl-tight"
+            style={{
+              fontSize: 38,
+              fontWeight: 300,
+              color: 'var(--bone)',
+              margin: 0,
+              letterSpacing: '-0.018em',
+              lineHeight: 1.15,
+            }}
+          >
+            The people on this thread.
+          </h1>
+          {!isLoading && (
+            <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', flexShrink: 0, marginLeft: 24 }}>
+              {members.length} / 5
+            </span>
+          )}
+        </div>
 
         {/* add-member form */}
         {showAdd && (

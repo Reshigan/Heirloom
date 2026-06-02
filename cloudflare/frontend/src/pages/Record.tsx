@@ -38,6 +38,7 @@ export function Record() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mimeTypeRef = useRef<string>('audio/webm');
 
   useEffect(() => {
     return () => {
@@ -60,14 +61,23 @@ export function Record() {
     setError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      const supportedType = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+        'audio/ogg;codecs=opus',
+      ].find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
+      mimeTypeRef.current = supportedType || 'audio/webm';
+      const recorder = new MediaRecorder(stream, supportedType ? { mimeType: supportedType } : undefined);
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const actualType = recorder.mimeType || mimeTypeRef.current;
+        mimeTypeRef.current = actualType;
+        const blob = new Blob(chunksRef.current, { type: actualType });
         setAudioBlob(blob);
         if (audioUrl) URL.revokeObjectURL(audioUrl);
         setAudioUrl(URL.createObjectURL(blob));
@@ -113,15 +123,18 @@ export function Record() {
   const save = useMutation({
     mutationFn: async () => {
       if (!audioBlob) throw new Error('No recording to save.');
-      const filename = `recording-${Date.now()}.webm`;
+      const mime = mimeTypeRef.current || audioBlob.type || 'audio/webm';
+      const ext = mime.includes('mp4') ? 'm4a' : mime.includes('ogg') ? 'ogg' : 'webm';
+      const contentType = mime.split(';')[0]; // strip codec params for upload header
+      const filename = `recording-${Date.now()}.${ext}`;
       const { data: upload } = await voiceApi.getUploadUrl({
         filename,
-        contentType: 'audio/webm',
+        contentType,
       });
       await fetch(upload.uploadUrl ?? upload.url, {
         method: 'PUT',
         body: audioBlob,
-        headers: { 'Content-Type': 'audio/webm' },
+        headers: { 'Content-Type': contentType },
       });
       const { data } = await voiceApi.create({
         title: title.trim() || PROMPTS[promptIdx],
