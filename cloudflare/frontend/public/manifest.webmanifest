@@ -3,7 +3,7 @@
   "short_name": "Heirloom",
   "description": "A perpetual, append-only family thread. Write today. Lock entries for descendants who don't exist yet. Read what came before.",
   "id": "/",
-  "start_url": "/loom/today?source=pwa",
+  "start_url": "/loom/pwa?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
