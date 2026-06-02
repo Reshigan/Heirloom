@@ -66,14 +66,27 @@ async function generate(): Promise<SourcePost> {
   return source;
 }
 
-// On-brand image attached to every post. Instagram and Pinterest REQUIRE an
-// image URL (text-only can't publish there), and a photo post lifts reach on
-// Facebook too. Defaults to the live, brand-correct OG card already served on
-// the site; override with SOCIAL_IMAGE_URL to point at a per-post card later
-// without touching code. Must be a publicly fetchable raster (PNG/JPEG) —
-// platform servers fetch it directly, so SVG won't do.
-const SOCIAL_IMAGE_URL =
-  process.env.SOCIAL_IMAGE_URL || "https://heirloom.blue/og-image.png";
+// Platform-specific tapestry images — each format is the brand cloth at the
+// native aspect ratio for that platform. Override any via env var.
+const BASE = process.env.SOCIAL_IMAGE_BASE_URL || "https://heirloom.blue";
+const IMAGES: Record<string, string> = {
+  // Square tapestry cloth — Instagram feed, TikTok thumbnail
+  instagram: process.env.SOCIAL_IMAGE_SQUARE || `${BASE}/social-square.png`,
+  tiktok:    process.env.SOCIAL_IMAGE_SQUARE || `${BASE}/social-square.png`,
+  // Vertical tapestry cloth — Pinterest pin (2:3)
+  pinterest: process.env.SOCIAL_IMAGE_VERTICAL || `${BASE}/social-vertical.png`,
+  // Landscape OG card (1200×630) — Bluesky, Twitter/X, LinkedIn, Facebook
+  bluesky:   process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
+  twitter:   process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
+  linkedin:  process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
+  facebook:  process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
+  threads:   process.env.SOCIAL_IMAGE_SQUARE || `${BASE}/social-square.png`,
+};
+const DEFAULT_IMAGE = process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`;
+
+function imageForPlatform(platform: string): string {
+  return IMAGES[platform.toLowerCase()] ?? DEFAULT_IMAGE;
+}
 
 async function postAll(source?: SourcePost): Promise<void> {
   const today = source ?? (await readJson<{ source: SourcePost }>("output/source.json"))?.source;
@@ -93,12 +106,12 @@ async function postAll(source?: SourcePost): Promise<void> {
     ? [today.body.slice(0, 280), today.cta.slice(0, 200)]
     : undefined;
 
-  console.log(`[post] dispatching ${variants.length} posts… (image: ${SOCIAL_IMAGE_URL})`);
+  console.log(`[post] dispatching ${variants.length} posts…`);
   const results = await Promise.all(
     variants.map((v) =>
       post({
         variant: v,
-        imageUrl: SOCIAL_IMAGE_URL,
+        imageUrl: imageForPlatform(v.platform),
         ...(v.platform === "bluesky" && blueskyThread ? { blueskyThread } : {}),
       }),
     ),
