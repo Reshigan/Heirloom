@@ -1,37 +1,43 @@
 import { useEffect } from 'react';
-import { useLoomTheme } from '../theme';
+import { useLoomTheme, type LoomTheme } from '../theme';
 
 /**
- * Vault / paper toggle pill. Two-state, localStorage-persisted via
- * useLoomTheme. Displays as a small mono-caps segmented control.
+ * paper · vault · system — three-mode theme switcher.
+ * Displayed as a small mono-caps segmented control.
+ * Default is 'light' (paper). Persisted across sessions.
  */
 export function ThemeToggle() {
   const { theme, setTheme } = useLoomTheme();
 
-  // Mirror onto the .loom root via theme.ts; this effect is just so that
-  // tests / hot-reloads pick up immediately.
   useEffect(() => {
     document.querySelectorAll('.loom').forEach((el) => {
-      el.setAttribute('data-theme', theme);
+      // System resolves at runtime; dark/light applied directly
+      const resolved =
+        theme === 'system'
+          ? (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : theme;
+      el.setAttribute('data-theme', resolved);
     });
   }, [theme]);
 
+  const modes: { key: LoomTheme; label: string }[] = [
+    { key: 'light',  label: 'paper'  },
+    { key: 'dark',   label: 'vault'  },
+    { key: 'system', label: 'system' },
+  ];
+
   return (
     <span className="loom-theme-pill" role="group" aria-label="Theme">
-      <button
-        className={theme === 'dark' ? 'on' : ''}
-        onClick={() => setTheme('dark')}
-        aria-pressed={theme === 'dark'}
-      >
-        vault
-      </button>
-      <button
-        className={theme === 'light' ? 'on' : ''}
-        onClick={() => setTheme('light')}
-        aria-pressed={theme === 'light'}
-      >
-        paper
-      </button>
+      {modes.map((m) => (
+        <button
+          key={m.key}
+          className={theme === m.key ? 'on' : ''}
+          onClick={() => setTheme(m.key)}
+          aria-pressed={theme === m.key}
+        >
+          {m.label}
+        </button>
+      ))}
     </span>
   );
 }

@@ -1,10 +1,175 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRole } from '../../hooks/useRole';
 import { useTapestryEntries } from '../../hooks/useTapestryEntries';
 import { useListener } from '../../hooks/useListener';
+import { useAuthStore } from '../../stores/authStore';
+import { useLoomTheme } from '../theme';
 import { TapestryCanvas } from '../components/TapestryCanvas';
 import type { UserRole } from '../../hooks/useRole';
 import type { CanvasEntry } from '../components/TapestryCanvas';
+
+/* ─── PWA profile menu — shows on the home screen top bar ────────────── */
+function PwaMenu() {
+  const { user, logout } = useAuthStore();
+  const { theme, setTheme } = useLoomTheme();
+  const [open, setOpen] = useState(false);
+
+  if (!user) return null;
+  const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞';
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        onBlur={() => setTimeout(() => setOpen(false), 220)}
+        style={{
+          width: 36,
+          height: 36,
+          background: 'transparent',
+          border: '1px solid var(--rule)',
+          borderRadius: 0,
+          color: 'var(--bone)',
+          fontFamily: 'var(--mono)',
+          fontSize: 12,
+          letterSpacing: '0.04em',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          touchAction: 'manipulation',
+          transition: 'border-color 180ms var(--ease)',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--warm)')}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
+      >
+        {initials}
+      </button>
+
+      {/* dropdown */}
+      <div
+        aria-hidden={!open}
+        style={{
+          position: 'absolute',
+          top: 'calc(100% + 8px)',
+          right: 0,
+          minWidth: 240,
+          background: 'var(--ink-card, var(--ink))',
+          border: '1px solid var(--rule)',
+          padding: 12,
+          zIndex: 60,
+          boxShadow: '0 16px 48px rgba(10,10,8,0.45)',
+          opacity: open ? 1 : 0,
+          transform: open ? 'scale(1)' : 'scale(0.97) translateY(-4px)',
+          pointerEvents: open ? 'auto' : 'none',
+          visibility: open ? 'visible' : 'hidden',
+          transition:
+            'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms linear ' +
+            (open ? '0ms' : '180ms'),
+        }}
+      >
+        {/* Identity */}
+        <div style={{ padding: '6px 8px 12px', borderBottom: '1px solid var(--rule)', marginBottom: 10 }}>
+          <p style={{ margin: 0, fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400 }}>
+            {user.firstName} {user.lastName}
+          </p>
+          <p style={{ margin: '2px 0 0', fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}>
+            {user.email}
+          </p>
+        </div>
+
+        {/* Theme — paper · vault · system */}
+        <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--rule)', marginBottom: 8 }}>
+          <p style={{ margin: '0 0 8px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+            appearance
+          </p>
+          <div style={{ display: 'flex', gap: 0 }}>
+            {(['light', 'dark', 'system'] as const).map((t, i) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTheme(t)}
+                style={{
+                  flex: 1,
+                  background: 'transparent',
+                  border: '1px solid var(--rule)',
+                  borderLeft: i === 0 ? '1px solid var(--rule)' : 'none',
+                  padding: '6px 4px',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: theme === t ? 'var(--warm)' : 'var(--bone-dim)',
+                  transition: 'color 180ms var(--ease)',
+                  minHeight: 32,
+                }}
+              >
+                {t === 'light' ? 'paper' : t === 'dark' ? 'vault' : 'system'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Nav links */}
+        {[
+          { to: '/settings', label: 'settings' },
+          { to: '/billing', label: 'billing' },
+          { to: '/family', label: 'family' },
+        ].map(item => (
+          <Link
+            key={item.to}
+            to={item.to}
+            style={{
+              display: 'block',
+              padding: '9px 8px',
+              fontFamily: 'var(--mono)',
+              fontSize: 12,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-dim)',
+              textDecoration: 'none',
+              transition: 'color 180ms var(--ease)',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-dim)')}
+          >
+            {item.label} →
+          </Link>
+        ))}
+
+        {/* Sign out */}
+        <button
+          type="button"
+          onClick={() => { logout(); setOpen(false); }}
+          style={{
+            display: 'block',
+            width: '100%',
+            textAlign: 'left',
+            padding: '9px 8px',
+            marginTop: 4,
+            paddingTop: 10,
+            borderTop: '1px solid var(--rule)',
+            background: 'transparent',
+            border: 0,
+            cursor: 'pointer',
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            transition: 'color 180ms var(--ease)',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+        >
+          sign out
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const QUICK_LINKS = [
   { label: 'family',  to: '/family' },
@@ -188,8 +353,38 @@ export function PwaHome() {
   const prompt = useListener();
 
   return (
-    <div className="hl-screen" style={{ minHeight: '100vh', position: 'relative' }}>
-      <RoleContent role={role} entries={entries} prompt={prompt} />
+    <div className="hl-screen" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      {/* Topbar — profile menu + wordmark on mobile PWA home */}
+      <div className="hl-topbar" style={{ borderBottom: '1px solid var(--rule)', zIndex: 10 }}>
+        <span
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 13,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--warm)',
+            fontWeight: 400,
+          }}
+        >
+          heirloom
+        </span>
+        <PwaMenu />
+      </div>
+
+      {/* Content */}
+      <div
+        className="hl-frame-scroll"
+        style={{
+          position: 'absolute',
+          top: 'calc(56px + env(safe-area-inset-top, 0px))',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          overflowY: 'auto',
+        }}
+      >
+        <RoleContent role={role} entries={entries} prompt={prompt} />
+      </div>
     </div>
   );
 }

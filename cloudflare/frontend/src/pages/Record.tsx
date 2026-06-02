@@ -34,6 +34,8 @@ export function Record() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [promptIdx, setPromptIdx] = useState(0);
+  const [addresseeName, setAddresseeName] = useState('');
+  const [entryDate, setEntryDate] = useState(() => new Date().toISOString().slice(0, 10));
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -143,6 +145,10 @@ export function Record() {
         fileUrl: upload.publicUrl ?? upload.url,
         duration: elapsed,
         fileSize: audioBlob.size,
+        metadata: {
+          to: addresseeName.trim() || undefined,
+          entryDate,
+        },
       });
       return data;
     },
@@ -174,7 +180,7 @@ export function Record() {
       <div className="hl-topbar">
         {/* left: HLogo */}
         <Link
-          to="/loom"
+          to="/memories"
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
           <HLogo size={18} wordmark />
@@ -190,11 +196,11 @@ export function Record() {
             whiteSpace: 'nowrap',
           }}
         >
-          voice recording
+          speak
         </span>
 
         {/* right: cancel */}
-        <Link to="/loom" className="hl-link warm" style={{ fontSize: 14 }}>
+        <Link to="/memories" className="hl-link warm" style={{ fontSize: 14 }}>
           cancel →
         </Link>
       </div>
@@ -203,7 +209,7 @@ export function Record() {
       <div
         style={{
           position: 'absolute',
-          top: 56,
+          top: 'calc(56px + env(safe-area-inset-top, 0px))',
           bottom: 80,
           left: 0,
           right: 0,
@@ -350,21 +356,71 @@ export function Record() {
           </div>
         ) : null}
 
-        {/* current prompt (idle only) */}
+        {/* addressee + date (idle only) — before pressing Begin */}
         {recordingState === 'idle' ? (
-          <p
-            className="hl-serif hl-italic"
+          <div
             style={{
               marginTop: 32,
-              fontSize: 17,
-              color: 'var(--bone-dim)',
-              textAlign: 'center',
-              maxWidth: 380,
-              lineHeight: 1.5,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 12,
+              width: '100%',
+              maxWidth: 320,
             }}
           >
-            {PROMPTS[promptIdx]}
-          </p>
+            <input
+              value={addresseeName}
+              onChange={e => setAddresseeName(e.target.value)}
+              placeholder="for… (optional name)"
+              style={{
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--rule)',
+                color: 'var(--bone)',
+                caretColor: 'var(--warm)',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 13,
+                letterSpacing: '0.06em',
+                padding: '6px 0 4px',
+                outline: 'none',
+                textAlign: 'center',
+                width: '100%',
+              }}
+            />
+            <input
+              type="date"
+              value={entryDate}
+              onChange={e => setEntryDate(e.target.value)}
+              style={{
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--rule)',
+                color: 'var(--bone-dim)',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 12,
+                letterSpacing: '0.06em',
+                padding: '6px 0 4px',
+                outline: 'none',
+                textAlign: 'center',
+                width: '100%',
+                colorScheme: 'dark',
+              }}
+            />
+            <p
+              className="hl-serif hl-italic"
+              style={{
+                marginTop: 8,
+                fontSize: 17,
+                color: 'var(--bone-dim)',
+                textAlign: 'center',
+                maxWidth: 320,
+                lineHeight: 1.5,
+              }}
+            >
+              {PROMPTS[promptIdx]}
+            </p>
+          </div>
         ) : null}
 
         {/* transcription result — editable after recording stops */}

@@ -18,7 +18,7 @@
   <g mask="url(#cutout)">
 
     <!-- Warp hairlines -->
-    <g stroke="rgba(244,236,216,0.20)" stroke-width="1">
+    <g stroke="rgba(244,236,216,0.32)" stroke-width="1">
       <line x1="38"  y1="0" x2="38"  y2="512"/>
       <line x1="80"  y1="0" x2="80"  y2="512"/>
       <line x1="122" y1="0" x2="122" y2="512"/>
@@ -34,7 +34,7 @@
     </g>
 
     <!-- Band 1 — madder/kermes -->
-    <g stroke-linecap="square">
+    <g stroke-linecap="square" opacity="1">
       <line x1="12"  y1="22" x2="98"  y2="22" stroke="#c84038" stroke-width="3.4"/>
       <line x1="142" y1="30" x2="250" y2="30" stroke="#c84038" stroke-width="3.2"/>
       <line x1="54"  y1="38" x2="138" y2="38" stroke="#d85054" stroke-width="3.6"/>
@@ -49,7 +49,7 @@
     </g>
 
     <!-- Band 2 — saffron/weld -->
-    <g stroke-linecap="square">
+    <g stroke-linecap="square" opacity="1">
       <line x1="244" y1="104" x2="374" y2="104" stroke="#e8b840" stroke-width="3.2"/>
       <line x1="46"  y1="112" x2="148" y2="112" stroke="#e8b840" stroke-width="3.0"/>
       <line x1="418" y1="112" x2="512" y2="112" stroke="#cca840" stroke-width="2.8"/>
@@ -64,7 +64,7 @@
     </g>
 
     <!-- Band 3 — indigo/woad -->
-    <g stroke-linecap="square">
+    <g stroke-linecap="square" opacity="1">
       <line x1="84"  y1="186" x2="198" y2="186" stroke="#3868a8" stroke-width="3.4"/>
       <line x1="260" y1="194" x2="394" y2="194" stroke="#3868a8" stroke-width="3.2"/>
       <line x1="430" y1="194" x2="512" y2="194" stroke="#5080a8" stroke-width="3.0"/>
@@ -78,7 +78,7 @@
     </g>
 
     <!-- Band 4 — cochineal/madder -->
-    <g stroke-linecap="square">
+    <g stroke-linecap="square" opacity="1">
       <line x1="34"  y1="272" x2="148" y2="272" stroke="#a02848" stroke-width="3.4"/>
       <line x1="206" y1="280" x2="318" y2="280" stroke="#c84038" stroke-width="3.0"/>
       <line x1="422" y1="280" x2="512" y2="280" stroke="#a02848" stroke-width="3.2"/>
@@ -93,7 +93,7 @@
     </g>
 
     <!-- Band 5 — weld/saffron -->
-    <g stroke-linecap="square">
+    <g stroke-linecap="square" opacity="1">
       <line x1="60"  y1="356" x2="178" y2="356" stroke="#cca840" stroke-width="3.4"/>
       <line x1="236" y1="364" x2="358" y2="364" stroke="#e8b840" stroke-width="3.0"/>
       <line x1="410" y1="364" x2="512" y2="364" stroke="#cca840" stroke-width="3.2"/>
@@ -108,7 +108,7 @@
     </g>
 
     <!-- Band 6 — woad/indigo -->
-    <g stroke-linecap="square">
+    <g stroke-linecap="square" opacity="1">
       <line x1="146" y1="438" x2="278" y2="438" stroke="#5080a8" stroke-width="3.4"/>
       <line x1="10"  y1="446" x2="114" y2="446" stroke="#3868a8" stroke-width="3.2"/>
       <line x1="324" y1="446" x2="460" y2="446" stroke="#5080a8" stroke-width="3.0"/>
@@ -129,7 +129,7 @@
         font-family="Georgia, 'Times New Roman', serif"
         font-size="300" font-weight="300"
         fill="none"
-        stroke="#d4a030"
-        stroke-width="6"
+        stroke="#e8b840"
+        stroke-width="7"
         stroke-linejoin="round">∞</text>
 </svg>
