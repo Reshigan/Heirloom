@@ -330,68 +330,77 @@ export function FoundersWall() {
           </span>
         </div>
 
-        {/* rows */}
-        {rows.map((row) => (
-          <div
-            key={row.pledge}
-            style={{
-              display: 'flex',
-              alignItems: 'baseline',
-              borderBottom: '1px solid var(--parchment-rule)',
-              padding: '11px 0',
-            }}
-          >
-            <span
-              className="hl-mono"
-              style={{
-                width: 80,
-                fontSize: 11,
-                color: 'var(--parchment-dim)',
-                letterSpacing: '0.08em',
-              }}
-            >
-              {row.pledge}
-            </span>
-            <span
+        {/* rows — zero state or format preview */}
+        {engraved === 0 ? (
+          <div style={{ padding: '48px 0 32px', textAlign: 'center' }}>
+            <p
               className="hl-serif"
               style={{
-                flex: 1,
-                paddingLeft: 24,
                 fontSize: 17,
-                color: 'var(--parchment-ink)',
-                fontWeight: 400,
-                fontStyle: row.memorial ? 'italic' : 'normal',
-                letterSpacing: '-0.005em',
+                fontStyle: 'italic',
+                color: 'var(--parchment-dim)',
+                margin: 0,
+                lineHeight: 1.7,
               }}
             >
-              {row.name}
-            </span>
-            <span
+              Names will appear here once the successor non-profit is incorporated
+              and the first pledges are confirmed.
+            </p>
+            <p
               className="hl-mono"
               style={{
-                width: 130,
-                fontSize: 10.5,
-                color: 'var(--parchment-faint)',
-                letterSpacing: '0.06em',
-              }}
-            >
-              {row.date}
-            </span>
-            <span
-              className="hl-mono"
-              style={{
-                width: 200,
                 fontSize: 10,
-                color: 'var(--parchment-faint)',
-                letterSpacing: '0.14em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                textAlign: 'right',
+                color: 'var(--parchment-faint)',
+                marginTop: 14,
               }}
             >
-              {row.origin}
-            </span>
+              The count above is live · the record opens soon
+            </p>
           </div>
-        ))}
+        ) : (
+          rows.map((row) => (
+            <div
+              key={row.pledge}
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                borderBottom: '1px solid var(--parchment-rule)',
+                padding: '11px 0',
+              }}
+            >
+              <span
+                className="hl-mono"
+                style={{ width: 80, fontSize: 11, color: 'var(--parchment-dim)', letterSpacing: '0.08em' }}
+              >
+                {row.pledge}
+              </span>
+              <span
+                className="hl-serif"
+                style={{
+                  flex: 1, paddingLeft: 24, fontSize: 17,
+                  color: 'var(--parchment-ink)', fontWeight: 400,
+                  fontStyle: row.memorial ? 'italic' : 'normal', letterSpacing: '-0.005em',
+                }}
+              >
+                {row.name}
+              </span>
+              <span
+                className="hl-mono"
+                style={{ width: 130, fontSize: 10.5, color: 'var(--parchment-faint)', letterSpacing: '0.06em' }}
+              >
+                {row.date}
+              </span>
+              <span
+                className="hl-mono"
+                style={{ width: 200, fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'right' }}
+              >
+                {row.origin}
+              </span>
+            </div>
+          ))
+        )}
 
         {/* roster note + CTA */}
         <div

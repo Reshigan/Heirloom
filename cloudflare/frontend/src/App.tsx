@@ -120,7 +120,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, _hasHydrated } = useAuthStore();
   if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />;
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/loom/today" replace />;
+  // Redirect to /loom (public threshold) rather than /loom/today so that stale
+  // tokens don't produce the confusing chain: PublicRoute→/loom/today→401→/.
+  return !isAuthenticated ? <>{children}</> : <Navigate to="/loom" replace />;
 }
 
 function PushNotificationHandler() {
