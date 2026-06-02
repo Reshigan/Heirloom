@@ -68,7 +68,7 @@ function UserMenu() {
           transform: open ? 'scale(1)' : 'scale(0.97) translateY(-4px)',
           pointerEvents: open ? 'auto' : 'none',
           visibility: open ? 'visible' : 'hidden',
-          transition: 'opacity 150ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)',
+          transition: 'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms linear ' + (open ? '0ms' : '180ms'),
         }}
       >
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
@@ -126,7 +126,7 @@ export function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
         position: 'absolute',
         left: 0, right: 0, bottom: 0,
         height: 8,
-        background: '#0a0a08',
+        background: 'var(--void-abyss)',
         overflow: 'hidden',
         pointerEvents: 'none',
       }}
@@ -139,7 +139,8 @@ export function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
             top: 0, bottom: 0,
             left: `${h.left}%`,
             width: 1,
-            background: `rgba(244,236,216,${h.alpha.toFixed(3)})`,
+            background: 'var(--bone)',
+            opacity: h.alpha,
           }}
         />
       ))}

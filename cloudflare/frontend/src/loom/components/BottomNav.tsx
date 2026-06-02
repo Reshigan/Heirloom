@@ -72,10 +72,12 @@ const CSS = `
   .loom-bottom-nav { display: none !important; }
 }
 .loom-bottom-nav-link {
-  transition: color 180ms var(--loom-ease), opacity 100ms var(--loom-ease);
+  transition: color var(--loom-dur-fast) var(--loom-ease),
+              opacity var(--loom-dur-fast) var(--loom-ease),
+              transform var(--loom-dur-fast) var(--loom-ease);
   touch-action: manipulation;
 }
-.loom-bottom-nav-link:active { opacity: 0.55; }
+.loom-bottom-nav-link:active { opacity: 0.6; transform: scale(0.93); }
 `;
 
 function ensureStyle() {

@@ -113,13 +113,13 @@ const queryClient = new QueryClient({
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, _hasHydrated } = useAuthStore();
-  if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: '#0e0e0c' }} />;
+  if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />;
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, _hasHydrated } = useAuthStore();
-  if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: '#0e0e0c' }} />;
+  if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />;
   return !isAuthenticated ? <>{children}</> : <Navigate to="/loom/today" replace />;
 }
 
@@ -175,7 +175,7 @@ function LoomShellRoot({ children }: { children: React.ReactNode }) {
   return (
     <div className="loom" data-theme={theme} style={{ minHeight: '100vh' }}>
       <Suspense
-        fallback={<div style={{ minHeight: '100vh', backgroundColor: '#0e0e0c' }} />}
+        fallback={<div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />}
       >
         {children}
       </Suspense>
