@@ -455,6 +455,16 @@
   color: var(--loom-ink);
 }
 
+/* ─── Today page: staggered content entry ───────────────────────── */
+@keyframes loom-fadein-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.loom-today-eyebrow  { animation: loom-fadein-up 360ms cubic-bezier(0.16,1,0.3,1) both; animation-delay:   0ms; }
+.loom-today-headline { animation: loom-fadein-up 360ms cubic-bezier(0.16,1,0.3,1) both; animation-delay:  50ms; }
+.loom-today-cta      { animation: loom-fadein-up 360ms cubic-bezier(0.16,1,0.3,1) both; animation-delay: 100ms; }
+.loom-today-family   { animation: loom-fadein-up 360ms cubic-bezier(0.16,1,0.3,1) both; animation-delay: 160ms; }
+
 /* ─── Menu entrance ─────────────────────────────────────────────── */
 @keyframes loom-menu-in {
   from {

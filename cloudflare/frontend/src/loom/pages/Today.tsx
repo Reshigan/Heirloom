@@ -18,13 +18,13 @@ export function Today() {
       <div style={{ padding: '72px 56px 0', maxWidth: 720 }}>
 
         {/* eyebrow */}
-        <div className="hl-eyebrow" style={{ marginBottom: 24 }}>
+        <div className="hl-eyebrow loom-today-eyebrow" style={{ marginBottom: 24 }}>
           tonight · 8 pm
         </div>
 
         {/* daily prompt — the Listener */}
         <h1
-          className="hl-serif hl-tight"
+          className="hl-serif hl-tight loom-today-headline"
           style={{
             fontSize: 'clamp(26px, 4vw, 38px)',
             fontWeight: 300,
@@ -38,7 +38,7 @@ export function Today() {
         </h1>
 
         {/* write now CTA */}
-        <div style={{ marginTop: 40 }}>
+        <div className="loom-today-cta" style={{ marginTop: 40 }}>
           <Link to="/loom/compose" className="hl-btn">
             write now
           </Link>
@@ -46,7 +46,7 @@ export function Today() {
 
         {/* family strip — last 3 contributors */}
         {contributors.length > 0 && (
-          <div style={{ marginTop: 64, borderTop: '1px solid var(--rule)', paddingTop: 24 }}>
+          <div className="loom-today-family" style={{ marginTop: 64, borderTop: '1px solid var(--rule)', paddingTop: 24 }}>
             <div className="hl-eyebrow" style={{ marginBottom: 16 }}>recent voices</div>
             <div style={{ display: 'flex', gap: 32 }}>
               {contributors.map((c, i) => (

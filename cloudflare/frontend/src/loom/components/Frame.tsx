@@ -25,11 +25,13 @@ function UserMenu() {
     <div style={{ position: 'relative' }}>
       <button
         type="button"
+        className="hl-topbar-user-btn"
         onClick={() => setOpen((v) => !v)}
         onBlur={() => setTimeout(() => setOpen(false), 200)}
         style={{
-          width: 44,
-          height: 44,
+          position: 'relative',
+          width: 28,
+          height: 28,
           background: 'transparent',
           border: '1px solid var(--rule)',
           borderRadius: 0,
@@ -38,31 +40,36 @@ function UserMenu() {
           fontSize: 10,
           letterSpacing: '0.04em',
           cursor: 'pointer',
-          transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          touchAction: 'manipulation',
         }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--warm)')}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
       >
         {initials}
       </button>
-      {open ? (
-        <div
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
-            right: 0,
-            minWidth: 220,
-            background: '#131310',
-            border: '1px solid var(--rule)',
-            padding: 8,
-            zIndex: 50,
-            borderRadius: 0,
-            boxShadow: '0 12px 40px rgba(10,10,8,0.60)',
-          }}
-        >
+      {/* always rendered — CSS opacity/transform drives open/close so the transition is smooth */}
+      <div
+        aria-hidden={!open}
+        style={{
+          position: 'absolute',
+          top: 'calc(100% + 8px)',
+          right: 0,
+          minWidth: 220,
+          background: '#131310',
+          border: '1px solid var(--rule)',
+          padding: 8,
+          zIndex: 50,
+          borderRadius: 0,
+          boxShadow: '0 12px 40px rgba(10,10,8,0.60)',
+          transformOrigin: 'top right',
+          opacity: open ? 1 : 0,
+          transform: open ? 'scale(1)' : 'scale(0.97) translateY(-4px)',
+          pointerEvents: open ? 'auto' : 'none',
+          visibility: open ? 'visible' : 'hidden',
+          transition: 'opacity 150ms cubic-bezier(0.16,1,0.3,1), transform 150ms cubic-bezier(0.16,1,0.3,1)',
+        }}
+      >
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
             <p style={{ margin: 0, fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)' }}>
               {user.firstName} {user.lastName}
@@ -96,7 +103,6 @@ function UserMenu() {
             Sign out
           </button>
         </div>
-      ) : null}
     </div>
   );
 }

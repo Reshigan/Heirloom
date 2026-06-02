@@ -71,7 +71,11 @@ const CSS = `
 @media (min-width: 640px) {
   .loom-bottom-nav { display: none !important; }
 }
-.loom-bottom-nav-link { transition: color 180ms var(--loom-ease); }
+.loom-bottom-nav-link {
+  transition: color 180ms var(--loom-ease), opacity 100ms var(--loom-ease);
+  touch-action: manipulation;
+}
+.loom-bottom-nav-link:active { opacity: 0.55; }
 `;
 
 function ensureStyle() {

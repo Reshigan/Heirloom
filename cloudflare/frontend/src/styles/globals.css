@@ -2053,6 +2053,20 @@ html {
 /* hide compose → on mobile — BottomNav already provides it */
 @media (max-width: 639px) { .hl-topbar-action { display: none !important; } }
 
+/* user menu trigger: 28px visual, 44px tap target via pseudo-element */
+.hl-topbar-user-btn {
+  transition: border-color 180ms cubic-bezier(0.16,1,0.3,1), transform 100ms cubic-bezier(0.16,1,0.3,1);
+}
+.hl-topbar-user-btn::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+.hl-topbar-user-btn:active { transform: scale(0.94); }
+@media (hover: hover) and (pointer: fine) {
+  .hl-topbar-user-btn:hover { border-color: var(--warm) !important; }
+}
+
 /* the ambient AI surface — one typographic line, never a chatbot */
 .hl-listener {
   position: absolute; right: 32px; top: 64px;
@@ -2074,16 +2088,30 @@ html {
   letter-spacing: 0.16em; text-transform: uppercase;
   padding: 12px 24px; border-radius: 0; border: 1px solid var(--warm); cursor: pointer;
   background: transparent; color: var(--warm); text-decoration: none;
-  transition: background .18s ease, color .18s ease, border-color .18s ease;
+  touch-action: manipulation;
+  transition:
+    background 180ms cubic-bezier(0.16,1,0.3,1),
+    color 180ms cubic-bezier(0.16,1,0.3,1),
+    border-color 180ms cubic-bezier(0.16,1,0.3,1),
+    transform 100ms cubic-bezier(0.16,1,0.3,1);
 }
-.hl-btn:hover { background: rgba(176,122,74,0.10); }
+/* press feedback — the most important single detail for PWA feel */
+.hl-btn:active { transform: scale(0.97); }
+/* hover — mouse only, never on touch (avoids sticky warm state after tap) */
+@media (hover: hover) and (pointer: fine) {
+  .hl-btn:hover { background: rgba(176,122,74,0.10); }
+}
 /* On parchment pages: solid ink primary */
 .hl-screen.parchment .hl-btn:not(.ghost):not(.text) {
   background: var(--ink); color: var(--bone); border-color: transparent;
 }
-.hl-screen.parchment .hl-btn:not(.ghost):not(.text):hover { background: #1c1c1a; }
+@media (hover: hover) and (pointer: fine) {
+  .hl-screen.parchment .hl-btn:not(.ghost):not(.text):hover { background: #1c1c1a; }
+}
 .hl-btn.ghost { background: transparent; color: inherit; border: 1px solid currentColor; opacity: .8; }
-.hl-btn.ghost:hover { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .hl-btn.ghost:hover { opacity: 1; }
+}
 .hl-btn.text { background: transparent; border: 0; color: var(--warm); padding: 0; border-radius: 0; font-weight: 400; }
 
 .hl-prose { font-family: var(--serif); font-size: 17px; line-height: 1.85; max-width: 60ch; font-weight: 400; }
