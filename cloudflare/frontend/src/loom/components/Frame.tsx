@@ -28,8 +28,8 @@ function UserMenu() {
         onClick={() => setOpen((v) => !v)}
         onBlur={() => setTimeout(() => setOpen(false), 200)}
         style={{
-          width: 28,
-          height: 28,
+          width: 44,
+          height: 44,
           background: 'transparent',
           border: '1px solid var(--rule)',
           borderRadius: 0,
@@ -39,6 +39,9 @@ function UserMenu() {
           letterSpacing: '0.04em',
           cursor: 'pointer',
           transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
         onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--warm)')}
         onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
@@ -219,17 +222,17 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           )}
         </span>
 
-        {/* center: thread counter */}
-        <span className="hl-counter" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
-          amendment trail visible
+        {/* center: ∞ mark — the only allowed symbol (brief §2) */}
+        <span className="hl-counter" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap', fontSize: 14 }}>
+          ∞
         </span>
 
-        {/* right slot: action + user menu */}
+        {/* right slot: action (hidden on mobile where BottomNav covers it) + user menu */}
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
           {right ? (
-            <span className="hl-link warm">{right}</span>
+            <span className="hl-link warm hl-topbar-action">{right}</span>
           ) : (
-            <Link to="/loom/compose" className="hl-link warm">compose →</Link>
+            <Link to="/loom/compose" className="hl-link warm hl-topbar-action">compose →</Link>
           )}
           <UserMenu />
         </span>

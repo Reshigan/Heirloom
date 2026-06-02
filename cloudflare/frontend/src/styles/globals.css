@@ -2050,6 +2050,8 @@ html {
 .hl-topbar .hl-link { color: var(--bone-dim); text-decoration: none; }
 .hl-topbar .hl-link:hover { color: var(--warm); }
 .hl-topbar .hl-link.warm { color: var(--warm); }
+/* hide compose → on mobile — BottomNav already provides it */
+@media (max-width: 639px) { .hl-topbar-action { display: none !important; } }
 
 /* the ambient AI surface — one typographic line, never a chatbot */
 .hl-listener {

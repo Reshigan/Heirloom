@@ -112,12 +112,14 @@ const queryClient = new QueryClient({
 });
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hasHydrated } = useAuthStore();
+  if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: '#0e0e0c' }} />;
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hasHydrated } = useAuthStore();
+  if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: '#0e0e0c' }} />;
   return !isAuthenticated ? <>{children}</> : <Navigate to="/loom/today" replace />;
 }
 

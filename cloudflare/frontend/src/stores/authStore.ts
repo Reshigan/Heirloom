@@ -26,8 +26,10 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  
+  _hasHydrated: boolean;
+
   // Actions
+  setHasHydrated: (v: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string, consent?: ConsentData) => Promise<void>;
   logout: () => Promise<void>;
@@ -73,6 +75,9 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isLoading: false,
       isAuthenticated: false,
+      _hasHydrated: false,
+
+      setHasHydrated: (v) => set({ _hasHydrated: v }),
 
       login: async (email, password) => {
         set({ isLoading: true });
@@ -137,6 +142,9 @@ export const useAuthStore = create<AuthState>()(
       name: 'heirloom-auth',
       storage: createJSONStorage(() => safeStorage),
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
