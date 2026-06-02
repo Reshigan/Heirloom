@@ -215,8 +215,8 @@ export function Founder() {
           left:                   0,
           right:                  0,
           display:               'grid',
-          gridTemplateColumns:   '1.1fr 1fr',
-          overflow:              'hidden',
+          gridTemplateColumns:   'repeat(auto-fit, minmax(min(100%, 400px), 1fr))',
+          overflow:              'auto',
         }}
       >
         {/* ── LEFT: pitch + form ─────────────────────────────────────────── */}
@@ -391,7 +391,7 @@ export function Founder() {
                   aria-label="Founder pledge form"
                   style={{ display: 'grid', gap: 20 }}
                 >
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 16 }}>
                     <div>
                       <label htmlFor="f-name" style={labelBase}>
                         Your name <span style={{ color: 'var(--warm)' }} aria-hidden>*</span>

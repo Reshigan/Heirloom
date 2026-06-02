@@ -463,7 +463,7 @@ export default function App() {
               the eight-screen demo lives here. */}
           <Route path="/loom" element={<LoomThreshold />} />
           <Route path="/loom/today" element={<ProtectedRoute><Today /></ProtectedRoute>} />
-          <Route path="/loom/pwa"   element={<ProtectedRoute><PwaHome /></ProtectedRoute>} />
+          <Route path="/loom/pwa"   element={<PwaHome />} />
           <Route path="/loom/weft" element={<ProtectedRoute><LoomWeft /></ProtectedRoute>} />
           <Route path="/loom/compose" element={<ProtectedRoute><LoomComposer /></ProtectedRoute>} />
           <Route path="/loom/tied" element={<ProtectedRoute><LoomTiedOff /></ProtectedRoute>} />

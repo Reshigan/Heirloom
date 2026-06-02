@@ -128,9 +128,9 @@ export function Signup() {
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
           <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
         </Link>
-        <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
-          <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>have an account? sign in</Link>
-        </span>
+        <Link to="/login" style={{ fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+          sign in →
+        </Link>
       </div>
 
       <main style={{ padding: 'clamp(28px, 4vh, 52px) clamp(16px, 6vw, 88px) clamp(56px, 8vh, 100px)', overflow: 'auto' }}>

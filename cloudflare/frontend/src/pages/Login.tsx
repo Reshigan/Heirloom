@@ -34,7 +34,7 @@ export function Login() {
         navigate(redirectUrl || '/loom');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Email or password is wrong.');
+      setError(err.response?.data?.error || 'Invalid email or password.');
     } finally {
       setIsLoading(false);
     }
@@ -51,9 +51,9 @@ export function Login() {
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
           <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
         </Link>
-        <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
-          <Link to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>new here? begin a thread</Link>
-        </span>
+        <Link to="/signup" style={{ fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+          begin a thread →
+        </Link>
       </div>
 
       <div style={{
