@@ -1,0 +1,22 @@
+name: Update Social Profile Avatars
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-avatars:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Update social avatars (Bluesky + Facebook)
+        run: node scripts/update-social-profiles.mjs
+        env:
+          BLUESKY_HANDLE:           ${{ vars.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD:     ${{ secrets.BLUESKY_APP_PASSWORD }}
+          META_PAGE_ACCESS_TOKEN:   ${{ secrets.META_ACCESS_TOKEN }}
+          META_PAGE_ID:             ${{ vars.META_PAGE_ID }}
