@@ -148,7 +148,7 @@ export function Record() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memories'] });
-      navigate('/loom');
+      navigate('/memories');
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : 'Could not save the recording.';

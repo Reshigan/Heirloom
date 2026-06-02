@@ -39,7 +39,7 @@ export function Today() {
 
         {/* write now CTA */}
         <div className="loom-today-cta" style={{ marginTop: 40 }}>
-          <Link to="/loom/compose" className="hl-btn">
+          <Link to="/compose" className="hl-btn">
             write now
           </Link>
         </div>

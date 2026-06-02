@@ -145,7 +145,7 @@ export function Compose() {
       </div>
 
       {/* scrollable content area */}
-      <div style={{ position: 'absolute', top: 56, bottom: 28, left: 0, right: 0, overflowY: 'auto', padding: '48px 32px 0' }}>
+      <div className="hl-compose-scroll" style={{ position: 'absolute', top: 56, bottom: 28, left: 0, right: 0, overflowY: 'auto', padding: '48px 32px 0' }}>
       <div style={{ position: 'relative', maxWidth: 720, margin: '0 auto' }}>
         {/* header: mode switcher (left) · the Listener (right margin) */}
         <div

@@ -83,7 +83,7 @@ function RoleContent({ role, entries, prompt }: { role: UserRole; entries: Canva
           </h2>
           <MiniCloth entries={entries} />
           <div style={{ marginTop: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
-            <Link to="/loom/compose" className="hl-btn">write now</Link>
+            <Link to="/compose" className="hl-btn">write now</Link>
             <Link to="/billing" className="hl-btn text" style={{ fontSize: 13 }}>upgrade →</Link>
           </div>
         </div>
@@ -101,7 +101,7 @@ function RoleContent({ role, entries, prompt }: { role: UserRole; entries: Canva
           </h2>
           <MiniCloth entries={entries} />
           <div style={{ marginTop: 24 }}>
-            <Link to="/loom/compose" className="hl-btn">write now</Link>
+            <Link to="/compose" className="hl-btn">write now</Link>
           </div>
           <QuickLinks />
         </div>
@@ -116,7 +116,7 @@ function RoleContent({ role, entries, prompt }: { role: UserRole; entries: Canva
           </h2>
           <MiniCloth entries={entries} />
           <div style={{ marginTop: 24 }}>
-            <Link to="/loom/compose" className="hl-btn">write now</Link>
+            <Link to="/compose" className="hl-btn">write now</Link>
           </div>
           <QuickLinks />
         </div>

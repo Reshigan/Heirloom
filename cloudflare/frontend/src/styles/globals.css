@@ -48,9 +48,9 @@
   --gold-05: rgba(176, 122, 74, 0.05);
 
   /* BLOOD — destructive/record only, tuned into the natural-dye world */
-  --blood: #9f3a2a;
-  --blood-light: #b14a4a;
-  --blood-glow: rgba(159, 58, 42, 0.4);
+  --blood: #c84038;
+  --blood-light: #d85054;
+  --blood-glow: rgba(200, 64, 56, 0.4);
 
   /* STATUS COLORS */
   --emerald: #5ab88a;
@@ -96,16 +96,16 @@
   --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
 
   /* natural-dye palette — only inside the cloth (woven threads) */
-  --dye-madder: #9f3a2a;
-  --dye-cochineal: #7a1f2b;
-  --dye-kermes: #b14a4a;
-  --dye-saffron: #c69a3a;
-  --dye-weld: #a89248;
-  --dye-walnut: #5b3a22;
-  --dye-oakgall: #3a2e1f;
-  --dye-woad: #3a4a6a;
-  --dye-indigo: #1f3a5b;
-  --dye-iron: #1c1c1a;
+  --dye-madder: #c84038;
+  --dye-cochineal: #a02848;
+  --dye-kermes: #d85054;
+  --dye-saffron: #e8b840;
+  --dye-weld: #cca840;
+  --dye-walnut: #7a5030;
+  --dye-oakgall: #584430;
+  --dye-woad: #5080a8;
+  --dye-indigo: #3868a8;
+  --dye-iron: #2e2e2c;
   
   /* Timing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -2247,4 +2247,14 @@ html {
   width: 1px;
   background: var(--warm);
   opacity: 0.88;
+}
+
+/* BottomNav clearance — scroll containers end above the 60px nav bar on mobile */
+@media (max-width: 639px) {
+  .hl-frame-scroll {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .hl-compose-scroll {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }

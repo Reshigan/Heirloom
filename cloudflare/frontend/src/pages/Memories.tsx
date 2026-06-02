@@ -4,11 +4,11 @@ import { memoriesApi } from '../services/api';
 import { AppFrame } from '../loom/components/AppFrame';
 
 const DYE_COLORS: Record<string, string> = {
-  memory:    'var(--madder,   #9f3a2a)',
-  letter:    'var(--indigo,   #1f3a5b)',
-  voice:     'var(--saffron,  #c69a3a)',
-  event:     'var(--weld,     #a89248)',
-  milestone: 'var(--cochineal,#7a1f2b)',
+  memory:    'var(--dye-madder)',
+  letter:    'var(--dye-indigo)',
+  voice:     'var(--dye-saffron)',
+  event:     'var(--dye-weld)',
+  milestone: 'var(--dye-cochineal)',
 };
 
 export function Memories() {

@@ -82,7 +82,7 @@ function UserMenu() {
           <div style={{ padding: '4px 0', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
             {[
               { to: '/loom/weft', label: 'The weft' },
-              { to: '/loom/compose', label: 'Compose' },
+              { to: '/compose', label: 'Compose' },
               { to: '/loom/kin', label: 'Kin' },
               { to: '/inbox', label: 'Inbox' },
               { to: '/letters', label: 'Letters' },
@@ -240,7 +240,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           {right ? (
             <span className="hl-link warm hl-topbar-action">{right}</span>
           ) : (
-            <Link to="/loom/compose" className="hl-link warm hl-topbar-action">compose →</Link>
+            <Link to="/compose" className="hl-link warm hl-topbar-action">compose →</Link>
           )}
           <span className="hl-topbar-action"><ThemeToggle /></span>
           <UserMenu />
@@ -249,6 +249,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
 
       {/* scrollable content area — sits below the topbar, above the edge */}
       <div
+        className="hl-frame-scroll"
         style={{
           position: 'absolute',
           top: 'calc(56px + env(safe-area-inset-top, 0px))',
