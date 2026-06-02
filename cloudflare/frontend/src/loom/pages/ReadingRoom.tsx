@@ -90,7 +90,7 @@ export function ReadingRoom() {
           <aside
             style={{
               padding: '44px 28px',
-              borderRight: '1px solid var(--loom-rule)',
+              borderRight: '1px solid var(--rule)',
               overflow: 'auto',
             }}
           >
@@ -101,7 +101,7 @@ export function ReadingRoom() {
               {THREADS.map((th, i) => (
                 <div key={i}>
                   {i > 0 && (
-                    <hr style={{ border: 0, borderTop: '1px solid var(--loom-rule)', margin: '0' }} />
+                    <hr style={{ border: 0, borderTop: '1px solid var(--rule)', margin: '0' }} />
                   )}
                   <ThreadRow
                     {...th}
@@ -122,12 +122,12 @@ export function ReadingRoom() {
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     fontSize: 11,
-                    color: i === 0 ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                    color: i === 0 ? 'var(--warm)' : 'var(--bone-dim)',
                     padding: '4px 10px',
                     border:
                       i === 0
-                        ? '1px solid var(--loom-warm)'
-                        : '1px solid var(--loom-rule)',
+                        ? '1px solid var(--warm)'
+                        : '1px solid var(--rule)',
                     cursor: 'pointer',
                     letterSpacing: '0.04em',
                   }}
@@ -144,7 +144,7 @@ export function ReadingRoom() {
               className="loom-mono"
               style={{
                 fontSize: 10,
-                color: 'var(--loom-warm)',
+                color: 'var(--warm)',
                 marginBottom: 8,
                 letterSpacing: '0.04em',
               }}
@@ -159,7 +159,7 @@ export function ReadingRoom() {
                 fontStyle: 'italic',
                 marginBottom: 6,
                 letterSpacing: '-0.014em',
-                color: 'var(--loom-bone)',
+                color: 'var(--bone)',
               }}
             >
               {t.title}
@@ -168,7 +168,7 @@ export function ReadingRoom() {
               className="loom-mono"
               style={{
                 fontSize: 10,
-                color: 'var(--loom-bone-faint)',
+                color: 'var(--bone-faint)',
                 letterSpacing: '0.04em',
                 marginBottom: 32,
               }}
@@ -185,8 +185,8 @@ export function ReadingRoom() {
           <aside
             style={{
               padding: '44px 28px',
-              borderLeft: '1px solid var(--loom-rule)',
-              background: 'var(--loom-ink-card)',
+              borderLeft: '1px solid var(--rule)',
+              background: 'var(--ink-card)',
               overflow: 'auto',
             }}
           >
@@ -198,7 +198,7 @@ export function ReadingRoom() {
               style={{
                 fontSize: 13,
                 fontStyle: 'italic',
-                color: 'var(--loom-bone-dim)',
+                color: 'var(--bone-dim)',
                 lineHeight: 1.6,
                 marginBottom: 24,
               }}
@@ -259,8 +259,8 @@ function ThreadRow({
       style={{
         padding: '10px 12px',
         cursor: 'pointer',
-        background: active ? 'var(--loom-warm-ghost, rgba(176,122,74,0.08))' : 'transparent',
-        borderLeft: active ? '1px solid var(--loom-warm)' : '1px solid transparent',
+        background: active ? 'rgba(176,122,74,0.08)' : 'transparent',
+        borderLeft: active ? '1px solid var(--warm)' : '1px solid transparent',
         display: 'grid',
         gap: 4,
         transition: 'all 180ms cubic-bezier(0.16,1,0.3,1)',
@@ -276,7 +276,7 @@ function ThreadRow({
       >
         <span
           style={{
-            color: active ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+            color: active ? 'var(--warm)' : 'var(--bone-dim)',
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 13,
             textAlign: 'center',
@@ -289,7 +289,7 @@ function ThreadRow({
           style={{
             fontVariationSettings: "'opsz' 14",
             fontSize: 14,
-            color: active ? 'var(--loom-bone)' : 'var(--loom-bone-dim)',
+            color: active ? 'var(--bone)' : 'var(--bone-dim)',
             fontStyle: active ? 'italic' : 'normal',
             fontWeight: 400,
             lineHeight: 1.3,
@@ -299,7 +299,7 @@ function ThreadRow({
         </span>
         <span
           className="loom-mono"
-          style={{ fontSize: 9, color: 'var(--loom-bone-faint)' }}
+          style={{ fontSize: 9, color: 'var(--bone-faint)' }}
         >
           {date.slice(0, 4)}
         </span>
@@ -308,7 +308,7 @@ function ThreadRow({
         <span
           style={{
             fontSize: 9,
-            color: 'var(--loom-bone-faint)',
+            color: 'var(--bone-faint)',
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
           }}
@@ -327,8 +327,8 @@ function PhotoView({ title }: { title: string }) {
         style={{
           position: 'relative',
           aspectRatio: '4 / 3',
-          background: 'var(--loom-ink-card)',
-          border: '1px solid var(--loom-rule)',
+          background: 'var(--ink-card)',
+          border: '1px solid var(--rule)',
           display: 'grid',
           placeItems: 'center',
           overflow: 'hidden',
@@ -338,7 +338,7 @@ function PhotoView({ title }: { title: string }) {
           className="loom-mono"
           style={{
             fontSize: 10,
-            color: 'var(--loom-bone-faint)',
+            color: 'var(--bone-faint)',
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
             textAlign: 'center',
@@ -350,7 +350,7 @@ function PhotoView({ title }: { title: string }) {
           <br />
           <span
             style={{
-              color: 'var(--loom-warm)',
+              color: 'var(--warm)',
               fontStyle: 'italic',
               textTransform: 'none',
               letterSpacing: 0,
@@ -368,14 +368,14 @@ function PhotoView({ title }: { title: string }) {
         style={{
           fontSize: 15,
           fontStyle: 'italic',
-          color: 'var(--loom-bone-dim)',
+          color: 'var(--bone-dim)',
           lineHeight: 1.7,
           textWrap: 'pretty',
         }}
       >
         <span className="loom-warm-text">∞ </span>
         the loom hears:{' '}
-        <span style={{ color: 'var(--loom-bone)' }}>
+        <span style={{ color: 'var(--bone)' }}>
           "slanted late-may light, the color of a strong tea. daffodils on the sill. the
           photographer is half-in the frame, holding the camera and looking out."
         </span>
@@ -387,7 +387,7 @@ function PhotoView({ title }: { title: string }) {
           gap: 14,
           alignItems: 'center',
           paddingTop: 14,
-          borderTop: '1px solid var(--loom-rule)',
+          borderTop: '1px solid var(--rule)',
         }}
       >
         <Tag>kitchen window</Tag>
@@ -412,8 +412,8 @@ function VoiceView({ duration }: { duration: string }) {
       <div
         style={{
           padding: '32px 28px',
-          border: '1px solid var(--loom-rule)',
-          background: 'var(--loom-ink-deep, rgba(8,8,6,0.4))',
+          border: '1px solid var(--rule)',
+          background: 'var(--ink-deep)',
         }}
       >
         <div
@@ -428,7 +428,7 @@ function VoiceView({ duration }: { duration: string }) {
             className="loom-mono"
             style={{
               fontSize: 10,
-              color: 'var(--loom-warm)',
+              color: 'var(--warm)',
               letterSpacing: '0.04em',
             }}
           >
@@ -436,7 +436,7 @@ function VoiceView({ duration }: { duration: string }) {
           </div>
           <div
             className="loom-mono"
-            style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}
+            style={{ fontSize: 10, color: 'var(--bone-faint)' }}
           >
             0:14 / {duration}
           </div>
@@ -451,7 +451,7 @@ function VoiceView({ duration }: { duration: string }) {
               style={{
                 flex: 1,
                 height: `${v * 100}%`,
-                background: i < 17 ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                background: i < 17 ? 'var(--warm)' : 'var(--bone-dim)',
                 opacity: i < 17 ? 1 : 0.6,
                 minHeight: 2,
               }}
@@ -463,20 +463,20 @@ function VoiceView({ duration }: { duration: string }) {
           className="loom-body"
           style={{
             fontSize: 16,
-            color: 'var(--loom-bone)',
+            color: 'var(--bone)',
             lineHeight: 1.85,
             fontStyle: 'italic',
             textWrap: 'pretty',
             fontVariationSettings: "'opsz' 14",
           }}
         >
-          <span style={{ color: 'var(--loom-bone-dim)' }}>
+          <span style={{ color: 'var(--bone-dim)' }}>
             [soft humming] [a kettle in the background] [breath]
           </span>
-          <span style={{ color: 'var(--loom-warm)', marginLeft: 8 }}>la la la—</span>
-          <span style={{ color: 'var(--loom-bone-dim)' }}> [pause]</span>
+          <span style={{ color: 'var(--warm)', marginLeft: 8 }}>la la la—</span>
+          <span style={{ color: 'var(--bone-dim)' }}> [pause]</span>
           <span> oh, I forgot you were on. </span>
-          <span style={{ color: 'var(--loom-bone-dim)' }}>[laughs] </span>
+          <span style={{ color: 'var(--bone-dim)' }}>[laughs] </span>
           <span> well — eleanor. the daffodils are out. </span>
         </div>
       </div>
@@ -486,7 +486,7 @@ function VoiceView({ duration }: { duration: string }) {
         style={{
           fontSize: 14,
           fontStyle: 'italic',
-          color: 'var(--loom-bone-dim)',
+          color: 'var(--bone-dim)',
           lineHeight: 1.7,
         }}
       >
@@ -494,7 +494,7 @@ function VoiceView({ duration }: { duration: string }) {
         the loom recognized this hum. it appears in{' '}
         <span
           style={{
-            color: 'var(--loom-warm)',
+            color: 'var(--warm)',
             textDecoration: 'underline dotted',
             textUnderlineOffset: 3,
             cursor: 'pointer',
@@ -510,7 +510,7 @@ function VoiceView({ duration }: { duration: string }) {
           display: 'flex',
           gap: 14,
           paddingTop: 14,
-          borderTop: '1px solid var(--loom-rule)',
+          borderTop: '1px solid var(--rule)',
         }}
       >
         <Tag>humming</Tag>
@@ -527,8 +527,8 @@ function LetterView() {
     <div
       style={{
         padding: '28px 32px',
-        background: 'var(--loom-ink-card)',
-        border: '1px solid var(--loom-rule)',
+        background: 'var(--ink-card)',
+        border: '1px solid var(--rule)',
         maxHeight: 460,
         overflow: 'auto',
       }}
@@ -538,7 +538,7 @@ function LetterView() {
         style={{
           fontSize: 16,
           lineHeight: 1.9,
-          color: 'var(--loom-bone)',
+          color: 'var(--bone)',
           textWrap: 'pretty',
         }}
       >
@@ -549,13 +549,13 @@ function LetterView() {
         </p>
         <p style={{ margin: '0 0 12px' }}>
           I do not know who will read it. Maybe Iris, in some year I will not see.{' '}
-          <span style={{ color: 'var(--loom-warm)', fontStyle: 'italic' }}>
+          <span style={{ color: 'var(--warm)', fontStyle: 'italic' }}>
             I want you to know — here, hold this —
           </span>{' '}
           we don't get to keep each other for as long as we want. But we get the window. We get
           the late-may light. We get this.
         </p>
-        <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--loom-bone-dim)' }}>
+        <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
           — Eleanor
         </p>
       </div>
@@ -581,7 +581,7 @@ function RhymeCard({
       onClick={onClick}
       style={{
         padding: 12,
-        border: '1px solid var(--loom-rule)',
+        border: '1px solid var(--rule)',
         cursor: 'pointer',
         display: 'grid',
         gap: 4,
@@ -599,7 +599,7 @@ function RhymeCard({
           className="loom-mono"
           style={{
             fontSize: 9,
-            color: 'var(--loom-warm)',
+            color: 'var(--warm)',
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
           }}
@@ -608,7 +608,7 @@ function RhymeCard({
         </span>
         <span
           className="loom-mono"
-          style={{ fontSize: 9, color: 'var(--loom-bone-faint)' }}
+          style={{ fontSize: 9, color: 'var(--bone-faint)' }}
         >
           {date}
         </span>
@@ -618,7 +618,7 @@ function RhymeCard({
         style={{
           fontSize: 13,
           fontStyle: 'italic',
-          color: 'var(--loom-bone-dim)',
+          color: 'var(--bone-dim)',
           lineHeight: 1.4,
         }}
       >
@@ -636,9 +636,9 @@ function Tag({ children, warm }: { children: ReactNode; warm?: boolean }) {
         fontSize: 9,
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
-        color: warm ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+        color: warm ? 'var(--warm)' : 'var(--bone-faint)',
         padding: '3px 10px',
-        border: warm ? '1px solid var(--loom-warm)' : '1px solid var(--loom-rule)',
+        border: warm ? '1px solid var(--warm)' : '1px solid var(--rule)',
       }}
     >
       {children}
@@ -742,7 +742,7 @@ function BookView() {
         }}
       >
         <span>book mode · the Hartshorn thread</span>
-        <span style={{ color: 'var(--loom-warm)' }}>
+        <span style={{ color: 'var(--warm)' }}>
           ∞ &nbsp; chapter {c.numeral} · {c.title.replace(/\.$/, '')}
         </span>
       </div>
@@ -900,7 +900,7 @@ function BookView() {
                 cursor: 'pointer',
                 fontSize: 14,
                 lineHeight: 1,
-                color: i === ch ? 'var(--loom-warm)' : 'var(--parchment-faint)',
+                color: i === ch ? 'var(--warm)' : 'var(--parchment-faint)',
                 transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
@@ -923,7 +923,7 @@ function BookView() {
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color:
-              ch === CHAPTERS.length - 1 ? 'var(--parchment-faint)' : 'var(--loom-warm)',
+              ch === CHAPTERS.length - 1 ? 'var(--parchment-faint)' : 'var(--warm)',
           }}
         >
           later →
@@ -972,14 +972,14 @@ function DeliverRow({ name, status, warm }: { name: string; status: string; warm
         gridTemplateColumns: '1fr auto',
         alignItems: 'baseline',
         padding: '6px 0',
-        borderBottom: '1px solid var(--loom-rule)',
+        borderBottom: '1px solid var(--rule)',
       }}
     >
       <span
         className="loom-serif"
         style={{
           fontSize: 14,
-          color: warm ? 'var(--loom-warm)' : 'var(--loom-bone)',
+          color: warm ? 'var(--warm)' : 'var(--bone)',
           fontStyle: warm ? 'italic' : 'normal',
         }}
       >
@@ -987,7 +987,7 @@ function DeliverRow({ name, status, warm }: { name: string; status: string; warm
       </span>
       <span
         className="loom-mono"
-        style={{ fontSize: 9, color: 'var(--loom-bone-faint)' }}
+        style={{ fontSize: 9, color: 'var(--bone-faint)' }}
       >
         {status}
       </span>

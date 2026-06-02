@@ -153,9 +153,9 @@ export function PwaNudge() {
           maxWidth: 448,
           margin: '0 auto',
           pointerEvents: 'auto',
-          background: 'var(--loom-ink-card)',
-          border: '1px solid var(--loom-rule)',
-          borderTop: '1px solid var(--loom-rule-warm)',
+          background: 'var(--ink-card)',
+          border: '1px solid var(--rule)',
+          borderTop: '1px solid var(--rule-warm)',
           borderRadius: 2,
           padding: 20,
         }}
@@ -163,19 +163,19 @@ export function PwaNudge() {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
           <span
             className="loom-serif"
-            style={{ fontSize: 24, color: 'var(--loom-warm)', lineHeight: 1, marginTop: 2, fontWeight: 300 }}
+            style={{ fontSize: 24, color: 'var(--warm)', lineHeight: 1, marginTop: 2, fontWeight: 300 }}
             aria-hidden
           >
             ∞
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p className="loom-eyebrow" style={{ color: 'var(--loom-warm)', marginBottom: 6 }}>
+            <p className="loom-eyebrow" style={{ color: 'var(--warm)', marginBottom: 6 }}>
               {copy.eyebrow}
             </p>
             <h2 className="loom-serif" style={{ fontSize: 18, fontWeight: 300, lineHeight: 1.3, margin: 0, letterSpacing: '-0.01em' }}>
               {copy.title}
             </h2>
-            <p className="loom-body" style={{ marginTop: 8, fontSize: 14, lineHeight: 1.7, color: 'var(--loom-bone-dim)' }}>
+            <p className="loom-body" style={{ marginTop: 8, fontSize: 14, lineHeight: 1.7, color: 'var(--bone-dim)' }}>
               {copy.body}
             </p>
 
@@ -203,7 +203,7 @@ export function PwaNudge() {
                   cursor: 'pointer',
                   fontSize: 11,
                   letterSpacing: '0.06em',
-                  color: 'var(--loom-bone-faint)',
+                  color: 'var(--bone-faint)',
                   transition: 'color 180ms var(--loom-ease)',
                 }}
               >
@@ -217,11 +217,11 @@ export function PwaNudge() {
                 style={{
                   marginTop: 16,
                   paddingTop: 12,
-                  borderTop: '1px solid var(--loom-rule)',
+                  borderTop: '1px solid var(--rule)',
                   fontSize: 9.5,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: 'var(--loom-bone-faint)',
+                  color: 'var(--bone-faint)',
                 }}
               >
                 {copy.reassurance}

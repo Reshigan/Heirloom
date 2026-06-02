@@ -91,13 +91,13 @@ export function Dashboard() {
             margin: '0 0 18px',
           }}
         >
-          Welcome back, <em style={{ fontStyle: 'italic', color: 'var(--loom-warm)' }}>{user?.firstName ?? 'reader'}</em>.
+          Welcome back, <em style={{ fontStyle: 'italic', color: 'var(--warm)' }}>{user?.firstName ?? 'reader'}</em>.
         </h1>
         <p
           className="loom-body"
           style={{
             fontSize: 19,
-            color: 'var(--loom-bone-dim)',
+            color: 'var(--bone-dim)',
             maxWidth: 640,
             margin: 0,
             lineHeight: 1.6,
@@ -127,8 +127,8 @@ export function Dashboard() {
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 1,
-            background: 'var(--loom-rule)',
-            border: '1px solid var(--loom-rule)',
+            background: 'var(--rule)',
+            border: '1px solid var(--rule)',
           }}
         >
           {[
@@ -159,7 +159,7 @@ export function Dashboard() {
               type="button"
               onClick={() => navigate(a.to)}
               style={{
-                background: 'var(--loom-ink)',
+                background: 'var(--ink)',
                 border: 0,
                 padding: '32px 28px',
                 textAlign: 'left',
@@ -170,12 +170,12 @@ export function Dashboard() {
                 minHeight: 220,
                 transition: 'background 220ms cubic-bezier(0.16,1,0.3,1)',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--loom-ink-card)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--loom-ink)')}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--ink-card)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--ink)')}
             >
               <span
                 className="loom-mono"
-                style={{ fontSize: 11, letterSpacing: '0.2em', color: 'var(--loom-warm)' }}
+                style={{ fontSize: 11, letterSpacing: '0.2em', color: 'var(--warm)' }}
               >
                 {a.num}
               </span>
@@ -184,7 +184,7 @@ export function Dashboard() {
                 style={{
                   fontSize: 22,
                   fontWeight: 300,
-                  color: 'var(--loom-bone)',
+                  color: 'var(--bone)',
                   lineHeight: 1.25,
                   margin: 0,
                 }}
@@ -192,10 +192,10 @@ export function Dashboard() {
                 {a.title}
               </h3>
               <div>
-                <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', margin: '0 0 14px' }}>
+                <p className="loom-body" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 14px' }}>
                   {a.line}
                 </p>
-                <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}>
+                <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>
                   {a.cta}
                 </span>
               </div>
@@ -209,7 +209,7 @@ export function Dashboard() {
         style={{
           marginTop: 64,
           paddingTop: 28,
-          borderTop: '1px solid var(--loom-rule)',
+          borderTop: '1px solid var(--rule)',
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: 32,
@@ -235,13 +235,13 @@ function FeaturedThread({ thread, threadCount }: { thread: ThreadSummary; thread
         style={{
           display: 'block',
           padding: '32px 36px',
-          border: '1px solid var(--loom-rule)',
+          border: '1px solid var(--rule)',
           background: 'rgba(244,236,216,0.012)',
           textDecoration: 'none',
           transition: 'border-color 220ms cubic-bezier(0.16,1,0.3,1)',
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--loom-rule-warm)')}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--loom-rule)')}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--rule-warm)')}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--rule)')}
       >
         <div
           style={{
@@ -258,7 +258,7 @@ function FeaturedThread({ thread, threadCount }: { thread: ThreadSummary; thread
               style={{
                 fontSize: 28,
                 fontWeight: 300,
-                color: 'var(--loom-bone)',
+                color: 'var(--bone)',
                 margin: 0,
                 fontStyle: 'italic',
               }}
@@ -270,7 +270,7 @@ function FeaturedThread({ thread, threadCount }: { thread: ThreadSummary; thread
                 className="loom-body"
                 style={{
                   fontSize: 15,
-                  color: 'var(--loom-bone-dim)',
+                  color: 'var(--bone-dim)',
                   margin: '6px 0 0',
                   fontStyle: 'italic',
                 }}
@@ -287,7 +287,7 @@ function FeaturedThread({ thread, threadCount }: { thread: ThreadSummary; thread
               fontSize: 11,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
+              color: 'var(--bone-faint)',
             }}
           >
             <span>{thread.entry_count} {thread.entry_count === 1 ? 'entry' : 'entries'}</span>
@@ -302,23 +302,23 @@ function FeaturedThread({ thread, threadCount }: { thread: ThreadSummary; thread
             justifyContent: 'space-between',
             gap: 16,
             paddingTop: 16,
-            borderTop: '1px solid var(--loom-rule)',
+            borderTop: '1px solid var(--rule)',
           }}
         >
           <span
             className="loom-mono"
-            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
           >
             {thread.role.toLowerCase()} · gen {thread.generation_offset}
           </span>
-          <span style={{ color: 'var(--loom-warm)', fontSize: 14 }}>open the thread →</span>
+          <span style={{ color: 'var(--warm)', fontSize: 14 }}>open the thread →</span>
         </div>
       </Link>
       {threadCount > 1 ? (
         <p style={{ marginTop: 12, marginLeft: 4 }}>
           <Link
             to="/threads"
-            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', textDecoration: 'none' }}
+            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}
           >
             view all {threadCount} threads →
           </Link>
@@ -337,7 +337,7 @@ function NoThreadYet() {
       <div
         style={{
           padding: '40px 36px',
-          border: '1px solid var(--loom-rule)',
+          border: '1px solid var(--rule)',
           background: 'rgba(244,236,216,0.012)',
         }}
       >
@@ -346,7 +346,7 @@ function NoThreadYet() {
           style={{
             fontSize: 26,
             fontWeight: 300,
-            color: 'var(--loom-bone)',
+            color: 'var(--bone)',
             margin: '0 0 12px',
             fontStyle: 'italic',
           }}
@@ -355,7 +355,7 @@ function NoThreadYet() {
         </h2>
         <p
           className="loom-body"
-          style={{ fontSize: 16, color: 'var(--loom-bone-dim)', margin: '0 0 24px', maxWidth: 580, lineHeight: 1.6 }}
+          style={{ fontSize: 16, color: 'var(--bone-dim)', margin: '0 0 24px', maxWidth: 580, lineHeight: 1.6 }}
         >
           Anything you write, record, or send goes into your family thread automatically. Members
           can be added once the thread is started.
@@ -378,7 +378,7 @@ function UnlockRibbon({ items, count }: { items: UpcomingUnlock[]; count: number
       style={{
         marginBottom: 36,
         padding: '20px 24px',
-        border: '1px solid var(--loom-rule-warm)',
+        border: '1px solid var(--rule-warm)',
         background: 'rgba(176,122,74,0.04)',
         display: 'flex',
         alignItems: 'baseline',
@@ -388,19 +388,19 @@ function UnlockRibbon({ items, count }: { items: UpcomingUnlock[]; count: number
     >
       <span
         className="loom-mono"
-        style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-warm)' }}
+        style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)' }}
       >
         ∞ &nbsp; {count} {count === 1 ? 'lock opening' : 'locks opening'}
       </span>
       <span
         className="loom-body"
-        style={{ flex: 1, fontSize: 15, color: 'var(--loom-bone)', minWidth: 280 }}
+        style={{ flex: 1, fontSize: 15, color: 'var(--bone)', minWidth: 280 }}
       >
-        {lead.entry_title ?? 'An entry'} in <em style={{ color: 'var(--loom-warm)' }}>{lead.thread_name}</em>
+        {lead.entry_title ?? 'An entry'} in <em style={{ color: 'var(--warm)' }}>{lead.thread_name}</em>
         {when ? ` — opens ${when}` : ''}
         {lead.target_name ? ` for ${lead.target_name}` : ''}.
       </span>
-      <Link to="/threads" style={{ color: 'var(--loom-warm)', fontSize: 14, whiteSpace: 'nowrap', textDecoration: 'none' }}>
+      <Link to="/threads" style={{ color: 'var(--warm)', fontSize: 14, whiteSpace: 'nowrap', textDecoration: 'none' }}>
         view threads →
       </Link>
     </div>
@@ -418,7 +418,7 @@ function Stat({ label, value, warm }: { label: string; value: string; warm?: boo
         style={{
           fontSize: 28,
           fontWeight: 300,
-          color: warm ? 'var(--loom-warm)' : 'var(--loom-bone)',
+          color: warm ? 'var(--warm)' : 'var(--bone)',
           margin: 0,
           textTransform: warm ? 'capitalize' : 'none',
         }}

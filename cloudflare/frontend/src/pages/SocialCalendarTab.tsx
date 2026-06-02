@@ -40,17 +40,17 @@ const PLATFORM_LABELS: Record<string, string> = {
 };
 
 const STATUS_TOKENS: Record<string, { border: string; color: string; label: string }> = {
-  scheduled: { border: 'var(--loom-rule)', color: 'var(--loom-bone-dim)', label: 'Scheduled' },
-  publishing: { border: 'var(--loom-rule-warm)', color: 'var(--loom-warm)', label: 'Publishing' },
-  published:  { border: 'var(--loom-rule-warm)', color: 'var(--loom-warm)', label: 'Published' },
+  scheduled: { border: 'var(--rule)', color: 'var(--bone-dim)', label: 'Scheduled' },
+  publishing: { border: 'var(--rule-warm)', color: 'var(--warm)', label: 'Publishing' },
+  published:  { border: 'var(--rule-warm)', color: 'var(--warm)', label: 'Published' },
   failed:     { border: 'rgba(194,90,90,0.35)', color: '#c25a5a', label: 'Failed' },
-  skipped:    { border: 'var(--loom-rule)', color: 'var(--loom-bone-faint)', label: 'Skipped' },
+  skipped:    { border: 'var(--rule)', color: 'var(--bone-faint)', label: 'Skipped' },
 };
 
 const selectStyle: React.CSSProperties = {
   background: 'transparent',
-  border: '1px solid var(--loom-rule)',
-  color: 'var(--loom-bone)',
+  border: '1px solid var(--rule)',
+  color: 'var(--bone)',
   fontFamily: "'JetBrains Mono', monospace",
   fontSize: 11,
   letterSpacing: '0.04em',
@@ -105,7 +105,7 @@ export function SocialCalendarTab() {
   const socialStats: SocialStats = stats || { total: 0, published: 0, scheduled: 0, failed: 0, skipped: 0 };
 
   return (
-    <div style={{ color: 'var(--loom-bone)' }}>
+    <div style={{ color: 'var(--bone)' }}>
       {/* Stats strip */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1, marginBottom: 32 }}>
         <StatCell label="Total" value={socialStats.total} />
@@ -118,7 +118,7 @@ export function SocialCalendarTab() {
       {/* Filters */}
       <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}>Week</span>
+          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Week</span>
           <select
             value={selectedWeek || ''}
             onChange={(e) => setSelectedWeek(e.target.value ? parseInt(e.target.value) : undefined)}
@@ -132,7 +132,7 @@ export function SocialCalendarTab() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}>Status</span>
+          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Status</span>
           <select
             value={statusFilter || ''}
             onChange={(e) => setStatusFilter(e.target.value || undefined)}
@@ -154,9 +154,9 @@ export function SocialCalendarTab() {
             <ProgressHair label="Loading posts…" />
           </div>
         ) : posts.length === 0 ? (
-          <div style={{ border: '1px solid var(--loom-rule)', padding: '48px 24px', textAlign: 'center' }}>
-            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginBottom: 6 }}>No posts found.</p>
-            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>Use the bulk-load API to add content for a week.</p>
+          <div style={{ border: '1px solid var(--rule)', padding: '48px 24px', textAlign: 'center' }}>
+            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 6 }}>No posts found.</p>
+            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>Use the bulk-load API to add content for a week.</p>
           </div>
         ) : (
           posts.map((post) => (
@@ -176,9 +176,9 @@ export function SocialCalendarTab() {
 
 /* ── StatCell ───────────────────────────────────────────────────── */
 function StatCell({ label, value, warm, error }: { label: string; value: number; warm?: boolean; error?: boolean }) {
-  const valColor = error ? '#c25a5a' : warm ? 'var(--loom-warm)' : 'var(--loom-bone)';
+  const valColor = error ? '#c25a5a' : warm ? 'var(--warm)' : 'var(--bone)';
   return (
-    <div style={{ border: '1px solid var(--loom-rule)', padding: '20px 16px', textAlign: 'center' }}>
+    <div style={{ border: '1px solid var(--rule)', padding: '20px 16px', textAlign: 'center' }}>
       <div className="loom-mono" style={{ fontSize: 28, fontWeight: 300, color: valColor, lineHeight: 1, marginBottom: 8 }}>{value}</div>
       <div className="loom-eyebrow" style={{ fontSize: 9 }}>{label}</div>
     </div>
@@ -196,7 +196,7 @@ function PostRow({ post, onPause, onRetry, onDelete }: {
   const contentText = post.content?.text || post.content?.hook || 'No content';
 
   return (
-    <div style={{ border: '1px solid var(--loom-rule)', padding: '16px 20px', display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+    <div style={{ border: '1px solid var(--rule)', padding: '16px 20px', display: 'flex', gap: 20, alignItems: 'flex-start' }}>
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* Status / pillar / week */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -204,29 +204,29 @@ function PostRow({ post, onPause, onRetry, onDelete }: {
             {tok.label}
           </span>
           {post.pillar && (
-            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{post.pillar}</span>
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{post.pillar}</span>
           )}
           {post.campaign_week && (
-            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>Week {post.campaign_week}</span>
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>Week {post.campaign_week}</span>
           )}
         </div>
 
         {/* Content preview */}
-        <p style={{ color: 'var(--loom-bone)', fontSize: 14, lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <p style={{ color: 'var(--bone)', fontSize: 14, lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {contentText}
         </p>
 
         {/* Platforms */}
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
           {post.platforms.map((p) => (
-            <span key={p} className="loom-mono" style={{ fontSize: 9, padding: '2px 6px', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-faint)' }}>
+            <span key={p} className="loom-mono" style={{ fontSize: 9, padding: '2px 6px', border: '1px solid var(--rule)', color: 'var(--bone-faint)' }}>
               {PLATFORM_LABELS[p] || p}
             </span>
           ))}
         </div>
 
         {/* Schedule time */}
-        <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>
+        <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
           {post.published_at
             ? `Published ${new Date(post.published_at).toLocaleString()}`
             : `Scheduled ${new Date(post.scheduled_at).toLocaleString()}`}
@@ -266,15 +266,15 @@ function PostRow({ post, onPause, onRetry, onDelete }: {
           <button
             onClick={onDelete}
             aria-label="Delete post"
-            style={{ background: 'none', border: 'none', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.04em', color: 'var(--loom-bone-faint)', cursor: 'pointer', padding: '4px 10px', transition: 'color 180ms var(--loom-ease)' }}
+            style={{ background: 'none', border: 'none', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.04em', color: 'var(--bone-faint)', cursor: 'pointer', padding: '4px 10px', transition: 'color 180ms var(--loom-ease)' }}
             onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--loom-bone-faint)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
           >
             Delete
           </button>
         )}
         {post.status === 'published' && (
-          <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-warm)', padding: '4px 10px' }}>Live</span>
+          <span className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)', padding: '4px 10px' }}>Live</span>
         )}
       </div>
     </div>

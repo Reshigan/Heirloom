@@ -49,8 +49,8 @@ export function TiedOff() {
             style={{
               position: 'relative',
               height: 64,
-              borderTop: '1px solid var(--loom-rule)',
-              borderBottom: '1px solid var(--loom-rule)',
+              borderTop: '1px solid var(--rule)',
+              borderBottom: '1px solid var(--rule)',
             }}
           >
             <div
@@ -70,7 +70,7 @@ export function TiedOff() {
                 top: 0,
                 bottom: 0,
                 width: 1,
-                background: 'var(--loom-warm)',
+                background: 'var(--warm)',
                 opacity: 0.5,
               }}
             />
@@ -82,7 +82,7 @@ export function TiedOff() {
                 top: -16,
                 transform: 'translateX(-50%)',
                 fontSize: 10,
-                color: 'var(--loom-warm)',
+                color: 'var(--warm)',
               }}
             >
               today
@@ -102,7 +102,7 @@ export function TiedOff() {
               >
                 <div
                   style={{
-                    color: 'var(--loom-warm)',
+                    color: 'var(--warm)',
                     fontFamily: "'Source Serif 4', serif",
                     fontSize: 18,
                     lineHeight: 1,
@@ -110,7 +110,7 @@ export function TiedOff() {
                 >
                   ∞
                 </div>
-                <div className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)' }}>
+                <div className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)' }}>
                   {it.date.slice(0, 4)}
                 </div>
               </div>
@@ -122,7 +122,7 @@ export function TiedOff() {
                 right: 0,
                 top: -16,
                 fontSize: 10,
-                color: 'var(--loom-bone-faint)',
+                color: 'var(--bone-faint)',
               }}
             >
               +50 yrs
@@ -161,7 +161,7 @@ function TiedCard({ date, recip, years, kind }: TiedCardProps) {
   return (
     <div
       style={{
-        border: '1px solid var(--loom-rule)',
+        border: '1px solid var(--rule)',
         padding: '26px 22px',
         background: 'rgba(8,8,6,0.35)',
         position: 'relative',
@@ -175,9 +175,9 @@ function TiedCard({ date, recip, years, kind }: TiedCardProps) {
           position: 'absolute',
           top: -10,
           right: 18,
-          background: 'var(--loom-ink)',
+          background: 'var(--ink)',
           padding: '0 8px',
-          color: 'var(--loom-warm)',
+          color: 'var(--warm)',
           fontFamily: "'Source Serif 4', serif",
           fontSize: 18,
           lineHeight: 1,
@@ -185,7 +185,7 @@ function TiedCard({ date, recip, years, kind }: TiedCardProps) {
       >
         ∞
       </div>
-      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-warm)' }}>
+      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)' }}>
         {date}
       </div>
       <div
@@ -211,7 +211,7 @@ function TiedCard({ date, recip, years, kind }: TiedCardProps) {
         <span className="loom-eyebrow" style={{ fontSize: 9 }}>
           {kind}
         </span>
-        <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>
+        <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
           {years}
         </span>
       </div>

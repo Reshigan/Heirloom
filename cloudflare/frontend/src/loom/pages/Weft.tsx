@@ -171,9 +171,9 @@ export function Weft() {
 
           <div style={{ position: 'absolute', top: 28, left: 56, maxWidth: 360 }}>
             <div className="loom-eyebrow">
-              <span style={{ color: 'var(--loom-warm)' }}>·</span> the weft &nbsp;·&nbsp; {displayName} &nbsp;·&nbsp; {startYear} — {endYear}
+              <span style={{ color: 'var(--warm)' }}>·</span> the weft &nbsp;·&nbsp; {displayName} &nbsp;·&nbsp; {startYear} — {endYear}
             </div>
-            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginTop: 8, letterSpacing: '0.18em' }}>
+            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 8, letterSpacing: '0.18em' }}>
               ∞ {wovenCount} woven &nbsp;·&nbsp; {sealedCount} sealed
             </div>
           </div>
@@ -183,7 +183,7 @@ export function Weft() {
               className="loom-serif"
               style={{
                 fontSize: 13,
-                color: 'var(--loom-bone-dim)',
+                color: 'var(--bone-dim)',
                 fontStyle: 'italic',
                 lineHeight: 1.6,
                 transition: 'opacity 360ms var(--loom-ease)',
@@ -201,13 +201,13 @@ export function Weft() {
               right: 56,
               bottom: 28,
               paddingTop: 16,
-              borderTop: '1px solid var(--loom-rule)',
+              borderTop: '1px solid var(--rule)',
               transition: 'opacity 360ms var(--loom-ease)',
             }}
           >
             {focusedEntry ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 24, alignItems: 'baseline' }}>
-                <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)' }}>
+                <div className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>
                   {focusedEntry.year}·{String(focusedEntry.month ?? 1).padStart(2, '0')}
                 </div>
                 <div className="loom-body" style={{ fontSize: 18 }}>

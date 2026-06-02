@@ -29,7 +29,7 @@ export function ProgressHair({ label, width, className }: ProgressHairProps) {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 11,
             letterSpacing: '0.08em',
-            color: 'var(--loom-bone-faint, rgba(244,236,216,0.45))',
+            color: 'var(--bone-faint)',
           }}
         >
           {label}

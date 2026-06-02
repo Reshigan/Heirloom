@@ -37,7 +37,7 @@ export function EmptyThread({
       }}
     >
       <div className="loom-eyebrow" style={{ marginBottom: 16 }}>
-        <span style={{ color: 'var(--loom-warm)' }}>·</span> the loom &nbsp;·&nbsp; founded today
+        <span style={{ color: 'var(--warm)' }}>·</span> the loom &nbsp;·&nbsp; founded today
       </div>
 
       {/* warp only — no weft yet. The append-only count is 0 but still
@@ -70,7 +70,7 @@ export function EmptyThread({
           className="loom-serif"
           style={{
             fontSize: 30,
-            color: 'var(--loom-warm)',
+            color: 'var(--warm)',
             lineHeight: 1,
             marginBottom: 22,
           }}
@@ -81,7 +81,7 @@ export function EmptyThread({
           className="loom-mono"
           style={{
             fontSize: 10,
-            color: 'var(--loom-bone-faint)',
+            color: 'var(--bone-faint)',
             letterSpacing: '0.32em',
             textTransform: 'uppercase',
             marginBottom: 22,
@@ -96,7 +96,7 @@ export function EmptyThread({
             fontStyle: 'italic',
             margin: 0,
             maxWidth: '20ch',
-            color: 'var(--loom-bone)',
+            color: 'var(--bone)',
           }}
         >
           Your cloth is waiting.
@@ -119,7 +119,7 @@ export function EmptyThread({
             className="loom-mono"
             style={{
               fontSize: 10,
-              color: 'var(--loom-bone-dim)',
+              color: 'var(--bone-dim)',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
             }}

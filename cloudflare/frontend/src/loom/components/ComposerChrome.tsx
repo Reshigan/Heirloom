@@ -33,11 +33,11 @@ export type Visibility = (typeof VISIBILITIES)[number];
 const railWrap: React.CSSProperties = {
   marginTop: 48,
   paddingTop: 18,
-  borderTop: '1px solid var(--loom-rule)',
+  borderTop: '1px solid var(--rule)',
   fontFamily: "'JetBrains Mono', monospace",
   fontSize: 10.5,
   letterSpacing: '0.06em',
-  color: 'var(--loom-bone-dim)',
+  color: 'var(--bone-dim)',
   display: 'flex',
   justifyContent: 'space-between',
   flexWrap: 'wrap',
@@ -46,7 +46,7 @@ const railWrap: React.CSSProperties = {
 };
 
 const sep = (
-  <span style={{ margin: '0 6px', color: 'var(--loom-bone-faint)' }}>/</span>
+  <span style={{ margin: '0 6px', color: 'var(--bone-faint)' }}>/</span>
 );
 
 /* ─── Composer mode switcher ────────────────────────────────────────────── */
@@ -71,7 +71,7 @@ export function ComposerModes({ active }: { active: 'paper' | 'letter' | 'speak'
     >
       {modes.map((m, i) => (
         <span key={m.key} style={{ display: 'inline-flex', alignItems: 'baseline' }}>
-          {i > 0 && <span style={{ color: 'var(--loom-bone-ghost)', margin: '0 12px' }}>·</span>}
+          {i > 0 && <span style={{ color: 'var(--bone-low)', margin: '0 12px' }}>·</span>}
           <button
             type="button"
             onClick={() => m.key !== active && navigate(m.to)}
@@ -83,8 +83,8 @@ export function ComposerModes({ active }: { active: 'paper' | 'letter' | 'speak'
               font: 'inherit',
               letterSpacing: 'inherit',
               textTransform: 'inherit',
-              color: m.key === active ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
-              transition: 'color 180ms var(--loom-ease)',
+              color: m.key === active ? 'var(--warm)' : 'var(--bone-faint)',
+              transition: 'color 180ms var(--ease)',
             }}
           >
             {m.label}
@@ -106,7 +106,7 @@ export function ListenerLine({ text }: { text: string | null }) {
         fontSize: 10.5,
         lineHeight: 1.7,
         letterSpacing: '0.04em',
-        color: 'var(--loom-bone-dim)',
+        color: 'var(--bone-dim)',
         maxWidth: '30ch',
       }}
     >
@@ -117,12 +117,12 @@ export function ListenerLine({ text }: { text: string | null }) {
           fontSize: 9,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
-          color: 'var(--loom-bone-faint)',
+          color: 'var(--bone-faint)',
         }}
       >
         the listener offers
       </span>
-      <span style={{ color: 'var(--loom-bone)', fontStyle: 'normal' }}>{text}</span>
+      <span style={{ color: 'var(--bone)', fontStyle: 'normal' }}>{text}</span>
     </aside>
   );
 }
@@ -137,7 +137,7 @@ export function VisibilityControl({
 }) {
   return (
     <span>
-      <span style={{ color: 'var(--loom-bone-faint)' }}>visibility ·</span>{' '}
+      <span style={{ color: 'var(--bone-faint)' }}>visibility ·</span>{' '}
       {VISIBILITIES.map((v, i) => (
         <span key={v}>
           {i > 0 && sep}
@@ -151,8 +151,8 @@ export function VisibilityControl({
               cursor: 'pointer',
               font: 'inherit',
               letterSpacing: 'inherit',
-              color: v === value ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
-              transition: 'color 180ms var(--loom-ease)',
+              color: v === value ? 'var(--warm)' : 'var(--bone-dim)',
+              transition: 'color 180ms var(--ease)',
             }}
           >
             {v}
@@ -188,13 +188,13 @@ export function DyeControl({
         cursor: 'pointer',
         font: 'inherit',
         letterSpacing: 'inherit',
-        color: 'var(--loom-bone-dim)',
+        color: 'var(--bone-dim)',
         display: 'inline-flex',
         alignItems: 'baseline',
         gap: 0,
       }}
     >
-      <span style={{ color: 'var(--loom-bone-faint)' }}>dye ·</span>
+      <span style={{ color: 'var(--bone-faint)' }}>dye ·</span>
       <span
         aria-hidden
         style={{
@@ -206,7 +206,7 @@ export function DyeControl({
           alignSelf: 'center',
         }}
       />
-      <span style={{ color: 'var(--loom-warm)' }}>
+      <span style={{ color: 'var(--warm)' }}>
         {dye.key} · {dye.motif}
       </span>
     </button>

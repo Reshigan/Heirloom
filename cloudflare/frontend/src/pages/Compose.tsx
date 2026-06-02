@@ -160,7 +160,7 @@ export function Compose() {
           <div>
             <p
               className="loom-eyebrow"
-              style={{ marginBottom: 18, color: 'var(--loom-warm)' }}
+              style={{ marginBottom: 18, color: 'var(--warm)' }}
             >
               ∞ &nbsp; entry · in your own hand
             </p>
@@ -178,8 +178,8 @@ export function Compose() {
           style={{
             border: 0,
             background: 'transparent',
-            color: 'var(--loom-bone-dim)',
-            caretColor: 'var(--loom-warm)',
+            color: 'var(--bone-dim)',
+            caretColor: 'var(--warm)',
             fontFamily: "'Source Serif 4', serif",
             fontVariationSettings: "'opsz' 28",
             fontStyle: 'italic',
@@ -196,7 +196,7 @@ export function Compose() {
 
         <p
           className="loom-mono"
-          style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginBottom: 32 }}
+          style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 32 }}
         >
           {stamp}
         </p>
@@ -209,11 +209,11 @@ export function Compose() {
             width: '100%',
             border: 0,
             background: 'transparent',
-            caretColor: 'var(--loom-warm)',
+            caretColor: 'var(--warm)',
             fontFamily: "'Source Serif 4', serif",
             fontSize: 20,
             lineHeight: 1.85,
-            color: 'var(--loom-bone)',
+            color: 'var(--bone)',
             minHeight: 360,
             maxWidth: '60ch',
             outline: 'none',
@@ -236,11 +236,11 @@ export function Compose() {
         <ComposerRail>
           <VisibilityControl value={visibility} onChange={setVisibility} />
           <span>
-            <span style={{ color: 'var(--loom-bone-faint)' }}>lock ·</span>{' '}
-            <span style={{ color: 'var(--loom-warm)' }}>open now</span>
+            <span style={{ color: 'var(--bone-faint)' }}>lock ·</span>{' '}
+            <span style={{ color: 'var(--warm)' }}>open now</span>
           </span>
           <DyeControl value={dye} onChange={setDye} />
-          <span style={{ color: 'var(--loom-bone-faint)' }}>
+          <span style={{ color: 'var(--bone-faint)' }}>
             {save.isPending ? 'weaving…' : 'draft · not yet woven'}
           </span>
         </ComposerRail>
@@ -262,7 +262,7 @@ export function Compose() {
               fontSize: 10,
               letterSpacing: '0.16em',
               textTransform: 'uppercase',
-              color: 'var(--loom-bone-faint)',
+              color: 'var(--bone-faint)',
               maxWidth: 460,
             }}
           >

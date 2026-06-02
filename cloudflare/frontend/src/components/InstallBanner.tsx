@@ -86,8 +86,8 @@ export function InstallBanner() {
         right: 0,
         zIndex: 80,
         height: 44,
-        background: 'var(--loom-ink-card)',
-        borderBottom: '1px solid var(--loom-rule-warm)',
+        background: 'var(--ink-card)',
+        borderBottom: '1px solid var(--rule-warm)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -101,7 +101,7 @@ export function InstallBanner() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
         <span
           className="loom-serif"
-          style={{ fontSize: 18, color: 'var(--loom-warm)', lineHeight: 1, fontWeight: 300 }}
+          style={{ fontSize: 18, color: 'var(--warm)', lineHeight: 1, fontWeight: 300 }}
           aria-hidden
         >
           ∞
@@ -110,7 +110,7 @@ export function InstallBanner() {
           className="loom-body"
           style={{
             fontSize: 13,
-            color: 'var(--loom-bone-dim)',
+            color: 'var(--bone-dim)',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -131,13 +131,13 @@ export function InstallBanner() {
             className="loom-mono"
             style={{
               background: 'transparent',
-              border: '1px solid var(--loom-warm)',
+              border: '1px solid var(--warm)',
               padding: '4px 12px',
               cursor: 'pointer',
               fontSize: 10,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: 'var(--loom-warm)',
+              color: 'var(--warm)',
               transition: 'opacity 180ms var(--loom-ease)',
               opacity: busy ? 0.5 : 1,
             }}
@@ -157,7 +157,7 @@ export function InstallBanner() {
             cursor: 'pointer',
             fontSize: 16,
             lineHeight: 1,
-            color: 'var(--loom-bone-faint)',
+            color: 'var(--bone-faint)',
             transition: 'color 180ms var(--loom-ease)',
           }}
         >

@@ -105,15 +105,15 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
     fontSize: 10,
     letterSpacing: '0.22em',
     textTransform: 'uppercase',
-    color: 'var(--loom-bone-faint)',
+    color: 'var(--bone-faint)',
   };
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    background: 'var(--loom-ink)',
-    border: '1px solid var(--loom-rule)',
+    background: 'var(--ink)',
+    border: '1px solid var(--rule)',
     borderRadius: 2,
-    color: 'var(--loom-bone)',
+    color: 'var(--bone)',
     padding: '11px 14px',
     fontFamily: "'Inter', sans-serif",
     fontSize: 15,
@@ -132,7 +132,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
         alignItems: 'center',
         justifyContent: 'center',
         padding: '24px',
-        background: 'var(--loom-ink)',
+        background: 'var(--ink)',
         opacity: isOpen ? 1 : 0,
         pointerEvents: isOpen ? 'auto' : 'none',
         transition: 'opacity var(--loom-dur-veil) var(--loom-ease)',
@@ -144,8 +144,8 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
         style={{
           width: '100%',
           maxWidth: 460,
-          background: 'var(--loom-ink-card)',
-          border: '1px solid var(--loom-rule)',
+          background: 'var(--ink-card)',
+          border: '1px solid var(--rule)',
           borderRadius: 2,
           padding: '40px 36px',
           opacity: isOpen ? 1 : 0,
@@ -162,7 +162,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
               display: 'block',
               fontFamily: "'Source Serif 4', serif",
               fontSize: 40,
-              color: 'var(--loom-warm)',
+              color: 'var(--warm)',
               marginBottom: 18,
             }}
           >
@@ -176,7 +176,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
           </h2>
           <p
             className="loom-body"
-            style={{ fontSize: 14, color: 'var(--loom-bone-dim)', lineHeight: 1.6, margin: 0 }}
+            style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
           >
             {mode === 'setup'
               ? 'Choose a passphrase to encrypt every entry. It is separate from your sign-in password and is the one thing only you hold.'
@@ -189,16 +189,16 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
           style={{
             marginBottom: 24,
             padding: '14px 16px',
-            background: 'var(--loom-ink)',
-            border: '1px solid var(--loom-rule-warm)',
+            background: 'var(--ink)',
+            border: '1px solid var(--rule-warm)',
             borderRadius: 2,
           }}
         >
           <p
             className="loom-body"
-            style={{ fontSize: 12.5, color: 'var(--loom-bone-dim)', lineHeight: 1.6, margin: 0 }}
+            style={{ fontSize: 12.5, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
           >
-            <strong style={{ color: 'var(--loom-warm)', fontWeight: 600 }}>Zero-knowledge.</strong>{' '}
+            <strong style={{ color: 'var(--warm)', fontWeight: 600 }}>Zero-knowledge.</strong>{' '}
             Your passphrase never leaves this device. We cannot read or recover your entries without it.
           </p>
         </div>
@@ -211,12 +211,12 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
               style={{
                 margin: 0,
                 padding: '12px 14px',
-                background: 'var(--loom-ink)',
-                border: '1px solid var(--loom-rule-warm)',
+                background: 'var(--ink)',
+                border: '1px solid var(--rule-warm)',
                 borderRadius: 2,
                 fontStyle: 'italic',
                 fontSize: 13.5,
-                color: 'var(--loom-warm)',
+                color: 'var(--warm)',
                 animation: 'none',
               }}
             >
@@ -254,7 +254,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                   fontSize: 9.5,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: 'var(--loom-bone-faint)',
+                  color: 'var(--bone-faint)',
                 }}
               >
                 {showPassphrase ? 'hide' : 'show'}
@@ -263,7 +263,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
             {mode === 'unlock' ? (
               <p
                 className="loom-body"
-                style={{ margin: '12px 0 0', fontSize: 13, fontStyle: 'italic', color: 'var(--loom-bone-faint)' }}
+                style={{ margin: '12px 0 0', fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)' }}
               >
                 The three or four words you chose when you sealed the thread.
               </p>
@@ -275,7 +275,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
             <>
               <p
                 className="loom-body"
-                style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: 'var(--loom-bone-faint)', lineHeight: 1.6 }}
+                style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.6 }}
               >
                 Use three or four words you choose — easier to remember, harder to crack.
               </p>
@@ -290,13 +290,13 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                     <span
                       aria-hidden
                       style={{
-                        color: valid ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                        color: valid ? 'var(--warm)' : 'var(--bone-faint)',
                         transition: 'color var(--loom-dur-fast) var(--loom-ease)',
                       }}
                     >
                       {valid ? '∞' : '·'}
                     </span>
-                    <span style={{ color: valid ? 'var(--loom-bone-dim)' : 'var(--loom-bone-faint)' }}>
+                    <span style={{ color: valid ? 'var(--bone-dim)' : 'var(--bone-faint)' }}>
                       {label}
                     </span>
                   </div>
@@ -317,14 +317,14 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                     ...inputStyle,
                     borderColor:
                       confirmPassphrase && passphrase !== confirmPassphrase
-                        ? 'var(--loom-rule-warm)'
-                        : 'var(--loom-rule)',
+                        ? 'var(--rule-warm)'
+                        : 'var(--rule)',
                   }}
                 />
                 {confirmPassphrase && passphrase !== confirmPassphrase ? (
                   <p
                     className="loom-body"
-                    style={{ margin: '8px 0 0', fontSize: 12.5, fontStyle: 'italic', color: 'var(--loom-warm)' }}
+                    style={{ margin: '8px 0 0', fontSize: 12.5, fontStyle: 'italic', color: 'var(--warm)' }}
                   >
                     The two passphrases do not match.
                   </p>
@@ -334,16 +334,16 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
               <div
                 style={{
                   padding: '14px 16px',
-                  background: 'var(--loom-ink)',
-                  border: '1px solid var(--loom-rule-warm)',
+                  background: 'var(--ink)',
+                  border: '1px solid var(--rule-warm)',
                   borderRadius: 2,
                 }}
               >
                 <p
                   className="loom-body"
-                  style={{ fontSize: 12.5, color: 'var(--loom-bone-dim)', lineHeight: 1.6, margin: 0 }}
+                  style={{ fontSize: 12.5, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
                 >
-                  <strong style={{ color: 'var(--loom-warm)', fontWeight: 600 }}>Write it down.</strong> Store
+                  <strong style={{ color: 'var(--warm)', fontWeight: 600 }}>Write it down.</strong> Store
                   it somewhere safe. If it is lost, your encrypted entries cannot be recovered.
                 </p>
               </div>
@@ -386,7 +386,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                 fontSize: 10,
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                color: 'var(--loom-bone-faint)',
+                color: 'var(--bone-faint)',
               }}
             >
               seal it later

@@ -76,7 +76,7 @@ export function Composer() {
                 display: 'flex',
                 gap: 32,
                 padding: '0 56px',
-                borderBottom: '1px solid var(--loom-rule)',
+                borderBottom: '1px solid var(--rule)',
                 marginBottom: 0,
                 flexShrink: 0,
               }}
@@ -95,8 +95,8 @@ export function Composer() {
                     fontSize: 10,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
-                    color: mode === m ? 'var(--loom-bone)' : 'var(--loom-bone-faint)',
-                    borderBottom: mode === m ? '1px solid var(--loom-warm)' : '1px solid transparent',
+                    color: mode === m ? 'var(--bone)' : 'var(--bone-faint)',
+                    borderBottom: mode === m ? '1px solid var(--warm)' : '1px solid transparent',
                     transition: 'color var(--loom-dur-fast) var(--loom-ease), border-color var(--loom-dur-fast) var(--loom-ease)',
                   }}
                 >
@@ -109,7 +109,7 @@ export function Composer() {
             {mode === 'paper' && (
               <div style={{ display: 'grid', placeItems: 'start center', padding: '72px 80px 0', overflowY: 'auto', flex: 1 }}>
                 <div style={{ width: '100%', maxWidth: 660 }}>
-                  <div className="loom-eyebrow" style={{ marginBottom: 28, color: 'var(--loom-warm)' }}>
+                  <div className="loom-eyebrow" style={{ marginBottom: 28, color: 'var(--warm)' }}>
                     ∞ &nbsp; entry · in your own hand
                   </div>
 
@@ -129,7 +129,7 @@ export function Composer() {
 
                   <div
                     className="loom-mono"
-                    style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginBottom: 36 }}
+                    style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 36 }}
                   >
                     2026·05·05 · monday · 22:14 · oak street, kitchen
                   </div>
@@ -139,7 +139,7 @@ export function Composer() {
                     style={{
                       fontSize: 19,
                       lineHeight: 1.85,
-                      color: 'var(--loom-bone)',
+                      color: 'var(--bone)',
                       minHeight: 220,
                     }}
                   >
@@ -181,7 +181,7 @@ export function Composer() {
                     <button className="loom-btn-ghost">save to weft</button>
                     <span
                       className="loom-mono"
-                      style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginLeft: 'auto' }}
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', marginLeft: 'auto' }}
                     >
                       ⌘ s
                     </span>
@@ -194,7 +194,7 @@ export function Composer() {
             {mode === 'letter' && (
               <div style={{ display: 'grid', placeItems: 'start center', padding: '72px 80px 0', overflowY: 'auto', flex: 1 }}>
                 <div style={{ width: '100%', maxWidth: 660 }}>
-                  <div className="loom-eyebrow" style={{ marginBottom: 28, color: 'var(--loom-warm)' }}>
+                  <div className="loom-eyebrow" style={{ marginBottom: 28, color: 'var(--warm)' }}>
                     ∞ &nbsp; letter · sealed until opened
                   </div>
 
@@ -202,7 +202,7 @@ export function Composer() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <label
                         className="loom-mono"
-                        style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+                        style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
                       >
                         to
                       </label>
@@ -218,7 +218,7 @@ export function Composer() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <label
                         className="loom-mono"
-                        style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)' }}
+                        style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
                       >
                         ∞ &nbsp; unlock on
                       </label>
@@ -237,7 +237,7 @@ export function Composer() {
                     style={{
                       fontSize: 19,
                       lineHeight: 1.85,
-                      color: 'var(--loom-bone)',
+                      color: 'var(--bone)',
                       minHeight: 220,
                     }}
                   >
@@ -250,7 +250,7 @@ export function Composer() {
                     <button className="loom-btn-ghost">save draft</button>
                     <span
                       className="loom-mono"
-                      style={{ fontSize: 10, color: 'var(--loom-bone-faint)', marginLeft: 'auto' }}
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', marginLeft: 'auto' }}
                     >
                       ⌘ s
                     </span>
@@ -263,7 +263,7 @@ export function Composer() {
             {mode === 'speak' && (
               <div style={{ display: 'grid', placeItems: 'center', flex: 1, padding: '72px 80px' }}>
                 <div style={{ width: '100%', maxWidth: 660, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40 }}>
-                  <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)', alignSelf: 'flex-start' }}>
+                  <div className="loom-eyebrow" style={{ color: 'var(--warm)', alignSelf: 'flex-start' }}>
                     ∞ &nbsp; voice memo · spoken word
                   </div>
 
@@ -272,7 +272,7 @@ export function Composer() {
                     onClick={() => setRecording((r) => !r)}
                     style={{
                       background: 'transparent',
-                      border: recording ? '1px solid var(--loom-warm)' : '1px solid var(--loom-rule)',
+                      border: recording ? '1px solid var(--warm)' : '1px solid var(--rule)',
                       cursor: 'pointer',
                       width: 80,
                       height: 80,
@@ -286,7 +286,7 @@ export function Composer() {
                       className="hl-mono"
                       style={{
                         fontSize: 11,
-                        color: recording ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                        color: recording ? 'var(--warm)' : 'var(--bone-dim)',
                         letterSpacing: '0.2em',
                         textTransform: 'uppercase',
                       }}
@@ -299,7 +299,7 @@ export function Composer() {
                     className="hl-mono"
                     style={{
                       fontSize: 11,
-                      color: 'var(--loom-bone-dim)',
+                      color: 'var(--bone-dim)',
                       letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                     }}
@@ -310,7 +310,7 @@ export function Composer() {
                   {recording && (
                     <div
                       className="loom-mono"
-                      style={{ fontSize: 10, color: 'var(--loom-bone-faint)', letterSpacing: '0.15em' }}
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.15em' }}
                     >
                       0:00
                     </div>
@@ -332,7 +332,7 @@ export function Composer() {
           {/* right: the silent shuttle */}
           <aside
             style={{
-              borderLeft: '1px solid var(--loom-rule)',
+              borderLeft: '1px solid var(--rule)',
               padding: '72px 36px',
               background: 'rgba(244,236,216,0.012)',
               overflowY: 'auto',
@@ -367,7 +367,7 @@ export function Composer() {
             </div>
             <div
               style={{
-                border: '1px solid var(--loom-rule-warm)',
+                border: '1px solid var(--rule-warm)',
                 padding: 18,
                 display: 'grid',
                 gap: 8,
@@ -386,7 +386,7 @@ export function Composer() {
               </div>
               <div
                 className="loom-mono"
-                style={{ fontSize: 10, color: 'var(--loom-bone-dim)', lineHeight: 1.7 }}
+                style={{ fontSize: 10, color: 'var(--bone-dim)', lineHeight: 1.7 }}
               >
                 aes-256-gcm · sealed in browser
                 <br />

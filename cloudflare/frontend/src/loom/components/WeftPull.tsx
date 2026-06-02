@@ -88,7 +88,7 @@ export function WeftPull() {
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
-          background: 'var(--loom-ink)',
+          background: 'var(--ink)',
           opacity: 0.82,
         }}
       />
@@ -101,7 +101,7 @@ export function WeftPull() {
           top: 28,
           left: 80,
           fontSize: 10,
-          color: 'var(--loom-bone-dim)',
+          color: 'var(--bone-dim)',
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
         }}
@@ -131,14 +131,14 @@ export function WeftPull() {
                 display: 'inline-block',
                 width: 28,
                 height: 3,
-                background: e.kind === 'milestone' ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                background: e.kind === 'milestone' ? 'var(--warm)' : 'var(--bone-dim)',
               }}
             />
             <span
               className="loom-mono"
               style={{
                 fontSize: 10,
-                color: 'var(--loom-bone-faint)',
+                color: 'var(--bone-faint)',
                 letterSpacing: '0.22em',
                 textTransform: 'uppercase',
               }}
@@ -152,7 +152,7 @@ export function WeftPull() {
               fontSize: 44,
               fontStyle: 'italic',
               margin: 0,
-              color: 'var(--loom-bone)',
+              color: 'var(--bone)',
             }}
           >
             {e.title}
@@ -161,7 +161,7 @@ export function WeftPull() {
             className="loom-mono"
             style={{
               fontSize: 11,
-              color: 'var(--loom-bone-dim)',
+              color: 'var(--bone-dim)',
               marginTop: 18,
               letterSpacing: '0.06em',
             }}
@@ -173,7 +173,7 @@ export function WeftPull() {
                 textTransform: 'none',
                 letterSpacing: 0,
                 fontSize: 14,
-                color: 'var(--loom-bone-dim)',
+                color: 'var(--bone-dim)',
               }}
             >
               Eleanor Hartshorn
@@ -186,7 +186,7 @@ export function WeftPull() {
               style={{
                 fontSize: 19,
                 marginTop: 28,
-                color: 'var(--loom-bone)',
+                color: 'var(--bone)',
                 maxWidth: '60ch',
               }}
             >
@@ -198,7 +198,7 @@ export function WeftPull() {
               style={{
                 fontSize: 18,
                 marginTop: 28,
-                color: 'var(--loom-bone-dim)',
+                color: 'var(--bone-dim)',
                 fontStyle: 'italic',
                 maxWidth: '60ch',
               }}
@@ -234,7 +234,7 @@ export function WeftPull() {
               height: i === pos ? 18 : 6,
               padding: 0,
               border: 0,
-              background: i === pos ? 'var(--loom-warm)' : 'var(--loom-bone-ghost)',
+              background: i === pos ? 'var(--warm)' : 'var(--bone-ghost)',
               cursor: 'pointer',
               transition: 'height 180ms cubic-bezier(0.16,1,0.3,1)',
             }}
@@ -264,7 +264,7 @@ export function WeftPull() {
             border: 0,
             cursor: 'pointer',
             fontSize: 10,
-            color: 'var(--loom-bone-faint)',
+            color: 'var(--bone-faint)',
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
           }}
@@ -274,7 +274,7 @@ export function WeftPull() {
         {/* hairline drop-cue — a short warm thread, not an arrow glyph */}
         <span
           aria-hidden
-          style={{ width: 1, height: 14, background: 'var(--loom-warm)', opacity: 0.7 }}
+          style={{ width: 1, height: 14, background: 'var(--warm)', opacity: 0.7 }}
         />
       </div>
     </div>

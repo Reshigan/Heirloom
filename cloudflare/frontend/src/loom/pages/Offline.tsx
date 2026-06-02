@@ -118,8 +118,8 @@ export function Offline() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'var(--loom-ink)',
-        color: 'var(--loom-bone)',
+        background: 'var(--ink)',
+        color: 'var(--bone)',
         position: 'relative',
         paddingBottom: 'calc(96px + env(safe-area-inset-bottom))',
       }}
@@ -134,14 +134,14 @@ export function Offline() {
         }}
       >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-          <span className="loom-serif" style={{ fontSize: 16, color: 'var(--loom-warm)', fontWeight: 300, lineHeight: 1 }} aria-hidden>
+          <span className="loom-serif" style={{ fontSize: 16, color: 'var(--warm)', fontWeight: 300, lineHeight: 1 }} aria-hidden>
             ∞
           </span>
-          <span className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-dim)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+          <span className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-dim)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
             offline
           </span>
         </span>
-        <span className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+        <span className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
           {queue.length} {queue.length === 1 ? 'entry' : 'entries'} holding
         </span>
       </div>
@@ -155,7 +155,7 @@ export function Offline() {
         >
           {PROMPT}
         </h1>
-        <p className="loom-serif" style={{ fontStyle: 'italic', fontSize: 14, color: 'var(--loom-bone-dim)', marginTop: 20, fontWeight: 400, lineHeight: 1.6 }}>
+        <p className="loom-serif" style={{ fontStyle: 'italic', fontSize: 14, color: 'var(--bone-dim)', marginTop: 20, fontWeight: 400, lineHeight: 1.6 }}>
           You're offline. Write anyway. The thread holds it here until you reconnect.
         </p>
 
@@ -169,9 +169,9 @@ export function Offline() {
           style={{
             width: '100%',
             marginTop: 16,
-            background: 'var(--loom-ink-card)',
-            color: 'var(--loom-bone)',
-            border: '1px solid var(--loom-rule)',
+            background: 'var(--ink-card)',
+            color: 'var(--bone)',
+            border: '1px solid var(--rule)',
             borderRadius: 2,
             padding: '12px 14px',
             fontSize: 16,
@@ -184,7 +184,7 @@ export function Offline() {
           <button type="button" onClick={hold} disabled={!draft.trim()} className="loom-btn" style={{ opacity: draft.trim() ? 1 : 0.5 }}>
             hold it offline <span aria-hidden>→</span>
           </button>
-          <span className="loom-mono" style={{ fontSize: 9.5, color: 'var(--loom-bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+          <span className="loom-mono" style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
             not sent until you reconnect
           </span>
         </div>
@@ -202,21 +202,21 @@ export function Offline() {
                 gridTemplateColumns: '12px 1fr auto',
                 gap: 10,
                 padding: '11px 0',
-                borderTop: i === 0 ? '1px solid var(--loom-rule)' : 0,
-                borderBottom: '1px solid var(--loom-rule)',
+                borderTop: i === 0 ? '1px solid var(--rule)' : 0,
+                borderBottom: '1px solid var(--rule)',
                 alignItems: 'baseline',
               }}
             >
               <span style={{ width: 12, height: 2, background: `var(--dye-${r.dye})`, alignSelf: 'center' }} aria-hidden />
-              <span className="loom-serif" style={{ fontSize: 14, color: 'var(--loom-bone)', fontWeight: 400, fontStyle: 'italic' }}>
+              <span className="loom-serif" style={{ fontSize: 14, color: 'var(--bone)', fontWeight: 400, fontStyle: 'italic' }}>
                 {r.text}
               </span>
-              <span className="loom-mono" style={{ fontSize: 9, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+              <span className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
                 holding
               </span>
             </div>
           ))}
-          <div className="loom-mono" style={{ fontSize: 9.5, color: 'var(--loom-bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 14 }}>
+          <div className="loom-mono" style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 14 }}>
             will sync when connected · no data sent until then
           </div>
         </div>
@@ -225,7 +225,7 @@ export function Offline() {
       {/* still available offline */}
       <div style={{ maxWidth: 560, margin: '0 auto', padding: '32px 22px 0' }}>
         {label('still available · offline')}
-        <div className="loom-serif" style={{ fontSize: 13.5, lineHeight: 1.85, color: 'var(--loom-bone-dim)', fontWeight: 400 }}>
+        <div className="loom-serif" style={{ fontSize: 13.5, lineHeight: 1.85, color: 'var(--bone-dim)', fontWeight: 400 }}>
           <div>· write entries (held here until you reconnect)</div>
           <div>· read the last days of the cloth already loaded</div>
           <div>· read every letter you have already opened</div>
@@ -243,12 +243,12 @@ export function Offline() {
           maxWidth: 560,
           margin: '0 auto',
           paddingTop: 16,
-          borderTop: '1px solid var(--loom-rule)',
+          borderTop: '1px solid var(--rule)',
           display: 'flex',
           justifyContent: 'space-between',
         }}
       >
-        <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-dim)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+        <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
           offline · since {clockTime(since)}
         </span>
         <button
@@ -261,7 +261,7 @@ export function Offline() {
             padding: 0,
             cursor: 'pointer',
             fontSize: 10,
-            color: 'var(--loom-warm)',
+            color: 'var(--warm)',
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
           }}

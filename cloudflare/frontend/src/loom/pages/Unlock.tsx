@@ -51,16 +51,16 @@ export function Unlock() {
           >
             <span
               aria-hidden
-              style={{ width: 5, height: 5, background: 'var(--loom-warm)' }}
+              style={{ width: 5, height: 5, background: 'var(--warm)' }}
             />
             a thread unties · today
             <span
               onClick={() => setPaused((p) => !p)}
               style={{
                 cursor: 'pointer',
-                borderLeft: '1px solid var(--loom-rule)',
+                borderLeft: '1px solid var(--rule)',
                 paddingLeft: 14,
-                color: 'var(--loom-bone-dim)',
+                color: 'var(--bone-dim)',
               }}
             >
               {paused ? 'play' : 'pause'}
@@ -79,12 +79,12 @@ export function Unlock() {
         >
           {/* meta header — present for the ceremony, gone for the artifact */}
           <div style={{ opacity: phase < 3 ? 1 : 0, transition: VEIL }}>
-            <div className="loom-eyebrow" style={{ color: 'var(--loom-warm)' }}>
+            <div className="loom-eyebrow" style={{ color: 'var(--warm)' }}>
               ∞ &nbsp; the loom · unlock
             </div>
             <div
               className="loom-mono"
-              style={{ fontSize: 11, color: 'var(--loom-bone-faint)', marginTop: 8 }}
+              style={{ fontSize: 11, color: 'var(--bone-faint)', marginTop: 8 }}
             >
               tied off 2026·05·04 &nbsp;·&nbsp; opens 2055·11·08 &nbsp;·&nbsp; for iris
               hartshorn-vega &nbsp;·&nbsp; on her 31st
@@ -115,7 +115,7 @@ export function Unlock() {
                       fontSize: 132,
                       fontWeight: 300,
                       lineHeight: 1,
-                      color: 'var(--loom-warm)',
+                      color: 'var(--warm)',
                     }}
                   >
                     ∞
@@ -124,7 +124,7 @@ export function Unlock() {
                     className="loom-mono"
                     style={{
                       fontSize: 11,
-                      color: 'var(--loom-bone-faint)',
+                      color: 'var(--bone-faint)',
                       letterSpacing: '0.16em',
                       textTransform: 'uppercase',
                       marginTop: 22,
@@ -152,10 +152,10 @@ export function Unlock() {
                     className="loom-mono"
                     style={{
                       fontSize: 10,
-                      color: 'var(--loom-warm)',
+                      color: 'var(--warm)',
                       letterSpacing: '0.04em',
                       paddingBottom: 14,
-                      borderBottom: '1px solid var(--loom-rule)',
+                      borderBottom: '1px solid var(--rule)',
                       marginBottom: 22,
                     }}
                   >
@@ -168,7 +168,7 @@ export function Unlock() {
                       fontStyle: 'italic',
                       marginBottom: 18,
                       fontWeight: 300,
-                      color: 'var(--loom-warm)',
+                      color: 'var(--warm)',
                     }}
                   >
                     Iris,
@@ -177,7 +177,7 @@ export function Unlock() {
                     className="loom-body"
                     style={{
                       fontSize: 17,
-                      color: 'var(--loom-bone)',
+                      color: 'var(--bone)',
                       lineHeight: 1.85,
                       textWrap: 'pretty',
                       fontVariationSettings: "'opsz' 14",
@@ -199,7 +199,7 @@ export function Unlock() {
                       fontSize: 22,
                       fontStyle: 'italic',
                       fontWeight: 300,
-                      color: 'var(--loom-bone-dim)',
+                      color: 'var(--bone-dim)',
                     }}
                   >
                     — Eleanor
@@ -234,9 +234,9 @@ export function Unlock() {
                   fontSize: 9,
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
-                  color: phase === i ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+                  color: phase === i ? 'var(--warm)' : 'var(--bone-faint)',
                   padding: '4px 14px',
-                  borderRight: i < 3 ? '1px solid var(--loom-rule)' : 'none',
+                  borderRight: i < 3 ? '1px solid var(--rule)' : 'none',
                   transition: 'color var(--loom-dur-shift) var(--loom-ease)',
                 }}
               >
@@ -258,8 +258,8 @@ function ShareCard() {
       style={{
         width: 280,
         height: 498,
-        background: 'var(--loom-ink-card)',
-        border: '1px solid var(--loom-rule-warm)',
+        background: 'var(--ink-card)',
+        border: '1px solid var(--rule-warm)',
         display: 'grid',
         gridTemplateRows: 'auto 1fr auto',
         padding: '28px 22px',
@@ -269,7 +269,7 @@ function ShareCard() {
         className="loom-mono"
         style={{
           fontSize: 9,
-          color: 'var(--loom-bone-faint)',
+          color: 'var(--bone-faint)',
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
         }}
@@ -285,7 +285,7 @@ function ShareCard() {
               fontVariationSettings: "'opsz' 72",
               fontSize: 56,
               fontWeight: 300,
-              color: 'var(--loom-warm)',
+              color: 'var(--warm)',
               lineHeight: 0.95,
               letterSpacing: '-0.022em',
               marginBottom: 14,
@@ -298,7 +298,7 @@ function ShareCard() {
             style={{
               fontSize: 14,
               fontStyle: 'italic',
-              color: 'var(--loom-bone)',
+              color: 'var(--bone)',
               lineHeight: 1.45,
               maxWidth: 220,
               margin: '0 auto 26px',
@@ -316,20 +316,20 @@ function ShareCard() {
           <div
             className="loom-mono"
             style={{
-              borderTop: '1px solid var(--loom-rule)',
-              borderBottom: '1px solid var(--loom-rule)',
+              borderTop: '1px solid var(--rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '16px 0',
               margin: '0 -8px',
               fontSize: 10,
-              color: 'var(--loom-bone-dim)',
+              color: 'var(--bone-dim)',
               letterSpacing: '0.05em',
             }}
           >
             <div style={{ marginBottom: 6 }}>
-              <span style={{ color: 'var(--loom-warm)' }}>·</span> sealed 2026·05·04
+              <span style={{ color: 'var(--warm)' }}>·</span> sealed 2026·05·04
             </div>
             <div>
-              <span style={{ color: 'var(--loom-warm)' }}>·</span> opened 2055·11·08
+              <span style={{ color: 'var(--warm)' }}>·</span> opened 2055·11·08
             </div>
           </div>
 
@@ -338,7 +338,7 @@ function ShareCard() {
             style={{
               fontSize: 13,
               fontStyle: 'italic',
-              color: 'var(--loom-bone-dim)',
+              color: 'var(--bone-dim)',
               lineHeight: 1.5,
               marginTop: 18,
             }}
@@ -358,18 +358,18 @@ function ShareCard() {
           justifyContent: 'space-between',
           alignItems: 'baseline',
           paddingTop: 16,
-          borderTop: '1px solid var(--loom-rule)',
+          borderTop: '1px solid var(--rule)',
         }}
       >
         <span
           className="loom-mono"
-          style={{ fontSize: 8, color: 'var(--loom-bone-faint)', letterSpacing: '0.12em' }}
+          style={{ fontSize: 8, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
         >
           heirloom.blue
         </span>
         <span
           className="loom-mono"
-          style={{ fontSize: 8, color: 'var(--loom-warm)', letterSpacing: '0.12em' }}
+          style={{ fontSize: 8, color: 'var(--warm)', letterSpacing: '0.12em' }}
         >
           /iris
         </span>

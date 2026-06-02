@@ -34,7 +34,7 @@ export function ViewToggle<T extends string>({
             {i > 0 ? (
               <span
                 className="loom-mono"
-                style={{ fontSize: 10, color: 'var(--loom-bone-ghost)' }}
+                style={{ fontSize: 10, color: 'var(--bone-ghost)' }}
                 aria-hidden
               >
                 /
@@ -53,7 +53,7 @@ export function ViewToggle<T extends string>({
                 fontSize: 10,
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                color: active ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                color: active ? 'var(--warm)' : 'var(--bone-dim)',
                 transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >

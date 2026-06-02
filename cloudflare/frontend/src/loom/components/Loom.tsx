@@ -78,7 +78,7 @@ const DYE_FOR_KIND: Record<LoomKind, string> = {
   photo:     'var(--dye-saffron)',
   voice:     'var(--dye-woad)',
   memory:    'var(--dye-indigo)',
-  milestone: 'var(--loom-warm-bright)',
+  milestone: 'var(--warm-bright)',
 };
 
 function colorFor(e: LoomEntry): string {
@@ -188,7 +188,7 @@ export function Loom({
                 style={{
                   fontSize: 14,
                   lineHeight: 1,
-                  color: 'var(--loom-warm)',
+                  color: 'var(--warm)',
                   opacity: lit ? 1 : 0.85,
                   transition: 'opacity var(--loom-dur-fast) var(--loom-ease)',
                 }}
@@ -201,7 +201,7 @@ export function Loom({
                   width: 1,
                   height: Math.max(8, y - pegTop - 6),
                   background:
-                    'repeating-linear-gradient(to bottom, var(--loom-rule-warm) 0, var(--loom-rule-warm) 2px, transparent 2px, transparent 6px)',
+                    'repeating-linear-gradient(to bottom, var(--rule-warm) 0, var(--rule-warm) 2px, transparent 2px, transparent 6px)',
                   opacity: lit ? 0.9 : 0.5,
                 }}
               />
@@ -284,7 +284,7 @@ export function Loom({
             bottom: 0,
             left: `${nowFrac * 100}%`,
             width: 1,
-            background: 'var(--loom-warm)',
+            background: 'var(--warm)',
             opacity: 0.9,
             pointerEvents: 'none',
           }}
@@ -301,7 +301,7 @@ export function Loom({
             bottom: -2,
             left: `${selvedgeLeft}%`,
             width: 1,
-            background: 'var(--loom-rule)',
+            background: 'var(--rule)',
             pointerEvents: 'none',
           }}
         >
@@ -314,7 +314,7 @@ export function Loom({
               fontSize: 9,
               letterSpacing: '0.18em',
               whiteSpace: 'nowrap',
-              color: 'var(--loom-warm)',
+              color: 'var(--warm)',
             }}
           >
             ∞ {String(appendCount).padStart(3, '0')} woven

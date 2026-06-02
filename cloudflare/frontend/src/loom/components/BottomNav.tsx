@@ -122,8 +122,8 @@ export function BottomNav() {
         insetInline: 0,
         bottom: 0,
         zIndex: 50,
-        background: 'var(--loom-ink)',
-        borderTop: '1px solid var(--loom-rule)',
+        background: 'var(--ink)',
+        borderTop: '1px solid var(--rule)',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
@@ -151,7 +151,7 @@ export function BottomNav() {
                   fontSize: 10,
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
-                  color: active ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                  color: active ? 'var(--warm)' : 'var(--bone-dim)',
                 }}
               >
                 {item.label}

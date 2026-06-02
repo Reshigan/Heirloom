@@ -56,7 +56,7 @@ export function Threshold() {
                 fontVariationSettings: "'opsz' 28",
                 fontStyle: 'italic',
                 fontSize: 22,
-                color: 'var(--loom-bone-dim)',
+                color: 'var(--bone-dim)',
                 maxWidth: 640,
                 margin: '0 auto',
                 lineHeight: 1.6,
@@ -74,7 +74,7 @@ export function Threshold() {
               style={{
                 width: 80,
                 height: 1,
-                background: 'var(--loom-warm)',
+                background: 'var(--warm)',
                 opacity: 0.6,
                 margin: '44px auto',
               }}

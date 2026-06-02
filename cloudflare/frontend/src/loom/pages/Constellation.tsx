@@ -65,7 +65,7 @@ export function Constellation() {
                 top: 0,
                 bottom: 0,
                 width: 1,
-                background: 'var(--loom-warm)',
+                background: 'var(--warm)',
                 opacity: 0.4,
               }}
             />
@@ -77,7 +77,7 @@ export function Constellation() {
                 transform: 'translateX(-50%)',
                 top: -18,
                 fontSize: 10,
-                color: 'var(--loom-warm)',
+                color: 'var(--warm)',
               }}
             >
               today
@@ -92,7 +92,7 @@ export function Constellation() {
                     top: 0,
                     bottom: 0,
                     width: 1,
-                    background: 'var(--loom-rule)',
+                    background: 'var(--rule)',
                   }}
                 />
                 <div
@@ -103,7 +103,7 @@ export function Constellation() {
                     transform: 'translateX(-50%)',
                     bottom: -18,
                     fontSize: 9,
-                    color: 'var(--loom-bone-faint)',
+                    color: 'var(--bone-faint)',
                   }}
                 >
                   {y}
@@ -128,10 +128,10 @@ export function Constellation() {
                       top,
                       height: k.you ? 3 : 2,
                       background: k.you
-                        ? 'var(--loom-warm)'
+                        ? 'var(--warm)'
                         : isLit
-                          ? 'var(--loom-bone)'
-                          : 'var(--loom-bone-dim)',
+                          ? 'var(--bone)'
+                          : 'var(--bone-dim)',
                       boxShadow: k.you ? '0 0 8px rgba(207,147,90,0.4)' : 'none',
                       cursor: 'pointer',
                       transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
@@ -146,7 +146,7 @@ export function Constellation() {
                         top,
                         height: k.you ? 3 : 2,
                         background: `linear-gradient(to right, ${
-                          k.you ? 'var(--loom-warm)' : 'var(--loom-bone-dim)'
+                          k.you ? 'var(--warm)' : 'var(--bone-dim)'
                         }, transparent)`,
                         opacity: 0.4,
                         pointerEvents: 'none',
@@ -162,7 +162,7 @@ export function Constellation() {
                         top: top - 2,
                         width: 4,
                         height: 6,
-                        background: k.you ? 'var(--loom-warm-bright)' : 'var(--loom-bone)',
+                        background: k.you ? 'var(--warm-bright)' : 'var(--bone)',
                         transform: 'translateX(-50%)',
                       }}
                     />
@@ -178,10 +178,10 @@ export function Constellation() {
                       fontSize: 15,
                       fontWeight: 400,
                       color: k.you
-                        ? 'var(--loom-warm)'
+                        ? 'var(--warm)'
                         : isLit
-                          ? 'var(--loom-bone)'
-                          : 'var(--loom-bone-dim)',
+                          ? 'var(--bone)'
+                          : 'var(--bone-dim)',
                       fontStyle: k.you ? 'italic' : 'normal',
                       whiteSpace: 'nowrap',
                     }}
@@ -196,7 +196,7 @@ export function Constellation() {
                       fontFamily: "'JetBrains Mono', monospace",
                       fontSize: 9,
                       letterSpacing: '0.04em',
-                      color: 'var(--loom-bone-faint)',
+                      color: 'var(--bone-faint)',
                     }}
                   >
                     {k.born} — {k.died ?? '∞'}
@@ -218,7 +218,7 @@ export function Constellation() {
                   top: r.top,
                   height: r.bottom - r.top,
                   width: 1,
-                  background: 'var(--loom-warm)',
+                  background: 'var(--warm)',
                   opacity: 0.55,
                 }}
               />
@@ -230,14 +230,14 @@ export function Constellation() {
               display: 'flex',
               gap: 36,
               paddingTop: 24,
-              borderTop: '1px solid var(--loom-rule)',
+              borderTop: '1px solid var(--rule)',
               alignItems: 'baseline',
             }}
           >
-            <LegendItem swatch="var(--loom-warm)" label="you" italic />
-            <LegendItem swatch="var(--loom-bone)" label="kin" />
+            <LegendItem swatch="var(--warm)" label="you" italic />
+            <LegendItem swatch="var(--bone)" label="kin" />
             <LegendItem
-              swatch="var(--loom-bone-dim)"
+              swatch="var(--bone-dim)"
               label="recorded life — first-hand or remembered"
             />
             <LegendItem
@@ -245,9 +245,9 @@ export function Constellation() {
               label="thread continues, beyond the loom's edge"
             />
             <div style={{ marginLeft: 'auto' }} className="loom-mono">
-              <span style={{ color: 'var(--loom-warm)', fontSize: 10 }}>∞</span>
+              <span style={{ color: 'var(--warm)', fontSize: 10 }}>∞</span>
               <span
-                style={{ fontSize: 10, color: 'var(--loom-bone-dim)', marginLeft: 8 }}
+                style={{ fontSize: 10, color: 'var(--bone-dim)', marginLeft: 8 }}
               >
                 3 resonances active
               </span>
@@ -275,7 +275,7 @@ function LegendItem({
         className="loom-serif"
         style={{
           fontSize: 13,
-          color: 'var(--loom-bone-dim)',
+          color: 'var(--bone-dim)',
           fontStyle: italic ? 'italic' : 'normal',
         }}
       >

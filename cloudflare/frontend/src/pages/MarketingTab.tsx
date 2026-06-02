@@ -30,10 +30,10 @@ function InlineStatus({ status }: { status: InlineStatusApi }) {
       role="status"
       style={{
         marginBottom: 20, padding: '8px 14px',
-        background: 'var(--loom-ink)',
-        border: `1px solid ${warm ? 'var(--loom-rule-warm)' : 'rgba(194,90,90,0.35)'}`,
+        background: 'var(--ink)',
+        border: `1px solid ${warm ? 'var(--rule-warm)' : 'rgba(194,90,90,0.35)'}`,
         fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.04em',
-        color: warm ? 'var(--loom-warm)' : '#c25a5a',
+        color: warm ? 'var(--warm)' : '#c25a5a',
       }}
     >
       {status.state.msg}
@@ -105,8 +105,8 @@ const INFLUENCER_TEMPLATES: Record<string, { subject: string; body: string }> = 
 /* ── Loom input / select style ─────────────────────────────────────── */
 const inputStyle: React.CSSProperties = {
   background: 'transparent',
-  border: '1px solid var(--loom-rule)',
-  color: 'var(--loom-bone)',
+  border: '1px solid var(--rule)',
+  color: 'var(--bone)',
   fontFamily: "'JetBrains Mono', monospace",
   fontSize: 12,
   letterSpacing: '0.04em',
@@ -123,7 +123,7 @@ const labelStyle: React.CSSProperties = {
   fontSize: 10,
   letterSpacing: '0.18em',
   textTransform: 'uppercase' as const,
-  color: 'var(--loom-bone-faint)',
+  color: 'var(--bone-faint)',
   marginBottom: 6,
 };
 
@@ -189,7 +189,7 @@ export function MarketingTab() {
   ];
 
   return (
-    <div style={{ color: 'var(--loom-bone)' }}>
+    <div style={{ color: 'var(--bone)' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
         <div>
@@ -214,7 +214,7 @@ export function MarketingTab() {
       <InlineStatus status={status} />
 
       {/* Sub-tab nav */}
-      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--loom-rule)', marginBottom: 28 }}>
+      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--rule)', marginBottom: 28 }}>
         {subTabs.map(({ id, label }) => (
           <button
             key={id}
@@ -222,14 +222,14 @@ export function MarketingTab() {
             style={{
               background: 'none',
               border: 'none',
-              borderBottom: activeSubTab === id ? '1px solid var(--loom-warm)' : '1px solid transparent',
+              borderBottom: activeSubTab === id ? '1px solid var(--warm)' : '1px solid transparent',
               marginBottom: -1,
               padding: '8px 16px',
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 10,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: activeSubTab === id ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+              color: activeSubTab === id ? 'var(--warm)' : 'var(--bone-faint)',
               cursor: 'pointer',
               transition: 'color 180ms var(--loom-ease)',
             }}
@@ -259,7 +259,7 @@ export function MarketingTab() {
               <option value="">All Statuses</option>
               {INFLUENCER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>
               {influencers?.influencers?.length || 0} threads
             </span>
           </div>
@@ -267,9 +267,9 @@ export function MarketingTab() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                <tr style={{ borderBottom: '1px solid var(--rule)' }}>
                   {['Name', 'Email', 'Platform', 'Segment', 'Status', 'Last Contact'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', fontWeight: 400 }}>{h}</th>
+                    <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -277,22 +277,22 @@ export function MarketingTab() {
                 {loadingInfluencers ? (
                   <tr><td colSpan={6} style={{ padding: '32px 16px' }}><ProgressHair label="Loading…" /></td></tr>
                 ) : influencers?.influencers?.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--loom-bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No threads yet. Import or add some.</td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No threads yet. Import or add some.</td></tr>
                 ) : (
                   influencers?.influencers?.map((inf: any) => (
-                    <tr key={inf.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                    <tr key={inf.id} style={{ borderBottom: '1px solid var(--rule)' }}>
                       <td style={{ padding: '12px 16px' }}>
-                        <div style={{ color: 'var(--loom-bone)', fontSize: 14 }}>{inf.name}</div>
-                        {inf.handle && <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>@{inf.handle}</div>}
+                        <div style={{ color: 'var(--bone)', fontSize: 14 }}>{inf.name}</div>
+                        {inf.handle && <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>@{inf.handle}</div>}
                       </td>
-                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone-dim)', fontSize: 13 }}>{inf.email}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--bone-dim)', fontSize: 13 }}>{inf.email}</td>
                       <td style={{ padding: '12px 16px' }}>
-                        <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-dim)' }}>
+                        <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--rule)', color: 'var(--bone-dim)' }}>
                           {inf.platform}
                         </span>
                       </td>
                       <td style={{ padding: '12px 16px' }}>
-                        <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-dim)' }}>
+                        <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--rule)', color: 'var(--bone-dim)' }}>
                           {inf.segment}
                         </span>
                       </td>
@@ -300,7 +300,7 @@ export function MarketingTab() {
                         <StatusBadge status={inf.status} />
                       </td>
                       <td style={{ padding: '12px 16px' }}>
-                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>
                           {inf.last_contacted_at ? new Date(inf.last_contacted_at).toLocaleDateString() : '—'}
                         </span>
                       </td>
@@ -318,24 +318,24 @@ export function MarketingTab() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+              <tr style={{ borderBottom: '1px solid var(--rule)' }}>
                 {['Campaign', 'Type', 'Status', 'Sent', 'Opens', 'Created'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', fontWeight: 400 }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {campaigns?.campaigns?.length === 0 ? (
-                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--loom-bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No campaigns yet.</td></tr>
+                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No campaigns yet.</td></tr>
               ) : (
                 campaigns?.campaigns?.map((c: any) => (
-                  <tr key={c.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                  <tr key={c.id} style={{ borderBottom: '1px solid var(--rule)' }}>
                     <td style={{ padding: '12px 16px' }}>
-                      <div style={{ color: 'var(--loom-bone)', fontSize: 14 }}>{c.name}</div>
-                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{c.subject_line}</div>
+                      <div style={{ color: 'var(--bone)', fontSize: 14 }}>{c.name}</div>
+                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{c.subject_line}</div>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--loom-rule-warm)', color: 'var(--loom-warm)' }}>
+                      <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--rule-warm)', color: 'var(--warm)' }}>
                         {c.campaign_type}
                       </span>
                     </td>
@@ -343,13 +343,13 @@ export function MarketingTab() {
                       <StatusBadge status={c.status} />
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span className="loom-mono" style={{ fontSize: 13, color: 'var(--loom-bone)' }}>{c.sent_count || 0}</span>
+                      <span className="loom-mono" style={{ fontSize: 13, color: 'var(--bone)' }}>{c.sent_count || 0}</span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span className="loom-mono" style={{ fontSize: 13, color: 'var(--loom-bone)' }}>{c.open_count || 0}</span>
+                      <span className="loom-mono" style={{ fontSize: 13, color: 'var(--bone)' }}>{c.open_count || 0}</span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-faint)' }}>
+                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>
                         {new Date(c.created_at).toLocaleDateString()}
                       </span>
                     </td>
@@ -364,28 +364,28 @@ export function MarketingTab() {
       {/* Creator Signups tab */}
       {activeSubTab === 'signups' && (
         <div>
-          <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginBottom: 20 }}>
+          <p className="loom-body" style={{ fontSize: 14, color: 'var(--bone-dim)', marginBottom: 20 }}>
             Creators who signed up through the public form. Approve to add to the thread database.
           </p>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--loom-rule)' }}>
+                <tr style={{ borderBottom: '1px solid var(--rule)' }}>
                   {['Name', 'Email', 'Platform', 'Why Interested', 'Status', ''].map(h => (
-                    <th key={h} style={{ textAlign: h === '' ? 'right' : 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', fontWeight: 400 }}>{h}</th>
+                    <th key={h} style={{ textAlign: h === '' ? 'right' : 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {creatorSignups?.signups?.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--loom-bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No signups yet.</td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No signups yet.</td></tr>
                 ) : (
                   creatorSignups?.signups?.map((s: any) => (
-                    <tr key={s.id} style={{ borderBottom: '1px solid var(--loom-rule)' }}>
-                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone)', fontSize: 14 }}>{s.name}</td>
-                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone-dim)', fontSize: 13 }}>{s.email}</td>
-                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone-dim)', fontSize: 13 }}>{s.platform || '—'}</td>
-                      <td style={{ padding: '12px 16px', color: 'var(--loom-bone-faint)', fontSize: 13, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.why_interested || '—'}</td>
+                    <tr key={s.id} style={{ borderBottom: '1px solid var(--rule)' }}>
+                      <td style={{ padding: '12px 16px', color: 'var(--bone)', fontSize: 14 }}>{s.name}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--bone-dim)', fontSize: 13 }}>{s.email}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--bone-dim)', fontSize: 13 }}>{s.platform || '—'}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--bone-faint)', fontSize: 13, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.why_interested || '—'}</td>
                       <td style={{ padding: '12px 16px' }}>
                         <StatusBadge status={s.status} />
                       </td>
@@ -413,25 +413,25 @@ export function MarketingTab() {
       {/* Content Library tab */}
       {activeSubTab === 'content' && (
         <div>
-          <p className="loom-body" style={{ fontSize: 14, color: 'var(--loom-bone-dim)', marginBottom: 24 }}>
+          <p className="loom-body" style={{ fontSize: 14, color: 'var(--bone-dim)', marginBottom: 24 }}>
             Marketing content, captions, and templates.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 1 }}>
             {content?.content?.length === 0 ? (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 16px', color: 'var(--loom-bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No content yet.</div>
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No content yet.</div>
             ) : (
               content?.content?.map((c: any) => (
-                <div key={c.id} style={{ border: '1px solid var(--loom-rule)', padding: '20px' }}>
+                <div key={c.id} style={{ border: '1px solid var(--rule)', padding: '20px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                    <div style={{ color: 'var(--loom-bone)', fontSize: 14 }}>{c.title}</div>
-                    <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-faint)', flexShrink: 0, marginLeft: 8 }}>
+                    <div style={{ color: 'var(--bone)', fontSize: 14 }}>{c.title}</div>
+                    <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--rule)', color: 'var(--bone-faint)', flexShrink: 0, marginLeft: 8 }}>
                       {c.platform}
                     </span>
                   </div>
-                  <p style={{ color: 'var(--loom-bone-dim)', fontSize: 13, lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{c.caption || c.body}</p>
+                  <p style={{ color: 'var(--bone-dim)', fontSize: 13, lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{c.caption || c.body}</p>
                   <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
                     <StatusBadge status={c.status} />
-                    {c.theme && <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>{c.theme}</span>}
+                    {c.theme && <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{c.theme}</span>}
                   </div>
                 </div>
               ))
@@ -464,8 +464,8 @@ export function MarketingTab() {
 
 /* ── StatusBadge ─────────────────────────────────────────────────── */
 function StatusBadge({ status }: { status: string }) {
-  const WARM = { border: '1px solid var(--loom-rule-warm)', color: 'var(--loom-warm)' };
-  const FAINT = { border: '1px solid var(--loom-rule)', color: 'var(--loom-bone-faint)' };
+  const WARM = { border: '1px solid var(--rule-warm)', color: 'var(--warm)' };
+  const FAINT = { border: '1px solid var(--rule)', color: 'var(--bone-faint)' };
   const ERR = { border: '1px solid rgba(194,90,90,0.35)', color: '#c25a5a' };
 
   const s: React.CSSProperties = (
@@ -485,13 +485,13 @@ function StatusBadge({ status }: { status: string }) {
 function ModalShell({ title, onClose, wide, children }: { title: string; onClose: () => void; wide?: boolean; children: React.ReactNode }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(14,14,12,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div style={{ background: 'var(--loom-ink)', border: '1px solid var(--loom-rule)', width: '100%', maxWidth: wide ? 900 : 560, maxHeight: '90vh', overflowY: 'auto', padding: '36px 40px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, borderBottom: '1px solid var(--loom-rule)', paddingBottom: 20 }}>
+      <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', width: '100%', maxWidth: wide ? 900 : 560, maxHeight: '90vh', overflowY: 'auto', padding: '36px 40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, borderBottom: '1px solid var(--rule)', paddingBottom: 20 }}>
           <h3 className="loom-h2" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: 0 }}>{title}</h3>
           <button
             onClick={onClose}
             className="loom-mono"
-            style={{ background: 'none', border: 'none', color: 'var(--loom-bone-faint)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', lineHeight: 1, padding: 4 }}
+            style={{ background: 'none', border: 'none', color: 'var(--bone-faint)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', lineHeight: 1, padding: 4 }}
             aria-label="Close"
           >
             close
@@ -557,17 +557,17 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
 
         {previewData.length > 0 && (
           <div>
-            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)', display: 'block', marginBottom: 8 }}>
+            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', display: 'block', marginBottom: 8 }}>
               {previewData.length} records ready to import
             </span>
-            <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--loom-rule)', padding: '8px 0' }}>
+            <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid var(--rule)', padding: '8px 0' }}>
               {previewData.slice(0, 10).map((d, i) => (
-                <div key={i} className="loom-mono" style={{ fontSize: 11, padding: '6px 12px', borderBottom: '1px solid var(--loom-rule)', color: 'var(--loom-bone-dim)' }}>
+                <div key={i} className="loom-mono" style={{ fontSize: 11, padding: '6px 12px', borderBottom: '1px solid var(--rule)', color: 'var(--bone-dim)' }}>
                   {d.name} — {d.email} ({d.platform}, {d.segment})
                 </div>
               ))}
               {previewData.length > 10 && (
-                <div className="loom-mono" style={{ fontSize: 11, padding: '6px 12px', color: 'var(--loom-bone-faint)' }}>
+                <div className="loom-mono" style={{ fontSize: 11, padding: '6px 12px', color: 'var(--bone-faint)' }}>
                   …and {previewData.length - 10} more
                 </div>
               )}
@@ -575,7 +575,7 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
           <button onClick={onClose} className="loom-btn-ghost" style={{ fontSize: 11 }}>Cancel</button>
           <button
             onClick={() => onImport(previewData)}
@@ -667,10 +667,10 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
               fontSize: 10,
               width: 22, height: 22,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: `1px solid ${step === s ? 'var(--loom-warm)' : 'var(--loom-rule)'}`,
-              color: step === s ? 'var(--loom-warm)' : 'var(--loom-bone-faint)',
+              border: `1px solid ${step === s ? 'var(--warm)' : 'var(--rule)'}`,
+              color: step === s ? 'var(--warm)' : 'var(--bone-faint)',
             }}>{i + 1}</span>
-            <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: step === s ? 'var(--loom-bone)' : 'var(--loom-bone-faint)' }}>
+            <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: step === s ? 'var(--bone)' : 'var(--bone-faint)' }}>
               {s}
             </span>
           </div>
@@ -705,18 +705,18 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
             </select>
           </div>
 
-          <div style={{ border: '1px solid var(--loom-rule)', padding: '14px 16px' }}>
-            <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-bone-dim)', marginBottom: 6 }}>
+          <div style={{ border: '1px solid var(--rule)', padding: '14px 16px' }}>
+            <div className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', marginBottom: 6 }}>
               {formData.targetSegment
                 ? `${filteredInfluencers.length} threads in ${formData.targetSegment} segment`
                 : `${influencers.length} total threads`}
             </div>
-            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)' }}>
+            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
               Only threads with status NEW, CONTACTED, RESPONDED, or INTERESTED receive emails. Unsubscribed and declined are excluded.
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
             <button
               onClick={() => setStep('compose')}
               disabled={!formData.name}
@@ -740,7 +740,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
               placeholder="e.g., Partnership Opportunity: Help Families Preserve Their Stories"
               style={inputStyle}
             />
-            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', display: 'block', marginTop: 4 }}>Use [Name] to personalise.</span>
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', display: 'block', marginTop: 4 }}>Use [Name] to personalise.</span>
           </div>
 
           <div>
@@ -751,7 +751,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
               placeholder="<p>Hi [Name],</p><p>Your email content here…</p>"
               style={{ ...inputStyle, height: 240, resize: 'vertical', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}
             />
-            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--loom-bone-faint)', display: 'block', marginTop: 4 }}>Unsubscribe link added automatically.</span>
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', display: 'block', marginTop: 4 }}>Unsubscribe link added automatically.</span>
           </div>
 
           {formData.targetSegment && INFLUENCER_TEMPLATES[formData.targetSegment] && (
@@ -764,7 +764,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
             </button>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
             <button onClick={() => setStep('setup')} className="loom-btn-ghost" style={{ fontSize: 11 }}>Back</button>
             <button
               onClick={() => setStep('review')}
@@ -780,33 +780,33 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
 
       {step === 'review' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ border: '1px solid var(--loom-rule)', padding: '16px' }}>
+          <div style={{ border: '1px solid var(--rule)', padding: '16px' }}>
             {[
               ['Campaign', formData.name],
               ['Segment', formData.targetSegment || 'All'],
               ['Recipients', `${filteredInfluencers.filter(i => !['UNSUBSCRIBED', 'DECLINED'].includes(i.status)).length} threads`],
               ['Subject', formData.subjectLine],
             ].map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', gap: 16, padding: '8px 0', borderBottom: '1px solid var(--loom-rule)' }}>
-                <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--loom-bone-faint)', minWidth: 96 }}>{k}</span>
-                <span style={{ color: 'var(--loom-bone)', fontSize: 13 }}>{v}</span>
+              <div key={k} style={{ display: 'flex', gap: 16, padding: '8px 0', borderBottom: '1px solid var(--rule)' }}>
+                <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', minWidth: 96 }}>{k}</span>
+                <span style={{ color: 'var(--bone)', fontSize: 13 }}>{v}</span>
               </div>
             ))}
           </div>
 
           {/* Email HTML preview — white surface intentional */}
-          <div style={{ padding: '16px', background: '#fff', border: '1px solid var(--loom-rule)' }}>
+          <div style={{ padding: '16px', background: '#fff', border: '1px solid var(--rule)' }}>
             <div style={{ color: '#000', fontSize: 13 }} dangerouslySetInnerHTML={{ __html: formData.bodyHtml }} />
           </div>
 
-          <div style={{ border: '1px solid var(--loom-rule-warm)', padding: '14px 16px' }}>
-            <div className="loom-mono" style={{ fontSize: 11, color: 'var(--loom-warm)', marginBottom: 6 }}>Ready to send?</div>
-            <p style={{ color: 'var(--loom-bone-dim)', fontSize: 13 }}>
+          <div style={{ border: '1px solid var(--rule-warm)', padding: '14px 16px' }}>
+            <div className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', marginBottom: 6 }}>Ready to send?</div>
+            <p style={{ color: 'var(--bone-dim)', fontSize: 13 }}>
               This will send emails to all eligible threads immediately. Emails include an unsubscribe link for compliance.
             </p>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
             <button onClick={() => setStep('compose')} className="loom-btn-ghost" style={{ fontSize: 11 }}>Back</button>
             <button
               onClick={handleSend}
@@ -902,7 +902,7 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
           <textarea value={formData.notes} onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))} style={{ ...inputStyle, height: 80, resize: 'vertical' }} />
         </Field>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, borderTop: '1px solid var(--loom-rule)', paddingTop: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
           <button onClick={onClose} className="loom-btn-ghost" style={{ fontSize: 11 }}>Cancel</button>
           <button
             onClick={() => createMutation.mutate()}

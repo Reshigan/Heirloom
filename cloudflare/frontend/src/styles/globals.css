@@ -71,16 +71,20 @@
 
   /* Canonical aliases (match the Claude Design bundle's heirloom-styles.css) */
   --ink: #0e0e0c;
+  --ink-card: #131310;
   --ink-deep: #0a0a08;
   --bone: #f4ecd8;
   --bone-dim: rgba(244, 236, 216, 0.55);
   --bone-faint: rgba(244, 236, 216, 0.32);
   --bone-low: rgba(244, 236, 216, 0.18);
+  --bone-ghost: rgba(244, 236, 216, 0.14);
   --rule: rgba(244, 236, 216, 0.08);
   --rule-strong: rgba(244, 236, 216, 0.14);
   --warm: #b07a4a;
   --warm-bright: #cf935a;
   --warm-dim: #8c5a30;
+  --warm-glow: rgba(207, 147, 90, 0.18);
+  --rule-warm: rgba(176, 122, 74, 0.22);
   --parchment: #faf6ee;
   --parchment-deep: #f0e8d4;
   --parchment-ink: #1a1916;
@@ -2004,6 +2008,21 @@ html {
 }
 .hl-screen.parchment { background: var(--parchment); color: var(--parchment-ink); }
 .hl-screen * { box-sizing: border-box; }
+
+/* ── Placeholder contrast fix — bone-dim on ink, parchment-faint on parchment.
+   Browser UA applies dark placeholder text (rgba(0,0,0,0.5)) which is invisible
+   on the #0e0e0c ink background. All bare inputs/textareas inside any hl-screen
+   context inherit this override so typed text and hints share the same surface. */
+.hl-screen input::placeholder,
+.hl-screen textarea::placeholder {
+  color: var(--bone-dim);   /* rgba(244,236,216,0.55) — dimmer than typed text */
+  opacity: 1;               /* override Firefox default (0.54) so the rule wins */
+}
+.hl-screen.parchment input::placeholder,
+.hl-screen.parchment textarea::placeholder {
+  color: var(--parchment-faint);  /* rgba(26,25,22,0.36) — dim on parchment */
+  opacity: 1;
+}
 
 .hl-serif { font-family: var(--serif); font-weight: 300; }
 .hl-mono  { font-family: var(--mono);  font-weight: 400; letter-spacing: 0.04em; }

@@ -48,7 +48,7 @@ export function WeftCentury() {
         style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between' }}
       >
         <span>
-          <span style={{ color: 'var(--loom-warm)' }}>·</span> century view &nbsp;·&nbsp; {C_START} — {C_END} &nbsp;·&nbsp; {C_END - C_START} yrs
+          <span style={{ color: 'var(--warm)' }}>·</span> century view &nbsp;·&nbsp; {C_START} — {C_END} &nbsp;·&nbsp; {C_END - C_START} yrs
         </span>
         <span className="loom-mono" style={{ fontSize: 9, letterSpacing: '0.18em' }}>
           entries sealed past a lifetime become visible here
@@ -74,7 +74,7 @@ export function WeftCentury() {
         style={{
           marginTop: 64,
           paddingTop: 18,
-          borderTop: '1px solid var(--loom-rule)',
+          borderTop: '1px solid var(--rule)',
           display: 'flex',
           justifyContent: 'space-between',
           gap: 40,
@@ -86,7 +86,7 @@ export function WeftCentury() {
               className="loom-serif"
               style={{
                 fontSize: 15,
-                color: g.warm ? 'var(--loom-warm)' : 'var(--loom-bone-dim)',
+                color: g.warm ? 'var(--warm)' : 'var(--bone-dim)',
                 fontStyle: g.warm ? 'italic' : 'normal',
                 lineHeight: 1.4,
               }}
@@ -97,7 +97,7 @@ export function WeftCentury() {
               className="loom-mono"
               style={{
                 fontSize: 9,
-                color: 'var(--loom-bone-faint)',
+                color: 'var(--bone-faint)',
                 letterSpacing: '0.22em',
                 textTransform: 'uppercase',
                 marginTop: 4,
