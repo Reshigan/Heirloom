@@ -174,6 +174,19 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
   if (!res.ok || json.error) {
     return { platform: input.variant.platform, ok: false, error: json.error?.message ?? `HTTP ${res.status}`, mode: "direct" };
   }
+
+  // Link-in-first-comment: Facebook demotes posts with links in the caption by ~50%.
+  // Post the CTA link as the first comment so reach is preserved but the link is still visible.
+  if (json.id) {
+    await fetch(`https://graph.facebook.com/v21.0/${json.id}/comments`, {
+      method: "POST",
+      body: new URLSearchParams({
+        message: "→ Start your family's thread: https://heirloom.blue",
+        access_token: token,
+      }),
+    }).catch(() => undefined);
+  }
+
   return { platform: input.variant.platform, ok: true, id: json.id, mode: "direct" };
 }
 
