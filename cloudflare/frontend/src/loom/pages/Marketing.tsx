@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TapestryCanvas } from '../components/TapestryCanvas';
 import { HLogo } from '../components/HLogo';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { useListener } from '../../hooks/useListener';
 import { getDeferredPrompt, isIOS, isStandalone, onInstallStateChange, promptInstall, wasInstalled } from '../../lib/pwa';
 
@@ -20,6 +21,7 @@ function MktTopbar() {
         <Link to="/founder" className="mkt-nav-hide-sm" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
         <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
         <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
+        <span className="mkt-nav-hide-sm"><ThemeToggle /></span>
       </span>
     </div>
   );

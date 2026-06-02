@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { HLogo } from './HLogo';
+import { ThemeToggle } from './ThemeToggle';
 
 // ── UserMenu: initials button + dropdown (preserved from v1) ──────────────
 const menuItemStyle: React.CSSProperties = {
@@ -56,12 +57,12 @@ function UserMenu() {
           top: 'calc(100% + 8px)',
           right: 0,
           minWidth: 220,
-          background: '#131310',
+          background: 'var(--ink-card)',
           border: '1px solid var(--rule)',
           padding: 8,
           zIndex: 50,
           borderRadius: 0,
-          boxShadow: '0 12px 40px rgba(10,10,8,0.60)',
+          boxShadow: '0 12px 40px rgba(10,10,8,0.40)',
           transformOrigin: 'top right',
           opacity: open ? 1 : 0,
           transform: open ? 'scale(1)' : 'scale(0.97) translateY(-4px)',
@@ -233,13 +234,14 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           ∞
         </span>
 
-        {/* right slot: action (hidden on mobile where BottomNav covers it) + user menu */}
+        {/* right slot: action (hidden on mobile where BottomNav covers it) + theme toggle + user menu */}
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
           {right ? (
             <span className="hl-link warm hl-topbar-action">{right}</span>
           ) : (
             <Link to="/loom/compose" className="hl-link warm hl-topbar-action">compose →</Link>
           )}
+          <span className="hl-topbar-action"><ThemeToggle /></span>
           <UserMenu />
         </span>
       </div>

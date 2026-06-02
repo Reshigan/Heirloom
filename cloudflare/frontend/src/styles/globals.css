@@ -163,6 +163,46 @@
   --gold-05: rgba(156, 122, 60, 0.05);
 }
 
+/* ── Unified dark/light theme — global token bridge ────────────────
+   LoomShellRoot in App.tsx wraps the entire app in <div class="loom"
+   data-theme={theme}>. These two blocks flip the globals.css canonical
+   tokens so every page — not just /loom/* — responds to the user's
+   theme preference without any JSX changes.
+
+   DARK: remap --parchment-* to ink values so parchment (light) pages
+   read as dark surfaces in dark mode.
+   LIGHT: remap --ink/--bone/* to paper values so ink (dark) pages
+   become light surfaces in light mode.                              ──*/
+
+.loom[data-theme="dark"] {
+  --parchment:          #131310;
+  --parchment-deep:     #0a0a08;
+  --parchment-ink:      #f4ecd8;
+  --parchment-dim:      rgba(244, 236, 216, 0.55);
+  --parchment-faint:    rgba(244, 236, 216, 0.32);
+  --parchment-rule:     rgba(244, 236, 216, 0.08);
+}
+
+.loom[data-theme="light"] {
+  --ink:          #f6efe1;
+  --ink-card:     #f0e8d4;
+  --ink-deep:     #ede7d8;
+  --bone:         #1a1612;
+  --bone-dim:     rgba(26, 22, 18, 0.62);
+  --bone-faint:   rgba(26, 22, 18, 0.40);
+  --bone-low:     rgba(26, 22, 18, 0.30);
+  --bone-ghost:   rgba(26, 22, 18, 0.16);
+  --rule:         rgba(26, 22, 18, 0.10);
+  --rule-strong:  rgba(26, 22, 18, 0.18);
+  --rule-warm:    rgba(155, 90, 40, 0.30);
+  --warm:         #9b5a28;
+  --warm-bright:  #b07239;
+  --warm-dim:     #7a4318;
+  --warm-glow:    rgba(155, 90, 40, 0.16);
+  --glass-bg:     rgba(26, 22, 18, 0.05);
+  --glass-border: rgba(26, 22, 18, 0.10);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -2005,8 +2045,12 @@ html {
   box-sizing: border-box;
   font-feature-settings: "ss01", "ss02";
   font-variant-numeric: oldstyle-nums proportional-nums;
+  transition: background-color 360ms cubic-bezier(0.16,1,0.3,1), color 360ms cubic-bezier(0.16,1,0.3,1);
 }
-.hl-screen.parchment { background: var(--parchment); color: var(--parchment-ink); }
+.hl-screen.parchment {
+  background: var(--parchment);
+  color: var(--parchment-ink);
+}
 .hl-screen * { box-sizing: border-box; }
 
 /* ── Placeholder contrast fix — bone-dim on ink, parchment-faint on parchment.
@@ -2106,7 +2150,7 @@ html {
   background: var(--ink); color: var(--bone); border-color: transparent;
 }
 @media (hover: hover) and (pointer: fine) {
-  .hl-screen.parchment .hl-btn:not(.ghost):not(.text):hover { background: #1c1c1a; }
+  .hl-screen.parchment .hl-btn:not(.ghost):not(.text):hover { background: var(--ink-card); }
 }
 .hl-btn.ghost { background: transparent; color: inherit; border: 1px solid currentColor; opacity: .8; }
 @media (hover: hover) and (pointer: fine) {
