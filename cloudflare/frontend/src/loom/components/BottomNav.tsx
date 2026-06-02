@@ -35,7 +35,7 @@ import { threadsApi, type ThreadRole } from '../../services/api';
 type Item = { label: string; to: string };
 
 const KEEPER: Item[] = [
-  { label: 'write', to: '/loom/compose' },
+  { label: 'write', to: '/compose' },
   { label: 'speak', to: '/record' },
   { label: 'cloth', to: '/loom/weft' },
   { label: 'family', to: '/family' },

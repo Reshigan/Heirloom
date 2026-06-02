@@ -12,7 +12,7 @@
  */
 import api from '../services/api';
 
-const VAPID_PUBLIC_KEY = (import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined) || '';
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
 /** True only when a VAPID key is configured *and* the browser supports push. */
 export function webPushEnabled(): boolean {

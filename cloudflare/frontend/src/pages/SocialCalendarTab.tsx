@@ -39,7 +39,16 @@ const PLATFORM_LABELS: Record<string, string> = {
   threads: 'Threads',
 };
 
-const STATUS_TOKENS: Record<string, { border: string; color: string; label: string }> = {
+interface StatusToken { border: string; color: string; label: string }
+interface StatusTokenMap {
+  scheduled: StatusToken;
+  publishing: StatusToken;
+  published: StatusToken;
+  failed: StatusToken;
+  skipped: StatusToken;
+}
+
+const STATUS_TOKENS: StatusTokenMap = {
   scheduled: { border: 'var(--rule)', color: 'var(--bone-dim)', label: 'Scheduled' },
   publishing: { border: 'var(--rule-warm)', color: 'var(--warm)', label: 'Publishing' },
   published:  { border: 'var(--rule-warm)', color: 'var(--warm)', label: 'Published' },
@@ -192,7 +201,8 @@ function PostRow({ post, onPause, onRetry, onDelete }: {
   onRetry: () => void;
   onDelete: () => void;
 }) {
-  const tok = STATUS_TOKENS[post.status] || STATUS_TOKENS.scheduled;
+  const statusKey = post.status as keyof StatusTokenMap;
+  const tok = (statusKey in STATUS_TOKENS ? STATUS_TOKENS[statusKey] : undefined) || STATUS_TOKENS.scheduled;
   const contentText = post.content?.text || post.content?.hook || 'No content';
 
   return (

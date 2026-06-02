@@ -12,7 +12,15 @@ const STORY_TEMPLATES = [
 ];
 
 // Natural-dye swatches — one per template slot + default
-const DYE_SWATCHES: Record<string, string> = {
+interface DyeSwatches {
+  warm: string;
+  classic: string;
+  vintage: string;
+  modern: string;
+  default: string;
+}
+
+const DYE_SWATCHES: DyeSwatches = {
   warm:    'var(--dye-madder)',
   classic: 'var(--dye-walnut)',
   vintage: 'var(--dye-oakgall)',
@@ -283,7 +291,7 @@ export function StoryArtifact() {
         {artifactList.length > 0 ? (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {artifactList.map((artifact) => {
-              const dyeColor = DYE_SWATCHES[artifact.theme] ?? DYE_SWATCHES.default;
+              const dyeColor = (DYE_SWATCHES as unknown as Record<string, string>)[artifact.theme] ?? DYE_SWATCHES['default'];
               return (
                 <li key={artifact.id} style={{ padding: '28px 0', borderBottom: '1px solid var(--rule)' }}>
                   {/* Dye swatch */}

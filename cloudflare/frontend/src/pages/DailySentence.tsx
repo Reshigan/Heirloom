@@ -165,13 +165,19 @@ export function DailySentence() {
     engagementApi
       .getFamilyFeed()
       .then((r) => {
-        const d = r.data as Record<string, unknown>;
+        interface FamilyFeedData {
+          families_connected?: unknown;
+          family_count?: unknown;
+          families?: unknown;
+          summary?: { families_connected?: unknown } | unknown;
+        }
+        const d = r.data as FamilyFeedData;
         const raw =
           d.families_connected ??
           d.family_count ??
           d.families ??
           (typeof d.summary === 'object' && d.summary
-            ? (d.summary as Record<string, unknown>).families_connected
+            ? (d.summary as { families_connected?: unknown }).families_connected
             : undefined);
         const n = typeof raw === 'number' ? raw : Number(raw);
         if (Number.isFinite(n) && n > 0) setFamilies(n);

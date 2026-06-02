@@ -62,7 +62,7 @@ interface LifeEventTrigger {
   trigger_method: string;
   scheduled_date: string | null;
   content_items: string;
-  status: string;
+  status: TriggerStatus | string;
   triggered_at: string | null;
   delivered_at: string | null;
   created_at: string;
@@ -87,7 +87,13 @@ const _TRIGGER_METHODS = [
 ];
 void _TRIGGER_METHODS;
 
-const STATUS_CONFIG: Record<string, { label: string }> = {
+type TriggerStatus = 'PENDING' | 'TRIGGERED' | 'DELIVERED' | 'CANCELLED';
+
+interface StatusConfigEntry {
+  label: string;
+}
+
+const STATUS_CONFIG: { [K in TriggerStatus]: StatusConfigEntry } = {
   PENDING: { label: 'pending' },
   TRIGGERED: { label: 'triggered' },
   DELIVERED: { label: 'delivered' },
@@ -341,7 +347,7 @@ export function LifeEvents() {
         {triggers?.triggers && triggers.triggers.length > 0 ? (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {triggers.triggers.map((trigger) => {
-              const statusConfig = STATUS_CONFIG[trigger.status] || STATUS_CONFIG.PENDING;
+              const statusConfig = STATUS_CONFIG[trigger.status as TriggerStatus] || STATUS_CONFIG.PENDING;
               const dateStr = trigger.scheduled_date
                 ? new Date(trigger.scheduled_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
                 : trigger.created_at

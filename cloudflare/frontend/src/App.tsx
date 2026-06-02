@@ -141,7 +141,7 @@ function PushNotificationHandler() {
     });
     
     onNotificationAction((action) => {
-      const data = action.notification.data as Record<string, string> | undefined;
+      const data = action.notification.data as { route?: string } | undefined;
       if (data?.route) {
         navigate(data.route);
       }

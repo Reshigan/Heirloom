@@ -47,7 +47,7 @@ export function Memories() {
               breakInside: 'avoid',
               marginBottom: 24,
               paddingLeft: 12,
-              borderLeft: `1px solid ${DYE_COLORS[m.type as string] ?? DYE_COLORS.memory}`,
+              borderLeft: `1px solid ${DYE_COLORS[m.type as string] ?? DYE_COLORS['memory']}`,
             }}
           >
             <div className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>

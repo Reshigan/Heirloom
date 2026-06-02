@@ -14,6 +14,18 @@ export const SIGNUP_INTENT_KEY = 'heirloom_signup_intent';
 
 type Tier = 'free' | 'family' | 'founder';
 
+interface SignupErrors {
+  threadName?: string;
+  firstName?: string;
+  lastName?: string;
+  birthYear?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  acceptedTerms?: string;
+  submit?: string;
+}
+
 interface SignupIntent {
   threadName: string;
   birthYear: string;
@@ -54,13 +66,13 @@ export function Signup() {
   });
   const [tier, setTier] = useState<Tier>('family');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<SignupErrors>({});
   const [showVaultSetup, setShowVaultSetup] = useState(false);
 
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
 
   const validate = () => {
-    const e: Record<string, string> = {};
+    const e: SignupErrors = {};
     if (!form.threadName.trim()) e.threadName = 'Give your thread a name';
     if (!form.firstName.trim()) e.firstName = 'First name is required';
     if (!form.lastName.trim()) e.lastName = 'Last name is required';

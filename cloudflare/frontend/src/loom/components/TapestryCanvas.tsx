@@ -132,14 +132,14 @@ export function drawCloth(
     if (cx < -40 || cx > W + 40) continue;
 
     const tierKey = bandFromTier && e.tier ? e.tier : 'family';
-    const [t0, t1] = TIER_Y[tierKey] ?? TIER_Y.family;
+    const [t0, t1] = TIER_Y[tierKey] ?? TIER_Y['family'];
     const yJitterRnd = hlSeed(e.n * 131 + 19)();
     const cy = (t0 + yJitterRnd * (t1 - t0)) * H;
     const sagY = Math.sin((cx / W) * Math.PI) * sag * H * 0.35;
     const w = 8 + hlSeed(e.n * 17)() * 18;   // 8–26px
     const x0 = cx - w / 2;
     const x1 = cx + w / 2;
-    const color = HL_DYE_HEX[e.dye] ?? HL_DYE_HEX.weld;
+    const color = HL_DYE_HEX[e.dye] ?? HL_DYE_HEX['weld'];
 
     if (e.sealed) continue;   // handled in sealed-peg pass below
 
