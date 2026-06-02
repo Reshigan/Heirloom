@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { familyApi } from '../services/api';
+import { familyApi, engagementApi } from '../services/api';
 import { Frame } from '../loom/components/Frame';
 
 interface FamilyMember {
@@ -16,14 +16,9 @@ interface FamilyMember {
   createdAt?: string;
   role?: string | null;
   lastEntry?: string | null;
-  /** A real dye/category value off the member, if the API carries one. Never invented. */
   dye?: string | null;
 }
 
-/**
- * Natural-dye palette (§2.7) — the only place a dye color may appear.
- * Mapped ONLY from a real `dye` value on a member; never fabricated.
- */
 const DYE_VARS: Record<string, string> = {
   madder:    'var(--dye-madder)',
   cochineal: 'var(--dye-cochineal)',
@@ -41,21 +36,25 @@ function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—';
   try {
     return new Date(iso).toLocaleDateString(undefined, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
+      day: 'numeric', month: 'short', year: 'numeric',
     });
   } catch {
     return '—';
   }
 }
 
+type Mode = 'add' | 'invite';
+
 export function Family() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: '', relationship: '', role: '', email: '' });
+  const [showForm, setShowForm] = useState(false);
+  const [mode, setMode] = useState<Mode>('add');
+  const [addForm, setAddForm] = useState({ name: '', relationship: '', email: '' });
+  const [inviteForm, setInviteForm] = useState({ name: '', email: '' });
   const [error, setError] = useState<string | null>(null);
+  const [inviteSent, setInviteSent] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['family'],
@@ -65,17 +64,15 @@ export function Family() {
 
   const create = useMutation({
     mutationFn: () =>
-      familyApi
-        .create({
-          name: form.name.trim(),
-          relationship: form.relationship.trim(),
-          email: form.email.trim() || undefined,
-        })
-        .then((r) => r.data),
+      familyApi.create({
+        name: addForm.name.trim(),
+        relationship: addForm.relationship.trim(),
+        email: addForm.email.trim() || undefined,
+      }).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
-      setForm({ name: '', relationship: '', role: '', email: '' });
-      setShowAdd(false);
+      setAddForm({ name: '', relationship: '', email: '' });
+      setShowForm(false);
       setError(null);
     },
     onError: (err: any) => {
@@ -83,51 +80,81 @@ export function Family() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const invite = useMutation({
+    mutationFn: () =>
+      engagementApi.invite({
+        email: inviteForm.email.trim(),
+        name: inviteForm.name.trim() || undefined,
+      }),
+    onSuccess: () => {
+      setInviteSent(true);
+      setInviteForm({ name: '', email: '' });
+      setError(null);
+    },
+    onError: (err: any) => {
+      setError(err?.response?.data?.error ?? 'Could not send invite.');
+    },
+  });
+
+  const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!form.name.trim() || !form.relationship.trim()) {
+    if (!addForm.name.trim() || !addForm.relationship.trim()) {
       setError('Name and relation are required.');
       return;
     }
     create.mutate();
   };
 
+  const handleInvite = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!inviteForm.email.trim()) {
+      setError('Email is required to send an invitation.');
+      return;
+    }
+    invite.mutate();
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText('https://heirloom.blue/signup').then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const openForm = (m: Mode) => {
+    setMode(m);
+    setShowForm(true);
+    setError(null);
+    setInviteSent(false);
+  };
+
   const atLimit = members.length >= 5;
-  const inviteLink = atLimit && !showAdd ? (
-    <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-      5 / 5 full
-    </span>
-  ) : (
-    <button
-      type="button"
-      onClick={() => setShowAdd((v) => !v)}
-      style={{
-        background: 'transparent',
-        border: 0,
-        padding: 0,
-        cursor: 'pointer',
-        fontFamily: 'var(--mono)',
-        fontSize: 10,
-        letterSpacing: '0.32em',
-        textTransform: 'uppercase' as const,
-        color: 'var(--warm)',
-      }}
-    >
-      {showAdd ? 'cancel →' : 'invite →'}
-    </button>
-  );
 
   return (
-    <Frame left="family" right={inviteLink}>
-      <div style={{ position: 'absolute', top: 80, bottom: 36, left: 56, right: 56, overflowY: 'auto' }}>
-
-        {/* heading */}
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 32 }}>
+    <Frame left="family">
+      <div
+        style={{
+          padding: 'clamp(24px, 5vw, 56px)',
+          paddingBottom: 80,
+          maxWidth: 760,
+        }}
+      >
+        {/* heading row */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            marginBottom: 32,
+            gap: 16,
+          }}
+        >
           <h1
             className="hl-serif hl-tight"
             style={{
-              fontSize: 38,
+              fontSize: 'clamp(28px, 6vw, 38px)',
               fontWeight: 300,
               color: 'var(--bone)',
               margin: 0,
@@ -138,133 +165,315 @@ export function Family() {
             The people on this thread.
           </h1>
           {!isLoading && (
-            <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', flexShrink: 0, marginLeft: 24 }}>
+            <span
+              className="hl-mono"
+              style={{
+                fontSize: 11,
+                color: 'var(--bone-faint)',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                flexShrink: 0,
+                paddingTop: 6,
+              }}
+            >
               {members.length} / 5
             </span>
           )}
         </div>
 
-        {/* add-member form */}
-        {showAdd && (
-          <form
-            onSubmit={handleSubmit}
+        {/* primary CTA row — always visible on mobile */}
+        {!showForm && (
+          <div
+            style={{
+              display: 'flex',
+              gap: 16,
+              marginBottom: 36,
+              flexWrap: 'wrap',
+            }}
+          >
+            {atLimit ? (
+              <span
+                className="hl-mono"
+                style={{
+                  fontSize: 11,
+                  color: 'var(--bone-faint)',
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  alignSelf: 'center',
+                }}
+              >
+                thread full · 5 / 5
+              </span>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="hl-btn"
+                  onClick={() => openForm('add')}
+                >
+                  add a name →
+                </button>
+                <button
+                  type="button"
+                  className="hl-btn ghost"
+                  onClick={() => openForm('invite')}
+                  style={{ color: 'var(--warm)', borderColor: 'rgba(176,122,74,0.4)' }}
+                >
+                  invite by email →
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* form panel */}
+        {showForm && (
+          <div
             style={{
               borderTop: '1px solid var(--rule)',
               paddingTop: 24,
               marginBottom: 40,
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 24,
             }}
           >
-            <div style={{ gridColumn: '1 / -1' }}>
-              <span
-                className="hl-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: '0.32em',
-                  textTransform: 'uppercase' as const,
-                  color: 'var(--bone-faint)',
-                }}
-              >
-                new member
-              </span>
-            </div>
-
-            <InputField
-              label="name"
-              value={form.name}
-              onChange={(v) => setForm({ ...form, name: v })}
-              placeholder="Margaret Ashworth"
-            />
-            <InputField
-              label="relationship"
-              value={form.relationship}
-              onChange={(v) => setForm({ ...form, relationship: v })}
-              placeholder="grandmother · sister · son"
-            />
-            <InputField
-              label="role — optional"
-              value={form.role}
-              onChange={(v) => setForm({ ...form, role: v })}
-              placeholder="member · steward · reader"
-            />
-            <InputField
-              label="email — optional"
-              value={form.email}
-              onChange={(v) => setForm({ ...form, email: v })}
-              type="email"
-              placeholder="name@example.com"
-            />
-
-            {error && (
-              <p
-                role="alert"
-                className="hl-serif"
-                style={{
-                  gridColumn: '1 / -1',
-                  fontStyle: 'italic',
-                  color: 'var(--dye-madder)',
-                  fontSize: 14,
-                  margin: 0,
-                }}
-              >
-                {error}
-              </p>
-            )}
-
-            <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 16, alignItems: 'center', paddingTop: 8 }}>
-              <button
-                type="submit"
-                className="hl-btn"
-                disabled={create.isPending}
-                style={{ opacity: create.isPending ? 0.5 : 1 }}
-              >
-                {create.isPending ? 'adding…' : 'add member'}
-              </button>
+            {/* mode tabs */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 24,
+                marginBottom: 28,
+                borderBottom: '1px solid var(--rule)',
+                paddingBottom: 14,
+              }}
+            >
+              {(['add', 'invite'] as Mode[]).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => { setMode(m); setError(null); setInviteSent(false); }}
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: 0,
+                    cursor: 'pointer',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    letterSpacing: '0.28em',
+                    textTransform: 'uppercase',
+                    color: mode === m ? 'var(--warm)' : 'var(--bone-faint)',
+                    transition: 'color 180ms var(--ease)',
+                    touchAction: 'manipulation',
+                  }}
+                >
+                  {m === 'add' ? 'add by name' : 'send invite'}
+                </button>
+              ))}
               <button
                 type="button"
-                onClick={() => { setShowAdd(false); setError(null); }}
+                onClick={() => { setShowForm(false); setError(null); }}
                 style={{
+                  marginLeft: 'auto',
                   background: 'transparent',
                   border: 0,
                   padding: 0,
                   cursor: 'pointer',
                   fontFamily: 'var(--mono)',
-                  fontSize: 10,
+                  fontSize: 11,
                   letterSpacing: '0.18em',
-                  textTransform: 'uppercase' as const,
+                  textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
+                  touchAction: 'manipulation',
                 }}
               >
                 cancel
               </button>
             </div>
-          </form>
+
+            {/* add by name form */}
+            {mode === 'add' && (
+              <form
+                onSubmit={handleAdd}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+                  gap: 24,
+                }}
+              >
+                <InputField
+                  label="name"
+                  value={addForm.name}
+                  onChange={(v) => setAddForm({ ...addForm, name: v })}
+                  placeholder="Margaret Ashworth"
+                />
+                <InputField
+                  label="relationship"
+                  value={addForm.relationship}
+                  onChange={(v) => setAddForm({ ...addForm, relationship: v })}
+                  placeholder="grandmother · sister · son"
+                />
+                <InputField
+                  label="email — optional"
+                  value={addForm.email}
+                  onChange={(v) => setAddForm({ ...addForm, email: v })}
+                  type="email"
+                  placeholder="name@example.com"
+                />
+                {error && (
+                  <p
+                    role="alert"
+                    className="hl-serif"
+                    style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}
+                  >
+                    {error}
+                  </p>
+                )}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <button
+                    type="submit"
+                    className="hl-btn"
+                    disabled={create.isPending}
+                    style={{ opacity: create.isPending ? 0.5 : 1 }}
+                  >
+                    {create.isPending ? 'adding…' : 'add to thread →'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* send invite form */}
+            {mode === 'invite' && !inviteSent && (
+              <form
+                onSubmit={handleInvite}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+                  gap: 24,
+                }}
+              >
+                <InputField
+                  label="their name — optional"
+                  value={inviteForm.name}
+                  onChange={(v) => setInviteForm({ ...inviteForm, name: v })}
+                  placeholder="Margaret"
+                />
+                <InputField
+                  label="email"
+                  value={inviteForm.email}
+                  onChange={(v) => setInviteForm({ ...inviteForm, email: v })}
+                  type="email"
+                  placeholder="name@example.com"
+                />
+                {error && (
+                  <p
+                    role="alert"
+                    className="hl-serif"
+                    style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}
+                  >
+                    {error}
+                  </p>
+                )}
+                <div
+                  style={{
+                    gridColumn: '1 / -1',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    gap: 16,
+                  }}
+                >
+                  <button
+                    type="submit"
+                    className="hl-btn"
+                    disabled={invite.isPending}
+                    style={{ opacity: invite.isPending ? 0.5 : 1 }}
+                  >
+                    {invite.isPending ? 'sending…' : 'send invite →'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={copyLink}
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      padding: 0,
+                      cursor: 'pointer',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: copied ? 'var(--warm)' : 'var(--bone-faint)',
+                      transition: 'color 180ms var(--ease)',
+                      touchAction: 'manipulation',
+                    }}
+                  >
+                    {copied ? 'link copied ✓' : 'or copy link'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* invite sent confirmation */}
+            {mode === 'invite' && inviteSent && (
+              <div>
+                <p
+                  className="hl-serif"
+                  style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 16px', lineHeight: 1.6 }}
+                >
+                  Invite sent. They'll receive an email with a link to join the thread.
+                </p>
+                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="hl-btn ghost"
+                    onClick={() => { setInviteSent(false); setInviteForm({ name: '', email: '' }); }}
+                    style={{ color: 'var(--warm)', borderColor: 'rgba(176,122,74,0.4)' }}
+                  >
+                    send another →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={copyLink}
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      padding: 0,
+                      cursor: 'pointer',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: copied ? 'var(--warm)' : 'var(--bone-faint)',
+                      transition: 'color 180ms var(--ease)',
+                      touchAction: 'manipulation',
+                      alignSelf: 'center',
+                    }}
+                  >
+                    {copied ? 'link copied ✓' : 'copy signup link'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
-        {/* table */}
+        {/* member list */}
         {isLoading ? (
-          <p
-            className="hl-serif"
-            style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0 }}
-          >
+          <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0 }}>
             Loading the thread…
           </p>
         ) : members.length === 0 ? (
-          <p
-            className="hl-serif"
-            style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0 }}
-          >
-            No one on the thread yet. Invite the first name.
-          </p>
+          <div style={{ paddingTop: 8 }}>
+            <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0, lineHeight: 1.7 }}>
+              No one on the thread yet.
+            </p>
+          </div>
         ) : (
           <div>
-            {/* table header */}
+            {/* column headers — hidden on small screens */}
             <div
+              className="family-table-header"
               style={{
                 display: 'grid',
-                gridTemplateColumns: '14px 2fr 1fr 1fr 0.6fr',
+                gridTemplateColumns: '8px 1fr auto',
                 gap: 16,
                 paddingBottom: 12,
                 borderBottom: '1px solid var(--rule)',
@@ -272,23 +481,10 @@ export function Family() {
               }}
             >
               <span />
-              {(['name', 'role', 'last entry', 'joined'] as const).map((col) => (
-                <span
-                  key={col}
-                  className="hl-mono"
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: '0.32em',
-                    textTransform: 'uppercase' as const,
-                    color: 'var(--bone-faint)',
-                  }}
-                >
-                  {col}
-                </span>
-              ))}
+              <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>name</span>
+              <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>joined</span>
             </div>
 
-            {/* data rows */}
             {members.map((m) => {
               const dyeKey = m.dye?.toLowerCase() ?? '';
               const dyeColor = dyeKey && DYE_VARS[dyeKey] ? DYE_VARS[dyeKey] : null;
@@ -301,19 +497,19 @@ export function Family() {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/person/${m.id}`); }}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '14px 2fr 1fr 1fr 0.6fr',
+                    gridTemplateColumns: '8px 1fr auto',
                     gap: 16,
-                    paddingTop: 14,
-                    paddingBottom: 14,
+                    paddingTop: 16,
+                    paddingBottom: 16,
                     borderBottom: '1px solid var(--rule)',
                     alignItems: 'center',
                     cursor: 'pointer',
                     outline: 'none',
+                    minHeight: 56,
                   }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(244,236,216,0.02)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
                 >
-                  {/* dye circle */}
                   <span
                     aria-hidden
                     style={{
@@ -326,62 +522,17 @@ export function Family() {
                       flexShrink: 0,
                     }}
                   />
-
-                  {/* name + relationship */}
                   <div>
-                    <div
-                      className="hl-serif"
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 400,
-                        color: 'var(--bone)',
-                        lineHeight: 1.25,
-                      }}
-                    >
+                    <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: 'var(--bone)', lineHeight: 1.25 }}>
                       {m.name}
                     </div>
-                    {m.relationship && (
-                      <div
-                        className="hl-serif"
-                        style={{
-                          fontStyle: 'italic',
-                          fontSize: 13,
-                          color: 'var(--bone-dim)',
-                          marginTop: 2,
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {m.relationship}
+                    {(m.relationship || m.role) && (
+                      <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-dim)', marginTop: 3, lineHeight: 1.2 }}>
+                        {[m.relationship, m.role].filter(Boolean).join(' · ')}
                       </div>
                     )}
                   </div>
-
-                  {/* role */}
-                  <div
-                    className="hl-mono"
-                    style={{
-                      fontSize: 9.5,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase' as const,
-                      color: 'var(--bone-dim)',
-                    }}
-                  >
-                    {m.role ?? '—'}
-                  </div>
-
-                  {/* last entry */}
-                  <div
-                    className="hl-mono"
-                    style={{ fontSize: 10, color: 'var(--bone-faint)' }}
-                  >
-                    {formatDate(m.lastEntry)}
-                  </div>
-
-                  {/* joined */}
-                  <div
-                    className="hl-mono"
-                    style={{ fontSize: 10, color: 'var(--bone-faint)' }}
-                  >
+                  <div className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', textAlign: 'right' }}>
                     {formatDate(m.createdAt)}
                   </div>
                 </div>
@@ -394,13 +545,8 @@ export function Family() {
   );
 }
 
-// ── InputField — hairline-border input with hl-serif text ────────────────────
 function InputField({
-  label,
-  value,
-  onChange,
-  type = 'text',
-  placeholder,
+  label, value, onChange, type = 'text', placeholder,
 }: {
   label: string;
   value: string;
@@ -416,7 +562,7 @@ function InputField({
           display: 'block',
           fontSize: 10,
           letterSpacing: '0.32em',
-          textTransform: 'uppercase' as const,
+          textTransform: 'uppercase',
           color: 'var(--bone-faint)',
           marginBottom: 8,
         }}
@@ -434,12 +580,12 @@ function InputField({
           border: 0,
           borderBottom: '1px solid var(--rule)',
           outline: 'none',
-          padding: '6px 0',
+          padding: '8px 0',
           fontFamily: 'var(--serif)',
-          fontSize: 15,
+          fontSize: 16,
           color: 'var(--bone)',
           borderRadius: 0,
-          boxSizing: 'border-box' as const,
+          boxSizing: 'border-box',
         }}
         onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
         onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}

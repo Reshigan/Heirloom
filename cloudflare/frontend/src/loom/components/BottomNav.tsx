@@ -154,8 +154,8 @@ export function BottomNav() {
                 className="loom-mono loom-bottom-nav-link"
                 style={{
                   textDecoration: 'none',
-                  fontSize: 10,
-                  letterSpacing: '0.16em',
+                  fontSize: 13,
+                  letterSpacing: '0.14em',
                   textTransform: 'uppercase',
                   color: active ? 'var(--warm)' : 'var(--bone-dim)',
                 }}

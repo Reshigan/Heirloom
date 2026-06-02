@@ -2105,6 +2105,9 @@ html {
   color: var(--bone-dim);
   z-index: 5;
 }
+@media (max-width: 639px) {
+  .hl-topbar { font-size: 12px; padding-left: 20px; padding-right: 20px; }
+}
 .hl-topbar .hl-counter { color: var(--bone-faint); letter-spacing: 0.14em; }
 .hl-topbar .hl-counter b { color: var(--bone-dim); font-weight: 400; }
 .hl-topbar .hl-link { color: var(--bone-dim); text-decoration: none; }
