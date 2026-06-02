@@ -139,20 +139,6 @@ jobs:
           fi
           printf '%s' "$STRIPE_WEBHOOK_SECRET" | npx --yes wrangler@4 secret put STRIPE_WEBHOOK_SECRET
 
-      # Admin notification email → Worker secret. Receives signup/alert emails.
-      - name: Sync admin notification email
-        working-directory: cloudflare
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          ADMIN_NOTIFICATION_EMAIL: ${{ secrets.ADMIN_NOTIFICATION_EMAIL }}
-        run: |
-          if [ -z "$ADMIN_NOTIFICATION_EMAIL" ]; then
-            echo "ADMIN_NOTIFICATION_EMAIL not set — admin notifications disabled; skipping."
-            exit 0
-          fi
-          printf '%s' "$ADMIN_NOTIFICATION_EMAIL" | npx --yes wrangler@4 secret put ADMIN_NOTIFICATION_EMAIL
-
       # Meta permanent page access token → Worker secret (never committed). Used by
       # the marketing automation worker for posting to the Heirloom Facebook page.
       # Skips cleanly when unset so deploys never fail if Meta posting isn't configured.
