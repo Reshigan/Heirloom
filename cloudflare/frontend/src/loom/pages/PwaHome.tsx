@@ -17,7 +17,7 @@ const QUICK_LINKS = [
 function QuickLinks() {
   return (
     <div style={{ marginTop: 40, borderTop: '1px solid var(--rule)', paddingTop: 24 }}>
-      <div className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 16 }}>
+      <div className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginBottom: 16 }}>
         more
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -26,14 +26,16 @@ function QuickLinks() {
             key={item.label}
             to={item.to}
             style={{
-              display: 'block',
+              display: 'flex',
+              alignItems: 'center',
               fontFamily: 'var(--mono)',
-              fontSize: 11,
+              fontSize: 13,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
               color: 'var(--bone-dim)',
               textDecoration: 'none',
-              padding: '8px 0',
+              padding: '10px 0',
+              minHeight: 40,
               borderBottom: '1px solid var(--rule)',
             }}
           >

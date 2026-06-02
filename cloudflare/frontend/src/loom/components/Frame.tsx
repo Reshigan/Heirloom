@@ -31,14 +31,14 @@ function UserMenu() {
         onBlur={() => setTimeout(() => setOpen(false), 200)}
         style={{
           position: 'relative',
-          width: 28,
-          height: 28,
+          width: 36,
+          height: 36,
           background: 'transparent',
           border: '1px solid var(--rule)',
           borderRadius: 0,
           color: 'var(--bone)',
           fontFamily: 'var(--mono)',
-          fontSize: 10,
+          fontSize: 11,
           letterSpacing: '0.04em',
           cursor: 'pointer',
           display: 'flex',
@@ -75,7 +75,7 @@ function UserMenu() {
             <p style={{ margin: 0, fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)' }}>
               {user.firstName} {user.lastName}
             </p>
-            <p style={{ margin: '2px 0 0', fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}>
+            <p style={{ margin: '2px 0 0', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}>
               {user.email}
             </p>
           </div>

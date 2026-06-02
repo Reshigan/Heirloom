@@ -168,8 +168,8 @@ export function Family() {
             <span
               className="hl-mono"
               style={{
-                fontSize: 11,
-                color: 'var(--bone-faint)',
+                fontSize: 12,
+                color: 'var(--bone-dim)',
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
                 flexShrink: 0,
@@ -195,8 +195,8 @@ export function Family() {
               <span
                 className="hl-mono"
                 style={{
-                  fontSize: 11,
-                  color: 'var(--bone-faint)',
+                  fontSize: 13,
+                  color: 'var(--bone-dim)',
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
                   alignSelf: 'center',
@@ -256,10 +256,10 @@ export function Family() {
                     padding: 0,
                     cursor: 'pointer',
                     fontFamily: 'var(--mono)',
-                    fontSize: 11,
+                    fontSize: 13,
                     letterSpacing: '0.28em',
                     textTransform: 'uppercase',
-                    color: mode === m ? 'var(--warm)' : 'var(--bone-faint)',
+                    color: mode === m ? 'var(--warm)' : 'var(--bone-dim)',
                     transition: 'color 180ms var(--ease)',
                     touchAction: 'manipulation',
                   }}
@@ -277,10 +277,10 @@ export function Family() {
                   padding: 0,
                   cursor: 'pointer',
                   fontFamily: 'var(--mono)',
-                  fontSize: 11,
+                  fontSize: 13,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: 'var(--bone-faint)',
+                  color: 'var(--bone-dim)',
                   touchAction: 'manipulation',
                 }}
               >
@@ -397,10 +397,10 @@ export function Family() {
                       padding: 0,
                       cursor: 'pointer',
                       fontFamily: 'var(--mono)',
-                      fontSize: 11,
+                      fontSize: 13,
                       letterSpacing: '0.18em',
                       textTransform: 'uppercase',
-                      color: copied ? 'var(--warm)' : 'var(--bone-faint)',
+                      color: copied ? 'var(--warm)' : 'var(--bone-dim)',
                       transition: 'color 180ms var(--ease)',
                       touchAction: 'manipulation',
                     }}
@@ -438,10 +438,10 @@ export function Family() {
                       padding: 0,
                       cursor: 'pointer',
                       fontFamily: 'var(--mono)',
-                      fontSize: 11,
+                      fontSize: 13,
                       letterSpacing: '0.18em',
                       textTransform: 'uppercase',
-                      color: copied ? 'var(--warm)' : 'var(--bone-faint)',
+                      color: copied ? 'var(--warm)' : 'var(--bone-dim)',
                       transition: 'color 180ms var(--ease)',
                       touchAction: 'manipulation',
                       alignSelf: 'center',
@@ -481,8 +481,8 @@ export function Family() {
               }}
             >
               <span />
-              <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>name</span>
-              <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>joined</span>
+              <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>name</span>
+              <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>joined</span>
             </div>
 
             {members.map((m) => {
@@ -532,7 +532,7 @@ export function Family() {
                       </div>
                     )}
                   </div>
-                  <div className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', textAlign: 'right' }}>
+                  <div className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', textAlign: 'right' }}>
                     {formatDate(m.createdAt)}
                   </div>
                 </div>
@@ -560,10 +560,10 @@ function InputField({
         className="hl-mono"
         style={{
           display: 'block',
-          fontSize: 10,
+          fontSize: 12,
           letterSpacing: '0.32em',
           textTransform: 'uppercase',
-          color: 'var(--bone-faint)',
+          color: 'var(--bone-dim)',
           marginBottom: 8,
         }}
       >

@@ -53,7 +53,7 @@ export function Today() {
                 <span
                   key={i}
                   className="hl-mono"
-                  style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.1em', textTransform: 'uppercase' }}
+                  style={{ fontSize: 13, color: 'var(--bone)', letterSpacing: '0.1em', textTransform: 'uppercase' }}
                 >
                   {String(c.author ?? '').slice(0, 6)}
                 </span>
