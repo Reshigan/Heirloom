@@ -206,32 +206,36 @@ engagementRoutes.get('/invites', async (c) => {
   });
 });
 
-// Accept invite (called during registration)
+// Accept invite — user ID comes from auth session, never from client body
 engagementRoutes.post('/invite/accept', async (c) => {
-  const { inviteCode, newUserId } = await c.req.json();
-  
-  if (!inviteCode || !newUserId) {
-    return c.json({ error: 'Invite code and user ID required' }, 400);
+  const userId = c.get('userId');
+  if (!userId) {
+    return c.json({ error: 'Unauthorized' }, 401);
   }
-  
+
+  const { inviteCode } = await c.req.json();
+
+  if (!inviteCode) {
+    return c.json({ error: 'Invite code is required' }, 400);
+  }
+
   const invite = await c.env.DB.prepare(`
     SELECT * FROM family_invites WHERE invite_code = ? AND status = 'pending'
   `).bind(inviteCode).first();
-  
+
   if (!invite) {
     return c.json({ error: 'Invalid or expired invite' }, 404);
   }
-  
+
   const now = new Date().toISOString();
-  
-  // Update invite status
+
   await c.env.DB.prepare(`
     UPDATE family_invites SET status = 'accepted', accepted_at = ? WHERE id = ?
   `).bind(now, invite.id).run();
-  
+
   // Award badge to inviter
   await checkAndAwardBadges(c.env, invite.inviter_user_id as string, 'referral_success', 1);
-  
+
   return c.json({ success: true, inviterId: invite.inviter_user_id });
 });
 

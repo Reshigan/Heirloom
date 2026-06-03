@@ -136,7 +136,7 @@ function PendingInviteAcceptor() {
     if (!code) return;
     localStorage.removeItem(PENDING_INVITE_KEY);
     import('./services/api').then(({ engagementApi }) => {
-      engagementApi.acceptFamilyInvite(code, user.id).catch(() => {});
+      engagementApi.acceptFamilyInvite(code).catch(() => {});
     });
   }, [isAuthenticated, user]);
   return null;

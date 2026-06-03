@@ -19,7 +19,7 @@ export function Join() {
   useEffect(() => {
     if (!user || !code || done) return;
     setAccepting(true);
-    engagementApi.acceptFamilyInvite(code, user.id)
+    engagementApi.acceptFamilyInvite(code)
       .then(() => { setDone(true); setTimeout(() => navigate('/loom'), 1400); })
       .catch((err) => {
         const msg = err?.response?.data?.error ?? 'Could not accept invite.';
