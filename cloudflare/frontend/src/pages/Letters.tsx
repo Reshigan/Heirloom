@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { lettersApi } from '../services/api';
 import { Frame } from '../loom/components/Frame';
 
@@ -169,8 +169,17 @@ export function Letters() {
 
 function LetterRow({ letter }: { letter: Letter }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const sealed = !!letter.sealedAt;
   const [expanded, setExpanded] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const deleteMut = useMutation({
+    mutationFn: () => lettersApi.delete(letter.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['letters'] }),
+  });
+
+  if (deleteMut.isSuccess) return null;
 
   const dateStr = letter.scheduledDate
     ? formatDate(letter.scheduledDate)
@@ -260,6 +269,30 @@ function LetterRow({ letter }: { letter: Letter }) {
               ? `sealed · opens on ${letter.deliveryTrigger.toLowerCase().replace('_', ' ')}`
               : 'sealed · time-locked'}
           </div>
+        </div>
+      )}
+
+      {/* Delete control — drafts only (sealed letters are permanent) */}
+      {!sealed && !confirmDelete && (
+        <div style={{ paddingBottom: 14, paddingLeft: 96, display: 'flex', gap: 20 }}>
+          <button type="button" onClick={() => setConfirmDelete(true)}
+            className="hl-mono"
+            style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dye-madder)', opacity: 0.7 }}>
+            delete draft
+          </button>
+        </div>
+      )}
+      {confirmDelete && (
+        <div style={{ paddingBottom: 14, paddingLeft: 96, display: 'flex', gap: 16, alignItems: 'center' }}>
+          <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Delete this draft?</span>
+          <button type="button" onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}
+            style={{ background: 'transparent', border: '1px solid var(--dye-madder)', borderRadius: 0, padding: '5px 12px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dye-madder)', opacity: deleteMut.isPending ? 0.6 : 1 }}>
+            {deleteMut.isPending ? 'deleting…' : 'confirm'}
+          </button>
+          <button type="button" onClick={() => setConfirmDelete(false)}
+            style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+            cancel
+          </button>
         </div>
       )}
     </li>

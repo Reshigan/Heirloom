@@ -134,15 +134,101 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
   );
 }
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const EMOTION_TYPES = [
+  { value: '', label: 'all' },
+  { value: 'memory', label: 'memory' },
+  { value: 'letter', label: 'letter' },
+  { value: 'voice', label: 'voice' },
+  { value: 'event', label: 'event' },
+  { value: 'milestone', label: 'milestone' },
+];
+
+function FilterBar({ memories, filters, setFilters }: {
+  memories: Memory[];
+  filters: { year: string; month: string; type: string; recipient: string };
+  setFilters: (f: { year: string; month: string; type: string; recipient: string }) => void;
+}) {
+  const years = Array.from(new Set(
+    memories.map(m => new Date(m.createdAt ?? m.created_at ?? '').getFullYear())
+  )).sort((a, b) => b - a);
+
+  const selectStyle: React.CSSProperties = {
+    background: 'transparent',
+    border: '1px solid var(--rule)',
+    borderRadius: 0,
+    color: 'var(--bone-dim)',
+    fontFamily: 'var(--mono)',
+    fontSize: 10,
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    padding: '5px 8px',
+    cursor: 'pointer',
+    appearance: 'none' as const,
+    WebkitAppearance: 'none' as const,
+  };
+
+  const active = filters.year || filters.month || filters.type || filters.recipient;
+
+  return (
+    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 24 }}>
+      <select value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })} style={selectStyle}>
+        <option value="">all years</option>
+        {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
+      </select>
+
+      <select value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })} style={selectStyle}>
+        <option value="">all months</option>
+        {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
+      </select>
+
+      <select value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
+        {EMOTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+      </select>
+
+      <input
+        type="text"
+        placeholder="recipient"
+        value={filters.recipient}
+        onChange={e => setFilters({ ...filters, recipient: e.target.value })}
+        style={{ ...selectStyle, border: '1px solid var(--rule)', minWidth: 100, paddingLeft: 8 }}
+      />
+
+      {active && (
+        <button type="button"
+          onClick={() => setFilters({ year: '', month: '', type: '', recipient: '' })}
+          style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)' }}>
+          clear ×
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function Memories() {
   const { isAuthenticated } = useAuthStore();
+  const [filters, setFilters] = useState({ year: '', month: '', type: '', recipient: '' });
+
   const { data, isLoading } = useQuery({
     queryKey: ['memories-mosaic'],
     queryFn: () => memoriesApi.getAll({ limit: 200 }).then((r) => (r.data as any)?.memories ?? []),
     enabled: isAuthenticated,
   });
 
-  const memories = (data as Memory[]) ?? [];
+  const allMemories = (data as Memory[]) ?? [];
+
+  const memories = allMemories.filter(m => {
+    const d = new Date(m.createdAt ?? m.created_at ?? '');
+    if (filters.year && String(d.getFullYear()) !== filters.year) return false;
+    if (filters.month && String(d.getMonth() + 1) !== filters.month) return false;
+    if (filters.type && (m.type ?? 'memory') !== filters.type) return false;
+    if (filters.recipient) {
+      const desc = (m.description ?? '').toLowerCase();
+      if (!desc.includes(filters.recipient.toLowerCase())) return false;
+    }
+    return true;
+  });
 
   return (
     <AppFrame
@@ -150,7 +236,7 @@ export function Memories() {
       right={
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.1em' }}>
-            {memories.length} {memories.length === 1 ? 'entry' : 'entries'}
+            {memories.length}/{allMemories.length} {allMemories.length === 1 ? 'entry' : 'entries'}
           </span>
           <Link to="/compose" className="hl-link warm" style={{ fontSize: 12, letterSpacing: '0.08em' }}>
             add →
@@ -162,7 +248,21 @@ export function Memories() {
         <progress style={{ width: '100%', height: 1, display: 'block', appearance: 'none', accentColor: 'var(--warm)' }} />
       )}
 
-      {!isLoading && memories.length === 0 && (
+      {!isLoading && allMemories.length > 0 && (
+        <div style={{ padding: 'clamp(16px, 4vw, 32px) clamp(24px, 5vw, 48px) 0' }}>
+          <FilterBar memories={allMemories} filters={filters} setFilters={setFilters} />
+        </div>
+      )}
+
+      {!isLoading && memories.length === 0 && allMemories.length > 0 && (
+        <div style={{ padding: '0 clamp(24px, 5vw, 48px) 24px' }}>
+          <p className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+            No entries match these filters.
+          </p>
+        </div>
+      )}
+
+      {!isLoading && allMemories.length === 0 && (
         <div style={{ padding: 'clamp(40px, 8vw, 80px) clamp(24px, 6vw, 56px)' }}>
           <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.7 }}>
             No memories yet.
