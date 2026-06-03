@@ -22,14 +22,18 @@ const AVATAR_URL    = 'https://heirloom.blue/icons/icon-512.png';
 const SQUARE_URL    = 'https://heirloom.blue/social-square.png';
 const QR_URL        = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&color=0e0e0c&bgcolor=f4ecd8&data=${encodeURIComponent(PROMO_URL_BSK)}`;
 
-// Maximised keyword sets per platform
-const BSKY_TAGS = '#genealogy #familyhistory #memorypreservation #legacyplanning #familytree #heritage #ancestors #heirloom #familystories #digitallegacy #preservation #family #memories #generations #legacy';
+// Platform-optimised tag sets — mix: broad (reach) + mid (category authority) + niche (community)
+// Bluesky: indie-tech + genealogy community; threads reward topic clustering
+const BSKY_TAGS = '#genealogy #familyhistory #familytree #ancestors #heritage #heirloom #legacy #memorypreservation #digitallegacy #legacyplanning #familystories #generations #preservation #indieapp #buildinpublic #pkm #lifelogging #personalarchive #slowtech #thoughtfultech';
 
-const FB_TAGS   = '#genealogy #familyhistory #familytree #ancestors #heritage #legacy #legacyplanning #memorypreservation #familymemories #digitalheritage #familystories #generations #heirloom #preservation #familylove #rememberance #ancestralheritage #lifestories #obituary #familyarchive #memorialday #RootsAndBranches #FamilyFirst #KeepingMemoriesAlive';
+// Facebook: broad reach via groups audience + engagement-friendly CamelCase for readability
+const FB_TAGS   = '#FamilyHistory #Genealogy #FamilyTree #Ancestors #Heritage #Legacy #FamilyMemories #LegacyPlanning #MemoryPreservation #DigitalHeritage #FamilyStories #Generations #Heirloom #AncestralHeritage #LifeStories #FamilyArchive #RootsAndBranches #KeepingMemoriesAlive #FamilyFirst #GenerationalWealth #FamilyLove #RememberThem #AncestryResearch #FamilyReunion #FamilyTraditions';
 
-const IG_TAGS   = '#genealogy #familyhistory #familytree #ancestors #heritage #legacy #legacyplanning #memorypreservation #familymemories #digitalheritage #familystories #generations #heirloom #preservation #familylove #lifestories #familyarchive #keepingmemories #ancestralheritage #myfamily #familyfirst #rootsandbranches #familybond #memoriesforever #neverforget #familygoals #loveyourfamily #generationalgift #familytraditions #ancestralroots';
+// Instagram: tier-mix (5 broad 1M+ / 10 mid 100k–1M / 15 niche <100k) for max discovery
+const IG_TAGS   = '#family #memories #genealogy #heritage #ancestors #familyhistory #familytree #legacy #heirloom #ancestry #familylove #rememberance #legacyplanning #memorypreservation #familymemories #familystories #digitallegacy #keepingmemories #ancestralheritage #familyfirst #generationalgift #familyarchive #ancestryresearch #familytraditions #memoriesforever #rootsandbranches #familybond #neverforget #lifestories #digitalheritage';
 
-const PIN_TAGS  = 'genealogy, family history, family tree, ancestors, heritage, legacy, memory preservation, family memories, digital legacy, heirloom, generations, family stories, preservation, family archive, ancestry, legacy planning, family records, historical photos, family traditions, remembrance, ancestral heritage, life stories';
+// Pinterest: comma-separated keyword phrases (Pinterest SEO, not hashtags)
+const PIN_TAGS  = 'genealogy ideas, family history project, family tree research, ancestors photos, heritage preservation, legacy planning for families, memory preservation ideas, family memories keepsake, digital legacy app, heirloom family archive, generations storytelling, family stories ideas, preserve family history, family archive digital, ancestry research, family records organizer, historical family photos, family traditions ideas, remembrance gift, generational gift ideas, life stories for grandparents, family reunion ideas, ancestral heritage project';
 
 // ─── Bluesky ────────────────────────────────────────────────────────────────
 
@@ -87,14 +91,14 @@ async function bskyPostPromo(handle: string, password: string) {
 
   const thread = [
     {
-      text: `30% off Heirloom for one full year.\n\nYour family deserves a thousand-year thread — every memory woven in, never erased. Photos, voice recordings, letters. Passed down through generations, owned by your bloodline, not a platform.\n\nCode: ${PROMO_CODE} at checkout. Offer ends June 30.`,
+      text: `What happens to your family's memories when you're gone?\n\nNot the big moments — the voice of your grandmother. The letters your parents wrote. The stories that only you know.\n\nHeirloom archives them forever. 30% off for one full year. Code: ${PROMO_CODE}\n\nOffer ends June 30.`,
       embed: { $type: 'app.bsky.embed.images', images: [{ image: qrBlob, alt: `QR code — use ${PROMO_CODE} for 30% off Heirloom` }] },
     },
     {
-      text: `Heirloom is a perpetual family archive. Not a social feed, not a cloud backup — a woven cloth where every entry is one thread. Append-only. Multi-generational. Built to outlast any single lifetime.\n\nMonthly plan. 30% off for 12 months. Start free, then pay less.`,
+      text: `Heirloom is a perpetual family archive — not a social feed, not a backup drive.\n\nEvery entry is woven into a permanent thread. Append-only. Multi-generational. Built to outlast any single lifetime.\n\nOwned by your bloodline, not a platform.\n\nMonthly plan. 30% off for 12 months with code ${PROMO_CODE}.`,
     },
     {
-      text: `Scan the QR code or follow the link to start your family's thousand-year thread.\n\nheirloom.blue/?promo=${PROMO_CODE}\n\n${BSKY_TAGS}`,
+      text: `Who in your family has stories you haven't recorded yet?\n\nTag them 👇 or start your thread now.\n\nheirloom.blue/?promo=${PROMO_CODE}\n\n${BSKY_TAGS}`,
       embed: {
         $type: 'app.bsky.embed.external',
         external: {
@@ -151,13 +155,14 @@ async function fbUpdateProfilePicture(token: string, pageId: string) {
 
 async function fbPostPromo(token: string, pageId: string) {
   console.log('[fb] Posting promo…');
-  const caption = `🧵 30% off Heirloom for one full year.
+  const caption = `What happens to your family stories when you're gone?
 
-Your family's story deserves to last forever. Heirloom is a perpetual family archive — every memory, voice recording, and letter woven into a permanent, append-only thread passed down across generations.
+Heirloom is a perpetual family archive — every memory, voice recording, photo and letter woven into a permanent thread passed down through generations. Append-only. Multi-generational. Owned by your bloodline, not a platform.
 
-Not a social feed. Not a photo album. A thousand-year family thread owned by your bloodline, not a platform.
+30% off the monthly plan for 12 months. Use code ${PROMO_CODE} at checkout. Offer ends June 30.
 
-Use code ${PROMO_CODE} for 30% off the monthly plan for 12 months. Offer ends June 30.
+👇 Tag someone whose family stories deserve to be saved.
+💾 Save this post to share with your family later.
 
 ${FB_TAGS}`;
 
@@ -184,13 +189,16 @@ ${FB_TAGS}`;
 
 async function igPostPromo(token: string, igUserId: string) {
   console.log('[ig] Posting promo…');
-  const caption = `Your family's story deserves to last forever. 🧵
+  const caption = `What happens to your family stories when you're gone? 🧵
 
 Heirloom is a perpetual family archive — every memory, voice recording, and letter woven into a permanent thread passed down across generations. Append-only. Multi-generational. Owned by your bloodline, not a platform.
 
 30% off the monthly plan for one full year.
 Use code ${PROMO_CODE} at checkout.
 Offer ends June 30 → link in bio.
+
+💬 Who in your family has stories you haven't recorded yet? Drop their name below.
+🔖 Save this to share with your family.
 
 ${IG_TAGS}`;
 
@@ -213,17 +221,11 @@ ${IG_TAGS}`;
 
 async function pinPostPromo(token: string, boardId: string) {
   console.log('[pin] Pinning promo…');
-  const description = `30% off Heirloom for one full year — use code ${PROMO_CODE} at checkout. Offer ends June 30.
-
-Heirloom is a perpetual family archive where every memory, voice recording, and letter is woven into a permanent thread passed down across generations. Append-only. Multi-generational. Built to outlast any single lifetime.
-
-Save your family's story forever. Start your thousand-year thread today.
-
-Keywords: ${PIN_TAGS}`;
+  const description = `How to preserve your family history forever — Heirloom family archive app.\n\n30% off the monthly plan for one full year. Use code ${PROMO_CODE} at checkout. Offer ends June 30.\n\nHeirloom is a perpetual family archive where every memory, voice recording, and letter is woven into a permanent thread passed down across generations. The perfect gift for grandparents, parents, and families who want to protect their stories.\n\n${PIN_TAGS}`;
 
   const body = {
     board_id: boardId,
-    title: `30% Off Heirloom — Your Family's Thousand-Year Thread`,
+    title: `How to Preserve Your Family History Forever (30% Off — Code ${PROMO_CODE})`,
     description,
     link: PROMO_URL_PIN,
     media_source: {
