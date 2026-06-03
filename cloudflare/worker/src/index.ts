@@ -204,64 +204,6 @@ app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Test email endpoint
-app.post('/api/test-email', async (c) => {
-  const body = await c.req.json();
-  const { email } = body;
-  
-  if (!email) {
-    return c.json({ error: 'Email is required' }, 400);
-  }
-  
-  try {
-    const { testEmail } = await import('./email-templates');
-    const { sendEmail } = await import('./utils/email');
-    const emailContent = testEmail();
-    
-    const result = await sendEmail(c.env, {
-      from: 'Heirloom <noreply@heirloom.blue>',
-      to: email,
-      subject: emailContent.subject,
-      html: emailContent.html,
-    });
-    
-    if (!result.success) {
-      return c.json({ error: 'Failed to send email', details: result.error }, 500);
-    }
-    
-    return c.json({ success: true, message: 'Test email sent successfully' });
-  } catch (err: any) {
-    return c.json({ error: 'Failed to send email', details: err.message }, 500);
-  }
-});
-
-// Test post reminder email endpoint
-app.post('/api/test-post-reminder', async (c) => {
-  try {
-    const body = await c.req.json();
-    const { email, type } = body;
-    
-    if (!email) {
-      return c.json({ error: 'Email is required' }, 400);
-    }
-    
-    const reminderType = type || 'weekly';
-    if (!['memory', 'voice', 'letter', 'weekly'].includes(reminderType)) {
-      return c.json({ error: 'Invalid type. Must be: memory, voice, letter, or weekly' }, 400);
-    }
-    
-    const result = await sendSinglePostReminderEmail(c.env, email, reminderType as 'memory' | 'voice' | 'letter' | 'weekly');
-    
-    if (result.success) {
-      return c.json(result);
-    } else {
-      return c.json(result, 500);
-    }
-  } catch (err: any) {
-    console.error('Error in test-post-reminder:', err);
-    return c.json({ error: 'Failed to send post reminder', details: err.message }, 500);
-  }
-});
 
 // ============================================
 // API ROUTES
@@ -534,8 +476,8 @@ app.get('/api/billing/detect', async (c) => {
   return c.json({ country, currency, symbol });
 });
 
-// Public file serving routes (for <img> and <video> tags that can't send auth headers)
-// These files are stored with unguessable keys (memories/{userId}/{timestamp}-{filename})
+// File serving routes — for <img>/<video> tags that cannot send Authorization headers.
+// Security: key must exist in the memories/voice_recordings table (UUID-based keys prevent guessing).
 // IMPORTANT: Must set Cross-Origin-Resource-Policy: cross-origin to allow embedding from heirloom.blue
 app.get('/api/memories/file/*', async (c) => {
   const url = new URL(c.req.url);
@@ -546,9 +488,16 @@ app.get('/api/memories/file/*', async (c) => {
 
   const key = decodeURIComponent(pathAfterFile);
 
-  // Validate key format (must be memories/{userId}/{filename})
   if (!key.startsWith('memories/')) {
     return c.json({ error: 'Invalid file key format' }, 400);
+  }
+
+  // Verify the key exists in the DB before serving — prevents access to arbitrary R2 paths
+  const row = await c.env.DB.prepare(
+    'SELECT id FROM memories WHERE file_key = ? AND deleted_at IS NULL LIMIT 1'
+  ).bind(key).first();
+  if (!row) {
+    return c.json({ error: 'File not found' }, 404);
   }
 
   try {
@@ -560,7 +509,6 @@ app.get('/api/memories/file/*', async (c) => {
     const headers = new Headers();
     headers.set('Content-Type', object.httpMetadata?.contentType || 'application/octet-stream');
     headers.set('Cache-Control', 'public, max-age=31536000');
-    // Allow cross-origin embedding (images served from api.heirloom.blue, embedded in heirloom.blue)
     headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
 
     return new Response(object.body, { headers });
@@ -579,9 +527,16 @@ app.get('/api/voice/file/*', async (c) => {
 
   const key = decodeURIComponent(pathAfterFile);
 
-  // Validate key format (must be voice/{userId}/{filename})
   if (!key.startsWith('voice/')) {
     return c.json({ error: 'Invalid file key format' }, 400);
+  }
+
+  // Verify the key exists in the DB before serving — prevents access to arbitrary R2 paths
+  const voiceRow = await c.env.DB.prepare(
+    'SELECT id FROM voice_recordings WHERE file_key = ? LIMIT 1'
+  ).bind(key).first();
+  if (!voiceRow) {
+    return c.json({ error: 'File not found' }, 404);
   }
 
   try {
@@ -620,10 +575,7 @@ app.get('/api/voice/file/*', async (c) => {
     headers.set('Content-Type', contentType);
     headers.set('Cache-Control', 'public, max-age=31536000');
     headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
-    headers.set('Access-Control-Allow-Origin', '*');
     headers.set('Accept-Ranges', 'bytes');
-    // Debug header to confirm this handler is serving the file
-    headers.set('X-Heirloom-Voice-Handler', 'public-index-v2');
     
     // Handle Range requests for proper media streaming
     if (rangeHeader) {

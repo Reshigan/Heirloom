@@ -10,6 +10,50 @@ import { sendEmail } from '../utils/email';
 
 export const settingsRoutes = new Hono<AppEnv>();
 
+// ── TOTP helpers (RFC 6238 / RFC 4226) ────────────────────────────────────────
+
+function base32Encode(bytes: Uint8Array): string {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let result = '', bits = 0, value = 0;
+  for (const byte of bytes) {
+    value = (value << 8) | byte;
+    bits += 8;
+    while (bits >= 5) { result += alphabet[(value >>> (bits - 5)) & 31]; bits -= 5; }
+  }
+  if (bits > 0) result += alphabet[(value << (5 - bits)) & 31];
+  return result;
+}
+
+function base32Decode(s: string): Uint8Array {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const clean = s.toUpperCase().replace(/=+$/, '');
+  let bits = 0, value = 0;
+  const output: number[] = [];
+  for (const char of clean) {
+    const idx = alphabet.indexOf(char);
+    if (idx === -1) continue;
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) { output.push((value >>> (bits - 8)) & 0xff); bits -= 8; }
+  }
+  return new Uint8Array(output);
+}
+
+async function verifyTOTP(base32Secret: string, code: string): Promise<boolean> {
+  const secretBytes = base32Decode(base32Secret);
+  const timeStep = Math.floor(Date.now() / 1000 / 30);
+  for (const t of [timeStep - 1, timeStep, timeStep + 1]) {
+    const buf = new ArrayBuffer(8);
+    new DataView(buf).setUint32(4, t, false);
+    const key = await crypto.subtle.importKey('raw', secretBytes, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+    const hmac = new Uint8Array(await crypto.subtle.sign('HMAC', key, buf));
+    const offset = hmac[19] & 0xf;
+    const otp = ((hmac[offset] & 0x7f) << 24 | hmac[offset + 1] << 16 | hmac[offset + 2] << 8 | hmac[offset + 3]) % 1_000_000;
+    if (otp.toString().padStart(6, '0') === code.toString().trim()) return true;
+  }
+  return false;
+}
+
 async function verifyStoredPassword(password: string, stored: string): Promise<boolean> {
   const [saltB64, hashB64] = stored.split(':');
   if (!saltB64 || !hashB64) return false;
@@ -469,74 +513,80 @@ settingsRoutes.delete('/legacy-contacts/:id', async (c) => {
 // Enable 2FA
 settingsRoutes.post('/2fa/enable', async (c) => {
   const userId = c.get('userId');
-  
-  // Generate a secret for TOTP
-  const secret = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(20))));
+
+  const secret = base32Encode(crypto.getRandomValues(new Uint8Array(20)));
   const now = new Date().toISOString();
-  
-  await c.env.DB.prepare(`
-    UPDATE users SET two_factor_secret = ?, updated_at = ? WHERE id = ?
-  `).bind(secret, now, userId).run();
-  
-  // Get user email for the QR code
-  const user = await c.env.DB.prepare(`
-    SELECT email FROM users WHERE id = ?
-  `).bind(userId).first();
-  
+
+  await c.env.DB.prepare(
+    'UPDATE users SET two_factor_secret = ?, two_factor_enabled = 0, updated_at = ? WHERE id = ?'
+  ).bind(secret, now, userId).run();
+
+  const user = await c.env.DB.prepare('SELECT email FROM users WHERE id = ?').bind(userId).first<{ email: string }>();
   const otpauthUrl = `otpauth://totp/Heirloom:${user?.email}?secret=${secret}&issuer=Heirloom`;
-  
+
   return c.json({
     secret,
     qrCodeUrl: otpauthUrl,
-    message: 'Scan the QR code with your authenticator app, then verify with a code',
+    message: 'Scan the QR code with your authenticator app, then verify with a code to complete setup',
   });
 });
 
 // Verify and complete 2FA setup
 settingsRoutes.post('/2fa/verify', async (c) => {
   const userId = c.get('userId');
-  const body = await c.req.json();
-  const { code } = body;
-  
+  const { code } = await c.req.json();
+
   if (!code) {
     return c.json({ error: 'Verification code is required' }, 400);
   }
-  
-  // In production, verify the TOTP code against the secret
-  // For now, just enable 2FA
-  const now = new Date().toISOString();
-  
-  await c.env.DB.prepare(`
-    UPDATE users SET two_factor_enabled = 1, updated_at = ? WHERE id = ?
-  `).bind(now, userId).run();
-  
-  return c.json({
-    success: true,
-    message: 'Two-factor authentication enabled successfully',
-  });
+
+  const user = await c.env.DB.prepare(
+    'SELECT two_factor_secret FROM users WHERE id = ?'
+  ).bind(userId).first<{ two_factor_secret: string | null }>();
+
+  if (!user?.two_factor_secret) {
+    return c.json({ error: '2FA setup not initiated — call /2fa/enable first' }, 400);
+  }
+
+  const valid = await verifyTOTP(user.two_factor_secret, String(code));
+  if (!valid) {
+    return c.json({ error: 'Invalid verification code' }, 400);
+  }
+
+  await c.env.DB.prepare(
+    'UPDATE users SET two_factor_enabled = 1, updated_at = ? WHERE id = ?'
+  ).bind(new Date().toISOString(), userId).run();
+
+  return c.json({ success: true, message: 'Two-factor authentication enabled successfully' });
 });
 
 // Disable 2FA
 settingsRoutes.post('/2fa/disable', async (c) => {
   const userId = c.get('userId');
-  const body = await c.req.json();
-  const { password } = body;
-  
+  const { password } = await c.req.json();
+
   if (!password) {
     return c.json({ error: 'Password is required to disable 2FA' }, 400);
   }
-  
-  // Verify password (simplified - in production, verify properly)
-  const now = new Date().toISOString();
-  
-  await c.env.DB.prepare(`
-    UPDATE users SET two_factor_enabled = 0, two_factor_secret = NULL, updated_at = ? WHERE id = ?
-  `).bind(now, userId).run();
-  
-  return c.json({
-    success: true,
-    message: 'Two-factor authentication disabled',
-  });
+
+  const user = await c.env.DB.prepare(
+    'SELECT password_hash FROM users WHERE id = ?'
+  ).bind(userId).first<{ password_hash: string }>();
+
+  if (!user) {
+    return c.json({ error: 'User not found' }, 404);
+  }
+
+  const ok = await verifyStoredPassword(password, user.password_hash);
+  if (!ok) {
+    return c.json({ error: 'Incorrect password' }, 401);
+  }
+
+  await c.env.DB.prepare(
+    'UPDATE users SET two_factor_enabled = 0, two_factor_secret = NULL, updated_at = ? WHERE id = ?'
+  ).bind(new Date().toISOString(), userId).run();
+
+  return c.json({ success: true, message: 'Two-factor authentication disabled' });
 });
 
 // Exit quote — storage size + exit fee

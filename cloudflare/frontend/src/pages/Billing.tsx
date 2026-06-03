@@ -37,8 +37,19 @@ function tierPrice(tier: string): string {
   switch (tier) {
     case 'STARTER': case 'FREE': return 'free';
     case 'FAMILY': return '$9.99';
-    case 'FOREVER': case 'LEGACY': return '$240';
+    case 'FOREVER': case 'LEGACY': return 'lifetime';
     default: return '—';
+  }
+}
+
+function tierLimits(tier: string): Array<[string, string]> {
+  switch (tier) {
+    case 'STARTER': case 'FREE':
+      return [['members','1'],['entries','30 / yr'],['voice','3 / mo'],['storage','500 mb'],['letters','3'],['sealed','1']];
+    case 'FAMILY':
+      return [['members','unlimited'],['entries','unlimited'],['voice','unlimited'],['storage','10 gb'],['letters','unlimited'],['sealed','unlimited']];
+    default:
+      return [['members','unlimited'],['entries','unlimited'],['voice','unlimited'],['storage','unlimited'],['letters','unlimited'],['sealed','unlimited']];
   }
 }
 
@@ -74,7 +85,9 @@ export function Billing() {
     ? 'founder · once · lifetime'
     : isTrialing
     ? `trial · ${trialDaysRemaining}d left`
-    : `${tierLabel(currentTier)} · $9.99/mo`;
+    : currentTier === 'FAMILY'
+    ? 'family · $9.99/mo'
+    : 'free plan';
 
   return (
     <>
@@ -104,7 +117,7 @@ export function Billing() {
                     </div>
                     <div className="hl-serif" style={{ fontSize: 'clamp(32px, 8vw, 52px)', fontWeight: 300, letterSpacing: '-0.022em', marginTop: 8, lineHeight: 1 }}>
                       {priceLabel}
-                      {currentTier === 'FAMILY' && (
+                      {currentTier === 'FAMILY' && !isTrialing && (
                         <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginLeft: 4, letterSpacing: '0.1em' }}>/mo</span>
                       )}
                     </div>
@@ -124,7 +137,7 @@ export function Billing() {
                 </div>
 
                 <div className="hl-usage-grid" style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
-                  {[['members','unlimited'],['entries','unlimited'],['voice','unlimited'],['storage','unlimited'],['letters','unlimited'],['sealed','unlimited']].map(([n, u]) => (
+                  {tierLimits(currentTier).map(([n, u]) => (
                     <div key={n}>
                       <div className="hl-serif" style={{ fontSize: 14, color: 'var(--bone)', fontWeight: 400 }}>{n}</div>
                       <div className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 1 }}>of {u}</div>
