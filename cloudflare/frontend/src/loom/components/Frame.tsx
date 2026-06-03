@@ -80,22 +80,10 @@ function UserMenu() {
             </p>
           </div>
           <div style={{ padding: '4px 0', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
-            {[
-              { to: '/loom/weft', label: 'The weft' },
-              { to: '/compose', label: 'Compose' },
-              { to: '/loom/kin', label: 'Kin' },
-              { to: '/inbox', label: 'Inbox' },
-              { to: '/letters', label: 'Letters' },
-              { to: '/threads', label: 'Threads' },
-              { to: '/family', label: 'Family' },
-            ].map((item) => (
-              <Link key={item.to} to={item.to} style={menuItemStyle} onClick={() => setOpen(false)}>
-                {item.label}
-              </Link>
-            ))}
+            <Link to="/settings" style={menuItemStyle} onClick={() => setOpen(false)}>Settings</Link>
+            <Link to="/billing" style={menuItemStyle} onClick={() => setOpen(false)}>Billing</Link>
+            <Link to="/family" style={menuItemStyle} onClick={() => setOpen(false)}>Family</Link>
           </div>
-          <Link to="/settings" style={menuItemStyle} onClick={() => setOpen(false)}>Settings</Link>
-          <Link to="/billing" style={menuItemStyle} onClick={() => setOpen(false)}>Billing</Link>
           <button
             type="button"
             onClick={() => { setOpen(false); logout(); }}

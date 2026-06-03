@@ -123,46 +123,6 @@
   --dur-ceremony: 1400ms;
 }
 
-/* ===== LIGHT THEME ===== */
-[data-theme="light"] {
-  --void-abyss: #f5f2eb;
-  --void-deep: #ebe6dc;
-  --void: #e0dbd1;
-  --void-surface: #f9f7f3;
-  --void-elevated: #ffffff;
-  --void-hover: #f0ece4;
-
-  --paper: #1a1a1a;
-  --paper-bright: #000000;
-  --paper-dim: #333333;
-  --paper-muted: #666666;
-
-  --paper-90: rgba(26, 26, 26, 0.9);
-  --paper-70: rgba(26, 26, 26, 0.7);
-  --paper-50: rgba(26, 26, 26, 0.5);
-  --paper-30: rgba(26, 26, 26, 0.3);
-  --paper-15: rgba(26, 26, 26, 0.15);
-  --paper-08: rgba(26, 26, 26, 0.08);
-  --paper-04: rgba(26, 26, 26, 0.04);
-  --paper-02: rgba(26, 26, 26, 0.02);
-
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(26, 26, 26, 0.08);
-  --glass-highlight: rgba(26, 26, 26, 0.05);
-  --glass-shadow: rgba(0, 0, 0, 0.1);
-
-  --gold: #9c7a3c;
-  --gold-light: #b8923c;
-  --gold-bright: #d4a853;
-  --gold-dim: #7a5f2e;
-  --gold-deep: #5a4520;
-
-  --gold-40: rgba(156, 122, 60, 0.4);
-  --gold-20: rgba(156, 122, 60, 0.2);
-  --gold-10: rgba(156, 122, 60, 0.1);
-  --gold-05: rgba(156, 122, 60, 0.05);
-}
-
 /* ── Unified dark/light theme — global token bridge ────────────────
    LoomShellRoot in App.tsx wraps the entire app in <div class="loom"
    data-theme={theme}>. These two blocks flip the globals.css canonical
