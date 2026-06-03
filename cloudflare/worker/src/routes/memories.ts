@@ -14,6 +14,7 @@ import {
   mutableUntilFrom,
   withinGrace,
 } from '../lib/legacyArchive';
+import { sendEmail } from '../utils/email';
 
 export const memoriesRoutes = new Hono<AppEnv>();
 
@@ -340,6 +341,58 @@ memoriesRoutes.get('/:id', async (c) => {
   });
 });
 
+// Memories addressed to the current user by family members
+memoriesRoutes.get('/received', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Unauthorized' }, 401);
+
+  const user = await c.env.DB.prepare(
+    `SELECT first_name, last_name, email FROM users WHERE id = ?`
+  ).bind(userId).first();
+  if (!user) return c.json({ received: [] });
+
+  const firstName = ((user.first_name as string) || '').toLowerCase();
+  const email = ((user.email as string) || '').toLowerCase();
+  if (!firstName && !email) return c.json({ received: [] });
+
+  const result = await c.env.DB.prepare(`
+    SELECT m.id, m.title, m.type, m.created_at, m.metadata,
+           u.first_name AS from_first, u.last_name AS from_last
+    FROM memories m
+    JOIN users u ON u.id = m.user_id
+    WHERE m.user_id != ?
+      AND m.deleted_at IS NULL
+      AND (
+        m.id IN (
+          SELECT mr.memory_id FROM memory_recipients mr
+          JOIN family_members fm ON fm.id = mr.family_member_id
+          WHERE LOWER(fm.email) = ? OR LOWER(fm.name) = ?
+        )
+        OR (
+          JSON_EXTRACT(m.metadata, '$.to') IS NOT NULL
+          AND LOWER(JSON_EXTRACT(m.metadata, '$.to')) LIKE '%' || ? || '%'
+          AND m.user_id IN (
+            SELECT fm2.user_id FROM family_members fm2
+            WHERE LOWER(fm2.email) = ? OR LOWER(fm2.name) = ?
+          )
+        )
+      )
+    ORDER BY m.created_at DESC
+    LIMIT 50
+  `).bind(userId, email, firstName, firstName, email, firstName).all();
+
+  return c.json({
+    received: result.results.map((m: any) => ({
+      id: m.id,
+      title: m.title,
+      type: m.type,
+      createdAt: m.created_at,
+      from: `${m.from_first || ''} ${m.from_last || ''}`.trim(),
+      metadata: m.metadata ? JSON.parse(m.metadata) : null,
+    })),
+  });
+});
+
 // Create a new memory
 memoriesRoutes.post('/', async (c) => {
   const userId = c.get('userId');
@@ -392,6 +445,32 @@ memoriesRoutes.post('/', async (c) => {
           .bind(crypto.randomUUID(), id, recipientId, now)
       )
     );
+  }
+
+  // Email notification when addressed to a specific family member
+  const addressedTo = enrichedMetadata?.to as string | undefined;
+  if (addressedTo) {
+    const sender = await c.env.DB.prepare(
+      `SELECT first_name, last_name FROM users WHERE id = ?`
+    ).bind(userId).first();
+    const recipient = await c.env.DB.prepare(
+      `SELECT email FROM family_members
+       WHERE user_id = ? AND LOWER(name) LIKE '%' || LOWER(?) || '%' AND email IS NOT NULL
+       LIMIT 1`
+    ).bind(userId, addressedTo.split(' ')[0]).first();
+    if (recipient?.email) {
+      const fromName = `${sender?.first_name || ''} ${sender?.last_name || ''}`.trim() || 'Someone';
+      await sendEmail(c.env, {
+        from: 'Heirloom <memories@heirloom.blue>',
+        to: recipient.email as string,
+        subject: `${fromName} wove a memory for you`,
+        html: `<p style="font-family:Georgia,serif;font-size:16px;color:#0e0e0c;">
+          ${fromName} addressed a memory to you on Heirloom.<br><br>
+          <strong>${title}</strong><br><br>
+          <a href="https://heirloom.blue/inbox" style="color:#b07a4a;">View in your inbox →</a>
+        </p>`,
+      });
+    }
   }
   
   const memory = await c.env.DB.prepare(`

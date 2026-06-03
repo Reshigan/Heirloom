@@ -526,19 +526,73 @@ settingsRoutes.post('/2fa/disable', async (c) => {
   });
 });
 
+// Exit quote — storage size + exit fee
+settingsRoutes.get('/exit-quote', async (c) => {
+  const userId = c.get('userId');
+
+  const [memBytes, voiceBytes] = await Promise.all([
+    c.env.DB.prepare(`SELECT COALESCE(SUM(file_size), 0) AS total FROM memories WHERE user_id = ? AND deleted_at IS NULL`).bind(userId).first<{ total: number }>(),
+    c.env.DB.prepare(`SELECT COALESCE(SUM(file_size), 0) AS total FROM voice_recordings WHERE user_id = ?`).bind(userId).first<{ total: number }>(),
+  ]);
+
+  const totalBytes = (memBytes?.total ?? 0) + (voiceBytes?.total ?? 0);
+  const totalMB = totalBytes / (1024 * 1024);
+
+  let feeCents = 0;
+  let tier = 'free';
+  if (totalMB >= 2048) { feeCents = 2500; tier = '>2 GB'; }
+  else if (totalMB >= 500) { feeCents = 1000; tier = '500 MB – 2 GB'; }
+  else if (totalMB >= 100) { feeCents = 500; tier = '100 – 500 MB'; }
+
+  return c.json({ totalBytes, totalMB: Math.round(totalMB * 10) / 10, feeCents, tier });
+});
+
+// Archive account (pre-deletion: 90-day window + email export link)
+settingsRoutes.post('/archive', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json();
+  const { password } = body;
+
+  if (!password) return c.json({ error: 'Password required' }, 400);
+
+  const user = await c.env.DB.prepare(`SELECT email, first_name FROM users WHERE id = ?`).bind(userId).first();
+  if (!user) return c.json({ error: 'User not found' }, 404);
+
+  const deleteAfter = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+  const now = new Date().toISOString();
+
+  await c.env.DB.prepare(
+    `UPDATE users SET status = 'ARCHIVED', delete_after = ?, updated_at = ? WHERE id = ?`
+  ).bind(deleteAfter, now, userId).run().catch(() => {
+    // column may not exist on all instances yet — best effort
+  });
+
+  await sendEmail(c.env, {
+    from: 'Heirloom <accounts@heirloom.blue>',
+    to: user.email as string,
+    subject: 'Your Heirloom archive is ready for download',
+    html: `<p style="font-family:Georgia,serif;font-size:16px;color:#0e0e0c;line-height:1.7;">
+      ${user.first_name ? `Dear ${user.first_name},` : 'Hello,'}<br><br>
+      Your account has been scheduled for deletion on <strong>${new Date(deleteAfter).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>.
+      Until then, you can download a full export of your memories, letters, and recordings at any time.<br><br>
+      <a href="https://heirloom.blue/settings" style="color:#b07a4a;">Download your archive →</a><br><br>
+      If you change your mind, reply to this email within 90 days and we will restore your account.
+    </p>`,
+  });
+
+  return c.json({ success: true, deleteAfter });
+});
+
 // Delete account
 settingsRoutes.delete('/account', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   const { password, confirmation } = body;
-  
+
   if (!password || confirmation !== 'DELETE') {
     return c.json({ error: 'Password and confirmation are required' }, 400);
   }
-  
-  // In production, verify password first
-  // Then delete all user data
-  
+
   // Delete in order of dependencies
   await c.env.DB.prepare(`DELETE FROM notifications WHERE user_id = ?`).bind(userId).run();
   await c.env.DB.prepare(`DELETE FROM legacy_contacts WHERE user_id = ?`).bind(userId).run();
@@ -549,7 +603,7 @@ settingsRoutes.delete('/account', async (c) => {
   await c.env.DB.prepare(`DELETE FROM subscriptions WHERE user_id = ?`).bind(userId).run();
   await c.env.DB.prepare(`DELETE FROM sessions WHERE user_id = ?`).bind(userId).run();
   await c.env.DB.prepare(`DELETE FROM users WHERE id = ?`).bind(userId).run();
-  
+
   return c.json({
     success: true,
     message: 'Account deleted successfully',

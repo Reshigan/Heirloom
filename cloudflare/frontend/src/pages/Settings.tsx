@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
-import { settingsApi } from '../services/api';
+import { settingsApi, exportApi } from '../services/api';
 import { Frame } from '../loom/components/Frame';
 
 const RESPONSIVE_CSS = `
@@ -46,15 +46,40 @@ export function Settings() {
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [savedFlash, setSavedFlash] = useState(false);
 
-  const [deleteStage, setDeleteStage] = useState<'idle' | 'confirm' | 'password'>('idle');
+  const [deleteStage, setDeleteStage] = useState<'idle' | 'confirm' | 'quote' | 'password' | 'archived'>('idle');
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [exportLoading, setExportLoading] = useState(false);
 
-  const deleteMutation = useMutation({
-    mutationFn: () => settingsApi.deleteAccount(deletePassword),
-    onSuccess: async () => { await logout(); navigate('/', { replace: true }); },
+  const exitQuoteQ = useQuery({
+    queryKey: ['exit-quote'],
+    enabled: deleteStage === 'quote',
+    queryFn: () => settingsApi.getExitQuote().then((r) => r.data as { totalMB: number; feeCents: number; tier: string }),
+  });
+
+  const archiveMutation = useMutation({
+    mutationFn: () => settingsApi.archiveAccount(deletePassword),
+    onSuccess: () => setDeleteStage('archived'),
     onError: (err: any) => { setDeleteError(err?.response?.data?.error ?? 'Incorrect password.'); },
   });
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const res = await exportApi.exportData();
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `heirloom-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // silently ignore
+    } finally {
+      setExportLoading(false);
+    }
+  };
 
   const save = useMutation({
     mutationFn: () => settingsApi.updateProfile({ firstName, lastName }).then((r) => r.data),
@@ -124,10 +149,15 @@ export function Settings() {
           <Row label="dead-man's switch" hint="warns at 7 days · triggers at 14 days">
             armed · check-in every 90 days
           </Row>
-          <Row label="export" hint="updated nightly · downloadable any time">
-            <a style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none', cursor: 'pointer' }}>
-              download archive →
-            </a>
+          <Row label="export" hint="full JSON archive of all your memories, letters, and voice">
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exportLoading}
+              style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none', opacity: exportLoading ? 0.5 : 1 }}
+            >
+              {exportLoading ? 'preparing…' : 'download archive →'}
+            </button>
           </Row>
 
           {/* ── Encryption ───────────────────────────────── */}
@@ -167,6 +197,17 @@ export function Settings() {
             </a>
           </Row>
 
+          {/* ── Inheritance ──────────────────────────────── */}
+          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>inheritance</div>
+          <Row label="thread steward" hint="takes custodianship of the thread when the dead-man's switch triggers">
+            <Link to="/threads" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
+              designate →
+            </Link>
+          </Row>
+          <Row label="memorial mode" hint="read-only public archive · no new entries after 1 year of inactivity">
+            auto-eligible after 12 months
+          </Row>
+
           {/* ── Danger ───────────────────────────────────── */}
           <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--dye-madder)' }}>danger</div>
           <div style={{ padding: '14px 0', borderTop: '1px solid var(--rule)' }}>
@@ -175,30 +216,30 @@ export function Settings() {
               onClick={() => setDeleteStage('confirm')}
               style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--dye-madder)' }}
             >
-              delete account →
+              close account →
             </button>
             <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-dim)', marginTop: 4, fontWeight: 400 }}>
-              permanent · all data erased
+              90-day archive window before permanent erasure
             </div>
           </div>
 
         </div>
       </Frame>
 
-      {/* Delete account modal */}
+      {/* Account close modal */}
       {deleteStage !== 'idle' && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(14,14,12,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '0 16px' }}>
           <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 40px)', maxWidth: 440, width: '100%' }}>
-            {deleteStage === 'confirm' ? (
+            {deleteStage === 'confirm' && (
               <>
-                <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>delete account</div>
+                <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>close account</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
-                  This permanently deletes your thread, all entries, letters, and voice recordings. It cannot be undone.
+                  Your thread will be archived for 90 days. During that window you can download a full export of everything you have ever written. After 90 days it is permanently erased.
                 </p>
                 <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => setDeleteStage('password')}
+                  <button type="button" onClick={() => setDeleteStage('quote')}
                     style={{ background: 'transparent', border: '1px solid var(--dye-madder)', color: 'var(--dye-madder)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
-                    I understand — continue
+                    continue →
                   </button>
                   <button type="button" onClick={() => setDeleteStage('idle')}
                     style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
@@ -206,17 +247,53 @@ export function Settings() {
                   </button>
                 </div>
               </>
-            ) : (
+            )}
+
+            {deleteStage === 'quote' && (
+              <>
+                <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>export fee</div>
+                {exitQuoteQ.isLoading ? (
+                  <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, margin: '24px 0' }} />
+                ) : (
+                  <>
+                    <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 10px' }}>
+                      Your archive is <strong style={{ color: 'var(--bone)' }}>{exitQuoteQ.data?.totalMB ?? 0} MB</strong>.
+                    </p>
+                    {(exitQuoteQ.data?.feeCents ?? 0) > 0 ? (
+                      <p className="hl-serif" style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
+                        A one-time export fee of <strong style={{ color: 'var(--warm)' }}>${((exitQuoteQ.data?.feeCents ?? 0) / 100).toFixed(2)}</strong> applies for archives over 100 MB. Contact <a href="mailto:support@heirloom.blue" style={{ color: 'var(--warm)' }}>support@heirloom.blue</a> to arrange payment, then return here to proceed.
+                      </p>
+                    ) : (
+                      <p className="hl-serif" style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
+                        Your archive is under 100 MB — no export fee applies.
+                      </p>
+                    )}
+                  </>
+                )}
+                <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                  <button type="button" onClick={() => setDeleteStage('password')}
+                    style={{ background: 'transparent', border: '1px solid var(--dye-madder)', color: 'var(--dye-madder)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
+                    archive my account →
+                  </button>
+                  <button type="button" onClick={() => setDeleteStage('idle')}
+                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                    cancel
+                  </button>
+                </div>
+              </>
+            )}
+
+            {deleteStage === 'password' && (
               <>
                 <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>confirm password</div>
                 <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 18px', lineHeight: 1.6 }}>
-                  Enter your password to permanently delete your account.
+                  Enter your password to archive your account. A download link will be emailed to you.
                 </p>
                 <input
                   type="password"
                   value={deletePassword}
                   onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(null); }}
-                  onKeyDown={(e) => e.key === 'Enter' && deletePassword && deleteMutation.mutate()}
+                  onKeyDown={(e) => e.key === 'Enter' && deletePassword && archiveMutation.mutate()}
                   placeholder="your password"
                   autoFocus
                   style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
@@ -225,15 +302,37 @@ export function Settings() {
                   <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 14px' }}>{deleteError}</p>
                 )}
                 <div style={{ display: 'flex', gap: 14, marginTop: 20, flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => deleteMutation.mutate()} disabled={!deletePassword || deleteMutation.isPending}
-                    style={{ background: 'var(--dye-madder)', border: 0, color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer', opacity: (!deletePassword || deleteMutation.isPending) ? 0.5 : 1 }}>
-                    {deleteMutation.isPending ? 'deleting…' : 'delete forever'}
+                  <button type="button" onClick={() => archiveMutation.mutate()} disabled={!deletePassword || archiveMutation.isPending}
+                    style={{ background: 'var(--dye-madder)', border: 0, color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer', opacity: (!deletePassword || archiveMutation.isPending) ? 0.5 : 1 }}>
+                    {archiveMutation.isPending ? 'archiving…' : 'archive account'}
                   </button>
                   <button type="button" onClick={() => { setDeleteStage('idle'); setDeletePassword(''); setDeleteError(null); }}
                     style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
                     cancel
                   </button>
                 </div>
+              </>
+            )}
+
+            {deleteStage === 'archived' && (
+              <>
+                <div className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 14 }}>archived</div>
+                <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
+                  Your account has been archived. Check your email for a download link. Your thread will be permanently erased in 90 days.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleExport}
+                  disabled={exportLoading}
+                  style={{ background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer', marginBottom: 14, opacity: exportLoading ? 0.5 : 1 }}
+                >
+                  {exportLoading ? 'preparing…' : 'download archive now →'}
+                </button>
+                <br />
+                <button type="button" onClick={() => { logout(); navigate('/', { replace: true }); }}
+                  style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', marginTop: 8 }}>
+                  sign out
+                </button>
               </>
             )}
           </div>

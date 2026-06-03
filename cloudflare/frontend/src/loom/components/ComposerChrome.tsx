@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { lettersApi } from '../../services/api';
+import { lettersApi, aiApi } from '../../services/api';
 
 /**
  * ComposerChrome — shared primitives for the two Composer surfaces
@@ -293,6 +293,52 @@ export function DyeControl({
       <span style={{ color: 'var(--warm)' }}>
         {dye.key} · {dye.motif}
       </span>
+    </button>
+  );
+}
+
+/* ─── AI dye suggest button ──────────────────────────────────────────── */
+export function DyeSuggestButton({
+  body,
+  onSuggest,
+}: {
+  body: string;
+  onSuggest: (dye: string) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  const suggest = async () => {
+    if (body.length < 20 || loading) return;
+    setLoading(true);
+    try {
+      const res = await aiApi.suggestDye(body);
+      const dye = (res.data as any)?.dye as string | undefined;
+      if (dye) onSuggest(dye);
+    } catch {
+      // silently ignore
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={suggest}
+      disabled={loading || body.length < 20}
+      style={{
+        background: 'transparent',
+        border: 0,
+        padding: 0,
+        cursor: body.length < 20 ? 'default' : 'pointer',
+        font: 'inherit',
+        letterSpacing: 'inherit',
+        color: loading ? 'var(--bone-faint)' : 'var(--warm)',
+        opacity: body.length < 20 ? 0.35 : 1,
+        transition: 'color 180ms var(--ease), opacity 180ms',
+      }}
+    >
+      {loading ? 'reading…' : 'suggest →'}
     </button>
   );
 }

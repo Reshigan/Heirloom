@@ -7,6 +7,7 @@ import {
   ComposerModes,
   ComposerRail,
   DyeControl,
+  DyeSuggestButton,
   ListenerLine,
   VisibilityControl,
   useListenerAI,
@@ -462,7 +463,10 @@ export function Compose() {
           {/* ── Step 4: How it's kept ─────────────────────────────────── */}
           <ComposerRail>
             <VisibilityControl value={visibility} onChange={setVisibility} />
-            <DyeControl value={dye} onChange={setDye} />
+            <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 10 }}>
+              <DyeControl value={dye} onChange={setDye} />
+              <DyeSuggestButton body={body} onSuggest={setDye} />
+            </span>
             <span style={{ color: 'var(--bone-faint)' }}>
               {save.isPending ? 'weaving…' : 'once saved · immutable in 30 days'}
             </span>

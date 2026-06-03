@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Frame } from '../loom/components/Frame';
-import { memoryCardsApi } from '../services/api';
+import { memoryCardsApi, aiApi } from '../services/api';
 
 // ── Dye swatch colours (10-stop natural-dye palette) ─────────────────────────
 const DYE_VARS = [
@@ -48,6 +48,23 @@ export function OnThisDay() {
     ...((data as any)?.createdOnThisDay || []),
   ];
 
+  const { data: narrationData } = useQuery({
+    queryKey: ['on-this-day-narration', memories.map((m) => m.id).join(',')],
+    enabled: memories.length > 0,
+    queryFn: () =>
+      aiApi
+        .onThisDayNarration(
+          memories.slice(0, 5).map((m) => ({
+            title: m.title,
+            description: m.description,
+            yearsAgo: m.yearsAgo,
+            type: m.type,
+          }))
+        )
+        .then((r) => (r.data as any)?.narration as string | null)
+        .catch(() => null),
+  });
+
   const today = new Date();
   const dateStr = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
 
@@ -86,6 +103,24 @@ export function OnThisDay() {
         >
           {dateStr}
         </p>
+
+        {/* ── The Listener ambient narration ────────────────────────────── */}
+        {narrationData && (
+          <p
+            className="hl-serif"
+            style={{
+              fontStyle: 'italic',
+              fontSize: 14,
+              color: 'var(--bone-dim)',
+              lineHeight: 1.75,
+              margin: '-16px 0 32px',
+              maxWidth: '52ch',
+              fontWeight: 300,
+            }}
+          >
+            {narrationData}
+          </p>
+        )}
 
         {/* ── States ───────────────────────────────────────────────────── */}
         {isLoading ? (

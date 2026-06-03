@@ -624,3 +624,108 @@ ${existingContent ? `\nThey have already recorded content about: ${existingConte
     return c.json({ error: 'Failed to generate prompts' }, 500);
   }
 });
+
+// ============================================
+// DYE AUTO-CLASSIFY — suggest a natural-dye colour from memory text
+// ============================================
+
+const DYE_DESCRIPTIONS: Record<string, string> = {
+  weld:      'daily life, routines, ordinary moments, gratitude',
+  walnut:    'travel, adventure, exploration, journeys',
+  saffron:   'achievement, pride, milestones, success',
+  woad:      'contemplation, quiet, introspection, solitude',
+  madder:    'joy, celebration, happiness, laughter',
+  kermes:    'love, romance, tenderness, family warmth',
+  cochineal: 'grief, loss, mourning, sorrow',
+  indigo:    'reflection, memory, nostalgia, the past',
+  oakgall:   'record, history, documentation, facts',
+  iron:      'endings, farewells, transitions, letting go',
+};
+
+aiRoutes.post('/suggest-dye', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Unauthorized' }, 401);
+
+  let text = '';
+  try {
+    const body = await c.req.json();
+    text = (body.text || '').slice(0, 600);
+  } catch {
+    return c.json({ error: 'Invalid body' }, 400);
+  }
+
+  if (text.length < 20) {
+    return c.json({ dye: 'walnut', motif: 'travel', reason: 'too short to classify' });
+  }
+
+  const palette = Object.entries(DYE_DESCRIPTIONS)
+    .map(([key, desc]) => `${key}: ${desc}`)
+    .join('\n');
+
+  try {
+    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      messages: [
+        {
+          role: 'system',
+          content: `You are a colour classifier for a memory archive. Given a short piece of writing, pick the single best-matching natural dye colour from this palette:\n\n${palette}\n\nRespond with ONLY the dye key (one word, lowercase). No explanation.`,
+        },
+        { role: 'user', content: text },
+      ],
+      max_tokens: 10,
+      temperature: 0.3,
+    });
+
+    const raw = ((response as any).response || '').trim().toLowerCase();
+    const dye = Object.keys(DYE_DESCRIPTIONS).find((k) => raw.includes(k)) ?? 'walnut';
+    const motif = DYE_DESCRIPTIONS[dye]?.split(',')[0]?.trim() ?? 'daily';
+
+    return c.json({ dye, motif });
+  } catch {
+    return c.json({ dye: 'walnut', motif: 'travel' });
+  }
+});
+
+// ============================================
+// ON-THIS-DAY NARRATION — ambient one-line thread commentary
+// ============================================
+
+aiRoutes.post('/on-this-day-narration', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Unauthorized' }, 401);
+
+  let memories: { title?: string; description?: string; yearsAgo?: number; type?: string }[] = [];
+  try {
+    const body = await c.req.json();
+    memories = (body.memories || []).slice(0, 8);
+  } catch {
+    return c.json({ error: 'Invalid body' }, 400);
+  }
+
+  if (memories.length === 0) {
+    return c.json({ narration: null });
+  }
+
+  const summary = memories.map((m) => {
+    const ago = m.yearsAgo && m.yearsAgo > 0 ? `${m.yearsAgo} year${m.yearsAgo === 1 ? '' : 's'} ago` : 'this year';
+    return `- ${m.title || 'untitled'} (${m.type || 'memory'}, ${ago}): ${(m.description || '').slice(0, 120)}`;
+  }).join('\n');
+
+  try {
+    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      messages: [
+        {
+          role: 'system',
+          content: `You are the Listener — a quiet, reflective voice inside a family memory archive. Given a list of memories written on this date in past years, compose a single poetic, ambient sentence (under 20 words) that notices a pattern, an echo, or a quiet truth across them. Do not name specific people. Do not use quotation marks. No explanation — just the sentence.`,
+        },
+        { role: 'user', content: `Memories written on this date:\n${summary}` },
+      ],
+      max_tokens: 60,
+      temperature: 0.7,
+    });
+
+    const narration = ((response as any).response || '').trim().replace(/^["']|["']$/g, '');
+    return c.json({ narration: narration || null });
+  } catch {
+    return c.json({ narration: null });
+  }
+});

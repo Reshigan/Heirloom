@@ -124,6 +124,7 @@ export const memoriesApi = {
   create: (data: any) => api.post('/memories', data),
   update: (id: string, data: any) => api.patch(`/memories/${id}`, data),
   delete: (id: string) => api.delete(`/memories/${id}`),
+  received: () => api.get('/memories/received'),
 };
 
 // Letters API
@@ -226,6 +227,9 @@ export const settingsApi = {
   // WhatsApp
   connectWhatsApp: (data: { phone: string }) => api.post('/settings/connect-whatsapp', data),
   verifyWhatsApp: (data: { code: string }) => api.post('/settings/verify-whatsapp', data),
+  // Exit flow
+  getExitQuote: () => api.get('/settings/exit-quote'),
+  archiveAccount: (password: string) => api.post('/settings/archive', { password }),
 };
 
 // Dead Man's Switch API
@@ -296,6 +300,13 @@ export const aiApi = {
 
   // Transcribe
   transcribe: (data: { audioUrl: string }) => api.post('/ai/transcribe', data),
+
+  // Dye auto-classify
+  suggestDye: (text: string) => api.post('/ai/suggest-dye', { text }),
+
+  // On This Day ambient narration
+  onThisDayNarration: (memories: { title: string; description?: string; yearsAgo: number; type: string }[]) =>
+    api.post('/ai/on-this-day-narration', { memories }),
 };
 
 // Search API

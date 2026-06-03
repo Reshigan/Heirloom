@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { threadsApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
+import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
 import { Frame, TapestryEdge } from '../loom/components/Frame';
 
 /**
@@ -76,8 +76,18 @@ export function Inbox() {
         .catch(() => [] as RecentUnlock[]),
   });
 
+  const receivedQ = useQuery({
+    queryKey: ['inbox', 'received'],
+    queryFn: () =>
+      memoriesApi
+        .received()
+        .then((r) => (r.data as any).received ?? [])
+        .catch(() => []),
+  });
+
   const sealed = upcomingQ.data ?? [];
   const opened = recentQ.data ?? [];
+  const received: { id: string; title: string; type: string; createdAt: string; from: string; metadata: any }[] = receivedQ.data ?? [];
   const loading = upcomingQ.isLoading || recentQ.isLoading;
 
   return (
@@ -108,6 +118,45 @@ export function Inbox() {
         >
           What is waiting.
         </h1>
+
+        {/* ── for you ── */}
+        {received.length > 0 && (
+          <section style={{ marginBottom: 40 }}>
+            <p className="hl-eyebrow" style={{ marginBottom: 14, color: 'var(--warm)' }}>
+              for you
+            </p>
+            {received.map((m) => (
+              <Link
+                key={m.id}
+                to={`/memories/${m.id}`}
+                style={{ textDecoration: 'none', display: 'block' }}
+              >
+                <div
+                  style={{
+                    borderBottom: '1px solid var(--rule)',
+                    padding: '14px 0',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    gap: 12,
+                    alignItems: 'baseline',
+                  }}
+                >
+                  <div>
+                    <div className="hl-serif" style={{ fontSize: 15, color: 'var(--warm)', fontWeight: 400 }}>
+                      {m.title}
+                    </div>
+                    <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 3 }}>
+                      from {m.from || 'a family member'}
+                    </div>
+                  </div>
+                  <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>
+                    {new Date(m.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </section>
+        )}
 
         {loading ? (
           <p
