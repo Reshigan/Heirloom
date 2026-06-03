@@ -95,6 +95,9 @@
   --sans: 'Inter', system-ui, -apple-system, sans-serif;
   --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
 
+  /* Semantic tokens */
+  --danger: #c25a5a;
+
   /* natural-dye palette — only inside the cloth (woven threads) */
   --dye-madder:    #e84030;
   --dye-cochineal: #d42868;
@@ -250,49 +253,27 @@ body {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   border: none;
-  border-radius: 8px;
+  border-radius: 0;
   cursor: pointer;
-  transition: background-color var(--duration-normal) var(--ease-out),
-              color var(--duration-normal) var(--ease-out),
-              box-shadow var(--duration-normal) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+  transition: background-color 180ms var(--ease-out),
+              color 180ms var(--ease-out),
+              opacity 180ms var(--ease-out);
   position: relative;
   overflow: hidden;
   text-decoration: none;
 }
 
-.btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-  pointer-events: none;
-}
-
 .btn-primary {
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
-  color: var(--void-abyss);
-  box-shadow: 
-    0 4px 20px -4px var(--gold-40),
-    inset 0 1px 0 0 var(--gold-light);
+  background: var(--warm);
+  color: var(--ink);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 8px 32px -4px var(--gold-40),
-    0 0 40px -8px var(--gold-40),
-    inset 0 1px 0 0 var(--gold-bright);
+  background: var(--warm-bright);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
-  box-shadow: 
-    0 2px 12px -2px var(--gold-40),
-    inset 0 1px 0 0 var(--gold-light);
+  opacity: 0.85;
 }
 
 .btn-primary:disabled {
@@ -322,7 +303,7 @@ body {
     line-height: 1.5;
     background: var(--void-surface);
     border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px;
+    border-radius: 2px;
     color: var(--paper);
     outline: none;
     transition: border-color var(--duration-fast) var(--ease-out),
@@ -430,7 +411,7 @@ em {
   background: linear-gradient(90deg, var(--paper-08) 25%, var(--paper-15) 50%, var(--paper-08) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s linear infinite;
-  border-radius: 8px;
+  border-radius: 0;
 }
 
 @keyframes skeleton-shimmer {
@@ -528,7 +509,7 @@ em {
   padding: 8px 12px;
   background: var(--void);
   border: 1px solid var(--glass-border);
-  border-radius: 8px;
+  border-radius: 2px;
   font-size: 13px;
   white-space: nowrap;
   opacity: 0;

@@ -168,7 +168,7 @@ export function Dashboard() {
                 gridTemplateRows: 'auto 1fr auto',
                 gap: 14,
                 minHeight: 220,
-                transition: 'background 220ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--ink-card)')}
               onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--ink)')}
@@ -238,7 +238,7 @@ function FeaturedThread({ thread, threadCount }: { thread: ThreadSummary; thread
           border: '1px solid var(--rule)',
           background: 'rgba(244,236,216,0.012)',
           textDecoration: 'none',
-          transition: 'border-color 220ms cubic-bezier(0.16,1,0.3,1)',
+          transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
         }}
         onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--rule-warm)')}
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--rule)')}

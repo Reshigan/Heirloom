@@ -34,6 +34,9 @@ const PRECACHE = [
   // The offline page's logic lives in an external file (CSP blocks inline
   // scripts); precache it so the holding queue works with no network.
   '/offline-boot.js',
+  // Splash teardown safety-net — must be available offline so the splash
+  // doesn't get stuck if the network is absent on first load.
+  '/splash-boot.js',
 ];
 
 self.addEventListener('install', (event) => {

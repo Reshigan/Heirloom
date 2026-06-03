@@ -158,6 +158,10 @@ export function BottomNav() {
                   letterSpacing: '0.14em',
                   textTransform: 'uppercase',
                   color: active ? 'var(--warm)' : 'var(--bone-dim)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  minHeight: 44,
+                  padding: '0 4px',
                 }}
               >
                 {item.label}

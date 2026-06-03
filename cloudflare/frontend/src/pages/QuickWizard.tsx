@@ -114,7 +114,7 @@ function VoiceRings() {
             height: 12 + i * 10,
             background: 'var(--bone-faint)',
             borderRadius: 0,
-            animation: `hl-waveform 1.2s ease-in-out ${i * 0.15}s infinite alternate`,
+            animation: `hl-waveform 1400ms cubic-bezier(0.16,1,0.3,1) ${i * 0.15}s infinite alternate`,
           }}
         />
       ))}

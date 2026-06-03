@@ -52,7 +52,7 @@ const STATUS_TOKENS: StatusTokenMap = {
   scheduled: { border: 'var(--rule)', color: 'var(--bone-dim)', label: 'Scheduled' },
   publishing: { border: 'var(--rule-warm)', color: 'var(--warm)', label: 'Publishing' },
   published:  { border: 'var(--rule-warm)', color: 'var(--warm)', label: 'Published' },
-  failed:     { border: 'rgba(194,90,90,0.35)', color: '#c25a5a', label: 'Failed' },
+  failed:     { border: 'rgba(194,90,90,0.35)', color: 'var(--danger)', label: 'Failed' },
   skipped:    { border: 'var(--rule)', color: 'var(--bone-faint)', label: 'Skipped' },
 };
 
@@ -185,7 +185,7 @@ export function SocialCalendarTab() {
 
 /* ── StatCell ───────────────────────────────────────────────────── */
 function StatCell({ label, value, warm, error }: { label: string; value: number; warm?: boolean; error?: boolean }) {
-  const valColor = error ? '#c25a5a' : warm ? 'var(--warm)' : 'var(--bone)';
+  const valColor = error ? 'var(--danger)' : warm ? 'var(--warm)' : 'var(--bone)';
   return (
     <div style={{ border: '1px solid var(--rule)', padding: '20px 16px', textAlign: 'center' }}>
       <div className="loom-mono" style={{ fontSize: 28, fontWeight: 300, color: valColor, lineHeight: 1, marginBottom: 8 }}>{value}</div>
@@ -244,7 +244,7 @@ function PostRow({ post, onPause, onRetry, onDelete }: {
 
         {/* Error */}
         {post.error && (
-          <div className="loom-mono" style={{ marginTop: 8, padding: '8px 10px', border: '1px solid rgba(194,90,90,0.35)', color: '#c25a5a', fontSize: 11 }}>
+          <div className="loom-mono" style={{ marginTop: 8, padding: '8px 10px', border: '1px solid rgba(194,90,90,0.35)', color: 'var(--danger)', fontSize: 11 }}>
             {post.error}
           </div>
         )}
@@ -277,7 +277,7 @@ function PostRow({ post, onPause, onRetry, onDelete }: {
             onClick={onDelete}
             aria-label="Delete post"
             style={{ background: 'none', border: 'none', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.04em', color: 'var(--bone-faint)', cursor: 'pointer', padding: '4px 10px', transition: 'color 180ms var(--loom-ease)' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
             onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
           >
             Delete

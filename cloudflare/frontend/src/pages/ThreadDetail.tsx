@@ -485,7 +485,7 @@ export function ThreadDetail() {
                         </div>
 
                         {inviteError ? (
-                          <p role="alert" className="hl-serif" style={{ margin: 0, fontStyle: 'italic', color: '#c25a5a', fontSize: 14 }}>
+                          <p role="alert" className="hl-serif" style={{ margin: 0, fontStyle: 'italic', color: 'var(--danger)', fontSize: 14 }}>
                             {inviteError}
                           </p>
                         ) : null}
@@ -540,7 +540,7 @@ export function ThreadDetail() {
                                   }}
                                   disabled={revoke.isPending}
                                   style={ghostActionStyle}
-                                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#c25a5a'; }}
+                                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
                                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
                                 >
                                   revoke

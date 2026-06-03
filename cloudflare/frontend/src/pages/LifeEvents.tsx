@@ -459,7 +459,7 @@ export function LifeEvents() {
                           color: 'var(--bone-faint)',
                           transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
                         onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
                       >
                         remove

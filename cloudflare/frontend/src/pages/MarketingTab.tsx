@@ -33,7 +33,7 @@ function InlineStatus({ status }: { status: InlineStatusApi }) {
         background: 'var(--ink)',
         border: `1px solid ${warm ? 'var(--rule-warm)' : 'rgba(194,90,90,0.35)'}`,
         fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.04em',
-        color: warm ? 'var(--warm)' : '#c25a5a',
+        color: warm ? 'var(--warm)' : 'var(--danger)',
       }}
     >
       {status.state.msg}
@@ -466,7 +466,7 @@ export function MarketingTab() {
 function StatusBadge({ status }: { status: string }) {
   const WARM = { border: '1px solid var(--rule-warm)', color: 'var(--warm)' };
   const FAINT = { border: '1px solid var(--rule)', color: 'var(--bone-faint)' };
-  const ERR = { border: '1px solid rgba(194,90,90,0.35)', color: '#c25a5a' };
+  const ERR = { border: '1px solid rgba(194,90,90,0.35)', color: 'var(--danger)' };
 
   const s: React.CSSProperties = (
     ['CONTACTED','RESPONDED','INTERESTED','PARTNERED','SENDING','COMPLETED','APPROVED','CONVERTED'].includes(status) ? WARM :

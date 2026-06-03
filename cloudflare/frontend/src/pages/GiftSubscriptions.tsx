@@ -257,10 +257,8 @@ export function GiftSubscriptions() {
                       padding:         '36px 32px',
                       background:      isFamily ? 'var(--ink)' : 'transparent',
                       color:           isFamily ? 'var(--bone)' : 'var(--parchment-ink)',
-                      borderTop:       isFamily
-                        ? '3px solid var(--warm)'
-                        : selected
-                        ? '3px solid var(--warm)'
+                      borderTop:       isFamily || selected
+                        ? '1px solid var(--warm)'
                         : '1px solid var(--parchment-rule)',
                       borderBottom:    '1px solid var(--parchment-rule)',
                       borderRight:     '1px solid var(--parchment-rule)',
@@ -778,7 +776,7 @@ export function GiftSubscriptions() {
                 className="hl-serif"
                 style={{
                   fontStyle:    'italic',
-                  color:        '#c25a5a',
+                  color:        'var(--danger)',
                   fontSize:     13,
                   marginBottom: 16,
                 }}
@@ -933,7 +931,7 @@ export function GiftSubscriptions() {
             style={{
               background: 'var(--parchment)',
               border:     '1px solid var(--parchment-rule)',
-              borderTop:  '3px solid var(--warm)',
+              borderTop:  '1px solid var(--warm)',
               padding:    '48px',
               maxWidth:   440,
               width:      '100%',

@@ -3,13 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import {
-  isPushSupported,
-  initializePushNotifications,
-  onNotificationReceived,
-  onNotificationAction,
-  removePushNotificationListeners,
-} from './services/pushNotificationService';
+import { isNativePlatform } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
 import { PwaNudge } from './components/PwaNudge';
 import { BottomNav } from './loom/components/BottomNav';
@@ -86,7 +80,7 @@ const Showcase        = lazy(() => import('./pages/Showcase').then(m => ({ defau
 const Onboarding      = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
 const InviteCard      = lazy(() => import('./pages/InviteCard').then(m => ({ default: m.InviteCard })));
 const Memories        = lazy(() => import('./pages/Memories').then(m => ({ default: m.Memories })));
-const QA              = lazy(() => import('./pages/QA').then(m => ({ default: m.QA })));
+
 const ThreadsIndex    = lazy(() => import('./pages/ThreadsIndex').then(m => ({ default: m.ThreadsIndex })));
 const PwaHome         = lazy(() => import('./loom/pages/PwaHome').then(m => ({ default: m.PwaHome })));
 const InheritanceCard = lazy(() => import('./pages/InheritanceCard').then(m => ({ default: m.InheritanceCard })));
@@ -118,12 +112,21 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const hasToken = Boolean(localStorage.getItem('adminToken') && localStorage.getItem('adminUser'));
+  return hasToken ? <>{children}</> : <Navigate to="/admin/login" replace />;
+}
+
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, _hasHydrated } = useAuthStore();
   if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />;
-  // Redirect to /loom (public threshold) rather than /loom/today so that stale
-  // tokens don't produce the confusing chain: PublicRoute→/loom/today→401→/.
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/loom" replace />;
+  if (isAuthenticated) {
+    // Honor a ?redirect= param so gift/redeem flows land on the right page after login.
+    const params = new URLSearchParams(window.location.search);
+    const to = params.get('redirect') || '/loom';
+    return <Navigate to={to} replace />;
+  }
+  return <>{children}</>;
 }
 
 const PENDING_INVITE_KEY = 'hl-pending-invite';
@@ -145,30 +148,26 @@ function PendingInviteAcceptor() {
 function PushNotificationHandler() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
-  
+
   useEffect(() => {
-    if (!isAuthenticated || !isPushSupported()) {
-      return;
-    }
-    
-    initializePushNotifications();
-    
-    onNotificationReceived((notification) => {
-      console.log('Notification received in foreground:', notification.title);
-    });
-    
-    onNotificationAction((action) => {
-      const data = action.notification.data as { route?: string } | undefined;
-      if (data?.route) {
-        navigate(data.route);
+    if (!isAuthenticated || !isNativePlatform()) return;
+
+    let cleanup: (() => void) | undefined;
+    import('./services/pushNotificationService').then(
+      ({ isPushSupported, initializePushNotifications, onNotificationReceived, onNotificationAction, removePushNotificationListeners }) => {
+        if (!isPushSupported()) return;
+        initializePushNotifications();
+        onNotificationReceived(() => {});
+        onNotificationAction((action) => {
+          const data = action.notification.data as { route?: string } | undefined;
+          if (data?.route) navigate(data.route);
+        });
+        cleanup = removePushNotificationListeners;
       }
-    });
-    
-    return () => {
-      removePushNotificationListeners();
-    };
+    );
+    return () => cleanup?.();
   }, [isAuthenticated, navigate]);
-  
+
   return null;
 }
 
@@ -460,7 +459,7 @@ export default function App() {
           <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
           <Route path="/ask" element={<ProtectedRoute><QandA /></ProtectedRoute>} />
-          <Route path="/qa" element={<ProtectedRoute><QA /></ProtectedRoute>} />
+          <Route path="/qa" element={<Navigate to="/ask" replace />} />
           <Route path="/invite" element={<ProtectedRoute><InviteCard /></ProtectedRoute>} />
           <Route path="/interview" element={<ProtectedRoute><InterviewMode /></ProtectedRoute>} />
           <Route path="/time-capsules" element={<ProtectedRoute><TimeCapsulePage /></ProtectedRoute>} />
@@ -477,7 +476,7 @@ export default function App() {
                                                                                                                                                                 {/* Admin routes */}
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
           {/* The Loom — the live marketing + canonical design system.
               AI as invisible shuttle. Marketing is mounted at / (above);

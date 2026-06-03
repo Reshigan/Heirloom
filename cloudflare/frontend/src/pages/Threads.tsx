@@ -267,7 +267,7 @@ export function Threads() {
                 <p
                   role="alert"
                   className="hl-mono"
-                  style={{ margin: 0, fontSize: 11, color: '#c25a5a', letterSpacing: '0.04em' }}
+                  style={{ margin: 0, fontSize: 11, color: 'var(--danger)', letterSpacing: '0.04em' }}
                 >
                   {error}
                 </p>

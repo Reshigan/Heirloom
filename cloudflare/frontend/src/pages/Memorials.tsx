@@ -327,7 +327,7 @@ export function Memorials() {
             <div style={{ display: 'grid', gap: 20 }}>
               <div>
                 <label style={labelStyle} htmlFor="mem-name">
-                  Name <span style={{ color: '#c25a5a' }} aria-hidden>*</span>
+                  Name <span style={{ color: 'var(--danger)' }} aria-hidden>*</span>
                 </label>
                 <input
                   id="mem-name"

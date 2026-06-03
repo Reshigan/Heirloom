@@ -260,9 +260,9 @@ export function InterviewMode() {
                 display: 'inline-block',
                 width: 4,
                 height: 4,
-                background: '#c25a5a',
+                background: 'var(--danger)',
                 borderRadius: 0,
-                animation: 'hl-blink 1.1s steps(1) infinite',
+                animation: 'hl-blink 1400ms steps(1) infinite',
               }}
             />
           )}
@@ -481,7 +481,7 @@ export function InterviewMode() {
                       height: `${h * 32}px`,
                       background: isPaused ? 'var(--bone-faint)' : 'var(--warm)',
                       opacity: 0.7,
-                      transition: 'height 100ms cubic-bezier(0.16,1,0.3,1)',
+                      transition: 'height 180ms cubic-bezier(0.16,1,0.3,1)',
                       borderRadius: 0,
                     }}
                   />

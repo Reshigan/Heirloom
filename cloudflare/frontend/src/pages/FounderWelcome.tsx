@@ -203,8 +203,7 @@ export function FounderWelcome() {
           left: 0,
           right: 0,
           height: 160,
-          background:
-            'radial-gradient(ellipse at bottom, rgba(176,122,74,0.16) 0%, transparent 70%)',
+          background: 'transparent',
           pointerEvents: 'none',
         }}
       />

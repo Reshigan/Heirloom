@@ -162,7 +162,7 @@ function PwaMenu() {
             color: 'var(--bone-faint)',
             transition: 'color 180ms var(--ease)',
           }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
+          onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
           onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
         >
           sign out

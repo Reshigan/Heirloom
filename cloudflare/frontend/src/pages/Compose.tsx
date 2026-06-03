@@ -411,7 +411,7 @@ export function Compose() {
           <EntryDateField value={entryDate} onChange={setEntryDate} />
 
           {/* ── Step 3: The writing area + Listener companion ────────── */}
-          <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <input
                 value={title}
@@ -466,8 +466,8 @@ export function Compose() {
               />
             </div>
 
-            {/* Listener — appears only once 80 chars are written */}
-            <div style={{ width: 160, flexShrink: 0, paddingTop: 4 }}>
+            {/* Listener — always full-width beneath the textarea on mobile */}
+            <div>
               <ListenerLine
                 text={suggestion}
                 loading={listenerLoading}
@@ -479,7 +479,7 @@ export function Compose() {
           {error && (
             <p
               role="alert"
-              style={{ marginTop: 16, fontStyle: 'italic', color: '#c25a5a', fontSize: 14, fontFamily: "'Source Serif 4', serif" }}
+              style={{ marginTop: 16, fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, fontFamily: "'Source Serif 4', serif" }}
             >
               {error}
             </p>

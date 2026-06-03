@@ -100,7 +100,7 @@
 .loom .bg-blood,
 .loom .bg-blood-light { background-color: #8c2c2c !important; color: #f4ecd8; }
 .loom .text-blood,
-.loom .text-blood-light { color: #c25a5a !important; }
+.loom .text-blood-light { color: var(--danger) !important; }
 
 /* ── Type: drop Cinzel/Cormorant/Caveat in favour of Source Serif 4 ── */
 .loom .font-display,

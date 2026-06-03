@@ -493,7 +493,7 @@ export function Referrals() {
                             ref.status === 'accepted'
                               ? 'var(--warm)'
                               : ref.status === 'expired'
-                              ? '#c25a5a'
+                              ? 'var(--danger)'
                               : 'var(--bone-faint)',
                         }}
                       >

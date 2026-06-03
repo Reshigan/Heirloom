@@ -185,7 +185,6 @@ export function CardView() {
             padding: '52px 56px',
             maxWidth: 600,
             width: '100%',
-            boxShadow: '0 24px 64px rgba(26,25,22,0.16)',
           }}
         >
           {/* Logo centered */}

@@ -553,7 +553,7 @@ export function ThreadCompose() {
                   fontFamily: "var(--serif, 'Source Serif 4', serif)",
                   fontStyle: 'italic',
                   fontSize: 14,
-                  color: '#c25a5a',
+                  color: 'var(--danger)',
                   fontWeight: 300,
                 }}
               >

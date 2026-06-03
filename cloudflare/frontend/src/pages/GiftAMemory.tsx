@@ -412,7 +412,7 @@ export function GiftAMemory() {
               className="hl-serif"
               style={{
                 fontStyle: 'italic',
-                color: '#c25a5a',
+                color: 'var(--danger)',
                 fontSize: 14,
                 margin: '0 0 20px',
               }}

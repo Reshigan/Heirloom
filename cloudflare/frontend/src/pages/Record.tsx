@@ -522,7 +522,7 @@ export function Record() {
               marginTop: 20,
               fontSize: 14,
               fontStyle: 'italic',
-              color: '#c25a5a',
+              color: 'var(--danger)',
               textAlign: 'center',
             }}
           >

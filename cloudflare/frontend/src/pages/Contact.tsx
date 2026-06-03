@@ -165,7 +165,7 @@ export function Contact() {
               </div>
 
               {error ? (
-                <p role="alert" className="hl-prose" style={{ fontStyle: 'italic', color: '#c25a5a', fontSize: 14, margin: '0 0 18px' }}>
+                <p role="alert" className="hl-prose" style={{ fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, margin: '0 0 18px' }}>
                   {error}
                 </p>
               ) : null}

@@ -481,7 +481,7 @@ export function LegacyPlan() {
                             flexShrink: 0,
                             transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                           }}
-                          onMouseEnter={e => (e.currentTarget.style.color = '#c25a5a')}
+                          onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
                           onMouseLeave={e => (e.currentTarget.style.color = 'var(--parchment-faint)')}
                         >
                           remove

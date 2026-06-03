@@ -513,16 +513,28 @@ settingsRoutes.delete('/legacy-contacts/:id', async (c) => {
 // Enable 2FA
 settingsRoutes.post('/2fa/enable', async (c) => {
   const userId = c.get('userId');
+  const { password } = await c.req.json().catch(() => ({})) as { password?: string };
+
+  const user = await c.env.DB.prepare(
+    'SELECT email, password_hash, two_factor_enabled FROM users WHERE id = ?'
+  ).bind(userId).first<{ email: string; password_hash: string; two_factor_enabled: number }>();
+
+  if (!user) return c.json({ error: 'User not found' }, 404);
+
+  // If 2FA is already active, require password + existing TOTP confirmation before re-enrolling.
+  if (user.two_factor_enabled) {
+    if (!password) return c.json({ error: 'Password is required to re-enroll 2FA' }, 400);
+    const ok = await verifyStoredPassword(password, user.password_hash);
+    if (!ok) return c.json({ error: 'Incorrect password' }, 401);
+  }
 
   const secret = base32Encode(crypto.getRandomValues(new Uint8Array(20)));
-  const now = new Date().toISOString();
-
+  // Store new secret but keep two_factor_enabled = 0 until /2fa/verify succeeds with it.
   await c.env.DB.prepare(
     'UPDATE users SET two_factor_secret = ?, two_factor_enabled = 0, updated_at = ? WHERE id = ?'
-  ).bind(secret, now, userId).run();
+  ).bind(secret, new Date().toISOString(), userId).run();
 
-  const user = await c.env.DB.prepare('SELECT email FROM users WHERE id = ?').bind(userId).first<{ email: string }>();
-  const otpauthUrl = `otpauth://totp/Heirloom:${user?.email}?secret=${secret}&issuer=Heirloom`;
+  const otpauthUrl = `otpauth://totp/Heirloom:${user.email}?secret=${secret}&issuer=Heirloom`;
 
   return c.json({
     secret,
