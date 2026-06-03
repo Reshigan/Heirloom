@@ -34,7 +34,7 @@ export function HLogo({
   style = {},
 }: HLogoProps) {
   const fontSize  = Math.round(size * 0.95);
-  const textColor = wordColor ?? '#d4b86a';
+  const textColor = wordColor ?? 'var(--bone)';
 
   return (
     <span
