@@ -45,3 +45,9 @@ prisma/migrations/*_migration_lock.toml
 
 # Playwright MCP scratch output
 .playwright-mcp/
+
+# Assessment / debug screenshots (root-level PNGs from browser sessions)
+/*.png
+
+# Serena MCP workspace
+.serena/
