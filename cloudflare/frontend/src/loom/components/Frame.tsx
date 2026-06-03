@@ -80,9 +80,13 @@ function UserMenu() {
             </p>
           </div>
           <div style={{ padding: '4px 0', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
+            <Link to="/loom/weft" style={menuItemStyle} onClick={() => setOpen(false)}>Tapestry</Link>
+            <Link to="/memories" style={menuItemStyle} onClick={() => setOpen(false)}>Memories</Link>
+            <Link to="/family" style={menuItemStyle} onClick={() => setOpen(false)}>Family</Link>
+          </div>
+          <div style={{ padding: '4px 0', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
             <Link to="/settings" style={menuItemStyle} onClick={() => setOpen(false)}>Settings</Link>
             <Link to="/billing" style={menuItemStyle} onClick={() => setOpen(false)}>Billing</Link>
-            <Link to="/family" style={menuItemStyle} onClick={() => setOpen(false)}>Family</Link>
           </div>
           <button
             type="button"

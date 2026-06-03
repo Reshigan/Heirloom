@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
@@ -222,6 +222,14 @@ export function Compose() {
   const [visibility, setVisibility] = useState<Visibility>('family');
   const [dye, setDye] = useState('walnut');
   const [error, setError] = useState<string | null>(null);
+  const [woven, setWoven] = useState(false);
+
+  // Navigate to memories after the "woven" celebration fades
+  useEffect(() => {
+    if (!woven) return;
+    const t = setTimeout(() => navigate('/memories'), 4200);
+    return () => clearTimeout(t);
+  }, [woven, navigate]);
 
   // The resolved "to" value for AI and metadata
   const toValue =
@@ -250,12 +258,39 @@ export function Compose() {
         .then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memories'] });
-      navigate('/memories');
+      setWoven(true);
     },
     onError: (err: any) => {
       setError(err?.response?.data?.error ?? 'Could not save the entry.');
     },
   });
+
+  if (woven) {
+    return (
+      <div style={{ position: 'absolute', inset: 0, background: 'var(--ink)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
+        {/* Six-color tapestry stripe at top */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', height: 3 }}>
+          {['var(--dye-madder)','var(--dye-saffron)','var(--dye-indigo)','var(--dye-cochineal)','var(--dye-weld)','var(--dye-woad)'].map((c, i) => (
+            <div key={i} style={{ flex: 1, background: c, opacity: 0.85 }} />
+          ))}
+        </div>
+        <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)', margin: '0 0 20px' }}>
+          woven into the thread
+        </p>
+        <p style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 300, color: 'var(--bone)', textAlign: 'center', lineHeight: 1.3, margin: '0 0 40px', maxWidth: 480 }}>
+          Your memory is part of the cloth.
+        </p>
+        <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 28, textAlign: 'center', maxWidth: 400 }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '0 0 16px' }}>
+            threads grow richer with voices
+          </p>
+          <Link to="/family" style={{ fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--warm)', textDecoration: 'none', letterSpacing: '0.04em' }}>
+            Bring someone into the thread →
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
