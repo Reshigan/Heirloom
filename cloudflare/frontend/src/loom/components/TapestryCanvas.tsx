@@ -1,21 +1,26 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-// Exact port of heirloom-tapestry.jsx — drawCloth + Tapestry canvas component.
-// All rendering is 2D canvas. PRNG-seeded so the same Thread renders identically.
-
-// ─── Natural-dye palette (only inside the cloth) ─────────────────────────────
+// ─── Natural-dye palette — richer, more saturated pigments ──────────────────
 export const HL_DYE_HEX: Record<string, string> = {
-  madder:    '#e03428',
-  cochineal: '#c02050',
-  kermes:    '#ec4458',
-  saffron:   '#f4c030',
-  weld:      '#e8a828',
-  walnut:    '#8a6038',
-  oakgall:   '#685040',
-  woad:      '#3a8cc8',
-  indigo:    '#2860d0',
-  iron:      '#3a3a38',
+  madder:    '#e84030',  // deep scarlet
+  cochineal: '#d42868',  // vivid crimson rose
+  kermes:    '#f05268',  // bright coral-red
+  saffron:   '#f5c832',  // deep gold-yellow
+  weld:      '#edae2e',  // rich amber
+  walnut:    '#a07040',  // warm chestnut
+  oakgall:   '#7c5c4a',  // earthy umber
+  woad:      '#4898d8',  // bright sky blue
+  indigo:    '#3878e8',  // royal indigo
+  iron:      '#4a4a46',  // charcoal slate
 };
+
+// Lighten a hex colour toward bone (#f4ecd8) by `t` (0..1)
+function lightenToBone(hex: string, t: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgb(${Math.round(r + (244 - r) * t)},${Math.round(g + (236 - g) * t)},${Math.round(b + (216 - b) * t)})`;
+}
 
 function hlSeed(s: number) {
   let a = s | 0;
@@ -28,27 +33,20 @@ function hlSeed(s: number) {
   };
 }
 
-// Tier vertical bands — family takes the main body, descendants + historian below.
+// Tier vertical bands
 const TIER_Y: Record<string, [number, number]> = {
-  family:     [0.10, 0.62],
+  family:     [0.08, 0.62],
   descendants:[0.64, 0.84],
   historian:  [0.86, 0.96],
 };
 
 export interface CanvasEntry {
-  /** position as a 0..1 fraction of the time window */
   date: Date;
-  /** seeding index for PRNG consistency */
   n: number;
-  /** natural dye key */
   dye: string;
-  /** vertical band */
   tier?: 'family' | 'descendants' | 'historian';
-  /** author id for hover-dimming */
   author?: string;
-  /** sealed entry — renders as a tethered ∞ peg, not a weft pick */
   sealed?: boolean;
-  /** when the seal unlocks (for sealed entries) */
   sealUntil?: Date;
 }
 
@@ -99,91 +97,144 @@ export function drawCloth(
   ctx.fillStyle = background;
   ctx.fillRect(0, 0, W, H);
 
-  // ─ subtle vertical gradient (cloth sag / light)
+  // ─ very subtle vertical cloth-sheen gradient (light source above centre)
   const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0,   'rgba(244,236,216,0.018)');
-  grad.addColorStop(0.5, 'rgba(244,236,216,0.04)');
-  grad.addColorStop(1,   'rgba(244,236,216,0.01)');
+  grad.addColorStop(0,   'rgba(244,236,216,0.028)');
+  grad.addColorStop(0.4, 'rgba(244,236,216,0.055)');
+  grad.addColorStop(1,   'rgba(244,236,216,0.010)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  // ─ warp — seeded PRNG, irregular vertical hairlines with sag
+  // ─ warp — seeded irregular vertical hairlines with natural sag curve
   const rnd = hlSeed(7);
-  ctx.lineWidth = 1;
   for (let x = 0; x < W + 4; x += warpEvery) {
-    const jitter = (rnd() - 0.5) * 1.2;
+    const jitter = (rnd() - 0.5) * 1.4;
     const xx = x + jitter;
-    const alpha = 0.05 + rnd() * 0.05;
+    const alpha = 0.06 + rnd() * 0.07;
     ctx.strokeStyle = `rgba(244,236,216,${alpha.toFixed(3)})`;
+    ctx.lineWidth = 0.8 + rnd() * 0.4;
     ctx.beginPath();
-    for (let y = 0; y <= H; y += 8) {
-      const dx = Math.sin((y / H) * Math.PI) * sag * 4;
+    for (let y = 0; y <= H; y += 6) {
+      const dx = Math.sin((y / H) * Math.PI) * sag * 5;
       if (y === 0) ctx.moveTo(xx + dx, y);
       else ctx.lineTo(xx + dx, y);
     }
     ctx.stroke();
   }
 
-  // ─ weft (entries)
+  // ─ weft (entries) — multi-strand fiber rendering
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i];
     const frac = (+e.date - +tStart) / span;
     const cx = frac * W - panX;
-    if (cx < -40 || cx > W + 40) continue;
+    if (cx < -50 || cx > W + 50) continue;
+    if (e.sealed) continue;
 
     const tierKey = bandFromTier && e.tier ? e.tier : 'family';
     const [t0, t1] = TIER_Y[tierKey] ?? TIER_Y['family'];
-    const yJitterRnd = hlSeed(e.n * 131 + 19)();
-    const cy = (t0 + yJitterRnd * (t1 - t0)) * H;
+    const yJitter = hlSeed(e.n * 131 + 19)();
+    const cy = (t0 + yJitter * (t1 - t0)) * H;
     const sagY = Math.sin((cx / W) * Math.PI) * sag * H * 0.35;
-    const w = 8 + hlSeed(e.n * 17)() * 18;   // 8–26px
+
+    const rndW  = hlSeed(e.n * 17);
+    const rndTh = hlSeed(e.n * 23);
+    const rndBow = hlSeed(e.n * 41);
+
+    const w = 10 + rndW() * 26;          // 10–36 px wide
     const x0 = cx - w / 2;
     const x1 = cx + w / 2;
+    const midX = cx;
+    const thick = 2.0 + rndTh() * 1.8;   // 2–3.8 px thick
+    const bow = -(0.5 + rndBow() * 0.9); // slight upward catenary bow
+    const midY = cy + sagY + bow;
+
     const color = HL_DYE_HEX[e.dye] ?? HL_DYE_HEX['weld'];
+    const highlight = lightenToBone(color, 0.42);
 
-    if (e.sealed) continue;   // handled in sealed-peg pass below
+    let alpha = 0.92;
+    if (hoverAuthor && e.author !== hoverAuthor) alpha = 0.10;
 
-    let alpha = 0.86;
-    if (hoverAuthor && e.author !== hoverAuthor) alpha = 0.12;
+    ctx.save();
 
-    // primary weft pick
+    // Pass 1 — outer luminous glow
     ctx.strokeStyle = color;
-    ctx.globalAlpha = alpha;
-    ctx.lineWidth = 1.6 + hlSeed(e.n * 23)() * 1.4;
+    ctx.globalAlpha = alpha * 0.06;
+    ctx.lineWidth = thick + 9;
+    ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(x0, cy + sagY);
-    ctx.lineTo(x1, cy + sagY);
+    ctx.quadraticCurveTo(midX, midY, x1, cy + sagY);
     ctx.stroke();
 
-    // secondary shadow hairline — the "two parallel threads" weave look
-    ctx.globalAlpha = alpha * 0.5;
-    ctx.lineWidth = 0.8;
+    // Pass 2 — inner soft glow
+    ctx.globalAlpha = alpha * 0.14;
+    ctx.lineWidth = thick + 4;
     ctx.beginPath();
-    ctx.moveTo(x0 + 1, cy + sagY + 1.4);
-    ctx.lineTo(x1 - 1, cy + sagY + 1.4);
+    ctx.moveTo(x0, cy + sagY);
+    ctx.quadraticCurveTo(midX, midY, x1, cy + sagY);
     ctx.stroke();
 
-    // active glow
+    // Pass 3 — main thread body
+    ctx.globalAlpha = alpha * 0.92;
+    ctx.lineWidth = thick;
+    ctx.lineCap = 'butt';
+    ctx.beginPath();
+    ctx.moveTo(x0, cy + sagY);
+    ctx.quadraticCurveTo(midX, midY, x1, cy + sagY);
+    ctx.stroke();
+
+    // Pass 4 — shadow strand (below main body, darker)
+    ctx.globalAlpha = alpha * 0.38;
+    ctx.lineWidth = thick * 0.55;
+    ctx.beginPath();
+    ctx.moveTo(x0 + 0.5, cy + sagY + thick * 0.72);
+    ctx.quadraticCurveTo(midX, midY + thick * 0.72, x1 - 0.5, cy + sagY + thick * 0.72);
+    ctx.stroke();
+
+    // Pass 5 — highlight strand (above, lighter colour)
+    ctx.strokeStyle = highlight;
+    ctx.globalAlpha = alpha * 0.28;
+    ctx.lineWidth = 0.75;
+    ctx.beginPath();
+    ctx.moveTo(x0 + 1, cy + sagY - thick * 0.42);
+    ctx.quadraticCurveTo(midX, midY - thick * 0.42, x1 - 1, cy + sagY - thick * 0.42);
+    ctx.stroke();
+
+    // Pass 6 — warp-crossing end marks (tiny vertical ticks where thread goes over warp)
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = alpha * 0.50;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x0, cy + sagY - thick * 0.9);
+    ctx.lineTo(x0, cy + sagY + thick * 1.1);
+    ctx.moveTo(x1, cy + sagY - thick * 0.9);
+    ctx.lineTo(x1, cy + sagY + thick * 1.1);
+    ctx.stroke();
+
+    // Active entry — warm selection glow
     if (i === activeIdx) {
       ctx.strokeStyle = '#cf935a';
       ctx.globalAlpha = 1;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(x0 - 3, cy + sagY);
-      ctx.lineTo(x1 + 3, cy + sagY);
+      ctx.moveTo(x0 - 4, cy + sagY);
+      ctx.quadraticCurveTo(midX, midY - 0.5, x1 + 4, cy + sagY);
       ctx.stroke();
     }
+
+    ctx.restore();
   }
   ctx.globalAlpha = 1;
 
-  // ─ sealed-note pegs — dashed tether + ∞ glyph above future unlock position
+  // ─ sealed-note pegs — dashed tether + ∞ glyph
   for (const e of entries) {
     if (!e.sealed || !e.sealUntil) continue;
     const targetFrac = (+e.sealUntil - +tStart) / span;
     const cx = targetFrac * W - panX;
     if (cx < -10 || cx > W + 10) continue;
     const cy = 0.08 * H;
-    ctx.strokeStyle = 'rgba(176,122,74,0.45)';
+    ctx.strokeStyle = 'rgba(176,122,74,0.50)';
     ctx.setLineDash([2, 4]);
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -212,71 +263,114 @@ export function drawCloth(
       const isDecade = y % 10 === 0;
       const isHalf   = y % 5 === 0;
       const col = isDecade
-        ? 'rgba(244,236,216,0.55)'
+        ? 'rgba(244,236,216,0.65)'
         : isHalf
-          ? 'rgba(244,236,216,0.34)'
-          : 'rgba(244,236,216,0.18)';
+          ? 'rgba(244,236,216,0.40)'
+          : 'rgba(244,236,216,0.22)';
       ctx.fillStyle = col;
       ctx.fillText(String(y), cx + 3, H - 14);
       ctx.strokeStyle = col;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(cx, H - 4);
-      ctx.lineTo(cx, H - (isDecade ? 12 : isHalf ? 8 : 6));
+      ctx.lineTo(cx, H - (isDecade ? 14 : isHalf ? 9 : 6));
       ctx.stroke();
     }
   }
 
-  // ─ frayed selvedge — tendrils right of the "now" position
+  // ─ frayed selvedge — tendrils beyond the "now" position
   if (showFraySelvedge) {
     const nowFracEff = nowFrac == null ? 1 : nowFrac;
     const sx = nowFracEff * W - panX;
     const sxClamp = Math.min(W - 1, Math.max(0, sx));
 
-    // column edge
-    ctx.strokeStyle = 'rgba(244,236,216,0.07)';
+    // selvedge edge column
+    ctx.strokeStyle = 'rgba(244,236,216,0.09)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(sxClamp, 0);
     ctx.lineTo(sxClamp, H);
     ctx.stroke();
 
-    // frayed tendrils
+    // frayed warp tendrils (unfinished threads beyond the now edge)
     const fr = hlSeed(91);
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 70; i++) {
       const yy = fr() * H;
-      const len = 2 + fr() * 18;
-      const a = 0.10 + fr() * 0.18;
+      const len = 3 + fr() * 22;
+      const a = 0.08 + fr() * 0.20;
       ctx.strokeStyle = `rgba(244,236,216,${a.toFixed(3)})`;
-      ctx.lineWidth = 0.6 + fr() * 0.6;
+      ctx.lineWidth = 0.5 + fr() * 0.7;
+      ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(sxClamp, yy);
       const dx = sxClamp + len;
-      const dy = yy + fr() * 4 - 2;
-      ctx.bezierCurveTo(sxClamp + len * 0.3, yy, sxClamp + len * 0.6, yy + 1, dx, dy);
+      const dy = yy + fr() * 5 - 2.5;
+      ctx.bezierCurveTo(sxClamp + len * 0.3, yy, sxClamp + len * 0.65, yy + 1.2, dx, dy);
       ctx.stroke();
     }
+    ctx.lineCap = 'butt';
 
-    // warm unwoven thread — always-present, tip breathes slowly
-    ctx.strokeStyle = 'rgba(176,122,74,0.7)';
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    const tipY = 0.42 * H + Math.sin(performance.now() * 0.001) * 4;
-    ctx.moveTo(sxClamp, tipY);
-    ctx.bezierCurveTo(
-      sxClamp + 24, tipY - 2,
-      sxClamp + 60, tipY + 6,
-      sxClamp + 96, tipY + 12,
-    );
-    ctx.stroke();
+    // ─ warm unwoven thread — the active weft not yet beaten in
+    {
+      const tipY = 0.42 * H + Math.sin(performance.now() * 0.0008) * 5;
+      const endX = sxClamp + 112;
+      const endY = tipY + 16;
+      const cp1x = sxClamp + 22, cp1y = tipY - 4;
+      const cp2x = sxClamp + 68, cp2y = tipY + 9;
+
+      // outermost halo
+      ctx.strokeStyle = 'rgba(207,147,90,0.08)';
+      ctx.lineWidth = 16;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(sxClamp, tipY);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
+      ctx.stroke();
+
+      // mid glow
+      ctx.strokeStyle = 'rgba(207,147,90,0.20)';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(sxClamp, tipY);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
+      ctx.stroke();
+
+      // inner glow
+      ctx.strokeStyle = 'rgba(207,147,90,0.42)';
+      ctx.lineWidth = 2.8;
+      ctx.beginPath();
+      ctx.moveTo(sxClamp, tipY);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
+      ctx.stroke();
+
+      // core thread filament
+      ctx.strokeStyle = '#cf935a';
+      ctx.lineWidth = 1.4;
+      ctx.globalAlpha = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(sxClamp, tipY);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+    }
   }
 
-  // ─ warm hairline — the "where am I now" marker
+  // ─ "now" warm warp hairline with subtle glow
   if (showWarpHair && nowFrac != null) {
     const xx = nowFrac * W - panX;
+
+    // glow pass
+    ctx.strokeStyle = 'rgba(176,122,74,0.14)';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(xx, 0);
+    ctx.lineTo(xx, H);
+    ctx.stroke();
+
+    // core hairline
     ctx.strokeStyle = '#b07a4a';
     ctx.lineWidth = 1;
-    ctx.globalAlpha = 0.9;
+    ctx.globalAlpha = 0.92;
     ctx.beginPath();
     ctx.moveTo(xx, 0);
     ctx.lineTo(xx, H);
@@ -287,21 +381,22 @@ export function drawCloth(
   // ─ sparkle (warm sparks during weave-in animations)
   if (sparkle > 0) {
     const sr = hlSeed(Math.floor(performance.now() / 100));
-    ctx.fillStyle = `rgba(207,147,90,${(0.4 * sparkle).toFixed(3)})`;
-    for (let i = 0; i < 6; i++) {
-      const xx = sr() * 80 + W - 100;
+    for (let i = 0; i < 8; i++) {
+      const xx = sr() * 80 + W - 110;
       const yy = sr() * H;
+      const size = 0.6 + sr() * 1.6;
+      const a = 0.5 * sparkle * (0.4 + sr() * 0.6);
+      ctx.fillStyle = `rgba(207,147,90,${a.toFixed(3)})`;
       ctx.beginPath();
-      ctx.arc(xx, yy, 0.8 + sr() * 1.2, 0, Math.PI * 2);
+      ctx.arc(xx, yy, size, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 }
 
-// ─── React component ──────────────────────────────────────────────────────────
-
+// ─── React component — auto-sizes to container via ResizeObserver ──────────
 interface TapestryCanvasProps {
-  width: number;
+  width?: number;
   height: number;
   entries?: CanvasEntry[];
   kind?: 'full' | 'edge' | 'specimen' | 'century';
@@ -310,23 +405,39 @@ interface TapestryCanvasProps {
 }
 
 export function TapestryCanvas({
-  width,
+  width: widthProp,
   height,
   entries = [],
   kind = 'full',
   opts = {},
   animate = true,
 }: TapestryCanvasProps) {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const panRef = useRef<number>(opts.panX ?? 0);
+  const [canvasW, setCanvasW] = useState<number>(
+    widthProp ?? (typeof window !== 'undefined' ? window.innerWidth : 1280),
+  );
+
+  // Responsive width from container if no explicit width given
+  useEffect(() => {
+    if (widthProp !== undefined) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setCanvasW(entry.contentRect.width || window.innerWidth);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [widthProp]);
 
   useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
+    const c = canvasRef.current;
+    if (!c || canvasW <= 0) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    c.width  = width  * dpr;
-    c.height = height * dpr;
+    c.width  = canvasW * dpr;
+    c.height = height  * dpr;
     const ctx = c.getContext('2d');
     if (!ctx) return;
     ctx.scale(dpr, dpr);
@@ -338,25 +449,27 @@ export function TapestryCanvas({
       last = now;
 
       if (animate && kind !== 'edge') {
-        panRef.current += (kind === 'specimen' ? 0.06 : 0.012) * dt;
-        if (panRef.current > 240) panRef.current = -40;
+        panRef.current += (kind === 'specimen' ? 0.06 : 0.014) * dt;
+        if (panRef.current > 260) panRef.current = -60;
       }
 
-      ctx.clearRect(0, 0, width, height);
-      drawCloth(ctx, width, height, entries, { ...opts, panX: panRef.current });
+      ctx.clearRect(0, 0, canvasW, height);
+      drawCloth(ctx, canvasW, height, entries, { ...opts, panX: panRef.current });
       rafRef.current = requestAnimationFrame(tick);
     };
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, kind, animate]);
+  }, [canvasW, height, kind, animate]);
 
   return (
-    <canvas
-      ref={ref}
-      style={{ width, height, display: 'block', background: 'transparent' }}
-      aria-hidden
-    />
+    <div ref={containerRef} style={{ width: widthProp ?? '100%', height, overflow: 'hidden' }}>
+      <canvas
+        ref={canvasRef}
+        style={{ width: canvasW, height, display: 'block' }}
+        aria-hidden
+      />
+    </div>
   );
 }

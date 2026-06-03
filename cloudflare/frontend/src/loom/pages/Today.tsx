@@ -15,7 +15,7 @@ export function Today() {
 
   return (
     <Frame left="today">
-      <div style={{ padding: '72px 56px 0', maxWidth: 720 }}>
+      <div style={{ padding: 'clamp(40px, 8vw, 72px) clamp(20px, 6vw, 56px) 0', maxWidth: 720 }}>
 
         {/* eyebrow */}
         <div className="hl-eyebrow loom-today-eyebrow" style={{ marginBottom: 24 }}>

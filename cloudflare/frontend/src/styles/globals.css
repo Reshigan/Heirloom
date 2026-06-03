@@ -71,15 +71,15 @@
 
   /* Canonical aliases (match the Claude Design bundle's heirloom-styles.css) */
   --ink: #0e0e0c;
-  --ink-card: #131310;
+  --ink-card: #171714;
   --ink-deep: #0a0a08;
   --bone: #f4ecd8;
-  --bone-dim: rgba(244, 236, 216, 0.55);
-  --bone-faint: rgba(244, 236, 216, 0.32);
-  --bone-low: rgba(244, 236, 216, 0.18);
+  --bone-dim: rgba(244, 236, 216, 0.72);
+  --bone-faint: rgba(244, 236, 216, 0.44);
+  --bone-low: rgba(244, 236, 216, 0.24);
   --bone-ghost: rgba(244, 236, 216, 0.14);
-  --rule: rgba(244, 236, 216, 0.08);
-  --rule-strong: rgba(244, 236, 216, 0.14);
+  --rule: rgba(244, 236, 216, 0.11);
+  --rule-strong: rgba(244, 236, 216, 0.20);
   --warm: #b07a4a;
   --warm-bright: #cf935a;
   --warm-dim: #8c5a30;
@@ -96,16 +96,16 @@
   --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
 
   /* natural-dye palette — only inside the cloth (woven threads) */
-  --dye-madder:    #e03428;
-  --dye-cochineal: #c02050;
-  --dye-kermes:    #ec4458;
-  --dye-saffron:   #f4c030;
-  --dye-weld:      #e8a828;
-  --dye-walnut:    #8a6038;
-  --dye-oakgall:   #685040;
-  --dye-woad:      #3a8cc8;
-  --dye-indigo:    #2860d0;
-  --dye-iron:      #3a3a38;
+  --dye-madder:    #e84030;
+  --dye-cochineal: #d42868;
+  --dye-kermes:    #f05268;
+  --dye-saffron:   #f5c832;
+  --dye-weld:      #edae2e;
+  --dye-walnut:    #a07040;
+  --dye-oakgall:   #7c5c4a;
+  --dye-woad:      #4898d8;
+  --dye-indigo:    #3878e8;
+  --dye-iron:      #4a4a46;
   
   /* Timing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -135,32 +135,32 @@
    become light surfaces in light mode.                              ──*/
 
 .loom[data-theme="dark"] {
-  --parchment:          #131310;
+  --parchment:          #171714;
   --parchment-deep:     #0a0a08;
   --parchment-ink:      #f4ecd8;
-  --parchment-dim:      rgba(244, 236, 216, 0.55);
-  --parchment-faint:    rgba(244, 236, 216, 0.32);
-  --parchment-rule:     rgba(244, 236, 216, 0.08);
+  --parchment-dim:      rgba(244, 236, 216, 0.72);
+  --parchment-faint:    rgba(244, 236, 216, 0.44);
+  --parchment-rule:     rgba(244, 236, 216, 0.11);
 }
 
 .loom[data-theme="light"] {
-  --ink:          #f6efe1;
-  --ink-card:     #f0e8d4;
-  --ink-deep:     #ede7d8;
-  --bone:         #1a1612;
-  --bone-dim:     rgba(26, 22, 18, 0.62);
-  --bone-faint:   rgba(26, 22, 18, 0.40);
-  --bone-low:     rgba(26, 22, 18, 0.30);
-  --bone-ghost:   rgba(26, 22, 18, 0.16);
-  --rule:         rgba(26, 22, 18, 0.10);
-  --rule-strong:  rgba(26, 22, 18, 0.18);
-  --rule-warm:    rgba(155, 90, 40, 0.30);
-  --warm:         #9b5a28;
-  --warm-bright:  #b07239;
+  --ink:          #f5ece0;
+  --ink-card:     #ede2d0;
+  --ink-deep:     #e8dac8;
+  --bone:         #120e0a;
+  --bone-dim:     rgba(18, 14, 10, 0.74);
+  --bone-faint:   rgba(18, 14, 10, 0.48);
+  --bone-low:     rgba(18, 14, 10, 0.32);
+  --bone-ghost:   rgba(18, 14, 10, 0.18);
+  --rule:         rgba(18, 14, 10, 0.12);
+  --rule-strong:  rgba(18, 14, 10, 0.22);
+  --rule-warm:    rgba(140, 70, 20, 0.32);
+  --warm:         #a05c20;
+  --warm-bright:  #b87030;
   --warm-dim:     #7a4318;
-  --warm-glow:    rgba(155, 90, 40, 0.16);
-  --glass-bg:     rgba(26, 22, 18, 0.05);
-  --glass-border: rgba(26, 22, 18, 0.10);
+  --warm-glow:    rgba(160, 92, 32, 0.18);
+  --glass-bg:     rgba(18, 14, 10, 0.05);
+  --glass-border: rgba(18, 14, 10, 0.12);
 }
 
 * {

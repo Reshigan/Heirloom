@@ -266,10 +266,11 @@ referralRoutes.post('/record-signup', async (c) => {
   });
 });
 
-// Record referral conversion (called when referee subscribes)
+// Record referral conversion — requires auth; referee ID comes from session
 referralRoutes.post('/record-conversion', async (c) => {
+  const refereeUserId = c.get('userId');
+  if (!refereeUserId) return c.json({ error: 'Unauthorized' }, 401);
   const body = await c.req.json();
-  const refereeUserId = body.userId as string;
   const subscriptionTier = body.tier as string;
   const subscriptionValue = body.value as number; // in cents
   const billingCycle = body.billingCycle as string;

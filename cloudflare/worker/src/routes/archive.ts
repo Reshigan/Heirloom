@@ -57,8 +57,13 @@ archiveRoutes.get('/audit', async (c) => {
   });
 });
 
-// Admin trigger: pin a specific thread now. Useful for ops + recovery.
+// Admin trigger: pin a specific thread now. Requires admin session (KV).
 archiveRoutes.post('/pin/:threadId', async (c) => {
+  const sessionToken = c.req.header('X-Admin-Session');
+  if (!sessionToken) return c.json({ error: 'Unauthorized' }, 401);
+  const session = await c.env.KV.get(`admin:session:${sessionToken}`);
+  if (!session) return c.json({ error: 'Unauthorized' }, 401);
+
   const threadId = c.req.param('threadId');
   const result = await pinThreadSnapshot(c.env, threadId);
   return c.json(result);

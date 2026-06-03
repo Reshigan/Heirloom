@@ -11,17 +11,17 @@
 :root,
 .loom[data-theme="dark"] {
   --loom-ink:        #0e0e0c;
-  --loom-ink-card:   #131310;
+  --loom-ink-card:   #171714;
   --loom-bone:       #f4ecd8;
-  --loom-bone-dim:   rgba(244, 236, 216, 0.55);
-  --loom-bone-faint: rgba(244, 236, 216, 0.32);
+  --loom-bone-dim:   rgba(244, 236, 216, 0.72);
+  --loom-bone-faint: rgba(244, 236, 216, 0.44);
   --loom-bone-ghost: rgba(244, 236, 216, 0.14);
-  --loom-rule:       rgba(244, 236, 216, 0.08);
-  --loom-rule-warm:  rgba(176, 122, 74, 0.22);
+  --loom-rule:       rgba(244, 236, 216, 0.11);
+  --loom-rule-warm:  rgba(176, 122, 74, 0.24);
   --loom-warm:       #b07a4a;
   --loom-warm-bright:#cf935a;
   --loom-warm-dim:   #8c5a30;
-  --loom-warm-glow:  rgba(207, 147, 90, 0.18);
+  --loom-warm-glow:  rgba(207, 147, 90, 0.20);
 
   --loom-ease:       cubic-bezier(0.16, 1, 0.3, 1);
   --loom-dur-fast:   180ms;
@@ -32,18 +32,18 @@
 }
 
 .loom[data-theme="light"] {
-  --loom-ink:        #f6efe1;   /* paper */
-  --loom-ink-card:   #f9f3e6;
-  --loom-bone:       #1a1612;   /* ink */
-  --loom-bone-dim:   rgba(26, 22, 18, 0.62);
-  --loom-bone-faint: rgba(26, 22, 18, 0.40);
-  --loom-bone-ghost: rgba(26, 22, 18, 0.16);
-  --loom-rule:       rgba(26, 22, 18, 0.10);
-  --loom-rule-warm:  rgba(155, 90, 40, 0.30);
-  --loom-warm:       #9b5a28;
-  --loom-warm-bright:#b07239;
+  --loom-ink:        #f5ece0;
+  --loom-ink-card:   #ede2d0;
+  --loom-bone:       #120e0a;
+  --loom-bone-dim:   rgba(18, 14, 10, 0.74);
+  --loom-bone-faint: rgba(18, 14, 10, 0.48);
+  --loom-bone-ghost: rgba(18, 14, 10, 0.18);
+  --loom-rule:       rgba(18, 14, 10, 0.12);
+  --loom-rule-warm:  rgba(140, 70, 20, 0.32);
+  --loom-warm:       #a05c20;
+  --loom-warm-bright:#b87030;
   --loom-warm-dim:   #7a4318;
-  --loom-warm-glow:  rgba(155, 90, 40, 0.16);
+  --loom-warm-glow:  rgba(160, 92, 32, 0.18);
 }
 
 /* ─── Surface root ──────────────────────────────────────────────── */
