@@ -469,7 +469,7 @@ export function GiftSubscriptions() {
                   type="text"
                   value={formData.recipientName}
                   onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                  placeholder="Mum, Dad, Grandma…"
+                  placeholder="recipient name"
                 />
               </div>
               <div>

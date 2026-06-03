@@ -221,7 +221,7 @@ export function FutureLetter() {
                 id="fl-loved"
                 value={formData.lovedOnes}
                 onChange={(e) => set({ lovedOnes: e.target.value })}
-                placeholder="My partner Sarah, my kids Emma and Jack, my best friend Mike…"
+                placeholder="The people you love, the ones who matter most…"
                 style={{ ...fieldStyle, minHeight: 84, resize: 'vertical' }}
                 required
               />

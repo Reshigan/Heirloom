@@ -427,7 +427,7 @@ export function Founder() {
                       type="text"
                       value={familyName}
                       onChange={(e) => setFamilyName(e.target.value)}
-                      placeholder="The Mahmood family"
+                      placeholder="your family name"
                       style={inputBase}
                     />
                   </div>

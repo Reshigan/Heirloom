@@ -546,7 +546,7 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
           <textarea
             value={csvData}
             onChange={(e) => setCsvData(e.target.value)}
-            placeholder={"name,email,platform,handle,segment,followers,profile_url,notes\nJohn Doe,john@example.com,INSTAGRAM,johndoe,GENEALOGY,50000,https://instagram.com/johndoe,Family history expert"}
+            placeholder={"name,email,platform,handle,segment,followers,profile_url,notes\nYour Name,contact@example.com,INSTAGRAM,yourusername,GENEALOGY,50000,https://instagram.com/yourusername,Family history enthusiast"}
             style={{ ...inputStyle, height: 160, resize: 'vertical', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}
           />
         </div>

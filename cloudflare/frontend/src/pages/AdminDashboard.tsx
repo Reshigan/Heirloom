@@ -1854,7 +1854,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
                 <LoomInput type="email" value={formData.recipientEmail} onChange={e => setFormData({ ...formData, recipientEmail: e.target.value })} placeholder="recipient@example.com" />
               </LoomField>
               <LoomField label="Recipient Name (optional)">
-                <LoomInput type="text" value={formData.recipientName} onChange={e => setFormData({ ...formData, recipientName: e.target.value })} placeholder="John Doe" />
+                <LoomInput type="text" value={formData.recipientName} onChange={e => setFormData({ ...formData, recipientName: e.target.value })} placeholder="recipient name" />
               </LoomField>
               {formData.recipientEmail && (
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
@@ -1952,7 +1952,7 @@ The Heirloom Team`;
             <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Gold Legacy vouchers grant lifetime access. Reserved for special individuals only.</p>
           </div>
           <LoomField label="Recipient Name">
-            <LoomInput type="text" value={formData.recipientName} onChange={e => setFormData({ ...formData, recipientName: e.target.value })} placeholder="John Doe" />
+            <LoomInput type="text" value={formData.recipientName} onChange={e => setFormData({ ...formData, recipientName: e.target.value })} placeholder="recipient name" />
           </LoomField>
           <LoomField label="Recipient Email">
             <LoomInput type="email" value={formData.recipientEmail} onChange={e => setFormData({ ...formData, recipientEmail: e.target.value })} placeholder="recipient@example.com" />

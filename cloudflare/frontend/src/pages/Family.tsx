@@ -302,7 +302,7 @@ export function Family() {
                   label="name"
                   value={addForm.name}
                   onChange={(v) => setAddForm({ ...addForm, name: v })}
-                  placeholder="Margaret Ashworth"
+                  placeholder="full name"
                 />
                 <InputField
                   label="relationship"
@@ -353,7 +353,7 @@ export function Family() {
                   label="their name — optional"
                   value={inviteForm.name}
                   onChange={(v) => setInviteForm({ ...inviteForm, name: v })}
-                  placeholder="Margaret"
+                  placeholder="first name"
                 />
                 <InputField
                   label="email"

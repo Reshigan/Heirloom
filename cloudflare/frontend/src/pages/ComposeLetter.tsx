@@ -237,7 +237,7 @@ export function ComposeLetter() {
           <input
             value={salutation}
             onChange={(e) => setSalutation(e.target.value)}
-            placeholder="To Maya, on her 25th birthday,"
+            placeholder="To [name], on this day,"
             style={{
               width: '100%',
               border: 0,
@@ -258,7 +258,7 @@ export function ComposeLetter() {
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="When you read this you will be older than I was when I had you…"
+            placeholder="Write your letter here…"
             rows={12}
             style={{
               width: '100%',
@@ -281,7 +281,7 @@ export function ComposeLetter() {
           <input
             value={signature}
             onChange={(e) => setSignature(e.target.value)}
-            placeholder="— Mum"
+            placeholder="— your name"
             style={{
               width: '100%',
               border: 0,
