@@ -10,6 +10,19 @@ import { sendEmail } from '../utils/email';
 
 export const settingsRoutes = new Hono<AppEnv>();
 
+async function verifyStoredPassword(password: string, stored: string): Promise<boolean> {
+  const [saltB64, hashB64] = stored.split(':');
+  if (!saltB64 || !hashB64) return false;
+  const salt = Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0));
+  const storedHash = Uint8Array.from(atob(hashB64), (c) => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), { name: 'PBKDF2' }, false, ['deriveBits']);
+  const derived = new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, key, 256));
+  if (derived.length !== storedHash.length) return false;
+  let diff = 0;
+  for (let i = 0; i < derived.length; i++) diff |= derived[i] ^ storedHash[i];
+  return diff === 0;
+}
+
 // Get user profile
 settingsRoutes.get('/profile', async (c) => {
   const userId = c.get('userId');
@@ -555,8 +568,11 @@ settingsRoutes.post('/archive', async (c) => {
 
   if (!password) return c.json({ error: 'Password required' }, 400);
 
-  const user = await c.env.DB.prepare(`SELECT email, first_name FROM users WHERE id = ?`).bind(userId).first();
+  const user = await c.env.DB.prepare(`SELECT email, first_name, password_hash FROM users WHERE id = ?`).bind(userId).first();
   if (!user) return c.json({ error: 'User not found' }, 404);
+
+  const ok = await verifyStoredPassword(password, user.password_hash as string);
+  if (!ok) return c.json({ error: 'Incorrect password.' }, 401);
 
   const deleteAfter = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
   const now = new Date().toISOString();
@@ -592,6 +608,11 @@ settingsRoutes.delete('/account', async (c) => {
   if (!password || confirmation !== 'DELETE') {
     return c.json({ error: 'Password and confirmation are required' }, 400);
   }
+
+  const userRow = await c.env.DB.prepare(`SELECT password_hash FROM users WHERE id = ?`).bind(userId).first();
+  if (!userRow) return c.json({ error: 'User not found' }, 404);
+  const validPw = await verifyStoredPassword(password, userRow.password_hash as string);
+  if (!validPw) return c.json({ error: 'Incorrect password.' }, 401);
 
   // Delete in order of dependencies
   await c.env.DB.prepare(`DELETE FROM notifications WHERE user_id = ?`).bind(userId).run();

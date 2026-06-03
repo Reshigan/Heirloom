@@ -355,6 +355,10 @@ memoriesRoutes.get('/received', async (c) => {
   const email = ((user.email as string) || '').toLowerCase();
   if (!firstName && !email) return c.json({ received: [] });
 
+  // Escape LIKE metacharacters so a user whose name contains % or _ cannot
+  // match more records than intended.
+  const escapedName = firstName.replace(/[\\%_]/g, '\\$&');
+
   const result = await c.env.DB.prepare(`
     SELECT m.id, m.title, m.type, m.created_at, m.metadata,
            u.first_name AS from_first, u.last_name AS from_last
@@ -370,7 +374,7 @@ memoriesRoutes.get('/received', async (c) => {
         )
         OR (
           JSON_EXTRACT(m.metadata, '$.to') IS NOT NULL
-          AND LOWER(JSON_EXTRACT(m.metadata, '$.to')) LIKE '%' || ? || '%'
+          AND LOWER(JSON_EXTRACT(m.metadata, '$.to')) LIKE '%' || ? || '%' ESCAPE '\\'
           AND m.user_id IN (
             SELECT fm2.user_id FROM family_members fm2
             WHERE LOWER(fm2.email) = ? OR LOWER(fm2.name) = ?
@@ -379,7 +383,7 @@ memoriesRoutes.get('/received', async (c) => {
       )
     ORDER BY m.created_at DESC
     LIMIT 50
-  `).bind(userId, email, firstName, firstName, email, firstName).all();
+  `).bind(userId, email, firstName, escapedName, email, firstName).all();
 
   return c.json({
     received: result.results.map((m: any) => ({
