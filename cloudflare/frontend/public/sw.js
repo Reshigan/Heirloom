@@ -19,7 +19,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v5';
+const CACHE = 'heirloom-v6';
 const SHELL = '/index.html';
 const OFFLINE = '/offline';
 const PRECACHE = [
@@ -30,6 +30,7 @@ const PRECACHE = [
   '/icon.svg',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/icons/apple-touch-icon.png',
   OFFLINE,
   // The offline page's logic lives in an external file (CSP blocks inline
   // scripts); precache it so the holding queue works with no network.
@@ -119,14 +120,14 @@ self.addEventListener('push', (event) => {
     badge: '/icons/icon-192.png',
     tag: data.tag || 'heirloom',
     renotify: false,
-    data: { route: data.route || '/dashboard' },
+    data: { route: data.route || '/loom/pwa' },
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const route = (event.notification.data && event.notification.data.route) || '/dashboard';
+  const route = (event.notification.data && event.notification.data.route) || '/loom/pwa';
   const target = new URL(route, self.location.origin).href;
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {

@@ -51,6 +51,7 @@ export function FutureLetter() {
   });
   const [generatedLetter, setGeneratedLetter] = useState<{ id: string; content: string; shareText: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
 
   const { data: previousLetters } = useQuery({
     queryKey: ['future-letters'],
@@ -66,6 +67,10 @@ export function FutureLetter() {
         shareText: response.data.shareText,
       });
       queryClient.invalidateQueries({ queryKey: ['future-letters'] });
+      setGenError(null);
+    },
+    onError: () => {
+      setGenError('Generation failed. Please try again.');
     },
   });
 
@@ -235,6 +240,12 @@ export function FutureLetter() {
             >
               {generateMutation.isPending ? 'writing across time…' : 'generate my letter'}
             </button>
+
+            {genError && (
+              <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 11, margin: '4px 0 0', letterSpacing: '0.04em' }}>
+                {genError}
+              </p>
+            )}
 
             {generateMutation.isPending ? (
               <div style={{ height: 1, background: 'var(--rule)', overflow: 'hidden' }}>

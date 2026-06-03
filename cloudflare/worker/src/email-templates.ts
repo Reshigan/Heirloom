@@ -3,6 +3,19 @@
  * Bone #f4ecd8 / ink #0e0e0c / warm #b07a4a. Source Serif 4. 0px radius. 1px hairlines.
  */
 
+// Escape user-controlled strings before interpolation into HTML to prevent HTML injection / phishing.
+const esc = (s: string | null | undefined = ''): string =>
+  String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+// Only allow https:// URLs in email CTAs — block javascript: and data: schemes.
+const safeUrl = (url: string, fallback = 'https://heirloom.blue'): string =>
+  /^https:\/\//i.test(url) ? url : fallback;
+
 const APP_URL = 'https://heirloom.blue';
 const TAPESTRY_ICON_URL = 'https://heirloom.blue/icons/icon-192.png';
 
@@ -220,7 +233,7 @@ export const baseTemplate = (content: string) => `
 export const welcomeEmail = (name: string) => ({
   subject: 'Welcome to Heirloom',
   html: baseTemplate(`
-    <h2>Welcome, ${name}</h2>
+    <h2>Welcome, ${esc(name)}</h2>
     <p>Thank you for joining Heirloom. You've taken the first step in preserving your most precious memories for generations to come.</p>
     <p>Your <span class="gold">30-day free trial</span> has begun. During this time, you'll have access to all features.</p>
     <p>Here's what you can do:</p>
@@ -237,7 +250,7 @@ export const welcomeEmail = (name: string) => ({
 export const verificationEmail = (name: string, token: string) => ({
   subject: 'Verify Your Email',
   html: baseTemplate(`
-    <h2>Verify your email, ${name}</h2>
+    <h2>Verify your email, ${esc(name)}</h2>
     <p>Please click the button below to verify your email address.</p>
     <a href="${APP_URL}/verify-email?token=${token}" class="button">VERIFY EMAIL</a>
     <p>If you didn't create an account, you can safely ignore this email.</p>
@@ -248,7 +261,7 @@ export const passwordResetEmail = (name: string, token: string) => ({
   subject: 'Reset Your Password',
   html: baseTemplate(`
     <h2>Password Reset Request</h2>
-    <p>Hi ${name}, we received a request to reset your password.</p>
+    <p>Hi ${esc(name)}, we received a request to reset your password.</p>
     <a href="${APP_URL}/reset-password?token=${token}" class="button">RESET PASSWORD</a>
     <p>This link expires in 1 hour. If you didn't request this, please ignore this email.</p>
   `),
@@ -262,7 +275,7 @@ export const trialWarningEmail = (name: string, daysLeft: number) => ({
   subject: `Your trial expires in ${daysLeft} day${daysLeft > 1 ? 's' : ''}`,
   html: baseTemplate(`
     <h2>Your trial is ending soon</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <p>Your Heirloom free trial expires in <span class="gold">${daysLeft} day${daysLeft > 1 ? 's' : ''}</span>.</p>
     <div class="urgent">
       <strong>Important:</strong> When your trial ends, all your content (photos, recordings, letters) will be permanently deleted.
@@ -276,7 +289,7 @@ export const trialExpiredEmail = (name: string) => ({
   subject: 'Your trial has ended',
   html: baseTemplate(`
     <h2>Your free trial has ended</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <p>Your Heirloom free trial has expired, and your content has been removed from our servers.</p>
     <p>You can still subscribe anytime to start preserving your memories again.</p>
     <a href="${APP_URL}/settings?tab=subscription" class="button">SUBSCRIBE NOW</a>
@@ -286,9 +299,9 @@ export const trialExpiredEmail = (name: string) => ({
 export const subscriptionConfirmationEmail = (name: string, tier: string) => ({
   subject: 'Subscription Confirmed',
   html: baseTemplate(`
-    <h2>Welcome to Heirloom ${tier}</h2>
-    <p>Hi ${name},</p>
-    <p>Your subscription to the <span class="gold">${tier}</span> plan is now active.</p>
+    <h2>Welcome to Heirloom ${esc(tier)}</h2>
+    <p>Hi ${esc(name)},</p>
+    <p>Your subscription to the <span class="gold">${esc(tier)}</span> plan is now active.</p>
     <p>Your memories are now protected and will be preserved for generations.</p>
     <a href="${APP_URL}/dashboard" class="button">CONTINUE TO VAULT</a>
   `),
@@ -298,7 +311,7 @@ export const paymentFailedEmail = (name: string) => ({
   subject: 'Payment Failed - Action Required',
   html: baseTemplate(`
     <h2>Payment Failed</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <div class="urgent">
       Your recent payment for Heirloom could not be processed. Please update your payment method to continue protecting your memories.
     </div>
@@ -314,7 +327,7 @@ export const checkInReminderEmail = (name: string, daysUntil: number) => ({
   subject: `Check-in reminder - ${daysUntil} day${daysUntil > 1 ? 's' : ''} left`,
   html: baseTemplate(`
     <h2>Time to check in</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <p>Your Heirloom check-in is due in <span class="gold">${daysUntil} day${daysUntil > 1 ? 's' : ''}</span>.</p>
     <p>This ensures your legacy contacts aren't notified unnecessarily.</p>
     <a href="${APP_URL}/settings?tab=deadman" class="button">CHECK IN NOW</a>
@@ -325,7 +338,7 @@ export const urgentCheckInEmail = (name: string, missedCount: number) => ({
   subject: `URGENT: Check-in Required - ${missedCount} missed`,
   html: baseTemplate(`
     <h2>Urgent: Check-in Required</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <div class="urgent">
       You've missed <strong>${missedCount} check-in(s)</strong> on Heirloom. Please check in soon to confirm you're well.
     </div>
@@ -338,7 +351,7 @@ export const finalCheckInWarningEmail = (name: string) => ({
   subject: 'FINAL WARNING: Legacy contacts being notified',
   html: baseTemplate(`
     <h2>Final Warning</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <div class="urgent">
       Your legacy contacts are being notified to verify your status. If you're reading this and are well, please check in immediately to cancel this process.
     </div>
@@ -354,8 +367,8 @@ export const legacyContactVerificationEmail = (contactName: string, userName: st
   subject: `${userName} added you as a legacy contact`,
   html: baseTemplate(`
     <h2>You've Been Trusted</h2>
-    <p>Dear ${contactName},</p>
-    <p><span class="gold">${userName}</span> has added you as a legacy contact on Heirloom.</p>
+    <p>Dear ${esc(contactName)},</p>
+    <p><span class="gold">${esc(userName)}</span> has added you as a legacy contact on Heirloom.</p>
     <p>As a legacy contact, you may be asked to verify their status in the future. This helps ensure their memories reach their loved ones when the time comes.</p>
     <a href="${APP_URL}/verify-legacy-contact?token=${token}" class="button">ACCEPT THIS ROLE</a>
     <p>If you don't wish to be a legacy contact, simply ignore this email.</p>
@@ -366,14 +379,14 @@ export const deathVerificationRequestEmail = (contactName: string, userName: str
   subject: `Verification needed for ${userName}'s Heirloom account`,
   html: baseTemplate(`
     <h2>Verification Request</h2>
-    <p>Dear ${contactName},</p>
-    <p>You were designated as a legacy contact by <span class="gold">${userName}</span> on Heirloom.</p>
-    <p>We haven't been able to reach ${userName} for their scheduled check-in. As their trusted contact, we need your help to verify their status.</p>
+    <p>Dear ${esc(contactName)},</p>
+    <p>You were designated as a legacy contact by <span class="gold">${esc(userName)}</span> on Heirloom.</p>
+    <p>We haven't been able to reach ${esc(userName)} for their scheduled check-in. As their trusted contact, we need your help to verify their status.</p>
     <div class="urgent">
-      <strong>Important:</strong> Only click the button below if you can confirm that ${userName} has passed away. This action cannot be easily undone.
+      <strong>Important:</strong> Only click the button below if you can confirm that ${esc(userName)} has passed away. This action cannot be easily undone.
     </div>
     <a href="${APP_URL}/verify-passing?token=${token}" class="button">VERIFY STATUS</a>
-    <p>If ${userName} is still alive, please encourage them to check in to their Heirloom account.</p>
+    <p>If ${esc(userName)} is still alive, please encourage them to check in to their Heirloom account.</p>
   `),
 });
 
@@ -381,8 +394,8 @@ export const switchCancelledEmail = (contactName: string, userName: string) => (
   subject: `${userName} has checked in`,
   html: baseTemplate(`
     <h2>All Clear</h2>
-    <p>Dear ${contactName},</p>
-    <p>Good news! <span class="gold">${userName}</span> has checked in to their Heirloom account. The verification process has been cancelled.</p>
+    <p>Dear ${esc(contactName)},</p>
+    <p>Good news! <span class="gold">${esc(userName)}</span> has checked in to their Heirloom account. The verification process has been cancelled.</p>
     <p>No action is needed from you at this time.</p>
   `),
 });
@@ -399,12 +412,12 @@ export const letterDeliveryEmail = (
   subject: `A letter from ${senderName}`,
   html: baseTemplate(`
     <h2>You've received a letter</h2>
-    <p>Dear ${recipientName},</p>
-    <p>${senderName} has left you a message through Heirloom.</p>
+    <p>Dear ${esc(recipientName)},</p>
+    <p>${esc(senderName)} has left you a message through Heirloom.</p>
     <div class="letter-box">
-      <p class="salutation">${letter.salutation}</p>
-      <p style="white-space: pre-wrap;">${letter.body}</p>
-      <p class="signature">${letter.signature}</p>
+      <p class="salutation">${esc(letter.salutation)}</p>
+      <p style="white-space: pre-wrap;">${esc(letter.body)}</p>
+      <p class="signature">${esc(letter.signature)}</p>
     </div>
     <div class="seal">
       <div class="seal-icon">&#8734;</div>
@@ -421,13 +434,13 @@ export const escrowKeyReleaseEmail = (
   subject: `${userName} has left you something precious`,
   html: baseTemplate(`
     <h2>A Gift From Beyond</h2>
-    <p>Dear ${beneficiaryName},</p>
-    <p><span class="gold">${userName}</span> designated you as a beneficiary of their Heirloom vault.</p>
+    <p>Dear ${esc(beneficiaryName)},</p>
+    <p><span class="gold">${esc(userName)}</span> designated you as a beneficiary of their Heirloom vault.</p>
     <p>Their encrypted memories, voice recordings, and letters are now available for you.</p>
     <p>To access their content, you'll need the decryption key below:</p>
     <div class="code-box">${encryptedKey}</div>
     <a href="${APP_URL}/legacy-access" class="button">ACCESS MEMORIES</a>
-    <p>Please keep this key safe. It's the only way to decrypt ${userName}'s content.</p>
+    <p>Please keep this key safe. It's the only way to decrypt ${esc(userName)}'s content.</p>
   `),
 });
 
@@ -457,7 +470,7 @@ export const upcomingCheckInReminderEmail = (name: string, hoursUntil: number) =
   subject: `Check-in due in ${hoursUntil} hours`,
   html: baseTemplate(`
     <h2>Check-in Reminder</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <p>Your Heirloom check-in is due in <span class="gold">${hoursUntil} hours</span>.</p>
     <p>Taking a moment to check in ensures your legacy contacts won't be notified unnecessarily.</p>
     <a href="${APP_URL}/settings?tab=deadman" class="button">CHECK IN NOW</a>
@@ -479,8 +492,8 @@ export const adminNewUserNotificationEmail = (
     <h2>New User Registration</h2>
     <p>A new user has registered on Heirloom.</p>
     <div class="info-box">
-      <p><strong>Name:</strong> <span class="gold">${newUserName}</span></p>
-      <p><strong>Email:</strong> ${newUserEmail}</p>
+      <p><strong>Name:</strong> <span class="gold">${esc(newUserName)}</span></p>
+      <p><strong>Email:</strong> ${esc(newUserEmail)}</p>
       <p><strong>Signup Date:</strong> ${signupDate}</p>
     </div>
     <a href="${APP_URL}/admin" class="button">VIEW ADMIN DASHBOARD</a>
@@ -498,9 +511,9 @@ export const adminLetterSentNotificationEmail = (
     <h2>Letter Delivery Notification</h2>
     <p>A letter has been sent through Heirloom.</p>
     <div class="info-box">
-      <p><strong>From:</strong> <span class="gold">${senderName}</span> (${senderEmail})</p>
-      <p><strong>To:</strong> ${recipientEmail}</p>
-      <p><strong>Subject:</strong> ${letterSubject}</p>
+      <p><strong>From:</strong> <span class="gold">${esc(senderName)}</span> (${esc(senderEmail)})</p>
+      <p><strong>To:</strong> ${esc(recipientEmail)}</p>
+      <p><strong>Subject:</strong> ${esc(letterSubject)}</p>
     </div>
     <a href="${APP_URL}/admin" class="button">VIEW ADMIN DASHBOARD</a>
   `),
@@ -519,12 +532,12 @@ export const giftVoucherPurchaseEmail = (
   subject: 'Your Heirloom Gift Voucher',
   html: baseTemplate(`
     <h2>Thank You for Your Gift</h2>
-    <p>Dear ${purchaserName},</p>
+    <p>Dear ${esc(purchaserName)},</p>
     <p>Your Heirloom gift voucher has been created successfully.</p>
     <div class="info-box">
       <p><strong>Voucher Code:</strong></p>
       <p style="font-size: 24px; font-family: monospace; color: #c9a959; letter-spacing: 2px;">${voucherCode}</p>
-      <p><strong>Plan:</strong> ${tier}</p>
+      <p><strong>Plan:</strong> ${esc(tier)}</p>
       <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
     </div>
     <p>You can send this code to your recipient, or use the link below to send it directly:</p>
@@ -544,16 +557,16 @@ export const giftVoucherReceivedEmail = (
   subject: `${senderName} sent you a gift!`,
   html: baseTemplate(`
     <h2>You've Received a Gift</h2>
-    <p>Dear ${recipientName},</p>
-    <p><span class="gold">${senderName}</span> has gifted you a Heirloom subscription!</p>
+    <p>Dear ${esc(recipientName)},</p>
+    <p><span class="gold">${esc(senderName)}</span> has gifted you a Heirloom subscription!</p>
     ${personalMessage ? `
     <div class="letter-box">
-      <p style="white-space: pre-wrap;">${personalMessage}</p>
-      <p class="signature">— ${senderName}</p>
+      <p style="white-space: pre-wrap;">${esc(personalMessage)}</p>
+      <p class="signature">— ${esc(senderName)}</p>
     </div>
     ` : ''}
     <div class="info-box">
-      <p><strong>Your Gift:</strong> ${tier} Plan</p>
+      <p><strong>Your Gift:</strong> ${esc(tier)} Plan</p>
       <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
       <p><strong>Voucher Code:</strong></p>
       <p style="font-size: 20px; font-family: monospace; color: #c9a959; letter-spacing: 2px;">${voucherCode}</p>
@@ -572,10 +585,10 @@ export const giftVoucherRedeemedEmail = (
   subject: 'Gift Voucher Redeemed Successfully',
   html: baseTemplate(`
     <h2>Welcome to Heirloom</h2>
-    <p>Dear ${userName},</p>
+    <p>Dear ${esc(userName)},</p>
     <p>Your gift voucher has been redeemed successfully!</p>
     <div class="info-box">
-      <p><strong>Plan:</strong> <span class="gold">${tier}</span></p>
+      <p><strong>Plan:</strong> <span class="gold">${esc(tier)}</span></p>
       <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
     </div>
     <p>Your sanctuary is ready. Start preserving your most precious memories today.</p>
@@ -623,12 +636,12 @@ export const postReminderMemoryEmail = (
   const hasPosted = memoriesCount > 0;
   
   return {
-    subject: hasPosted 
-      ? `${userName}, your memories are waiting` 
+    subject: hasPosted
+      ? `${userName}, your memories are waiting`
       : `${userName}, start your legacy today`,
     html: baseTemplate(`
       <h2>${hasPosted ? 'Continue Your Story' : 'Begin Your Legacy'}</h2>
-      <p>Dear ${userName},</p>
+      <p>Dear ${esc(userName)},</p>
       ${hasPosted 
         ? `<p>You've preserved <span class="gold">${memoriesCount} ${memoriesCount === 1 ? 'memory' : 'memories'}</span> so far—each one a treasure for future generations.${daysSinceLastPost ? ` It's been ${daysSinceLastPost} days since your last upload.` : ''}</p>`
         : `<p>Your vault is ready and waiting. Every photo, every moment you capture becomes a gift to those who come after you.</p>`
@@ -652,12 +665,12 @@ export const postReminderVoiceEmail = (
   const hasRecorded = recordingsCount > 0;
   
   return {
-    subject: hasRecorded 
-      ? `${userName}, your voice matters` 
+    subject: hasRecorded
+      ? `${userName}, your voice matters`
       : `${userName}, let them hear your voice`,
     html: baseTemplate(`
       <h2>${hasRecorded ? 'Your Voice Lives On' : 'Capture Your Voice'}</h2>
-      <p>Dear ${userName},</p>
+      <p>Dear ${esc(userName)},</p>
       ${hasRecorded 
         ? `<p>You've recorded <span class="gold">${totalMinutes} ${totalMinutes === 1 ? 'minute' : 'minutes'}</span> of voice messages—your laugh, your wisdom, your love, preserved forever.</p>`
         : `<p>There's something irreplaceable about hearing a loved one's voice. Your voice carries warmth, emotion, and personality that words on a page simply can't capture.</p>`
@@ -681,12 +694,12 @@ export const postReminderLetterEmail = (
   const hasWritten = lettersCount > 0;
   
   return {
-    subject: hasWritten 
-      ? `${userName}, words that transcend time` 
+    subject: hasWritten
+      ? `${userName}, words that transcend time`
       : `${userName}, write a letter to the future`,
     html: baseTemplate(`
       <h2>${hasWritten ? 'Continue Writing' : 'Letters That Last Forever'}</h2>
-      <p>Dear ${userName},</p>
+      <p>Dear ${esc(userName)},</p>
       ${hasWritten 
         ? `<p>You've written <span class="gold">${lettersCount} ${lettersCount === 1 ? 'letter' : 'letters'}</span>${hasSealedLetters ? ', some sealed for future delivery' : ''}. Each one is a gift waiting to be opened.</p>`
         : `<p>Imagine the joy of receiving a letter from someone you love—on a birthday, a wedding day, or a moment when they need it most. You can give that gift.</p>`
@@ -724,7 +737,7 @@ export const postReminderWeeklyDigestEmail = (
     subject: `${userName}, your weekly Heirloom update`,
     html: baseTemplate(`
       <h2>Your Legacy This Week</h2>
-      <p>Dear ${userName},</p>
+      <p>Dear ${esc(userName)},</p>
       <p>Here's a snapshot of your Heirloom sanctuary:</p>
       <div class="info-box">
         <p><strong>Memories:</strong> <span class="gold">${stats.memoriesCount}</span> preserved</p>
@@ -810,16 +823,16 @@ export const supportTicketReplyEmail = (
   subject: `[${ticketNumber}] Reply to your support request`,
   html: baseTemplate(`
     <h2>We've responded to your request</h2>
-    <p>Hi ${userName},</p>
+    <p>Hi ${esc(userName)},</p>
     <p>Our support team has replied to your ticket <span class="gold">${ticketNumber}</span>.</p>
-    
+
     <div class="info-box">
-      <p><strong>Subject:</strong> ${ticketSubject}</p>
+      <p><strong>Subject:</strong> ${esc(ticketSubject)}</p>
     </div>
-    
+
     <div class="letter-box">
-      <p class="salutation">Response from ${adminName}:</p>
-      <p style="white-space: pre-wrap;">${replyContent}</p>
+      <p class="salutation">Response from ${esc(adminName)}:</p>
+      <p style="white-space: pre-wrap;">${esc(replyContent)}</p>
     </div>
     
     <p>If you have any follow-up questions, simply reply to this email or submit a new support request.</p>
@@ -837,18 +850,18 @@ export const supportTicketResolvedEmail = (
   subject: `[${ticketNumber}] Your support request has been resolved`,
   html: baseTemplate(`
     <h2>Your request has been resolved</h2>
-    <p>Hi ${userName},</p>
+    <p>Hi ${esc(userName)},</p>
     <p>Your support ticket <span class="gold">${ticketNumber}</span> has been marked as resolved.</p>
-    
+
     <div class="info-box">
-      <p><strong>Subject:</strong> ${ticketSubject}</p>
+      <p><strong>Subject:</strong> ${esc(ticketSubject)}</p>
       <p><strong>Status:</strong> <span class="gold">Resolved</span></p>
     </div>
-    
+
     ${resolutionNote ? `
     <div class="letter-box">
       <p class="salutation">Resolution note:</p>
-      <p style="white-space: pre-wrap;">${resolutionNote}</p>
+      <p style="white-space: pre-wrap;">${esc(resolutionNote)}</p>
     </div>
     ` : ''}
     
@@ -872,7 +885,7 @@ export const influencerApplicationReceivedEmail = (name: string) => ({
   subject: 'Application Received - Heirloom Influencer Program',
   html: baseTemplate(`
     <h2>Application Received</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <p>Thank you for applying to the <span class="gold">Heirloom Influencer Program</span>!</p>
     <p>We've received your application and our team will review it within <strong>48 hours</strong>.</p>
     <div class="info-box">
@@ -892,11 +905,11 @@ export const influencerApprovedEmail = (name: string, discountCode: string, tier
   subject: 'Welcome to the Heirloom Influencer Program!',
   html: baseTemplate(`
     <h2>You're Approved!</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <p>Congratulations! Your application to the <span class="gold">Heirloom Influencer Program</span> has been approved.</p>
     <div class="info-box">
       <p><strong>Your Influencer Details:</strong></p>
-      <p>Tier: <span class="gold">${tier}</span></p>
+      <p>Tier: <span class="gold">${esc(tier)}</span></p>
       <p>Your Discount Code: <span class="gold">${discountCode}</span></p>
       <p>Discount for your audience: <span class="gold">${discountPercent}% off</span></p>
     </div>
@@ -910,9 +923,9 @@ export const influencerRejectedEmail = (name: string, reason?: string) => ({
   subject: 'Heirloom Influencer Program - Application Update',
   html: baseTemplate(`
     <h2>Application Update</h2>
-    <p>Hi ${name},</p>
+    <p>Hi ${esc(name)},</p>
     <p>Thank you for your interest in the Heirloom Influencer Program.</p>
-    <p>After careful review, we're unable to approve your application at this time.${reason ? ` ${reason}` : ''}</p>
+    <p>After careful review, we're unable to approve your application at this time.${reason ? ` ${esc(reason)}` : ''}</p>
     <p>This doesn't mean the door is closed! You're welcome to reapply in the future as your platform grows.</p>
     <p>In the meantime, you can still earn rewards through our <a href="${APP_URL}/referral" style="color: #c9a959;">referral program</a>.</p>
   `),
@@ -922,8 +935,8 @@ export const partnerApplicationReceivedEmail = (contactName: string, businessNam
   subject: 'Application Received - Heirloom Partner Program',
   html: baseTemplate(`
     <h2>Application Received</h2>
-    <p>Hi ${contactName},</p>
-    <p>Thank you for applying to become a <span class="gold">Heirloom Partner</span> on behalf of ${businessName}!</p>
+    <p>Hi ${esc(contactName)},</p>
+    <p>Thank you for applying to become a <span class="gold">Heirloom Partner</span> on behalf of ${esc(businessName)}!</p>
     <p>We've received your application and our team will review it within <strong>48-72 hours</strong>.</p>
     <div class="info-box">
       <p><strong>What happens next?</strong></p>
@@ -943,8 +956,8 @@ export const partnerApprovedEmail = (contactName: string, businessName: string, 
   subject: 'Welcome to the Heirloom Partner Program!',
   html: baseTemplate(`
     <h2>You're Approved!</h2>
-    <p>Hi ${contactName},</p>
-    <p>Congratulations! <span class="gold">${businessName}</span> has been approved as a Heirloom Partner.</p>
+    <p>Hi ${esc(contactName)},</p>
+    <p>Congratulations! <span class="gold">${esc(businessName)}</span> has been approved as a Heirloom Partner.</p>
     <div class="info-box">
       <p><strong>Your Partner Details:</strong></p>
       <p>Partner Code: <span class="gold">${partnerCode}</span></p>
@@ -966,9 +979,9 @@ export const partnerRejectedEmail = (contactName: string, businessName: string, 
   subject: 'Heirloom Partner Program - Application Update',
   html: baseTemplate(`
     <h2>Application Update</h2>
-    <p>Hi ${contactName},</p>
-    <p>Thank you for ${businessName}'s interest in the Heirloom Partner Program.</p>
-    <p>After careful review, we're unable to approve your application at this time.${reason ? ` ${reason}` : ''}</p>
+    <p>Hi ${esc(contactName)},</p>
+    <p>Thank you for ${esc(businessName)}'s interest in the Heirloom Partner Program.</p>
+    <p>After careful review, we're unable to approve your application at this time.${reason ? ` ${esc(reason)}` : ''}</p>
     <p>If you believe this was in error or have additional information to share, please reply to this email.</p>
   `),
 });
@@ -977,12 +990,12 @@ export const wholesaleOrderConfirmationEmail = (contactName: string, orderId: st
   subject: 'Wholesale Order Confirmed - Heirloom',
   html: baseTemplate(`
     <h2>Order Confirmed</h2>
-    <p>Hi ${contactName},</p>
+    <p>Hi ${esc(contactName)},</p>
     <p>Your wholesale voucher order has been confirmed!</p>
     <div class="info-box">
       <p><strong>Order Details:</strong></p>
       <p>Order ID: ${orderId}</p>
-      <p>Vouchers: ${quantity}x ${tier}</p>
+      <p>Vouchers: ${quantity}x ${esc(tier)}</p>
       <p>Total: $${(totalAmount / 100).toFixed(2)}</p>
     </div>
     <p>Your vouchers are now available in your partner dashboard. You can assign them to recipients or distribute the codes directly.</p>
@@ -996,9 +1009,9 @@ export const adminInfluencerApplicationEmail = (influencerName: string, platform
     <h2>New Influencer Application</h2>
     <p>A new influencer has applied to the program:</p>
     <div class="info-box">
-      <p><strong>Name:</strong> ${influencerName}</p>
-      <p><strong>Platform:</strong> ${platform}</p>
-      <p><strong>Handle:</strong> ${handle}</p>
+      <p><strong>Name:</strong> ${esc(influencerName)}</p>
+      <p><strong>Platform:</strong> ${esc(platform)}</p>
+      <p><strong>Handle:</strong> ${esc(handle)}</p>
       <p><strong>Followers:</strong> ${followerCount.toLocaleString()}</p>
     </div>
     <a href="${APP_URL}/admin/influencers" class="button">REVIEW APPLICATION</a>
@@ -1011,12 +1024,44 @@ export const adminPartnerApplicationEmail = (businessName: string, businessType:
     <h2>New Partner Application</h2>
     <p>A new business has applied to become a partner:</p>
     <div class="info-box">
-      <p><strong>Business:</strong> ${businessName}</p>
-      <p><strong>Type:</strong> ${businessType}</p>
-      <p><strong>Contact:</strong> ${contactName}</p>
-      <p><strong>Email:</strong> ${contactEmail}</p>
+      <p><strong>Business:</strong> ${esc(businessName)}</p>
+      <p><strong>Type:</strong> ${esc(businessType)}</p>
+      <p><strong>Contact:</strong> ${esc(contactName)}</p>
+      <p><strong>Email:</strong> ${esc(contactEmail)}</p>
     </div>
     <a href="${APP_URL}/admin/partners" class="button">REVIEW APPLICATION</a>
+  `),
+});
+
+// ============================================
+// THREAD INVITATION EMAIL
+// ============================================
+
+export const threadInvitationEmail = (
+  inviteeName: string,
+  inviterName: string,
+  threadName: string,
+  role: string,
+  acceptUrl: string,
+) => ({
+  subject: `${inviterName} invited you to the ${threadName} thread on Heirloom`,
+  html: baseTemplate(`
+    <h2>You've Been Invited</h2>
+    <p>Dear ${esc(inviteeName)},</p>
+    <p><span class="warm">${esc(inviterName)}</span> has invited you to join the
+    <span class="warm">${esc(threadName)}</span> family thread on Heirloom.</p>
+    <div class="info-box">
+      <p><strong>Your role:</strong> <span class="warm">${esc(role)}</span></p>
+    </div>
+    <p>Heirloom is a family story archive — a thousand-year thread. Every photo, voice
+    recording, and written memory woven into your thread becomes an heirloom passed down
+    through generations, owned by your bloodline, not a platform.</p>
+    <p>Accept your invitation to begin reading and contributing to the
+    <span class="warm">${esc(threadName)}</span> thread.</p>
+    <a href="${safeUrl(acceptUrl)}" class="button-warm">ACCEPT INVITATION</a>
+    <p class="muted" style="font-size: 14px; margin-top: 28px;">If you weren't expecting
+    this invitation, you can safely ignore this email. No account will be created without
+    your action.</p>
   `),
 });
 
@@ -1024,7 +1069,7 @@ export const newFeaturesAnnouncementEmail = (userName: string) => ({
   subject: 'New Features: Legacy Playbook, Story Artifacts & More',
   html: baseTemplate(`
     <h2>Exciting New Features Are Here!</h2>
-    <p>Hi ${userName},</p>
+    <p>Hi ${esc(userName)},</p>
     <p>We've been working hard to make Heirloom even more powerful for preserving your legacy. Here's what's new:</p>
     
     <div class="divider"></div>
@@ -1050,5 +1095,125 @@ export const newFeaturesAnnouncementEmail = (userName: string) => ({
     <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">
       <a href="${APP_URL}/settings?tab=notifications" style="color: #c9a959;">Manage your email preferences</a>
     </p>
+  `),
+});
+
+// ============================================
+// GIFT SUBSCRIPTION EMAILS
+// ============================================
+
+export const giftSubscriptionPurchaseEmail = (
+  purchaserName: string,
+  recipientName: string,
+  recipientEmail: string,
+  tierName: string,
+  giftPrice: number,
+  billingPeriod: 'monthly' | 'annual',
+  giftCode: string,
+  personalMessage?: string,
+  scheduledDate?: string,
+) => ({
+  subject: `Your gift subscription for ${recipientName} is confirmed`,
+  html: baseTemplate(`
+    <h2>Gift confirmed</h2>
+    <p>Dear ${esc(purchaserName)},</p>
+    <p>Your gift subscription for <span class="warm">${esc(recipientName)}</span> has been confirmed. Here is your receipt.</p>
+    <div class="info-box">
+      <p><strong>Recipient:</strong> ${esc(recipientName)} (${esc(recipientEmail)})</p>
+      <p><strong>Plan:</strong> ${esc(tierName)} &mdash; ${billingPeriod === 'annual' ? 'Annual' : 'Monthly'}</p>
+      <p><strong>Amount paid:</strong> $${giftPrice.toFixed(2)} USD</p>
+      <p><strong>Gift code:</strong></p>
+      <div class="code-box">${giftCode}</div>
+      ${scheduledDate
+        ? `<p><strong>Scheduled delivery:</strong> ${esc(scheduledDate)}</p>`
+        : `<p><strong>Delivery:</strong> <span class="warm">Sent immediately</span></p>`
+      }
+    </div>
+    ${personalMessage ? `
+    <div class="letter-box">
+      <p class="salutation">Your personal message:</p>
+      <p style="white-space: pre-wrap;">${esc(personalMessage)}</p>
+      <p class="signature">&mdash; ${esc(purchaserName)}</p>
+    </div>
+    ` : ''}
+    <hr class="divider">
+    <p>If you need to make any changes, reply to this email within 24 hours of purchase.</p>
+    <a href="${APP_URL}/gift" class="button">VIEW YOUR GIFT</a>
+  `),
+});
+
+export const giftSubscriptionReceivedEmail = (
+  recipientName: string,
+  senderName: string,
+  tierName: string,
+  billingPeriod: 'monthly' | 'annual',
+  giftCode: string,
+  redeemUrl: string,
+  personalMessage?: string,
+) => ({
+  subject: `${senderName} gave you a Heirloom ${tierName} subscription`,
+  html: baseTemplate(`
+    <h2>You've received a gift</h2>
+    <p>Dear ${esc(recipientName)},</p>
+    <p><span class="warm">${esc(senderName)}</span> has given you a Heirloom subscription &mdash; a place to preserve your family's story for generations to come.</p>
+    ${personalMessage ? `
+    <div class="letter-box">
+      <p class="salutation">A note from ${esc(senderName)}:</p>
+      <p style="white-space: pre-wrap;">${esc(personalMessage)}</p>
+      <p class="signature">&mdash; ${esc(senderName)}</p>
+    </div>
+    ` : ''}
+    <div class="info-box">
+      <p><strong>Your gift:</strong> ${esc(tierName)} plan &mdash; ${billingPeriod === 'annual' ? 'Annual' : 'Monthly'}</p>
+      <p><strong>Gift code:</strong></p>
+      <div class="code-box">${giftCode}</div>
+    </div>
+    <p>Heirloom is a family thread &mdash; an append-only, multi-generational archive owned by your bloodline, not a platform. Your voice, your letters, your memories: woven in, never erased.</p>
+    <a href="${safeUrl(redeemUrl)}" class="button-warm">REDEEM YOUR GIFT</a>
+    <p style="margin-top: 24px; font-size: 14px; color: rgba(14,14,12,0.46);">
+      Or visit <span style="font-family: 'Courier New', monospace; font-size: 12px;">${esc(redeemUrl)}</span>
+    </p>
+  `),
+});
+
+// ============================================
+// FAMILY REFERRAL INVITE EMAIL
+// ============================================
+
+export const familyReferralInviteEmail = (
+  referrerName: string,
+  relationship: string,
+  inviteUrl: string,
+) => ({
+  subject: `${referrerName} invited you to join Heirloom`,
+  html: baseTemplate(`
+    <div class="section">
+      <p class="section-label">family invitation</p>
+      <h2>You've been invited to preserve your family's story.</h2>
+      <p><strong>${esc(referrerName)}</strong> has added you as <em>${esc(relationship) || 'a family member'}</em> on Heirloom — a thousand-year family thread where every entry is preserved forever.</p>
+      <a href="${safeUrl(inviteUrl)}" class="button-warm">Accept invitation</a>
+      <p class="muted">Or copy this link: ${esc(inviteUrl)}</p>
+    </div>
+  `),
+});
+
+// ============================================
+// GIFT SUBSCRIPTION REDEEMED EMAIL
+// ============================================
+
+export const giftSubscriptionRedeemedEmail = (
+  recipientName: string,
+  tierName: string,
+  durationMonths: number,
+  expiresAt: string,
+) => ({
+  subject: `Your Heirloom ${tierName} subscription is active`,
+  html: baseTemplate(`
+    <div class="section">
+      <p class="section-label">gift redeemed</p>
+      <h2>Your subscription is now active.</h2>
+      <p>Your <strong>${esc(tierName)}</strong> plan is active for ${durationMonths === 1 ? '1 month' : `${durationMonths} months`}, expiring on ${new Date(expiresAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p>
+      <a href="https://heirloom.blue/loom/today" class="button-warm">Open your thread</a>
+    </div>
   `),
 });

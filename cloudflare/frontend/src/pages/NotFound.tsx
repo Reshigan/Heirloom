@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
+import { useAuthStore } from '../stores/authStore';
 
 export function NotFound() {
+  const { isAuthenticated } = useAuthStore();
+  const home = isAuthenticated ? '/loom/today' : '/';
   return (
     <div
       className="hl-screen"
@@ -17,12 +20,12 @@ export function NotFound() {
       {/* topbar */}
       <div className="hl-topbar">
         <Link
-          to="/"
+          to={home}
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
           <HLogo size={18} wordmark />
         </Link>
-        <Link to="/" className="hl-link warm">
+        <Link to={home} className="hl-link warm">
           the cloth →
         </Link>
       </div>
@@ -77,7 +80,7 @@ export function NotFound() {
           </p>
 
           <Link
-            to="/"
+            to={home}
             className="hl-link warm hl-mono"
             style={{
               fontSize: 10.5,

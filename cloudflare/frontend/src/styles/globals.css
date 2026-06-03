@@ -97,6 +97,7 @@
 
   /* Semantic tokens */
   --danger: #c25a5a;
+  --safe:   #5a7a5a;
 
   /* natural-dye palette — only inside the cloth (woven threads) */
   --dye-madder:    #e84030;
@@ -910,12 +911,12 @@ html {
   opacity: 0.88;
 }
 
-/* BottomNav clearance — scroll containers end above the 60px nav bar on mobile */
+/* BottomNav clearance — scroll containers end above the 72px nav bar on mobile */
 @media (max-width: 639px) {
   .hl-frame-scroll {
-    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
   }
   .hl-compose-scroll {
-    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }

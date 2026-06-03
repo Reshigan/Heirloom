@@ -196,7 +196,7 @@ export function GiftRedeem() {
                   : ''}
               </p>
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/loom/today')}
                 className="hl-btn"
                 style={{ cursor: 'pointer' }}
               >

@@ -11,6 +11,8 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
+import { threadInvitationEmail } from '../email-templates';
+import { sendEmail } from '../utils/email';
 
 export const threadsRoutes = new Hono<AppEnv>();
 
@@ -231,7 +233,38 @@ threadsRoutes.post('/:id/members', async (c) => {
     return c.json({ error: 'Family threads are limited to 5 members' }, 400);
   }
 
-  // TODO: send invitation email if email is set; record audit trail.
+  // Send invitation email if recipient has an email address.
+  if (body.email) {
+    const acceptUrl = `https://heirloom.blue/threads/${threadId}`;
+    try {
+      // Fetch the thread name and the inviter's display name in one round-trip.
+      const [threadRow, inviterRow] = await Promise.all([
+        c.env.DB.prepare(`SELECT name FROM threads WHERE id = ?`)
+          .bind(threadId)
+          .first<{ name: string }>(),
+        c.env.DB.prepare(`SELECT display_name FROM thread_members WHERE id = ?`)
+          .bind(inviter.id)
+          .first<{ display_name: string }>(),
+      ]);
+      const threadName = threadRow?.name ?? 'Family';
+      const inviterName = inviterRow?.display_name ?? 'A family member';
+      const template = threadInvitationEmail(
+        body.display_name,
+        inviterName,
+        threadName,
+        body.role,
+        acceptUrl,
+      );
+      await sendEmail(c.env, {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: body.email,
+        subject: template.subject,
+        html: template.html,
+      }, 'THREAD_INVITATION');
+    } catch (err) {
+      console.error('Thread invitation email failed:', err);
+    }
+  }
 
   return c.json({ member: { id, role: body.role, display_name: body.display_name } });
 });

@@ -6,6 +6,17 @@ import { TapestryEdge } from '../loom/components/Frame';
 
 const SILENCE_THRESHOLD = 0.01;
 
+const STARTING_PROMPTS = [
+  'Tell me about your earliest childhood memory.',
+  'What was the happiest day of your life?',
+  'Describe the home you grew up in.',
+  'Who had the biggest influence on your life?',
+  "What's a lesson you learned the hard way?",
+  'Tell me about a tradition in your family.',
+  'What do you want your grandchildren to know about you?',
+  'Describe a moment that changed everything.',
+];
+
 interface TranscriptSegment {
   text: string;
   timestamp: number;
@@ -34,19 +45,8 @@ export function InterviewMode() {
   const animFrameRef = useRef<number | null>(null);
   const silenceStartRef = useRef<number | null>(null);
 
-  const startingPrompts = [
-    'Tell me about your earliest childhood memory.',
-    'What was the happiest day of your life?',
-    'Describe the home you grew up in.',
-    'Who had the biggest influence on your life?',
-    "What's a lesson you learned the hard way?",
-    'Tell me about a tradition in your family.',
-    'What do you want your grandchildren to know about you?',
-    'Describe a moment that changed everything.',
-  ];
-
   useEffect(() => {
-    setCurrentQuestion(startingPrompts[Math.floor(Math.random() * startingPrompts.length)]);
+    setCurrentQuestion(STARTING_PROMPTS[Math.floor(Math.random() * STARTING_PROMPTS.length)]);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
@@ -202,12 +202,36 @@ export function InterviewMode() {
         interview_data: JSON.stringify({
           transcript,
           questions: transcript.filter((s) => s.isQuestion).map((s) => s.text),
+          textAnswer: textAnswer || '',
         }),
       });
 
       navigate('/record');
     } catch (err) {
       console.error('Failed to save interview:', err);
+    }
+    setIsSaving(false);
+  };
+
+  const saveTextOnly = async () => {
+    setIsSaving(true);
+    try {
+      await voiceApi.create({
+        title: `Interview - ${new Date().toLocaleDateString()}`,
+        fileKey: '',
+        fileUrl: '',
+        duration: 0,
+        recording_type: 'interview',
+        interview_data: JSON.stringify({
+          transcript,
+          questions: transcript.filter((s) => s.isQuestion).map((s) => s.text),
+          textAnswer: textAnswer || '',
+          segments: [],
+        }),
+      });
+      navigate('/record');
+    } catch (err) {
+      console.error('Failed to save written interview:', err);
     }
     setIsSaving(false);
   };
@@ -486,6 +510,26 @@ export function InterviewMode() {
                     }}
                   />
                 ))}
+              </div>
+            )}
+
+            {/* Save written answers — shown when there's text and recording is not active */}
+            {textAnswer.trim().length > 0 && !isRecording && (
+              <div style={{ marginTop: 16 }}>
+                <button
+                  onClick={saveTextOnly}
+                  disabled={isSaving}
+                  className="hl-btn ghost"
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    padding: '10px 20px',
+                    opacity: isSaving ? 0.5 : 1,
+                  }}
+                >
+                  {isSaving ? 'saving…' : 'save written answers'}
+                </button>
               </div>
             )}
 

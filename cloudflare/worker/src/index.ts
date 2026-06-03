@@ -37,7 +37,7 @@ import { announcementsRoutes } from './routes/announcements';
 import engagementRoutes from './routes/engagement';
 import { streaksRoutes, challengesRoutes, referralsRoutes, giftRoutes, memorialRoutes, milestonesRoutes, notificationsRoutes } from './routes/q4-features';
 import memoryCardsRoutes from './routes/memory-cards';
-import pushNotificationRoutes from './routes/push-notifications';
+import pushNotificationRoutes, { sendPushToUser } from './routes/push-notifications';
 import { referralRoutes } from './routes/referrals';
 import { influencerRoutes } from './routes/influencers';
 import { partnerRoutes } from './routes/partners';
@@ -52,6 +52,8 @@ import { processSocialQueue } from './crons/social-posting';
 import { resolveTimeLocks } from './crons/time-locks';
 import { processArchivePinning } from './crons/archive-pinning';
 import { backfillMemoryDescriptionEncryption } from './crons/legacy-encryption-backfill';
+import { processScheduledDeletions } from './crons/scheduled-deletion';
+import { processScheduledGifts } from './crons/scheduled-gifts';
 import { archiveRoutes } from './routes/archive';
 import { bookOrderRoutes, bookOrderProtectedRoutes } from './routes/books';
 import { syncOpenPrintJobs } from './services/book';
@@ -165,6 +167,19 @@ app.use('*', logger());
 // Disable CORP globally so we can set it per-route (file serving routes need 'cross-origin' for embedding)
 app.use('*', secureHeaders({
   crossOriginResourcePolicy: false,
+  xFrameOptions: 'DENY',
+  strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+  referrerPolicy: 'strict-origin-when-cross-origin',
+  xContentTypeOptions: 'nosniff',
+  permissionsPolicy: {
+    camera: [],
+    microphone: [],
+    geolocation: [],
+  },
+  contentSecurityPolicy: {
+    defaultSrc: ["'none'"],
+    frameAncestors: ["'none'"],
+  },
 }));
 
 // CORS - localhost only allowed in development
@@ -211,7 +226,11 @@ app.get('/health', (c) => {
 
 // Public health check at /api/health (in addition to /health)
 app.get('/api/health', (c) => {
-  return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+  return c.json({
+    status: 'ok',
+    encrypted: !!c.env.ENCRYPTION_MASTER_KEY,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // ============================================
@@ -902,6 +921,15 @@ export default {
       const encBackfill = await backfillMemoryDescriptionEncryption(env);
       console.log(`Encryption backfill — encrypted:${encBackfill.encrypted} remaining:${encBackfill.remaining}${encBackfill.skipped ? ` (${encBackfill.skipped})` : ''}`);
 
+      // GDPR Art. 17 / POPIA §23 — execute 90-day scheduled account deletions
+      console.log('Processing scheduled account deletions…');
+      const delResult = await processScheduledDeletions(env);
+      console.log(`Scheduled deletions — deleted:${delResult.deleted} errors:${delResult.errors}`);
+
+      console.log('Processing scheduled gift deliveries…');
+      const giftResult = await processScheduledGifts(env);
+      console.log(`Scheduled gift deliveries — delivered:${giftResult.delivered} errors:${giftResult.errors}`);
+
       console.log('Daily jobs complete.');
 
     } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
@@ -930,6 +958,14 @@ export default {
       console.log('Syncing open Lulu print jobs…');
       const luluResult = await syncOpenPrintJobs(env);
       console.log(`Lulu sync: ${luluResult.updated} orders updated`);
+
+      // Purge stale audit and reminder rows — prevent unbounded table growth
+      await env.DB.batch([
+        env.DB.prepare(`DELETE FROM marketing_audit_log WHERE created_at < datetime('now', '-90 days')`),
+        env.DB.prepare(`DELETE FROM post_reminder_emails WHERE sent_at < datetime('now', '-365 days')`),
+        env.DB.prepare(`DELETE FROM notifications WHERE created_at < datetime('now', '-180 days') AND (is_read = 1 OR is_read IS NULL)`),
+      ]);
+      console.log('Stale audit/reminder/notification rows purged.');
 
       console.log('Weekly jobs complete.');
       
@@ -1258,15 +1294,41 @@ async function sendPostReminderEmails(env: Env) {
     }
     
     try {
-      const result = await sendEmail(env, {
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: email as string,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }, `POST_REMINDER_${reminderType.toUpperCase()}`);
-      
-      if (result.success) {
-        // Record that we sent a reminder to this user
+      // Prefer push notification if the user has active device tokens
+      const hasPush = await env.DB.prepare(
+        `SELECT 1 FROM device_tokens WHERE user_id = ? AND is_active = 1 LIMIT 1`
+      ).bind(row.user_id).first();
+
+      let sent = false;
+      if (hasPush) {
+        // Map reminder type to a push nudge
+        const pushMessages: Record<string, { title: string; body: string }> = {
+          memory: { title: 'Your thread is waiting', body: 'A moment worth keeping is still untold. Add it now.' },
+          voice:  { title: 'Capture your voice', body: 'Record a memory in your own words — future generations will hear you.' },
+          letter: { title: 'Write for the future', body: 'A sealed letter is the most personal gift you can give.' },
+          weekly: { title: 'Your weekly thread', body: `${userName ? userName + ', your' : 'Your'} Heirloom thread is growing — add to it today.` },
+        };
+        const msg = pushMessages[reminderType] ?? pushMessages.weekly;
+        const pushResult = await sendPushToUser(env, row.user_id as string, {
+          title: msg.title,
+          body:  msg.body,
+          data:  { type: 'retention', route: '/memories' },
+        });
+        sent = pushResult.sentCount > 0;
+      }
+
+      if (!sent) {
+        // Fall back to email
+        const result = await sendEmail(env, {
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: email as string,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }, `POST_REMINDER_${reminderType.toUpperCase()}`);
+        sent = result.success;
+      }
+
+      if (sent) {
         await env.DB.prepare(`
           INSERT INTO post_reminder_emails (user_id, reminder_type, sent_at)
           VALUES (?, ?, ?)

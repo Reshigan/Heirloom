@@ -7,7 +7,7 @@
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
+  "orientation": "natural",
   "background_color": "#0e0e0c",
   "theme_color": "#0e0e0c",
   "lang": "en",
@@ -25,13 +25,18 @@
       "name": "Write tonight's entry",
       "short_name": "Write",
       "description": "Add a new weft thread to your family cloth",
-      "url": "/compose?source=pwa-shortcut"
+      "url": "/compose?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Open the cloth",
       "short_name": "Cloth",
       "description": "Pan the woven tapestry of your family thread",
-      "url": "/loom/weft?source=pwa-shortcut"
+      "url": "/loom/weft?source=pwa-shortcut",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
+  ],
+  "screenshots": [
+    { "src": "/og-image.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide" }
   ]
 }

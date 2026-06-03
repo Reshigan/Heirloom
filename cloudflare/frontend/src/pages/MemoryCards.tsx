@@ -76,6 +76,7 @@ export function MemoryCards() {
   const [customText, setCustomText] = useState('');
   const [includePhoto, setIncludePhoto] = useState(true);
   const [generatedCard, setGeneratedCard] = useState<GeneratedCard | null>(null);
+  const [genError, setGenError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'create' | 'gallery' | 'onthisday'>('create');
 
@@ -110,8 +111,10 @@ export function MemoryCards() {
     }),
     onSuccess: (response) => {
       setGeneratedCard(response.data);
+      setGenError(null);
       queryClient.invalidateQueries({ queryKey: ['my-memory-cards'] });
     },
+    onError: () => setGenError('Card generation failed. Please try again.'),
   });
 
   const shareMutation = useMutation({
@@ -423,6 +426,11 @@ export function MemoryCards() {
 
             {/* Right — preview */}
             <div>
+              {genError && (
+                <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 11, margin: '8px 0' }}>
+                  {genError}
+                </p>
+              )}
               {generatedCard ? (
                 <div>
                   <p className="hl-eyebrow" style={{ marginBottom: 18 }}>Your card</p>

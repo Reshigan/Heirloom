@@ -53,7 +53,6 @@ export function MemoryMap() {
   };
 
   const locations = groupByLocation(memories);
-  const hasMap = false; // Mapbox integration pending API key
 
   return (
     <Frame left="memory map">
@@ -159,40 +158,19 @@ export function MemoryMap() {
           </div>
         ) : (
           <>
-            {/* Map canvas */}
-            {hasMap ? (
-              /* Future: mount Mapbox GL JS here */
-              <div
-                style={{
-                  background: '#0a0a08',
-                  flex: 1,
-                  minHeight: 300,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 1,
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  background: '#0a0a08',
-                  flex: 1,
-                  minHeight: 300,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 1,
-                }}
-              >
-                <span
-                  className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}
-                >
-                  map view coming soon
-                </span>
-              </div>
-            )}
+            {/* Section label */}
+            <p
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-dim)',
+                margin: '0 0 24px',
+              }}
+            >
+              memories by place
+            </p>
 
             {/* Location list */}
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>

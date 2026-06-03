@@ -226,19 +226,6 @@ export function DailySentence() {
           one question per day · anonymized
         </span>
 
-        {/* right: download action */}
-        <span
-          className="hl-link warm hl-mono"
-          style={{
-            fontSize: 10.5,
-            color: 'var(--warm)',
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            cursor: 'default',
-          }}
-        >
-          download set →
-        </span>
       </div>
 
       {/* ── scrollable body ──────────────────────────────────────────── */}

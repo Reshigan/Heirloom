@@ -5,6 +5,8 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
+import { sendEmail } from '../utils/email';
+import { giftSubscriptionPurchaseEmail, giftSubscriptionReceivedEmail, familyReferralInviteEmail, giftSubscriptionRedeemedEmail } from '../email-templates';
 
 // ============================================
 // MEMORY STREAKS ROUTES
@@ -300,14 +302,28 @@ referralsRoutes.post('/invite', async (c) => {
     INSERT INTO family_referrals (id, referrer_id, referred_email, family_branch, relationship, invite_code, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).bind(id, userId, body.email, body.branch, body.relationship, inviteCode, now).run();
-  
-  // Send invite email
-  // TODO: Integrate with email service
-  
+
+  const inviteUrl = `https://heirloom.blue/signup?ref=${inviteCode}`;
+
+  // Send invite email to the referred person
+  try {
+    const referrer = await c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first();
+    const referrerName = `${(referrer as any)?.first_name || ''} ${(referrer as any)?.last_name || ''}`.trim() || 'A family member';
+    const inviteEmailContent = familyReferralInviteEmail(referrerName, body.relationship, inviteUrl);
+    await sendEmail(c.env, {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: body.email,
+      subject: inviteEmailContent.subject,
+      html: inviteEmailContent.html,
+    }, 'FAMILY_REFERRAL_INVITE');
+  } catch (err) {
+    console.error('Failed to send referral invite email:', err);
+  }
+
   return c.json({
     id,
     inviteCode,
-    inviteUrl: `https://heirloom.blue/signup?ref=${inviteCode}`,
+    inviteUrl,
   });
 });
 
@@ -385,14 +401,41 @@ referralsRoutes.post('/accept', async (c) => {
 
 export const giftRoutes = new Hono<AppEnv>();
 
+// Base prices (Tier 1 USD)
+const GIFT_BASE_PRICES: Record<string, { monthly: number; annual: number }> = {
+  STARTER: { monthly: 4.99, annual: 49.99 },
+  FAMILY:  { monthly: 9.99, annual: 99.99 },
+  FOREVER: { monthly: 19.99, annual: 199.99 },
+};
+const GIFT_DISCOUNT = { monthly: 0.05, annual: 0.10 }; // 5% / 10%
+
+function giftPrice(tier: string, period: 'monthly' | 'annual'): number {
+  const base = GIFT_BASE_PRICES[tier];
+  if (!base) return period === 'annual' ? 49.99 : 4.99;
+  const discount = GIFT_DISCOUNT[period];
+  return Math.round(base[period] * (1 - discount) * 100) / 100;
+}
+
 // Get gift subscription pricing
 giftRoutes.get('/pricing', async (c) => {
+  const tiers = Object.entries(GIFT_BASE_PRICES).map(([id, base]) => ({
+    id,
+    name: id.charAt(0) + id.slice(1).toLowerCase(),
+    monthly: {
+      regular: base.monthly,
+      gift: giftPrice(id, 'monthly'),
+      discountPct: 5,
+      durationMonths: 1,
+    },
+    annual: {
+      regular: base.annual,
+      gift: giftPrice(id, 'annual'),
+      discountPct: 10,
+      durationMonths: 12,
+    },
+  }));
   return c.json({
-    tiers: [
-      { id: 'STARTER', name: 'Starter', price: 12, duration: 12, description: '1 year of Starter plan' },
-      { id: 'FAMILY', name: 'Family', price: 24, duration: 12, description: '1 year of Family plan' },
-      { id: 'FOREVER', name: 'Forever', price: 60, duration: 12, description: '1 year of Forever plan' },
-    ],
+    tiers,
     styles: ['classic', 'elegant', 'festive', 'birthday', 'anniversary'],
   });
 });
@@ -402,13 +445,13 @@ giftRoutes.post('/purchase', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   const now = new Date().toISOString();
-  
+
   const giftCode = `GIFT-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   const id = crypto.randomUUID();
-  
-  // Calculate price based on tier
-  const prices: Record<string, number> = { STARTER: 12, FAMILY: 24, FOREVER: 60 };
-  const amount = prices[body.tier] || 12;
+
+  const billingPeriod: 'monthly' | 'annual' = body.billingPeriod === 'monthly' ? 'monthly' : 'annual';
+  const durationMonths = billingPeriod === 'monthly' ? 1 : 12;
+  const amount = giftPrice(body.tier, billingPeriod);
   
   await c.env.DB.prepare(`
     INSERT INTO gift_subscriptions (
@@ -419,23 +462,68 @@ giftRoutes.post('/purchase', async (c) => {
   `).bind(
     id, userId, body.purchaserEmail, body.purchaserName,
     body.recipientEmail, body.recipientName, giftCode, body.tier,
-    body.durationMonths || 12, body.personalMessage, body.style || 'classic',
+    durationMonths, body.personalMessage, body.style || 'classic',
     body.scheduledDeliveryDate, amount * 100, body.currency || 'USD', now
   ).run();
   
+  const redeemUrl = `https://heirloom.blue/gift/redeem?code=${giftCode}`;
+  const tierName = body.tier.charAt(0) + body.tier.slice(1).toLowerCase();
+
+  // Send purchase confirmation to purchaser
+  const purchaseTemplate = giftSubscriptionPurchaseEmail(
+    body.purchaserName,
+    body.recipientName,
+    body.recipientEmail,
+    tierName,
+    amount,
+    billingPeriod,
+    giftCode,
+    body.personalMessage,
+    body.scheduledDeliveryDate,
+  );
+  await sendEmail(
+    c.env,
+    {
+      from: 'Heirloom <noreply@heirloom.blue>',
+      to: body.purchaserEmail,
+      subject: purchaseTemplate.subject,
+      html: purchaseTemplate.html,
+    },
+    'gift_subscription_purchase',
+  );
+
   // If no scheduled date, deliver immediately
   if (!body.scheduledDeliveryDate) {
-    // Send gift email
-    // TODO: Integrate with email service
+    // Send gift notification to recipient (if no scheduled date, send now)
+    const receivedTemplate = giftSubscriptionReceivedEmail(
+      body.recipientName,
+      body.purchaserName,
+      tierName,
+      billingPeriod,
+      giftCode,
+      redeemUrl,
+      body.personalMessage,
+    );
+    await sendEmail(
+      c.env,
+      {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: body.recipientEmail,
+        subject: receivedTemplate.subject,
+        html: receivedTemplate.html,
+      },
+      'gift_subscription_received',
+    );
+
     await c.env.DB.prepare(`
       UPDATE gift_subscriptions SET status = 'delivered', delivered_at = ? WHERE id = ?
     `).bind(now, id).run();
   }
-  
+
   return c.json({
     id,
     giftCode,
-    redeemUrl: `https://heirloom.blue/gift/redeem?code=${giftCode}`,
+    redeemUrl,
   });
 });
 
@@ -484,7 +572,29 @@ giftRoutes.post('/redeem', async (c) => {
       now
     ).run();
   }
-  
+
+  // Send redemption confirmation email to the redeemer
+  try {
+    const redeemerUser = await c.env.DB.prepare('SELECT email, first_name FROM users WHERE id = ?').bind(userId).first();
+    if (redeemerUser) {
+      const tierName = (gift.tier as string).charAt(0) + (gift.tier as string).slice(1).toLowerCase();
+      const redeemedTemplate = giftSubscriptionRedeemedEmail(
+        (redeemerUser as any).first_name || 'there',
+        tierName,
+        gift.duration_months as number,
+        endDate.toISOString(),
+      );
+      await sendEmail(c.env, {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: (redeemerUser as any).email,
+        subject: redeemedTemplate.subject,
+        html: redeemedTemplate.html,
+      }, 'GIFT_SUBSCRIPTION_REDEEMED');
+    }
+  } catch (err) {
+    console.error('Failed to send gift redemption confirmation email:', err);
+  }
+
   return c.json({
     success: true,
     tier: gift.tier,

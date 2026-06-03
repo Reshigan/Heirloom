@@ -501,7 +501,7 @@ export function MemoryRoom() {
                   {room.allowPhotos && (
                     <button
                       type="button"
-                      onClick={() => setContentType('PHOTO')}
+                      disabled
                       style={{
                         flex: 1,
                         fontSize: 11,
@@ -511,9 +511,10 @@ export function MemoryRoom() {
                         textTransform: 'uppercase',
                         border: '1px solid var(--parchment-rule)',
                         borderRadius: 0,
-                        cursor: 'pointer',
-                        background: contentType === 'PHOTO' ? 'var(--warm)' : 'transparent',
-                        color: contentType === 'PHOTO' ? '#fff' : 'var(--parchment-ink)',
+                        cursor: 'not-allowed',
+                        background: 'transparent',
+                        color: 'var(--parchment-ink)',
+                        opacity: 0.35,
                         transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
@@ -523,7 +524,7 @@ export function MemoryRoom() {
                   {room.allowVoice && (
                     <button
                       type="button"
-                      onClick={() => setContentType('VOICE')}
+                      disabled
                       style={{
                         flex: 1,
                         fontSize: 11,
@@ -533,9 +534,10 @@ export function MemoryRoom() {
                         textTransform: 'uppercase',
                         border: '1px solid var(--parchment-rule)',
                         borderRadius: 0,
-                        cursor: 'pointer',
-                        background: contentType === 'VOICE' ? 'var(--warm)' : 'transparent',
-                        color: contentType === 'VOICE' ? '#fff' : 'var(--parchment-ink)',
+                        cursor: 'not-allowed',
+                        background: 'transparent',
+                        color: 'var(--parchment-ink)',
+                        opacity: 0.35,
                         transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >

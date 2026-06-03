@@ -8,6 +8,7 @@ export function Challenges() {
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submissionContent, setSubmissionContent] = useState('');
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { data: currentChallenge, isLoading } = useQuery({
     queryKey: ['currentChallenge'],
@@ -33,6 +34,10 @@ export function Challenges() {
       queryClient.invalidateQueries({ queryKey: ['currentChallenge'] });
       setShowSubmitModal(false);
       setSubmissionContent('');
+      setSubmitError(null);
+    },
+    onError: () => {
+      setSubmitError('Submission failed. Please try again.');
     },
   });
 
@@ -424,6 +429,12 @@ export function Challenges() {
                 style={inputStyle}
               />
             </div>
+
+            {submitError && (
+              <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 11, margin: '0 0 12px' }}>
+                {submitError}
+              </p>
+            )}
 
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowSubmitModal(false)} className="hl-btn ghost">

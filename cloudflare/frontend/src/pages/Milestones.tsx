@@ -378,26 +378,6 @@ export function Milestones() {
               )}
             </section>
 
-            {/* Reminder notes */}
-            <section style={{ borderTop: '1px solid var(--rule)', paddingTop: 28 }}>
-              <p className="hl-eyebrow" style={{ marginBottom: 14 }}>When reminders arrive</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6 }}>
-                {[
-                  '7 days before each date',
-                  'On the day itself',
-                  'With a prompt to help you write into the thread',
-                ].map(t => (
-                  <li key={t}>
-                    <p
-                      className="hl-serif"
-                      style={{ margin: 0, fontSize: 14, color: 'var(--bone-faint)' }}
-                    >
-                      — {t}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
           </div>
         )}
       </div>

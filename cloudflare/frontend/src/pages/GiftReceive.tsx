@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { giftsApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
+import { useAuthStore } from '../stores/authStore';
 
 interface GiftData {
   id: string;
@@ -37,6 +38,7 @@ function LoadingHair() {
 export function GiftReceive() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
   const [gift, setGift] = useState<GiftData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +62,11 @@ export function GiftReceive() {
 
   const handleClaim = async () => {
     if (!token) return;
+    if (!isAuthenticated) {
+      localStorage.setItem('PENDING_GIFT_TOKEN', token);
+      navigate(`/signup?redirect=/gift-memory/${token}`);
+      return;
+    }
     setClaiming(true);
     try {
       await giftsApi.claim(token);

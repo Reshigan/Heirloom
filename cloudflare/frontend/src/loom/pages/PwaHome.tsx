@@ -115,9 +115,10 @@ function PwaMenu() {
 
         {/* Nav links */}
         {[
-          { to: '/settings', label: 'settings' },
-          { to: '/billing', label: 'billing' },
-          { to: '/family', label: 'family' },
+          { to: '/settings',           label: 'settings' },
+          { to: '/billing',            label: 'billing' },
+          { to: '/family',             label: 'family' },
+          { to: '/gift-subscriptions', label: 'gift a thread' },
         ].map(item => (
           <Link
             key={item.to}
@@ -173,10 +174,11 @@ function PwaMenu() {
 }
 
 const QUICK_LINKS = [
-  { label: 'family',  to: '/family' },
-  { label: 'wrapped', to: '/wrapped' },
-  { label: 'book',    to: '/book-builder' },
-  { label: 'letters', to: '/letters' },
+  { label: 'family',   to: '/family' },
+  { label: 'gift',     to: '/gift-subscriptions' },
+  { label: 'wrapped',  to: '/wrapped' },
+  { label: 'book',     to: '/book-builder' },
+  { label: 'letters',  to: '/letters' },
   { label: 'memories', to: '/memories' },
 ];
 
