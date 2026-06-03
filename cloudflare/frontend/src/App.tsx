@@ -77,6 +77,7 @@ const DailySentence = lazy(() => import('./pages/DailySentence').then(m => ({ de
 const FoundersWall = lazy(() => import('./pages/FoundersWall').then(m => ({ default: m.FoundersWall })));
 const Inbox = lazy(() => import('./pages/Inbox').then(m => ({ default: m.Inbox })));
 const QandA = lazy(() => import('./pages/QandA').then(m => ({ default: m.QandA })));
+const Join = lazy(() => import('./pages/Join').then(m => ({ default: m.Join })));
 
 // Wave 1-3 routes
 const Today           = lazy(() => import('./loom/pages/Today').then(m => ({ default: m.Today })));
@@ -123,6 +124,22 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   // Redirect to /loom (public threshold) rather than /loom/today so that stale
   // tokens don't produce the confusing chain: PublicRoute→/loom/today→401→/.
   return !isAuthenticated ? <>{children}</> : <Navigate to="/loom" replace />;
+}
+
+const PENDING_INVITE_KEY = 'hl-pending-invite';
+
+function PendingInviteAcceptor() {
+  const { user, isAuthenticated } = useAuthStore();
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+    const code = localStorage.getItem(PENDING_INVITE_KEY);
+    if (!code) return;
+    localStorage.removeItem(PENDING_INVITE_KEY);
+    import('./services/api').then(({ engagementApi }) => {
+      engagementApi.acceptFamilyInvite(code, user.id).catch(() => {});
+    });
+  }, [isAuthenticated, user]);
+  return null;
 }
 
 function PushNotificationHandler() {
@@ -197,6 +214,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <PushNotificationHandler />
+          <PendingInviteAcceptor />
           <PwaNudge />
           <LoomShellRoot>
           <OfflineGate>
@@ -215,6 +233,7 @@ export default function App() {
                                                             <Route path="/inherit/:token" element={<Inherit />} />
                               <Route path="/verify-email" element={<VerifyEmail />} />
                                                             <Route path="/gift" element={<GiftPurchase />} />
+                                                            <Route path="/join" element={<Join />} />
                                                             <Route path="/gift/redeem" element={<GiftRedeem />} />
                                                             <Route path="/gift/success" element={<GiftSuccess />} />
                                                             <Route path="/gold/redeem" element={<GoldLegacyRedeem />} />

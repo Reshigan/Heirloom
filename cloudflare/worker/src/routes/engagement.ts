@@ -681,54 +681,69 @@ function getNextOnboardingStep(progress: any): string {
 }
 
 function familyInviteEmail(inviterName: string, inviteeName: string, inviteUrl: string, inviteCode: string): string {
-  return `
-<!DOCTYPE html>
-<html>
+  return `<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You've been invited to Heirloom</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #0a0a0f; font-family: Georgia, serif;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    <div style="text-align: center; margin-bottom: 30px;">
-      <h1 style="color: #d4af37; font-size: 28px; font-weight: normal; margin: 0;">Heirloom</h1>
-      <p style="color: #a0a0a0; font-size: 14px; margin-top: 5px;">Preserve what matters most</p>
+<body style="margin:0;padding:0;background:#0e0e0c;font-family:Georgia,'Times New Roman',serif;">
+  <div style="max-width:600px;margin:0 auto;padding:48px 32px 64px;">
+
+    <!-- wordmark -->
+    <div style="margin-bottom:48px;">
+      <span style="font-family:Georgia,serif;font-size:13px;font-weight:normal;letter-spacing:0.28em;text-transform:uppercase;color:#b07a4a;">heirloom</span>
     </div>
-    
-    <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 30px;">
-      <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
-        Hi ${inviteeName},
-      </h2>
-      
-      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-        <strong style="color: #d4af37;">${inviterName}</strong> has invited you to join Heirloom, 
-        a beautiful space to preserve and share family memories, stories, and messages for generations to come.
-      </p>
-      
-      <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-        Together, you can create a lasting legacy of photos, voice recordings, letters, and precious moments 
-        that your family will treasure forever.
-      </p>
-      
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="${inviteUrl}" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%); color: #0a0a0f; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
-          Join ${inviterName}'s Family
-        </a>
-      </div>
-      
-      <p style="color: #808080; font-size: 14px; text-align: center; margin: 20px 0 0 0;">
-        Your invite code: <strong style="color: #d4af37;">${inviteCode}</strong>
-      </p>
-    </div>
-    
-    <p style="color: #606060; font-size: 12px; text-align: center; margin-top: 30px;">
-      This invitation expires in 30 days.<br>
-      If you didn't expect this email, you can safely ignore it.
+
+    <!-- divider -->
+    <div style="height:1px;background:#2a2a28;margin-bottom:40px;"></div>
+
+    <!-- eyebrow -->
+    <p style="margin:0 0 14px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#6b6b68;">
+      you've been invited
     </p>
+
+    <!-- headline -->
+    <h1 style="margin:0 0 24px;font-family:Georgia,serif;font-size:28px;font-weight:normal;line-height:1.25;letter-spacing:-0.01em;color:#f4ecd8;">
+      ${inviterName} has woven a thread for you.
+    </h1>
+
+    <!-- body -->
+    <p style="margin:0 0 16px;font-size:16px;line-height:1.7;color:#b8b0a0;font-weight:normal;">
+      Heirloom is a perpetual, append-only archive owned by your bloodline — not a platform. Every word written today becomes a permanent thread in your family's cloth.
+    </p>
+    <p style="margin:0 0 40px;font-size:16px;line-height:1.7;color:#b8b0a0;font-weight:normal;">
+      ${inviterName} has invited you, ${inviteeName}, to join and weave your own voice into the same cloth.
+    </p>
+
+    <!-- invite code box -->
+    <div style="border:1px solid #2a2a28;padding:20px 24px;margin-bottom:32px;">
+      <p style="margin:0 0 6px;font-family:'Courier New',monospace;font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:#6b6b68;">your invite code</p>
+      <p style="margin:0;font-family:'Courier New',monospace;font-size:15px;color:#f4ecd8;letter-spacing:0.12em;">${inviteCode}</p>
+    </div>
+
+    <!-- CTA -->
+    <div style="margin-bottom:48px;">
+      <a href="${inviteUrl}"
+         style="display:inline-block;background:#b07a4a;color:#0e0e0c;text-decoration:none;padding:14px 32px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;font-weight:normal;">
+        accept invitation →
+      </a>
+    </div>
+
+    <!-- divider -->
+    <div style="height:1px;background:#2a2a28;margin-bottom:28px;"></div>
+
+    <!-- footer -->
+    <p style="margin:0;font-family:'Courier New',monospace;font-size:10px;line-height:1.8;color:#4a4a48;letter-spacing:0.06em;">
+      This invitation expires in 30 days.<br>
+      If you didn't expect this, you can safely ignore it.<br>
+      heirloom.blue
+    </p>
+
   </div>
 </body>
-</html>
-  `;
+</html>`;
 }
 
 export default engagementRoutes;

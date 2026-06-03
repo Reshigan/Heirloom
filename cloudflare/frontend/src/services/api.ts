@@ -195,6 +195,9 @@ export const engagementApi = {
   getOnThisDay: () => api.get('/memories/on-this-day'),
   invite: (data: { email: string; name?: string }) =>
     api.post('/engagement/invite', data),
+  acceptFamilyInvite: (inviteCode: string, newUserId: string) =>
+    api.post('/engagement/invite/accept', { inviteCode, newUserId }),
+  getInvites: () => api.get('/engagement/invites'),
 };
 
 // Settings API
