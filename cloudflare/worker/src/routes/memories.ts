@@ -351,14 +351,12 @@ memoriesRoutes.get('/received', async (c) => {
   ).bind(userId).first();
   if (!user) return c.json({ received: [] });
 
-  const firstName = ((user.first_name as string) || '').toLowerCase();
   const email = ((user.email as string) || '').toLowerCase();
-  if (!firstName && !email) return c.json({ received: [] });
+  if (!email) return c.json({ received: [] });
 
-  // Escape LIKE metacharacters so a user whose name contains % or _ cannot
-  // match more records than intended.
-  const escapedName = firstName.replace(/[\\%_]/g, '\\$&');
-
+  // Match only on the viewer's verified email via the explicit memory_recipients
+  // junction table. Name-based matching is not a reliable identity check and
+  // can leak memories across accounts that share a first name.
   const result = await c.env.DB.prepare(`
     SELECT m.id, m.title, m.type, m.created_at, m.metadata,
            u.first_name AS from_first, u.last_name AS from_last
@@ -366,24 +364,14 @@ memoriesRoutes.get('/received', async (c) => {
     JOIN users u ON u.id = m.user_id
     WHERE m.user_id != ?
       AND m.deleted_at IS NULL
-      AND (
-        m.id IN (
-          SELECT mr.memory_id FROM memory_recipients mr
-          JOIN family_members fm ON fm.id = mr.family_member_id
-          WHERE LOWER(fm.email) = ? OR LOWER(fm.name) = ?
-        )
-        OR (
-          JSON_EXTRACT(m.metadata, '$.to') IS NOT NULL
-          AND LOWER(JSON_EXTRACT(m.metadata, '$.to')) LIKE '%' || ? || '%' ESCAPE '\\'
-          AND m.user_id IN (
-            SELECT fm2.user_id FROM family_members fm2
-            WHERE LOWER(fm2.email) = ? OR LOWER(fm2.name) = ?
-          )
-        )
+      AND m.id IN (
+        SELECT mr.memory_id FROM memory_recipients mr
+        JOIN family_members fm ON fm.id = mr.family_member_id
+        WHERE LOWER(fm.email) = ?
       )
     ORDER BY m.created_at DESC
     LIMIT 50
-  `).bind(userId, email, firstName, escapedName, email, firstName).all();
+  `).bind(userId, email).all();
 
   return c.json({
     received: result.results.map((m: any) => ({
@@ -451,26 +439,32 @@ memoriesRoutes.post('/', async (c) => {
     );
   }
 
-  // Email notification when addressed to a specific family member
+  // Email notification when a memory is explicitly addressed to a family member
+  // who has a verified email on file. We look up by recipientId (explicit link)
+  // rather than by free-text name, so no name-based matching is ever used here.
   const addressedTo = enrichedMetadata?.to as string | undefined;
-  if (addressedTo) {
+  if (addressedTo && recipientIds && recipientIds.length > 0) {
     const sender = await c.env.DB.prepare(
       `SELECT first_name, last_name FROM users WHERE id = ?`
     ).bind(userId).first();
-    const recipient = await c.env.DB.prepare(
-      `SELECT email FROM family_members
-       WHERE user_id = ? AND LOWER(name) LIKE '%' || LOWER(?) || '%' AND email IS NOT NULL
-       LIMIT 1`
-    ).bind(userId, addressedTo.split(' ')[0]).first();
-    if (recipient?.email) {
+    // Use only explicitly linked recipients with a verified email.
+    const recipientRows = await c.env.DB.prepare(
+      `SELECT email FROM family_members WHERE id IN (${recipientIds.map(() => '?').join(',')}) AND email IS NOT NULL LIMIT 5`
+    ).bind(...recipientIds).all();
+    for (const row of recipientRows.results) {
+      const recipientEmail = row.email as string;
       const fromName = `${sender?.first_name || ''} ${sender?.last_name || ''}`.trim() || 'Someone';
+      // HTML-escape every interpolated value before embedding in the email template.
+      const esc = (s: string) =>
+        s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       await sendEmail(c.env, {
         from: 'Heirloom <memories@heirloom.blue>',
-        to: recipient.email as string,
+        to: recipientEmail,
         subject: `${fromName} wove a memory for you`,
         html: `<p style="font-family:Georgia,serif;font-size:16px;color:#0e0e0c;">
-          ${fromName} addressed a memory to you on Heirloom.<br><br>
-          <strong>${title}</strong><br><br>
+          ${esc(fromName)} addressed a memory to you on Heirloom.<br><br>
+          <strong>${esc(title)}</strong><br><br>
           <a href="https://heirloom.blue/inbox" style="color:#b07a4a;">View in your inbox →</a>
         </p>`,
       });
