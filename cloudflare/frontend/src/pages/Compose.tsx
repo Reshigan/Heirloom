@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
+import { TapestryCanvas } from '../loom/components/TapestryCanvas';
+import type { CanvasEntry } from '../loom/components/TapestryCanvas';
 import {
   ComposerModes,
   ComposerRail,
@@ -224,10 +226,12 @@ export function Compose() {
   const [dye, setDye] = useState('walnut');
   const [error, setError] = useState<string | null>(null);
   const [woven, setWoven] = useState(false);
+  const wovenAtRef = useRef<number | null>(null);
 
   // Navigate to memories after the "woven" celebration fades
   useEffect(() => {
     if (!woven) return;
+    wovenAtRef.current = performance.now();
     const t = setTimeout(() => navigate('/memories'), 4200);
     return () => clearTimeout(t);
   }, [woven, navigate]);
@@ -267,13 +271,34 @@ export function Compose() {
   });
 
   if (woven) {
+    // Synthetic entry representing the just-woven memory
+    const wovenEntry: CanvasEntry = {
+      date: new Date(entryDate),
+      n: Math.abs(title.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) || 42,
+      dye,
+      tier: 'family',
+    };
+
     return (
       <div style={{ position: 'absolute', inset: 0, background: 'var(--ink)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-        {/* Six-color tapestry stripe at top */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', height: 3 }}>
-          {['var(--dye-madder)','var(--dye-saffron)','var(--dye-indigo)','var(--dye-cochineal)','var(--dye-weld)','var(--dye-woad)'].map((c, i) => (
-            <div key={i} style={{ flex: 1, background: c, opacity: 0.85 }} />
-          ))}
+        {/* Tapestry weave-in flash — new thread lighting up */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+          <TapestryCanvas
+            height={72}
+            entries={[wovenEntry]}
+            kind="specimen"
+            animate
+            newEntryAt={wovenAtRef.current}
+            opts={{
+              tStart: new Date(+new Date(entryDate) - 86400000 * 180),
+              tEnd:   new Date(+new Date(entryDate) + 86400000 * 180),
+              background: '#0e0e0c',
+              warpEvery: 9,
+              showDecadeMarks: false,
+              showFraySelvedge: false,
+              showWarpHair: false,
+            }}
+          />
         </div>
         <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)', margin: '0 0 20px' }}>
           woven into the thread

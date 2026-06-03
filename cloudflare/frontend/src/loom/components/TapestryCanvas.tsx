@@ -65,6 +65,10 @@ interface DrawOpts {
   warpEvery?: number;
   bandFromTier?: boolean;
   sparkle?: number;
+  /** Index of a newly-woven entry; combined with flashPower to render weave-in glow. */
+  flashIdx?: number | null;
+  /** 0..1 power of the weave-in flash (1 = just woven, 0 = fully settled). */
+  flashPower?: number;
 }
 
 export function drawCloth(
@@ -89,6 +93,8 @@ export function drawCloth(
     warpEvery = 12,
     bandFromTier = true,
     sparkle = 0,
+    flashIdx = null,
+    flashPower = 0,
   } = opts;
 
   const span = +tEnd - +tStart;
@@ -220,6 +226,38 @@ export function drawCloth(
       ctx.beginPath();
       ctx.moveTo(x0 - 4, cy + sagY);
       ctx.quadraticCurveTo(midX, midY - 0.5, x1 + 4, cy + sagY);
+      ctx.stroke();
+    }
+
+    // Weave-in flash — newly woven entry bursts bright then settles
+    if (i === flashIdx && flashPower > 0) {
+      // Ease: cubic out so the burst is immediate and decay is gradual
+      const p = 1 - Math.pow(1 - flashPower, 3);
+      // Outer halo — wide warm ring
+      ctx.strokeStyle = '#cf935a';
+      ctx.globalAlpha = p * 0.28;
+      ctx.lineWidth = thick + 18;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x0 - 6, cy + sagY);
+      ctx.quadraticCurveTo(midX, midY - 1, x1 + 6, cy + sagY);
+      ctx.stroke();
+      // Mid ring
+      ctx.globalAlpha = p * 0.48;
+      ctx.lineWidth = thick + 8;
+      ctx.beginPath();
+      ctx.moveTo(x0 - 3, cy + sagY);
+      ctx.quadraticCurveTo(midX, midY - 0.5, x1 + 3, cy + sagY);
+      ctx.stroke();
+      // Inner bright filament — briefly bleaches to bone
+      const flashColor = lightenToBone(color, p * 0.65);
+      ctx.strokeStyle = flashColor;
+      ctx.globalAlpha = p * 0.90;
+      ctx.lineWidth = thick;
+      ctx.lineCap = 'butt';
+      ctx.beginPath();
+      ctx.moveTo(x0, cy + sagY);
+      ctx.quadraticCurveTo(midX, midY, x1, cy + sagY);
       ctx.stroke();
     }
 
@@ -402,6 +440,8 @@ interface TapestryCanvasProps {
   kind?: 'full' | 'edge' | 'specimen' | 'century';
   opts?: DrawOpts;
   animate?: boolean;
+  /** performance.now() timestamp set when a new entry is woven in. Triggers 1400ms flash. */
+  newEntryAt?: number | null;
 }
 
 export function TapestryCanvas({
@@ -411,14 +451,21 @@ export function TapestryCanvas({
   kind = 'full',
   opts = {},
   animate = true,
+  newEntryAt = null,
 }: TapestryCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const panRef = useRef<number>(opts.panX ?? 0);
+  const newEntryAtRef = useRef<number | null>(newEntryAt);
   const [canvasW, setCanvasW] = useState<number>(
     widthProp ?? (typeof window !== 'undefined' ? window.innerWidth : 1280),
   );
+
+  // Keep newEntryAt ref in sync so the RAF closure always reads the latest value
+  useEffect(() => {
+    newEntryAtRef.current = newEntryAt;
+  }, [newEntryAt]);
 
   // Responsive width from container if no explicit width given
   useEffect(() => {
@@ -453,8 +500,20 @@ export function TapestryCanvas({
         if (panRef.current > 260) panRef.current = -60;
       }
 
+      // Weave-in flash: decay over 1400ms from newEntryAt
+      const FLASH_DUR = 1400;
+      const flashAge = newEntryAtRef.current != null ? now - newEntryAtRef.current : Infinity;
+      const flashPower = flashAge < FLASH_DUR ? Math.max(0, 1 - flashAge / FLASH_DUR) : 0;
+      const flashIdx = flashPower > 0 ? entries.length - 1 : null;
+
       ctx.clearRect(0, 0, canvasW, height);
-      drawCloth(ctx, canvasW, height, entries, { ...opts, panX: panRef.current });
+      drawCloth(ctx, canvasW, height, entries, {
+        ...opts,
+        panX: panRef.current,
+        sparkle: flashPower > 0 ? flashPower * 0.8 : (opts.sparkle ?? 0),
+        flashIdx,
+        flashPower,
+      });
       rafRef.current = requestAnimationFrame(tick);
     };
 
