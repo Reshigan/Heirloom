@@ -133,7 +133,7 @@ export function Login() {
               </div>
 
               {error ? (
-                <p role="alert" className="hl-italic" style={{ color: 'var(--warm)', fontSize: 14, margin: 0 }}>
+                <p role="alert" className="hl-italic" style={{ color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}>
                   {error}
                 </p>
               ) : null}

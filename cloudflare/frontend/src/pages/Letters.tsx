@@ -107,12 +107,7 @@ export function Letters() {
             </h1>
 
             {isLoading ? (
-              <p
-                className="hl-serif"
-                style={{ fontStyle: 'italic', color: 'var(--bone-faint)' }}
-              >
-                Loading…
-              </p>
+              <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginBottom: 24 }} />
             ) : letters.length === 0 ? (
               <p
                 className="hl-serif"

@@ -64,7 +64,6 @@ export function Settings() {
       setPwStage('idle');
       setPwCurrent(''); setPwNew(''); setPwConfirm(''); setPwError(null);
       setPwFlash(true);
-      setTimeout(() => setPwFlash(false), 3000);
     },
     onError: (err: any) => setPwError(err?.response?.data?.error ?? 'Incorrect current password.'),
   });
@@ -118,7 +117,7 @@ export function Settings() {
 
   const save = useMutation({
     mutationFn: () => settingsApi.updateProfile({ firstName, lastName }).then((r) => r.data),
-    onSuccess: () => { setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2000); },
+    onSuccess: () => setSavedFlash(true),
   });
 
   const { data: notifData, refetch: refetchNotifs } = useQuery({
@@ -318,27 +317,23 @@ export function Settings() {
           {/* ── Danger ───────────────────────────────────── */}
           <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--dye-madder)' }}>danger</div>
           <div style={{ padding: '14px 0', borderTop: '1px solid var(--rule)' }}>
-            <button
-              type="button"
-              onClick={() => setDeleteStage('confirm')}
-              style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--dye-madder)' }}
-            >
-              close account →
-            </button>
-            <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-dim)', marginTop: 4, fontWeight: 400 }}>
-              90-day archive window before permanent erasure
-            </div>
-          </div>
-
-        </div>
-      </Frame>
-
-      {/* Account close modal */}
-      {deleteStage !== 'idle' && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(14,14,12,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '0 16px' }}>
-          <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: 'clamp(24px, 5vw, 40px) clamp(20px, 5vw, 40px)', maxWidth: 440, width: '100%' }}>
-            {deleteStage === 'confirm' && (
+            {deleteStage === 'idle' && (
               <>
+                <button
+                  type="button"
+                  onClick={() => setDeleteStage('confirm')}
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--dye-madder)' }}
+                >
+                  close account →
+                </button>
+                <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-dim)', marginTop: 4, fontWeight: 400 }}>
+                  90-day archive window before permanent erasure
+                </div>
+              </>
+            )}
+
+            {deleteStage === 'confirm' && (
+              <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>close account</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your thread will be archived for 90 days. During that window you can download a full export of everything you have ever written. After 90 days it is permanently erased.
@@ -353,11 +348,11 @@ export function Settings() {
                     cancel
                   </button>
                 </div>
-              </>
+              </div>
             )}
 
             {deleteStage === 'quote' && (
-              <>
+              <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>export fee</div>
                 {exitQuoteQ.isLoading ? (
                   <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, margin: '24px 0' }} />
@@ -387,11 +382,11 @@ export function Settings() {
                     cancel
                   </button>
                 </div>
-              </>
+              </div>
             )}
 
             {deleteStage === 'password' && (
-              <>
+              <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>confirm password</div>
                 <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 18px', lineHeight: 1.6 }}>
                   Enter your password to archive your account. A download link will be emailed to you.
@@ -418,11 +413,11 @@ export function Settings() {
                     cancel
                   </button>
                 </div>
-              </>
+              </div>
             )}
 
             {deleteStage === 'archived' && (
-              <>
+              <div style={{ border: '1px solid rgba(176,122,74,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 14 }}>archived</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your account has been archived. Check your email for a download link. Your thread will be permanently erased in 90 days.
@@ -440,11 +435,12 @@ export function Settings() {
                   style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', marginTop: 8 }}>
                   sign out
                 </button>
-              </>
+              </div>
             )}
           </div>
+
         </div>
-      )}
+      </Frame>
     </>
   );
 }

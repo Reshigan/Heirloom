@@ -159,17 +159,7 @@ export function Inbox() {
         )}
 
         {loading ? (
-          <p
-            className="hl-serif"
-            style={{
-              fontStyle: 'italic',
-              color: 'var(--bone-dim)',
-              marginTop: 40,
-              textAlign: 'center',
-            }}
-          >
-            Loading…
-          </p>
+          <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginTop: 40 }} />
         ) : sealed.length === 0 && opened.length === 0 ? (
           <EmptyState />
         ) : (

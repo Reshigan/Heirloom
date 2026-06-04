@@ -189,81 +189,65 @@ export function Family() {
     <Frame left="family">
       <div style={{ padding: 'clamp(24px, 5vw, 56px)', paddingBottom: 80, maxWidth: 760 }}>
 
-        {/* Delete confirmation overlay */}
+        {/* Delete confirmation — inline, no overlay */}
         {deleteTarget && (
           <div
             style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 100,
-              background: 'rgba(14,14,12,0.88)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 24,
+              border: '1px solid rgba(194,90,90,0.35)',
+              padding: 'clamp(20px, 4vw, 32px)',
+              marginBottom: 32,
             }}
-            onClick={(e) => { if (e.target === e.currentTarget) setDeleteTarget(null); }}
           >
-            <div
-              style={{
-                background: 'var(--ink-card)',
-                border: '1px solid var(--rule)',
-                padding: 'clamp(28px, 5vw, 48px)',
-                maxWidth: 480,
-                width: '100%',
-              }}
-            >
-              <p className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone)', margin: '0 0 16px', lineHeight: 1.4 }}>
-                Remove {deleteTarget.name}?
-              </p>
-              <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '0 0 12px', lineHeight: 1.7, fontStyle: 'italic' }}>
-                All memories, letters, and voice recordings addressed to them will be queued for removal.
-              </p>
-              <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '0 0 32px', lineHeight: 1.7, fontStyle: 'italic' }}>
-                You have <strong style={{ color: 'var(--warm)', fontStyle: 'normal' }}>7 days</strong> to undo this from your Family page before the deletion becomes permanent.
-              </p>
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={() => deleteMember.mutate(deleteTarget.id)}
-                  disabled={deleteMember.isPending}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid rgba(194,90,90,0.5)',
-                    padding: '10px 20px',
-                    cursor: 'pointer',
-                    fontFamily: 'var(--mono)',
-                    fontSize: 13,
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    color: 'var(--dye-madder)',
-                    opacity: deleteMember.isPending ? 0.5 : 1,
-                    transition: 'all 180ms var(--ease)',
-                    touchAction: 'manipulation',
-                  }}
-                >
-                  {deleteMember.isPending ? 'removing…' : 'remove member'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeleteTarget(null)}
-                  style={{
-                    background: 'transparent',
-                    border: 0,
-                    padding: '10px 0',
-                    cursor: 'pointer',
-                    fontFamily: 'var(--mono)',
-                    fontSize: 13,
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    color: 'var(--bone-dim)',
-                    transition: 'color 180ms var(--ease)',
-                    touchAction: 'manipulation',
-                  }}
-                >
-                  keep them
-                </button>
-              </div>
+            <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 12px', lineHeight: 1.4 }}>
+              Remove {deleteTarget.name}?
+            </p>
+            <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 8px', lineHeight: 1.7, fontStyle: 'italic' }}>
+              All memories, letters, and voice recordings addressed to them will be queued for removal.
+            </p>
+            <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 24px', lineHeight: 1.7, fontStyle: 'italic' }}>
+              You have <strong style={{ color: 'var(--warm)', fontStyle: 'normal' }}>7 days</strong> to undo this from your Family page before the deletion becomes permanent.
+            </p>
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => deleteMember.mutate(deleteTarget.id)}
+                disabled={deleteMember.isPending}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(194,90,90,0.5)',
+                  padding: '10px 20px',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 13,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--dye-madder)',
+                  opacity: deleteMember.isPending ? 0.5 : 1,
+                  transition: 'opacity 180ms var(--ease)',
+                  touchAction: 'manipulation',
+                }}
+              >
+                {deleteMember.isPending ? 'removing…' : 'remove member'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: '10px 0',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 13,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-dim)',
+                  transition: 'color 180ms var(--ease)',
+                  touchAction: 'manipulation',
+                }}
+              >
+                keep them
+              </button>
             </div>
           </div>
         )}
@@ -409,7 +393,7 @@ export function Family() {
                       transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                     }}
                   >
-                    {copied ? 'link copied ✓' : 'or copy link'}
+                    {copied ? 'link copied' : 'or copy link'}
                   </button>
                 </div>
               </form>
@@ -439,7 +423,7 @@ export function Family() {
                       transition: 'color 180ms var(--ease)', touchAction: 'manipulation', alignSelf: 'center',
                     }}
                   >
-                    {copied ? 'link copied ✓' : 'copy signup link'}
+                    {copied ? 'link copied' : 'copy signup link'}
                   </button>
                 </div>
               </div>
@@ -542,9 +526,7 @@ export function Family() {
 
         {/* member list */}
         {isLoading ? (
-          <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0 }}>
-            Loading the thread…
-          </p>
+          <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginTop: 8 }} />
         ) : members.length === 0 ? (
           <div style={{ paddingTop: 8 }}>
             <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0, lineHeight: 1.7 }}>

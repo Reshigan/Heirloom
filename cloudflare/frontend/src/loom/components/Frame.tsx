@@ -101,7 +101,6 @@ function UserMenu() {
           padding: 8,
           zIndex: 50,
           borderRadius: 0,
-          boxShadow: '0 12px 40px rgba(10,10,8,0.40)',
           transformOrigin: 'top right',
           opacity: open ? 1 : 0,
           transform: open ? 'scale(1)' : 'scale(0.97) translateY(-4px)',
