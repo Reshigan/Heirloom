@@ -804,6 +804,8 @@ html {
 .hl-topbar .hl-link.warm { color: var(--warm); }
 /* hide compose → on mobile — BottomNav already provides it */
 @media (max-width: 639px) { .hl-topbar-action { display: none !important; } }
+/* hide route label on mobile — counter needs the full center zone */
+@media (max-width: 639px) { .hl-topbar-label { display: none !important; } }
 
 /* user menu trigger: 28px visual, 44px tap target via pseudo-element */
 .hl-topbar-user-btn {

@@ -97,7 +97,7 @@ function AddresseeSelect({
         <input
           value={name}
           onChange={e => onNameChange(e.target.value)}
-          placeholder={type === 'friend' ? 'their name…' : 'a family member’s name (optional)'}
+          placeholder={type === "friend" ? "their name…" : "a name (optional)"}
           style={{
             display: 'block',
             width: '100%',

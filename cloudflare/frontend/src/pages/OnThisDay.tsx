@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Frame } from '../loom/components/Frame';
 import { memoryCardsApi, aiApi } from '../services/api';
 
@@ -134,16 +135,34 @@ export function OnThisDay() {
             }}
           />
         ) : !memories.length ? (
-          <p
-            className="hl-prose hl-italic"
-            style={{
-              fontSize: 15,
-              color: 'var(--bone-faint)',
-              margin: 0,
-            }}
-          >
-            nothing written on this date yet
-          </p>
+          <div>
+            <p
+              className="hl-prose hl-italic"
+              style={{
+                fontSize: 15,
+                color: 'var(--bone-faint)',
+                margin: '0 0 16px',
+              }}
+            >
+              nothing written on this date yet
+            </p>
+            <Link
+              to="/compose"
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-dim)',
+                textDecoration: 'none',
+                transition: 'color 180ms var(--ease)',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-dim)')}
+            >
+              write one →
+            </Link>
+          </div>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {memories.map((memory) => (
