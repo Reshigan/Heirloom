@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useLoomTheme } from '../theme';
-import '../styles/loom.css';
 
 /**
  * LoomShell — the .loom root that scopes the design tokens and theme

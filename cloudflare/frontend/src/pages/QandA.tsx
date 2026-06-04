@@ -97,15 +97,22 @@ export function QandA() {
 
   return (
     <Frame left="ask the thread">
+      <style>{`
+        @media (max-width: 767px) {
+          .qanda-grid { grid-template-columns: 1fr !important; }
+          .qanda-aside { display: none !important; }
+        }
+      `}</style>
       <div
         style={{
           paddingTop: 80,
           paddingBottom: 36,
-          paddingLeft: 56,
-          paddingRight: 56,
+          paddingLeft: 'clamp(20px, 5vw, 56px)',
+          paddingRight: 'clamp(20px, 5vw, 56px)',
         }}
       >
         <div
+          className="qanda-grid"
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 320px',
@@ -320,7 +327,7 @@ export function QandA() {
           </div>
 
           {/* ── right 320px: suggested prompts ── */}
-          <aside style={{ minWidth: 0 }}>
+          <aside className="qanda-aside" style={{ minWidth: 0 }}>
             <p
               className="hl-eyebrow"
               style={{ marginBottom: 14 }}

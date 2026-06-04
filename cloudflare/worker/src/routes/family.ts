@@ -16,32 +16,56 @@ familyRoutes.get('/', async (c) => {
   
   // Get family members with counts
   const members = await c.env.DB.prepare(`
-    SELECT 
+    SELECT
       fm.*,
       (SELECT COUNT(*) FROM memory_recipients mr WHERE mr.family_member_id = fm.id) as memory_count,
       (SELECT COUNT(*) FROM letter_recipients lr WHERE lr.family_member_id = fm.id) as letter_count,
       (SELECT COUNT(*) FROM voice_recipients vr WHERE vr.family_member_id = fm.id) as voice_count
     FROM family_members fm
-    WHERE fm.user_id = ?
+    WHERE fm.user_id = ? AND fm.deleted_at IS NULL
     ORDER BY fm.created_at ASC
   `).bind(userId).all();
-  
-  return c.json(members.results.map((m: any) => ({
-    id: m.id,
-    name: m.name,
-    relationship: m.relationship,
-    email: m.email,
-    phone: m.phone,
-    avatarUrl: m.avatar_url,
-    birthDate: m.birth_date,
-    notes: m.notes,
-    stats: {
-      memories: m.memory_count || 0,
-      letters: m.letter_count || 0,
-      voiceRecordings: m.voice_count || 0,
-    },
-    createdAt: m.created_at,
-  })));
+
+  // Include soft-deleted members still within grace window so the UI can offer restore
+  const pending = await c.env.DB.prepare(`
+    SELECT fm.*
+    FROM family_members fm
+    WHERE fm.user_id = ? AND fm.deleted_at IS NOT NULL
+      AND fm.deleted_at > datetime('now', '-7 days')
+    ORDER BY fm.deleted_at DESC
+  `).bind(userId).all();
+
+  return c.json([
+    ...members.results.map((m: any) => ({
+      id: m.id,
+      name: m.name,
+      relationship: m.relationship,
+      email: m.email,
+      phone: m.phone,
+      avatarUrl: m.avatar_url,
+      birthDate: m.birth_date,
+      notes: m.notes,
+      stats: {
+        memories: m.memory_count || 0,
+        letters: m.letter_count || 0,
+        voiceRecordings: m.voice_count || 0,
+      },
+      createdAt: m.created_at,
+    })),
+    ...pending.results.map((m: any) => ({
+      id: m.id,
+      name: m.name,
+      relationship: m.relationship,
+      email: m.email,
+      phone: m.phone,
+      avatarUrl: m.avatar_url,
+      birthDate: m.birth_date,
+      notes: m.notes,
+      createdAt: m.created_at,
+      deletedAt: m.deleted_at,
+      pendingDeletion: true,
+    })),
+  ]);
 });
 
 // Get a specific family member
@@ -246,23 +270,46 @@ familyRoutes.patch('/:id', async (c) => {
   });
 });
 
-// Delete a family member
+// Soft-delete a family member — starts 7-day grace window before permanent removal.
+// All content addressed to them is preserved during grace; purged after.
 familyRoutes.delete('/:id', async (c) => {
   const userId = c.get('userId');
   const memberId = c.req.param('id');
-  
-  // Verify ownership
+
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM family_members WHERE id = ? AND user_id = ?
+    SELECT * FROM family_members WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(memberId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Family member not found' }, 404);
   }
-  
+
+  const now = new Date().toISOString();
   await c.env.DB.prepare(`
-    DELETE FROM family_members WHERE id = ?
+    UPDATE family_members SET deleted_at = ? WHERE id = ?
+  `).bind(now, memberId).run();
+
+  return c.json({ success: true, deletedAt: now, restoreBy: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() });
+});
+
+// Restore a family member within the 7-day grace window
+familyRoutes.patch('/:id/restore', async (c) => {
+  const userId = c.get('userId');
+  const memberId = c.req.param('id');
+
+  const existing = await c.env.DB.prepare(`
+    SELECT * FROM family_members
+    WHERE id = ? AND user_id = ? AND deleted_at IS NOT NULL
+      AND deleted_at > datetime('now', '-7 days')
+  `).bind(memberId, userId).first();
+
+  if (!existing) {
+    return c.json({ error: 'Member not found or grace period expired' }, 404);
+  }
+
+  await c.env.DB.prepare(`
+    UPDATE family_members SET deleted_at = NULL WHERE id = ?
   `).bind(memberId).run();
-  
-  return c.body(null, 204);
+
+  return c.json({ success: true });
 });

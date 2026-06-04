@@ -17,6 +17,17 @@ interface FamilyMember {
   role?: string | null;
   lastEntry?: string | null;
   dye?: string | null;
+  deletedAt?: string | null;
+  pendingDeletion?: boolean;
+}
+
+interface PendingInvite {
+  id: string;
+  invitee_email: string;
+  invitee_name: string | null;
+  invite_code: string;
+  status: string;
+  sent_at: string;
 }
 
 const DYE_VARS: Record<string, string> = {
@@ -43,6 +54,11 @@ function formatDate(iso: string | null | undefined): string {
   }
 }
 
+function daysUntilExpiry(deletedAt: string): number {
+  const expires = new Date(deletedAt).getTime() + 7 * 24 * 60 * 60 * 1000;
+  return Math.max(0, Math.ceil((expires - Date.now()) / (24 * 60 * 60 * 1000)));
+}
+
 type Mode = 'add' | 'invite';
 
 export function Family() {
@@ -55,12 +71,23 @@ export function Family() {
   const [error, setError] = useState<string | null>(null);
   const [inviteSent, setInviteSent] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<FamilyMember | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['family'],
     queryFn: () => familyApi.getAll().then((r) => r.data).catch(() => []),
   });
-  const members: FamilyMember[] = (data ?? []) as FamilyMember[];
+  const allMembers: FamilyMember[] = (data ?? []) as FamilyMember[];
+  const members = allMembers.filter((m) => !m.pendingDeletion);
+  const pendingDeletion = allMembers.filter((m) => m.pendingDeletion);
+
+  const { data: invitesData } = useQuery({
+    queryKey: ['invites'],
+    queryFn: () => engagementApi.getInvites().then((r) => r.data).catch(() => ({ invites: [] })),
+  });
+  const pendingInvites: PendingInvite[] = (
+    (invitesData as any)?.invites ?? []
+  ).filter((i: PendingInvite) => i.status === 'pending');
 
   const create = useMutation({
     mutationFn: () =>
@@ -90,9 +117,35 @@ export function Family() {
       setInviteSent(true);
       setInviteForm({ name: '', email: '' });
       setError(null);
+      queryClient.invalidateQueries({ queryKey: ['invites'] });
     },
     onError: (err: any) => {
       setError(err?.response?.data?.error ?? 'Could not send invite.');
+    },
+  });
+
+  const deleteMember = useMutation({
+    mutationFn: (id: string) => familyApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['family'] });
+      setDeleteTarget(null);
+    },
+    onError: () => {
+      setDeleteTarget(null);
+    },
+  });
+
+  const restoreMember = useMutation({
+    mutationFn: (id: string) => familyApi.restore(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['family'] });
+    },
+  });
+
+  const cancelInvite = useMutation({
+    mutationFn: (id: string) => engagementApi.deleteInvite(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invites'] });
     },
   });
 
@@ -134,23 +187,89 @@ export function Family() {
 
   return (
     <Frame left="family">
-      <div
-        style={{
-          padding: 'clamp(24px, 5vw, 56px)',
-          paddingBottom: 80,
-          maxWidth: 760,
-        }}
-      >
+      <div style={{ padding: 'clamp(24px, 5vw, 56px)', paddingBottom: 80, maxWidth: 760 }}>
+
+        {/* Delete confirmation overlay */}
+        {deleteTarget && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 100,
+              background: 'rgba(14,14,12,0.88)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 24,
+            }}
+            onClick={(e) => { if (e.target === e.currentTarget) setDeleteTarget(null); }}
+          >
+            <div
+              style={{
+                background: 'var(--ink-card)',
+                border: '1px solid var(--rule)',
+                padding: 'clamp(28px, 5vw, 48px)',
+                maxWidth: 480,
+                width: '100%',
+              }}
+            >
+              <p className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone)', margin: '0 0 16px', lineHeight: 1.4 }}>
+                Remove {deleteTarget.name}?
+              </p>
+              <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '0 0 12px', lineHeight: 1.7, fontStyle: 'italic' }}>
+                All memories, letters, and voice recordings addressed to them will be queued for removal.
+              </p>
+              <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '0 0 32px', lineHeight: 1.7, fontStyle: 'italic' }}>
+                You have <strong style={{ color: 'var(--warm)', fontStyle: 'normal' }}>7 days</strong> to undo this from your Family page before the deletion becomes permanent.
+              </p>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => deleteMember.mutate(deleteTarget.id)}
+                  disabled={deleteMember.isPending}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(194,90,90,0.5)',
+                    padding: '10px 20px',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 13,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--dye-madder)',
+                    opacity: deleteMember.isPending ? 0.5 : 1,
+                    transition: 'all 180ms var(--ease)',
+                    touchAction: 'manipulation',
+                  }}
+                >
+                  {deleteMember.isPending ? 'removing…' : 'remove member'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(null)}
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: '10px 0',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 13,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-dim)',
+                    transition: 'color 180ms var(--ease)',
+                    touchAction: 'manipulation',
+                  }}
+                >
+                  keep them
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* heading row */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            marginBottom: 32,
-            gap: 16,
-          }}
-        >
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32, gap: 16 }}>
           <h1
             className="hl-serif hl-tight"
             style={{
@@ -165,52 +284,22 @@ export function Family() {
             The people on this thread.
           </h1>
           {!isLoading && (
-            <span
-              className="hl-mono"
-              style={{
-                fontSize: 12,
-                color: 'var(--bone-dim)',
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                flexShrink: 0,
-                paddingTop: 6,
-              }}
-            >
+            <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', flexShrink: 0, paddingTop: 6 }}>
               {members.length} / 5
             </span>
           )}
         </div>
 
-        {/* primary CTA row — always visible on mobile */}
+        {/* primary CTA row */}
         {!showForm && (
-          <div
-            style={{
-              display: 'flex',
-              gap: 16,
-              marginBottom: 36,
-              flexWrap: 'wrap',
-            }}
-          >
+          <div style={{ display: 'flex', gap: 16, marginBottom: 36, flexWrap: 'wrap' }}>
             {atLimit ? (
-              <span
-                className="hl-mono"
-                style={{
-                  fontSize: 13,
-                  color: 'var(--bone-dim)',
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  alignSelf: 'center',
-                }}
-              >
+              <span className="hl-mono" style={{ fontSize: 13, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', alignSelf: 'center' }}>
                 thread full · 5 / 5
               </span>
             ) : (
               <>
-                <button
-                  type="button"
-                  className="hl-btn"
-                  onClick={() => openForm('add')}
-                >
+                <button type="button" className="hl-btn" onClick={() => openForm('add')}>
                   add a name →
                 </button>
                 <button
@@ -228,23 +317,8 @@ export function Family() {
 
         {/* form panel */}
         {showForm && (
-          <div
-            style={{
-              borderTop: '1px solid var(--rule)',
-              paddingTop: 24,
-              marginBottom: 40,
-            }}
-          >
-            {/* mode tabs */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 24,
-                marginBottom: 28,
-                borderBottom: '1px solid var(--rule)',
-                paddingBottom: 14,
-              }}
-            >
+          <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 24, marginBottom: 40 }}>
+            <div style={{ display: 'flex', gap: 24, marginBottom: 28, borderBottom: '1px solid var(--rule)', paddingBottom: 14 }}>
               {(['add', 'invite'] as Mode[]).map((m) => (
                 <button
                   key={m}
@@ -288,121 +362,51 @@ export function Family() {
               </button>
             </div>
 
-            {/* add by name form */}
             {mode === 'add' && (
               <form
                 onSubmit={handleAdd}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
-                  gap: 24,
-                }}
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 24 }}
               >
-                <InputField
-                  label="name"
-                  value={addForm.name}
-                  onChange={(v) => setAddForm({ ...addForm, name: v })}
-                  placeholder="full name"
-                />
-                <InputField
-                  label="relationship"
-                  value={addForm.relationship}
-                  onChange={(v) => setAddForm({ ...addForm, relationship: v })}
-                  placeholder="grandmother · sister · son"
-                />
-                <InputField
-                  label="email — optional"
-                  value={addForm.email}
-                  onChange={(v) => setAddForm({ ...addForm, email: v })}
-                  type="email"
-                  placeholder="name@example.com"
-                />
+                <InputField label="name" value={addForm.name} onChange={(v) => setAddForm({ ...addForm, name: v })} placeholder="full name" />
+                <InputField label="relationship" value={addForm.relationship} onChange={(v) => setAddForm({ ...addForm, relationship: v })} placeholder="grandmother · sister · son" />
+                <InputField label="email — optional" value={addForm.email} onChange={(v) => setAddForm({ ...addForm, email: v })} type="email" placeholder="name@example.com" />
                 {error && (
-                  <p
-                    role="alert"
-                    className="hl-serif"
-                    style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}
-                  >
+                  <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}>
                     {error}
                   </p>
                 )}
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <button
-                    type="submit"
-                    className="hl-btn"
-                    disabled={create.isPending}
-                    style={{ opacity: create.isPending ? 0.5 : 1 }}
-                  >
+                  <button type="submit" className="hl-btn" disabled={create.isPending} style={{ opacity: create.isPending ? 0.5 : 1 }}>
                     {create.isPending ? 'adding…' : 'add to thread →'}
                   </button>
                 </div>
               </form>
             )}
 
-            {/* send invite form */}
             {mode === 'invite' && !inviteSent && (
               <form
                 onSubmit={handleInvite}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
-                  gap: 24,
-                }}
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 24 }}
               >
-                <InputField
-                  label="their name — optional"
-                  value={inviteForm.name}
-                  onChange={(v) => setInviteForm({ ...inviteForm, name: v })}
-                  placeholder="first name"
-                />
-                <InputField
-                  label="email"
-                  value={inviteForm.email}
-                  onChange={(v) => setInviteForm({ ...inviteForm, email: v })}
-                  type="email"
-                  placeholder="name@example.com"
-                />
+                <InputField label="their name — optional" value={inviteForm.name} onChange={(v) => setInviteForm({ ...inviteForm, name: v })} placeholder="first name" />
+                <InputField label="email" value={inviteForm.email} onChange={(v) => setInviteForm({ ...inviteForm, email: v })} type="email" placeholder="name@example.com" />
                 {error && (
-                  <p
-                    role="alert"
-                    className="hl-serif"
-                    style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}
-                  >
+                  <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}>
                     {error}
                   </p>
                 )}
-                <div
-                  style={{
-                    gridColumn: '1 / -1',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    gap: 16,
-                  }}
-                >
-                  <button
-                    type="submit"
-                    className="hl-btn"
-                    disabled={invite.isPending}
-                    style={{ opacity: invite.isPending ? 0.5 : 1 }}
-                  >
+                <div style={{ gridColumn: '1 / -1', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16 }}>
+                  <button type="submit" className="hl-btn" disabled={invite.isPending} style={{ opacity: invite.isPending ? 0.5 : 1 }}>
                     {invite.isPending ? 'sending…' : 'send invite →'}
                   </button>
                   <button
                     type="button"
                     onClick={copyLink}
                     style={{
-                      background: 'transparent',
-                      border: 0,
-                      padding: 0,
-                      cursor: 'pointer',
-                      fontFamily: 'var(--mono)',
-                      fontSize: 13,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: copied ? 'var(--warm)' : 'var(--bone-dim)',
-                      transition: 'color 180ms var(--ease)',
-                      touchAction: 'manipulation',
+                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                      fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.18em',
+                      textTransform: 'uppercase', color: copied ? 'var(--warm)' : 'var(--bone-dim)',
+                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                     }}
                   >
                     {copied ? 'link copied ✓' : 'or copy link'}
@@ -411,13 +415,9 @@ export function Family() {
               </form>
             )}
 
-            {/* invite sent confirmation */}
             {mode === 'invite' && inviteSent && (
               <div>
-                <p
-                  className="hl-serif"
-                  style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 16px', lineHeight: 1.6 }}
-                >
+                <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 16px', lineHeight: 1.6 }}>
                   Invite sent. They'll receive an email with a link to join the thread.
                 </p>
                 <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -433,18 +433,10 @@ export function Family() {
                     type="button"
                     onClick={copyLink}
                     style={{
-                      background: 'transparent',
-                      border: 0,
-                      padding: 0,
-                      cursor: 'pointer',
-                      fontFamily: 'var(--mono)',
-                      fontSize: 13,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: copied ? 'var(--warm)' : 'var(--bone-dim)',
-                      transition: 'color 180ms var(--ease)',
-                      touchAction: 'manipulation',
-                      alignSelf: 'center',
+                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                      fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.18em',
+                      textTransform: 'uppercase', color: copied ? 'var(--warm)' : 'var(--bone-dim)',
+                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation', alignSelf: 'center',
                     }}
                   >
                     {copied ? 'link copied ✓' : 'copy signup link'}
@@ -452,6 +444,99 @@ export function Family() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* pending deletion members — grace window */}
+        {pendingDeletion.length > 0 && (
+          <div style={{ marginBottom: 40 }}>
+            <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20, marginBottom: 16 }}>
+              <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--dye-madder)' }}>
+                pending removal
+              </span>
+            </div>
+            {pendingDeletion.map((m) => (
+              <div
+                key={m.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingTop: 14,
+                  paddingBottom: 14,
+                  borderBottom: '1px solid var(--rule)',
+                  gap: 12,
+                  opacity: 0.65,
+                }}
+              >
+                <div>
+                  <div className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', textDecoration: 'line-through', lineHeight: 1.3 }}>
+                    {m.name}
+                  </div>
+                  <div className="hl-mono" style={{ fontSize: 12, color: 'var(--dye-madder)', marginTop: 3 }}>
+                    {daysUntilExpiry(m.deletedAt!)} day{daysUntilExpiry(m.deletedAt!) !== 1 ? 's' : ''} left to undo
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => restoreMember.mutate(m.id)}
+                  disabled={restoreMember.isPending}
+                  style={{
+                    background: 'transparent', border: '1px solid var(--rule)', padding: '7px 14px',
+                    cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12,
+                    letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)',
+                    transition: 'all 180ms var(--ease)', touchAction: 'manipulation', flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(176,122,74,0.4)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-dim)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--rule)'; }}
+                >
+                  undo
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* pending invites */}
+        {pendingInvites.length > 0 && (
+          <div style={{ marginBottom: 40 }}>
+            <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20, marginBottom: 16 }}>
+              <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>
+                pending invites
+              </span>
+            </div>
+            {pendingInvites.map((inv) => (
+              <div
+                key={inv.id}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, paddingBottom: 12, borderBottom: '1px solid var(--rule)', gap: 12 }}
+              >
+                <div>
+                  <div className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', lineHeight: 1.3 }}>
+                    {inv.invitee_name || inv.invitee_email}
+                  </div>
+                  {inv.invitee_name && (
+                    <div className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-faint)', marginTop: 2 }}>
+                      {inv.invitee_email}
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => cancelInvite.mutate(inv.id)}
+                  disabled={cancelInvite.isPending}
+                  style={{
+                    background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                    fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
+                    textTransform: 'uppercase', color: 'var(--bone-faint)',
+                    transition: 'color 180ms var(--ease)', touchAction: 'manipulation', flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--dye-madder)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                >
+                  cancel
+                </button>
+              </div>
+            ))}
           </div>
         )}
 
@@ -468,21 +553,11 @@ export function Family() {
           </div>
         ) : (
           <div>
-            {/* column headers — hidden on small screens */}
-            <div
-              className="family-table-header"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '8px 1fr auto',
-                gap: 16,
-                paddingBottom: 12,
-                borderBottom: '1px solid var(--rule)',
-                alignItems: 'baseline',
-              }}
-            >
+            <div style={{ display: 'grid', gridTemplateColumns: '8px 1fr auto 28px', gap: 16, paddingBottom: 12, borderBottom: '1px solid var(--rule)', alignItems: 'baseline' }}>
               <span />
               <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>name</span>
               <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>joined</span>
+              <span />
             </div>
 
             {members.map((m) => {
@@ -491,39 +566,36 @@ export function Family() {
               return (
                 <div
                   key={m.id}
-                  role="row"
-                  tabIndex={0}
-                  onClick={() => navigate(`/person/${m.id}`)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/person/${m.id}`); }}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '8px 1fr auto',
+                    gridTemplateColumns: '8px 1fr auto 28px',
                     gap: 16,
                     paddingTop: 16,
                     paddingBottom: 16,
                     borderBottom: '1px solid var(--rule)',
                     alignItems: 'center',
-                    cursor: 'pointer',
-                    outline: 'none',
                     minHeight: 56,
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(244,236,216,0.02)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
                 >
                   <span
                     aria-hidden
                     style={{
-                      display: 'block',
-                      width: 8,
-                      height: 8,
-                      borderRadius: 0,
+                      display: 'block', width: 8, height: 8, borderRadius: 0,
                       background: dyeColor ?? 'transparent',
                       border: dyeColor ? undefined : '1px solid var(--rule)',
                       flexShrink: 0,
                     }}
                   />
-                  <div>
-                    <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: 'var(--bone)', lineHeight: 1.25 }}>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/person/${m.id}`)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/person/${m.id}`); }}
+                    style={{ cursor: 'pointer', outline: 'none' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '0.75'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '1'; }}
+                  >
+                    <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: 'var(--bone)', lineHeight: 1.25, transition: 'opacity 180ms var(--ease)' }}>
                       {m.name}
                     </div>
                     {(m.relationship || m.role) && (
@@ -535,6 +607,21 @@ export function Family() {
                   <div className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', textAlign: 'right' }}>
                     {formatDate(m.createdAt)}
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(m)}
+                    style={{
+                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                      width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'transparent', fontSize: 18, lineHeight: 1,
+                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.28)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'transparent'; }}
+                    aria-label={`remove ${m.name}`}
+                  >
+                    ×
+                  </button>
                 </div>
               );
             })}
@@ -556,17 +643,7 @@ function InputField({
 }) {
   return (
     <label style={{ display: 'block' }}>
-      <span
-        className="hl-mono"
-        style={{
-          display: 'block',
-          fontSize: 12,
-          letterSpacing: '0.32em',
-          textTransform: 'uppercase',
-          color: 'var(--bone-dim)',
-          marginBottom: 8,
-        }}
-      >
+      <span className="hl-mono" style={{ display: 'block', fontSize: 12, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginBottom: 8 }}>
         {label}
       </span>
       <input
@@ -575,17 +652,10 @@ function InputField({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         style={{
-          width: '100%',
-          background: 'transparent',
-          border: 0,
-          borderBottom: '1px solid var(--rule)',
-          outline: 'none',
-          padding: '8px 0',
-          fontFamily: 'var(--serif)',
-          fontSize: 16,
-          color: 'var(--bone)',
-          borderRadius: 0,
-          boxSizing: 'border-box',
+          width: '100%', background: 'transparent', border: 0,
+          borderBottom: '1px solid var(--rule)', outline: 'none', padding: '8px 0',
+          fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)',
+          borderRadius: 0, boxSizing: 'border-box',
         }}
         onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
         onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}

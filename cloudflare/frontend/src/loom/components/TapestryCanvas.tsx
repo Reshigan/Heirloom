@@ -1,20 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 
-// ─── Natural-dye palette — richer, more saturated pigments ──────────────────
+// ─── Natural-dye palette ─────────────────────────────────────────────────────
 export const HL_DYE_HEX: Record<string, string> = {
-  madder:    '#e84030',  // deep scarlet
-  cochineal: '#d42868',  // vivid crimson rose
-  kermes:    '#f05268',  // bright coral-red
-  saffron:   '#f5c832',  // deep gold-yellow
-  weld:      '#edae2e',  // rich amber
-  walnut:    '#a07040',  // warm chestnut
-  oakgall:   '#7c5c4a',  // earthy umber
-  woad:      '#4898d8',  // bright sky blue
-  indigo:    '#3878e8',  // royal indigo
-  iron:      '#4a4a46',  // charcoal slate
+  madder:    '#e84030',
+  cochineal: '#d42868',
+  kermes:    '#f05268',
+  saffron:   '#f5c832',
+  weld:      '#edae2e',
+  walnut:    '#a07040',
+  oakgall:   '#7c5c4a',
+  woad:      '#4898d8',
+  indigo:    '#3878e8',
+  iron:      '#4a4a46',
 };
 
-// Lighten a hex colour toward bone (#f4ecd8) by `t` (0..1)
+// Blend hex color toward bone (#f4ecd8) for highlights
 function lightenToBone(hex: string, t: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -22,6 +22,23 @@ function lightenToBone(hex: string, t: number): string {
   return `rgb(${Math.round(r + (244 - r) * t)},${Math.round(g + (236 - g) * t)},${Math.round(b + (216 - b) * t)})`;
 }
 
+// Darken toward ink (#0e0e0c) for shadows
+function darkenToInk(hex: string, t: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgb(${Math.round(r * (1 - t))},${Math.round(g * (1 - t))},${Math.round(b * (1 - t))})`;
+}
+
+// Parse hex to rgba string for alpha control
+function hexToRgba(hex: string, a: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${a.toFixed(3)})`;
+}
+
+// Seeded PRNG — deterministic per entry so cloth is stable across redraws
 function hlSeed(s: number) {
   let a = s | 0;
   return function () {
@@ -33,11 +50,11 @@ function hlSeed(s: number) {
   };
 }
 
-// Tier vertical bands
+// Tier vertical bands — family gets the widest row
 const TIER_Y: Record<string, [number, number]> = {
-  family:     [0.08, 0.62],
-  descendants:[0.64, 0.84],
-  historian:  [0.86, 0.96],
+  family:      [0.06, 0.60],
+  descendants: [0.63, 0.82],
+  historian:   [0.85, 0.95],
 };
 
 export interface CanvasEntry {
@@ -65,10 +82,201 @@ interface DrawOpts {
   warpEvery?: number;
   bandFromTier?: boolean;
   sparkle?: number;
-  /** Index of a newly-woven entry; combined with flashPower to render weave-in glow. */
   flashIdx?: number | null;
-  /** 0..1 power of the weave-in flash (1 = just woven, 0 = fully settled). */
   flashPower?: number;
+}
+
+// ─── Premium thread renderer ────────────────────────────────────────────────
+// Draws a single weft thread with: cylinder lighting, twist simulation,
+// surface fuzz, and soft end-fray. Each thread looks like a real plied yarn.
+function drawThread(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  x1: number,
+  cy: number,
+  bow: number,
+  color: string,
+  thick: number,
+  alpha: number,
+  n: number,
+  isActive: boolean,
+  flashPow: number,
+) {
+  const midX = (x0 + x1) / 2;
+  const midY = cy + bow;
+  const rndF = hlSeed(n * 71 + 13);
+
+  ctx.save();
+
+  // ── 1. Ambient outer glow (large, very soft)
+  ctx.strokeStyle = hexToRgba(color, alpha * 0.055);
+  ctx.lineWidth = thick + 14;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x0, cy);
+  ctx.quadraticCurveTo(midX, midY, x1, cy);
+  ctx.stroke();
+
+  // ── 2. Inner glow halo
+  ctx.strokeStyle = hexToRgba(color, alpha * 0.12);
+  ctx.lineWidth = thick + 5;
+  ctx.beginPath();
+  ctx.moveTo(x0, cy);
+  ctx.quadraticCurveTo(midX, midY, x1, cy);
+  ctx.stroke();
+
+  // ── 3. Main thread body — cylinder gradient (specular top → pigment → shadow bottom)
+  //       A vertical linear gradient simulates round-fiber cross-section lighting.
+  const gy0 = midY - thick * 0.6 - 1;
+  const gy1 = midY + thick * 0.6 + 1;
+  const cGrad = ctx.createLinearGradient(midX, gy0, midX, gy1);
+  cGrad.addColorStop(0,    lightenToBone(color, 0.68));   // specular apex
+  cGrad.addColorStop(0.18, lightenToBone(color, 0.30));   // upper shoulder
+  cGrad.addColorStop(0.45, color);                         // equator — true pigment
+  cGrad.addColorStop(0.72, darkenToInk(color, 0.18));     // lower shoulder
+  cGrad.addColorStop(1,    darkenToInk(color, 0.42));     // shadow nadir
+  ctx.strokeStyle = cGrad;
+  ctx.globalAlpha = alpha * 0.97;
+  ctx.lineWidth = thick;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x0, cy);
+  ctx.quadraticCurveTo(midX, midY, x1, cy);
+  ctx.stroke();
+
+  // ── 4. Twist strands — two plied fibers winding around the core.
+  //       One starts above and crosses below at mid, the other is phased 180°.
+  const tLen = x1 - x0;
+  const tAmp = thick * 0.5;          // twist amplitude
+  const tFreq = Math.PI * 2.2 / tLen; // ~1.1 full rotations over thread length
+  const STEPS = Math.max(12, Math.round(tLen / 6));
+
+  for (let s = 0; s < 2; s++) {
+    const phaseOff = s * Math.PI;
+    const strandColor = s === 0 ? lightenToBone(color, 0.22) : darkenToInk(color, 0.10);
+    ctx.strokeStyle = hexToRgba(strandColor, 0);  // set via alpha below
+    ctx.globalAlpha = alpha * 0.52;
+    ctx.lineWidth = thick * 0.42;
+    ctx.lineCap = 'butt';
+    ctx.strokeStyle = strandColor;
+    ctx.beginPath();
+    for (let j = 0; j <= STEPS; j++) {
+      const t  = j / STEPS;
+      const xx = x0 + tLen * t;
+      const sagT = 4 * t * (1 - t); // quadratic sag interpolation
+      const yy = cy + sagT * bow;
+      const tw = tAmp * Math.sin(t * tLen * tFreq + phaseOff);
+      if (j === 0) ctx.moveTo(xx, yy + tw);
+      else         ctx.lineTo(xx, yy + tw);
+    }
+    ctx.stroke();
+  }
+
+  // ── 5. Surface fuzz — fine strands perpendicular to the thread axis
+  //       Drawn at irregular intervals, like real textile fibers standing up.
+  const fuzzCount = Math.floor((x1 - x0) / 9);
+  ctx.lineWidth = 0.5;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = lightenToBone(color, 0.38);
+  ctx.globalAlpha = alpha * 0.20;
+  for (let f = 0; f < fuzzCount; f++) {
+    const t = (f + 0.15 + rndF() * 0.7) / fuzzCount;
+    const xx = x0 + tLen * t;
+    const sagT = 4 * t * (1 - t);
+    const yy = cy + sagT * bow;
+    const fLen = 1.4 + rndF() * thick * 0.9;
+    const fAng = (rndF() - 0.5) * 0.7; // small angle from vertical
+    ctx.beginPath();
+    ctx.moveTo(xx, yy - thick * 0.4);
+    ctx.lineTo(xx + Math.sin(fAng) * fLen, yy - thick * 0.4 - fLen * Math.cos(fAng));
+    ctx.stroke();
+  }
+
+  // ── 6. End fraying — micro-filaments diverging from thread ends
+  for (let end = 0; end < 2; end++) {
+    const ex = end === 0 ? x0 : x1;
+    const ey = cy;
+    const dir = end === 0 ? -1 : 1;
+    const frayRnd = hlSeed(n * 53 + end * 17);
+    for (let f = 0; f < 5; f++) {
+      const spread = (f - 2) * (thick * 0.38);
+      const fLen = thick * (1.8 + frayRnd() * 2.4);
+      const curl = (frayRnd() - 0.5) * thick * 0.6;
+      ctx.strokeStyle = hexToRgba(color, alpha * (0.22 - f * 0.03));
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 0.45;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(ex, ey + spread);
+      ctx.quadraticCurveTo(
+        ex + dir * fLen * 0.5, ey + spread + curl,
+        ex + dir * fLen,       ey + spread * 1.3 + curl * 1.4,
+      );
+      ctx.stroke();
+    }
+  }
+
+  // ── 7. Specular ridge — thin bright highlight along the top of the cylinder
+  const specGrad = ctx.createLinearGradient(x0, cy, x1, cy);
+  specGrad.addColorStop(0,   'rgba(244,236,216,0)');
+  specGrad.addColorStop(0.12, `rgba(244,236,216,${alpha * 0.32})`);
+  specGrad.addColorStop(0.5,  `rgba(244,236,216,${alpha * 0.42})`);
+  specGrad.addColorStop(0.88, `rgba(244,236,216,${alpha * 0.32})`);
+  specGrad.addColorStop(1,   'rgba(244,236,216,0)');
+  ctx.strokeStyle = specGrad;
+  ctx.globalAlpha = 1;
+  ctx.lineWidth = 0.9;
+  ctx.lineCap = 'butt';
+  ctx.beginPath();
+  ctx.moveTo(x0, cy - thick * 0.38);
+  ctx.quadraticCurveTo(midX, midY - thick * 0.38, x1, cy - thick * 0.38);
+  ctx.stroke();
+
+  // ── 8. Active selection — warm ring
+  if (isActive) {
+    ctx.strokeStyle = 'rgba(207,147,90,0.9)';
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x0 - 5, cy);
+    ctx.quadraticCurveTo(midX, midY - 1, x1 + 5, cy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ── 9. Weave-in flash — burst of warm light as thread is added
+  if (flashPow > 0) {
+    const p = 1 - Math.pow(1 - flashPow, 3); // cubic-out ease
+    ctx.strokeStyle = '#cf935a';
+    ctx.globalAlpha = p * 0.25;
+    ctx.lineWidth = thick + 20;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x0 - 8, cy);
+    ctx.quadraticCurveTo(midX, midY - 2, x1 + 8, cy);
+    ctx.stroke();
+
+    ctx.globalAlpha = p * 0.50;
+    ctx.lineWidth = thick + 8;
+    ctx.beginPath();
+    ctx.moveTo(x0 - 4, cy);
+    ctx.quadraticCurveTo(midX, midY - 1, x1 + 4, cy);
+    ctx.stroke();
+
+    const flashColor = lightenToBone(color, p * 0.75);
+    ctx.strokeStyle = flashColor;
+    ctx.globalAlpha = p * 0.95;
+    ctx.lineWidth = thick;
+    ctx.lineCap = 'butt';
+    ctx.beginPath();
+    ctx.moveTo(x0, cy);
+    ctx.quadraticCurveTo(midX, midY, x1, cy);
+    ctx.stroke();
+  }
+
+  ctx.restore();
 }
 
 export function drawCloth(
@@ -90,7 +298,7 @@ export function drawCloth(
     showWarpHair = true,
     nowFrac = null,
     background = '#0e0e0c',
-    warpEvery = 12,
+    warpEvery = 14,
     bandFromTier = true,
     sparkle = 0,
     flashIdx = null,
@@ -99,185 +307,122 @@ export function drawCloth(
 
   const span = +tEnd - +tStart;
 
-  // ─ background
+  // ── Background
   ctx.fillStyle = background;
   ctx.fillRect(0, 0, W, H);
 
-  // ─ very subtle vertical cloth-sheen gradient (light source above centre)
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0,   'rgba(244,236,216,0.028)');
-  grad.addColorStop(0.4, 'rgba(244,236,216,0.055)');
-  grad.addColorStop(1,   'rgba(244,236,216,0.010)');
-  ctx.fillStyle = grad;
+  // ── Very subtle cloth-sheen gradient (diffuse overhead light)
+  const sheen = ctx.createLinearGradient(0, 0, 0, H);
+  sheen.addColorStop(0,   'rgba(244,236,216,0.020)');
+  sheen.addColorStop(0.35,'rgba(244,236,216,0.045)');
+  sheen.addColorStop(0.7, 'rgba(244,236,216,0.030)');
+  sheen.addColorStop(1,   'rgba(244,236,216,0.008)');
+  ctx.fillStyle = sheen;
   ctx.fillRect(0, 0, W, H);
 
-  // ─ warp — seeded irregular vertical hairlines with natural sag curve
+  // ── Warp threads — structural vertical fibres, slightly more visible now
+  //    Each warp gets: soft glow pass + core hairline + occasional highlight
   const rnd = hlSeed(7);
   for (let x = 0; x < W + 4; x += warpEvery) {
-    const jitter = (rnd() - 0.5) * 1.4;
+    const jitter = (rnd() - 0.5) * 1.8;
     const xx = x + jitter;
-    const alpha = 0.06 + rnd() * 0.07;
-    ctx.strokeStyle = `rgba(244,236,216,${alpha.toFixed(3)})`;
-    ctx.lineWidth = 0.8 + rnd() * 0.4;
+    const baseAlpha = 0.09 + rnd() * 0.09;
+    const isHighlight = rnd() > 0.72;
+
+    // Glow pass
+    ctx.strokeStyle = `rgba(244,236,216,${(baseAlpha * 0.4).toFixed(3)})`;
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'butt';
     ctx.beginPath();
-    for (let y = 0; y <= H; y += 6) {
-      const dx = Math.sin((y / H) * Math.PI) * sag * 5;
-      if (y === 0) ctx.moveTo(xx + dx, y);
-      else ctx.lineTo(xx + dx, y);
+    for (let y = 0; y <= H; y += 8) {
+      const warpSag = Math.sin((y / H) * Math.PI) * sag * 4;
+      if (y === 0) ctx.moveTo(xx + warpSag, y);
+      else ctx.lineTo(xx + warpSag, y);
     }
     ctx.stroke();
+
+    // Core warp thread
+    ctx.strokeStyle = `rgba(244,236,216,${baseAlpha.toFixed(3)})`;
+    ctx.lineWidth = 0.7 + rnd() * 0.5;
+    ctx.beginPath();
+    for (let y = 0; y <= H; y += 8) {
+      const warpSag = Math.sin((y / H) * Math.PI) * sag * 4;
+      if (y === 0) ctx.moveTo(xx + warpSag, y);
+      else ctx.lineTo(xx + warpSag, y);
+    }
+    ctx.stroke();
+
+    // Occasional warp highlight (linen sheen)
+    if (isHighlight) {
+      ctx.strokeStyle = `rgba(244,236,216,${(baseAlpha * 0.6).toFixed(3)})`;
+      ctx.lineWidth = 0.4;
+      ctx.beginPath();
+      for (let y = 0; y <= H; y += 8) {
+        const warpSag = Math.sin((y / H) * Math.PI) * sag * 4 - 0.8;
+        if (y === 0) ctx.moveTo(xx + warpSag, y);
+        else ctx.lineTo(xx + warpSag, y);
+      }
+      ctx.stroke();
+    }
   }
 
-  // ─ weft (entries) — multi-strand fiber rendering
+  // ── Weft (entries) — premium thread rendering
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i];
+    if (e.sealed) continue;
+
     const frac = (+e.date - +tStart) / span;
     const cx = frac * W - panX;
-    if (cx < -50 || cx > W + 50) continue;
-    if (e.sealed) continue;
+    if (cx < -200 || cx > W + 200) continue;
 
     const tierKey = bandFromTier && e.tier ? e.tier : 'family';
     const [t0, t1] = TIER_Y[tierKey] ?? TIER_Y['family'];
-    const yJitter = hlSeed(e.n * 131 + 19)();
-    const cy = (t0 + yJitter * (t1 - t0)) * H;
-    const sagY = Math.sin((cx / W) * Math.PI) * sag * H * 0.35;
 
-    const rndW  = hlSeed(e.n * 17);
-    const rndTh = hlSeed(e.n * 23);
+    // Deterministic per-entry PRNG for all random properties
+    const rndW   = hlSeed(e.n * 17);
+    const rndTh  = hlSeed(e.n * 23);
     const rndBow = hlSeed(e.n * 41);
+    const rndY   = hlSeed(e.n * 131 + 19);
 
-    const w = 10 + rndW() * 26;          // 10–36 px wide
-    const x0 = cx - w / 2;
-    const x1 = cx + w / 2;
-    const midX = cx;
-    const thick = 2.0 + rndTh() * 1.8;   // 2–3.8 px thick
-    const bow = -(0.5 + rndBow() * 0.9); // slight upward catenary bow
-    const midY = cy + sagY + bow;
+    // Thread dimensions — significantly longer than before for realism
+    const halfLen = 38 + rndW() * 72;      // 38–110 px half-width → total 76–220 px
+    const x0 = cx - halfLen;
+    const x1 = cx + halfLen;
+
+    const yFrac = t0 + rndY() * (t1 - t0);
+    const cy = yFrac * H;
+    const sagY = Math.sin((cx / W) * Math.PI) * sag * H * 0.28;
+
+    const thick = 2.8 + rndTh() * 1.8;    // 2.8–4.6 px
+    const bow = -(0.4 + rndBow() * 0.8) + sagY; // slight catenary bow + cloth sag
 
     const color = HL_DYE_HEX[e.dye] ?? HL_DYE_HEX['weld'];
-    const highlight = lightenToBone(color, 0.42);
 
-    let alpha = 0.92;
-    if (hoverAuthor && e.author !== hoverAuthor) alpha = 0.10;
+    let alpha = 0.93;
+    if (hoverAuthor && e.author !== hoverAuthor) alpha = 0.08;
 
-    ctx.save();
+    const isActive = i === activeIdx;
+    const isFlash  = i === flashIdx && flashPower > 0;
+    const fPow     = isFlash ? flashPower : 0;
 
-    // Pass 1 — outer luminous glow
-    ctx.strokeStyle = color;
-    ctx.globalAlpha = alpha * 0.06;
-    ctx.lineWidth = thick + 9;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(x0, cy + sagY);
-    ctx.quadraticCurveTo(midX, midY, x1, cy + sagY);
-    ctx.stroke();
-
-    // Pass 2 — inner soft glow
-    ctx.globalAlpha = alpha * 0.14;
-    ctx.lineWidth = thick + 4;
-    ctx.beginPath();
-    ctx.moveTo(x0, cy + sagY);
-    ctx.quadraticCurveTo(midX, midY, x1, cy + sagY);
-    ctx.stroke();
-
-    // Pass 3 — main thread body
-    ctx.globalAlpha = alpha * 0.92;
-    ctx.lineWidth = thick;
-    ctx.lineCap = 'butt';
-    ctx.beginPath();
-    ctx.moveTo(x0, cy + sagY);
-    ctx.quadraticCurveTo(midX, midY, x1, cy + sagY);
-    ctx.stroke();
-
-    // Pass 4 — shadow strand (below main body, darker)
-    ctx.globalAlpha = alpha * 0.38;
-    ctx.lineWidth = thick * 0.55;
-    ctx.beginPath();
-    ctx.moveTo(x0 + 0.5, cy + sagY + thick * 0.72);
-    ctx.quadraticCurveTo(midX, midY + thick * 0.72, x1 - 0.5, cy + sagY + thick * 0.72);
-    ctx.stroke();
-
-    // Pass 5 — highlight strand (above, lighter colour)
-    ctx.strokeStyle = highlight;
-    ctx.globalAlpha = alpha * 0.28;
-    ctx.lineWidth = 0.75;
-    ctx.beginPath();
-    ctx.moveTo(x0 + 1, cy + sagY - thick * 0.42);
-    ctx.quadraticCurveTo(midX, midY - thick * 0.42, x1 - 1, cy + sagY - thick * 0.42);
-    ctx.stroke();
-
-    // Pass 6 — warp-crossing end marks (tiny vertical ticks where thread goes over warp)
-    ctx.strokeStyle = color;
-    ctx.globalAlpha = alpha * 0.50;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(x0, cy + sagY - thick * 0.9);
-    ctx.lineTo(x0, cy + sagY + thick * 1.1);
-    ctx.moveTo(x1, cy + sagY - thick * 0.9);
-    ctx.lineTo(x1, cy + sagY + thick * 1.1);
-    ctx.stroke();
-
-    // Active entry — warm selection glow
-    if (i === activeIdx) {
-      ctx.strokeStyle = '#cf935a';
-      ctx.globalAlpha = 1;
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(x0 - 4, cy + sagY);
-      ctx.quadraticCurveTo(midX, midY - 0.5, x1 + 4, cy + sagY);
-      ctx.stroke();
-    }
-
-    // Weave-in flash — newly woven entry bursts bright then settles
-    if (i === flashIdx && flashPower > 0) {
-      // Ease: cubic out so the burst is immediate and decay is gradual
-      const p = 1 - Math.pow(1 - flashPower, 3);
-      // Outer halo — wide warm ring
-      ctx.strokeStyle = '#cf935a';
-      ctx.globalAlpha = p * 0.28;
-      ctx.lineWidth = thick + 18;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(x0 - 6, cy + sagY);
-      ctx.quadraticCurveTo(midX, midY - 1, x1 + 6, cy + sagY);
-      ctx.stroke();
-      // Mid ring
-      ctx.globalAlpha = p * 0.48;
-      ctx.lineWidth = thick + 8;
-      ctx.beginPath();
-      ctx.moveTo(x0 - 3, cy + sagY);
-      ctx.quadraticCurveTo(midX, midY - 0.5, x1 + 3, cy + sagY);
-      ctx.stroke();
-      // Inner bright filament — briefly bleaches to bone
-      const flashColor = lightenToBone(color, p * 0.65);
-      ctx.strokeStyle = flashColor;
-      ctx.globalAlpha = p * 0.90;
-      ctx.lineWidth = thick;
-      ctx.lineCap = 'butt';
-      ctx.beginPath();
-      ctx.moveTo(x0, cy + sagY);
-      ctx.quadraticCurveTo(midX, midY, x1, cy + sagY);
-      ctx.stroke();
-    }
-
-    ctx.restore();
+    drawThread(ctx, x0, x1, cy, bow, color, thick, alpha, e.n, isActive, fPow);
   }
+
   ctx.globalAlpha = 1;
 
-  // ─ sealed-note pegs — dashed tether + ∞ glyph
+  // ── Sealed-note pegs — dashed tether + ∞ glyph
   for (const e of entries) {
     if (!e.sealed || !e.sealUntil) continue;
     const targetFrac = (+e.sealUntil - +tStart) / span;
     const cx = targetFrac * W - panX;
     if (cx < -10 || cx > W + 10) continue;
-    const cy = 0.08 * H;
-    ctx.strokeStyle = 'rgba(176,122,74,0.50)';
-    ctx.setLineDash([2, 4]);
+    const cy = 0.07 * H;
+    ctx.strokeStyle = 'rgba(176,122,74,0.45)';
+    ctx.setLineDash([2, 5]);
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(cx, cy + 6);
-    ctx.lineTo(cx, 0.35 * H);
+    ctx.lineTo(cx, 0.34 * H);
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = '#b07a4a';
@@ -287,104 +432,101 @@ export function drawCloth(
     ctx.fillText('∞', cx, cy);
   }
 
-  // ─ decade / year markers along the bottom
+  // ── Decade / year markers along the bottom selvedge
   if (showDecadeMarks) {
     const startY = tStart.getFullYear();
-    const endY = tEnd.getFullYear();
+    const endY   = tEnd.getFullYear();
     ctx.font = '500 9px "JetBrains Mono", monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     for (let y = startY; y <= endY; y++) {
-      const d = new Date(y, 0, 1);
+      const d  = new Date(y, 0, 1);
       const cx = ((+d - +tStart) / span) * W - panX;
       if (cx < 0 || cx > W) continue;
       const isDecade = y % 10 === 0;
       const isHalf   = y % 5 === 0;
       const col = isDecade
-        ? 'rgba(244,236,216,0.65)'
+        ? 'rgba(244,236,216,0.60)'
         : isHalf
-          ? 'rgba(244,236,216,0.40)'
-          : 'rgba(244,236,216,0.22)';
+          ? 'rgba(244,236,216,0.36)'
+          : 'rgba(244,236,216,0.18)';
       ctx.fillStyle = col;
-      ctx.fillText(String(y), cx + 3, H - 14);
+      ctx.fillText(String(y), cx + 3, H - 15);
       ctx.strokeStyle = col;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(cx, H - 4);
-      ctx.lineTo(cx, H - (isDecade ? 14 : isHalf ? 9 : 6));
+      ctx.lineTo(cx, H - (isDecade ? 15 : isHalf ? 9 : 6));
       ctx.stroke();
     }
   }
 
-  // ─ frayed selvedge — tendrils beyond the "now" position
+  // ── Frayed selvedge — the "now" edge of the cloth
   if (showFraySelvedge) {
     const nowFracEff = nowFrac == null ? 1 : nowFrac;
     const sx = nowFracEff * W - panX;
     const sxClamp = Math.min(W - 1, Math.max(0, sx));
 
-    // selvedge edge column
-    ctx.strokeStyle = 'rgba(244,236,216,0.09)';
+    // Selvedge column — very faint
+    ctx.strokeStyle = 'rgba(244,236,216,0.07)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(sxClamp, 0);
     ctx.lineTo(sxClamp, H);
     ctx.stroke();
 
-    // frayed warp tendrils (unfinished threads beyond the now edge)
+    // Frayed warp tendrils beyond the now-edge
     const fr = hlSeed(91);
-    for (let i = 0; i < 70; i++) {
-      const yy = fr() * H;
-      const len = 3 + fr() * 22;
-      const a = 0.08 + fr() * 0.20;
+    for (let i = 0; i < 80; i++) {
+      const yy  = fr() * H;
+      const len = 4 + fr() * 26;
+      const a   = 0.06 + fr() * 0.17;
       ctx.strokeStyle = `rgba(244,236,216,${a.toFixed(3)})`;
-      ctx.lineWidth = 0.5 + fr() * 0.7;
+      ctx.lineWidth = 0.4 + fr() * 0.7;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(sxClamp, yy);
       const dx = sxClamp + len;
-      const dy = yy + fr() * 5 - 2.5;
-      ctx.bezierCurveTo(sxClamp + len * 0.3, yy, sxClamp + len * 0.65, yy + 1.2, dx, dy);
+      const dy = yy + fr() * 6 - 3;
+      ctx.bezierCurveTo(sxClamp + len * 0.3, yy, sxClamp + len * 0.65, yy + 1.5, dx, dy);
       ctx.stroke();
     }
     ctx.lineCap = 'butt';
 
-    // ─ warm unwoven thread — the active weft not yet beaten in
+    // Active weft tip — the warm thread being woven right now
     {
-      const tipY = 0.42 * H + Math.sin(performance.now() * 0.0008) * 5;
-      const endX = sxClamp + 112;
-      const endY = tipY + 16;
-      const cp1x = sxClamp + 22, cp1y = tipY - 4;
-      const cp2x = sxClamp + 68, cp2y = tipY + 9;
+      const tipY = 0.42 * H + Math.sin(performance.now() * 0.0007) * 6;
+      const endX = sxClamp + 120;
+      const endY = tipY + 18;
+      const cp1x = sxClamp + 24, cp1y = tipY - 5;
+      const cp2x = sxClamp + 72, cp2y = tipY + 10;
 
-      // outermost halo
-      ctx.strokeStyle = 'rgba(207,147,90,0.08)';
-      ctx.lineWidth = 16;
+      // Wide outer halo
+      ctx.strokeStyle = 'rgba(207,147,90,0.06)';
+      ctx.lineWidth = 18;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(sxClamp, tipY);
       ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
       ctx.stroke();
 
-      // mid glow
-      ctx.strokeStyle = 'rgba(207,147,90,0.20)';
+      ctx.strokeStyle = 'rgba(207,147,90,0.18)';
       ctx.lineWidth = 6;
       ctx.beginPath();
       ctx.moveTo(sxClamp, tipY);
       ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
       ctx.stroke();
 
-      // inner glow
-      ctx.strokeStyle = 'rgba(207,147,90,0.42)';
-      ctx.lineWidth = 2.8;
+      ctx.strokeStyle = 'rgba(207,147,90,0.40)';
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.moveTo(sxClamp, tipY);
       ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
       ctx.stroke();
 
-      // core thread filament
       ctx.strokeStyle = '#cf935a';
-      ctx.lineWidth = 1.4;
-      ctx.globalAlpha = 1.0;
+      ctx.lineWidth = 1.2;
+      ctx.globalAlpha = 1;
       ctx.beginPath();
       ctx.moveTo(sxClamp, tipY);
       ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
@@ -393,22 +535,20 @@ export function drawCloth(
     }
   }
 
-  // ─ "now" warm warp hairline with subtle glow
+  // ── "Now" warp hairline — warm vertical at today's position
   if (showWarpHair && nowFrac != null) {
     const xx = nowFrac * W - panX;
 
-    // glow pass
-    ctx.strokeStyle = 'rgba(176,122,74,0.14)';
-    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'rgba(176,122,74,0.12)';
+    ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.moveTo(xx, 0);
     ctx.lineTo(xx, H);
     ctx.stroke();
 
-    // core hairline
     ctx.strokeStyle = '#b07a4a';
     ctx.lineWidth = 1;
-    ctx.globalAlpha = 0.92;
+    ctx.globalAlpha = 0.88;
     ctx.beginPath();
     ctx.moveTo(xx, 0);
     ctx.lineTo(xx, H);
@@ -416,23 +556,23 @@ export function drawCloth(
     ctx.globalAlpha = 1;
   }
 
-  // ─ sparkle (warm sparks during weave-in animations)
+  // ── Sparkle (warm motes during weave-in animations)
   if (sparkle > 0) {
-    const sr = hlSeed(Math.floor(performance.now() / 100));
-    for (let i = 0; i < 8; i++) {
-      const xx = sr() * 80 + W - 110;
+    const sr = hlSeed(Math.floor(performance.now() / 80));
+    for (let i = 0; i < 10; i++) {
+      const xx = sr() * 100 + W - 130;
       const yy = sr() * H;
-      const size = 0.6 + sr() * 1.6;
-      const a = 0.5 * sparkle * (0.4 + sr() * 0.6);
+      const sz = 0.5 + sr() * 1.8;
+      const a  = 0.45 * sparkle * (0.35 + sr() * 0.65);
       ctx.fillStyle = `rgba(207,147,90,${a.toFixed(3)})`;
       ctx.beginPath();
-      ctx.arc(xx, yy, size, 0, Math.PI * 2);
+      ctx.arc(xx, yy, sz, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 }
 
-// ─── React component — auto-sizes to container via ResizeObserver ──────────
+// ─── React component ────────────────────────────────────────────────────────
 interface TapestryCanvasProps {
   width?: number;
   height: number;
@@ -440,7 +580,6 @@ interface TapestryCanvasProps {
   kind?: 'full' | 'edge' | 'specimen' | 'century';
   opts?: DrawOpts;
   animate?: boolean;
-  /** performance.now() timestamp set when a new entry is woven in. Triggers 1400ms flash. */
   newEntryAt?: number | null;
 }
 
@@ -462,12 +601,10 @@ export function TapestryCanvas({
     widthProp ?? (typeof window !== 'undefined' ? window.innerWidth : 1280),
   );
 
-  // Keep newEntryAt ref in sync so the RAF closure always reads the latest value
   useEffect(() => {
     newEntryAtRef.current = newEntryAt;
   }, [newEntryAt]);
 
-  // Responsive width from container if no explicit width given
   useEffect(() => {
     if (widthProp !== undefined) return;
     const el = containerRef.current;
@@ -492,25 +629,24 @@ export function TapestryCanvas({
 
     const tick = () => {
       const now = performance.now();
-      const dt = now - last;
+      const dt  = now - last;
       last = now;
 
       if (animate && kind !== 'edge') {
-        panRef.current += (kind === 'specimen' ? 0.06 : 0.014) * dt;
-        if (panRef.current > 260) panRef.current = -60;
+        panRef.current += (kind === 'specimen' ? 0.055 : 0.012) * dt;
+        if (panRef.current > 280) panRef.current = -80;
       }
 
-      // Weave-in flash: decay over 1400ms from newEntryAt
       const FLASH_DUR = 1400;
-      const flashAge = newEntryAtRef.current != null ? now - newEntryAtRef.current : Infinity;
+      const flashAge   = newEntryAtRef.current != null ? now - newEntryAtRef.current : Infinity;
       const flashPower = flashAge < FLASH_DUR ? Math.max(0, 1 - flashAge / FLASH_DUR) : 0;
-      const flashIdx = flashPower > 0 ? entries.length - 1 : null;
+      const flashIdx   = flashPower > 0 ? entries.length - 1 : null;
 
       ctx.clearRect(0, 0, canvasW, height);
       drawCloth(ctx, canvasW, height, entries, {
         ...opts,
         panX: panRef.current,
-        sparkle: flashPower > 0 ? flashPower * 0.8 : (opts.sparkle ?? 0),
+        sparkle: flashPower > 0 ? flashPower * 0.7 : (opts.sparkle ?? 0),
         flashIdx,
         flashPower,
       });

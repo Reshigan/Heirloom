@@ -930,6 +930,24 @@ export default {
       const giftResult = await processScheduledGifts(env);
       console.log(`Scheduled gift deliveries — delivered:${giftResult.delivered} errors:${giftResult.errors}`);
 
+      // Family member grace-window expiry — hard-delete members whose 7-day
+      // window has closed. Associated content rows cascade via FK ON DELETE CASCADE.
+      // This is what removes the thread from the cloth permanently.
+      console.log('Purging expired soft-deleted family members…');
+      try {
+        const expired = await env.DB.prepare(`
+          SELECT id FROM family_members
+          WHERE deleted_at IS NOT NULL
+            AND deleted_at <= datetime('now', '-7 days')
+        `).all();
+        for (const row of expired.results) {
+          await env.DB.prepare(`DELETE FROM family_members WHERE id = ?`).bind(row.id).run();
+        }
+        console.log(`Family member purge — removed:${expired.results.length}`);
+      } catch (e) {
+        console.error('Family member purge error:', e);
+      }
+
       console.log('Daily jobs complete.');
 
     } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {

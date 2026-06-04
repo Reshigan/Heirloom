@@ -14,7 +14,7 @@ export const voiceRoutes = new Hono<AppEnv>();
 voiceRoutes.get('/', async (c) => {
   const userId = c.get('userId');
   const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '20');
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);
   const offset = (page - 1) * limit;
   
   const recordings = await c.env.DB.prepare(`

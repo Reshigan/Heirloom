@@ -113,7 +113,7 @@ lettersRoutes.get('/', async (c) => {
   const userId = c.get('userId');
   const status = c.req.query('status');
   const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '20');
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);
   const offset = (page - 1) * limit;
   
   // Append-only: never surface soft-deleted (revoked) letters.
@@ -265,6 +265,13 @@ lettersRoutes.post('/', async (c) => {
   });
 
   if (recipientIds && recipientIds.length > 0) {
+    // Verify every recipient belongs to the authenticated user (IDOR guard)
+    const ownedCheck = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n FROM family_members WHERE id IN (${recipientIds.map(() => '?').join(',')}) AND user_id = ?`
+    ).bind(...recipientIds, userId).first() as { n: number } | null;
+    if (!ownedCheck || ownedCheck.n !== recipientIds.length) {
+      return c.json({ error: 'One or more recipients not found' }, 400);
+    }
     await c.env.DB.batch(
       recipientIds.map((recipientId: string) =>
         c.env.DB.prepare(`INSERT INTO letter_recipients (id, letter_id, family_member_id, created_at) VALUES (?, ?, ?, ?)`)
@@ -272,7 +279,7 @@ lettersRoutes.post('/', async (c) => {
       )
     );
   }
-  
+
   const letter = await c.env.DB.prepare(`
     SELECT * FROM letters WHERE id = ?
   `).bind(id).first();
@@ -354,11 +361,15 @@ lettersRoutes.patch('/:id', async (c) => {
   
   // Update recipients if provided
   if (recipientIds && recipientIds.length > 0) {
+    // Verify every recipient belongs to the authenticated user (IDOR guard)
+    const ownedCheck = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n FROM family_members WHERE id IN (${recipientIds.map(() => '?').join(',')}) AND user_id = ?`
+    ).bind(...recipientIds, userId).first() as { n: number } | null;
+    if (!ownedCheck || ownedCheck.n !== recipientIds.length) {
+      return c.json({ error: 'One or more recipients not found' }, 400);
+    }
     // Remove existing recipients
-    await c.env.DB.prepare(`
-      DELETE FROM letter_recipients WHERE letter_id = ?
-    `).bind(letterId).run();
-    
+    await c.env.DB.prepare(`DELETE FROM letter_recipients WHERE letter_id = ?`).bind(letterId).run();
     await c.env.DB.batch(
       recipientIds.map((recipientId: string) =>
         c.env.DB.prepare(`INSERT INTO letter_recipients (id, letter_id, family_member_id, created_at) VALUES (?, ?, ?, ?)`)

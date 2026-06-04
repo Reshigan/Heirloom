@@ -110,6 +110,7 @@ export const familyApi = {
   update: (id: string, data: Partial<{ name: string; relationship: string; email: string; avatarUrl: string; notes: string }>) =>
     api.patch(`/family/${id}`, data),
   delete: (id: string) => api.delete(`/family/${id}`),
+  restore: (id: string) => api.patch(`/family/${id}/restore`),
 };
 
 // Memories API
@@ -199,6 +200,7 @@ export const engagementApi = {
   acceptFamilyInvite: (inviteCode: string) =>
     api.post('/engagement/invite/accept', { inviteCode }),
   getInvites: () => api.get('/engagement/invites'),
+  deleteInvite: (id: string) => api.delete(`/engagement/invites/${id}`),
 };
 
 // Settings API

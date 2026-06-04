@@ -1628,10 +1628,13 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
           )}
           <div style={{ padding: '10px 12px', background: 'var(--ink)', border: '1px solid var(--rule)' }}>
             <div className="loom-eyebrow" style={{ marginBottom: 8 }}>Body (HTML Preview)</div>
-            {/* White surface intentional — renders actual email */}
-            <div style={{ background: '#fff', padding: 16, maxHeight: 384, overflowY: 'auto' }}>
-              <div className="text-sm" style={{ color: '#000' }} dangerouslySetInnerHTML={{ __html: email.body || '<em>No body content</em>' }} />
-            </div>
+            {/* Sandboxed iframe prevents script execution from email body HTML */}
+            <iframe
+              sandbox=""
+              srcDoc={email.body || '<em style="color:#666">No body content</em>'}
+              style={{ width: '100%', minHeight: 200, maxHeight: 384, border: 0, background: '#fff' }}
+              title="Email preview"
+            />
           </div>
           {email.status === 'FAILED' && (
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

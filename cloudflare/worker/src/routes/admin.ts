@@ -270,7 +270,7 @@ adminRoutes.get('/analytics', adminAuth, async (c) => {
 // Get all users (paginated)
 adminRoutes.get('/users', adminAuth, async (c) => {
   const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '20');
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);
   const search = c.req.query('search');
   const offset = (page - 1) * limit;
   
@@ -528,7 +528,7 @@ adminRoutes.delete('/coupons/:id', adminAuth, async (c) => {
 adminRoutes.get('/support/tickets', adminAuth, async (c) => {
   const status = c.req.query('status');
   const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '20');
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);
   const offset = (page - 1) * limit;
   
   let query = `SELECT t.*, u.email, u.first_name, u.last_name
@@ -894,7 +894,7 @@ adminRoutes.get('/system/stats', adminAuth, async (c) => {
 
 adminRoutes.get('/audit-logs', adminAuth, async (c) => {
   const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '50');
+  const limit = Math.min(parseInt(c.req.query('limit') || '50'), 100);
   const action = c.req.query('action');
   const adminId = c.req.query('adminId');
   const offset = (page - 1) * limit;
@@ -1056,7 +1056,7 @@ adminRoutes.delete('/admin-users/:id', adminAuth, async (c) => {
 
 adminRoutes.get('/emails', adminAuth, async (c) => {
   const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '50');
+  const limit = Math.min(parseInt(c.req.query('limit') || '50'), 100);
   const status = c.req.query('status');
   const offset = (page - 1) * limit;
   
@@ -1280,7 +1280,7 @@ adminRoutes.post('/emails/product-update', adminAuth, async (c) => {
 
 adminRoutes.get('/billing/errors', adminAuth, async (c) => {
   const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '20');
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);
   const offset = (page - 1) * limit;
   const status = c.req.query('status'); // FAILED, PENDING_RETRY, RESOLVED
   

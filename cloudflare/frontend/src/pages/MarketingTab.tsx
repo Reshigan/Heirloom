@@ -796,7 +796,12 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
 
           {/* Email HTML preview — white surface intentional */}
           <div style={{ padding: '16px', background: '#fff', border: '1px solid var(--rule)' }}>
-            <div style={{ color: '#000', fontSize: 13 }} dangerouslySetInnerHTML={{ __html: formData.bodyHtml }} />
+            <iframe
+              sandbox=""
+              srcDoc={formData.bodyHtml || '<em style="color:#666">No content</em>'}
+              style={{ width: '100%', minHeight: 200, maxHeight: 400, border: 0, background: '#fff' }}
+              title="Email body preview"
+            />
           </div>
 
           <div style={{ border: '1px solid var(--rule-warm)', padding: '14px 16px' }}>

@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { readDescription } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
+import { requireAuth } from '../lib/auth';
 
 export const engagementRoutes = new Hono<AppEnv>();
 
@@ -124,7 +125,7 @@ engagementRoutes.post('/activity', async (c) => {
 // ============================================
 
 // Send family invite
-engagementRoutes.post('/invite', async (c) => {
+engagementRoutes.post('/invite', requireAuth, async (c) => {
   const userId = c.get('userId');
   if (!userId) {
     return c.json({ error: 'Unauthorized' }, 401);
@@ -182,7 +183,7 @@ engagementRoutes.post('/invite', async (c) => {
 });
 
 // Get user's invites
-engagementRoutes.get('/invites', async (c) => {
+engagementRoutes.get('/invites', requireAuth, async (c) => {
   const userId = c.get('userId');
   
   const invites = await c.env.DB.prepare(`
@@ -207,7 +208,7 @@ engagementRoutes.get('/invites', async (c) => {
 });
 
 // Accept invite — user ID comes from auth session, never from client body
-engagementRoutes.post('/invite/accept', async (c) => {
+engagementRoutes.post('/invite/accept', requireAuth, async (c) => {
   const userId = c.get('userId');
   if (!userId) {
     return c.json({ error: 'Unauthorized' }, 401);
@@ -237,6 +238,23 @@ engagementRoutes.post('/invite/accept', async (c) => {
   await checkAndAwardBadges(c.env, invite.inviter_user_id as string, 'referral_success', 1);
 
   return c.json({ success: true, inviterId: invite.inviter_user_id });
+});
+
+// Cancel / delete a pending invite
+engagementRoutes.delete('/invites/:id', requireAuth, async (c) => {
+  const userId = c.get('userId');
+  const inviteId = c.req.param('id');
+
+  const invite = await c.env.DB.prepare(`
+    SELECT id FROM family_invites WHERE id = ? AND inviter_user_id = ? AND status = 'pending'
+  `).bind(inviteId, userId).first();
+
+  if (!invite) {
+    return c.json({ error: 'Invite not found' }, 404);
+  }
+
+  await c.env.DB.prepare(`DELETE FROM family_invites WHERE id = ?`).bind(inviteId).run();
+  return c.body(null, 204);
 });
 
 // ============================================
@@ -380,30 +398,34 @@ engagementRoutes.post('/onboarding/:step', async (c) => {
   const step = c.req.param('step');
   const now = new Date().toISOString();
   
-  const validSteps = [
-    'profile_completed', 'first_memory_created', 'first_family_added',
-    'first_letter_written', 'first_voice_recorded', 'legacy_contact_added',
-    'tour_completed', 'wizard_dismissed'
-  ];
-  
-  if (!validSteps.includes(step)) {
-    return c.json({ error: 'Invalid step' }, 400);
-  }
-  
+  const STEP_COLUMNS: Record<string, string> = {
+    profile_completed: 'profile_completed',
+    first_memory_created: 'first_memory_created',
+    first_family_added: 'first_family_added',
+    first_letter_written: 'first_letter_written',
+    first_voice_recorded: 'first_voice_recorded',
+    legacy_contact_added: 'legacy_contact_added',
+    tour_completed: 'tour_completed',
+    wizard_dismissed: 'wizard_dismissed',
+  };
+
+  const col = STEP_COLUMNS[step];
+  if (!col) return c.json({ error: 'Invalid step' }, 400);
+
   // Ensure record exists
   const existing = await c.env.DB.prepare(`
     SELECT id FROM onboarding_progress WHERE user_id = ?
   `).bind(userId).first();
-  
+
   if (!existing) {
     const id = crypto.randomUUID();
     await c.env.DB.prepare(`
-      INSERT INTO onboarding_progress (id, user_id, ${step}, created_at, updated_at)
+      INSERT INTO onboarding_progress (id, user_id, ${col}, created_at, updated_at)
       VALUES (?, ?, 1, ?, ?)
     `).bind(id, userId, now, now).run();
   } else {
     await c.env.DB.prepare(`
-      UPDATE onboarding_progress SET ${step} = 1, updated_at = ? WHERE user_id = ?
+      UPDATE onboarding_progress SET ${col} = 1, updated_at = ? WHERE user_id = ?
     `).bind(now, userId).run();
   }
   

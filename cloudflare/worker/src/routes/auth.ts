@@ -16,37 +16,42 @@ export const authRoutes = new Hono<AppEnv>();
 
 authRoutes.post('/register', async (c) => {
   const body = await c.req.json();
-  const { email, password, firstName, lastName } = body;
-  
+  const { email, password, firstName, lastName, acceptedTerms, marketingConsent } = body;
+
   // Validate input
   if (!email || !password || !firstName || !lastName) {
     return c.json({ error: 'All fields are required' }, 400);
   }
-  
+
   if (password.length < 8) {
     return c.json({ error: 'Password must be at least 8 characters' }, 400);
   }
-  
+
+  // GDPR Art. 7 / POPIA §11 — explicit consent to terms is required
+  if (!acceptedTerms) {
+    return c.json({ error: 'You must accept the Terms of Service and Privacy Policy to register' }, 400);
+  }
+
   // Check if user exists
   const existing = await c.env.DB.prepare(
     'SELECT id FROM users WHERE email = ?'
   ).bind(email.toLowerCase()).first();
-  
+
   if (existing) {
     return c.json({ error: 'Email already registered' }, 409);
   }
-  
+
   // Hash password
   const passwordHash = await hashPassword(password);
-  
-  // Create user
+
+  // Create user — store consent timestamp for GDPR Art. 7(1) record-keeping
   const userId = crypto.randomUUID();
   const now = new Date().toISOString();
-  
+
   await c.env.DB.prepare(`
-    INSERT INTO users (id, email, password_hash, first_name, last_name, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).bind(userId, email.toLowerCase(), passwordHash, firstName, lastName, now, now).run();
+    INSERT INTO users (id, email, password_hash, first_name, last_name, terms_accepted_at, marketing_consent, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(userId, email.toLowerCase(), passwordHash, firstName, lastName, now, marketingConsent ? 1 : 0, now, now).run();
   
   // Check for pending vouchers sent to this email address
   const pendingVoucher = await c.env.DB.prepare(`

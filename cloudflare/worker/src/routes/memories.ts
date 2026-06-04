@@ -24,7 +24,7 @@ memoriesRoutes.get('/', async (c) => {
   const type = c.req.query('type');
   const recipientId = c.req.query('recipientId');
   const page = parseInt(c.req.query('page') || '1');
-  const limit = parseInt(c.req.query('limit') || '20');
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);
   const offset = (page - 1) * limit;
   
   // Append-only: never surface soft-deleted (revoked) rows.
@@ -405,9 +405,21 @@ memoriesRoutes.post('/', async (c) => {
   const textToClassify = `${title} ${description || ''}`.trim();
   const emotionResult = await classifyEmotionWithAI(textToClassify, c.env.AI);
   
+  // Sanitize metadata — only allow known string/number keys to prevent proto-pollution
+  // and block the metadata.to notification-injection vector.
+  const ALLOWED_METADATA_KEYS = new Set(['location', 'tags', 'weather', 'device', 'source', 'color', 'caption']);
+  const safeUserMeta: Record<string, unknown> = {};
+  if (metadata && typeof metadata === 'object') {
+    for (const [k, v] of Object.entries(metadata as Record<string, unknown>)) {
+      if (ALLOWED_METADATA_KEYS.has(k) && (typeof v === 'string' || typeof v === 'number')) {
+        safeUserMeta[k] = v;
+      }
+    }
+  }
+
   // Merge emotion into metadata
   const enrichedMetadata = {
-    ...(metadata || {}),
+    ...safeUserMeta,
     emotion: emotionResult.label,
     emotionConfidence: emotionResult.confidence,
   };
@@ -431,6 +443,13 @@ memoriesRoutes.post('/', async (c) => {
   });
 
   if (recipientIds && recipientIds.length > 0) {
+    // Ownership guard — all family_member_ids must belong to the authenticated user
+    const ownedCheck = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n FROM family_members WHERE id IN (${recipientIds.map(() => '?').join(',')}) AND user_id = ?`
+    ).bind(...recipientIds, userId).first() as { n: number } | null;
+    if (!ownedCheck || ownedCheck.n !== recipientIds.length) {
+      return c.json({ error: 'One or more recipients not found' }, 400);
+    }
     await c.env.DB.batch(
       recipientIds.map((recipientId: string) =>
         c.env.DB.prepare(`INSERT INTO memory_recipients (id, memory_id, family_member_id, created_at) VALUES (?, ?, ?, ?)`)
@@ -605,130 +624,108 @@ memoriesRoutes.delete('/:id', async (c) => {
 
 memoriesRoutes.get('/search', async (c) => {
   const userId = c.get('userId');
-  const query = c.req.query('q');
-  const type = c.req.query('type'); // 'all', 'memories', 'voice', 'letters'
+  const q = c.req.query('q');
+  const typeParam = c.req.query('type') || 'all'; // 'memory'|'voice'|'letter'|'all'
   const limit = Math.min(parseInt(c.req.query('limit') || '20'), 50);
-  
-  if (!query || query.trim().length < 2) {
+
+  if (!q || q.trim().length < 2) {
     return c.json({ error: 'Search query must be at least 2 characters' }, 400);
   }
-  
-  // Sanitize query for FTS5 - escape special characters
-  const sanitizedQuery = query
-    .replace(/['"]/g, '')
-    .replace(/[^\w\s]/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(word => word.length > 1)
-    .map(word => `"${word}"*`)
-    .join(' OR ');
-  
-  if (!sanitizedQuery) {
-    return c.json({ results: [], total: 0 });
+
+  // Helper: count non-overlapping occurrences of needle in haystack (case-insensitive)
+  const countOccurrences = (haystack: string, needle: string): number => {
+    if (!haystack) return 0;
+    const lower = haystack.toLowerCase();
+    const lowerNeedle = needle.toLowerCase();
+    let count = 0;
+    let pos = 0;
+    while ((pos = lower.indexOf(lowerNeedle, pos)) !== -1) {
+      count++;
+      pos += lowerNeedle.length;
+    }
+    return count;
+  };
+
+  const likePattern = `%${q}%`;
+  const results: Array<{
+    id: unknown;
+    type: 'memory' | 'voice' | 'letter';
+    title: string;
+    snippet: string;
+    created_at: unknown;
+    score: number;
+  }> = [];
+
+  // Search memories (title, description)
+  if (typeParam === 'all' || typeParam === 'memory') {
+    const rows = await c.env.DB.prepare(`
+      SELECT id, title, description, created_at
+      FROM memories
+      WHERE user_id = ? AND deleted_at IS NULL
+        AND (title LIKE ? OR description LIKE ?)
+      ORDER BY created_at DESC
+    `).bind(userId, likePattern, likePattern).all();
+
+    for (const r of rows.results) {
+      const title = (r.title as string) || '';
+      const description = (r.description as string) || '';
+      const snippet = description.slice(0, 120);
+      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
+      results.push({ id: r.id, type: 'memory', title, snippet, created_at: r.created_at, score });
+    }
   }
-  
-  const results: any[] = [];
-  const searchType = type || 'all';
-  
-  try {
-    // Search memories
-    if (searchType === 'all' || searchType === 'memories') {
-      const memoriesResults = await c.env.DB.prepare(`
-        SELECT m.id, m.type, m.title, m.description, m.file_url, m.file_key, m.created_at,
-               snippet(memories_fts, 0, '<mark>', '</mark>', '...', 32) as title_snippet,
-               snippet(memories_fts, 1, '<mark>', '</mark>', '...', 64) as description_snippet
-        FROM memories_fts
-        JOIN memories m ON memories_fts.rowid = m.rowid
-        WHERE memories_fts MATCH ? AND m.user_id = ? AND m.deleted_at IS NULL
-        ORDER BY rank
-        LIMIT ?
-      `).bind(sanitizedQuery, userId, limit).all();
-      
-      for (const r of memoriesResults.results) {
-        let fileUrl = r.file_url as string | null;
-        if ((!fileUrl || (typeof fileUrl === 'string' && fileUrl.includes('undefined'))) && r.file_key) {
-          fileUrl = `${c.env.API_URL}/api/memories/file/${encodeURIComponent(r.file_key as string)}`;
-        }
-        results.push({
-          id: r.id,
-          type: 'memory',
-          subType: r.type,
-          title: r.title,
-          snippet: r.description_snippet || r.title_snippet,
-          fileUrl,
-          createdAt: r.created_at,
-        });
-      }
+
+  // Search voice recordings (title, transcript)
+  if (typeParam === 'all' || typeParam === 'voice') {
+    const rows = await c.env.DB.prepare(`
+      SELECT id, title, transcript, created_at
+      FROM voice_recordings
+      WHERE user_id = ? AND deleted_at IS NULL
+        AND (title LIKE ? OR transcript LIKE ?)
+      ORDER BY created_at DESC
+    `).bind(userId, likePattern, likePattern).all();
+
+    for (const r of rows.results) {
+      const title = (r.title as string) || '';
+      const transcript = (r.transcript as string) || '';
+      const snippet = transcript.slice(0, 120);
+      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
+      results.push({ id: r.id, type: 'voice', title, snippet, created_at: r.created_at, score });
     }
-    
-    // Search voice recordings
-    if (searchType === 'all' || searchType === 'voice') {
-      const voiceResults = await c.env.DB.prepare(`
-        SELECT v.id, v.title, v.description, v.transcript, v.file_url, v.file_key, v.created_at,
-               snippet(voice_fts, 0, '<mark>', '</mark>', '...', 32) as title_snippet,
-               snippet(voice_fts, 2, '<mark>', '</mark>', '...', 64) as transcript_snippet
-        FROM voice_fts
-        JOIN voice_recordings v ON voice_fts.rowid = v.rowid
-        WHERE voice_fts MATCH ? AND v.user_id = ? AND v.deleted_at IS NULL
-        ORDER BY rank
-        LIMIT ?
-      `).bind(sanitizedQuery, userId, limit).all();
-      
-      for (const r of voiceResults.results) {
-        let fileUrl = r.file_url as string | null;
-        if ((!fileUrl || (typeof fileUrl === 'string' && fileUrl.includes('undefined'))) && r.file_key) {
-          fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(r.file_key as string)}`;
-        }
-        results.push({
-          id: r.id,
-          type: 'voice',
-          title: r.title,
-          snippet: r.transcript_snippet || r.title_snippet,
-          fileUrl,
-          createdAt: r.created_at,
-        });
-      }
-    }
-    
-    // Search letters
-    if (searchType === 'all' || searchType === 'letters') {
-      const lettersResults = await c.env.DB.prepare(`
-        SELECT l.id, l.title, l.salutation, l.body, l.created_at,
-               snippet(letters_fts, 2, '<mark>', '</mark>', '...', 64) as body_snippet
-        FROM letters_fts
-        JOIN letters l ON letters_fts.rowid = l.rowid
-        WHERE letters_fts MATCH ? AND l.user_id = ? AND l.deleted_at IS NULL
-        ORDER BY rank
-        LIMIT ?
-      `).bind(sanitizedQuery, userId, limit).all();
-      
-      for (const r of lettersResults.results) {
-        results.push({
-          id: r.id,
-          type: 'letter',
-          title: r.title || r.salutation || 'Untitled Letter',
-          snippet: r.body_snippet,
-          createdAt: r.created_at,
-        });
-      }
-    }
-    
-    // Sort all results by relevance (already sorted by rank within each type)
-    results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    
-    return c.json({
-      results: results.slice(0, limit),
-      total: results.length,
-      query: query,
-    });
-  } catch (error: any) {
-    console.error('Search error:', error);
-    // If FTS tables don't exist yet, return empty results
-    if (error.message?.includes('no such table')) {
-      return c.json({ results: [], total: 0, query });
-    }
-    return c.json({ error: 'Search failed' }, 500);
   }
+
+  // Search letters (subject, body)
+  if (typeParam === 'all' || typeParam === 'letter') {
+    const rows = await c.env.DB.prepare(`
+      SELECT id, subject, body, created_at
+      FROM letters
+      WHERE user_id = ? AND deleted_at IS NULL
+        AND (subject LIKE ? OR body LIKE ?)
+      ORDER BY created_at DESC
+    `).bind(userId, likePattern, likePattern).all();
+
+    for (const r of rows.results) {
+      const title = (r.subject as string) || '';
+      const body = (r.body as string) || '';
+      const snippet = body.slice(0, 120);
+      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
+      results.push({ id: r.id, type: 'letter', title, snippet, created_at: r.created_at, score });
+    }
+  }
+
+  // Sort by score DESC, then created_at DESC
+  results.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return new Date(b.created_at as string).getTime() - new Date(a.created_at as string).getTime();
+  });
+
+  const sliced = results.slice(0, limit);
+
+  return c.json({
+    results: sliced,
+    total: results.length,
+    query: q,
+  });
 });
 
 // ============================================

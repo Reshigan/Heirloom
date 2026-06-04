@@ -94,6 +94,7 @@ export function GiftSubscriptions() {
   const [step, setStep]               = useState(1);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState('classic');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('annual');
   const [formData, setFormData]       = useState({
     recipientName:  '',
     recipientEmail: '',
@@ -124,6 +125,7 @@ export function GiftSubscriptions() {
         recipientEmail:      formData.recipientEmail,
         recipientName:       formData.recipientName,
         tier:                selectedTier!,
+        billingPeriod,
         personalMessage:     formData.personalMessage,
         style:               selectedStyle,
         scheduledDeliveryDate: formData.scheduledDate || undefined,
@@ -137,10 +139,25 @@ export function GiftSubscriptions() {
 
   // ── Derived ──────────────────────────────────────────────────────────────────
   const tiers = pricing?.tiers || [
-    { id: 'STARTER', name: 'Starter', price: 12, description: '1 year of Starter plan' },
-    { id: 'FAMILY',  name: 'Family',  price: 24, description: '1 year of Family plan'  },
-    { id: 'FOREVER', name: 'Forever', price: 60, description: '1 year of Forever plan' },
+    {
+      id: 'STARTER', name: 'Starter',
+      monthly: { regular: 4.99, gift: 4.74, discountPct: 5, durationMonths: 1 },
+      annual:  { regular: 49.99, gift: 44.99, discountPct: 10, durationMonths: 12 },
+    },
+    {
+      id: 'FAMILY', name: 'Family',
+      monthly: { regular: 9.99, gift: 9.49, discountPct: 5, durationMonths: 1 },
+      annual:  { regular: 99.99, gift: 89.99, discountPct: 10, durationMonths: 12 },
+    },
+    {
+      id: 'FOREVER', name: 'Forever',
+      monthly: { regular: 19.99, gift: 18.99, discountPct: 5, durationMonths: 1 },
+      annual:  { regular: 199.99, gift: 179.99, discountPct: 10, durationMonths: 12 },
+    },
   ];
+
+  // Get pricing info for selected period
+  const tierPeriodPrice = (tier: any) => tier[billingPeriod] ?? tier.annual;
 
   const handleNext = () => { if (step < 4) setStep(step + 1); };
   const handleBack = () => { if (step > 1) setStep(step - 1); };
@@ -155,6 +172,7 @@ export function GiftSubscriptions() {
   };
 
   const selectedTierData = tiers.find((t: any) => t.id === selectedTier);
+  const selectedPricing  = selectedTierData ? tierPeriodPrice(selectedTierData) : null;
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
@@ -219,18 +237,77 @@ export function GiftSubscriptions() {
         {/* ── Step 1: Choose Plan ── */}
         {step === 1 && (
           <div>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.28em',
-                textTransform: 'uppercase',
-                color: 'var(--parchment-dim)',
-                marginBottom: 28,
-              }}
-            >
-              choose a plan
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'var(--parchment-dim)',
+                  margin: 0,
+                }}
+              >
+                choose a plan
+              </p>
+
+              {/* Billing period toggle */}
+              <div style={{ display: 'flex' }}>
+                {(['monthly', 'annual'] as const).map((p, i) => (
+                  <button
+                    key={p}
+                    onClick={() => setBillingPeriod(p)}
+                    className="hl-mono"
+                    style={{
+                      background: billingPeriod === p ? 'var(--ink)' : 'transparent',
+                      color: billingPeriod === p ? 'var(--warm)' : 'var(--parchment-dim)',
+                      border: '1px solid var(--parchment-rule)',
+                      borderLeft: i === 0 ? '1px solid var(--parchment-rule)' : 'none',
+                      padding: '6px 16px',
+                      fontSize: 9,
+                      letterSpacing: '0.24em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      position: 'relative',
+                    }}
+                  >
+                    {p}
+                    {p === 'annual' && (
+                      <span style={{
+                        position: 'absolute',
+                        top: -10,
+                        right: -2,
+                        background: 'var(--warm)',
+                        color: 'var(--ink)',
+                        fontFamily: 'var(--mono)',
+                        fontSize: 8,
+                        letterSpacing: '0.12em',
+                        padding: '1px 5px',
+                        textTransform: 'uppercase',
+                      }}>
+                        10% off
+                      </span>
+                    )}
+                    {p === 'monthly' && (
+                      <span style={{
+                        position: 'absolute',
+                        top: -10,
+                        right: -2,
+                        background: 'var(--parchment-rule)',
+                        color: 'var(--parchment-dim)',
+                        fontFamily: 'var(--mono)',
+                        fontSize: 8,
+                        letterSpacing: '0.12em',
+                        padding: '1px 5px',
+                        textTransform: 'uppercase',
+                      }}>
+                        5% off
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Three tier cards */}
             <div
@@ -245,6 +322,7 @@ export function GiftSubscriptions() {
                 const isFirst   = idx === 0;
                 const selected  = selectedTier === tier.id;
                 const bullets   = TIER_BULLETS[tier.id] ?? [];
+                const pp        = tierPeriodPrice(tier);
 
                 return (
                   <button
@@ -298,18 +376,31 @@ export function GiftSubscriptions() {
                         : 'for every generation'}
                     </span>
 
-                    {/* Price */}
+                    {/* Regular price struck-through */}
+                    <span
+                      className="hl-mono"
+                      style={{
+                        fontSize: 11,
+                        color: isFamily ? 'var(--bone-faint)' : 'var(--parchment-faint)',
+                        textDecoration: 'line-through',
+                        marginBottom: 2,
+                      }}
+                    >
+                      ${pp.regular}
+                    </span>
+
+                    {/* Gift price */}
                     <span
                       className="hl-serif hl-tight"
                       style={{
                         fontSize:    56,
                         fontWeight:  300,
                         lineHeight:  1,
-                        color:       isFamily ? 'var(--bone)' : 'var(--parchment-ink)',
+                        color:       isFamily ? 'var(--bone)' : 'var(--warm)',
                         marginBottom: 6,
                       }}
                     >
-                      ${tier.price}
+                      ${pp.gift}
                     </span>
 
                     {/* Sub label */}
@@ -323,7 +414,7 @@ export function GiftSubscriptions() {
                         marginBottom:  28,
                       }}
                     >
-                      one year · gift
+                      {billingPeriod === 'monthly' ? '1 month' : '1 year'} · {pp.discountPct}% gift discount
                     </span>
 
                     {/* Bullets */}
@@ -696,7 +787,7 @@ export function GiftSubscriptions() {
                   className="hl-serif"
                   style={{ fontSize: 14, color: 'var(--parchment-dim)', fontStyle: 'italic' }}
                 >
-                  {selectedTierData?.name} · 1 year
+                  {selectedTierData?.name} · {billingPeriod === 'monthly' ? '1 month' : '1 year'}
                 </span>
               </div>
 
@@ -718,12 +809,27 @@ export function GiftSubscriptions() {
                 >
                   total
                 </span>
-                <span
-                  className="hl-serif"
-                  style={{ fontSize: 20, color: 'var(--warm)' }}
-                >
-                  ${selectedTierData?.price}
-                </span>
+                <div style={{ textAlign: 'right' }}>
+                  {selectedPricing && (
+                    <span
+                      className="hl-mono"
+                      style={{ fontSize: 10, color: 'var(--parchment-faint)', textDecoration: 'line-through', display: 'block' }}
+                    >
+                      ${selectedPricing.regular}
+                    </span>
+                  )}
+                  <span
+                    className="hl-serif"
+                    style={{ fontSize: 20, color: 'var(--warm)' }}
+                  >
+                    ${selectedPricing?.gift ?? '—'}
+                  </span>
+                  {selectedPricing && (
+                    <span className="hl-mono" style={{ fontSize: 9, color: 'var(--warm)', display: 'block', letterSpacing: '0.18em' }}>
+                      {selectedPricing.discountPct}% gift discount
+                    </span>
+                  )}
+                </div>
               </div>
 
               {formData.personalMessage && (

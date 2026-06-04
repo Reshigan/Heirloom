@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { TapestryCanvas } from '../components/TapestryCanvas';
 import { HLogo } from '../components/HLogo';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { SecurityDot } from '../components/Frame';
 import { useListener } from '../../hooks/useListener';
 import { getDeferredPrompt, isIOS, isStandalone, onInstallStateChange, promptInstall, wasInstalled } from '../../lib/pwa';
 
@@ -22,6 +23,7 @@ function MktTopbar() {
         <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
         <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
         <span className="mkt-nav-hide-sm"><ThemeToggle /></span>
+        <SecurityDot size={7} />
       </span>
     </div>
   );
@@ -133,6 +135,39 @@ export function Marketing() {
             <p className="hl-prose dark" style={{ marginTop: 0 }}>{body}</p>
           </div>
         ))}
+      </div>
+
+      {/* privacy & compliance */}
+      <div style={{ padding: 'clamp(36px, 4vh, 56px) clamp(16px, 5vw, 56px)', borderTop: '1px solid var(--parchment-rule)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div className="hl-eyebrow dark">Protected by design · globally compliant</div>
+          <SecurityDot size={8} />
+        </div>
+        <p className="hl-prose dark" style={{ maxWidth: '60ch', marginTop: 0, marginBottom: 40 }}>
+          Your family's story is the most sensitive information there is. We treat it that way — by architecture, by law, and by principle.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 'clamp(20px, 3vh, 32px) clamp(24px, 4vw, 56px)' }}>
+          {([
+            ['AES-256 encrypted', 'Each entry is encrypted at rest with AES-256-GCM before it touches disk. Keys are derived per-family. We cannot read your memories.'],
+            ['GDPR compliant', 'Full compliance with the EU General Data Protection Regulation — right to access, right to erasure, right to portability, lawful basis documented.'],
+            ['POPIA compliant', 'South Africa\'s Protection of Personal Information Act — responsible party obligations, data subject rights, and retention limits honored.'],
+            ['CCPA / CPRA compliant', 'California Consumer Privacy Act — we do not sell personal data. Opt-out rights honored. No third-party data brokers.'],
+            ['PIPEDA compliant', 'Canada\'s federal private-sector privacy law. Consent-based processing, purpose limitation, and safeguard obligations met.'],
+            ['HTTPS everywhere', 'All traffic encrypted in transit via TLS 1.3. Cloudflare edge enforces HSTS. No plaintext transmission, ever.'],
+            ['Right to erasure', 'Delete your account and all personal data is permanently purged within 30 days. Export your full archive at any time.'],
+            ['No third-party tracking', 'We do not embed ad pixels, social trackers, or analytics that share your data with third parties. Your family stays yours.'],
+          ] as [string, string][]).map(([title, body]) => (
+            <div key={title}>
+              <div className="hl-eyebrow dark" style={{ marginBottom: 8 }}>{title}</div>
+              <p className="hl-prose dark" style={{ marginTop: 0, fontSize: 13, lineHeight: 1.6 }}>{body}</p>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--parchment-rule)', display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Link to="/privacy" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Privacy policy →</Link>
+          <Link to="/terms" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Terms of service →</Link>
+          <Link to="/security" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Security →</Link>
+        </div>
       </div>
 
       {/* pricing callout */}

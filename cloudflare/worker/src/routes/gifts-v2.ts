@@ -8,6 +8,15 @@ import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 import { readDescription } from '../lib/legacyArchive';
 
+function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export const giftsV2Routes = new Hono<AppEnv>();
 // Protected gifts routes (require auth) - mounted under protectedApp
 export const giftsV2ProtectedRoutes = new Hono<AppEnv>();
@@ -20,6 +29,16 @@ giftsV2ProtectedRoutes.post('/send', async (c) => {
 
   if (!body.memory_type || !body.memory_id || !body.recipient_email || !body.recipient_name) {
     return c.json({ error: 'memory_type, memory_id, recipient_email, and recipient_name are required' }, 400);
+  }
+
+  const VALID_MEMORY_TYPES = ['memory', 'letter', 'voice'];
+  if (!VALID_MEMORY_TYPES.includes(body.memory_type)) {
+    return c.json({ error: 'Invalid memory_type' }, 400);
+  }
+
+  // Validate recipient_email format to prevent header injection
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(body.recipient_email))) {
+    return c.json({ error: 'Invalid recipient email address' }, 400);
   }
 
   // Verify the memory exists and belongs to user
@@ -43,7 +62,8 @@ giftsV2ProtectedRoutes.post('/send', async (c) => {
 
   // Get sender info
   const sender = await c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first();
-  const senderName = `${sender?.first_name || ''} ${sender?.last_name || ''}`.trim() || 'Someone';
+  const senderNameRaw = `${sender?.first_name || ''} ${sender?.last_name || ''}`.trim() || 'Someone';
+  const senderName = escapeHtml(senderNameRaw);
 
   await c.env.DB.prepare(`
     INSERT INTO gifts (id, sender_id, memory_type, memory_id, recipient_email, recipient_name, personal_message, token, unlock_date, created_at)
@@ -70,9 +90,9 @@ giftsV2ProtectedRoutes.post('/send', async (c) => {
             <h1 style="color: #c9a959; font-family: Georgia, serif; margin: 8px 0;">You've received a gift</h1>
           </div>
           <p style="font-size: 18px; line-height: 1.6;">
-            <strong>${senderName}</strong> has shared something special with you: <em>"${memoryTitle}"</em>
+            <strong>${senderName}</strong> has shared something special with you: <em>&ldquo;${escapeHtml(memoryTitle)}&rdquo;</em>
           </p>
-          ${body.personal_message ? `<div style="background: #1a1a2e; padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 3px solid #c9a959;"><p style="font-style: italic; color: #f5f3ee;">"${body.personal_message}"</p></div>` : ''}
+          ${body.personal_message ? `<div style="background: #1a1a2e; padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 3px solid #c9a959;"><p style="font-style: italic; color: #f5f3ee;">&ldquo;${escapeHtml(String(body.personal_message))}&rdquo;</p></div>` : ''}
           <div style="text-align: center; margin: 32px 0;">
             <a href="${giftUrl}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #c9a959, #b8963e); color: #0a0c10; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px;">
               Unwrap Your Gift

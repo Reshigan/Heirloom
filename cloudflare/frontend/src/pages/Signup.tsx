@@ -322,6 +322,18 @@ export function Signup() {
               </span>
             </label>
             {errors.acceptedTerms ? <FieldError>{errors.acceptedTerms}</FieldError> : null}
+
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 14 }}>
+              <input
+                type="checkbox" checked={form.marketingConsent}
+                onChange={(e) => set({ marketingConsent: e.target.checked })}
+                style={{ accentColor: 'var(--warm)', marginTop: 4 }}
+              />
+              <span className="hl-serif" style={{ fontSize: 13, color: 'var(--parchment-dim)', lineHeight: 1.6, fontWeight: 400 }}>
+                I'm happy to receive occasional updates and prompts from Heirloom (optional).
+              </span>
+            </label>
+
             {errors.submit ? <FieldError>{errors.submit}</FieldError> : null}
 
             <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>

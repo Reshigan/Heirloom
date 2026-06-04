@@ -1,9 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { HLogo } from './HLogo';
 import { ThemeToggle } from './ThemeToggle';
+
+// ── System security status ─────────────────────────────────────────────────
+function useSystemStatus(): 'green' | 'red' | null {
+  const [status, setStatus] = useState<'green' | 'red' | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const r = await fetch('/api/health', { signal: AbortSignal.timeout(5000) });
+        if (!cancelled) setStatus(r.ok ? 'green' : 'red');
+      } catch {
+        if (!cancelled) setStatus('red');
+      }
+    };
+    check();
+    const id = setInterval(check, 60_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+  return status;
+}
+
+export function SecurityDot({ size = 6 }: { size?: number }) {
+  const status = useSystemStatus();
+  if (!status) return null;
+  return (
+    <span
+      title={status === 'green' ? 'All systems secure' : 'System issue — please check status'}
+      aria-label={status === 'green' ? 'Secure' : 'System issue'}
+      style={{
+        display: 'inline-block',
+        width: size,
+        height: size,
+        background: status === 'green' ? 'var(--safe)' : 'var(--danger)',
+        flexShrink: 0,
+        verticalAlign: 'middle',
+      }}
+    />
+  );
+}
 
 // ── UserMenu: initials button + dropdown (preserved from v1) ──────────────
 const menuItemStyle: React.CSSProperties = {
@@ -227,7 +266,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           ∞
         </span>
 
-        {/* right slot: action (hidden on mobile where BottomNav covers it) + theme toggle + user menu */}
+        {/* right slot: action (hidden on mobile where BottomNav covers it) + theme toggle + security dot + user menu */}
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
           {right ? (
             <span className="hl-link warm hl-topbar-action">{right}</span>
@@ -235,6 +274,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
             <Link to="/compose" className="hl-link warm hl-topbar-action">compose →</Link>
           )}
           <span className="hl-topbar-action"><ThemeToggle /></span>
+          <SecurityDot />
           <UserMenu />
         </span>
       </div>

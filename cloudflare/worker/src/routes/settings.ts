@@ -288,20 +288,23 @@ settingsRoutes.post('/change-password', async (c) => {
 // Get notification preferences
 settingsRoutes.get('/notifications', async (c) => {
   const userId = c.get('userId');
-  
-  // Get user's notification settings from a settings table or user table
-  // For now, return default preferences
-  const notifications = await c.env.DB.prepare(`
-    SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 50
-  `).bind(userId).all();
-  
+
+  const [notifications, prefs] = await Promise.all([
+    c.env.DB.prepare(`
+      SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 50
+    `).bind(userId).all(),
+    c.env.DB.prepare(`
+      SELECT * FROM notification_preferences WHERE user_id = ?
+    `).bind(userId).first(),
+  ]);
+
   return c.json({
     preferences: {
-      emailNotifications: true,
-      pushNotifications: true,
-      reminderEmails: true,
-      marketingEmails: false,
-      weeklyDigest: true,
+      emailNotifications: prefs ? !!prefs.email_notifications : true,
+      pushNotifications:  prefs ? !!prefs.push_enabled        : true,
+      reminderEmails:     prefs ? !!prefs.daily_reminders      : true,
+      marketingEmails:    prefs ? !!prefs.marketing_emails     : false,
+      weeklyDigest:       prefs ? !!prefs.weekly_digest        : true,
     },
     recentNotifications: notifications.results.map((n: any) => ({
       id: n.id,
@@ -318,14 +321,33 @@ settingsRoutes.get('/notifications', async (c) => {
 settingsRoutes.patch('/notifications', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
-  
-  // In a full implementation, this would update a user_settings table
-  // For now, just acknowledge the update
-  return c.json({
-    success: true,
-    preferences: body,
-    message: 'Notification preferences updated',
-  });
+
+  const now = new Date().toISOString();
+  const id = crypto.randomUUID();
+
+  // Upsert into notification_preferences
+  await c.env.DB.prepare(`
+    INSERT INTO notification_preferences
+      (id, user_id, push_enabled, daily_reminders, weekly_digest, email_notifications, marketing_emails, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(user_id) DO UPDATE SET
+      push_enabled         = excluded.push_enabled,
+      daily_reminders      = excluded.daily_reminders,
+      weekly_digest        = excluded.weekly_digest,
+      email_notifications  = excluded.email_notifications,
+      marketing_emails     = excluded.marketing_emails,
+      updated_at           = excluded.updated_at
+  `).bind(
+    id, userId,
+    body.pushNotifications  ? 1 : 0,
+    body.reminderEmails     ? 1 : 0,
+    body.weeklyDigest       ? 1 : 0,
+    body.emailNotifications ? 1 : 0,
+    body.marketingEmails    ? 1 : 0,
+    now, now,
+  ).run();
+
+  return c.json({ success: true, preferences: body });
 });
 
 // Mark notification as read
@@ -671,26 +693,85 @@ settingsRoutes.delete('/account', async (c) => {
     return c.json({ error: 'Password and confirmation are required' }, 400);
   }
 
-  const userRow = await c.env.DB.prepare(`SELECT password_hash FROM users WHERE id = ?`).bind(userId).first();
+  const userRow = await c.env.DB.prepare(
+    `SELECT u.password_hash, s.stripe_customer_id
+     FROM users u LEFT JOIN subscriptions s ON s.user_id = u.id
+     WHERE u.id = ?`
+  ).bind(userId).first();
   if (!userRow) return c.json({ error: 'User not found' }, 404);
   const validPw = await verifyStoredPassword(password, userRow.password_hash as string);
   if (!validPw) return c.json({ error: 'Incorrect password.' }, 401);
 
-  // Delete in order of dependencies
-  await c.env.DB.prepare(`DELETE FROM notifications WHERE user_id = ?`).bind(userId).run();
-  await c.env.DB.prepare(`DELETE FROM legacy_contacts WHERE user_id = ?`).bind(userId).run();
-  await c.env.DB.prepare(`DELETE FROM voice_recordings WHERE user_id = ?`).bind(userId).run();
-  await c.env.DB.prepare(`DELETE FROM letters WHERE user_id = ?`).bind(userId).run();
-  await c.env.DB.prepare(`DELETE FROM memories WHERE user_id = ?`).bind(userId).run();
-  await c.env.DB.prepare(`DELETE FROM family_members WHERE user_id = ?`).bind(userId).run();
-  await c.env.DB.prepare(`DELETE FROM subscriptions WHERE user_id = ?`).bind(userId).run();
-  await c.env.DB.prepare(`DELETE FROM sessions WHERE user_id = ?`).bind(userId).run();
-  await c.env.DB.prepare(`DELETE FROM users WHERE id = ?`).bind(userId).run();
+  // Collect R2 file keys and KV session IDs before deleting DB rows (GDPR Art. 17)
+  const [memoryFiles, voiceFiles, activeSessions] = await Promise.all([
+    c.env.DB.prepare(`SELECT file_key FROM memories WHERE user_id = ? AND file_key IS NOT NULL`).bind(userId).all(),
+    c.env.DB.prepare(`SELECT file_key FROM voice_recordings WHERE user_id = ? AND file_key IS NOT NULL`).bind(userId).all(),
+    c.env.DB.prepare(`SELECT id FROM sessions WHERE user_id = ?`).bind(userId).all(),
+  ]);
 
-  return c.json({
-    success: true,
-    message: 'Account deleted successfully',
-  });
+  // Collect all avatar R2 keys for this user
+  const avatarR2Keys: string[] = [];
+  try {
+    const avatarPrefix = `avatars/${userId}/`;
+    const listed = await c.env.STORAGE.list({ prefix: avatarPrefix });
+    for (const obj of listed.objects) avatarR2Keys.push(obj.key);
+  } catch {
+    // list may not be available on all binding versions — safe to skip
+  }
+
+  // Delete Stripe customer — personal data must leave the data processor (GDPR Art. 17 / POPIA §23)
+  const stripeCustomerId = userRow.stripe_customer_id as string | null;
+  if (stripeCustomerId && c.env.STRIPE_SECRET_KEY) {
+    try {
+      await fetch(`https://api.stripe.com/v1/customers/${stripeCustomerId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}` },
+      });
+    } catch {
+      // Non-blocking: Stripe purge can be retried manually via dashboard
+      console.error(`Stripe customer deletion failed for ${stripeCustomerId}`);
+    }
+  }
+
+  // Purge all user data — D1 does not enforce FK cascades by default, so every
+  // table with a user_id reference is deleted explicitly. Order: children first.
+  await c.env.DB.batch([
+    c.env.DB.prepare(`DELETE FROM thread_members WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM threads WHERE founder_user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM device_tokens WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM password_resets WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM shamir_shares WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM notifications WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM legacy_contacts WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM recipient_messages WHERE creator_user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM dead_man_switches WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM post_reminder_emails WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM wrapped_data WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM support_tickets WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM audit_logs WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM voice_recordings WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM letters WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM memories WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM family_members WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM subscriptions WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM sessions WHERE user_id = ?`).bind(userId),
+    c.env.DB.prepare(`DELETE FROM users WHERE id = ?`).bind(userId),
+  ]);
+
+  // Invalidate KV sessions immediately — JWT stays valid until TTL without this
+  await Promise.allSettled(
+    (activeSessions.results as any[]).map((s) => c.env.KV.delete(`session:${s.id}`))
+  );
+
+  // Delete R2 binary objects — run after DB purge (best-effort; DB is authoritative)
+  const fileKeys = [
+    ...(memoryFiles.results as any[]).map((r) => r.file_key as string),
+    ...(voiceFiles.results as any[]).map((r) => r.file_key as string),
+    ...avatarR2Keys,
+  ];
+  await Promise.allSettled(fileKeys.map((key) => c.env.STORAGE.delete(key)));
+
+  return c.json({ success: true, message: 'Account deleted successfully' });
 });
 
 // ============================================
@@ -842,8 +923,8 @@ settingsRoutes.get('/export', async (c) => {
         INSERT INTO audit_logs (id, user_id, action, details, created_at)
         VALUES (?, ?, 'DATA_EXPORT', ?, ?)
       `).bind(crypto.randomUUID(), userId, JSON.stringify({ exportedAt: exportData.exportedAt }), new Date().toISOString()).run();
-    } catch {
-      // audit_logs table may not exist, continue without logging
+    } catch (err) {
+      console.error('audit_logs INSERT failed:', err);
     }
     
     // Return as JSON with download headers

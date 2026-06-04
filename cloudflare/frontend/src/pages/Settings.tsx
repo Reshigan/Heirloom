@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
-import { settingsApi, exportApi } from '../services/api';
+import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { Frame } from '../loom/components/Frame';
 
 const RESPONSIVE_CSS = `
@@ -50,6 +50,41 @@ export function Settings() {
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [exportLoading, setExportLoading] = useState(false);
+
+  // Change password
+  const [pwStage, setPwStage] = useState<'idle' | 'form'>('idle');
+  const [pwCurrent, setPwCurrent] = useState('');
+  const [pwNew, setPwNew] = useState('');
+  const [pwConfirm, setPwConfirm] = useState('');
+  const [pwError, setPwError] = useState<string | null>(null);
+  const [pwFlash, setPwFlash] = useState(false);
+  const changePw = useMutation({
+    mutationFn: () => settingsApi.changePassword({ currentPassword: pwCurrent, newPassword: pwNew }),
+    onSuccess: () => {
+      setPwStage('idle');
+      setPwCurrent(''); setPwNew(''); setPwConfirm(''); setPwError(null);
+      setPwFlash(true);
+      setTimeout(() => setPwFlash(false), 3000);
+    },
+    onError: (err: any) => setPwError(err?.response?.data?.error ?? 'Incorrect current password.'),
+  });
+  const handleChangePw = () => {
+    if (pwNew.length < 8) { setPwError('New password must be at least 8 characters.'); return; }
+    if (pwNew !== pwConfirm) { setPwError('Passwords do not match.'); return; }
+    setPwError(null);
+    changePw.mutate();
+  };
+
+  // Dead-man's switch check-in
+  const deadmanStatus = useQuery({
+    queryKey: ['deadman', 'status'],
+    queryFn: () => deadmanApi.getStatus().then((r) => r.data).catch(() => null),
+  });
+  const checkIn = useMutation({
+    mutationFn: () => deadmanApi.checkIn(),
+    onSuccess: () => deadmanStatus.refetch(),
+  });
+  const dmStatus = (deadmanStatus.data ?? {}) as any;
 
   const exitQuoteQ = useQuery({
     queryKey: ['exit-quote'],
@@ -138,6 +173,49 @@ export function Settings() {
 
           <Row label="email" hint="primary identifier · cannot be changed">{user?.email ?? '—'}</Row>
 
+          {/* Change password */}
+          <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)' }}>
+            {pwStage === 'idle' ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <button type="button" onClick={() => setPwStage('form')}
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
+                  change password →
+                </button>
+                {pwFlash && <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>∞ updated</span>}
+              </div>
+            ) : (
+              <div style={{ maxWidth: 360 }}>
+                <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>change password</div>
+                {([
+                  { label: 'current', val: pwCurrent, set: setPwCurrent, type: 'password', placeholder: 'current password' },
+                  { label: 'new',     val: pwNew,     set: setPwNew,     type: 'password', placeholder: 'new password (min 8)' },
+                  { label: 'confirm', val: pwConfirm, set: setPwConfirm, type: 'password', placeholder: 'confirm new password' },
+                ] as const).map((f) => (
+                  <input
+                    key={f.label}
+                    type={f.type}
+                    value={f.val}
+                    onChange={(e) => { f.set(e.target.value); setPwError(null); }}
+                    onKeyDown={(e) => e.key === 'Enter' && pwCurrent && pwNew && pwConfirm && handleChangePw()}
+                    placeholder={f.placeholder}
+                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
+                  />
+                ))}
+                {pwError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{pwError}</p>}
+                <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
+                  <button type="button" onClick={handleChangePw} disabled={!pwCurrent || !pwNew || !pwConfirm || changePw.isPending}
+                    className="hl-btn" style={{ fontSize: 11, padding: '9px 18px', opacity: (!pwCurrent || !pwNew || !pwConfirm || changePw.isPending) ? 0.5 : 1 }}>
+                    {changePw.isPending ? 'updating…' : 'update password'}
+                  </button>
+                  <button type="button" onClick={() => { setPwStage('idle'); setPwCurrent(''); setPwNew(''); setPwConfirm(''); setPwError(null); }}
+                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                    cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* ── The thread ────────────────────────────────── */}
           <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>the thread</div>
 
@@ -146,9 +224,38 @@ export function Settings() {
               manage →
             </Link>
           </Row>
-          <Row label="dead-man's switch" hint="warns at 7 days · triggers at 14 days">
-            armed · check-in every 90 days
-          </Row>
+          <div className="hl-setting-row">
+            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', paddingTop: 2 }}>
+              dead-man's switch
+            </div>
+            <div>
+              <div className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', fontWeight: 400, marginBottom: 6 }}>
+                {dmStatus.status === 'active' ? (
+                  <>armed · next check-in due <span style={{ color: 'var(--warm)' }}>{dmStatus.nextCheckInDue ? new Date(dmStatus.nextCheckInDue).toLocaleDateString() : '—'}</span></>
+                ) : dmStatus.status === 'warning' ? (
+                  <span style={{ color: 'var(--dye-madder)' }}>overdue — check in now</span>
+                ) : deadmanStatus.isLoading ? (
+                  <span style={{ color: 'var(--bone-faint)' }}>loading…</span>
+                ) : (
+                  'not configured'
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                {(dmStatus.status === 'active' || dmStatus.status === 'warning') && (
+                  <button type="button" onClick={() => checkIn.mutate()} disabled={checkIn.isPending}
+                    style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--warm)', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: checkIn.isPending ? 0.5 : 1 }}>
+                    {checkIn.isPending ? 'checking in…' : 'check in now →'}
+                  </button>
+                )}
+                <Link to="/inherit" style={{ color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
+                  configure →
+                </Link>
+              </div>
+              <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', fontWeight: 400, marginTop: 3 }}>
+                warns at 7 days · triggers at 14 days · thread passes to steward
+              </div>
+            </div>
+          </div>
           <Row label="export" hint="full JSON archive of all your memories, letters, and voice">
             <button
               type="button"

@@ -9,8 +9,6 @@ import { PwaNudge } from './components/PwaNudge';
 import { BottomNav } from './loom/components/BottomNav';
 import { OfflineGate } from './loom/pages/Offline';
 import { useLoomTheme } from './loom/theme';
-import './loom/styles/loom.css';
-import './loom/styles/loom-bridge.css';
 
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
