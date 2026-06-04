@@ -42,6 +42,7 @@ export function Record() {
   const chunksRef = useRef<Blob[]>([]);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mimeTypeRef = useRef<string>('audio/webm');
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     return () => {
@@ -49,6 +50,14 @@ export function Record() {
       if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
   }, [audioUrl]);
+
+  // Stop microphone on unmount — prevents the browser mic indicator staying active
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      if (mediaRecorderRef.current?.state !== 'inactive') mediaRecorderRef.current?.stop();
+    };
+  }, []);
 
   const startTick = () => {
     tickRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
@@ -64,6 +73,7 @@ export function Record() {
     setError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
       const supportedType = [
         'audio/webm;codecs=opus',
         'audio/webm',

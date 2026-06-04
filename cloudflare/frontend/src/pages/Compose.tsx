@@ -198,16 +198,24 @@ function EntryDateField({
   );
 }
 
+/* ─── Draft persistence ─────────────────────────────────────────────── */
+const DRAFT_KEY = 'hl-compose-draft';
+type DraftData = { title?: string; body?: string; addresseeType?: AddresseeType; addresseeName?: string; entryDate?: string };
+function readDraft(): DraftData {
+  try { const r = localStorage.getItem(DRAFT_KEY); return r ? (JSON.parse(r) as DraftData) : {}; }
+  catch { return {}; }
+}
+
 /* ─── Main Compose page ──────────────────────────────────────────────── */
 export function Compose() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [addresseeType, setAddresseeType] = useState<AddresseeType>('family');
-  const [addresseeName, setAddresseeName] = useState('');
-  const [entryDate, setEntryDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+  const [addresseeType, setAddresseeType] = useState<AddresseeType>(() => (readDraft().addresseeType ?? 'family') as AddresseeType);
+  const [addresseeName, setAddresseeName] = useState(() => readDraft().addresseeName ?? '');
+  const [entryDate, setEntryDate] = useState(() => readDraft().entryDate ?? new Date().toISOString().slice(0, 10));
+  const [title, setTitle] = useState(() => readDraft().title ?? '');
+  const [body, setBody] = useState(() => readDraft().body ?? '');
   const [visibility, setVisibility] = useState<Visibility>('family');
   const [dye, setDye] = useState('walnut');
   const [error, setError] = useState<string | null>(null);
@@ -216,6 +224,7 @@ export function Compose() {
   const [writingFocused, setWritingFocused] = useState(false);
   const wovenAtRef = useRef<number | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setRevealed(true), 80);
@@ -229,6 +238,28 @@ export function Compose() {
     el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
   }, [body]);
+
+  // Autosave draft to localStorage — debounced 800ms; cleared on successful save
+  useEffect(() => {
+    if (woven) return;
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      if (body.trim() || title.trim()) {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ addresseeType, addresseeName, entryDate, title, body }));
+      } else {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    }, 800);
+    return () => { if (draftTimerRef.current) clearTimeout(draftTimerRef.current); };
+  }, [body, title, addresseeType, addresseeName, entryDate, woven]);
+
+  // Guard browser tab close when there's unsaved content within the debounce window
+  useEffect(() => {
+    if (!body.trim() || woven) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); return (e.returnValue = ''); };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [body, woven]);
 
   const wordCount = body.trim() ? body.trim().split(/\s+/).length : 0;
 
@@ -272,6 +303,7 @@ export function Compose() {
         })
         .then(r => r.data),
     onSuccess: () => {
+      localStorage.removeItem(DRAFT_KEY);
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
       setWoven(true);
     },
@@ -279,6 +311,15 @@ export function Compose() {
       setError(err?.response?.data?.error ?? 'Could not save the entry.');
     },
   });
+
+  // Flush draft immediately on cancel so in-flight debounce doesn't race navigation
+  const handleCancel = useCallback(() => {
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    if ((body.trim() || title.trim()) && !woven) {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ addresseeType, addresseeName, entryDate, title, body }));
+    }
+    navigate('/memories');
+  }, [body, title, addresseeType, addresseeName, entryDate, woven, navigate]);
 
   if (woven) {
     // Synthetic entry representing the just-woven memory
@@ -358,7 +399,7 @@ export function Compose() {
 
         <button
           type="button"
-          onClick={() => navigate('/memories')}
+          onClick={handleCancel}
           style={{
             background: 'none',
             border: 'none',
@@ -555,7 +596,7 @@ export function Compose() {
           >
             <button
               type="button"
-              onClick={() => navigate('/memories')}
+              onClick={handleCancel}
               style={{
                 background: 'transparent',
                 border: '1px solid var(--rule)',

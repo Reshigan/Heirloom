@@ -828,8 +828,6 @@ html {
 .hl-topbar .hl-link.warm { color: var(--warm); }
 /* hide compose → on mobile — BottomNav already provides it */
 @media (max-width: 639px) { .hl-topbar-action { display: none !important; } }
-/* hide center counter on mobile — left+right fill the bar */
-@media (max-width: 639px) { .hl-topbar .hl-counter { display: none !important; } }
 
 /* user menu trigger: 28px visual, 44px tap target via pseudo-element */
 .hl-topbar-user-btn {

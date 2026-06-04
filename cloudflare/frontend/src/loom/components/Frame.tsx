@@ -69,6 +69,8 @@ function UserMenu() {
       <button
         type="button"
         className="hl-topbar-user-btn"
+        aria-expanded={open}
+        aria-label="User menu"
         onClick={() => setOpen((v) => !v)}
         onBlur={() => setTimeout(() => setOpen(false), 200)}
         style={{
@@ -246,6 +248,20 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
       className="hl-screen"
       style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
     >
+      <a
+        href="#main-content"
+        style={{
+          position: 'absolute', top: -100, left: 8, zIndex: 100,
+          padding: '8px 16px', background: 'var(--ink)', color: 'var(--bone)',
+          fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.08em',
+          textDecoration: 'none', border: '1px solid var(--bone-dim)',
+          transition: 'top 100ms',
+        }}
+        onFocus={e => (e.currentTarget.style.top = '8px')}
+        onBlur={e => (e.currentTarget.style.top = '-100px')}
+      >
+        skip to content
+      </a>
       {/* Loom 3 absolute topbar — no nav links */}
       <div className="hl-topbar">
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
@@ -280,6 +296,8 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
 
       {/* scrollable content area — sits below the topbar, above the edge */}
       <div
+        id="main-content"
+        role="main"
         className="hl-frame-scroll"
         style={{
           position: 'absolute',
