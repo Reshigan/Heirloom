@@ -4,7 +4,7 @@ import { useLoomTheme, type LoomTheme } from '../theme';
 /**
  * paper · vault · system — three-mode theme switcher.
  * Displayed as a small mono-caps segmented control.
- * Default is 'light' (paper). Persisted across sessions.
+ * Default is 'dark' (vault). Persisted across sessions.
  */
 export function ThemeToggle() {
   const { theme, setTheme } = useLoomTheme();
