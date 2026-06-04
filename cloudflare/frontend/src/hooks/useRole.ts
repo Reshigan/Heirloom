@@ -32,5 +32,6 @@ export function useRole(): UserRole {
   if (tier === 'FOUNDER') return 'founder';
   if (tier === 'FAMILY' && !isTrialing) return 'family';
   if (isTrialing) return 'trial';
-  return 'family'; // STARTER with active sub fallback
+  if (tier === 'FREE' || tier === 'STARTER') return 'visitor';
+  return 'family';
 }

@@ -264,7 +264,16 @@ authRoutes.post('/login', async (c) => {
   await c.env.DB.prepare(
     'UPDATE users SET last_login_at = ? WHERE id = ?'
   ).bind(new Date().toISOString(), user.id).run();
-  
+
+  // Bootstrap default thread so Tapestry canvas works immediately after login.
+  let defaultThreadId: string | null = null;
+  try {
+    const t = await getOrCreateDefaultThread(c.env, user.id as string);
+    defaultThreadId = t?.threadId ?? null;
+  } catch (err) {
+    console.error('[auth/login] default thread bootstrap failed', err);
+  }
+
   return c.json({
     user: {
       id: user.id,
@@ -274,6 +283,7 @@ authRoutes.post('/login', async (c) => {
       avatarUrl: user.avatar_url,
       emailVerified: !!user.email_verified,
       twoFactorEnabled: !!user.two_factor_enabled,
+      defaultThreadId,
     },
     token,
     refreshToken,

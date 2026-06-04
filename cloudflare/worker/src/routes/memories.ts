@@ -300,47 +300,6 @@ memoriesRoutes.get('/file/*', async (c) => {
   }
 });
 
-// Get a specific memory
-memoriesRoutes.get('/:id', async (c) => {
-  const userId = c.get('userId');
-  const memoryId = c.req.param('id');
-  
-  const memory = await c.env.DB.prepare(`
-    SELECT * FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL
-  `).bind(memoryId, userId).first();
-
-  if (!memory) {
-    return c.json({ error: 'Memory not found' }, 404);
-  }
-
-  // Get recipients
-  const recipients = await c.env.DB.prepare(`
-    SELECT fm.* FROM family_members fm
-    JOIN memory_recipients mr ON fm.id = mr.family_member_id
-    WHERE mr.memory_id = ?
-  `).bind(memoryId).all();
-
-  return c.json({
-    id: memory.id,
-    type: memory.type,
-    title: memory.title,
-    description: await readDescription(c.env, memory),
-    fileUrl: memory.file_url,
-    fileKey: memory.file_key,
-    fileSize: memory.file_size,
-    mimeType: memory.mime_type,
-    metadata: memory.metadata ? JSON.parse(memory.metadata as string) : null,
-    encrypted: !!memory.encrypted,
-    recipients: recipients.results.map((r: any) => ({
-      id: r.id,
-      name: r.name,
-      relationship: r.relationship,
-    })),
-    createdAt: memory.created_at,
-    updatedAt: memory.updated_at,
-  });
-});
-
 // Memories addressed to the current user by family members
 memoriesRoutes.get('/received', async (c) => {
   const userId = c.get('userId');
@@ -382,6 +341,47 @@ memoriesRoutes.get('/received', async (c) => {
       from: `${m.from_first || ''} ${m.from_last || ''}`.trim(),
       metadata: m.metadata ? JSON.parse(m.metadata) : null,
     })),
+  });
+});
+
+// Get a specific memory
+memoriesRoutes.get('/:id', async (c) => {
+  const userId = c.get('userId');
+  const memoryId = c.req.param('id');
+  
+  const memory = await c.env.DB.prepare(`
+    SELECT * FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL
+  `).bind(memoryId, userId).first();
+
+  if (!memory) {
+    return c.json({ error: 'Memory not found' }, 404);
+  }
+
+  // Get recipients
+  const recipients = await c.env.DB.prepare(`
+    SELECT fm.* FROM family_members fm
+    JOIN memory_recipients mr ON fm.id = mr.family_member_id
+    WHERE mr.memory_id = ?
+  `).bind(memoryId).all();
+
+  return c.json({
+    id: memory.id,
+    type: memory.type,
+    title: memory.title,
+    description: await readDescription(c.env, memory),
+    fileUrl: memory.file_url,
+    fileKey: memory.file_key,
+    fileSize: memory.file_size,
+    mimeType: memory.mime_type,
+    metadata: memory.metadata ? JSON.parse(memory.metadata as string) : null,
+    encrypted: !!memory.encrypted,
+    recipients: recipients.results.map((r: any) => ({
+      id: r.id,
+      name: r.name,
+      relationship: r.relationship,
+    })),
+    createdAt: memory.created_at,
+    updatedAt: memory.updated_at,
   });
 });
 

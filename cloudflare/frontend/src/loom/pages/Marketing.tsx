@@ -166,7 +166,7 @@ export function Marketing() {
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--parchment-rule)', display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center' }}>
           <Link to="/privacy" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Privacy policy →</Link>
           <Link to="/terms" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Terms of service →</Link>
-          <Link to="/security" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Security →</Link>
+          <Link to="/privacy" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Security →</Link>
         </div>
       </div>
 

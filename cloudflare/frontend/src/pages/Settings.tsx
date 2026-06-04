@@ -130,7 +130,7 @@ export function Settings() {
     onSuccess: () => refetchNotifs(),
   });
 
-  const prefs = (notifData ?? {}) as Record<string, boolean>;
+  const prefs = ((notifData as any)?.preferences ?? {}) as Record<string, boolean>;
 
   return (
     <>
@@ -149,7 +149,7 @@ export function Settings() {
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>first name</div>
             <input
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e) => { setFirstName(e.target.value); setSavedFlash(false); }}
               style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
@@ -157,7 +157,7 @@ export function Settings() {
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>last name</div>
             <input
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={(e) => { setLastName(e.target.value); setSavedFlash(false); }}
               style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>

@@ -153,7 +153,7 @@ export function Record() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['memories'] });
+      queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
       navigate('/memories');
     },
     onError: (err: unknown) => {

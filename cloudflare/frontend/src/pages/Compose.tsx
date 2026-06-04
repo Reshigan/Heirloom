@@ -262,7 +262,7 @@ export function Compose() {
         })
         .then(r => r.data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['memories'] });
+      queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
       setWoven(true);
     },
     onError: (err: any) => {

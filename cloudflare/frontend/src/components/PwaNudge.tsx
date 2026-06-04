@@ -140,7 +140,7 @@ export function PwaNudge() {
       style={{
         position: 'fixed',
         insetInline: 0,
-        bottom: isAuthenticated ? 'calc(52px + env(safe-area-inset-bottom, 0px))' : 0,
+        bottom: isAuthenticated ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : 0,
         zIndex: 60,
         padding: isAuthenticated ? '0 16px 16px' : '0 16px max(16px, env(safe-area-inset-bottom, 16px))',
         pointerEvents: 'none',
