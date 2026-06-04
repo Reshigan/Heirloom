@@ -56,9 +56,11 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Allow the page to tell a waiting worker to take over immediately.
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  // Wipe the per-user API cache on logout so the next user on the device
+  // never reads a previous user's memories/letters from the cache.
+  if (event.data === 'CLEAR_API_CACHE') caches.delete(API_CACHE);
 });
 
 self.addEventListener('fetch', (event) => {
@@ -165,8 +167,11 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // ── Background sync relay ────────────────────────────────────────────────────
-// When the device reconnects and the app is closed, the OS fires this event.
-// We relay it to any active client windows so they can drain the offline queue.
+// Relay 'hl-queue-sync' to any OPEN client windows so they can drain the queue.
+// NOTE: this only works when the app is already open in a tab. When the app
+// is closed the clients array is empty and the relay is a no-op. Full
+// closed-app sync would require the SW to read IndexedDB and call the API
+// directly (a future enhancement once VAPID + auth-token forwarding are wired).
 self.addEventListener('sync', (event) => {
   if (event.tag === 'hl-queue-sync') {
     event.waitUntil(

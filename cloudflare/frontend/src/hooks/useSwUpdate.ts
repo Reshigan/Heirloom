@@ -29,7 +29,7 @@ export function useSwUpdate() {
               setUpdateReady(true);
             }
           });
-        });
+        }, { once: true }); // once: prevent listener accumulation on repeated check() calls
 
         reg.update().catch(() => {});
       } catch { /* not available in this context */ }

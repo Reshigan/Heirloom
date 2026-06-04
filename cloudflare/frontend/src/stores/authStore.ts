@@ -122,6 +122,11 @@ export const useAuthStore = create<AuthState>()(
               .filter((k) => k.startsWith('hl-compose-draft:'))
               .forEach((k) => localStorage.removeItem(k));
           } catch { /* ignore — private browsing or quota issues */ }
+          // Tell the SW to wipe the per-user API response cache so the next user
+          // on the same device doesn't see this user's memories/letters offline.
+          try {
+            navigator.serviceWorker?.controller?.postMessage('CLEAR_API_CACHE');
+          } catch { /* SW not available in this context */ }
           set({ user: null, isAuthenticated: false });
         }
       },

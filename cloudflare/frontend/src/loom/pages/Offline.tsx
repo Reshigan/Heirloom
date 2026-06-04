@@ -288,17 +288,24 @@ function useSyncHoldingQueue(online: boolean): void {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
   const wasOfflineRef = useRef(false);
+  const isSyncingRef = useRef(false);
 
   useEffect(() => {
     if (!online) {
       wasOfflineRef.current = true;
       return;
     }
-    if (!wasOfflineRef.current || !isAuthenticated) return;
-    wasOfflineRef.current = false;
+    // Guard: only sync on the offline→online transition, and only once at a time
+    if (!wasOfflineRef.current || !isAuthenticated || isSyncingRef.current) return;
 
     const queue = readQueue();
-    if (queue.length === 0) return;
+    if (queue.length === 0) {
+      wasOfflineRef.current = false;
+      return;
+    }
+
+    let active = true;
+    isSyncingRef.current = true;
 
     Promise.allSettled(
       queue.map(async (entry) => {
@@ -311,6 +318,10 @@ function useSyncHoldingQueue(online: boolean): void {
         return entry.id;
       })
     ).then((results) => {
+      // Only update state if the component is still mounted
+      isSyncingRef.current = false;
+      wasOfflineRef.current = false;
+      if (!active) return;
       const synced = results
         .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
         .map((r) => r.value);
@@ -321,6 +332,8 @@ function useSyncHoldingQueue(online: boolean): void {
         queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
       }
     });
+
+    return () => { active = false; };
   }, [online, isAuthenticated, queryClient]);
 }
 
