@@ -70,8 +70,14 @@ export function Family() {
   const [inviteForm, setInviteForm] = useState({ name: '', email: '' });
   const [error, setError] = useState<string | null>(null);
   const [inviteSent, setInviteSent] = useState(false);
+  const [lastInviteCode, setLastInviteCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<FamilyMember | null>(null);
+  const [editTarget, setEditTarget] = useState<FamilyMember | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editRelationship, setEditRelationship] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editError, setEditError] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['family'],
@@ -113,8 +119,9 @@ export function Family() {
         email: inviteForm.email.trim(),
         name: inviteForm.name.trim() || undefined,
       }),
-    onSuccess: () => {
+    onSuccess: (res: any) => {
       setInviteSent(true);
+      setLastInviteCode((res?.data as any)?.inviteCode ?? null);
       setInviteForm({ name: '', email: '' });
       setError(null);
       queryClient.invalidateQueries({ queryKey: ['invites'] });
@@ -139,6 +146,23 @@ export function Family() {
     mutationFn: (id: string) => familyApi.restore(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
+    },
+  });
+
+  const updateMember = useMutation({
+    mutationFn: () =>
+      familyApi.update(editTarget!.id, {
+        name: editName.trim(),
+        relationship: editRelationship.trim(),
+        email: editEmail.trim() || undefined,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['family'] });
+      setEditTarget(null);
+      setEditError(null);
+    },
+    onError: (err: any) => {
+      setEditError(err?.response?.data?.error ?? 'Could not save changes.');
     },
   });
 
@@ -169,8 +193,11 @@ export function Family() {
     invite.mutate();
   };
 
-  const copyLink = () => {
-    navigator.clipboard.writeText('https://heirloom.blue/signup').then(() => {
+  const copyLink = (code?: string | null) => {
+    const url = code
+      ? `https://heirloom.blue/join?code=${code}`
+      : 'https://heirloom.blue/signup';
+    navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -385,7 +412,7 @@ export function Family() {
                   </button>
                   <button
                     type="button"
-                    onClick={copyLink}
+                    onClick={() => copyLink()}
                     style={{
                       background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                       fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.18em',
@@ -415,7 +442,7 @@ export function Family() {
                   </button>
                   <button
                     type="button"
-                    onClick={copyLink}
+                    onClick={() => copyLink(lastInviteCode)}
                     style={{
                       background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                       fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.18em',
@@ -423,7 +450,7 @@ export function Family() {
                       transition: 'color 180ms var(--ease)', touchAction: 'manipulation', alignSelf: 'center',
                     }}
                   >
-                    {copied ? 'link copied' : 'copy signup link'}
+                    {copied ? 'link copied' : 'copy invite link'}
                   </button>
                 </div>
               </div>
@@ -504,21 +531,35 @@ export function Family() {
                     </div>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => cancelInvite.mutate(inv.id)}
-                  disabled={cancelInvite.isPending}
-                  style={{
-                    background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                    fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
-                    textTransform: 'uppercase', color: 'var(--bone-faint)',
-                    transition: 'color 180ms var(--ease)', touchAction: 'manipulation', flexShrink: 0,
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--dye-madder)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
-                >
-                  cancel
-                </button>
+                <div style={{ display: 'flex', gap: 16, flexShrink: 0, alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => copyLink(inv.invite_code)}
+                    style={{
+                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                      fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
+                      textTransform: 'uppercase', color: 'var(--bone-dim)',
+                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                    }}
+                  >
+                    copy link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => cancelInvite.mutate(inv.id)}
+                    disabled={cancelInvite.isPending}
+                    style={{
+                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                      fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
+                      textTransform: 'uppercase', color: 'var(--bone-faint)',
+                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--dye-madder)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                  >
+                    cancel
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -545,66 +586,141 @@ export function Family() {
             {members.map((m) => {
               const dyeKey = m.dye?.toLowerCase() ?? '';
               const dyeColor = dyeKey && DYE_VARS[dyeKey] ? DYE_VARS[dyeKey] : null;
+              const isEditing = editTarget?.id === m.id;
               return (
-                <div
-                  key={m.id}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '8px 1fr auto 28px',
-                    gap: 16,
-                    paddingTop: 16,
-                    paddingBottom: 16,
-                    borderBottom: '1px solid var(--rule)',
-                    alignItems: 'center',
-                    minHeight: 56,
-                  }}
-                >
-                  <span
-                    aria-hidden
-                    style={{
-                      display: 'block', width: 8, height: 8, borderRadius: 0,
-                      background: dyeColor ?? 'transparent',
-                      border: dyeColor ? undefined : '1px solid var(--rule)',
-                      flexShrink: 0,
-                    }}
-                  />
+                <div key={m.id} style={{ borderBottom: '1px solid var(--rule)' }}>
                   <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => navigate(`/person/${m.id}`)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/person/${m.id}`); }}
-                    style={{ cursor: 'pointer', outline: 'none' }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '0.75'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '1'; }}
-                  >
-                    <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: 'var(--bone)', lineHeight: 1.25, transition: 'opacity 180ms var(--ease)' }}>
-                      {m.name}
-                    </div>
-                    {(m.relationship || m.role) && (
-                      <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-dim)', marginTop: 3, lineHeight: 1.2 }}>
-                        {[m.relationship, m.role].filter(Boolean).join(' · ')}
-                      </div>
-                    )}
-                  </div>
-                  <div className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', textAlign: 'right' }}>
-                    {formatDate(m.createdAt)}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteTarget(m)}
-                    className="family-member-delete"
                     style={{
-                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                      width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: 'transparent', fontSize: 18, lineHeight: 1,
-                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                      display: 'grid',
+                      gridTemplateColumns: '8px 1fr auto 28px',
+                      gap: 16,
+                      paddingTop: 16,
+                      paddingBottom: isEditing ? 8 : 16,
+                      alignItems: 'center',
+                      minHeight: 56,
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.28)'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'transparent'; }}
-                    aria-label={`remove ${m.name}`}
                   >
-                    ×
-                  </button>
+                    <span
+                      aria-hidden
+                      style={{
+                        display: 'block', width: 8, height: 8, borderRadius: 0,
+                        background: dyeColor ?? 'transparent',
+                        border: dyeColor ? undefined : '1px solid var(--rule)',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => navigate(`/person/${m.id}`)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/person/${m.id}`); }}
+                        style={{ cursor: 'pointer', outline: 'none', display: 'inline-block' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '0.75'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '1'; }}
+                      >
+                        <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: 'var(--bone)', lineHeight: 1.25, transition: 'opacity 180ms var(--ease)' }}>
+                          {m.name}
+                        </div>
+                        {(m.relationship || m.role) && (
+                          <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-dim)', marginTop: 3, lineHeight: 1.2 }}>
+                            {[m.relationship, m.role].filter(Boolean).join(' · ')}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (isEditing) {
+                            setEditTarget(null);
+                            setEditError(null);
+                          } else {
+                            setEditTarget(m);
+                            setEditName(m.name);
+                            setEditRelationship(m.relationship ?? '');
+                            setEditEmail(m.email ?? '');
+                            setEditError(null);
+                          }
+                        }}
+                        style={{
+                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                          fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)',
+                          letterSpacing: '0.18em', textTransform: 'uppercase',
+                          transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                          marginTop: 6, display: 'block',
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                      >
+                        {isEditing ? 'cancel' : 'edit →'}
+                      </button>
+                    </div>
+                    <div className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', textAlign: 'right' }}>
+                      {formatDate(m.createdAt)}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(m)}
+                      className="family-member-delete"
+                      style={{
+                        background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                        width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'transparent', fontSize: 18, lineHeight: 1,
+                        transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.28)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'transparent'; }}
+                      aria-label={`remove ${m.name}`}
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  {/* Inline edit form */}
+                  {isEditing && (
+                    <div style={{ paddingBottom: 20, paddingLeft: 24 }}>
+                      <input
+                        value={editName}
+                        onChange={(e) => { setEditName(e.target.value); setEditError(null); }}
+                        placeholder="name"
+                        style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                      />
+                      <input
+                        value={editRelationship}
+                        onChange={(e) => { setEditRelationship(e.target.value); setEditError(null); }}
+                        placeholder="relationship"
+                        style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                      />
+                      <input
+                        type="email"
+                        value={editEmail}
+                        onChange={(e) => { setEditEmail(e.target.value); setEditError(null); }}
+                        placeholder="email — optional"
+                        style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                      />
+                      {editError && (
+                        <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
+                      )}
+                      <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginTop: 4 }}>
+                        <button
+                          type="button"
+                          className="hl-btn"
+                          onClick={() => updateMember.mutate()}
+                          disabled={!editName.trim() || !editRelationship.trim() || updateMember.isPending}
+                          style={{ fontSize: 11, padding: '9px 18px', opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.5 : 1 }}
+                        >
+                          {updateMember.isPending ? 'saving…' : 'save changes'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setEditTarget(null); setEditError(null); }}
+                          style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}
+                        >
+                          cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

@@ -285,6 +285,104 @@ settingsRoutes.post('/change-password', async (c) => {
   return c.json({ success: true, message: 'Password updated successfully' });
 });
 
+// Change email
+settingsRoutes.post('/change-email', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json();
+
+  const { newEmail, password } = body;
+
+  if (!newEmail || !password) {
+    return c.json({ error: 'newEmail and password are required' }, 400);
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(newEmail)) {
+    return c.json({ error: 'Invalid email format' }, 400);
+  }
+
+  // Get current user
+  const user = await c.env.DB.prepare(`
+    SELECT email, password_hash FROM users WHERE id = ?
+  `).bind(userId).first();
+
+  if (!user) {
+    return c.json({ error: 'User not found' }, 404);
+  }
+
+  // Ensure new email is different from current
+  if ((user.email as string).toLowerCase() === newEmail.toLowerCase()) {
+    return c.json({ error: 'New email must be different from your current email' }, 400);
+  }
+
+  // Verify password using the same PBKDF2 pattern as change-password
+  const encoder = new TextEncoder();
+  const [storedSalt, storedHash] = (user.password_hash as string).split(':');
+  const saltBuffer = Uint8Array.from(atob(storedSalt), c => c.charCodeAt(0));
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+
+  const derivedBits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: saltBuffer,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    256
+  );
+
+  const currentHash = btoa(String.fromCharCode(...new Uint8Array(derivedBits)));
+
+  if (currentHash !== storedHash) {
+    return c.json({ error: 'Incorrect password' }, 401);
+  }
+
+  // Check that no other user already has this email
+  const existing = await c.env.DB.prepare(`
+    SELECT id FROM users WHERE email = ? AND id != ?
+  `).bind(newEmail, userId).first();
+
+  if (existing) {
+    return c.json({ error: 'That email address is already in use' }, 409);
+  }
+
+  const now = new Date().toISOString();
+
+  // Update email and mark as unverified
+  await c.env.DB.prepare(`
+    UPDATE users SET email = ?, email_verified = 0, updated_at = ? WHERE id = ?
+  `).bind(newEmail, now, userId).run();
+
+  // Send confirmation email to the new address
+  const safeEmail = newEmail.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  try {
+    await sendEmail(c.env, {
+      from: 'Heirloom <accounts@heirloom.blue>',
+      to: newEmail,
+      subject: 'Your Heirloom email address has been changed',
+      html: `<p style="font-family:Georgia,serif;font-size:16px;color:#0e0e0c;line-height:1.7;">
+        Your Heirloom account email address has been updated to <strong>${safeEmail}</strong>.<br><br>
+        If you did not make this change, please contact us immediately by replying to this email.<br><br>
+        <a href="https://heirloom.blue/settings" style="color:#b07a4a;">Visit your settings →</a>
+      </p>`,
+    });
+  } catch (err) {
+    console.error('Failed to send email-change confirmation:', err);
+    // Non-blocking: email delivery failure does not roll back the change
+  }
+
+  return c.json({ success: true });
+});
+
 // Get notification preferences
 settingsRoutes.get('/notifications', async (c) => {
   const userId = c.get('userId');

@@ -52,6 +52,27 @@ export function Settings() {
   const [exportLoading, setExportLoading] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
+  // Change email
+  const [emailStage, setEmailStage] = useState<'idle' | 'form'>('idle');
+  const [newEmail, setNewEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailFlash, setEmailFlash] = useState(false);
+  const changeEmail = useMutation({
+    mutationFn: () => settingsApi.changeEmail({ newEmail, password: emailPassword }),
+    onSuccess: () => {
+      setEmailStage('idle');
+      setNewEmail(''); setEmailPassword(''); setEmailError(null);
+      setEmailFlash(true);
+    },
+    onError: (err: any) => setEmailError(err?.response?.data?.error ?? 'Incorrect password or invalid email.'),
+  });
+  const handleChangeEmail = () => {
+    if (!newEmail.includes('@')) { setEmailError('Enter a valid email address.'); return; }
+    setEmailError(null);
+    changeEmail.mutate();
+  };
+
   // Change password
   const [pwStage, setPwStage] = useState<'idle' | 'form'>('idle');
   const [pwCurrent, setPwCurrent] = useState('');
@@ -172,7 +193,51 @@ export function Settings() {
             )}
           </div>
 
-          <Row label="email" hint="primary identifier · cannot be changed">{user?.email ?? '—'}</Row>
+          {/* Change email */}
+          <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)' }}>
+            {emailStage === 'idle' ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', fontWeight: 400 }}>{user?.email ?? '—'}</span>
+                  <span className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-dim)', fontWeight: 400, lineHeight: 1.5 }}>primary identifier</span>
+                </div>
+                <button type="button" onClick={() => { setEmailStage('form'); setEmailFlash(false); }}
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none', flexShrink: 0 }}>
+                  change →
+                </button>
+                {emailFlash && <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>∞ updated</span>}
+              </div>
+            ) : (
+              <div style={{ maxWidth: 360 }}>
+                <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>change email</div>
+                {([
+                  { label: 'new email',         val: newEmail,       set: setNewEmail,       type: 'email',    placeholder: 'new email address' },
+                  { label: 'current password',  val: emailPassword,  set: setEmailPassword,  type: 'password', placeholder: 'confirm your identity' },
+                ] as const).map((f) => (
+                  <input
+                    key={f.label}
+                    type={f.type}
+                    value={f.val}
+                    onChange={(e) => { f.set(e.target.value); setEmailError(null); }}
+                    onKeyDown={(e) => e.key === 'Enter' && newEmail && emailPassword && handleChangeEmail()}
+                    placeholder={f.placeholder}
+                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
+                  />
+                ))}
+                {emailError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{emailError}</p>}
+                <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
+                  <button type="button" onClick={handleChangeEmail} disabled={!newEmail || !emailPassword || changeEmail.isPending}
+                    className="hl-btn" style={{ fontSize: 11, padding: '9px 18px', opacity: (!newEmail || !emailPassword || changeEmail.isPending) ? 0.5 : 1 }}>
+                    {changeEmail.isPending ? 'updating…' : 'update email'}
+                  </button>
+                  <button type="button" onClick={() => { setEmailStage('idle'); setNewEmail(''); setEmailPassword(''); setEmailError(null); }}
+                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                    cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Change password */}
           <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)' }}>

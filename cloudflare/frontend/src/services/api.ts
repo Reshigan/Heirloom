@@ -210,6 +210,8 @@ export const settingsApi = {
     api.patch('/settings/profile', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post('/settings/change-password', data),
+  changeEmail: (data: { newEmail: string; password: string }) =>
+    api.post('/settings/change-email', data),
   deleteAccount: (password: string) => api.delete('/settings/account', { data: { password } }),
   getUploadUrl: (data: { filename: string; contentType: string }) =>
     api.post('/settings/upload-url', data),
