@@ -109,12 +109,21 @@ export function Letters() {
             {isLoading ? (
               <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginBottom: 24 }} />
             ) : letters.length === 0 ? (
-              <p
-                className="hl-serif"
-                style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, lineHeight: 1.7 }}
-              >
-                No letters sealed yet. The future waits for your words.
-              </p>
+              <div>
+                <p
+                  className="hl-serif"
+                  style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, lineHeight: 1.7, marginBottom: 24 }}
+                >
+                  No letters sealed yet. The future waits for your words.
+                </p>
+                <Link
+                  to="/letters/new"
+                  className="hl-btn"
+                  style={{ textDecoration: 'none', display: 'inline-block' }}
+                >
+                  Seal a letter →
+                </Link>
+              </div>
             ) : (
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {letters.map((l) => (

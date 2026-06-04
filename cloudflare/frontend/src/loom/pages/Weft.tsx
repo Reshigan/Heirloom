@@ -154,7 +154,17 @@ export function Weft() {
     <LoomShell>
       <Frame active="weft" right={toggle}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', inset: 0, top: 64, bottom: 96, padding: '0 56px' }}>
+          <style>{`
+            .weft-padding { padding: 0 56px; }
+            .weft-header-left { position: absolute; top: 28px; left: 56px; max-width: 360px; }
+            .weft-header-right { position: absolute; top: 28px; right: 56px; max-width: 320px; text-align: right; }
+            @media (max-width: 639px) {
+              .weft-padding { padding: 0 16px; }
+              .weft-header-left { left: 16px; max-width: calc(100% - 32px); }
+              .weft-header-right { display: none; }
+            }
+          `}</style>
+          <div className="weft-padding" style={{ position: 'absolute', inset: 0, top: 64, bottom: 96 }}>
             <Loom
               entries={entries}
               ligatures={ligatures}
@@ -169,8 +179,8 @@ export function Weft() {
             />
           </div>
 
-          <div style={{ position: 'absolute', top: 28, left: 56, maxWidth: 360 }}>
-            <div className="loom-eyebrow">
+          <div className="weft-header-left">
+            <div className="loom-eyebrow" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               <span style={{ color: 'var(--warm)' }}>·</span> the weft &nbsp;·&nbsp; {displayName} &nbsp;·&nbsp; {startYear} — {endYear}
             </div>
             <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 8, letterSpacing: '0.18em' }}>
@@ -178,7 +188,7 @@ export function Weft() {
             </div>
           </div>
 
-          <div style={{ position: 'absolute', top: 28, right: 56, maxWidth: 320, textAlign: 'right' }}>
+          <div className="weft-header-right">
             <div
               className="loom-serif"
               style={{
@@ -195,10 +205,11 @@ export function Weft() {
           </div>
 
           <div
+            className="weft-padding"
             style={{
               position: 'absolute',
-              left: 56,
-              right: 56,
+              left: 0,
+              right: 0,
               bottom: 28,
               paddingTop: 16,
               borderTop: '1px solid var(--rule)',

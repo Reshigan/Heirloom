@@ -353,17 +353,36 @@ function SealedRow({ item }: { item: UpcomingUnlock }) {
 /* ── Empty state ────────────────────────────────────────────────────────── */
 function EmptyState() {
   return (
-    <p
-      className="hl-serif"
-      style={{
-        fontStyle: 'italic',
-        color: 'var(--bone-faint)',
-        marginTop: 40,
-        textAlign: 'center',
-      }}
-    >
-      Nothing is waiting.
-    </p>
+    <div style={{ marginTop: 40, textAlign: 'center' }}>
+      <p
+        className="hl-serif"
+        style={{
+          fontStyle: 'italic',
+          color: 'var(--bone-faint)',
+          marginBottom: 8,
+        }}
+      >
+        Nothing is waiting.
+      </p>
+      <p
+        className="hl-serif"
+        style={{
+          fontStyle: 'italic',
+          color: 'var(--bone-faint)',
+          fontSize: 14,
+          marginBottom: 24,
+        }}
+      >
+        Seal a letter or lock a memory to start the wait.
+      </p>
+      <Link
+        to="/letters/new"
+        className="hl-link warm"
+        style={{ fontSize: 14 }}
+      >
+        seal a letter →
+      </Link>
+    </div>
   );
 }
 
