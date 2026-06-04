@@ -379,7 +379,7 @@ export function MemoryCards() {
                         fontSize: 15,
                         lineHeight: 1.7,
                         minHeight: 80,
-                        resize: 'vertical',
+                        resize: 'none',
                         outline: 'none',
                         boxSizing: 'border-box',
                       }}

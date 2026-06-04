@@ -280,7 +280,7 @@ export function GiftAMemory() {
               style={{
                 ...inputBase,
                 minHeight: 120,
-                resize: 'vertical',
+                resize: 'none',
                 lineHeight: 1.6,
                 paddingTop: 10,
               }}

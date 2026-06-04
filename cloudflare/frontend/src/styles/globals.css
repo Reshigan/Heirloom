@@ -334,7 +334,7 @@ body {
 /* Textarea specific */
 textarea.input {
   min-height: 120px;
-  resize: vertical;
+  resize: none;
 }
 
 /* Select specific */

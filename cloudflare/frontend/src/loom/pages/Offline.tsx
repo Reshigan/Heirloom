@@ -176,7 +176,7 @@ export function Offline() {
             padding: '12px 14px',
             fontSize: 16,
             lineHeight: 1.6,
-            resize: 'vertical',
+            resize: 'none',
             outline: 'none',
           }}
         />

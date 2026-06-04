@@ -1280,7 +1280,7 @@ export function Inherit() {
                         fontFamily: 'var(--serif)',
                         fontSize: 15,
                         lineHeight: 1.7,
-                        resize: 'vertical',
+                        resize: 'none',
                         outline: 0,
                         boxSizing: 'border-box',
                       }}

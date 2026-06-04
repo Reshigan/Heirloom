@@ -426,7 +426,7 @@ export function GiftPurchase() {
                 fontSize: 17,
                 color: 'var(--parchment-ink)',
                 outline: 'none',
-                resize: 'vertical',
+                resize: 'none',
                 minHeight: 100,
                 boxSizing: 'border-box',
               }}

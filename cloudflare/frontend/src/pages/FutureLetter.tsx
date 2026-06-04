@@ -191,7 +191,7 @@ export function FutureLetter() {
                 value={formData.values}
                 onChange={(e) => set({ values: e.target.value })}
                 placeholder="Family, creativity, adventure, helping others…"
-                style={{ ...fieldStyle, minHeight: 84, resize: 'vertical' }}
+                style={{ ...fieldStyle, minHeight: 84, resize: 'none' }}
                 required
               />
             </div>
@@ -203,7 +203,7 @@ export function FutureLetter() {
                 value={formData.hopes}
                 onChange={(e) => set({ hopes: e.target.value })}
                 placeholder="To see my children grow, to travel the world…"
-                style={{ ...fieldStyle, minHeight: 84, resize: 'vertical' }}
+                style={{ ...fieldStyle, minHeight: 84, resize: 'none' }}
                 required
               />
             </div>
@@ -215,7 +215,7 @@ export function FutureLetter() {
                 value={formData.fears}
                 onChange={(e) => set({ fears: e.target.value })}
                 placeholder="Not having enough time, losing loved ones…"
-                style={{ ...fieldStyle, minHeight: 84, resize: 'vertical' }}
+                style={{ ...fieldStyle, minHeight: 84, resize: 'none' }}
                 required
               />
             </div>
@@ -227,7 +227,7 @@ export function FutureLetter() {
                 value={formData.lovedOnes}
                 onChange={(e) => set({ lovedOnes: e.target.value })}
                 placeholder="The people you love, the ones who matter most…"
-                style={{ ...fieldStyle, minHeight: 84, resize: 'vertical' }}
+                style={{ ...fieldStyle, minHeight: 84, resize: 'none' }}
                 required
               />
             </div>

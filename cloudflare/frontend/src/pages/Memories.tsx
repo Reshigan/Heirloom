@@ -92,7 +92,7 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
       {editing ? (
         <div>
           <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={5} autoFocus
-            style={{ width: '100%', background: 'transparent', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', caretColor: 'var(--warm)', fontFamily: 'var(--serif)', fontSize: 15, lineHeight: 1.7, padding: '8px 10px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+            style={{ width: '100%', background: 'transparent', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', caretColor: 'var(--warm)', fontFamily: 'var(--serif)', fontSize: 15, lineHeight: 1.7, padding: '8px 10px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
           <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
             <button type="button" onClick={() => updateMut.mutate()} disabled={updateMut.isPending}
               style={{ background: 'var(--warm)', color: '#0e0e0c', border: 0, borderRadius: 0, padding: '7px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: updateMut.isPending ? 'wait' : 'pointer', opacity: updateMut.isPending ? 0.6 : 1 }}>
@@ -212,7 +212,7 @@ export function Memories() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['memories-mosaic'],
-    queryFn: () => memoriesApi.getAll({ limit: 200 }).then((r) => (r.data as any)?.memories ?? []),
+    queryFn: () => memoriesApi.getAll({ limit: 200 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
   });
 

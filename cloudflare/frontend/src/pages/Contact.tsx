@@ -158,7 +158,7 @@ export function Contact() {
                   style={{
                     ...inputStyle,
                     minHeight: 160,
-                    resize: 'vertical',
+                    resize: 'none',
                     paddingBottom: 12,
                   }}
                 />

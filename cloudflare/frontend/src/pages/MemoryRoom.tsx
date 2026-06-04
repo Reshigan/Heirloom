@@ -581,7 +581,7 @@ export function MemoryRoom() {
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Share your story, memory, or message…"
                   rows={5}
-                  style={{ ...inputStyle, resize: 'vertical' }}
+                  style={{ ...inputStyle, resize: 'none' }}
                 />
               </div>
 

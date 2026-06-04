@@ -600,7 +600,7 @@ export function GiftSubscriptions() {
                   value={formData.personalMessage}
                   onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
                   placeholder="a few quiet words…"
-                  style={{ resize: 'vertical', minHeight: 88 }}
+                  style={{ resize: 'none', minHeight: 88 }}
                 />
               </div>
               <div>

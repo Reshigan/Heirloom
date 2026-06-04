@@ -9,7 +9,7 @@ export default function Wrapped() {
   const { isAuthenticated } = useAuthStore();
   const { data } = useQuery({
     queryKey: ['wrapped', YEAR],
-    queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.memories ?? []),
+    queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
   });
 

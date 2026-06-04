@@ -10,7 +10,7 @@ export function useTapestryEntries(): CanvasEntry[] {
   const { data } = useQuery({
     queryKey: ['tapestry-entries', threadId],
     queryFn: () =>
-      memoriesApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.memories ?? []),
+      memoriesApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated && !!threadId,
     staleTime: 30_000,
   });

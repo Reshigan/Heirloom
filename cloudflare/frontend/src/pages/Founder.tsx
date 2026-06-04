@@ -440,7 +440,7 @@ export function Founder() {
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="A few sentences. Your grandmother. The recipe nobody wrote down."
-                      style={{ ...inputBase, resize: 'vertical' }}
+                      style={{ ...inputBase, resize: 'none' }}
                     />
                   </div>
 
