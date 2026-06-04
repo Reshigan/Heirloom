@@ -43,6 +43,21 @@ const DYE_VARS: Record<string, string> = {
   iron:      'var(--dye-iron)',
 };
 
+// Text-safe lightened variants for rendering names on the ink background.
+// Each dye is brightened enough to pass contrast on #0e0e0c.
+const DYE_TEXT: Record<string, string> = {
+  madder:    '#d97860',
+  cochineal: '#c5607a',
+  kermes:    '#b56875',
+  saffron:   '#d8a84a',
+  weld:      '#c0b84a',
+  walnut:    '#a87a52',
+  oakgall:   '#958472',
+  woad:      '#7a9bab',
+  indigo:    '#6a90b0',
+  iron:      '#7a7a78',
+};
+
 function formatDate(iso: string | null | undefined): string {
   if (!iso) return '—';
   try {
@@ -592,6 +607,7 @@ export function Family() {
             {members.map((m) => {
               const dyeKey = m.dye?.toLowerCase() ?? '';
               const dyeColor = dyeKey && DYE_VARS[dyeKey] ? DYE_VARS[dyeKey] : null;
+              const dyeText  = dyeKey && DYE_TEXT[dyeKey]  ? DYE_TEXT[dyeKey]  : null;
               const isEditing = editTarget?.id === m.id;
               return (
                 <div key={m.id} style={{ borderBottom: '1px solid var(--rule)' }}>
@@ -624,7 +640,7 @@ export function Family() {
                         onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '0.75'; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '1'; }}
                       >
-                        <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: 'var(--bone)', lineHeight: 1.25, transition: 'opacity 180ms var(--ease)' }}>
+                        <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: dyeText ?? 'var(--bone)', lineHeight: 1.25, transition: 'opacity 180ms var(--ease)' }}>
                           {m.name}
                         </div>
                         {(m.relationship || m.role) && (
@@ -660,7 +676,7 @@ export function Family() {
                         {isEditing ? 'cancel' : 'edit →'}
                       </button>
                     </div>
-                    <div className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', textAlign: 'right' }}>
+                    <div className="hl-mono" style={{ fontSize: 12, color: dyeText ? `${dyeText}99` : 'var(--bone-dim)', textAlign: 'right' }}>
                       {formatDate(m.createdAt)}
                     </div>
                     <button

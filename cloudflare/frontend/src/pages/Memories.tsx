@@ -69,8 +69,8 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        breakInside: 'avoid', marginBottom: 24, paddingLeft: 12,
-        borderLeft: `1px solid ${dyeColor}`, position: 'relative',
+        breakInside: 'avoid', marginBottom: 24, paddingLeft: 14,
+        borderLeft: `3px solid ${dyeColor}`, position: 'relative',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(14px)',
         transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,

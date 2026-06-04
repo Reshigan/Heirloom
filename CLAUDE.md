@@ -31,7 +31,13 @@ Unlock is the only ceremony (720ms), (E) print + textile fidelity.
   the live app; legacy Cinzel/Cormorant/Caveat are retired. Tokens + `hl-*` primitives live in
   `cloudflare/frontend/src/styles/globals.css`.)
 - **One emotional color:** sealing-wax `warm #b07a4a`, used at **<3% surface area**. Everything else
-  is bone `#f4ecd8` on ink `#0e0e0c`. The 10-stop natural-dye palette (§2.7) lives **only** inside woven threads.
+  is bone `#f4ecd8` on ink `#0e0e0c`. The 10-stop natural-dye palette (§2.7) is the family's identity
+  system — each member owns a dye that travels with them as signal everywhere in the product:
+  - **Left-margin thread:** 3px solid left-border in the member's dye, with 14px padding. The thread is authorship, not decoration.
+  - **Name color:** `DYE_TEXT` lightened variants (e.g. madder→`#d97860`) so names read on ink without washing out.
+  - **Section temperature:** Record room = indigo, Compose room = madder, Letters room = kermes.
+  - **Entry type attribution:** Where member dye is unavailable, dye by type (memory=madder, letter=indigo, voice=saffron, event=weld, milestone=cochineal).
+  - **Rule:** Dyes are signal, never decoration — no dye backgrounds, no dye buttons, no dye fills. Dye lives only at the thread edge and in the name.
 - **Negative space is the composition** (60–70% empty). **0px radius** default (2px inputs, never >4px). 1px hairlines only.
 - **Motion has meaning or it's cut.** One curve `cubic-bezier(0.16,1,0.3,1)`; durations 180/360/720/1400ms only.
 - **Anti-patterns that FAIL review (§2.6):** glassmorphism, gradient meshes, floating cards w/ translateY hover,
