@@ -100,7 +100,7 @@ export function MemoryMap() {
                   'color 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
-              {f === 'all' ? 'All' : f + 's'}
+              {f === 'all' ? 'All' : f === 'memory' ? 'Memories' : f + 's'}
             </button>
           ))}
         </div>

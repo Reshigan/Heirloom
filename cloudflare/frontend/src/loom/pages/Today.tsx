@@ -22,9 +22,9 @@ export function Today() {
     return () => window.removeEventListener('resize', sync);
   }, []);
 
-  // Last 3 unique contributors from entries (most recent first)
+  // Last 3 unique contributors from entries (most recent first) — skip null/empty authors
   const contributors = [...new Map(
-    [...entries].reverse().map(e => [e.author, e])
+    [...entries].filter(e => e.author).reverse().map(e => [e.author, e])
   ).values()].slice(0, 3);
 
   const ease = 'cubic-bezier(0.16,1,0.3,1)';

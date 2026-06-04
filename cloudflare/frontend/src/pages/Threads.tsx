@@ -356,7 +356,7 @@ function ThreadRow({ thread }: { thread: ThreadSummary }) {
         className="hl-mono threads-col-hide"
         style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.06em' }}
       >
-        {thread.member_count}
+        {thread.member_count} {thread.member_count === 1 ? 'member' : 'members'}
       </span>
 
       {/* last entry / created_at */}

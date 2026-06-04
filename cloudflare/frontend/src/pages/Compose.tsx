@@ -68,9 +68,6 @@ function AddresseeSelect({
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, marginBottom: 6 }}>
         {ADDRESSEES.map((a, i) => (
           <span key={a.key} style={{ display: 'inline-flex', alignItems: 'baseline' }}>
-            {i > 0 && (
-              <span style={{ color: 'var(--bone-faint)', margin: '0 10px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>·</span>
-            )}
             <button
               type="button"
               onClick={() => onTypeChange(a.key)}
@@ -89,6 +86,9 @@ function AddresseeSelect({
             >
               {a.label}
             </button>
+            {i < ADDRESSEES.length - 1 && (
+              <span style={{ color: 'var(--bone-faint)', margin: '0 10px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>·</span>
+            )}
           </span>
         ))}
       </div>

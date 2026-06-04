@@ -284,6 +284,7 @@ export function GiftSubscriptions() {
                         letterSpacing: '0.12em',
                         padding: '1px 5px',
                         textTransform: 'uppercase',
+                        borderRadius: 0,
                       }}>
                         10% off
                       </span>
@@ -300,6 +301,7 @@ export function GiftSubscriptions() {
                         letterSpacing: '0.12em',
                         padding: '1px 5px',
                         textTransform: 'uppercase',
+                        borderRadius: 0,
                       }}>
                         5% off
                       </span>
