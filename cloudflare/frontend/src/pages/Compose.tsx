@@ -249,7 +249,7 @@ export function Compose() {
     mutationFn: () =>
       memoriesApi
         .create({
-          type: 'TEXT',
+          type: 'LETTER',
           title: title.trim() || 'untitled',
           description: body.trim(),
           metadata: {
@@ -459,7 +459,7 @@ export function Compose() {
                   color: 'var(--bone)',
                   minHeight: 280,
                   outline: 'none',
-                  resize: 'vertical',
+                  resize: 'none',
                   padding: 0,
                   transition: 'min-height 360ms var(--ease)',
                 }}
