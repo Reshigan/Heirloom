@@ -116,7 +116,7 @@ export function Marketing() {
       <div style={{ position: 'relative', height: vpH, minHeight: 580, background: '#0e0e0c', overflow: 'hidden' }}>
 
         {/* Full-bleed animated cloth */}
-        <div style={{ position: 'absolute', inset: 0 }}>
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 1 }}>
           <TapestryCanvas
             width={vpW}
             height={vpH}
@@ -136,22 +136,23 @@ export function Marketing() {
         </div>
 
         {/* Nav on top of canvas */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20 }}>
           <MktTopbar dark />
         </div>
 
-        {/* Bottom gradient: canvas → text readable */}
+        {/* Bottom gradient: canvas → text readable — strong enough to cover vivid threads */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(14,14,12,0.93) 0%, rgba(14,14,12,0.55) 38%, transparent 68%)',
+          background: 'linear-gradient(to top, rgba(14,14,12,0.97) 0%, rgba(14,14,12,0.90) 20%, rgba(14,14,12,0.70) 42%, rgba(14,14,12,0.20) 62%, transparent 76%)',
           pointerEvents: 'none',
+          zIndex: 2,
         }} />
 
         {/* Hero text — bottom-anchored, fades in */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0,
           padding: '0 clamp(20px, 6vw, 80px) clamp(44px, 7vh, 72px)',
-          zIndex: 10,
+          zIndex: 20,
         }}>
           <div
             style={{
@@ -285,8 +286,8 @@ export function Marketing() {
               paddingTop: 'clamp(32px, 5vh, 52px)',
               paddingBottom: 'clamp(32px, 5vh, 52px)',
               display: 'grid',
-              gridTemplateColumns: 'minmax(0, 5fr) minmax(0, 4fr)',
-              gap: '0 clamp(40px, 8vw, 120px)',
+              gridTemplateColumns: vpW < 640 ? '1fr' : 'minmax(0, 5fr) minmax(0, 4fr)',
+              gap: vpW < 640 ? '0' : '0 clamp(40px, 8vw, 120px)',
               alignItems: 'start',
               opacity: pillarsReveal.visible ? 1 : 0,
               transform: pillarsReveal.visible ? 'translateY(0)' : 'translateY(16px)',
@@ -308,10 +309,10 @@ export function Marketing() {
             <p
               style={{
                 fontFamily: 'var(--serif)',
-                fontSize: 'clamp(15px, 1.4vw, 18px)',
+                fontSize: vpW < 640 ? 16 : 'clamp(15px, 1.4vw, 18px)',
                 lineHeight: 1.68, margin: 0,
                 color: 'var(--parchment-dim)',
-                paddingTop: 'clamp(4px, 0.8vh, 10px)',
+                paddingTop: vpW < 640 ? 18 : 'clamp(4px, 0.8vh, 10px)',
               }}
             >
               {body}

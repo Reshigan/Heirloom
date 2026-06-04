@@ -30,7 +30,7 @@ export function Threshold() {
             inset: 0,
             display: 'grid',
             placeItems: 'center',
-            padding: '40px 120px',
+            padding: 'clamp(24px, 5vh, 40px) clamp(20px, 8vw, 120px)',
           }}
         >
           <div
@@ -47,7 +47,7 @@ export function Threshold() {
             <div className="loom-eyebrow" style={{ marginBottom: 32 }}>
               a perpetual family loom · est. 2026
             </div>
-            <div className="loom-display" style={{ fontSize: 96, marginBottom: 28 }}>
+            <div className="loom-display" style={{ fontSize: 'clamp(48px, 12vw, 96px)', marginBottom: 28 }}>
               Heirloom
             </div>
             <div
@@ -70,21 +70,11 @@ export function Threshold() {
               and into the ones who come after.
             </div>
 
-            <div
-              style={{
-                width: 80,
-                height: 1,
-                background: 'var(--warm)',
-                opacity: 0.6,
-                margin: '44px auto',
-              }}
-            />
-
             {/* a fragment of weft as the brand's signature device */}
             <div
               style={{
                 maxWidth: 720,
-                margin: '0 auto',
+                margin: '44px auto 0',
                 opacity: revealed ? 1 : 0,
                 transition: 'opacity 2400ms cubic-bezier(0.16,1,0.3,1)',
                 transitionDelay: '600ms',
