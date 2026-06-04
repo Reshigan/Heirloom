@@ -355,6 +355,8 @@ settingsRoutes.post('/change-email', async (c) => {
     return c.json({ error: 'That email address is already in use' }, 409);
   }
 
+  // Capture old email BEFORE the UPDATE so we can alert the prior owner.
+  const oldEmail = user.email as string;
   const now = new Date().toISOString();
 
   // Update email and mark as unverified
@@ -362,22 +364,43 @@ settingsRoutes.post('/change-email', async (c) => {
     UPDATE users SET email = ?, email_verified = 0, updated_at = ? WHERE id = ?
   `).bind(newEmail, now, userId).run();
 
-  // Send confirmation email to the new address
-  const safeEmail = newEmail.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const safeNew = newEmail.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const safeOld = oldEmail.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // Notify new address: confirmation that change took effect.
   try {
     await sendEmail(c.env, {
       from: 'Heirloom <accounts@heirloom.blue>',
       to: newEmail,
       subject: 'Your Heirloom email address has been changed',
       html: `<p style="font-family:Georgia,serif;font-size:16px;color:#0e0e0c;line-height:1.7;">
-        Your Heirloom account email address has been updated to <strong>${safeEmail}</strong>.<br><br>
-        If you did not make this change, please contact us immediately by replying to this email.<br><br>
+        Your Heirloom account email address has been updated to <strong>${safeNew}</strong>.<br><br>
+        If you did not make this change, contact us immediately at
+        <a href="mailto:support@heirloom.blue" style="color:#b07a4a;">support@heirloom.blue</a>.<br><br>
         <a href="https://heirloom.blue/settings" style="color:#b07a4a;">Visit your settings →</a>
       </p>`,
     });
   } catch (err) {
-    console.error('Failed to send email-change confirmation:', err);
-    // Non-blocking: email delivery failure does not roll back the change
+    console.error('Failed to send email-change confirmation to new address:', err);
+  }
+
+  // Alert old address so the account owner can act if this wasn't them.
+  try {
+    await sendEmail(c.env, {
+      from: 'Heirloom <accounts@heirloom.blue>',
+      to: oldEmail,
+      subject: 'Your Heirloom email address was changed',
+      html: `<p style="font-family:Georgia,serif;font-size:16px;color:#0e0e0c;line-height:1.7;">
+        The email address on your Heirloom account has been changed from
+        <strong>${safeOld}</strong> to <strong>${safeNew}</strong>.<br><br>
+        If you made this change, no action is needed.<br><br>
+        If you did <strong>not</strong> authorise this change, contact us immediately at
+        <a href="mailto:support@heirloom.blue" style="color:#9f3a2a;">support@heirloom.blue</a>
+        and we will help you secure your account.
+      </p>`,
+    });
+  } catch (err) {
+    console.error('Failed to send email-change alert to old address:', err);
   }
 
   return c.json({ success: true });
