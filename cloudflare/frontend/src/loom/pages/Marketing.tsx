@@ -199,7 +199,7 @@ export function Marketing() {
                 padding: '11px 28px',
                 background: 'var(--warm)',
                 border: '1px solid var(--warm)',
-                color: '#f4ecd8',
+                color: 'var(--ink)',
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
                 textDecoration: 'none',
                 cursor: 'pointer',
