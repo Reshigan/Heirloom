@@ -1,0 +1,72 @@
+name: Social content batch
+
+# Generate a full range of weekly social posts in one run.
+# Uses the ANTHROPIC_API_KEY secret (same as social-autopost).
+# Output is committed back to the repo under marketing/automation/output/batch/.
+#
+# Usage: Actions → Social content batch → Run workflow
+#   startWeek: first ISO week to generate (default 1)
+#   endWeek:   last  ISO week to generate (default 52)
+#   year:      calendar year              (default 2026)
+#
+# Re-running is safe — batch.ts skips weeks that already have a source.json.
+
+on:
+  workflow_dispatch:
+    inputs:
+      startWeek:
+        description: "Start ISO week (1–52)"
+        type: number
+        required: false
+        default: 1
+      endWeek:
+        description: "End ISO week (1–52)"
+        type: number
+        required: false
+        default: 52
+      year:
+        description: "Year (e.g. 2026)"
+        type: number
+        required: false
+        default: 2026
+
+concurrency:
+  group: social-batch
+  cancel-in-progress: false
+
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: marketing/automation/package.json
+
+      - name: Install
+        working-directory: marketing/automation
+        run: npm install --no-audit --no-fund
+
+      - name: Generate batch
+        working-directory: marketing/automation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: claude-sonnet-4-6
+          BATCH_START: ${{ inputs.startWeek }}
+          BATCH_END: ${{ inputs.endWeek }}
+          BATCH_YEAR: ${{ inputs.year }}
+        run: npx tsx src/batch.ts "$BATCH_START" "$BATCH_END" "$BATCH_YEAR"
+
+      - name: Commit output
+        run: |
+          git config user.name "heirloom-autopost[bot]"
+          git config user.email "noreply@heirloom.blue"
+          git add marketing/automation/output/batch || true
+          git diff --staged --quiet || git commit -m "chore(batch): social content ${{ inputs.year }} W${{ inputs.startWeek }}-W${{ inputs.endWeek }}"
+          git push || true
