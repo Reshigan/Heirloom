@@ -165,7 +165,7 @@ function EntryDateField({
       >
         on
       </div>
-      <label style={{ display: 'block', cursor: 'pointer' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
         <span
           style={{
             fontFamily: "'JetBrains Mono', monospace",
@@ -176,38 +176,26 @@ function EntryDateField({
         >
           {formatted}
         </span>
+        {/* Visible date input — iOS Safari requires a non-hidden, non-pointer-events:none input */}
         <input
           type="date"
           value={value}
           onChange={e => onChange(e.target.value)}
           style={{
-            // visually hidden — formatted span shows the selected date
-            position: 'absolute',
-            opacity: 0,
-            width: 0,
-            height: 0,
-            pointerEvents: 'none',
-          }}
-        />
-        <span
-          style={{
-            display: 'inline-block',
-            marginLeft: 10,
+            background: 'transparent',
+            border: 0,
+            borderBottom: '1px solid var(--rule)',
+            outline: 'none',
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 11,
             letterSpacing: '0.14em',
             color: 'var(--bone-faint)',
-            borderBottom: '1px solid var(--rule)',
+            colorScheme: 'dark',
             cursor: 'pointer',
+            padding: '2px 0',
           }}
-          onClick={() => {
-            const input = document.querySelector<HTMLInputElement>('input[type=date]');
-            if (input) input.showPicker?.();
-          }}
-        >
-          change ↓
-        </span>
-      </label>
+        />
+      </div>
     </div>
   );
 }

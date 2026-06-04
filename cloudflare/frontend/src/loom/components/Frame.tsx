@@ -1,9 +1,24 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
+import { memoriesApi } from '../../services/api';
 import { HLogo } from './HLogo';
 import { ThemeToggle } from './ThemeToggle';
+
+// ── §1.5-B invariant: append-only counter always visible ──────────────────────
+function useEntryCount(): number | null {
+  const { isAuthenticated } = useAuthStore();
+  const { data } = useQuery({
+    queryKey: ['memories-mosaic'],
+    queryFn: () => memoriesApi.getAll({ limit: 1 }).then((r) => (r.data as any)?.pagination?.total ?? null),
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+    select: (d) => d,
+  });
+  return (data as number | null) ?? null;
+}
 
 // ── System security status ─────────────────────────────────────────────────
 function useSystemStatus(): 'green' | 'red' | null {
@@ -240,6 +255,7 @@ export interface FrameProps {
 export function Frame({ left, right, showEdge = true, children }: FrameProps) {
   const { pathname } = useLocation();
   const label = left ?? routeLabel(pathname);
+  const entryCount = useEntryCount();
 
   return (
     <div
@@ -260,9 +276,9 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           )}
         </span>
 
-        {/* center: ∞ mark — the only allowed symbol (brief §2) */}
+        {/* center: §1.5-B append-only counter — ∞ until count loads, then the real number */}
         <span className="hl-counter" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap', fontSize: 14 }}>
-          ∞
+          {entryCount !== null ? entryCount.toLocaleString() : '∞'}
         </span>
 
         {/* right slot: action (hidden on mobile where BottomNav covers it) + theme toggle + security dot + user menu */}
