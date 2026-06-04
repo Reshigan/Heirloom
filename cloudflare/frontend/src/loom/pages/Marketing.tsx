@@ -115,11 +115,11 @@ export function Marketing() {
       {/* ── HERO: full-viewport canvas with text overlaid ── */}
       <div style={{ position: 'relative', height: vpH, minHeight: 580, background: '#0e0e0c', overflow: 'hidden' }}>
 
-        {/* Full-bleed animated cloth */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 1 }}>
+        {/* Animated cloth — capped to upper 60% so threads never cross into the text zone */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '62%', overflow: 'hidden', zIndex: 1 }}>
           <TapestryCanvas
             width={vpW}
-            height={vpH}
+            height={Math.round(vpH * 0.62)}
             entries={DEMO_ENTRIES}
             kind="specimen"
             animate
@@ -140,10 +140,10 @@ export function Marketing() {
           <MktTopbar dark />
         </div>
 
-        {/* Bottom gradient: canvas → text readable — strong enough to cover vivid threads */}
+        {/* Gradient: fades canvas edge into plain dark background where text sits */}
         <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(14,14,12,0.97) 0%, rgba(14,14,12,0.90) 20%, rgba(14,14,12,0.70) 42%, rgba(14,14,12,0.20) 62%, transparent 76%)',
+          position: 'absolute', top: '38%', left: 0, right: 0, height: '32%',
+          background: 'linear-gradient(to bottom, transparent 0%, #0e0e0c 100%)',
           pointerEvents: 'none',
           zIndex: 2,
         }} />
