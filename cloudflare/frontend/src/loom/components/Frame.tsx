@@ -11,11 +11,10 @@ import { ThemeToggle } from './ThemeToggle';
 function useEntryCount(): number | null {
   const { isAuthenticated } = useAuthStore();
   const { data } = useQuery({
-    queryKey: ['memories-mosaic'],
+    queryKey: ['entry-count'],
     queryFn: () => memoriesApi.getAll({ limit: 1 }).then((r) => (r.data as any)?.pagination?.total ?? null),
     enabled: isAuthenticated,
     staleTime: 60_000,
-    select: (d) => d,
   });
   return (data as number | null) ?? null;
 }
