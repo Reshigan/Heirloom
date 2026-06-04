@@ -1,4 +1,7 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { memoriesApi } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
 
 /**
  * Offline — the in-app offline experience, matching the PwaOffline
@@ -276,6 +279,52 @@ export function Offline() {
 export default Offline;
 
 /**
+ * useSyncHoldingQueue — when the device transitions from offline → online,
+ * drain the in-memory holding queue by posting entries to the API.
+ * Entries that succeed are removed from localStorage; failed ones stay
+ * so they retry on the next reconnect.
+ */
+function useSyncHoldingQueue(online: boolean): void {
+  const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuthStore();
+  const wasOfflineRef = useRef(false);
+
+  useEffect(() => {
+    if (!online) {
+      wasOfflineRef.current = true;
+      return;
+    }
+    if (!wasOfflineRef.current || !isAuthenticated) return;
+    wasOfflineRef.current = false;
+
+    const queue = readQueue();
+    if (queue.length === 0) return;
+
+    Promise.allSettled(
+      queue.map(async (entry) => {
+        await memoriesApi.create({
+          type: 'LETTER',
+          title: 'offline note',
+          description: entry.text,
+          metadata: { offline: true, offlineAt: entry.at, dye: entry.dye },
+        });
+        return entry.id;
+      })
+    ).then((results) => {
+      const synced = results
+        .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
+        .map((r) => r.value);
+      if (synced.length > 0) {
+        writeQueue(readQueue().filter((e) => !synced.includes(e.id)));
+        queryClient.invalidateQueries({ queryKey: ['memories'] });
+        queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
+        queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
+      }
+    });
+  }, [online, isAuthenticated, queryClient]);
+}
+
+/**
  * useOnline — tracks navigator.onLine across the connection events.
  */
 export function useOnline(): boolean {
@@ -308,6 +357,7 @@ export function useOnline(): boolean {
  */
 export function OfflineGate({ children }: { children: ReactNode }) {
   const online = useOnline();
+  useSyncHoldingQueue(online);
   if (online) return <>{children}</>;
   return <Offline />;
 }

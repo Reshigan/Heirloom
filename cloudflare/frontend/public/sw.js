@@ -19,7 +19,8 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v24';
+const CACHE = 'heirloom-v25';
+const API_CACHE = 'heirloom-api-v1'; // preserved across shell bumps — offline read data
 const SHELL = '/index.html';
 const OFFLINE = '/offline';
 const PRECACHE = [
@@ -49,7 +50,8 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      // Preserve API_CACHE across shell-version bumps so offline reads survive deploys
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE && k !== API_CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -65,7 +67,27 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return; // third-party (fonts, API host) → untouched
-  if (url.pathname.startsWith('/api/')) return; // live data is never cached
+
+  // GET /api/* — network-first, fall back to API_CACHE for offline reads.
+  // Non-GET API calls (mutations) are never intercepted — they go live or fail.
+  if (url.pathname.startsWith('/api/')) {
+    if (request.method !== 'GET') return;
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(API_CACHE).then((c) => c.put(request, copy));
+          }
+          return res;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request, { cacheName: API_CACHE });
+          return cached ?? Response.error();
+        })
+    );
+    return;
+  }
 
   // App navigations: prefer the network so a redeploy is seen at once; fall
   // back to the cached shell, then to a tiny offline page.
@@ -140,4 +162,17 @@ self.addEventListener('notificationclick', (event) => {
       return self.clients.openWindow(target);
     })
   );
+});
+
+// ── Background sync relay ────────────────────────────────────────────────────
+// When the device reconnects and the app is closed, the OS fires this event.
+// We relay it to any active client windows so they can drain the offline queue.
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'hl-queue-sync') {
+    event.waitUntil(
+      self.clients
+        .matchAll({ type: 'window', includeUncontrolled: true })
+        .then((clients) => clients.forEach((c) => c.postMessage({ type: 'PROCESS_OFFLINE_QUEUE' })))
+    );
+  }
 });

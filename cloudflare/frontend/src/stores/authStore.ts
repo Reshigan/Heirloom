@@ -116,6 +116,12 @@ export const useAuthStore = create<AuthState>()(
           // Ignore errors
         } finally {
           clearTokens();
+          // Clear user-specific compose drafts so they don't persist across accounts on shared devices
+          try {
+            Object.keys(localStorage)
+              .filter((k) => k.startsWith('hl-compose-draft:'))
+              .forEach((k) => localStorage.removeItem(k));
+          } catch { /* ignore — private browsing or quota issues */ }
           set({ user: null, isAuthenticated: false });
         }
       },

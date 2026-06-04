@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryCanvas } from '../loom/components/TapestryCanvas';
 import type { CanvasEntry } from '../loom/components/TapestryCanvas';
@@ -199,10 +200,10 @@ function EntryDateField({
 }
 
 /* ─── Draft persistence ─────────────────────────────────────────────── */
-const DRAFT_KEY = 'hl-compose-draft';
+const DRAFT_PREFIX = 'hl-compose-draft:'; // namespaced by user id — prevents cross-user leakage on shared devices
 type DraftData = { title?: string; body?: string; addresseeType?: AddresseeType; addresseeName?: string; entryDate?: string };
-function readDraft(): DraftData {
-  try { const r = localStorage.getItem(DRAFT_KEY); return r ? (JSON.parse(r) as DraftData) : {}; }
+function readDraft(key: string): DraftData {
+  try { const r = localStorage.getItem(key); return r ? (JSON.parse(r) as DraftData) : {}; }
   catch { return {}; }
 }
 
@@ -210,12 +211,14 @@ function readDraft(): DraftData {
 export function Compose() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const draftKey = `${DRAFT_PREFIX}${user?.id ?? 'anon'}`;
 
-  const [addresseeType, setAddresseeType] = useState<AddresseeType>(() => (readDraft().addresseeType ?? 'family') as AddresseeType);
-  const [addresseeName, setAddresseeName] = useState(() => readDraft().addresseeName ?? '');
-  const [entryDate, setEntryDate] = useState(() => readDraft().entryDate ?? new Date().toISOString().slice(0, 10));
-  const [title, setTitle] = useState(() => readDraft().title ?? '');
-  const [body, setBody] = useState(() => readDraft().body ?? '');
+  const [addresseeType, setAddresseeType] = useState<AddresseeType>(() => (readDraft(draftKey).addresseeType ?? 'family') as AddresseeType);
+  const [addresseeName, setAddresseeName] = useState(() => readDraft(draftKey).addresseeName ?? '');
+  const [entryDate, setEntryDate] = useState(() => readDraft(draftKey).entryDate ?? new Date().toISOString().slice(0, 10));
+  const [title, setTitle] = useState(() => readDraft(draftKey).title ?? '');
+  const [body, setBody] = useState(() => readDraft(draftKey).body ?? '');
   const [visibility, setVisibility] = useState<Visibility>('family');
   const [dye, setDye] = useState('walnut');
   const [error, setError] = useState<string | null>(null);
@@ -245,13 +248,13 @@ export function Compose() {
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     draftTimerRef.current = setTimeout(() => {
       if (body.trim() || title.trim()) {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ addresseeType, addresseeName, entryDate, title, body }));
+        localStorage.setItem(draftKey, JSON.stringify({ addresseeType, addresseeName, entryDate, title, body }));
       } else {
-        localStorage.removeItem(DRAFT_KEY);
+        localStorage.removeItem(draftKey);
       }
     }, 800);
     return () => { if (draftTimerRef.current) clearTimeout(draftTimerRef.current); };
-  }, [body, title, addresseeType, addresseeName, entryDate, woven]);
+  }, [body, title, addresseeType, addresseeName, entryDate, woven, draftKey]);
 
   // Guard browser tab close when there's unsaved content within the debounce window
   useEffect(() => {
@@ -303,7 +306,7 @@ export function Compose() {
         })
         .then(r => r.data),
     onSuccess: () => {
-      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(draftKey);
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
       setWoven(true);
     },
@@ -316,10 +319,10 @@ export function Compose() {
   const handleCancel = useCallback(() => {
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     if ((body.trim() || title.trim()) && !woven) {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ addresseeType, addresseeName, entryDate, title, body }));
+      localStorage.setItem(draftKey, JSON.stringify({ addresseeType, addresseeName, entryDate, title, body }));
     }
     navigate('/memories');
-  }, [body, title, addresseeType, addresseeName, entryDate, woven, navigate]);
+  }, [body, title, addresseeType, addresseeName, entryDate, woven, navigate, draftKey]);
 
   if (woven) {
     // Synthetic entry representing the just-woven memory

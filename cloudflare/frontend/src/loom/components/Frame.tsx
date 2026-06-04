@@ -6,6 +6,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { memoriesApi } from '../../services/api';
 import { HLogo } from './HLogo';
 import { ThemeToggle } from './ThemeToggle';
+import { useSwUpdate } from '../../hooks/useSwUpdate';
 
 // ── §1.5-B invariant: append-only counter always visible ──────────────────────
 function useEntryCount(): number | null {
@@ -242,6 +243,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
   const { pathname } = useLocation();
   const label = left ?? routeLabel(pathname);
   const entryCount = useEntryCount();
+  const { updateReady, applyUpdate } = useSwUpdate();
 
   return (
     <div
@@ -283,6 +285,27 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
 
         {/* right slot: action (hidden on mobile where BottomNav covers it) + theme toggle + security dot + user menu */}
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+          {updateReady && (
+            <button
+              type="button"
+              onClick={applyUpdate}
+              className="hl-topbar-action"
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(176,122,74,0.4)',
+                color: 'var(--warm)',
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                padding: '3px 10px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              update →
+            </button>
+          )}
           {right ? (
             <span className="hl-link warm hl-topbar-action">{right}</span>
           ) : (
