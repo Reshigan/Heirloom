@@ -43,7 +43,7 @@ export function Today() {
         maxWidth: 680,
         opacity: revealed ? 1 : 0,
         transform: revealed ? 'translateY(0)' : 'translateY(14px)',
-        transition: `opacity 1000ms ${ease}, transform 1000ms ${ease}`,
+        transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
       }}>
         {/* eyebrow: tonight's prompt time */}
         <div
@@ -88,7 +88,7 @@ export function Today() {
           <div
             className="loom-today-family"
             style={{ marginTop: 52, borderTop: '1px solid var(--rule)', paddingTop: 20,
-              opacity: revealed ? 1 : 0, transition: `opacity 1200ms ${ease}`, transitionDelay: '400ms' }}
+              opacity: revealed ? 1 : 0, transition: `opacity 1400ms ${ease}`, transitionDelay: '360ms' }}
           >
             <div className="hl-eyebrow" style={{ marginBottom: 12 }}>recent voices</div>
             <div style={{ display: 'flex', gap: 28 }}>
@@ -108,8 +108,8 @@ export function Today() {
         style={{
           position: 'absolute', left: 0, right: 0, bottom: 8,
           opacity: revealed ? 1 : 0,
-          transition: `opacity 2000ms ${ease}`,
-          transitionDelay: '300ms',
+          transition: `opacity 1400ms ${ease}`,
+          transitionDelay: '360ms',
         }}
       >
         <TapestryCanvas

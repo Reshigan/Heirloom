@@ -76,8 +76,8 @@ export function Threshold() {
                 maxWidth: 720,
                 margin: '44px auto 0',
                 opacity: revealed ? 1 : 0,
-                transition: 'opacity 2400ms cubic-bezier(0.16,1,0.3,1)',
-                transitionDelay: '600ms',
+                transition: 'opacity 1400ms cubic-bezier(0.16,1,0.3,1)',
+                transitionDelay: '720ms',
               }}
             >
               <Loom

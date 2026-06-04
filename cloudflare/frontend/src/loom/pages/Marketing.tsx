@@ -160,7 +160,7 @@ export function Marketing() {
               textTransform: 'uppercase', color: 'rgba(244,236,216,0.38)',
               marginBottom: 20,
               opacity: heroRevealed ? 1 : 0,
-              transition: `opacity 800ms ${ease}`,
+              transition: `opacity 720ms ${ease}`,
             }}
           >
             heirloom · the family thread
@@ -194,6 +194,7 @@ export function Marketing() {
           }}>
             <Link
               to="/signup"
+              className="hl-cta-warm"
               style={{
                 display: 'inline-block',
                 padding: '11px 28px',
@@ -203,6 +204,7 @@ export function Marketing() {
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
                 textDecoration: 'none',
                 cursor: 'pointer',
+                transition: `transform 180ms cubic-bezier(0.16,1,0.3,1)`,
               }}
             >
               Begin your thread — free
@@ -250,8 +252,8 @@ export function Marketing() {
           fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(244,236,216,0.28)',
           letterSpacing: '0.24em', textTransform: 'uppercase',
           opacity: heroRevealed ? 1 : 0,
-          transition: `opacity 2000ms ${ease}`,
-          transitionDelay: '600ms',
+          transition: `opacity 1400ms ${ease}`,
+          transitionDelay: '720ms',
         }}>
           specimen · the Okonkwo family thread · 1948 – today · entry 4,318
         </div>
@@ -261,7 +263,7 @@ export function Marketing() {
           position: 'absolute', bottom: 'clamp(44px, 7vh, 72px)', right: 'clamp(20px, 6vw, 80px)',
           fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase',
           color: 'rgba(244,236,216,0.22)', writingMode: 'vertical-rl',
-          opacity: heroRevealed ? 1 : 0, transition: `opacity 2000ms ${ease}`, transitionDelay: '1000ms',
+          opacity: heroRevealed ? 1 : 0, transition: `opacity 1400ms ${ease}`, transitionDelay: '720ms',
         }}>
           scroll
         </div>
@@ -272,10 +274,10 @@ export function Marketing() {
         ref={pillarsReveal.ref}
         style={{
           padding: 'clamp(64px, 9vh, 112px) clamp(20px, 6vw, 80px)',
-          background: 'var(--bone-bg)',
+          background: 'var(--parchment)',
           opacity: pillarsReveal.visible ? 1 : 0,
           transform: pillarsReveal.visible ? 'translateY(0)' : 'translateY(24px)',
-          transition: `opacity 1000ms ${ease}, transform 1000ms ${ease}`,
+          transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
         {PILLARS.map(([title, body], i) => (
@@ -291,7 +293,7 @@ export function Marketing() {
               alignItems: 'start',
               opacity: pillarsReveal.visible ? 1 : 0,
               transform: pillarsReveal.visible ? 'translateY(0)' : 'translateY(16px)',
-              transition: `opacity 1000ms ${ease}, transform 1000ms ${ease}`,
+              transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
               transitionDelay: `${i * 110}ms`,
             }}
           >
@@ -324,7 +326,7 @@ export function Marketing() {
       </div>
 
       {/* ── PRIVACY STRIP ── */}
-      <div style={{ padding: 'clamp(48px, 6vh, 80px) clamp(20px, 6vw, 80px)', borderTop: '1px solid var(--parchment-rule)', background: 'var(--bone-bg)' }}>
+      <div style={{ padding: 'clamp(48px, 6vh, 80px) clamp(20px, 6vw, 80px)', borderTop: '1px solid var(--parchment-rule)', background: 'var(--parchment)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <div className="hl-eyebrow dark">Protected by design · globally compliant</div>
           <SecurityDot size={7} />
@@ -357,10 +359,10 @@ export function Marketing() {
         style={{
           padding: 'clamp(64px, 9vh, 104px) clamp(20px, 6vw, 80px)',
           borderTop: '1px solid var(--parchment-rule)',
-          background: 'var(--bone-bg)',
+          background: 'var(--parchment)',
           opacity: ctaReveal.visible ? 1 : 0,
           transform: ctaReveal.visible ? 'translateY(0)' : 'translateY(16px)',
-          transition: `opacity 900ms ${ease}, transform 900ms ${ease}`,
+          transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
         <div className="hl-eyebrow dark" style={{ marginBottom: 20 }}>Start free. No credit card. No limit on time.</div>

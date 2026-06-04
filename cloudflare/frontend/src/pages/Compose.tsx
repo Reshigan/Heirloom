@@ -432,7 +432,7 @@ export function Compose() {
           padding: '48px clamp(20px, 5vw, 48px) 100px',
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(12px)',
-          transition: `opacity 800ms ${ease}, transform 800ms ${ease}`,
+          transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
         <div style={{ maxWidth: 660, margin: '0 auto' }}>
@@ -446,19 +446,19 @@ export function Compose() {
               color: 'var(--warm)',
               margin: '0 0 32px',
               opacity: writingFocused ? 0.4 : 1,
-              transition: `opacity 600ms ${ease}`,
+              transition: `opacity 720ms ${ease}`,
             }}
           >
             ∞ &nbsp; a thread in your family cloth
           </p>
 
           {/* Mode switcher — paper / letter */}
-          <div style={{ opacity: writingFocused ? 0.35 : 1, transition: `opacity 600ms ${ease}` }}>
+          <div style={{ opacity: writingFocused ? 0.5 : 1, transition: `opacity 720ms ${ease}` }}>
             <ComposerModes active="paper" />
           </div>
 
           {/* ── Step 1: Who is this for? ─────────────────────────────── */}
-          <div style={{ opacity: writingFocused ? 0.35 : 1, transition: `opacity 600ms ${ease}` }}>
+          <div style={{ opacity: writingFocused ? 0.5 : 1, transition: `opacity 720ms ${ease}` }}>
             <AddresseeSelect
               type={addresseeType}
               name={addresseeName}
@@ -478,7 +478,7 @@ export function Compose() {
             borderTop: '1px solid var(--rule)',
             marginBottom: 36,
             opacity: writingFocused ? 0.3 : 0.7,
-            transition: `opacity 600ms ${ease}`,
+            transition: `opacity 720ms ${ease}`,
           }} />
 
           {/* ── Step 3: The writing area ──────────────────────────────── */}
@@ -550,7 +550,7 @@ export function Compose() {
               textTransform: 'uppercase',
               color: 'var(--bone-faint)',
               opacity: wordCount > 0 ? 1 : 0,
-              transition: `opacity 400ms ${ease}`,
+              transition: `opacity 360ms ${ease}`,
             }}>
               {wordCount} {wordCount === 1 ? 'word' : 'words'}
             </div>

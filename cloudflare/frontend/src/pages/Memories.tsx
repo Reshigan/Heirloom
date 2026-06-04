@@ -62,7 +62,7 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
 
   if (deleteMut.isSuccess) return null;
 
-  const delay = Math.min(index % 6, 5) * 55; // stagger within each "batch" of 6
+  const delay = Math.min(index % 6, 5) * 72; // stagger within each "batch" of 6
 
   return (
     <div
@@ -74,7 +74,7 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
         borderLeft: `3px solid ${dyeColor}`, position: 'relative',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(14px)',
-        transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+        transition: `opacity 720ms cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 720ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
       }}
     >
       {/* Date + controls row */}

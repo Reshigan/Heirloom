@@ -415,7 +415,7 @@ function Helper({ children }: { children: React.ReactNode }) {
 function FieldError({ children }: { children: React.ReactNode }) {
   return (
     <p role="alert" className="hl-italic" style={{
-      margin: '8px 0 0', fontSize: 13, color: 'var(--warm)',
+      margin: '8px 0 0', fontSize: 13, color: 'var(--danger)',
     }}>
       {children}
     </p>
