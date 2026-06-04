@@ -84,6 +84,7 @@ interface DrawOpts {
   sparkle?: number;
   flashIdx?: number | null;
   flashPower?: number;
+  breathY?: number;
 }
 
 // ─── Premium thread renderer ────────────────────────────────────────────────
@@ -303,6 +304,7 @@ export function drawCloth(
     sparkle = 0,
     flashIdx = null,
     flashPower = 0,
+    breathY = 0,
   } = opts;
 
   const span = +tEnd - +tStart;
@@ -322,10 +324,12 @@ export function drawCloth(
 
   // ── Warp threads — structural vertical fibres, slightly more visible now
   //    Each warp gets: soft glow pass + core hairline + occasional highlight
+  const warpXs: number[] = [];  // collected for interlace pass
   const rnd = hlSeed(7);
   for (let x = 0; x < W + 4; x += warpEvery) {
     const jitter = (rnd() - 0.5) * 1.8;
     const xx = x + jitter;
+    warpXs.push(xx);
     const baseAlpha = 0.09 + rnd() * 0.09;
     const isHighlight = rnd() > 0.72;
 
@@ -367,6 +371,9 @@ export function drawCloth(
   }
 
   // ── Weft (entries) — premium thread rendering
+  interface WeftInfo { x0: number; x1: number; cy: number; bow: number; thick: number; }
+  const visibleWefts: WeftInfo[] = [];
+
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i];
     if (e.sealed) continue;
@@ -390,7 +397,9 @@ export function drawCloth(
     const x1 = cx + halfLen;
 
     const yFrac = t0 + rndY() * (t1 - t0);
-    const cy = yFrac * H;
+    // breathY: slow sinusoidal cloth breathing (amplitude varies by thread position)
+    const breathAmp = 0.5 + Math.abs(Math.sin(e.n * 1.37)) * 0.5;
+    const cy = yFrac * H + breathY * breathAmp;
     const sagY = Math.sin((cx / W) * Math.PI) * sag * H * 0.28;
 
     const thick = 2.8 + rndTh() * 1.8;    // 2.8–4.6 px
@@ -406,9 +415,48 @@ export function drawCloth(
     const fPow     = isFlash ? flashPower : 0;
 
     drawThread(ctx, x0, x1, cy, bow, color, thick, alpha, e.n, isActive, fPow);
+    visibleWefts.push({ x0, x1, cy, bow, thick });
   }
 
   ctx.globalAlpha = 1;
+
+  // ── Interlace pass — warp-over-weft segments (plain weave over/under)
+  //    For each warp thread that crosses a weft, alternating warps go OVER the weft,
+  //    creating the authentic plain weave interlace pattern.
+  ctx.lineCap = 'butt';
+  for (let wi = 0; wi < warpXs.length; wi++) {
+    const xx = warpXs[wi];
+    for (let ei = 0; ei < visibleWefts.length; ei++) {
+      const w = visibleWefts[ei];
+      if (xx <= w.x0 || xx >= w.x1) continue;
+      if ((wi + ei) % 2 !== 0) continue; // this warp goes under this weft — skip
+      // Compute weft Y at this warp X position (quadratic sag interpolation)
+      const t   = (xx - w.x0) / (w.x1 - w.x0);
+      const sagT = 4 * t * (1 - t);
+      const wy   = w.cy + sagT * w.bow;
+      const segH = w.thick * 0.85;
+      // Draw short warp-over-weft segment (bone linen, soft glow + hairline)
+      const ovGrad = ctx.createLinearGradient(xx - 1, wy - segH, xx + 1, wy + segH);
+      ovGrad.addColorStop(0,   'rgba(244,236,216,0.04)');
+      ovGrad.addColorStop(0.35,'rgba(244,236,216,0.16)');
+      ovGrad.addColorStop(0.5, 'rgba(244,236,216,0.22)');
+      ovGrad.addColorStop(0.65,'rgba(244,236,216,0.16)');
+      ovGrad.addColorStop(1,   'rgba(244,236,216,0.04)');
+      ctx.strokeStyle = ovGrad;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(xx, wy - segH);
+      ctx.lineTo(xx, wy + segH);
+      ctx.stroke();
+      // Specular nub on the crimp where warp passes over weft
+      ctx.strokeStyle = 'rgba(244,236,216,0.18)';
+      ctx.lineWidth = 0.6;
+      ctx.beginPath();
+      ctx.moveTo(xx - 0.4, wy - segH * 0.5);
+      ctx.lineTo(xx - 0.4, wy + segH * 0.3);
+      ctx.stroke();
+    }
+  }
 
   // ── Sealed-note pegs — dashed tether + ∞ glyph
   for (const e of entries) {
@@ -597,6 +645,9 @@ export function TapestryCanvas({
   const rafRef = useRef<number>(0);
   const panRef = useRef<number>(opts.panX ?? 0);
   const newEntryAtRef = useRef<number | null>(newEntryAt);
+  // Mirror entries into a ref so the animation loop always draws the latest
+  // without needing to restart the rAF loop on every entries change.
+  const entriesRef = useRef(entries);
   const [canvasW, setCanvasW] = useState<number>(
     widthProp ?? (typeof window !== 'undefined' ? window.innerWidth : 1280),
   );
@@ -604,6 +655,10 @@ export function TapestryCanvas({
   useEffect(() => {
     newEntryAtRef.current = newEntryAt;
   }, [newEntryAt]);
+
+  useEffect(() => {
+    entriesRef.current = entries;
+  }, [entries]);
 
   useEffect(() => {
     if (widthProp !== undefined) return;
@@ -638,17 +693,23 @@ export function TapestryCanvas({
       }
 
       const FLASH_DUR = 1400;
+      const cur = entriesRef.current;
       const flashAge   = newEntryAtRef.current != null ? now - newEntryAtRef.current : Infinity;
       const flashPower = flashAge < FLASH_DUR ? Math.max(0, 1 - flashAge / FLASH_DUR) : 0;
-      const flashIdx   = flashPower > 0 ? entries.length - 1 : null;
+      const flashIdx   = flashPower > 0 ? cur.length - 1 : null;
+
+      // Cloth breathing — very slow sinusoidal vertical oscillation (~28s period)
+      // gives the fabric a living, just-off-the-loom feel
+      const breathY = Math.sin(now * 0.000226) * 2.2;
 
       ctx.clearRect(0, 0, canvasW, height);
-      drawCloth(ctx, canvasW, height, entries, {
+      drawCloth(ctx, canvasW, height, cur, {
         ...opts,
         panX: panRef.current,
         sparkle: flashPower > 0 ? flashPower * 0.7 : (opts.sparkle ?? 0),
         flashIdx,
         flashPower,
+        breathY,
       });
       rafRef.current = requestAnimationFrame(tick);
     };
