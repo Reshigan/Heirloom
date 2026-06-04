@@ -82,7 +82,12 @@ export function Letters() {
       >
         <style>{`
           .letters-grid { grid-template-columns: clamp(280px, 55%, 660px) minmax(0, 1fr); }
-          @media (max-width: 680px) { .letters-grid { grid-template-columns: 1fr; } .letters-cta { display: none; } }
+          .letters-mobile-cta { display: none; }
+          @media (max-width: 680px) {
+            .letters-grid { grid-template-columns: 1fr; }
+            .letters-cta { display: none; }
+            .letters-mobile-cta { display: block; }
+          }
         `}</style>
         <div
           className="letters-grid"
@@ -125,11 +130,22 @@ export function Letters() {
                 </Link>
               </div>
             ) : (
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {letters.map((l) => (
-                  <LetterRow key={l.id} letter={l} />
-                ))}
-              </ul>
+              <>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {letters.map((l) => (
+                    <LetterRow key={l.id} letter={l} />
+                  ))}
+                </ul>
+                <div className="letters-mobile-cta" style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--rule)' }}>
+                  <Link
+                    to="/letters/new"
+                    className="hl-btn"
+                    style={{ textDecoration: 'none', display: 'inline-block' }}
+                  >
+                    Seal a letter →
+                  </Link>
+                </div>
+              </>
             )}
           </div>
 

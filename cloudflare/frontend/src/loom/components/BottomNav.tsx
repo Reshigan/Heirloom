@@ -120,8 +120,8 @@ export function BottomNav() {
   }, [data, user?.defaultThreadId]);
 
   if (!isAuthenticated) return null;
-  // Hide on the public marketing pages — they have their own CTAs.
-  if (pathname === '/' || pathname === '/loom/marketing') return null;
+  // Hide on marketing pages and the Record ceremony (full-screen, manages its own chrome).
+  if (pathname === '/' || pathname === '/loom/marketing' || pathname === '/record') return null;
 
   const items = rowFor(role);
 

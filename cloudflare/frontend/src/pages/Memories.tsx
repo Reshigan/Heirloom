@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
 import { AppFrame } from '../loom/components/AppFrame';
 import { Link } from 'react-router-dom';
+import { useListener } from '../hooks/useListener';
 
 const DYE_COLORS: Record<string, string> = {
   memory:    'var(--dye-madder)',
@@ -168,8 +169,8 @@ const EMOTION_TYPES = [
 
 function FilterBar({ memories, filters, setFilters }: {
   memories: Memory[];
-  filters: { year: string; month: string; type: string; recipient: string };
-  setFilters: (f: { year: string; month: string; type: string; recipient: string }) => void;
+  filters: { year: string; month: string; type: string; query: string };
+  setFilters: (f: { year: string; month: string; type: string; query: string }) => void;
 }) {
   const years = Array.from(new Set(
     memories.map(m => new Date(m.createdAt ?? m.created_at ?? '').getFullYear())
@@ -190,10 +191,22 @@ function FilterBar({ memories, filters, setFilters }: {
     WebkitAppearance: 'none' as const,
   };
 
-  const active = filters.year || filters.month || filters.type || filters.recipient;
+  const active = filters.year || filters.month || filters.type || filters.query;
 
   return (
     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 24 }}>
+      <input
+        type="text"
+        placeholder="search"
+        value={filters.query}
+        onChange={e => setFilters({ ...filters, query: e.target.value })}
+        style={{ ...selectStyle, border: '1px solid var(--rule)', minWidth: 120, paddingLeft: 8 }}
+      />
+
+      <select value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
+        {EMOTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+      </select>
+
       <select value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })} style={selectStyle}>
         <option value="">all years</option>
         {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
@@ -204,21 +217,9 @@ function FilterBar({ memories, filters, setFilters }: {
         {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
       </select>
 
-      <select value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
-        {EMOTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-      </select>
-
-      <input
-        type="text"
-        placeholder="recipient"
-        value={filters.recipient}
-        onChange={e => setFilters({ ...filters, recipient: e.target.value })}
-        style={{ ...selectStyle, border: '1px solid var(--rule)', minWidth: 100, paddingLeft: 8 }}
-      />
-
       {active && (
         <button type="button"
-          onClick={() => setFilters({ year: '', month: '', type: '', recipient: '' })}
+          onClick={() => setFilters({ year: '', month: '', type: '', query: '' })}
           style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)' }}>
           clear ×
         </button>
@@ -229,7 +230,8 @@ function FilterBar({ memories, filters, setFilters }: {
 
 export function Memories() {
   const { isAuthenticated } = useAuthStore();
-  const [filters, setFilters] = useState({ year: '', month: '', type: '', recipient: '' });
+  const [filters, setFilters] = useState({ year: '', month: '', type: '', query: '' });
+  const listenerPrompt = useListener();
 
   const { data, isLoading } = useQuery({
     queryKey: ['memories-mosaic'],
@@ -244,9 +246,11 @@ export function Memories() {
     if (filters.year && String(d.getFullYear()) !== filters.year) return false;
     if (filters.month && String(d.getMonth() + 1) !== filters.month) return false;
     if (filters.type && (m.type ?? 'memory') !== filters.type) return false;
-    if (filters.recipient) {
+    if (filters.query) {
+      const q = filters.query.toLowerCase();
+      const title = (m.title ?? '').toLowerCase();
       const desc = (m.description ?? '').toLowerCase();
-      if (!desc.includes(filters.recipient.toLowerCase())) return false;
+      if (!title.includes(q) && !desc.includes(q)) return false;
     }
     return true;
   });
@@ -285,12 +289,35 @@ export function Memories() {
 
       {!isLoading && allMemories.length === 0 && (
         <div style={{ padding: 'clamp(40px, 8vw, 80px) clamp(24px, 6vw, 56px)' }}>
-          <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.7 }}>
-            No memories yet.
+          <p
+            className="hl-serif"
+            style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.5, margin: '0 0 12px' }}
+          >
+            The cloth has not yet been woven.
           </p>
-          <Link to="/compose" className="hl-link warm" style={{ display: 'inline-block', marginTop: 16, fontSize: 14 }}>
-            Write your first memory →
-          </Link>
+          <p
+            className="hl-serif"
+            style={{ fontSize: 16, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.75, maxWidth: '46ch', margin: '0 0 32px' }}
+          >
+            Every family starts with one thread.<br />
+            Write what only you remember.
+          </p>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', marginBottom: 56 }}>
+            <Link to="/compose" className="hl-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              Write a memory →
+            </Link>
+            <Link to="/record" className="hl-link warm" style={{ fontSize: 14 }}>
+              or record a voice →
+            </Link>
+          </div>
+          <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 24, maxWidth: '46ch' }}>
+            <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 10, color: 'var(--bone-faint)' }}>
+              the listener
+            </span>
+            <p className="hl-serif" style={{ fontSize: 16, fontStyle: 'italic', color: 'var(--bone-dim)', lineHeight: 1.7, margin: 0 }}>
+              {listenerPrompt}
+            </p>
+          </div>
         </div>
       )}
 
@@ -298,7 +325,7 @@ export function Memories() {
         columns: 'var(--mosaic-cols, 3) auto',
         columnGap: 24,
         padding: 'clamp(24px, 5vw, 48px)',
-        paddingBottom: 80,
+        paddingBottom: allMemories.length > 0 ? 0 : 80,
       }}>
         <style>{`
           @media (max-width: 900px) { :root { --mosaic-cols: 2 } }
@@ -309,6 +336,24 @@ export function Memories() {
           <MemoryCard key={m.id} m={m} index={i} />
         ))}
       </div>
+
+      {allMemories.length > 0 && (
+        <div style={{
+          padding: 'clamp(20px, 4vw, 40px) clamp(24px, 5vw, 48px)',
+          paddingBottom: 80,
+          borderTop: '1px solid var(--rule)',
+        }}>
+          <span className="hl-eyebrow" style={{ display: 'inline', color: 'var(--bone-faint)', marginRight: 14 }}>
+            the listener
+          </span>
+          <span
+            className="hl-serif"
+            style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 14, lineHeight: 1.6 }}
+          >
+            {listenerPrompt}
+          </span>
+        </div>
+      )}
     </AppFrame>
   );
 }

@@ -9,6 +9,7 @@ import { WeftPull } from '../components/WeftPull';
 import { WeftCentury } from '../components/WeftCentury';
 import { memoriesApi, lettersApi, voiceApi } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
+import { useListener } from '../../hooks/useListener';
 
 /**
  * Screen 02 — The Weft
@@ -107,6 +108,8 @@ export function Weft() {
     ? `${user.firstName} ${user.lastName}`.trim() || user.email
     : 'your cloth';
 
+  const listenerPrompt = useListener();
+
   const toggle = (
     <ViewToggle<WeftMode>
       value={mode}
@@ -190,6 +193,12 @@ export function Weft() {
 
           <div className="weft-header-right">
             <div
+              className="loom-eyebrow"
+              style={{ marginBottom: 8, color: 'var(--bone-faint)', transition: 'opacity 360ms var(--loom-ease)', opacity: showAI ? 1 : 0 }}
+            >
+              the listener
+            </div>
+            <div
               className="loom-serif"
               style={{
                 fontSize: 13,
@@ -200,7 +209,7 @@ export function Weft() {
                 opacity: showAI ? 1 : 0,
               }}
             >
-              Hover any thread. The loom remembers what rhymes.
+              {listenerPrompt}
             </div>
           </div>
 
@@ -230,7 +239,7 @@ export function Weft() {
               </div>
             ) : (
               <div className="loom-body loom-dim" style={{ fontStyle: 'italic', fontSize: 16 }}>
-                Hover any thread. The loom remembers what rhymes.
+                {listenerPrompt}
               </div>
             )}
           </div>
