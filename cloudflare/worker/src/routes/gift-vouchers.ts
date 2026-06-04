@@ -158,8 +158,11 @@ giftVoucherRoutes.post('/checkout', async (c) => {
   // Map text cycle names to the numeric month keys used in GIFT_PRICING
   const monthKey = billingCycle.toLowerCase() === 'yearly' ? '12' : '3';
   const durationMonths = billingCycle.toLowerCase() === 'yearly' ? 12 : 3;
-  const normalizedTier = tier.toUpperCase() === 'FOREVER' ? 'LEGACY' : tier.toUpperCase();
-  const amount = prices[normalizedTier]?.[monthKey];
+  // GIFT_PRICING keys: LEGACY and FOREVER are the same tier — both valid lookup keys
+  const pricingTier = ['LEGACY', 'FOREVER'].includes(tier.toUpperCase()) ? 'LEGACY' : tier.toUpperCase();
+  // DB CHECK constraint only accepts STARTER/FAMILY/FOREVER — map LEGACY back to FOREVER for storage
+  const dbTier = tier.toUpperCase() === 'LEGACY' ? 'FOREVER' : tier.toUpperCase();
+  const amount = prices[pricingTier]?.[monthKey];
 
   if (!amount) {
     return c.json({ error: 'Pricing unavailable for selected options' }, 400);
@@ -190,11 +193,11 @@ giftVoucherRoutes.post('/checkout', async (c) => {
         'customer_email': purchaserEmail,
         'line_items[0][price_data][currency]': currency.toLowerCase(),
         'line_items[0][price_data][unit_amount]': amount.toString(),
-        'line_items[0][price_data][product_data][name]': `Heirloom ${normalizedTier} Gift Voucher (${durationMonths} month${durationMonths > 1 ? 's' : ''})`,
-        'line_items[0][price_data][product_data][description]': `Gift a ${normalizedTier} subscription to someone special`,
+        'line_items[0][price_data][product_data][name]': `Heirloom ${dbTier} Gift Voucher (${durationMonths} month${durationMonths > 1 ? 's' : ''})`,
+        'line_items[0][price_data][product_data][description]': `Gift a ${dbTier} subscription to someone special`,
         'line_items[0][quantity]': '1',
         'metadata[voucher_code]': voucherCode,
-        'metadata[tier]': normalizedTier,
+        'metadata[tier]': dbTier,
         'metadata[billing_cycle]': billingCycle.toLowerCase(),
         'metadata[type]': 'gift_voucher',
       }),
@@ -224,7 +227,7 @@ giftVoucherRoutes.post('/checkout', async (c) => {
       recipientEmail || null,
       recipientName || null,
       recipientMessage || null,
-      normalizedTier,
+      dbTier,
       billingCycle.toLowerCase(),
       durationMonths,
       amount,

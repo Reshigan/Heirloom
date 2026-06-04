@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "vitest run",
+    "test": "vitest run --config vitest.config.ts && vitest run --config vitest.worker.config.mts",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:worker": "vitest run --config vitest.worker.config.mts",
+    "test:worker:watch": "vitest --config vitest.worker.config.mts",
     "test:watch": "vitest",
     "deploy:staging": "wrangler deploy --env staging",
     "deploy:production": "wrangler deploy --env production",
@@ -27,10 +30,11 @@
     "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.16.12",
     "@cloudflare/workers-types": "^4.20241127.0",
     "miniflare": "^4.20251217.0",
     "typescript": "^5.3.3",
-    "vitest": "^3.0.0",
+    "vitest": "^4.1.8",
     "wrangler": "^4.68.1"
   }
 }
