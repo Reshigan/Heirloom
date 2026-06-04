@@ -15,6 +15,7 @@ export function Threads() {
   const { data, isLoading } = useQuery({
     queryKey: ['threads'],
     queryFn: () => threadsApi.list().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
   });
 
   const create = useMutation({
