@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi } from '../services/api';
@@ -212,7 +212,31 @@ export function Compose() {
   const [dye, setDye] = useState('walnut');
   const [error, setError] = useState<string | null>(null);
   const [woven, setWoven] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const [writingFocused, setWritingFocused] = useState(false);
   const wovenAtRef = useRef<number | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setRevealed(true), 80);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Auto-expand textarea with content
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [body]);
+
+  const wordCount = body.trim() ? body.trim().split(/\s+/).length : 0;
+
+  const ease = 'cubic-bezier(0.16,1,0.3,1)';
+
+  const handleBodyChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setBody(e.target.value);
+  }, []);
 
   // Navigate to memories after the "woven" celebration fades
   useEffect(() => {
@@ -361,111 +385,146 @@ export function Compose() {
           left: 0,
           right: 0,
           overflowY: 'auto',
-          padding: '40px 28px 80px',
+          padding: '48px clamp(20px, 5vw, 48px) 100px',
+          opacity: revealed ? 1 : 0,
+          transform: revealed ? 'translateY(0)' : 'translateY(12px)',
+          transition: `opacity 800ms ${ease}, transform 800ms ${ease}`,
         }}
       >
-        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+        <div style={{ maxWidth: 660, margin: '0 auto' }}>
           {/* eyebrow */}
           <p
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              letterSpacing: '0.22em',
+              fontSize: 10,
+              letterSpacing: '0.28em',
               textTransform: 'uppercase',
               color: 'var(--warm)',
-              margin: '0 0 20px',
+              margin: '0 0 32px',
+              opacity: writingFocused ? 0.4 : 1,
+              transition: `opacity 600ms ${ease}`,
             }}
           >
-            ∞ &nbsp; leaving a piece of yourself behind
+            ∞ &nbsp; a thread in your family cloth
           </p>
 
           {/* Mode switcher — paper / letter */}
-          <ComposerModes active="paper" />
+          <div style={{ opacity: writingFocused ? 0.35 : 1, transition: `opacity 600ms ${ease}` }}>
+            <ComposerModes active="paper" />
+          </div>
 
           {/* ── Step 1: Who is this for? ─────────────────────────────── */}
-          <AddresseeSelect
-            type={addresseeType}
-            name={addresseeName}
-            onTypeChange={t => {
-              setAddresseeType(t);
-              if (t === 'self' || t === 'future') setAddresseeName('');
-            }}
-            onNameChange={setAddresseeName}
-          />
+          <div style={{ opacity: writingFocused ? 0.35 : 1, transition: `opacity 600ms ${ease}` }}>
+            <AddresseeSelect
+              type={addresseeType}
+              name={addresseeName}
+              onTypeChange={t => {
+                setAddresseeType(t);
+                if (t === 'self' || t === 'future') setAddresseeName('');
+              }}
+              onNameChange={setAddresseeName}
+            />
 
-          {/* ── Step 2: When did this happen? ────────────────────────── */}
-          <EntryDateField value={entryDate} onChange={setEntryDate} />
+            {/* ── Step 2: When did this happen? ────────────────────────── */}
+            <EntryDateField value={entryDate} onChange={setEntryDate} />
+          </div>
 
-          {/* ── Step 3: The writing area + Listener companion ────────── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <input
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                placeholder="A title — or leave it"
-                style={{
-                  border: 0,
-                  background: 'transparent',
-                  color: 'var(--bone-dim)',
-                  caretColor: 'var(--warm)',
-                  fontFamily: "'Source Serif 4', serif",
-                  fontVariationSettings: "'opsz' 28",
-                  fontStyle: 'italic',
-                  fontSize: 'clamp(20px, 5vw, 26px)',
-                  fontWeight: 400,
-                  letterSpacing: '-0.008em',
-                  width: '100%',
-                  outline: 'none',
-                  padding: 0,
-                  margin: '0 0 12px',
-                  lineHeight: 1.2,
-                }}
-              />
+          {/* Separator: entering the writing space */}
+          <div style={{
+            borderTop: '1px solid var(--rule)',
+            marginBottom: 36,
+            opacity: writingFocused ? 0.3 : 0.7,
+            transition: `opacity 600ms ${ease}`,
+          }} />
 
-              <textarea
-                value={body}
-                onChange={e => setBody(e.target.value)}
-                placeholder={
-                  addresseeType === 'self'
-                    ? 'What do you want the future version of yourself to know?'
-                    : addresseeType === 'future'
-                    ? 'Write to someone not yet born — what do they need to understand about now?'
-                    : addresseeName.trim()
-                    ? `Write to ${addresseeName.trim()}. What do you want them to hold?`
-                    : 'Write freely. The Listener will read alongside you.'
-                }
-                style={{
-                  width: '100%',
-                  border: 0,
-                  background: 'transparent',
-                  caretColor: 'var(--warm)',
-                  fontFamily: "'Source Serif 4', serif",
-                  fontSize: 'clamp(17px, 4vw, 20px)',
-                  lineHeight: 1.85,
-                  color: 'var(--bone)',
-                  minHeight: 280,
-                  outline: 'none',
-                  resize: 'none',
-                  padding: 0,
-                  transition: 'min-height 360ms var(--ease)',
-                }}
-              />
+          {/* ── Step 3: The writing area ──────────────────────────────── */}
+          <div style={{
+            borderLeft: '1px solid rgba(176,122,74,0.18)',
+            paddingLeft: 'clamp(16px, 3vw, 28px)',
+          }}>
+            <input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="A title — or leave it"
+              style={{
+                border: 0,
+                background: 'transparent',
+                color: title ? 'var(--bone)' : 'var(--bone-faint)',
+                caretColor: 'var(--warm)',
+                fontFamily: "'Source Serif 4', serif",
+                fontVariationSettings: "'opsz' 32",
+                fontStyle: 'italic',
+                fontSize: 'clamp(22px, 4vw, 28px)',
+                fontWeight: 300,
+                letterSpacing: '-0.01em',
+                width: '100%',
+                outline: 'none',
+                padding: 0,
+                margin: '0 0 20px',
+                lineHeight: 1.2,
+              }}
+            />
+
+            <textarea
+              ref={textareaRef}
+              value={body}
+              onChange={handleBodyChange}
+              onFocus={() => setWritingFocused(true)}
+              onBlur={() => setWritingFocused(false)}
+              placeholder={
+                addresseeType === 'self'
+                  ? 'What do you want the future version of yourself to know?'
+                  : addresseeType === 'future'
+                  ? 'Write to someone not yet born — what do they need to understand about now?'
+                  : addresseeName.trim()
+                  ? `Write to ${addresseeName.trim()}. What do you want them to hold?`
+                  : 'Write freely. The Listener will read alongside you.'
+              }
+              style={{
+                width: '100%',
+                border: 0,
+                background: 'transparent',
+                caretColor: 'var(--warm)',
+                fontFamily: "'Source Serif 4', serif",
+                fontSize: 'clamp(18px, 4vw, 21px)',
+                lineHeight: 1.9,
+                color: 'var(--bone)',
+                minHeight: 260,
+                outline: 'none',
+                resize: 'none',
+                padding: 0,
+                overflow: 'hidden',
+              }}
+            />
+
+            {/* Word count — appears once writing starts */}
+            <div style={{
+              marginTop: 12,
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              opacity: wordCount > 0 ? 1 : 0,
+              transition: `opacity 400ms ${ease}`,
+            }}>
+              {wordCount} {wordCount === 1 ? 'word' : 'words'}
             </div>
+          </div>
 
-            {/* Listener — always full-width beneath the textarea on mobile */}
-            <div>
-              <ListenerLine
-                text={suggestion}
-                loading={listenerLoading}
-                onRefresh={listenerRefresh}
-              />
-            </div>
+          {/* Listener — full-width beneath the writing area */}
+          <div style={{ marginTop: 28, paddingLeft: 'clamp(16px, 3vw, 28px)' }}>
+            <ListenerLine
+              text={suggestion}
+              loading={listenerLoading}
+              onRefresh={listenerRefresh}
+            />
           </div>
 
           {error && (
             <p
               role="alert"
-              style={{ marginTop: 16, fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, fontFamily: "'Source Serif 4', serif" }}
+              style={{ marginTop: 20, fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, fontFamily: "'Source Serif 4', serif" }}
             >
               {error}
             </p>

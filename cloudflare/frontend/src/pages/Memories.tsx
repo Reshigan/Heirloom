@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
@@ -28,6 +28,18 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
   const [editText, setEditText] = useState(m.description ?? '');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
+      { threshold: 0.08 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const updateMut = useMutation({
     mutationFn: () => memoriesApi.update(m.id, { description: editText }),
@@ -49,11 +61,20 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
 
   if (deleteMut.isSuccess) return null;
 
+  const delay = Math.min(index % 6, 5) * 55; // stagger within each "batch" of 6
+
   return (
     <div
+      ref={cardRef}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ breakInside: 'avoid', marginBottom: 24, paddingLeft: 12, borderLeft: `1px solid ${dyeColor}`, position: 'relative' }}
+      style={{
+        breakInside: 'avoid', marginBottom: 24, paddingLeft: 12,
+        borderLeft: `1px solid ${dyeColor}`, position: 'relative',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(14px)',
+        transition: `opacity 700ms cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 700ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+      }}
     >
       {/* Date + controls row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>

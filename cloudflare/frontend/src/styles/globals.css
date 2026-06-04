@@ -125,6 +125,19 @@
   --dur-mid: 360ms;
   --dur-slow: 720ms;
   --dur-ceremony: 1400ms;
+
+  /* Display type-scale tokens — Source Serif 4 variable optical sizing.
+     "opsz" 12 = caption, 18 = text, 28 = subhead, 40 = display, 72 = hero.
+     Pair each size with the matching opsz setting for optical correctness. */
+  --type-hero:     clamp(52px, 8vw, 96px);     /* opsz 72, weight 200 */
+  --type-display:  clamp(36px, 5.5vw, 64px);   /* opsz 40, weight 300 */
+  --type-title:    clamp(26px, 3.5vw, 40px);   /* opsz 32, weight 300 */
+  --type-subhead:  clamp(20px, 2.5vw, 28px);   /* opsz 24, weight 400 */
+  --type-body-lg:  clamp(18px, 2vw, 21px);     /* opsz 18, weight 400, lh 1.9 */
+  --type-body:     clamp(15px, 1.5vw, 17px);   /* opsz 14, weight 400, lh 1.8 */
+  --type-caption:  clamp(12px, 1.2vw, 14px);   /* opsz 12, weight 400 */
+  --type-label:    11px;                        /* mono uppercase, ls 0.18em */
+  --type-micro:    10px;                        /* mono uppercase, ls 0.22em */
 }
 
 /* ── Unified dark/light theme — global token bridge ────────────────
@@ -402,6 +415,38 @@ em {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Heirloom reveal keyframes — use via .hl-reveal-* utility classes or
+   directly with animation: hl-rise Xms var(--ease) both.
+   All use the single permitted easing curve. */
+@keyframes hl-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes hl-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes hl-drop {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
+@keyframes hl-widen {
+  from { opacity: 0; clip-path: inset(0 40% 0 40%); }
+  to   { opacity: 1; clip-path: inset(0 0% 0 0%);   }
+}
+
+/* Utility classes: duration controlled by --hl-dur (defaults 700ms) */
+.hl-reveal-rise  { animation: hl-rise  var(--hl-dur, 700ms) var(--ease) both; }
+.hl-reveal-fade  { animation: hl-fade  var(--hl-dur, 700ms) var(--ease) both; }
+.hl-reveal-drop  { animation: hl-drop  var(--hl-dur, 700ms) var(--ease) both; }
+.hl-reveal-widen { animation: hl-widen var(--hl-dur, 700ms) var(--ease) both; }
+
+/* Stagger helpers — set on parent, children pick up nth-child delay */
+.hl-stagger > * { --hl-base: 0ms; animation-delay: calc(var(--hl-base) + var(--i, 0) * 80ms); }
 
 .animate-fade-in { animation: fade-in 360ms var(--ease-out) both; }
 .animate-slide-up { animation: slide-up 360ms var(--ease-out) both; }
