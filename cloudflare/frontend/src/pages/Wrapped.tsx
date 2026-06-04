@@ -13,7 +13,7 @@ export default function Wrapped() {
     enabled: isAuthenticated,
   });
 
-  const memories = (data as any[]) ?? [];
+  const memories: any[] = Array.isArray(data) ? data : [];
   const thisYear = memories.filter((m: any) => new Date(m.createdAt ?? m.created_at).getFullYear() === YEAR);
   const activeMonths = new Set(thisYear.map((m: any) => new Date(m.createdAt ?? m.created_at).getMonth())).size;
 

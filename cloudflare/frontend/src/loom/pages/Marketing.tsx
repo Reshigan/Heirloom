@@ -110,7 +110,7 @@ export function Marketing() {
   const ease = 'cubic-bezier(0.16,1,0.3,1)';
 
   return (
-    <div className="hl-screen parchment" style={{ overflowY: 'auto', minHeight: '100vh' }}>
+    <main className="hl-screen parchment" style={{ overflowY: 'auto', minHeight: '100vh' }}>
 
       {/* ── HERO: full-viewport canvas with text overlaid ── */}
       <div style={{ position: 'relative', height: vpH, minHeight: 580, background: '#0e0e0c', overflow: 'hidden' }}>
@@ -199,7 +199,7 @@ export function Marketing() {
                 padding: '11px 28px',
                 background: 'var(--warm)',
                 border: '1px solid var(--warm)',
-                color: 'rgba(244,236,216,0.96)',
+                color: '#f4ecd8',
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
                 textDecoration: 'none',
                 cursor: 'pointer',
@@ -388,6 +388,6 @@ export function Marketing() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -239,7 +239,7 @@ export function Memories() {
     enabled: isAuthenticated,
   });
 
-  const allMemories = (data as Memory[]) ?? [];
+  const allMemories: Memory[] = Array.isArray(data) ? data : [];
 
   const memories = allMemories.filter(m => {
     const d = new Date(m.createdAt ?? m.created_at ?? '');
