@@ -81,18 +81,13 @@ export function FamilyFeed() {
 
         {/* list */}
         {isLoading ? (
-          <p
-            className="hl-serif hl-italic"
-            style={{ padding: '28px 0', color: 'var(--bone-faint)', fontSize: 15 }}
-          >
-            Loading…
-          </p>
+          <div className="hl-progress" style={{ margin: '28px 0' }} />
         ) : !items.length ? (
           <p
             className="hl-serif hl-italic"
             style={{ padding: '28px 0', color: 'var(--bone-faint)', fontSize: 15 }}
           >
-            Nothing written yet — be the first to add a thread.
+            The cloth holds nothing from this week. Weave the first entry.
           </p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>

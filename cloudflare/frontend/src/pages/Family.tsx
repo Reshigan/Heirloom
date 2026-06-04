@@ -517,7 +517,7 @@ export function Family() {
                     background: 'transparent', border: '1px solid var(--rule)', padding: '7px 14px',
                     cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12,
                     letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)',
-                    transition: 'all 180ms var(--ease)', touchAction: 'manipulation', flexShrink: 0,
+                    transition: 'color 180ms var(--ease), border-color 180ms var(--ease)', touchAction: 'manipulation', flexShrink: 0,
                   }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(176,122,74,0.4)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-dim)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--rule)'; }}
@@ -730,7 +730,7 @@ export function Family() {
                           disabled={!editName.trim() || !editRelationship.trim() || updateMember.isPending}
                           style={{ fontSize: 11, padding: '9px 18px', opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.5 : 1 }}
                         >
-                          {updateMember.isPending ? 'saving…' : 'save changes'}
+                          {updateMember.isPending ? 'holding…' : 'hold changes →'}
                         </button>
                         <button
                           type="button"

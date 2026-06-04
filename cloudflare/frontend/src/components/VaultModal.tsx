@@ -11,7 +11,7 @@
  * (encryptionService.setupEncryption / unlockVault) is preserved verbatim.
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { encryptionService } from '../services/encryptionService';
 
 interface VaultModalProps {
@@ -34,6 +34,31 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
   const [showPassphrase, setShowPassphrase] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const el = dialogRef.current;
+    if (!el) return;
+    const focusable = el.querySelectorAll<HTMLElement>(
+      'input, button, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length) focusable[0].focus();
+    const trap = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { if (onSkip) onSkip(); return; }
+      if (e.key !== 'Tab') return;
+      const nodes = Array.from(focusable);
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      }
+    };
+    document.addEventListener('keydown', trap);
+    return () => document.removeEventListener('keydown', trap);
+  }, [isOpen, onSkip]);
 
   const words = countWords(passphrase);
   const passphraseChecks = [
@@ -139,6 +164,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
       }}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         style={{

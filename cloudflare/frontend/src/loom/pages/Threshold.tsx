@@ -53,7 +53,7 @@ export function Threshold() {
             <div
               className="loom-serif"
               style={{
-                fontVariationSettings: "'opsz' 28",
+                fontVariationSettings: "'opsz' 20",
                 fontStyle: 'italic',
                 fontSize: 22,
                 color: 'var(--bone-dim)',

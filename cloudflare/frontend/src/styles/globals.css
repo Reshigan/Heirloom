@@ -199,15 +199,9 @@ body {
   overflow-x: hidden;
   line-height: 1.7;
   font-size: 16px;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Selection */
-::selection {
-  background: var(--gold-20);
-  color: var(--paper-bright);
 }
 
 /* Scrollbar - Barely visible, precious */
@@ -335,7 +329,6 @@ body {
 }
 
 .input:focus {
-  border-color: var(--warm);
   outline: 1px solid var(--warm);
   outline-offset: 2px;
 }
@@ -354,7 +347,7 @@ textarea.input {
 /* Select specific */
 select.input {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4a853' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b07a4a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 44px;
@@ -385,8 +378,9 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper {
 /* ===== TYPOGRAPHY ===== */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  font-weight: 400;
-  line-height: 1.2;
+  font-weight: 300;
+  line-height: 1.06;
+  font-variation-settings: "opsz" 32;
 }
 
 h1 { font-size: 3.5rem; letter-spacing: -0.02em; }
@@ -457,7 +451,7 @@ em {
 .skeleton {
   background: linear-gradient(90deg, var(--paper-08) 25%, var(--paper-15) 50%, var(--paper-08) 75%);
   background-size: 200% 100%;
-  animation: skeleton-shimmer 1.5s linear infinite;
+  animation: skeleton-shimmer 1.5s cubic-bezier(0.65,0,0.35,1) infinite;
   border-radius: 0;
 }
 
@@ -572,7 +566,7 @@ em {
 
 /* Focus states for keyboard navigation */
 *:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 1px solid var(--warm);
   outline-offset: 2px;
 }
 
@@ -590,8 +584,8 @@ select:focus-visible {
   position: absolute;
   top: -40px;
   left: 0;
-  background: var(--gold);
-  color: var(--void);
+  background: var(--warm);
+  color: var(--ink);
   padding: 8px 16px;
   z-index: 100;
   transition: top 180ms cubic-bezier(0.16,1,0.3,1);
@@ -713,6 +707,7 @@ html {
   height: 100%;
   width: 38%;
   background: #b07a4a; /* warm — the single emotional colour */
+  will-change: transform;
   animation: progress-hair-sweep 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 @keyframes progress-hair-sweep {
@@ -772,7 +767,7 @@ html {
   opacity: 1;
 }
 
-.hl-serif { font-family: var(--serif); font-weight: 300; }
+.hl-serif { font-family: var(--serif); font-weight: 300; font-variation-settings: "opsz" 14; }
 .hl-mono  { font-family: var(--mono);  font-weight: 400; letter-spacing: 0.04em; }
 .hl-eyebrow {
   font-family: var(--mono);
@@ -871,7 +866,7 @@ html {
 }
 .hl-btn.text { background: transparent; border: 0; color: var(--warm); padding: 0; border-radius: 0; font-weight: 400; }
 
-.hl-prose { font-family: var(--serif); font-size: 17px; line-height: 1.85; max-width: 60ch; font-weight: 400; }
+.hl-prose { font-family: var(--serif); font-size: 17px; line-height: 1.85; max-width: 60ch; font-weight: 400; font-variation-settings: "opsz" 14; font-feature-settings: "onum" 1, "liga" 1; }
 .hl-prose.dark { color: var(--parchment-ink); }
 
 .hl-input {
@@ -1125,6 +1120,10 @@ html {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   letter-spacing: 0.18em;
 }
+.hl-cta-warm { transition: opacity 180ms cubic-bezier(0.16,1,0.3,1), transform 180ms cubic-bezier(0.16,1,0.3,1); }
+@media (hover: hover) and (pointer: fine) {
+  .hl-cta-warm:hover { opacity: 0.88; }
+}
 .hl-cta-warm:active { transform: scale(0.97); }
 
 .loom-eyebrow {
@@ -1159,7 +1158,7 @@ html {
 }
 .loom-mark {
   font-family: 'Source Serif 4', serif;
-  font-variation-settings: 'opsz' 28;
+  font-variation-settings: 'opsz' 16;
   font-weight: 400;
   font-size: 17px;
   letter-spacing: -0.01em;
@@ -1210,6 +1209,7 @@ html {
 /* ─── The horizon: single warm light, bottom 36% ───────────────── */
 .loom-horizon {
   position: absolute;
+  will-change: opacity;
   left: 0; right: 0; bottom: 0;
   height: 36%;
   pointer-events: none;
@@ -1312,6 +1312,7 @@ html {
 /* ─── The Shuttle (ambient AI threading) ───────────────────────── */
 .loom-shuttle {
   position: absolute;
+  will-change: transform, opacity;
   height: 1px; width: 64px;
   background: linear-gradient(
     to right,

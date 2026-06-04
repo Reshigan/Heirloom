@@ -92,8 +92,8 @@ export function Today() {
           >
             <div className="hl-eyebrow" style={{ marginBottom: 12 }}>recent voices</div>
             <div style={{ display: 'flex', gap: 28 }}>
-              {contributors.map((c, i) => (
-                <span key={i} className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              {contributors.map((c) => (
+                <span key={c.author} className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                   {String(c.author ?? '').slice(0, 8)}
                 </span>
               ))}
@@ -109,7 +109,7 @@ export function Today() {
           position: 'absolute', left: 0, right: 0, bottom: 8,
           opacity: revealed ? 1 : 0,
           transition: `opacity 1400ms ${ease}`,
-          transitionDelay: '360ms',
+          transitionDelay: '720ms',
         }}
       >
         <TapestryCanvas

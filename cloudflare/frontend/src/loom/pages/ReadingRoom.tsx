@@ -99,7 +99,7 @@ export function ReadingRoom() {
             </div>
             <div style={{ display: 'grid', gap: 0 }}>
               {THREADS.map((th, i) => (
-                <div key={i}>
+                <div key={th.date + th.title}>
                   {i > 0 && (
                     <hr style={{ border: 0, borderTop: '1px solid var(--rule)', margin: '0' }} />
                   )}
@@ -263,7 +263,7 @@ function ThreadRow({
         borderLeft: active ? '1px solid var(--warm)' : '1px solid transparent',
         display: 'grid',
         gap: 4,
-        transition: 'all 180ms cubic-bezier(0.16,1,0.3,1)',
+        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
       }}
     >
       <div

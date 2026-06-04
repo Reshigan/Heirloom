@@ -179,7 +179,7 @@ export function Marketing() {
               opacity: heroRevealed ? 1 : 0,
               transform: heroRevealed ? 'translateY(0)' : 'translateY(20px)',
               transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
-              transitionDelay: '80ms',
+              transitionDelay: '180ms',
             }}
           >
             {prompt}
@@ -190,7 +190,7 @@ export function Marketing() {
             opacity: heroRevealed ? 1 : 0,
             transform: heroRevealed ? 'translateY(0)' : 'translateY(12px)',
             transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
-            transitionDelay: '220ms',
+            transitionDelay: '360ms',
           }}>
             <Link
               to="/signup"
@@ -294,7 +294,7 @@ export function Marketing() {
               opacity: pillarsReveal.visible ? 1 : 0,
               transform: pillarsReveal.visible ? 'translateY(0)' : 'translateY(16px)',
               transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
-              transitionDelay: `${i * 110}ms`,
+              transitionDelay: `${i * 180}ms`,
             }}
           >
             <h2
