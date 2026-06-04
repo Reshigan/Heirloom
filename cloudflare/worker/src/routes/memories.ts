@@ -119,7 +119,7 @@ memoriesRoutes.get('/map', async (c) => {
   // Get geotagged letters
   if (!type || type === 'letter') {
     const result = await c.env.DB.prepare(`
-      SELECT id, subject as title, 'letter' as type, latitude, longitude, location_name, created_at
+      SELECT id, title, 'letter' as type, latitude, longitude, location_name, created_at
       FROM letters WHERE user_id = ? AND deleted_at IS NULL AND latitude IS NOT NULL AND longitude IS NOT NULL
       ORDER BY created_at DESC
     `).bind(userId).all();
