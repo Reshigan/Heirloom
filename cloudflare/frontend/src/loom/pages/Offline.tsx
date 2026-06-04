@@ -175,7 +175,7 @@ export function Offline() {
             background: 'var(--ink-card)',
             color: 'var(--bone)',
             border: '1px solid var(--rule)',
-            borderRadius: 2,
+            borderRadius: 0,
             padding: '12px 14px',
             fontSize: 16,
             lineHeight: 1.6,

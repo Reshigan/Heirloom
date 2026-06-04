@@ -71,7 +71,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | undefined }
       <div style={{ margin: '24px 0', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', overflow: 'hidden' }}>
         <TapestryCanvas
           width={w}
-          height={88}
+          height={120}
           entries={DEMO_ENTRIES}
           kind="specimen"
           animate

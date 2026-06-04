@@ -183,12 +183,13 @@ const QUICK_LINKS = [
 ];
 
 function QuickLinks() {
+  const P = 'clamp(20px, 5vw, 28px)';
   return (
-    <div style={{ marginTop: 40, borderTop: '1px solid var(--rule)', paddingTop: 24 }}>
-      <div className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginBottom: 16 }}>
+    <div style={{ marginTop: 32, borderTop: '1px solid var(--rule)', paddingTop: 20, paddingLeft: P, paddingRight: P }}>
+      <div className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginBottom: 12 }}>
         more
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {QUICK_LINKS.map((item) => (
           <Link
             key={item.label}
@@ -202,8 +203,8 @@ function QuickLinks() {
               textTransform: 'uppercase',
               color: 'var(--bone-dim)',
               textDecoration: 'none',
-              padding: '10px 0',
-              minHeight: 40,
+              padding: '12px 0',
+              minHeight: 44,
               borderBottom: '1px solid var(--rule)',
             }}
           >
@@ -219,7 +220,7 @@ function MiniCloth({ entries }: { entries: CanvasEntry[] }) {
   return (
     <TapestryCanvas
       width={typeof window !== 'undefined' ? window.innerWidth : 390}
-      height={80}
+      height={180}
       entries={entries}
       kind="specimen"
       animate
@@ -285,12 +286,13 @@ function RoleContent({ role, entries, prompt, paperFirst }: { role: UserRole; en
             </h2>
           </div>
           <MiniCloth entries={entries} />
-          <div style={{ padding: `16px ${P}` }}>
+          <div style={{ padding: `16px ${P} 0` }}>
             <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
               <Link to="/compose" className="hl-btn" style={{ fontSize: 13 }}>write now</Link>
               <Link to="/billing" className="hl-btn text" style={{ fontSize: 12 }}>upgrade →</Link>
             </div>
           </div>
+          <QuickLinks />
         </div>
       );
 

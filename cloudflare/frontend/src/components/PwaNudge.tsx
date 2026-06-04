@@ -161,10 +161,10 @@ export function PwaNudge() {
           overflow: 'hidden',
         }}
       >
-        {/* Tapestry cloth stripe — six-color band at top */}
+        {/* Tapestry cloth stripe — six dye bands at top */}
         <div style={{ display: 'flex', height: 3 }}>
-          {['#e84030','#f5c832','#3878e8','#d42868','#edae2e','#4898d8'].map((c) => (
-            <div key={c} style={{ flex: 1, background: c, opacity: 0.9 }} />
+          {(['madder','saffron','indigo','cochineal','weld','woad'] as const).map((d) => (
+            <div key={d} style={{ flex: 1, background: `var(--dye-${d})`, opacity: 0.9 }} />
           ))}
         </div>
 
