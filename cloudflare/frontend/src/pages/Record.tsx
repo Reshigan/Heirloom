@@ -372,7 +372,7 @@ export function Record() {
             <input
               value={addresseeName}
               onChange={e => setAddresseeName(e.target.value)}
-              placeholder="for… (optional name)"
+              placeholder="for — a name (optional)"
               style={{
                 background: 'transparent',
                 border: 0,
@@ -388,25 +388,21 @@ export function Record() {
                 width: '100%',
               }}
             />
-            <input
-              type="date"
-              value={entryDate}
-              onChange={e => setEntryDate(e.target.value)}
-              style={{
-                background: 'transparent',
-                border: 0,
-                borderBottom: '1px solid var(--rule)',
-                color: 'var(--bone-dim)',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 12,
-                letterSpacing: '0.06em',
-                padding: '6px 0 4px',
-                outline: 'none',
-                textAlign: 'center',
-                width: '100%',
-                colorScheme: 'dark',
-              }}
-            />
+            {/* Date: formatted text with invisible overlay input for tap/click */}
+            <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--rule)', paddingBottom: 4, width: '100%', justifyContent: 'center' }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.06em', color: 'var(--bone-dim)' }}>
+                {entryDate
+                  ? new Date(`${entryDate}T00:00:00`).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })
+                  : 'date'}
+              </span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--bone-faint)' }}>↗</span>
+              <input
+                type="date"
+                value={entryDate}
+                onChange={e => setEntryDate(e.target.value)}
+                style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
+              />
+            </div>
             <p
               className="hl-serif hl-italic"
               style={{

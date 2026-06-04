@@ -165,7 +165,10 @@ function EntryDateField({
       >
         on
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+      {/* Overlay pattern: formatted text is visible; input is absolutely positioned
+          over it at full opacity:0 so it catches taps without showing native chrome.
+          iOS Safari requires a real visible input — opacity:0 satisfies that. */}
+      <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--rule)', paddingBottom: 2 }}>
         <span
           style={{
             fontFamily: "'JetBrains Mono', monospace",
@@ -176,23 +179,18 @@ function EntryDateField({
         >
           {formatted}
         </span>
-        {/* Visible date input — iOS Safari requires a non-hidden, non-pointer-events:none input */}
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>↗</span>
         <input
           type="date"
           value={value}
           onChange={e => onChange(e.target.value)}
           style={{
-            background: 'transparent',
-            border: 0,
-            borderBottom: '1px solid var(--rule)',
-            outline: 'none',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 11,
-            letterSpacing: '0.14em',
-            color: 'var(--bone-faint)',
-            colorScheme: 'dark',
+            position: 'absolute',
+            inset: 0,
+            opacity: 0,
             cursor: 'pointer',
-            padding: '2px 0',
+            width: '100%',
+            height: '100%',
           }}
         />
       </div>
