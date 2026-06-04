@@ -100,6 +100,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
   const prices = GIFT_PRICING[currency] || GIFT_PRICING.USD;
   const symbol = CURRENCY_SYMBOLS[currency] || '$';
   
+  // GIFT_PRICING uses numeric month-count keys: '3' (quarterly) and '12' (yearly)
   return c.json({
     currency,
     symbol,
@@ -107,27 +108,27 @@ giftVoucherRoutes.get('/pricing', async (c) => {
       {
         id: 'STARTER',
         name: 'Starter',
-        description: 'Perfect for getting started with digital legacy',
-        storage: '500 MB',
-        quarterly: { amount: prices.STARTER.quarterly / 100, display: `${symbol}${(prices.STARTER.quarterly / 100).toFixed(2)}` },
-        yearly: { amount: prices.STARTER.yearly / 100, display: `${symbol}${(prices.STARTER.yearly / 100).toFixed(2)}`, savings: '2 months free' },
+        description: 'Begin the family thread',
+        storage: '1 GB',
+        quarterly: { amount: prices.STARTER['3'] / 100, display: `${symbol}${(prices.STARTER['3'] / 100).toFixed(2)}` },
+        yearly: { amount: prices.STARTER['12'] / 100, display: `${symbol}${(prices.STARTER['12'] / 100).toFixed(2)}`, savings: '2 months free' },
       },
       {
         id: 'FAMILY',
         name: 'Family',
-        description: 'Most popular - ideal for families',
-        storage: '5 GB',
+        description: 'The full thread — for up to 12 authors',
+        storage: '25 GB',
         popular: true,
-        quarterly: { amount: prices.FAMILY.quarterly / 100, display: `${symbol}${(prices.FAMILY.quarterly / 100).toFixed(2)}` },
-        yearly: { amount: prices.FAMILY.yearly / 100, display: `${symbol}${(prices.FAMILY.yearly / 100).toFixed(2)}`, savings: '2 months free' },
+        quarterly: { amount: prices.FAMILY['3'] / 100, display: `${symbol}${(prices.FAMILY['3'] / 100).toFixed(2)}` },
+        yearly: { amount: prices.FAMILY['12'] / 100, display: `${symbol}${(prices.FAMILY['12'] / 100).toFixed(2)}`, savings: '2 months free' },
       },
       {
-        id: 'FOREVER',
-        name: 'Forever',
-        description: 'The ultimate legacy package',
-        storage: '50 GB',
-        quarterly: { amount: prices.FOREVER.quarterly / 100, display: `${symbol}${(prices.FOREVER.quarterly / 100).toFixed(2)}` },
-        yearly: { amount: prices.FOREVER.yearly / 100, display: `${symbol}${(prices.FOREVER.yearly / 100).toFixed(2)}`, savings: '2 months free' },
+        id: 'LEGACY',
+        name: 'Legacy',
+        description: 'Unlimited authors, textile export, succession vault',
+        storage: '250 GB',
+        quarterly: { amount: prices.LEGACY['3'] / 100, display: `${symbol}${(prices.LEGACY['3'] / 100).toFixed(2)}` },
+        yearly: { amount: prices.LEGACY['12'] / 100, display: `${symbol}${(prices.LEGACY['12'] / 100).toFixed(2)}`, savings: '2 months free' },
       },
     ],
   });
@@ -142,21 +143,28 @@ giftVoucherRoutes.post('/checkout', async (c) => {
     return c.json({ error: 'Missing required fields: tier, billingCycle, purchaserEmail' }, 400);
   }
   
-  const validTiers = ['STARTER', 'FAMILY', 'FOREVER'];
+  const validTiers = ['STARTER', 'FAMILY', 'LEGACY', 'FOREVER'];
   const validCycles = ['quarterly', 'yearly'];
-  
+
   if (!validTiers.includes(tier.toUpperCase())) {
     return c.json({ error: 'Invalid tier' }, 400);
   }
-  
+
   if (!validCycles.includes(billingCycle.toLowerCase())) {
     return c.json({ error: 'Invalid billing cycle' }, 400);
   }
-  
+
   const prices = GIFT_PRICING[currency.toUpperCase()] || GIFT_PRICING.USD;
-  const amount = prices[tier.toUpperCase()][billingCycle.toLowerCase()];
-  const durationMonths = billingCycle.toLowerCase() === 'yearly' ? 12 : 3; // quarterly = 3 months
-  
+  // Map text cycle names to the numeric month keys used in GIFT_PRICING
+  const monthKey = billingCycle.toLowerCase() === 'yearly' ? '12' : '3';
+  const durationMonths = billingCycle.toLowerCase() === 'yearly' ? 12 : 3;
+  const normalizedTier = tier.toUpperCase() === 'FOREVER' ? 'LEGACY' : tier.toUpperCase();
+  const amount = prices[normalizedTier]?.[monthKey];
+
+  if (!amount) {
+    return c.json({ error: 'Pricing unavailable for selected options' }, 400);
+  }
+
   // Generate voucher code
   const voucherCode = generateVoucherCode();
   
@@ -182,11 +190,11 @@ giftVoucherRoutes.post('/checkout', async (c) => {
         'customer_email': purchaserEmail,
         'line_items[0][price_data][currency]': currency.toLowerCase(),
         'line_items[0][price_data][unit_amount]': amount.toString(),
-        'line_items[0][price_data][product_data][name]': `Heirloom ${tier} Gift Voucher (${durationMonths} month${durationMonths > 1 ? 's' : ''})`,
-        'line_items[0][price_data][product_data][description]': `Gift a ${tier} subscription to someone special`,
+        'line_items[0][price_data][product_data][name]': `Heirloom ${normalizedTier} Gift Voucher (${durationMonths} month${durationMonths > 1 ? 's' : ''})`,
+        'line_items[0][price_data][product_data][description]': `Gift a ${normalizedTier} subscription to someone special`,
         'line_items[0][quantity]': '1',
         'metadata[voucher_code]': voucherCode,
-        'metadata[tier]': tier.toUpperCase(),
+        'metadata[tier]': normalizedTier,
         'metadata[billing_cycle]': billingCycle.toLowerCase(),
         'metadata[type]': 'gift_voucher',
       }),
@@ -216,7 +224,7 @@ giftVoucherRoutes.post('/checkout', async (c) => {
       recipientEmail || null,
       recipientName || null,
       recipientMessage || null,
-      tier.toUpperCase(),
+      normalizedTier,
       billingCycle.toLowerCase(),
       durationMonths,
       amount,

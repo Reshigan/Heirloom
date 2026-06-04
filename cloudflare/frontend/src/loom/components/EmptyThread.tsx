@@ -19,12 +19,14 @@ interface EmptyThreadProps {
   startYear?: number;
   endYear?: number;
   onWeave?: () => void;
+  onRecord?: () => void;
 }
 
 export function EmptyThread({
   startYear = 2026,
   endYear = 2032,
   onWeave,
+  onRecord,
 }: EmptyThreadProps) {
   return (
     <div
@@ -50,7 +52,7 @@ export function EmptyThread({
           height={220}
           showLigatures={false}
           ambientShuttle={false}
-          appendCount={0}
+          nowYear={startYear}
         />
       </div>
 
@@ -115,17 +117,25 @@ export function EmptyThread({
           <button type="button" className="loom-btn" onClick={onWeave}>
             weave the first thread
           </button>
-          <span
-            className="loom-mono"
-            style={{
-              fontSize: 10,
-              color: 'var(--bone-dim)',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-            }}
-          >
-            or record your voice instead
-          </span>
+          {onRecord && (
+            <button
+              type="button"
+              onClick={onRecord}
+              className="loom-mono"
+              style={{
+                fontSize: 10,
+                color: 'var(--bone-dim)',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              or record your voice instead
+            </button>
+          )}
         </div>
       </div>
     </div>

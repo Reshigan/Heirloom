@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { LoomShell } from '../components/LoomShell';
 import { Frame } from '../components/Frame';
@@ -63,6 +64,7 @@ export function Weft() {
   const [showAI, setShowAI] = useState(false);
   const [mode, setMode] = useState<WeftMode>('canon');
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const t = setTimeout(() => setShowAI(true), 900);
@@ -127,7 +129,7 @@ export function Weft() {
     return (
       <LoomShell>
         <Frame active="weft" right={toggle}>
-          <EmptyThread onWeave={() => setMode('canon')} />
+          <EmptyThread onWeave={() => navigate('/compose')} onRecord={() => navigate('/record')} />
         </Frame>
       </LoomShell>
     );
