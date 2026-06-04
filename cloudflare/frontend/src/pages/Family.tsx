@@ -220,19 +220,21 @@ export function Family() {
         {deleteTarget && (
           <div
             style={{
-              border: '1px solid rgba(194,90,90,0.35)',
+              border: '1px solid var(--dye-madder)',
+              opacity: 0.92,
               padding: 'clamp(20px, 4vw, 32px)',
               marginBottom: 32,
+              animation: 'hl-rise 180ms var(--ease) both',
             }}
           >
-            <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 12px', lineHeight: 1.4 }}>
-              Remove {deleteTarget.name}?
+            <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.4 }}>
+              Untether {deleteTarget.name} from the thread?
             </p>
-            <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 8px', lineHeight: 1.7, fontStyle: 'italic' }}>
-              All memories, letters, and voice recordings addressed to them will be queued for removal.
+            <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+              7 days to change your mind
             </p>
             <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 24px', lineHeight: 1.7, fontStyle: 'italic' }}>
-              You have <strong style={{ color: 'var(--warm)', fontStyle: 'normal' }}>7 days</strong> to undo this from your Family page before the deletion becomes permanent.
+              All memories, letters, and voice recordings addressed to them will be queued for removal. This becomes permanent after 7 days.
             </p>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
               <button
@@ -241,7 +243,8 @@ export function Family() {
                 disabled={deleteMember.isPending}
                 style={{
                   background: 'transparent',
-                  border: '1px solid rgba(194,90,90,0.5)',
+                  border: '1px solid var(--dye-madder)',
+                  borderRadius: 0,
                   padding: '10px 20px',
                   cursor: 'pointer',
                   fontFamily: 'var(--mono)',
@@ -254,7 +257,7 @@ export function Family() {
                   touchAction: 'manipulation',
                 }}
               >
-                {deleteMember.isPending ? 'removing…' : 'remove member'}
+                {deleteMember.isPending ? 'untethering…' : 'untether from thread'}
               </button>
               <button
                 type="button"
@@ -305,8 +308,8 @@ export function Family() {
         {!showForm && (
           <div style={{ display: 'flex', gap: 16, marginBottom: 36, flexWrap: 'wrap' }}>
             {atLimit ? (
-              <span className="hl-mono" style={{ fontSize: 13, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', alignSelf: 'center' }}>
-                thread full · 5 / 5
+              <span className="hl-mono" style={{ fontSize: 13, color: 'var(--warm)', letterSpacing: '0.18em', textTransform: 'uppercase', alignSelf: 'center' }}>
+                five voices woven · the thread is sealed
               </span>
             ) : (
               <>
@@ -388,7 +391,7 @@ export function Family() {
                 )}
                 <div style={{ gridColumn: '1 / -1' }}>
                   <button type="submit" className="hl-btn" disabled={create.isPending} style={{ opacity: create.isPending ? 0.5 : 1 }}>
-                    {create.isPending ? 'adding…' : 'add to thread →'}
+                    {create.isPending ? 'weaving…' : 'weave into cloth →'}
                   </button>
                 </div>
               </form>
@@ -408,7 +411,7 @@ export function Family() {
                 )}
                 <div style={{ gridColumn: '1 / -1', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16 }}>
                   <button type="submit" className="hl-btn" disabled={invite.isPending} style={{ opacity: invite.isPending ? 0.5 : 1 }}>
-                    {invite.isPending ? 'sending…' : 'send invite →'}
+                    {invite.isPending ? 'calling…' : 'call to thread →'}
                   </button>
                   <button
                     type="button"
@@ -427,9 +430,12 @@ export function Family() {
             )}
 
             {mode === 'invite' && inviteSent && (
-              <div>
-                <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 16px', lineHeight: 1.6 }}>
-                  Invite sent. They'll receive an email with a link to join the thread.
+              <div style={{ animation: 'hl-rise 360ms var(--ease) both' }}>
+                <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 4px', lineHeight: 1.6 }}>
+                  You've called them to the thread.
+                </p>
+                <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-dim)', margin: '0 0 20px', lineHeight: 1.6 }}>
+                  A summons is on its way to their inbox.
                 </p>
                 <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                   <button
@@ -571,7 +577,7 @@ export function Family() {
         ) : members.length === 0 ? (
           <div style={{ paddingTop: 8 }}>
             <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0, lineHeight: 1.7 }}>
-              No one on the thread yet.
+              The thread holds no voices yet. Weave someone in.
             </p>
           </div>
         ) : (
@@ -603,9 +609,8 @@ export function Family() {
                     <span
                       aria-hidden
                       style={{
-                        display: 'block', width: 8, height: 8, borderRadius: 0,
-                        background: dyeColor ?? 'transparent',
-                        border: dyeColor ? undefined : '1px solid var(--rule)',
+                        display: 'block', width: 3, height: 20, borderRadius: 0,
+                        background: dyeColor ?? 'var(--rule)',
                         flexShrink: 0,
                       }}
                     />

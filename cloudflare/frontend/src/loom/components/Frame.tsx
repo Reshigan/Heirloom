@@ -58,17 +58,6 @@ export function SecurityDot({ size = 6 }: { size?: number }) {
   );
 }
 
-// ── UserMenu: initials button + dropdown (preserved from v1) ──────────────
-const menuItemStyle: React.CSSProperties = {
-  display: 'block',
-  padding: '8px 12px',
-  fontFamily: 'var(--serif)',
-  fontSize: 14,
-  color: 'var(--bone-dim)',
-  textDecoration: 'none',
-  cursor: 'pointer',
-};
-
 function UserMenu() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -84,15 +73,14 @@ function UserMenu() {
         onBlur={() => setTimeout(() => setOpen(false), 200)}
         style={{
           position: 'relative',
-          width: 36,
-          height: 36,
+          width: 32, height: 32,
           background: 'transparent',
           border: '1px solid var(--rule)',
           borderRadius: 0,
-          color: 'var(--bone)',
+          color: 'var(--bone-dim)',
           fontFamily: 'var(--mono)',
-          fontSize: 11,
-          letterSpacing: '0.04em',
+          fontSize: 10,
+          letterSpacing: '0.06em',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -102,52 +90,49 @@ function UserMenu() {
       >
         {initials}
       </button>
-      {/* always rendered — CSS opacity/transform drives open/close so the transition is smooth */}
       <div
         aria-hidden={!open}
         style={{
           position: 'absolute',
-          top: 'calc(100% + 8px)',
+          top: 'calc(100% + 10px)',
           right: 0,
-          minWidth: 220,
-          background: 'var(--ink-card)',
+          minWidth: 200,
+          background: '#111110',
           border: '1px solid var(--rule)',
-          padding: 8,
           zIndex: 50,
           borderRadius: 0,
           transformOrigin: 'top right',
           opacity: open ? 1 : 0,
-          transform: open ? 'scale(1)' : 'scale(0.97) translateY(-4px)',
+          transform: open ? 'scale(1) translateY(0)' : 'scale(0.98) translateY(-6px)',
           pointerEvents: open ? 'auto' : 'none',
           visibility: open ? 'visible' : 'hidden',
           transition: 'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms linear ' + (open ? '0ms' : '180ms'),
         }}
       >
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
-            <p style={{ margin: 0, fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)' }}>
-              {user.firstName} {user.lastName}
-            </p>
-            <p style={{ margin: '2px 0 0', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}>
-              {user.email}
-            </p>
-          </div>
-          <div style={{ padding: '4px 0', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
-            <Link to="/loom/weft" style={menuItemStyle} onClick={() => setOpen(false)}>Tapestry</Link>
-            <Link to="/memories" style={menuItemStyle} onClick={() => setOpen(false)}>Memories</Link>
-            <Link to="/family" style={menuItemStyle} onClick={() => setOpen(false)}>Family</Link>
-          </div>
-          <div style={{ padding: '4px 0', borderBottom: '1px solid var(--rule)', marginBottom: 6 }}>
-            <Link to="/settings" style={menuItemStyle} onClick={() => setOpen(false)}>Settings</Link>
-            <Link to="/billing" style={menuItemStyle} onClick={() => setOpen(false)}>Billing</Link>
-          </div>
-          <button
-            type="button"
-            onClick={() => { setOpen(false); logout(); }}
-            style={{ ...menuItemStyle, background: 'transparent', border: 0, width: '100%', textAlign: 'left' }}
-          >
+        <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--rule)' }}>
+          <p style={{ margin: 0, fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 300, lineHeight: 1.3 }}>
+            {user.firstName} {user.lastName}
+          </p>
+          <p style={{ margin: '4px 0 0', fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.08em' }}>
+            {user.email}
+          </p>
+        </div>
+        <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
+          <Link to="/loom/weft" className="hl-menu-item" onClick={() => setOpen(false)}>Tapestry</Link>
+          <Link to="/memories" className="hl-menu-item" onClick={() => setOpen(false)}>Memories</Link>
+          <Link to="/family" className="hl-menu-item" onClick={() => setOpen(false)}>Family</Link>
+        </div>
+        <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
+          <Link to="/settings" className="hl-menu-item" onClick={() => setOpen(false)}>Settings</Link>
+          <Link to="/billing" className="hl-menu-item" onClick={() => setOpen(false)}>Billing</Link>
+        </div>
+        <div style={{ padding: '6px 0' }}>
+          <button type="button" className="hl-menu-item danger"
+            onClick={() => { setOpen(false); logout(); }}>
             Sign out
           </button>
         </div>
+      </div>
     </div>
   );
 }
@@ -276,7 +261,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
         </span>
 
         {/* center: §1.5-B append-only counter — ∞ until count loads, then the real number */}
-        <span className="hl-counter" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap', fontSize: 14 }}>
+        <span className="hl-counter" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
           {entryCount !== null ? entryCount.toLocaleString() : '∞'}
         </span>
 

@@ -29,6 +29,7 @@ export function Record() {
   const [title, setTitle] = useState('');
   const [transcript, setTranscript] = useState('');
   const [recordingState, setRecordingState] = useState<'idle' | 'recording' | 'paused' | 'recorded'>('idle');
+  const [sealedCeremony, setSealedCeremony] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -154,7 +155,8 @@ export function Record() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
-      navigate('/memories');
+      setSealedCeremony(true);
+      setTimeout(() => navigate('/memories'), 1400);
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : 'Could not save the recording.';
@@ -292,13 +294,13 @@ export function Record() {
                   padding: 0,
                   cursor: 'pointer',
                   fontFamily: 'var(--mono)',
-                  fontSize: 14,
-                  letterSpacing: '0.28em',
+                  fontSize: 13,
+                  letterSpacing: '0.32em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                 }}
               >
-                begin
+                speak
               </button>
             ) : (
               <span
@@ -328,14 +330,14 @@ export function Record() {
                 padding: '0 0 2px',
                 cursor: 'pointer',
                 color: 'var(--warm)',
-                fontFamily: 'var(--sans)',
-                fontSize: 18,
-                fontWeight: 400,
-                letterSpacing: '-0.005em',
+                fontFamily: 'var(--mono)',
+                fontSize: 13,
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
                 borderBottom: '1px solid currentColor',
               }}
             >
-              stop
+              seal
             </button>
             <button
               type="button"
@@ -346,9 +348,10 @@ export function Record() {
                 padding: 0,
                 cursor: 'pointer',
                 color: 'var(--bone-dim)',
-                fontFamily: 'var(--sans)',
-                fontSize: 15,
-                fontWeight: 400,
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
               }}
             >
               {recordingState === 'paused' ? 'resume' : 'pause'}
@@ -407,11 +410,12 @@ export function Record() {
               className="hl-serif hl-italic"
               style={{
                 marginTop: 8,
-                fontSize: 17,
+                fontSize: 20,
                 color: 'var(--bone-dim)',
                 textAlign: 'center',
                 maxWidth: 320,
-                lineHeight: 1.5,
+                lineHeight: 1.45,
+                fontVariationSettings: '"opsz" 20',
               }}
             >
               {PROMPTS[promptIdx]}
@@ -487,7 +491,7 @@ export function Record() {
               className="hl-btn"
               style={{ opacity: save.isPending || !audioBlob ? 0.5 : 1 }}
             >
-              {save.isPending ? 'saving…' : 'save'}
+              {save.isPending ? 'sealing…' : 'seal this voice →'}
             </button>
 
             <button
@@ -499,12 +503,14 @@ export function Record() {
                 padding: '0 0 2px',
                 cursor: 'pointer',
                 color: 'var(--bone-dim)',
-                fontFamily: 'var(--sans)',
-                fontSize: 14,
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
                 borderBottom: '1px solid var(--rule)',
               }}
             >
-              discard
+              let it fade
             </button>
           </div>
         ) : null}
@@ -562,6 +568,59 @@ export function Record() {
       ) : null}
 
       <TapestryEdge />
+
+      {/* ── sealed voice ceremony ─────────────────────────────────── */}
+      {sealedCeremony && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'var(--ink)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 16,
+            animation: 'hl-fade 360ms var(--ease) both',
+            zIndex: 100,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 32,
+              color: 'var(--warm)',
+              letterSpacing: '0.04em',
+              animation: 'hl-rise 720ms var(--ease) 180ms both',
+            }}
+          >
+            ∞
+          </span>
+          <span
+            className="hl-serif hl-italic"
+            style={{
+              fontSize: 18,
+              color: 'var(--bone)',
+              animation: 'hl-rise 720ms var(--ease) 360ms both',
+              fontVariationSettings: '"opsz" 18',
+            }}
+          >
+            spoken · sealed
+          </span>
+          <span
+            className="hl-mono"
+            style={{
+              fontSize: 11,
+              color: 'var(--bone-faint)',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              animation: 'hl-rise 720ms var(--ease) 540ms both',
+            }}
+          >
+            {mm}:{ss} bound to the loom
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -151,13 +151,14 @@ export function Signup() {
             begin · this takes about 90 seconds
           </div>
           <h1 className="hl-serif hl-tight" style={{
-            fontSize: 'clamp(36px, 5vw, 52px)',
+            fontSize: 'clamp(40px, 5.5vw, 60px)',
             fontWeight: 300, lineHeight: 1.06, letterSpacing: '-0.022em',
-            margin: 0, maxWidth: '18ch',
+            margin: 0, maxWidth: '16ch',
             color: 'var(--parchment-ink)',
+            fontVariationSettings: '"opsz" 40',
           }}>
-            Name your thread. Name{' '}
-            <span className="hl-italic" style={{ color: 'var(--warm)' }}>yourself.</span>
+            Name your thread.{' '}
+            <span className="hl-italic" style={{ color: 'var(--warm)' }}>Name yourself.</span>
           </h1>
 
           <form onSubmit={handleSubmit}>
@@ -272,7 +273,7 @@ export function Signup() {
                         borderTop: 0, borderBottom: 0, borderLeft: 0,
                         background: selected ? 'var(--ink)' : 'transparent',
                         color: selected ? 'var(--bone)' : 'var(--parchment-ink)',
-                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
                       <div className="hl-mono" style={{
@@ -280,7 +281,7 @@ export function Signup() {
                         color: selected ? 'var(--bone-faint)' : 'var(--parchment-faint)',
                       }}>
                         {t.name}
-                        {selected && <span style={{ color: 'var(--warm)' }}> · chosen ✓</span>}
+                        {selected && <span style={{ color: 'var(--warm)' }}> · chosen</span>}
                       </div>
                       <div className="hl-serif" style={{
                         fontSize: 36, fontWeight: 300, marginTop: 12,

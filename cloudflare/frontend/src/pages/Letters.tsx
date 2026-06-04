@@ -71,7 +71,7 @@ export function Letters() {
   return (
     <Frame
       left="letters"
-      right={<Link to="/letters/new" className="hl-link warm">write a letter →</Link>}
+      right={<Link to="/letters/new" className="hl-link warm">seal a letter →</Link>}
     >
       <div
         style={{
@@ -111,9 +111,9 @@ export function Letters() {
             ) : letters.length === 0 ? (
               <p
                 className="hl-serif"
-                style={{ fontStyle: 'italic', color: 'var(--bone-faint)' }}
+                style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, lineHeight: 1.7 }}
               >
-                No letters yet. The future is still unwritten.
+                No letters sealed yet. The future waits for your words.
               </p>
             ) : (
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -153,7 +153,7 @@ export function Letters() {
               className="hl-btn"
               style={{ textDecoration: 'none', display: 'inline-block' }}
             >
-              Write a letter →
+              Seal a letter →
             </Link>
           </div>
         </div>
@@ -232,18 +232,16 @@ function LetterRow({ letter }: { letter: Letter }) {
           ) : null}
 
           {!sealed ? (
-            <span className="hl-mono" style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--bone-low)', border: '1px solid var(--rule)', padding: '1px 6px', display: 'inline-block', marginTop: 6 }}>
-              draft
-            </span>
+            <span className="hl-tag" style={{ marginTop: 6 }}>draft</span>
           ) : null}
         </div>
 
         {/* dye swatch + expand indicator */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-          <span aria-hidden style={{ display: 'block', width: 12, height: 2, background: dyeFor(letter.id), marginTop: 8, flexShrink: 0 }} />
+          <span aria-hidden style={{ display: 'block', width: 24, height: 3, background: dyeFor(letter.id), marginTop: 8, flexShrink: 0 }} />
           {sealed && (
-            <span className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>
-              {expanded ? '↑' : '↓'}
+            <span className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+              {expanded ? 'close' : 'open'}
             </span>
           )}
         </div>

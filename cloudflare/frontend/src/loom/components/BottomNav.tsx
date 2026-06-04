@@ -72,12 +72,18 @@ const CSS = `
   .loom-bottom-nav { display: none !important; }
 }
 .loom-bottom-nav-link {
-  transition: color var(--loom-dur-fast) var(--loom-ease),
-              opacity var(--loom-dur-fast) var(--loom-ease),
-              transform var(--loom-dur-fast) var(--loom-ease);
+  transition: color 180ms cubic-bezier(0.16,1,0.3,1),
+              opacity 180ms cubic-bezier(0.16,1,0.3,1),
+              transform 180ms cubic-bezier(0.16,1,0.3,1),
+              border-color 180ms cubic-bezier(0.16,1,0.3,1);
   touch-action: manipulation;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
 }
-.loom-bottom-nav-link:active { opacity: 0.6; transform: scale(0.93); }
+.loom-bottom-nav-link[aria-current="page"] {
+  border-bottom-color: var(--warm);
+}
+.loom-bottom-nav-link:active { opacity: 0.55; transform: scale(0.92); }
 `;
 
 function ensureStyle() {
@@ -154,10 +160,10 @@ export function BottomNav() {
                 className="loom-mono loom-bottom-nav-link"
                 style={{
                   textDecoration: 'none',
-                  fontSize: 13,
-                  letterSpacing: '0.14em',
+                  fontSize: 11,
+                  letterSpacing: '0.20em',
                   textTransform: 'uppercase',
-                  color: active ? 'var(--warm)' : 'var(--bone-dim)',
+                  color: active ? 'var(--warm)' : 'var(--bone-faint)',
                   display: 'flex',
                   alignItems: 'center',
                   minHeight: 44,

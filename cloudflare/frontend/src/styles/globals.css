@@ -815,8 +815,14 @@ html {
 @media (max-width: 639px) {
   .hl-topbar { font-size: 12px; padding-left: 20px; padding-right: 20px; }
 }
-.hl-topbar .hl-counter { color: var(--bone-faint); letter-spacing: 0.14em; }
-.hl-topbar .hl-counter b { color: var(--bone-dim); font-weight: 400; }
+/* §1.5-B — the append-only counter IS the product. Not a footnote. */
+.hl-topbar .hl-counter {
+  color: var(--bone-dim);
+  letter-spacing: 0.06em;
+  font-size: 14px;
+  font-feature-settings: "tnum";
+}
+.hl-topbar .hl-counter b { color: var(--bone); font-weight: 400; }
 .hl-topbar .hl-link { color: var(--bone-dim); text-decoration: none; }
 .hl-topbar .hl-link:hover { color: var(--warm); }
 .hl-topbar .hl-link.warm { color: var(--warm); }
@@ -894,31 +900,101 @@ html {
   font-size: 16px;
   font-weight: 300;
   color: var(--parchment-ink);
-  background: var(--parchment);
-  border: 1px solid rgba(26, 25, 22, 0.3);
-  border-radius: 2px;
-  padding: 10px 14px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(26, 25, 22, 0.28);
+  border-radius: 0;  /* §2: 0px radius always */
+  padding: 10px 0;
   width: 100%;
   outline: none;
   transition: border-color var(--dur-fast) var(--ease);
 }
 .hl-input:focus { border-color: var(--warm); }
-.hl-input:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
+.hl-input:focus-visible { outline: none; }
 .hl-input::placeholder { color: var(--parchment-faint); }
 .hl-input:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* hl-input on ink backgrounds (authenticated pages) */
+.hl-screen:not(.parchment) .hl-input {
+  color: var(--bone);
+  border-bottom-color: var(--rule);
+}
+.hl-screen:not(.parchment) .hl-input::placeholder { color: var(--bone-faint); }
+.hl-screen:not(.parchment) .hl-input:focus { border-bottom-color: var(--warm); }
+
+/* ── Menu items — consistent hover in all dropdowns ──────────────────── */
+.hl-menu-item {
+  display: block;
+  padding: 10px 16px;
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--bone-dim);
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  transition: color var(--dur-fast) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hl-menu-item:hover { color: var(--bone); }
+}
+.hl-menu-item.danger { color: var(--dye-madder); opacity: 0.7; }
+@media (hover: hover) and (pointer: fine) {
+  .hl-menu-item.danger:hover { opacity: 1; }
+}
+
+/* ── Helper text — italic serif below form fields ────────────────────── */
+.hl-helper {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--bone-faint);
+  font-weight: 400;
+  max-width: 46ch;
+  margin-top: 10px;
+  display: block;
+}
+.hl-helper.dark { color: var(--parchment-faint); }
+
+/* ── Progress bar — the only loading affordance (§2.6: no spinners) ─── */
+.hl-progress {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+.hl-progress::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -40%;
+  width: 40%;
+  background: var(--warm);
+  animation: hl-progress-shuttle 1.4s cubic-bezier(0.16,1,0.3,1) infinite;
+}
+@keyframes hl-progress-shuttle {
+  0%   { left: -40%; }
+  100% { left: 110%; }
+}
 
 .hl-tag {
   display: inline-block;
   font-family: var(--mono);
   font-size: 9px;
   font-weight: 400;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--bone-dim);
-  padding: 2px 6px;
+  padding: 2px 7px;
   border: 1px solid var(--rule);
 }
-.hl-tag.warm { color: var(--warm); border-color: var(--warm); }
+.hl-tag.warm { color: var(--warm); border-color: rgba(176,122,74,0.35); }
+.hl-tag.danger { color: var(--dye-madder); border-color: rgba(232,64,48,0.3); opacity: 0.85; }
 .hl-chip {
   display: inline-block;
   font-family: var(--mono);

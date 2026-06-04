@@ -64,16 +64,17 @@ export function Login() {
         {/* left: form on parchment */}
         <main style={{ display: 'grid', placeItems: 'center', padding: 'clamp(28px, 5vh, 56px) clamp(16px, 6vw, 88px)' }}>
           <div style={{ width: '100%', maxWidth: 380 }}>
-            <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>welcome back</div>
+            <div className="hl-eyebrow dark" style={{ marginBottom: 22 }}>welcome back</div>
             <h1 className="hl-serif hl-tight" style={{
-              fontSize: 'clamp(34px, 4.4vw, 44px)',
-              fontWeight: 300, lineHeight: 1.08,
-              letterSpacing: '-0.018em',
-              margin: '0 0 36px', maxWidth: '14ch',
+              fontSize: 'clamp(40px, 5.5vw, 60px)',
+              fontWeight: 300, lineHeight: 1.06,
+              letterSpacing: '-0.022em',
+              margin: '0 0 40px', maxWidth: '13ch',
               color: 'var(--parchment-ink)',
+              fontVariationSettings: '"opsz" 40',
             }}>
-              Sign in{' '}
-              <span className="hl-italic" style={{ color: 'var(--warm)' }}>to the cloth.</span>
+              Enter{' '}
+              <span className="hl-italic" style={{ color: 'var(--warm)' }}>the cloth.</span>
             </h1>
 
             {sessionExpired ? (
@@ -88,7 +89,7 @@ export function Login() {
               </div>
             ) : null}
 
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 26 }}>
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 32 }}>
               <div>
                 <label htmlFor="l-email" className="hl-mono" style={{
                   display: 'block', marginBottom: 6,
@@ -124,12 +125,6 @@ export function Login() {
                   value={password} onChange={(e) => setPassword(e.target.value)}
                   className="hl-input"
                 />
-                <p className="hl-italic" style={{
-                  fontSize: 13.5, color: 'var(--parchment-faint)', marginTop: 14,
-                  lineHeight: 1.55, fontWeight: 400,
-                }}>
-                  We use passphrases — three or four words you choose. Easier to remember, harder to crack.
-                </p>
               </div>
 
               {error ? (
@@ -138,7 +133,7 @@ export function Login() {
                 </p>
               ) : null}
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 8 }}>
                 <button
                   type="submit"
                   disabled={isLoading || !email.trim() || !password.trim()}
@@ -151,9 +146,9 @@ export function Login() {
             </form>
 
             <div className="hl-mono" style={{
-              marginTop: 40, paddingTop: 22,
+              marginTop: 48, paddingTop: 22,
               borderTop: '1px solid var(--parchment-rule)',
-              fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase',
+              fontSize: 10, letterSpacing: '0.20em', textTransform: 'uppercase',
               color: 'var(--parchment-faint)',
             }}>
               new here?{' '}
@@ -185,7 +180,7 @@ export function Login() {
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
             color: 'var(--bone-faint)',
           }}>
-            specimen · 78 yrs · 4,318 entries · pan after signing in
+specimen · 78 years · 4,318 entries
           </div>
         </aside>
       </div>
