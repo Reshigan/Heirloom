@@ -50,6 +50,7 @@ export function Settings() {
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [exportLoading, setExportLoading] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Change password
   const [pwStage, setPwStage] = useState<'idle' | 'form'>('idle');
@@ -99,6 +100,7 @@ export function Settings() {
 
   const handleExport = async () => {
     setExportLoading(true);
+    setExportError(null);
     try {
       const res = await exportApi.exportData();
       const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
@@ -109,7 +111,7 @@ export function Settings() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      // silently ignore
+      setExportError('export failed — try again or contact support@heirloom.blue');
     } finally {
       setExportLoading(false);
     }
@@ -256,14 +258,19 @@ export function Settings() {
             </div>
           </div>
           <Row label="export" hint="full JSON archive of all your memories, letters, and voice">
-            <button
-              type="button"
-              onClick={handleExport}
-              disabled={exportLoading}
-              style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none', opacity: exportLoading ? 0.5 : 1 }}
-            >
-              {exportLoading ? 'preparing…' : 'download archive →'}
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={exportLoading}
+                style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none', opacity: exportLoading ? 0.5 : 1 }}
+              >
+                {exportLoading ? 'preparing…' : 'download archive →'}
+              </button>
+              {exportError && (
+                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.12em' }}>{exportError}</span>
+              )}
+            </div>
           </Row>
 
           {/* ── Encryption ───────────────────────────────── */}

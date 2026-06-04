@@ -60,7 +60,7 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
         <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
           {dateStr}
         </span>
-        <div style={{
+        <div className="memory-card-actions" style={{
           display: 'flex', gap: 12,
           opacity: (hovered || editing || confirmDelete) ? 1 : 0,
           transition: 'opacity 180ms ease',

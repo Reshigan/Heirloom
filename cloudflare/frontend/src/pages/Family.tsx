@@ -592,6 +592,7 @@ export function Family() {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(m)}
+                    className="family-member-delete"
                     style={{
                       background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                       width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',

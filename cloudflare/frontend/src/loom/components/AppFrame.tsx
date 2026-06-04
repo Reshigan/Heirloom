@@ -34,7 +34,7 @@ export function AppFrame({
         style={{
           maxWidth: width === 'wide' ? '100%' : 1180,
           margin: '0 auto',
-          padding: '40px 32px 96px',
+          padding: '40px 32px calc(96px + env(safe-area-inset-bottom, 0px))',
         }}
       >
         {children}

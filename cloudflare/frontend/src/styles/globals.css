@@ -723,6 +723,7 @@ html {
   font-feature-settings: "ss01", "ss02";
   font-variant-numeric: oldstyle-nums proportional-nums;
   transition: background-color var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease);
+  overscroll-behavior-y: none;
 }
 .hl-screen.parchment {
   background: var(--parchment);
@@ -910,6 +911,17 @@ html {
   width: 1px;
   background: var(--warm);
   opacity: 0.88;
+}
+
+/* Touch devices: always show hover-gated controls at reduced opacity */
+@media (hover: none) {
+  .memory-card-actions {
+    opacity: 0.5 !important;
+    pointer-events: auto !important;
+  }
+  .family-member-delete {
+    color: rgba(244, 236, 216, 0.28) !important;
+  }
 }
 
 /* BottomNav clearance — scroll containers end above the 72px nav bar on mobile */
