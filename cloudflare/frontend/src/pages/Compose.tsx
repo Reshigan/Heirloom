@@ -308,6 +308,7 @@ export function Compose() {
     onSuccess: () => {
       localStorage.removeItem(draftKey);
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
+      queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
       setWoven(true);
     },
     onError: (err: any) => {

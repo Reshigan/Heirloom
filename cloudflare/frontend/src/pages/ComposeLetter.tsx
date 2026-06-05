@@ -86,6 +86,7 @@ export function ComposeLetter() {
     mutationFn: () => persist(false),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['letters'] });
+      queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
       navigate('/letters');
     },
     onError: (e: any) =>
@@ -96,6 +97,7 @@ export function ComposeLetter() {
     mutationFn: () => persist(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['letters'] });
+      queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
       navigate('/letters');
     },
     onError: (e: any) =>

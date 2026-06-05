@@ -122,7 +122,7 @@ function UserMenu() {
           </p>
         </div>
         <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
-          <Link to="/loom/weft" className="hl-menu-item" onClick={() => setOpen(false)}>Tapestry</Link>
+          <Link to="/loom/weft" className="hl-menu-item" onClick={() => setOpen(false)}>cloth</Link>
           <Link to="/memories" className="hl-menu-item" onClick={() => setOpen(false)}>Memories</Link>
           <Link to="/family" className="hl-menu-item" onClick={() => setOpen(false)}>Family</Link>
         </div>
