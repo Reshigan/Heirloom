@@ -218,14 +218,15 @@ function QuickLinks() {
 
 function MiniCloth({ entries }: { entries: CanvasEntry[] }) {
   return (
-    <TapestryCanvas
-      width={typeof window !== 'undefined' ? window.innerWidth : 390}
-      height={180}
-      entries={entries}
-      kind="specimen"
-      animate
-      opts={{ tStart: new Date(2019, 0, 1), tEnd: new Date(2027, 0, 1), background: '#0a0a08', warpEvery: 7 }}
-    />
+    <div style={{ borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', overflow: 'hidden' }}>
+      <TapestryCanvas
+        height={180}
+        entries={entries}
+        kind="specimen"
+        animate
+        opts={{ tStart: new Date(2019, 0, 1), tEnd: new Date(2027, 0, 1), background: '#0e0e0c', warpEvery: 7 }}
+      />
+    </div>
   );
 }
 
