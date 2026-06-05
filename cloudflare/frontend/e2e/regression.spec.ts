@@ -48,14 +48,11 @@ async function login(page: Page, email = TEST_EMAIL, password = TEST_PASSWORD) {
     tokenCache.set(email, tokens);
   }
 
-  // Load the app origin so we can write to its localStorage, then navigate authenticated.
-  await page.goto('/login');
-  await page.waitForLoadState('domcontentloaded');
-  await page.evaluate(({ token, refresh, user }) => {
-    // Raw JWT used by the API interceptor
+  // Inject localStorage BEFORE the page loads so the React app boots authenticated.
+  // Using addInitScript avoids the race where /login redirects away before evaluate() runs.
+  await page.addInitScript(({ token, refresh, user }) => {
     localStorage.setItem('token', token);
     if (refresh) localStorage.setItem('refreshToken', refresh);
-    // Zustand persist state — route guard checks isAuthenticated from here
     localStorage.setItem('heirloom-auth', JSON.stringify({
       state: { user, isAuthenticated: true },
       version: 0,
