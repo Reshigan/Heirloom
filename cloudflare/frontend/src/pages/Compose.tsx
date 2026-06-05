@@ -230,11 +230,15 @@ function ToField({
 /* ─── Delivery trigger selector ──────────────────────────────────────── */
 type DeliveryTrigger = 'now' | 'date' | 'death' | 'milestone';
 
-const TRIGGER_OPTIONS: { value: DeliveryTrigger; label: string }[] = [
-  { value: 'now', label: 'open now' },
-  { value: 'date', label: 'on a date' },
-  { value: 'death', label: 'after death' },
-  { value: 'milestone', label: 'on a milestone' },
+const TRIGGER_OPTIONS: {
+  value: DeliveryTrigger;
+  label: string;
+  hint?: string;
+}[] = [
+  { value: 'now',       label: 'open now',       hint: 'recipient can read this immediately' },
+  { value: 'date',      label: 'on a date',      hint: 'sealed until a date you choose' },
+  { value: 'death',     label: 'after death',    hint: 'unseals when your thread is closed' },
+  { value: 'milestone', label: 'on a milestone', hint: 'unseals on a family milestone you define later' },
 ];
 
 function DeliveryField({
@@ -249,7 +253,7 @@ function DeliveryField({
   onDateChange: (v: string) => void;
 }) {
   return (
-    <div style={{ marginBottom: 28 }}>
+    <div style={{ marginBottom: 32 }}>
       <div
         style={{
           fontFamily: "'JetBrains Mono', monospace",
@@ -262,96 +266,97 @@ function DeliveryField({
       >
         available
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, alignItems: 'center', marginBottom: 6 }}>
-        {TRIGGER_OPTIONS.map((opt, i) => (
-          <span key={opt.value} style={{ display: 'inline-flex', alignItems: 'baseline' }}>
+
+      {/* Stacked option rows — each a full-width tappable target */}
+      <div style={{ border: '1px solid var(--rule)' }}>
+        {TRIGGER_OPTIONS.map((opt, i) => {
+          const active = opt.value === trigger;
+          return (
             <button
+              key={opt.value}
               type="button"
               onClick={() => onTriggerChange(opt.value)}
               style={{
+                display: 'block',
+                width: '100%',
+                textAlign: 'left',
                 background: 'transparent',
                 border: 0,
-                padding: '4px 0',
+                borderBottom: i < TRIGGER_OPTIONS.length - 1 ? '1px solid var(--rule)' : 'none',
+                borderLeft: `3px solid ${active ? 'var(--warm)' : 'transparent'}`,
+                padding: '14px 16px 14px 14px',
                 cursor: 'pointer',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 13,
-                letterSpacing: '0.12em',
-                color: opt.value === trigger ? 'var(--bone)' : 'var(--bone-faint)',
-                transition: 'color 180ms var(--ease)',
-                minHeight: 36,
+                minHeight: 48,
+                transition: 'border-left-color 180ms var(--ease)',
               }}
             >
-              {opt.label}
-            </button>
-            {i < TRIGGER_OPTIONS.length - 1 && (
               <span
                 style={{
-                  color: 'var(--bone-faint)',
-                  margin: '0 10px',
+                  display: 'block',
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 12,
+                  fontSize: 14,
+                  letterSpacing: '0.10em',
+                  color: active ? 'var(--bone)' : 'var(--bone-faint)',
+                  transition: 'color 180ms var(--ease)',
+                  lineHeight: 1.3,
                 }}
               >
-                ·
+                {opt.label}
               </span>
-            )}
-          </span>
-        ))}
+
+              {/* Hint — shown for all options when active, or for death/milestone always */}
+              {(active || opt.value === 'death' || opt.value === 'milestone') && opt.hint && (
+                <span
+                  style={{
+                    display: 'block',
+                    marginTop: 3,
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 10,
+                    letterSpacing: '0.08em',
+                    color: 'var(--bone-faint)',
+                    fontStyle: 'italic',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {opt.hint}
+                </span>
+              )}
+
+              {/* Date input — inline inside the row when 'date' is selected */}
+              {opt.value === 'date' && active && (
+                <div
+                  style={{ marginTop: 10 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="date"
+                    value={scheduledDate}
+                    onChange={(e) => onDateChange(e.target.value)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--rule)',
+                      color: 'var(--bone)',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 13,
+                      letterSpacing: '0.06em',
+                      padding: '8px 10px',
+                      colorScheme: 'dark',
+                      borderRadius: 0,
+                      outline: 'none',
+                      width: '100%',
+                      maxWidth: 200,
+                      boxSizing: 'border-box',
+                      touchAction: 'manipulation',
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--warm)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--rule)')}
+                  />
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
-
-      {trigger === 'date' && (
-        <input
-          type="date"
-          value={scheduledDate}
-          onChange={(e) => onDateChange(e.target.value)}
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--rule)',
-            color: 'var(--bone)',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 11,
-            letterSpacing: '0.08em',
-            padding: '4px 8px',
-            colorScheme: 'dark',
-            borderRadius: 0,
-            outline: 'none',
-            marginTop: 6,
-            transition: 'border-color 180ms var(--ease)',
-          }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--warm)')}
-          onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--rule)')}
-        />
-      )}
-
-      {trigger === 'death' && (
-        <div
-          style={{
-            marginTop: 6,
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 11,
-            color: 'var(--bone-faint)',
-            letterSpacing: '0.04em',
-            fontStyle: 'italic',
-          }}
-        >
-          unseals when your thread is closed
-        </div>
-      )}
-
-      {trigger === 'milestone' && (
-        <div
-          style={{
-            marginTop: 6,
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 11,
-            color: 'var(--bone-faint)',
-            letterSpacing: '0.04em',
-            fontStyle: 'italic',
-          }}
-        >
-          unseals on a family milestone you define later
-        </div>
-      )}
     </div>
   );
 }
