@@ -83,6 +83,7 @@ export function Marketing() {
   const [use3D, setUse3D] = useState(false);
   const pillars  = useReveal(0.08);
   const permSect = useReveal(0.06);
+  const bookSect = useReveal(0.08);
   const finalCta = useReveal(0.1);
   const ease = 'cubic-bezier(0.16,1,0.3,1)';
 
@@ -337,6 +338,116 @@ export function Marketing() {
                 lineHeight: 1.72, margin: 0,
                 color: 'rgba(244,236,216,0.42)',
               }}>{a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════
+          THE BOOK — proof of permanence
+          ════════════════════════════════════════════════════════════ */}
+      <section
+        ref={bookSect.ref}
+        style={{
+          padding: 'clamp(72px, 10vh, 120px) clamp(24px, 6vw, 80px)',
+          borderTop: '1px solid rgba(244,236,216,0.07)',
+          opacity: bookSect.visible ? 1 : 0,
+          transform: bookSect.visible ? 'translateY(0)' : 'translateY(24px)',
+          transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+          display: 'grid',
+          gridTemplateColumns: vpW < 680 ? '1fr' : '1fr 1fr',
+          gap: 'clamp(40px, 6vw, 80px)',
+          alignItems: 'center',
+        }}
+      >
+        <div>
+          <div style={{
+            fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.32em',
+            textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
+            marginBottom: 28,
+          }}>
+            proof of permanence
+          </div>
+          <h2 style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(22px, 2.8vw, 40px)',
+            fontWeight: 300, lineHeight: 1.15,
+            margin: '0 0 20px',
+            fontVariationSettings: '"opsz" 44',
+            letterSpacing: '-0.016em',
+            color: 'rgba(244,236,216,0.92)',
+          }}>
+            The thread becomes a book.
+          </h2>
+          <p style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(14px, 1.4vw, 17px)',
+            lineHeight: 1.72, margin: '0 0 32px',
+            color: 'rgba(244,236,216,0.46)',
+            maxWidth: '44ch',
+          }}>
+            Every entry your family has ever written — memories, letters, voice transcripts, milestones — bound into a letterpress-quality heirloom book. Not a photo album. Not a scrapbook. A record. Physical. Permanent. Something to hold.
+          </p>
+          <p style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(13px, 1.2vw, 15px)',
+            fontStyle: 'italic',
+            lineHeight: 1.65, margin: '0 0 36px',
+            color: 'rgba(244,236,216,0.30)',
+          }}>
+            Digital is ephemeral. Servers go down. Platforms close. A book outlasts all of it.
+          </p>
+          <Link
+            to="/book-builder"
+            style={{
+              display: 'inline-block', padding: '11px 28px',
+              border: '1px solid rgba(176,122,74,0.45)',
+              color: 'rgba(176,122,74,0.85)',
+              fontFamily: 'var(--mono)', fontSize: 10,
+              letterSpacing: '0.22em', textTransform: 'uppercase',
+              textDecoration: 'none',
+              transition: `border-color 180ms ${ease}, color 180ms ${ease}`,
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'rgba(176,122,74,0.85)';
+              e.currentTarget.style.color = 'rgba(176,122,74,1)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'rgba(176,122,74,0.45)';
+              e.currentTarget.style.color = 'rgba(176,122,74,0.85)';
+            }}
+          >
+            build the book →
+          </Link>
+        </div>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0,
+          borderLeft: '3px solid rgba(176,122,74,0.22)',
+          paddingLeft: 'clamp(20px, 3vw, 40px)',
+        }}>
+          {[
+            ['letterpress quality', 'Archival paper. Sewn binding. The same craft used for family bibles.'],
+            ['every entry included', 'Memories, letters, voice transcripts, milestones. The complete record.'],
+            ['ordered by thread', 'Not chronological. Ordered by the cloth — the way your family wove it.'],
+            ['ships anywhere', 'Printed and bound. Arrives in four to six weeks.'],
+          ].map(([label, detail], i, arr) => (
+            <div key={i} style={{
+              padding: 'clamp(16px, 2.5vh, 22px) 0',
+              borderBottom: i < arr.length - 1 ? '1px solid rgba(244,236,216,0.07)' : 'none',
+            }}>
+              <div style={{
+                fontFamily: 'var(--mono)', fontSize: 9,
+                letterSpacing: '0.22em', textTransform: 'uppercase',
+                color: 'rgba(176,122,74,0.55)', marginBottom: 8,
+              }}>{label}</div>
+              <p style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(13px, 1.2vw, 15px)',
+                lineHeight: 1.65, margin: 0,
+                color: 'rgba(244,236,216,0.38)',
+              }}>{detail}</p>
             </div>
           ))}
         </div>
