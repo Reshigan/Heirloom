@@ -1,47 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { billingApi } from '../services/api';
+import { PLAN_FEATURES } from '../lib/plans';
 
-const TIERS = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: '—',
-    priceBilledAnnually: null,
-    sub: 'forever',
-    subAnnual: null,
-    features: ['1 thread', '30 entries / yr', 'Read-only inheritance link', 'Export anytime'],
-    cta: 'Begin free',
-    to: '/signup',
-    warm: false,
-  },
-  {
-    id: 'family',
-    name: 'Family',
-    price: '$9.99',
-    priceBilledAnnually: '$99',
-    sub: '/ month',
-    subAnnual: '/ year · 2 months free',
-    features: ['Unlimited threads', 'Unlimited entries', 'Time-locked entries', 'Voice entries', 'Up to 5 family members', '30-day trial'],
-    cta: 'Start 30-day trial',
-    to: '/signup?tier=family',
-    warm: true,
-  },
-  {
-    id: 'founder',
-    name: 'Founder',
-    price: '$240',
-    priceBilledAnnually: null,
-    sub: 'once, lifetime',
-    subAnnual: null,
-    features: ['Everything in Family', 'Founder badge + pledge number', 'Locked price forever', 'Vote on the product roadmap'],
-    cta: 'Become a founder',
-    to: '/founder',
-    warm: false,
-  },
-];
+interface PricingData {
+  symbol: string;
+  code: string;
+  STARTER?: { monthly: number; yearly: number };
+  FAMILY?: { monthly: number; yearly: number };
+  LEGACY?: { yearly?: number };
+}
+
+const FALLBACK: PricingData = {
+  symbol: '$', code: 'USD',
+  STARTER: { monthly: 0, yearly: 0 },
+  FAMILY: { monthly: 9.99, yearly: 99 },
+  LEGACY: { yearly: 240 },
+};
+
+function fmt(symbol: string, n: number): string {
+  return `${symbol}${n % 1 === 0 ? n : n.toFixed(2)}`;
+}
 
 export function Pricing() {
   const [annual, setAnnual] = useState(false);
+  const [pricing, setPricing] = useState<PricingData>(FALLBACK);
+
+  useEffect(() => {
+    billingApi.getPricing().then((r: any) => {
+      const d = r.data ?? r;
+      if (d?.FAMILY?.monthly) setPricing(d);
+    }).catch(() => {});
+  }, []);
+
+  const s = pricing.symbol;
+
+  const tiers = [
+    {
+      id: 'STARTER',
+      name: 'Free',
+      price: '—',
+      priceBilledAnnually: null as string | null,
+      sub: 'forever',
+      subAnnual: null as string | null,
+      features: PLAN_FEATURES.STARTER,
+      cta: 'Begin free',
+      to: '/signup',
+      warm: false,
+    },
+    {
+      id: 'FAMILY',
+      name: 'Family',
+      price: fmt(s, pricing.FAMILY?.monthly ?? 9.99),
+      priceBilledAnnually: fmt(s, pricing.FAMILY?.yearly ?? 99),
+      sub: '/ month',
+      subAnnual: '/ year · 2 months free',
+      features: PLAN_FEATURES.FAMILY,
+      cta: 'Start 30-day trial',
+      to: '/signup?tier=FAMILY',
+      warm: true,
+    },
+    {
+      id: 'LEGACY',
+      name: 'Founder',
+      price: fmt(s, pricing.LEGACY?.yearly ?? 240),
+      priceBilledAnnually: null as string | null,
+      sub: 'once, lifetime',
+      subAnnual: null as string | null,
+      features: PLAN_FEATURES.LEGACY,
+      cta: 'Become a founder',
+      to: '/founder',
+      warm: false,
+    },
+  ];
 
   return (
     <div className="hl-screen parchment" style={{ overflowY: 'auto', minHeight: '100vh' }}>
@@ -80,7 +111,7 @@ export function Pricing() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 0, borderTop: '1px solid var(--parchment-rule)' }}>
-          {TIERS.map((tier) => (
+          {tiers.map((tier) => (
             <div
               key={tier.id}
               style={{
@@ -112,7 +143,7 @@ export function Pricing() {
 
               <div style={{ marginTop: 40 }}>
                 <Link
-                  to={annual && tier.id === 'family' ? '/signup?tier=family&cycle=annual' : tier.to}
+                  to={annual && tier.id === 'FAMILY' ? '/signup?tier=FAMILY&cycle=annual' : tier.to}
                   className={tier.warm ? 'hl-btn' : 'hl-btn ghost'}
                   style={!tier.warm ? { color: 'var(--parchment-ink)', borderColor: 'var(--parchment-rule)' } : {}}
                 >

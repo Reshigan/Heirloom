@@ -489,7 +489,7 @@ export const familyReferralsApi = {
 
 // Gift Subscriptions API
 export const giftSubscriptionsApi = {
-  getPricing: () => api.get('/gifts/pricing'),
+  getPricing: () => api.get('/gift-vouchers/pricing'),
   purchase: (data: {
     purchaserEmail: string;
     purchaserName: string;
@@ -500,9 +500,9 @@ export const giftSubscriptionsApi = {
     personalMessage?: string;
     style?: string;
     scheduledDeliveryDate?: string;
-  }) => api.post('/gifts/purchase', data),
-  redeem: (giftCode: string) => api.post('/gifts/redeem', { giftCode }),
-  getPurchased: () => api.get('/gifts/purchased'),
+  }) => api.post('/gift-vouchers/checkout', data),
+  redeem: (giftCode: string) => api.post('/gift-vouchers/redeem', { giftCode }),
+  getPurchased: () => api.get('/gift-vouchers/purchased'),
 };
 
 // QR Memorial Codes API

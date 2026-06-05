@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
 import { Frame } from '../loom/components/Frame';
+import { planLabel, isPaidTier, isFounderTier, isFreeTier, PLAN_LIMITS } from '../lib/plans';
 
 const BILLING_CSS = `
 .hl-billing-grid {
@@ -24,34 +25,6 @@ const BILLING_CSS = `
 }
 `;
 
-function tierLabel(tier: string): string {
-  switch (tier) {
-    case 'STARTER': case 'FREE': return 'free';
-    case 'FAMILY': return 'family';
-    case 'FOREVER': case 'LEGACY': return 'founder';
-    default: return tier.toLowerCase();
-  }
-}
-
-function tierPrice(tier: string): string {
-  switch (tier) {
-    case 'STARTER': case 'FREE': return 'free';
-    case 'FAMILY': return '$9.99';
-    case 'FOREVER': case 'LEGACY': return 'lifetime';
-    default: return '—';
-  }
-}
-
-function tierLimits(tier: string): Array<[string, string]> {
-  switch (tier) {
-    case 'STARTER': case 'FREE':
-      return [['members','1'],['entries','30 / yr'],['voice','3 / mo'],['storage','500 mb'],['letters','3'],['sealed','1']];
-    case 'FAMILY':
-      return [['members','unlimited'],['entries','unlimited'],['voice','unlimited'],['storage','10 gb'],['letters','unlimited'],['sealed','unlimited']];
-    default:
-      return [['members','unlimited'],['entries','unlimited'],['voice','unlimited'],['storage','unlimited'],['letters','unlimited'],['sealed','unlimited']];
-  }
-}
 
 export function Billing() {
   const [busy, setBusy] = useState<string | null>(null);
@@ -79,8 +52,8 @@ export function Billing() {
   const trialEndsAt = (subscription as any)?.trial_ends_at ?? null;
   const trialDaysRemaining = (subscription as any)?.trialDaysRemaining ?? 0;
   const isTrialing = status === 'TRIALING';
-  const priceLabel = tierPrice(currentTier);
-  const isFounder = currentTier === 'FOREVER' || currentTier === 'LEGACY';
+  const priceLabel = isFounderTier(currentTier) ? 'lifetime' : isFreeTier(currentTier) ? 'free' : '$9.99';
+  const isFounder = isFounderTier(currentTier);
   const counterText = isFounder
     ? 'founder · once · lifetime'
     : isTrialing
@@ -113,7 +86,7 @@ export function Billing() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 12 }}>
                   <div>
                     <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.28em', textTransform: 'uppercase' }}>
-                      {tierLabel(currentTier)}{isTrialing ? ' · trialing' : ''}
+                      {planLabel(currentTier)}{isTrialing ? ' · trialing' : ''}
                     </div>
                     <div className="hl-serif" style={{ fontSize: 'clamp(32px, 8vw, 52px)', fontWeight: 300, letterSpacing: '-0.022em', marginTop: 8, lineHeight: 1 }}>
                       {priceLabel}
@@ -137,7 +110,7 @@ export function Billing() {
                 </div>
 
                 <div className="hl-usage-grid" style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
-                  {tierLimits(currentTier).map(([n, u]) => (
+                  {(PLAN_LIMITS[currentTier?.toUpperCase()] ?? PLAN_LIMITS['STARTER']).map(([n, u]) => (
                     <div key={n}>
                       <div className="hl-serif" style={{ fontSize: 14, color: 'var(--bone)', fontWeight: 400 }}>{n}</div>
                       <div className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 1 }}>of {u}</div>
@@ -157,13 +130,13 @@ export function Billing() {
                       {busy === 'FAMILY_ANNUAL' ? 'opening…' : 'switch to annual'}
                     </button>
                   )}
-                  {currentTier !== 'STARTER' && currentTier !== 'FREE' && (
+                  {isPaidTier(currentTier) && (
                     <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending}
                       style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}>
                       {portal.isPending ? 'opening…' : 'downgrade'}
                     </button>
                   )}
-                  {(currentTier === 'STARTER' || currentTier === 'FREE') && (
+                  {isFreeTier(currentTier) && (
                     <button type="button" onClick={() => { setBusy('FAMILY'); checkout.mutate('monthly'); }} disabled={!!busy} className="hl-btn" style={{ fontSize: 11, padding: '9px 18px' }}>
                       {busy === 'FAMILY' ? 'opening…' : 'start 30-day trial →'}
                     </button>
