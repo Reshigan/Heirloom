@@ -78,7 +78,7 @@ const TIER_BULLETS: Record<string, string[]> = {
     'PDF + textile export',
     'Priority delivery',
   ],
-  FOREVER: [
+  LEGACY: [
     'Unlimited text entries',
     'Unlimited authors',
     'Append-only audit log',
@@ -120,15 +120,13 @@ export function GiftSubscriptions() {
   const purchaseMutation = useMutation({
     mutationFn: () =>
       giftSubscriptionsApi.purchase({
-        purchaserEmail:      formData.purchaserEmail,
-        purchaserName:       formData.purchaserName,
-        recipientEmail:      formData.recipientEmail,
-        recipientName:       formData.recipientName,
-        tier:                selectedTier!,
-        billingPeriod,
-        personalMessage:     formData.personalMessage,
-        style:               selectedStyle,
-        scheduledDeliveryDate: formData.scheduledDate || undefined,
+        purchaserEmail:  formData.purchaserEmail,
+        purchaserName:   formData.purchaserName,
+        recipientEmail:  formData.recipientEmail,
+        recipientName:   formData.recipientName,
+        tier:            selectedTier!,
+        billingCycle:    billingPeriod === 'monthly' ? 'quarterly' : 'yearly',
+        recipientMessage: formData.personalMessage,
       }),
     onSuccess: (response) => {
       setGiftResult(response.data);
@@ -140,24 +138,25 @@ export function GiftSubscriptions() {
   // ── Derived ──────────────────────────────────────────────────────────────────
   const tiers = pricing?.tiers || [
     {
-      id: 'STARTER', name: 'Starter',
-      monthly: { regular: 4.99, gift: 4.74, discountPct: 5, durationMonths: 1 },
-      annual:  { regular: 49.99, gift: 44.99, discountPct: 10, durationMonths: 12 },
+      id: 'STARTER', name: 'Starter', description: 'Begin the family thread', storage: '1 GB',
+      quarterly: { amount: 4.74, display: '$4.74' },
+      yearly:    { amount: 44.99, display: '$44.99', savings: '2 months free' },
     },
     {
-      id: 'FAMILY', name: 'Family',
-      monthly: { regular: 9.99, gift: 9.49, discountPct: 5, durationMonths: 1 },
-      annual:  { regular: 99.99, gift: 89.99, discountPct: 10, durationMonths: 12 },
+      id: 'FAMILY', name: 'Family', description: 'The full thread — for up to 12 authors', storage: '25 GB', popular: true,
+      quarterly: { amount: 9.49, display: '$9.49' },
+      yearly:    { amount: 89.99, display: '$89.99', savings: '2 months free' },
     },
     {
-      id: 'FOREVER', name: 'Forever',
-      monthly: { regular: 19.99, gift: 18.99, discountPct: 5, durationMonths: 1 },
-      annual:  { regular: 199.99, gift: 179.99, discountPct: 10, durationMonths: 12 },
+      id: 'LEGACY', name: 'Legacy', description: 'Unlimited authors, textile export, succession vault', storage: '250 GB',
+      quarterly: { amount: 18.99, display: '$18.99' },
+      yearly:    { amount: 179.99, display: '$179.99', savings: '2 months free' },
     },
   ];
 
   // Get pricing info for selected period
-  const tierPeriodPrice = (tier: any) => tier[billingPeriod] ?? tier.annual;
+  const tierPeriodPrice = (tier: any) =>
+    billingPeriod === 'monthly' ? (tier.quarterly ?? tier.yearly) : (tier.yearly ?? tier.quarterly);
 
   const handleNext = () => { if (step < 4) setStep(step + 1); };
   const handleBack = () => { if (step > 1) setStep(step - 1); };
@@ -378,19 +377,6 @@ export function GiftSubscriptions() {
                         : 'for every generation'}
                     </span>
 
-                    {/* Regular price struck-through */}
-                    <span
-                      className="hl-mono"
-                      style={{
-                        fontSize: 11,
-                        color: isFamily ? 'var(--bone-faint)' : 'var(--parchment-faint)',
-                        textDecoration: 'line-through',
-                        marginBottom: 2,
-                      }}
-                    >
-                      ${pp.regular}
-                    </span>
-
                     {/* Gift price */}
                     <span
                       className="hl-serif hl-tight"
@@ -402,7 +388,7 @@ export function GiftSubscriptions() {
                         marginBottom: 6,
                       }}
                     >
-                      ${pp.gift}
+                      {pp.display ?? `$${pp.amount}`}
                     </span>
 
                     {/* Sub label */}
@@ -416,7 +402,7 @@ export function GiftSubscriptions() {
                         marginBottom:  28,
                       }}
                     >
-                      {billingPeriod === 'monthly' ? '1 month' : '1 year'} · {pp.discountPct}% gift discount
+                      {billingPeriod === 'monthly' ? '3 months' : '12 months'}{pp.savings ? ` · ${pp.savings}` : ''}
                     </span>
 
                     {/* Bullets */}
@@ -812,23 +798,15 @@ export function GiftSubscriptions() {
                   total
                 </span>
                 <div style={{ textAlign: 'right' }}>
-                  {selectedPricing && (
-                    <span
-                      className="hl-mono"
-                      style={{ fontSize: 10, color: 'var(--parchment-faint)', textDecoration: 'line-through', display: 'block' }}
-                    >
-                      ${selectedPricing.regular}
-                    </span>
-                  )}
                   <span
                     className="hl-serif"
                     style={{ fontSize: 20, color: 'var(--warm)' }}
                   >
-                    ${selectedPricing?.gift ?? '—'}
+                    {selectedPricing ? (selectedPricing.display ?? `$${selectedPricing.amount}`) : '—'}
                   </span>
-                  {selectedPricing && (
+                  {selectedPricing?.savings && (
                     <span className="hl-mono" style={{ fontSize: 9, color: 'var(--warm)', display: 'block', letterSpacing: '0.18em' }}>
-                      {selectedPricing.discountPct}% gift discount
+                      {selectedPricing.savings}
                     </span>
                   )}
                 </div>
