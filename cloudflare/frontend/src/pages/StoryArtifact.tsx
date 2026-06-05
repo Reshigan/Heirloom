@@ -700,7 +700,7 @@ export function StoryArtifact() {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))',
                     gap: 4,
                     maxHeight: 240,
                     overflowY: 'auto',

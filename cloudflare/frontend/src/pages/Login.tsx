@@ -60,11 +60,11 @@ export function Login() {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 460px), 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
         minHeight: 'calc(100vh - 73px)',
       }}>
         {/* Left: form */}
-        <main style={{ display: 'grid', placeItems: 'center', padding: 'clamp(28px, 5vh, 56px) clamp(16px, 6vw, 88px)' }}>
+        <main style={{ display: 'grid', placeItems: 'center', padding: 'clamp(28px, 5vh, 56px) clamp(16px, 6vw, 88px)', minWidth: 0 }}>
           <div style={{ width: '100%', maxWidth: 380 }}>
             {/* ∞ — 3D floating mark, the product's only symbol */}
             <div style={{ marginBottom: 32, lineHeight: 1 }}>
@@ -178,7 +178,7 @@ export function Login() {
             background: '#0e0e0c',
             position: 'relative',
             overflow: 'hidden',
-            minHeight: 360,
+            minHeight: 'min(360px, 40vh)',
           }}
         >
           <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>

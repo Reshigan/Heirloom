@@ -194,7 +194,7 @@ export function FoundersWall() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, auto)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
             justifyContent: 'start',
             marginTop: 40,
             border: '1px solid var(--parchment-rule)',

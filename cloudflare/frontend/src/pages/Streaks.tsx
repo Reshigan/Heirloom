@@ -280,13 +280,14 @@ export function Streaks() {
               </p>
 
               {/* Tooltip */}
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', overflowX: 'auto' }}>
                 <div
                   style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(7, 1fr)',
                     gap: 4,
                     marginTop: 40,
+                    minWidth: 340,
                   }}
                 >
                   {activityDays.map(day => (

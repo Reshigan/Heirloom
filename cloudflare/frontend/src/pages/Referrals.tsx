@@ -360,7 +360,7 @@ export function Referrals() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))',
                   border: '1px solid var(--rule)',
                 }}
               >

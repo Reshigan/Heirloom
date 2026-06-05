@@ -61,7 +61,7 @@ export function Privacy() {
         </h1>
 
         {SECTIONS.map((s) => (
-          <div key={s.n} style={{ marginTop: 56, display: 'grid', gridTemplateColumns: '100px 1fr', gap: 32, borderTop: '1px solid var(--parchment-rule)', paddingTop: 28 }}>
+          <div key={s.n} style={{ marginTop: 56, display: 'grid', gridTemplateColumns: 'min(100px, 22%) 1fr', gap: 'clamp(16px, 3vw, 32px)', borderTop: '1px solid var(--parchment-rule)', paddingTop: 28 }}>
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.32em', textTransform: 'uppercase' }}>{s.n}</div>
             <div>
               <h2 className="hl-serif hl-tight" style={{ fontSize: 28, fontWeight: 400, margin: 0, letterSpacing: '-0.012em', color: 'var(--parchment-ink)' }}>{s.h}</h2>

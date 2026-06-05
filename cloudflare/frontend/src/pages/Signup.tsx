@@ -151,7 +151,7 @@ export function Signup() {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 520px), 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
         minHeight: 'calc(100vh - 73px)',
       }}>
       <main style={{ padding: 'clamp(28px, 4vh, 52px) clamp(16px, 6vw, 88px) clamp(56px, 8vh, 100px)', overflow: 'auto' }}>
@@ -173,7 +173,7 @@ export function Signup() {
           <form onSubmit={handleSubmit}>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
               gap: 56, marginTop: 56,
             }}>
               {/* step one */}
@@ -195,7 +195,7 @@ export function Signup() {
               {/* step two */}
               <section>
                 <StepEyebrow>step two · you</StepEyebrow>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 24 }}>
                   <div>
                     <FieldLabel htmlFor="s-first">your name</FieldLabel>
                     <PInput id="s-first" value={form.firstName} onChange={(v) => set({ firstName: v })} autoComplete="given-name" />
@@ -217,7 +217,7 @@ export function Signup() {
                   <PInput id="s-email" type="email" value={form.email} onChange={(v) => set({ email: v })} autoComplete="email" />
                   {errors.email ? <FieldError>{errors.email}</FieldError> : null}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 20 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 20, marginTop: 20 }}>
                   <div>
                     <FieldLabel htmlFor="s-pw">password</FieldLabel>
                     <PInput id="s-pw" type="password" value={form.password} onChange={(v) => set({ password: v })} autoComplete="new-password" />
@@ -376,7 +376,7 @@ export function Signup() {
             background: '#0e0e0c',
             position: 'relative',
             overflow: 'hidden',
-            minHeight: 360,
+            minHeight: 'min(360px, 40vh)',
           }}
         >
           <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>

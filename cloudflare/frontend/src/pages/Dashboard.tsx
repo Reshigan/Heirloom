@@ -125,7 +125,7 @@ export function Dashboard() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
             gap: 1,
             background: 'var(--rule)',
             border: '1px solid var(--rule)',
@@ -211,7 +211,7 @@ export function Dashboard() {
           paddingTop: 28,
           borderTop: '1px solid var(--rule)',
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))',
           gap: 32,
         }}
       >

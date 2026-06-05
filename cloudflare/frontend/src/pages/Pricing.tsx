@@ -76,7 +76,7 @@ export function Pricing() {
 
   return (
     <div className="hl-screen parchment" style={{ overflowY: 'auto', minHeight: '100vh' }}>
-      <div style={{ padding: '80px 56px 120px', maxWidth: 1080, margin: '0 auto' }}>
+      <div style={{ padding: 'clamp(48px, 6vh, 80px) clamp(20px, 5vw, 56px) clamp(64px, 10vh, 120px)', maxWidth: 1080, margin: '0 auto' }}>
         <div className="hl-eyebrow dark" style={{ marginBottom: 24 }}>Pricing</div>
         <h1 className="hl-serif hl-tight" style={{ fontSize: 48, fontWeight: 300, margin: '0 0 40px', color: 'var(--parchment-ink)' }}>
           One price for the whole family.
@@ -110,7 +110,7 @@ export function Pricing() {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 0, borderTop: '1px solid var(--parchment-rule)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 0, borderTop: '1px solid var(--parchment-rule)' }}>
           {tiers.map((tier) => (
             <div
               key={tier.id}
