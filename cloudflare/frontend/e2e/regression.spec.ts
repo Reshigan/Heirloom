@@ -292,7 +292,7 @@ test.describe('inbox', () => {
 
 test.describe('pwa and responsive', () => {
   test('manifest is accessible', async ({ page }) => {
-    const response = await page.goto('/manifest.json');
+    const response = await page.goto('/manifest.webmanifest');
     expect(response?.status()).toBe(200);
     const json = await response?.json();
     expect(json.name || json.short_name).toBeTruthy();
