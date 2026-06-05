@@ -59,6 +59,7 @@ const InterviewMode = lazy(() => import('./pages/InterviewMode').then(m => ({ de
 const TimeCapsulePage = lazy(() => import('./pages/TimeCapsule').then(m => ({ default: m.TimeCapsule })));
 const MemoryMap = lazy(() => import('./pages/MemoryMap').then(m => ({ default: m.MemoryMap })));
 const BookBuilder = lazy(() => import('./pages/BookBuilder').then(m => ({ default: m.BookBuilder })));
+const BookSuccess = lazy(() => import('./pages/BookSuccess').then(m => ({ default: m.BookSuccess })));
 const FamilyFeed = lazy(() => import('./pages/FamilyFeed').then(m => ({ default: m.FamilyFeed })));
 const OnThisDay = lazy(() => import('./pages/OnThisDay').then(m => ({ default: m.OnThisDay })));
 const GiftAMemory = lazy(() => import('./pages/GiftAMemory').then(m => ({ default: m.GiftAMemory })));
@@ -82,6 +83,13 @@ const Memories        = lazy(() => import('./pages/Memories').then(m => ({ defau
 const ThreadsIndex    = lazy(() => import('./pages/ThreadsIndex').then(m => ({ default: m.ThreadsIndex })));
 const PwaHome         = lazy(() => import('./loom/pages/PwaHome').then(m => ({ default: m.PwaHome })));
 const InheritanceCard = lazy(() => import('./pages/InheritanceCard').then(m => ({ default: m.InheritanceCard })));
+
+// Book + scenario pages
+const BookPage              = lazy(() => import('./pages/BookPage').then(m => ({ default: m.BookPage })));
+const ScenarioWeddingDay    = lazy(() => import('./pages/ScenarioPages').then(m => ({ default: m.ScenarioWeddingDay })));
+const ScenarioEighteenth    = lazy(() => import('./pages/ScenarioPages').then(m => ({ default: m.ScenarioEighteenthBirthday })));
+const ScenarioAfterIGo      = lazy(() => import('./pages/ScenarioPages').then(m => ({ default: m.ScenarioAfterIGo })));
+const ScenarioGrandchildren = lazy(() => import('./pages/ScenarioPages').then(m => ({ default: m.ScenarioFutureGrandchildren })));
 
 // The Loom — the live marketing + design system.
 // See cloudflare/frontend/src/loom/DESIGN.md.
@@ -239,6 +247,11 @@ export default function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/showcase" element={<Showcase />} />
           <Route path="/inheritance/:token" element={<InheritanceCard />} />
+          <Route path="/book" element={<ProtectedRoute><BookPage /></ProtectedRoute>} />
+          <Route path="/for/wedding-day" element={<ScenarioWeddingDay />} />
+          <Route path="/for/eighteenth-birthday" element={<ScenarioEighteenth />} />
+          <Route path="/for/after-i-go" element={<ScenarioAfterIGo />} />
+          <Route path="/for/grandchildren" element={<ScenarioGrandchildren />} />
           <Route
             path="/login"
             element={
@@ -463,6 +476,7 @@ export default function App() {
           <Route path="/time-capsules" element={<ProtectedRoute><TimeCapsulePage /></ProtectedRoute>} />
           <Route path="/memory-map" element={<ProtectedRoute><MemoryMap /></ProtectedRoute>} />
           <Route path="/book-builder" element={<ProtectedRoute><BookBuilder /></ProtectedRoute>} />
+          <Route path="/book-builder/success" element={<BookSuccess />} />
           <Route path="/family-feed" element={<ProtectedRoute><FamilyFeed /></ProtectedRoute>} />
           <Route path="/on-this-day" element={<ProtectedRoute><OnThisDay /></ProtectedRoute>} />
           <Route path="/gift-a-memory" element={<ProtectedRoute><GiftAMemory /></ProtectedRoute>} />

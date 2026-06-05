@@ -285,6 +285,51 @@ app.route('/api/gift-vouchers', giftVoucherRoutes);
 app.route('/api/referral', referralRoutes);
 app.route('/api/influencer', influencerRoutes);
 app.route('/api/partner', partnerRoutes);
+// PUBLIC R2 serving for Living Book PDFs — Lulu fetches interior/cover
+// PDFs from here. No auth: access is gated by checking the requested key
+// against book_orders.interior_pdf_key / cover_pdf_key (so only PDFs that
+// belong to a real order are servable), and the key must be under books/.
+// Registered before the /api/archive sub-app mount so it takes precedence.
+app.get('/api/archive/r2/*', async (c) => {
+  const url = new URL(c.req.url);
+  const pathAfterR2 = url.pathname.split('/archive/r2/')[1];
+  if (!pathAfterR2) {
+    return c.json({ error: 'Invalid file key' }, 400);
+  }
+
+  const key = decodeURIComponent(pathAfterR2);
+
+  if (!key.startsWith('books/')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  // Verify the key belongs to a real book order — prevents access to
+  // arbitrary R2 paths under books/.
+  const row = await c.env.DB.prepare(
+    'SELECT id FROM book_orders WHERE interior_pdf_key = ? OR cover_pdf_key = ? LIMIT 1'
+  ).bind(key, key).first();
+  if (!row) {
+    return c.json({ error: 'File not found' }, 404);
+  }
+
+  try {
+    const object = await c.env.STORAGE.get(key);
+    if (!object) {
+      return c.json({ error: 'File not found' }, 404);
+    }
+
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/pdf');
+    headers.set('Cache-Control', 'public, max-age=86400');
+    headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
+
+    return new Response(object.body, { headers });
+  } catch (err: any) {
+    console.error('Error serving book PDF from R2:', err);
+    return c.json({ error: 'Failed to retrieve file' }, 500);
+  }
+});
+
 // Public continuity audit — anyone can see pin status. THREAD.md Pillar 5.
 app.route('/api/archive', archiveRoutes);
 // Lulu Direct webhook (no auth — uses HMAC signature instead).

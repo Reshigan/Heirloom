@@ -23,47 +23,35 @@ interface Step {
   eyebrow: string;
   heading: string;
   body: string;
-  visual?: 'cloth' | 'write' | 'seal';
+  visual?: 'cloth' | 'write' | 'seal' | 'trigger';
   cta?: string;
   ctaTo?: string;
 }
 
 const STEPS: Step[] = [
   {
-    eyebrow: 'welcome',
-    heading: 'Your family’s thousand-year thread starts here.',
-    body: 'Heirloom is a perpetual, append-only archive owned by your bloodline — not a platform. Every word you write today is a permanent thread in your family’s cloth.',
-    visual: 'write',
+    eyebrow: 'the sealed letter',
+    heading: 'There is someone who needs to read this. Just not yet.',
+    body: "Write a letter today — for your daughter's wedding, your son's eighteenth birthday, the grandchild not yet born. Heirloom holds it safe and delivers it exactly when you choose.",
+    visual: 'seal',
   },
   {
-    eyebrow: 'write',
-    heading: 'Leave a piece of yourself behind, daily.',
-    body: 'A memory. A letter. A voice note. Write for yourself, for family, for a friend — or for someone not yet born. Each entry is woven into the cloth and can never be deleted.',
-    visual: 'write',
+    eyebrow: 'choose the moment',
+    heading: 'A date. A milestone. Your death. Their eighteenth birthday.',
+    body: 'Every sealed letter has a trigger. Set it once and forget it. When the moment arrives — years or decades from now — the letter finds them. No account required on their end.',
+    visual: 'trigger',
   },
   {
     eyebrow: 'the cloth',
-    heading: 'Every entry becomes a thread in an infinite tapestry.',
-    body: 'As you and your family write, the cloth grows richer. Each coloured line is a real entry — a story, a thought, a day worth keeping. Your descendants will read this cloth long after you.',
+    heading: 'Every word you write becomes a permanent thread.',
+    body: 'As your family writes, the cloth grows — a living record that belongs to your bloodline, not a platform. Your descendants will read this long after you. The thread never ends.',
     visual: 'cloth',
-  },
-  {
-    eyebrow: 'family',
-    heading: 'Invite your bloodline.',
-    body: 'Add family members — each weaves their own voice into the same cloth. Everyone writes from their own perspective. The thread belongs to no one person.',
-    visual: 'write',
-  },
-  {
-    eyebrow: 'sealed time',
-    heading: 'Lock entries for the future.',
-    body: 'Write something today and seal it — to open in ten years, on a grandchild’s eighteenth birthday, or a date you choose. The Listener holds it safe until then.',
-    visual: 'seal',
-    cta: 'begin weaving →',
+    cta: 'Write your first sealed letter →',
     ctaTo: '/compose',
   },
 ];
 
-function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | undefined }) {
+function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' | undefined }) {
   const w = typeof window !== 'undefined' ? Math.min(window.innerWidth - 32, 420) : 360;
 
   if (kind === 'cloth') {
@@ -83,16 +71,47 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | undefined }
 
   if (kind === 'seal') {
     return (
-      <div style={{ margin: '24px 0', display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ width: 48, height: 48, border: '1px solid var(--rule)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <span style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 300, color: 'var(--warm)' }}>∞</span>
+      <div style={{ margin: '24px 0', padding: '16px 18px', borderLeft: '2px solid rgba(176,122,74,0.55)', border: '1px solid var(--rule)', borderLeftWidth: 2, borderLeftColor: 'rgba(176,122,74,0.55)' }}>
+        <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 10 }}>
+          sealed · for Clara · opens: her wedding day
         </div>
-        <div>
-          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>sealed · opens 2044</div>
-          <div className="hl-serif" style={{ fontSize: 13, color: 'var(--bone-dim)', marginTop: 4, fontWeight: 300, fontStyle: 'italic' }}>
-            a letter to my grandchildren
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span className="hl-serif" style={{ fontSize: 22, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
+          <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
+            a letter from Margaret — written today
+          </span>
+        </div>
+        <div className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(176,122,74,0.65)', marginTop: 10 }}>
+          awaiting · est. 2041
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === 'trigger') {
+    const triggers = [
+      { label: 'on a specific date', hint: '14 June 2041', active: false },
+      { label: 'on their 18th birthday', hint: 'milestone', active: true },
+      { label: 'on my death', hint: 'testament', active: false },
+      { label: 'on a named event', hint: 'their wedding', active: false },
+    ];
+    return (
+      <div style={{ margin: '24px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {triggers.map(t => (
+          <div key={t.label} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '10px 14px',
+            border: `1px solid ${t.active ? 'rgba(176,122,74,0.55)' : 'var(--rule)'}`,
+            borderLeft: `2px solid ${t.active ? 'var(--warm)' : 'transparent'}`,
+          }}>
+            <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: t.active ? 'var(--warm)' : 'var(--bone-faint)' }}>
+              {t.label}
+            </span>
+            <span className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.12em', color: t.active ? 'rgba(176,122,74,0.65)' : 'var(--bone-faint)', opacity: 0.7 }}>
+              {t.hint}
+            </span>
           </div>
-        </div>
+        ))}
       </div>
     );
   }

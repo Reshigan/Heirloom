@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { LoomShell } from '../components/LoomShell';
-import { Frame } from '../components/Frame';
+import { Link } from 'react-router-dom';
+import { ClothShell } from '../components/ClothShell';
 import { SealedNote } from '../components/SealedNote';
 
 /**
@@ -55,19 +55,26 @@ export function Composer() {
   }, []);
 
   return (
-    <LoomShell>
-      <Frame
-        active="compose"
-        right={<span className="loom-mono loom-faint">unsaved · encrypted in browser</span>}
+    <ClothShell
+      topbarLeft={
+        <Link to="/loom/weft" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
+          ← cloth
+        </Link>
+      }
+      topbarCenter="compose"
+      topbarRight={
+        <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.28)', letterSpacing: '0.1em' }}>
+          unsaved · encrypted
+        </span>
+      }
+    >
+      <div
+        style={{
+          height: '100%',
+          display: 'grid',
+          gridTemplateColumns: '1fr 360px',
+        }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'grid',
-            gridTemplateColumns: '1fr 360px',
-          }}
-        >
           {/* center: the page */}
           <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {/* mode toggle row */}
@@ -143,8 +150,7 @@ export function Composer() {
                       minHeight: 220,
                     }}
                   >
-                    {typed}
-                    <span className="loom-caret" />
+                    <span className="hl-composer-cursor-after">{typed}</span>
                   </div>
 
                   <div style={{ marginTop: 40, minHeight: 68 }}>
@@ -241,8 +247,7 @@ export function Composer() {
                       minHeight: 220,
                     }}
                   >
-                    {typed}
-                    <span className="loom-caret" />
+                    <span className="hl-composer-cursor-after">{typed}</span>
                   </div>
 
                   <div style={{ marginTop: 42, display: 'flex', gap: 28, alignItems: 'center' }}>
@@ -334,7 +339,6 @@ export function Composer() {
             style={{
               borderLeft: '1px solid var(--rule)',
               padding: '72px 36px',
-              background: 'rgba(244,236,216,0.012)',
               overflowY: 'auto',
             }}
           >
@@ -396,8 +400,7 @@ export function Composer() {
               </div>
             </div>
           </aside>
-        </div>
-      </Frame>
-    </LoomShell>
+      </div>
+    </ClothShell>
   );
 }

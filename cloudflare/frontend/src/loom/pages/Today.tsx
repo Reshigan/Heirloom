@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Frame } from '../components/Frame';
+import { ClothShell } from '../components/ClothShell';
 import { TapestryCanvas } from '../components/TapestryCanvas';
 import { useListener } from '../../hooks/useListener';
 import { useTapestryEntries } from '../../hooks/useTapestryEntries';
@@ -35,8 +35,82 @@ export function Today() {
     return Math.max(0, Math.min(1, (+now - +start) / (+end - +start)));
   })();
 
+  const todayTopbar = (
+    <Link to="/loom/weft" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
+      ← cloth
+    </Link>
+  );
+
+  // First-run: no entries yet — show focused sealed letter prompt
+  if (entries.length === 0) {
+    return (
+      <ClothShell topbarLeft={todayTopbar} topbarCenter="today">
+        <div style={{
+          padding: 'clamp(48px, 9vw, 80px) clamp(20px, 6vw, 56px)',
+          maxWidth: 600,
+          opacity: revealed ? 1 : 0,
+          transform: revealed ? 'translateY(0)' : 'translateY(14px)',
+          transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+        }}>
+          <div className="hl-eyebrow" style={{ marginBottom: 22, color: 'var(--warm)' }}>
+            entry no. 0001
+          </div>
+          <h1 className="hl-serif hl-tight" style={{
+            fontSize: 'clamp(26px, 4vw, 44px)', fontWeight: 300, lineHeight: 1.1,
+            margin: '0 0 20px', color: 'var(--bone)', fontVariationSettings: '"opsz" 44',
+          }}>
+            There is someone who needs to read this.<br />Just not yet.
+          </h1>
+          <p className="hl-serif" style={{
+            fontSize: 'clamp(15px, 1.6vw, 18px)', fontWeight: 300,
+            color: 'var(--bone-dim)', lineHeight: 1.68, margin: '0 0 36px', maxWidth: '42ch',
+          }}>
+            Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose.
+            It holds safe and finds them exactly when you intended.
+          </p>
+
+          {/* Sealed letter preview */}
+          <div style={{
+            display: 'inline-flex', flexDirection: 'column', gap: 6,
+            padding: '12px 16px 12px 18px',
+            border: '1px solid rgba(244,236,216,0.10)',
+            borderLeft: '2px solid rgba(176,122,74,0.55)',
+            marginBottom: 32,
+          }}>
+            <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+              sealed · delivery: your choice
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
+              <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
+                your first letter — written today
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Link to="/compose" className="hl-btn">Write your first sealed letter →</Link>
+            <Link to="/record" style={{
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 1,
+            }}>or record a voice →</Link>
+          </div>
+
+          <div style={{ marginTop: 52, borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
+            <div className="hl-eyebrow" style={{ marginBottom: 10, color: 'var(--bone-faint)' }}>the listener</div>
+            <p className="hl-serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0, maxWidth: '44ch' }}>
+              {prompt}
+            </p>
+          </div>
+        </div>
+      </ClothShell>
+    );
+  }
+
   return (
-    <Frame left="today">
+    <ClothShell topbarLeft={todayTopbar} topbarCenter="today">
+      {/* ── Content: flex column filling full height ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* ── Content: top third of screen ── */}
       <div style={{
         padding: 'clamp(36px, 7vw, 64px) clamp(20px, 6vw, 56px) 0',
@@ -130,6 +204,7 @@ export function Today() {
           }}
         />
       </div>
-    </Frame>
+      </div>
+    </ClothShell>
   );
 }

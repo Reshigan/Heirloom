@@ -85,6 +85,8 @@ interface DrawOpts {
   flashIdx?: number | null;
   flashPower?: number;
   breathY?: number;
+  /** Draw N ghost threads at 0.05 alpha behind real entries (shows target state) */
+  ghostTargetCount?: number;
 }
 
 // ─── Premium thread renderer ────────────────────────────────────────────────
@@ -370,13 +372,36 @@ export function drawCloth(
     }
   }
 
-  // ── Weft (entries) — premium thread rendering
+  // ── Ghost cloth pass — drawn BEFORE real entries (shows target/potential state)
+  const { ghostTargetCount = 0 } = opts;
   interface WeftInfo { x0: number; x1: number; cy: number; bow: number; thick: number; }
   const visibleWefts: WeftInfo[] = [];
 
+  if (ghostTargetCount > 0) {
+    const dyeKeys = Object.keys(HL_DYE_HEX);
+    for (let gi = 0; gi < ghostTargetCount; gi++) {
+      const gFrac = gi / ghostTargetCount;
+      const gcx   = gFrac * W; // ghost threads fixed, no pan
+      const grndW   = hlSeed(gi * 17 + 7777);
+      const grndTh  = hlSeed(gi * 23 + 7777);
+      const grndBow = hlSeed(gi * 41 + 7777);
+      const grndY   = hlSeed(gi * 131 + 7796);
+      const grndD   = hlSeed(gi * 53 + 7777);
+      const halfLen = 38 + grndW() * 72;
+      const cyFrac = 0.06 + grndY() * 0.54;
+      const cy = cyFrac * H;
+      const bow = -(0.4 + grndBow() * 0.8);
+      const thick = 2.8 + grndTh() * 1.8;
+      const dye = dyeKeys[Math.floor(grndD() * dyeKeys.length)];
+      const color = HL_DYE_HEX[dye] ?? HL_DYE_HEX['weld'];
+      drawThread(ctx, gcx - halfLen, gcx + halfLen, cy, bow, color, thick, 0.045, gi, false, 0);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ── Weft (entries) — premium thread rendering
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i];
-    if (e.sealed) continue;
 
     const frac = (+e.date - +tStart) / span;
     const cx = frac * W - panX;
@@ -407,8 +432,9 @@ export function drawCloth(
 
     const color = HL_DYE_HEX[e.dye] ?? HL_DYE_HEX['weld'];
 
-    let alpha = 0.93;
-    if (hoverAuthor && e.author !== hoverAuthor) alpha = 0.08;
+    // Sealed entries appear at reduced alpha — they're woven but not yet readable
+    let alpha = e.sealed ? 0.38 : 0.93;
+    if (hoverAuthor && e.author !== hoverAuthor) alpha = e.sealed ? 0.12 : 0.08;
 
     const isActive = i === activeIdx;
     const isFlash  = i === flashIdx && flashPower > 0;
@@ -629,6 +655,8 @@ interface TapestryCanvasProps {
   opts?: DrawOpts;
   animate?: boolean;
   newEntryAt?: number | null;
+  /** Disable horizontal panning — shows the cloth at a fixed position */
+  noPan?: boolean;
 }
 
 export function TapestryCanvas({
@@ -639,26 +667,24 @@ export function TapestryCanvas({
   opts = {},
   animate = true,
   newEntryAt = null,
+  noPan = false,
 }: TapestryCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const panRef = useRef<number>(opts.panX ?? 0);
   const newEntryAtRef = useRef<number | null>(newEntryAt);
-  // Mirror entries into a ref so the animation loop always draws the latest
-  // without needing to restart the rAF loop on every entries change.
+  // Mirror entries and opts into refs so the animation loop always draws the
+  // latest values without restarting the rAF loop on every change.
   const entriesRef = useRef(entries);
+  const optsRef    = useRef(opts);
   const [canvasW, setCanvasW] = useState<number>(
     widthProp ?? (typeof window !== 'undefined' ? window.innerWidth : 1280),
   );
 
-  useEffect(() => {
-    newEntryAtRef.current = newEntryAt;
-  }, [newEntryAt]);
-
-  useEffect(() => {
-    entriesRef.current = entries;
-  }, [entries]);
+  useEffect(() => { newEntryAtRef.current = newEntryAt; }, [newEntryAt]);
+  useEffect(() => { entriesRef.current = entries; },      [entries]);
+  useEffect(() => { optsRef.current = opts; });           // always sync, no dep needed
 
   useEffect(() => {
     if (widthProp !== undefined) return;
@@ -687,26 +713,26 @@ export function TapestryCanvas({
       const dt  = now - last;
       last = now;
 
-      if (animate && kind !== 'edge') {
+      if (animate && kind !== 'edge' && !noPan) {
         panRef.current += (kind === 'specimen' ? 0.055 : 0.012) * dt;
         if (panRef.current > 280) panRef.current = -80;
       }
 
       const FLASH_DUR = 1400;
       const cur = entriesRef.current;
+      const o   = optsRef.current;
       const flashAge   = newEntryAtRef.current != null ? now - newEntryAtRef.current : Infinity;
       const flashPower = flashAge < FLASH_DUR ? Math.max(0, 1 - flashAge / FLASH_DUR) : 0;
       const flashIdx   = flashPower > 0 ? cur.length - 1 : null;
 
       // Cloth breathing — very slow sinusoidal vertical oscillation (~28s period)
-      // gives the fabric a living, just-off-the-loom feel
       const breathY = Math.sin(now * 0.000226) * 2.2;
 
       ctx.clearRect(0, 0, canvasW, height);
       drawCloth(ctx, canvasW, height, cur, {
-        ...opts,
-        panX: panRef.current,
-        sparkle: flashPower > 0 ? flashPower * 0.7 : (opts.sparkle ?? 0),
+        ...o,
+        panX: noPan ? 0 : panRef.current,
+        sparkle: flashPower > 0 ? flashPower * 0.7 : (o.sparkle ?? 0),
         flashIdx,
         flashPower,
         breathY,
@@ -717,7 +743,7 @@ export function TapestryCanvas({
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasW, height, kind, animate]);
+  }, [canvasW, height, kind, animate, noPan]);
 
   return (
     <div ref={containerRef} style={{ width: widthProp ?? '100%', height, overflow: 'hidden' }}>

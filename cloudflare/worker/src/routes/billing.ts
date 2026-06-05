@@ -19,6 +19,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
+import { renderBookPdf } from '../services/bookPdf';
 
 export const billingRoutes = new Hono<AppEnv>();
 
@@ -1023,7 +1024,7 @@ billingRoutes.post('/webhook', async (c) => {
           id: string;
           customer?: string;
           customer_email?: string;
-          metadata?: { user_id?: string; tier?: string; billing_cycle?: string; type?: string; voucher_code?: string; pledge_id?: string };
+          metadata?: { user_id?: string; tier?: string; billing_cycle?: string; type?: string; voucher_code?: string; pledge_id?: string; ship_to_json?: string; thread_id?: string };
           subscription?: string;
           payment_intent?: string;
         };
@@ -1083,6 +1084,59 @@ billingRoutes.post('/webhook', async (c) => {
                     }
                   } catch (err) {
                     console.error('Founder pledge webhook error', err);
+                  }
+                }
+                break;
+              }
+
+              // Handle Living Book print order checkout — payment is
+              // confirmed, so create the COMPILING order and kick off PDF
+              // rendering (which uploads to R2 and submits to Lulu).
+              if (metadataType === 'book_order') {
+                const bookUserId = session.metadata?.user_id;
+                const shipToJson = session.metadata?.ship_to_json;
+                const threadId = session.metadata?.thread_id || null;
+                if (bookUserId && shipToJson) {
+                  try {
+                    // Re-verify membership in webhook: Stripe metadata is
+                    // attacker-controlled, so we can't trust threadId from the
+                    // session without a fresh DB check.
+                    if (threadId) {
+                      const member = await c.env.DB.prepare(
+                        `SELECT id FROM thread_members
+                         WHERE thread_id = ? AND user_id = ? AND revoked_at IS NULL`,
+                      ).bind(threadId, bookUserId).first();
+                      if (!member) {
+                        console.error('Book order webhook: thread_id membership check failed', { bookUserId, threadId });
+                        break;
+                      }
+                    }
+
+                    const shipTo = JSON.parse(shipToJson) as { name?: string };
+                    const bookOrderId = crypto.randomUUID();
+                    await c.env.DB.prepare(
+                      `INSERT INTO book_orders (
+                         id, prompt_subscription_id, purchaser_user_id, ship_to_name,
+                         ship_to_address_json, thread_id, currency, status
+                       ) VALUES (?, NULL, ?, ?, ?, ?, 'USD', 'COMPILING')`,
+                    ).bind(
+                      bookOrderId,
+                      bookUserId,
+                      shipTo.name || '',
+                      shipToJson,
+                      threadId,
+                    ).run();
+
+                    c.executionCtx.waitUntil(
+                      renderBookPdf(c.env, bookOrderId).catch(async (err) => {
+                        const msg = err instanceof Error ? err.message : String(err);
+                        await c.env.DB.prepare(
+                          `UPDATE book_orders SET status = 'FAILED', error = ?, updated_at = datetime('now') WHERE id = ?`,
+                        ).bind(msg, bookOrderId).run();
+                      }),
+                    );
+                  } catch (err) {
+                    console.error('Book order webhook error', err);
                   }
                 }
                 break;

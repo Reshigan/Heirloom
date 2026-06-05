@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { voiceApi } from '../services/api';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { voiceApi, familyApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
 
@@ -22,9 +22,20 @@ const PROMPTS = [
   'Who taught you the thing you do best?',
 ];
 
+type SpeakTrigger = 'now' | 'date' | 'death' | 'milestone' | 'event';
+
+const SPEAK_TRIGGERS: { value: SpeakTrigger; label: string; hint: string }[] = [
+  { value: 'now',       label: 'open now',      hint: 'recipient can hear this immediately' },
+  { value: 'date',      label: 'on a date',     hint: 'sealed until a date you choose' },
+  { value: 'death',     label: 'after death',   hint: 'unseals when your thread is closed' },
+  { value: 'milestone', label: 'on a milestone', hint: 'unseals on a family milestone' },
+  { value: 'event',     label: 'on an event',   hint: 'unseals on a named family event' },
+];
+
 export function Record() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
 
   const [title, setTitle] = useState('');
   const [transcript, setTranscript] = useState('');
@@ -36,7 +47,27 @@ export function Record() {
   const [error, setError] = useState<string | null>(null);
   const [promptIdx, setPromptIdx] = useState(0);
   const [addresseeName, setAddresseeName] = useState('');
+  const [recipientId, setRecipientId] = useState<string | null>(null);
+  const [toOpen, setToOpen] = useState(false);
   const [entryDate, setEntryDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [deliveryTrigger, setDeliveryTrigger] = useState<SpeakTrigger>('now');
+  const [scheduledDate, setScheduledDate] = useState('');
+
+  // Family autosuggest
+  const { data: familyData } = useQuery({
+    queryKey: ['family'],
+    queryFn: () => familyApi.getAll().then(r => (r.data as any)?.members ?? r.data ?? []),
+  });
+  const familyMembers: { id: string; name: string; relationship?: string }[] =
+    Array.isArray(familyData) ? familyData : [];
+
+  // Pre-fill recipient from ?recipientId= URL param
+  useEffect(() => {
+    const id = searchParams.get('recipientId');
+    if (!id || !familyMembers.length) return;
+    const m = familyMembers.find(m => m.id === id);
+    if (m) { setRecipientId(m.id); setAddresseeName(m.name); }
+  }, [searchParams, familyMembers]);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -158,7 +189,10 @@ export function Record() {
         fileSize: audioBlob.size,
         metadata: {
           to: addresseeName.trim() || undefined,
+          recipientId: recipientId || undefined,
           entryDate,
+          deliveryTrigger: deliveryTrigger !== 'now' ? deliveryTrigger : undefined,
+          scheduledDate: deliveryTrigger === 'date' ? scheduledDate : undefined,
         },
       });
       return data;
@@ -226,11 +260,14 @@ export function Record() {
           bottom: 80,
           left: 0,
           right: 0,
+          overflowY: 'auto',
+          overflowX: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: recordingState === 'idle' ? 'flex-start' : 'center',
           gap: 0,
+          paddingTop: recordingState === 'idle' ? 28 : 0,
         }}
       >
         {/* three concentric rings */}
@@ -370,63 +407,194 @@ export function Record() {
           </div>
         ) : null}
 
-        {/* addressee + date (idle only) — before pressing Begin */}
+        {/* Pre-recording fields: to, date, delivery — scrollable section */}
         {recordingState === 'idle' ? (
           <div
             style={{
-              marginTop: 32,
+              marginTop: 28,
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
-              gap: 12,
+              gap: 0,
               width: '100%',
-              maxWidth: 320,
+              maxWidth: 340,
+              padding: '0 24px',
             }}
           >
-            <input
-              value={addresseeName}
-              onChange={e => setAddresseeName(e.target.value)}
-              placeholder="for — a name (optional)"
-              style={{
-                background: 'transparent',
-                border: 0,
-                borderBottom: '1px solid var(--rule)',
-                color: 'var(--bone)',
-                caretColor: 'var(--warm)',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 13,
-                letterSpacing: '0.06em',
-                padding: '6px 0 4px',
-                outline: 'none',
-                textAlign: 'center',
-                width: '100%',
-              }}
-            />
-            {/* Date: formatted text with invisible overlay input for tap/click */}
-            <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--rule)', paddingBottom: 4, width: '100%', justifyContent: 'center' }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.06em', color: 'var(--bone-dim)' }}>
-                {entryDate
-                  ? new Date(`${entryDate}T00:00:00`).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })
-                  : 'date'}
-              </span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--bone-faint)' }}>↗</span>
+            {/* To: field with family autosuggest */}
+            <div style={{ position: 'relative', marginBottom: 14 }}>
+              <div
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
+                  color: 'var(--bone-faint)', marginBottom: 6,
+                }}
+              >
+                to
+              </div>
               <input
-                type="date"
-                value={entryDate}
-                onChange={e => setEntryDate(e.target.value)}
-                style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
+                value={addresseeName}
+                onChange={e => {
+                  setAddresseeName(e.target.value);
+                  setRecipientId(null);
+                  setToOpen(true);
+                }}
+                onFocus={() => setToOpen(true)}
+                onBlur={() => setTimeout(() => setToOpen(false), 200)}
+                placeholder="a name (optional)"
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: 'transparent',
+                  border: 0, borderBottom: '1px solid var(--rule)',
+                  color: 'var(--bone)', caretColor: 'var(--warm)',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 14, letterSpacing: '0.04em',
+                  padding: '6px 0 4px', outline: 'none',
+                }}
               />
+              {toOpen && familyMembers.length > 0 && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, right: 0,
+                  background: '#111', border: '1px solid var(--rule)',
+                  zIndex: 40, maxHeight: 160, overflowY: 'auto',
+                }}>
+                  {familyMembers
+                    .filter(m => !addresseeName || m.name.toLowerCase().includes(addresseeName.toLowerCase()))
+                    .map(m => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onMouseDown={() => {
+                          setAddresseeName(m.name);
+                          setRecipientId(m.id);
+                          setToOpen(false);
+                        }}
+                        style={{
+                          display: 'block', width: '100%', textAlign: 'left',
+                          background: 'transparent', border: 0,
+                          padding: '10px 12px', cursor: 'pointer',
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: 13, color: 'var(--bone-dim)',
+                          borderBottom: '1px solid var(--rule)',
+                        }}
+                      >
+                        {m.name}
+                        {m.relationship && (
+                          <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--bone-faint)', textTransform: 'uppercase', letterSpacing: '0.16em' }}>
+                            {m.relationship}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                </div>
+              )}
             </div>
+
+            {/* Entry date */}
+            <div style={{ marginBottom: 20 }}>
+              <div
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
+                  color: 'var(--bone-faint)', marginBottom: 6,
+                }}
+              >
+                date
+              </div>
+              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--rule)', paddingBottom: 4 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, letterSpacing: '0.04em', color: 'var(--bone-dim)' }}>
+                  {entryDate
+                    ? new Date(`${entryDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                    : 'today'}
+                </span>
+                <input
+                  type="date"
+                  value={entryDate}
+                  onChange={e => setEntryDate(e.target.value)}
+                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
+                />
+              </div>
+            </div>
+
+            {/* Delivery trigger */}
+            <div style={{ marginBottom: 20 }}>
+              <div
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
+                  color: 'var(--bone-faint)', marginBottom: 6,
+                }}
+              >
+                available
+              </div>
+              <div style={{ border: '1px solid var(--rule)' }}>
+                {SPEAK_TRIGGERS.map((opt, i) => {
+                  const active = opt.value === deliveryTrigger;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setDeliveryTrigger(opt.value)}
+                      style={{
+                        display: 'block', width: '100%', textAlign: 'left',
+                        background: 'transparent', border: 0,
+                        borderBottom: i < SPEAK_TRIGGERS.length - 1 ? '1px solid var(--rule)' : 'none',
+                        borderLeft: `3px solid ${active ? 'var(--warm)' : 'transparent'}`,
+                        padding: '12px 14px', cursor: 'pointer',
+                        transition: 'border-left-color 180ms var(--ease)',
+                      }}
+                    >
+                      <span style={{
+                        display: 'block',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 13, letterSpacing: '0.08em',
+                        color: active ? 'var(--bone)' : 'var(--bone-faint)',
+                        transition: 'color 180ms var(--ease)',
+                      }}>
+                        {opt.label}
+                      </span>
+                      {(active || opt.value === 'death' || opt.value === 'milestone' || opt.value === 'event') && (
+                        <span style={{
+                          display: 'block', marginTop: 2,
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: 10, letterSpacing: '0.06em',
+                          color: 'var(--bone-faint)', fontStyle: 'italic',
+                        }}>
+                          {opt.hint}
+                        </span>
+                      )}
+                      {opt.value === 'date' && active && (
+                        <div style={{ marginTop: 8 }} onClick={e => e.stopPropagation()}>
+                          <input
+                            type="date"
+                            value={scheduledDate}
+                            onChange={e => setScheduledDate(e.target.value)}
+                            style={{
+                              background: 'transparent', border: '1px solid var(--rule)',
+                              color: 'var(--bone)',
+                              fontFamily: "'JetBrains Mono', monospace",
+                              fontSize: 13, padding: '6px 10px', colorScheme: 'dark',
+                              borderRadius: 0, outline: 'none', width: '100%', maxWidth: 180,
+                              boxSizing: 'border-box',
+                            }}
+                          />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Writing prompt */}
             <p
               className="hl-serif hl-italic"
               style={{
-                marginTop: 8,
-                fontSize: 20,
+                fontSize: 18,
                 color: 'var(--bone-dim)',
                 textAlign: 'center',
-                maxWidth: 320,
                 lineHeight: 1.45,
                 fontVariationSettings: '"opsz" 20',
+                margin: '8px 0 0',
               }}
             >
               {PROMPTS[promptIdx]}

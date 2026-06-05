@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Frame } from '../loom/components/Frame';
-import { memoriesApi, lettersApi, voiceApi, exportApi } from '../services/api';
+import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 
 type BookStep = 'select' | 'customize' | 'preview' | 'order';
 
@@ -42,9 +43,36 @@ const inputStyle: React.CSSProperties = {
   transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
 };
 
+interface ShipTo {
+  name: string;
+  line1: string;
+  line2: string;
+  city: string;
+  state_code: string;
+  country_code: string;
+  postcode: string;
+  phone_number: string;
+  email: string;
+}
+
+const emptyShipTo: ShipTo = {
+  name: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state_code: '',
+  country_code: 'US',
+  postcode: '',
+  phone_number: '',
+  email: '',
+};
+
 export function BookBuilder() {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const defaultThreadId = user?.defaultThreadId ?? undefined;
   const [step, setStep] = useState<BookStep>('select');
+  const [shipTo, setShipTo] = useState<ShipTo>(emptyShipTo);
   const [config, setConfig] = useState<BookConfig>({
     title: 'Our Family Memories',
     subtitle: '',
@@ -72,11 +100,38 @@ export function BookBuilder() {
   });
 
   const orderMutation = useMutation({
-    mutationFn: () => exportApi.bookOrder(config),
+    mutationFn: () =>
+      booksApi.booksCheckout({
+        ship_to: {
+          name: shipTo.name.trim(),
+          line1: shipTo.line1.trim(),
+          line2: shipTo.line2.trim() || undefined,
+          city: shipTo.city.trim(),
+          state_code: shipTo.state_code.trim() || undefined,
+          country_code: shipTo.country_code.trim() || 'US',
+          postcode: shipTo.postcode.trim(),
+          phone_number: shipTo.phone_number.trim(),
+          email: shipTo.email.trim(),
+        },
+        cover_type: config.coverType,
+        thread_id: defaultThreadId,
+      }),
     onSuccess: (data) => {
-      if (data.data?.checkoutUrl) window.location.href = data.data.checkoutUrl;
+      if (data.data?.url) window.location.href = data.data.url;
     },
   });
+
+  const orderError = orderMutation.isError
+    ? (() => {
+        const err = orderMutation.error as { response?: { data?: { error?: string; message?: string } }; message?: string };
+        return (
+          err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.message ||
+          'Something went wrong placing your order. Please try again.'
+        );
+      })()
+    : null;
 
   const totalItems = config.memoryIds.length + config.letterIds.length + config.voiceIds.length;
   const estimatedPages = Math.max(20, totalItems * 2 + 10);
@@ -369,50 +424,38 @@ export function BookBuilder() {
 
           {/* ── Order ── */}
           {step === 'order' && (
-            <div style={{ maxWidth: 420 }}>
-              <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 24px' }}>
+            <div style={{ maxWidth: 480 }}>
+              {/* Order summary */}
+              <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 20px' }}>
                 Order summary
               </h3>
 
-              {/* Chapter list — ordered items grid */}
-              <div style={{ marginBottom: 24 }}>
+              <div style={{ marginBottom: 40 }}>
                 {[
                   { label: 'Book title', value: config.title },
                   { label: 'Cover', value: config.coverType, capitalize: true },
                   { label: 'Pages (est.)', value: String(estimatedPages) },
                   { label: 'Items included', value: String(totalItems) },
-                ].map(({ label, value, capitalize }, idx) => (
+                ].map(({ label, value, capitalize }) => (
                   <div
                     key={label}
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '40px 1fr auto',
+                      display: 'flex',
+                      justifyContent: 'space-between',
                       alignItems: 'baseline',
                       borderBottom: '1px solid var(--rule)',
-                      padding: '18px 0',
+                      padding: '14px 0',
+                      gap: 16,
                     }}
                   >
-                    {/* chapter number */}
-                    <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em' }}>
-                      {String(idx + 1).padStart(2, '0')}
+                    <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)' }}>
+                      {label}
                     </span>
-                    {/* title + entry count */}
-                    <span>
-                      <span className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', display: 'block' }}>
-                        {label}
-                      </span>
-                      <span
-                        className="hl-serif"
-                        style={{ fontSize: 13, color: 'var(--bone-dim)', fontStyle: 'italic' }}
-                      >
-                        {capitalize
-                          ? value.charAt(0).toUpperCase() + value.slice(1)
-                          : value}
-                      </span>
-                    </span>
-                    {/* pages (right col) */}
-                    <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.08em' }}>
-                      —
+                    <span
+                      className="hl-serif"
+                      style={{ fontSize: 14, color: 'var(--bone)', fontStyle: 'italic', textAlign: 'right' }}
+                    >
+                      {capitalize ? value.charAt(0).toUpperCase() + value.slice(1) : value}
                     </span>
                   </div>
                 ))}
@@ -420,38 +463,165 @@ export function BookBuilder() {
                 {/* total row */}
                 <div
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: '40px 1fr auto',
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     alignItems: 'baseline',
-                    padding: '18px 0',
+                    padding: '14px 0',
+                    gap: 16,
                   }}
                 >
-                  <span />
                   <span className="hl-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)' }}>
                     Total
                   </span>
-                  <span className="hl-mono" style={{ fontSize: 13, color: 'var(--warm)', letterSpacing: '0.08em' }}>
+                  <span className="hl-mono" style={{ fontSize: 14, color: 'var(--warm)', letterSpacing: '0.08em' }}>
                     {config.coverType === 'hardcover' ? '$49.99' : '$29.99'}
                   </span>
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => orderMutation.mutate()}
-                disabled={orderMutation.isPending}
-                className="hl-btn"
-                style={{ width: '100%', opacity: orderMutation.isPending ? 0.45 : 1, marginBottom: 12 }}
+              {/* Shipping address */}
+              <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 20px' }}>
+                Where it ships
+              </h3>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!orderMutation.isPending) orderMutation.mutate();
+                }}
+                style={{ display: 'grid', gap: 18 }}
               >
-                {orderMutation.isPending ? (
-                  <span style={{ fontStyle: 'italic' }}>Processing…</span>
-                ) : (
-                  'Place order'
+                <div>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Full name</label>
+                  <input
+                    type="text"
+                    value={shipTo.name}
+                    onChange={(e) => setShipTo((p) => ({ ...p, name: e.target.value }))}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Address line 1</label>
+                  <input
+                    type="text"
+                    value={shipTo.line1}
+                    onChange={(e) => setShipTo((p) => ({ ...p, line1: e.target.value }))}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Address line 2 (optional)</label>
+                  <input
+                    type="text"
+                    value={shipTo.line2}
+                    onChange={(e) => setShipTo((p) => ({ ...p, line2: e.target.value }))}
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>City</label>
+                    <input
+                      type="text"
+                      value={shipTo.city}
+                      onChange={(e) => setShipTo((p) => ({ ...p, city: e.target.value }))}
+                      required
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>State / Province</label>
+                    <input
+                      type="text"
+                      value={shipTo.state_code}
+                      onChange={(e) => setShipTo((p) => ({ ...p, state_code: e.target.value }))}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Country code</label>
+                    <input
+                      type="text"
+                      value={shipTo.country_code}
+                      onChange={(e) => setShipTo((p) => ({ ...p, country_code: e.target.value }))}
+                      required
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Postcode</label>
+                    <input
+                      type="text"
+                      value={shipTo.postcode}
+                      onChange={(e) => setShipTo((p) => ({ ...p, postcode: e.target.value }))}
+                      required
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Phone number</label>
+                  <input
+                    type="tel"
+                    value={shipTo.phone_number}
+                    onChange={(e) => setShipTo((p) => ({ ...p, phone_number: e.target.value }))}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Email</label>
+                  <input
+                    type="email"
+                    value={shipTo.email}
+                    onChange={(e) => setShipTo((p) => ({ ...p, email: e.target.value }))}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
+
+                {orderError && (
+                  <p
+                    className="hl-serif"
+                    style={{
+                      fontSize: 13,
+                      color: 'var(--warm)',
+                      fontStyle: 'italic',
+                      margin: 0,
+                      borderLeft: '3px solid var(--warm)',
+                      paddingLeft: 14,
+                    }}
+                  >
+                    {orderError}
+                  </p>
                 )}
-              </button>
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em', textAlign: 'center' }}>
-                You'll be redirected to Stripe for secure payment.
-              </p>
+
+                <button
+                  type="submit"
+                  disabled={orderMutation.isPending}
+                  className="hl-btn"
+                  style={{ width: '100%', opacity: orderMutation.isPending ? 0.45 : 1, marginTop: 6 }}
+                >
+                  {orderMutation.isPending ? (
+                    <span style={{ fontStyle: 'italic' }}>Processing…</span>
+                  ) : (
+                    'Place order →'
+                  )}
+                </button>
+                <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em', textAlign: 'center', margin: 0 }}>
+                  You'll be redirected to Stripe for secure payment.
+                </p>
+              </form>
             </div>
           )}
         </div>

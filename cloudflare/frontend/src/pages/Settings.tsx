@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { settingsApi, exportApi, deadmanApi } from '../services/api';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 
 const RESPONSIVE_CSS = `
 .hl-setting-row {
@@ -47,6 +47,15 @@ export function Settings() {
   const [savedFlash, setSavedFlash] = useState(false);
 
   const [deleteStage, setDeleteStage] = useState<'idle' | 'confirm' | 'quote' | 'password' | 'archived'>('idle');
+
+  // Letter guardian
+  const [guardianEmail, setGuardianEmail] = useState('');
+  const [guardianName, setGuardianName] = useState('');
+  const [guardianSaved, setGuardianSaved] = useState(false);
+  const saveGuardian = useMutation({
+    mutationFn: () => settingsApi.updateProfile({ firstName, lastName, ...(guardianEmail ? { guardianEmail, guardianName } : {}) } as any),
+    onSuccess: () => { setGuardianSaved(true); setTimeout(() => setGuardianSaved(false), 3000); },
+  });
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [exportLoading, setExportLoading] = useState(false);
@@ -156,9 +165,11 @@ export function Settings() {
   const prefs = ((notifData as any)?.preferences ?? {}) as Record<string, boolean>;
 
   return (
-    <>
+    <ClothShell
+      topbarLeft={<Link to="/loom" className="hl-link warm" style={{ fontSize: 12, letterSpacing: '0.08em' }}>← back</Link>}
+      topbarCenter="settings"
+    >
       <style>{RESPONSIVE_CSS}</style>
-      <Frame left="settings" right={<Link to="/loom" className="hl-link warm" style={{ fontSize: 12 }}>back →</Link>}>
         <div style={{ maxWidth: 720, margin: '0 auto', padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 40px) 80px' }}>
 
           <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, margin: '0 0 28px', letterSpacing: '-0.016em' }}>
@@ -375,6 +386,51 @@ export function Settings() {
             </a>
           </Row>
 
+          {/* ── Letter Guardian ──────────────────────────── */}
+          <div className="hl-eyebrow" style={{ margin: '28px 0 6px', color: 'var(--warm)' }}>if something happens to me</div>
+          <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.65, margin: '0 0 16px', maxWidth: '52ch' }}>
+            Designate someone who ensures your sealed letters reach the people you wrote them for — even if you can no longer do it yourself.
+          </p>
+          <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 16, marginBottom: 4 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 16, marginBottom: 16 }}>
+              <div>
+                <div className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>guardian name</div>
+                <input
+                  value={guardianName}
+                  onChange={e => { setGuardianName(e.target.value); setGuardianSaved(false); }}
+                  placeholder="their name"
+                  style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+                />
+              </div>
+              <div>
+                <div className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>guardian email</div>
+                <input
+                  type="email"
+                  value={guardianEmail}
+                  onChange={e => { setGuardianEmail(e.target.value); setGuardianSaved(false); }}
+                  placeholder="name@example.com"
+                  style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => saveGuardian.mutate()}
+                disabled={!guardianEmail || saveGuardian.isPending}
+                style={{ background: 'transparent', border: 0, padding: 0, cursor: guardianEmail ? 'pointer' : 'default', fontFamily: 'var(--mono)', fontSize: 10.5, color: guardianEmail ? 'var(--warm)' : 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: saveGuardian.isPending ? 0.5 : 1 }}
+              >
+                {saveGuardian.isPending ? 'saving…' : 'designate guardian →'}
+              </button>
+              {guardianSaved && (
+                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>saved</span>
+              )}
+            </div>
+            <p className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', margin: '10px 0 0', lineHeight: 1.5, maxWidth: '52ch' }}>
+              They receive a notification if your account goes 6+ months inactive. No access to your entries — only authority to ensure delivery.
+            </p>
+          </div>
+
           {/* ── Inheritance ──────────────────────────────── */}
           <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>inheritance</div>
           <Row label="thread steward" hint="takes custodianship of the thread when the dead-man's switch triggers">
@@ -512,7 +568,6 @@ export function Settings() {
           </div>
 
         </div>
-      </Frame>
-    </>
+    </ClothShell>
   );
 }

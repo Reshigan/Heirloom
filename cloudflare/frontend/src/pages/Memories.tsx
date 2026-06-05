@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { Link } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
 
@@ -19,11 +19,12 @@ interface Memory {
   title?: string | null;
   description?: string | null;
   type?: string;
+  emotion?: string | null;
   createdAt?: string;
   created_at?: string;
 }
 
-function MemoryCard({ m, index }: { m: Memory; index: number }) {
+function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; activeEmotion?: string }) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(m.description ?? '');
@@ -105,6 +106,20 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
         </div>
       </div>
 
+      {activeEmotion && (() => {
+        const em = EMOTIONS.find(e => e.value === activeEmotion);
+        return em ? (
+          <span style={{
+            display: 'inline-block', fontFamily: 'var(--mono)', fontSize: 9,
+            letterSpacing: '0.18em', textTransform: 'uppercase',
+            color: em.dye, borderLeft: `2px solid ${em.dye}`,
+            paddingLeft: 6, marginBottom: 8, opacity: 0.85,
+          }}>
+            {em.label}
+          </span>
+        ) : null;
+      })()}
+
       {m.title && (
         <p className="hl-serif" style={{ fontSize: 13, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', letterSpacing: '0.01em' }}>
           {m.title}
@@ -158,7 +173,7 @@ function MemoryCard({ m, index }: { m: Memory; index: number }) {
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-const EMOTION_TYPES = [
+const ENTRY_TYPES = [
   { value: '', label: 'all' },
   { value: 'memory', label: 'memory' },
   { value: 'letter', label: 'letter' },
@@ -167,10 +182,31 @@ const EMOTION_TYPES = [
   { value: 'milestone', label: 'milestone' },
 ];
 
+// Emotion chips — each maps to a dye color + keyword set for fallback matching
+const EMOTIONS: { value: string; label: string; dye: string; keywords: string[] }[] = [
+  { value: 'joy',       label: 'joy',       dye: 'var(--dye-saffron)',   keywords: ['happy','joy','laugh','smile','celebrat','wonderful','fun','delight','excit','gleeful','cheer'] },
+  { value: 'love',      label: 'love',      dye: 'var(--dye-madder)',    keywords: ['love','adore','cherish','dear','beloved','heart','tender','together','miss you','closeness'] },
+  { value: 'grief',     label: 'grief',     dye: 'var(--dye-indigo)',    keywords: ['grief','sad','loss','miss','cry','tear','hurt','pain','difficult','passed','died','mourn','ache'] },
+  { value: 'pride',     label: 'pride',     dye: 'var(--dye-cochineal)', keywords: ['proud','pride','accompl','achiev','graduat','success','earned','grew','strong'] },
+  { value: 'nostalgia', label: 'nostalgia', dye: 'var(--dye-walnut)',    keywords: ['remember','long ago','childhood','used to','when i was','back then','old days','years ago','once','still recall'] },
+  { value: 'gratitude', label: 'gratitude', dye: 'var(--dye-weld)',      keywords: ['grateful','thank','blessed','appreci','fortune','lucky','gift','fortune'] },
+  { value: 'wonder',    label: 'wonder',    dye: 'var(--dye-woad)',      keywords: ['amaz','wonder','incredible','beautiful','unexpect','surprised','magical','astonish','awe','breathtaking'] },
+];
+
+function emotionMatchesMemory(m: Memory, emotionValue: string): boolean {
+  // First check explicit emotion field from API
+  if (m.emotion) return m.emotion.toLowerCase() === emotionValue;
+  // Fall back to keyword scan across title + description
+  const em = EMOTIONS.find(e => e.value === emotionValue);
+  if (!em) return false;
+  const haystack = `${m.title ?? ''} ${m.description ?? ''}`.toLowerCase();
+  return em.keywords.some(kw => haystack.includes(kw));
+}
+
 function FilterBar({ memories, filters, setFilters }: {
   memories: Memory[];
-  filters: { year: string; month: string; type: string; query: string };
-  setFilters: (f: { year: string; month: string; type: string; query: string }) => void;
+  filters: { year: string; month: string; type: string; query: string; emotion: string };
+  setFilters: (f: { year: string; month: string; type: string; query: string; emotion: string }) => void;
 }) {
   const years = Array.from(new Set(
     memories.map(m => new Date(m.createdAt ?? m.created_at ?? '').getFullYear())
@@ -191,46 +227,94 @@ function FilterBar({ memories, filters, setFilters }: {
     WebkitAppearance: 'none' as const,
   };
 
-  const active = filters.year || filters.month || filters.type || filters.query;
+  const active = filters.year || filters.month || filters.type || filters.query || filters.emotion;
 
   return (
-    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 24 }}>
-      <input
-        type="text"
-        placeholder="search"
-        value={filters.query}
-        onChange={e => setFilters({ ...filters, query: e.target.value })}
-        style={{ ...selectStyle, border: '1px solid var(--rule)', minWidth: 120, paddingLeft: 8 }}
-      />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+      {/* Row 1: search + type + year + month + clear */}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        <input
+          type="text"
+          placeholder="search"
+          value={filters.query}
+          onChange={e => setFilters({ ...filters, query: e.target.value })}
+          style={{ ...selectStyle, minWidth: 120, paddingLeft: 8 }}
+        />
 
-      <select value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
-        {EMOTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-      </select>
+        <select value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
+          {ENTRY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+        </select>
 
-      <select value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })} style={selectStyle}>
-        <option value="">all years</option>
-        {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
-      </select>
+        <select value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })} style={selectStyle}>
+          <option value="">all years</option>
+          {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
+        </select>
 
-      <select value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })} style={selectStyle}>
-        <option value="">all months</option>
-        {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
-      </select>
+        <select value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })} style={selectStyle}>
+          <option value="">all months</option>
+          {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
+        </select>
 
-      {active && (
-        <button type="button"
-          onClick={() => setFilters({ year: '', month: '', type: '', query: '' })}
-          style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)' }}>
-          clear ×
-        </button>
-      )}
+        {active && (
+          <button
+            type="button"
+            onClick={() => setFilters({ year: '', month: '', type: '', query: '', emotion: '' })}
+            style={{
+              background: 'transparent', border: 0, padding: 0,
+              cursor: 'pointer', fontFamily: 'var(--mono)',
+              fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase',
+              color: 'var(--warm)',
+            }}
+          >
+            clear ×
+          </button>
+        )}
+      </div>
+
+      {/* Row 2: emotion chips */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <span style={{
+          fontFamily: 'var(--mono)', fontSize: 9,
+          letterSpacing: '0.22em', textTransform: 'uppercase',
+          color: 'var(--bone-faint)', marginRight: 2,
+        }}>
+          feel
+        </span>
+        {EMOTIONS.map(em => {
+          const active = filters.emotion === em.value;
+          return (
+            <button
+              key={em.value}
+              type="button"
+              onClick={() => setFilters({ ...filters, emotion: active ? '' : em.value })}
+              style={{
+                background: 'transparent',
+                border: `1px solid ${active ? em.dye : 'var(--rule)'}`,
+                borderRadius: 0,
+                padding: '4px 10px',
+                cursor: 'pointer',
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: active ? em.dye : 'var(--bone-faint)',
+                transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
+                minHeight: 28,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {em.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 export function Memories() {
   const { isAuthenticated } = useAuthStore();
-  const [filters, setFilters] = useState({ year: '', month: '', type: '', query: '' });
+  const [filters, setFilters] = useState({ year: '', month: '', type: '', query: '', emotion: '' });
   const listenerPrompt = useListener();
 
   const { data, isLoading } = useQuery({
@@ -241,24 +325,31 @@ export function Memories() {
 
   const allMemories: Memory[] = Array.isArray(data) ? data : [];
 
-  const memories = allMemories.filter(m => {
-    const d = new Date(m.createdAt ?? m.created_at ?? '');
-    if (filters.year && String(d.getFullYear()) !== filters.year) return false;
-    if (filters.month && String(d.getMonth() + 1) !== filters.month) return false;
-    if (filters.type && (m.type ?? 'memory') !== filters.type) return false;
-    if (filters.query) {
-      const q = filters.query.toLowerCase();
-      const title = (m.title ?? '').toLowerCase();
-      const desc = (m.description ?? '').toLowerCase();
-      if (!title.includes(q) && !desc.includes(q)) return false;
-    }
-    return true;
-  });
+  const memories = allMemories
+    .filter(m => {
+      const d = new Date(m.createdAt ?? m.created_at ?? '');
+      if (filters.year && String(d.getFullYear()) !== filters.year) return false;
+      if (filters.month && String(d.getMonth() + 1) !== filters.month) return false;
+      if (filters.type && (m.type ?? 'memory') !== filters.type) return false;
+      if (filters.query) {
+        const q = filters.query.toLowerCase();
+        if (!`${m.title ?? ''} ${m.description ?? ''}`.toLowerCase().includes(q)) return false;
+      }
+      if (filters.emotion && !emotionMatchesMemory(m, filters.emotion)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      // When filtering (emotion or other filters active), sort newest-first
+      const da = new Date(a.createdAt ?? a.created_at ?? '').getTime();
+      const db = new Date(b.createdAt ?? b.created_at ?? '').getTime();
+      return db - da;
+    });
 
   return (
-    <AppFrame
-      left="memories"
-      right={
+    <ClothShell
+      topbarLeft={<Link to="/loom/today" className="hl-link" style={{ fontSize: 12, color: 'rgba(244,236,216,0.5)', letterSpacing: '0.08em' }}>← today</Link>}
+      topbarCenter="memories"
+      topbarRight={
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.1em' }}>
             {memories.length}/{allMemories.length} {allMemories.length === 1 ? 'entry' : 'entries'}
@@ -282,7 +373,9 @@ export function Memories() {
       {!isLoading && memories.length === 0 && allMemories.length > 0 && (
         <div style={{ padding: '0 clamp(24px, 5vw, 48px) 24px' }}>
           <p className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-            No entries match these filters.
+            {filters.emotion
+              ? `No memories found for "${filters.emotion}" — try a different feeling or clear the filter.`
+              : 'No entries match these filters.'}
           </p>
         </div>
       )}
@@ -329,11 +422,11 @@ export function Memories() {
       }}>
         <style>{`
           @media (max-width: 900px) { :root { --mosaic-cols: 2 } }
-          @media (max-width: 600px) { :root { --mosaic-cols: 1 } }
+          @media (max-width: 540px) { :root { --mosaic-cols: 1 } }
         `}</style>
 
         {memories.map((m, i) => (
-          <MemoryCard key={m.id} m={m} index={i} />
+          <MemoryCard key={m.id} m={m} index={i} activeEmotion={filters.emotion || undefined} />
         ))}
       </div>
 
@@ -354,6 +447,6 @@ export function Memories() {
           </span>
         </div>
       )}
-    </AppFrame>
+    </ClothShell>
   );
 }

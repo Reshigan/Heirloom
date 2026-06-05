@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { VaultModal } from '../components/VaultModal';
 import { encryptionService } from '../services/encryptionService';
-import { Loom, type LoomEntry } from '../loom/components/Loom';
 import { HLogo } from '../loom/components/HLogo';
 
-// Login — Loom 3 two-column parchment layout (heirloom-auth.jsx §Login).
-// Left: sign-in form on parchment. Right: specimen cloth on ink.
+const ClothCanvas3D = lazy(() =>
+  import('../loom/components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
+);
+
+// Login — animated cloth weaving hero on the right, form on the left.
 export function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -42,7 +44,7 @@ export function Login() {
 
   return (
     <div className="hl-screen parchment" style={{ minHeight: '100vh', position: 'relative' }}>
-      {/* Loom 3 MktBar — parchment top strip */}
+      {/* Top bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: 'calc(clamp(16px, 2.5vh, 24px) + env(safe-area-inset-top, 0px)) clamp(16px, 5vw, 56px) clamp(16px, 2.5vh, 24px)',
@@ -61,9 +63,19 @@ export function Login() {
         gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 460px), 1fr))',
         minHeight: 'calc(100vh - 73px)',
       }}>
-        {/* left: form on parchment */}
+        {/* Left: form */}
         <main style={{ display: 'grid', placeItems: 'center', padding: 'clamp(28px, 5vh, 56px) clamp(16px, 6vw, 88px)' }}>
           <div style={{ width: '100%', maxWidth: 380 }}>
+            {/* ∞ — 3D floating mark, the product's only symbol */}
+            <div style={{ marginBottom: 32, lineHeight: 1 }}>
+              <span
+                className="hl-infinity-3d"
+                style={{ fontSize: 'clamp(48px, 8vw, 80px)' }}
+                aria-hidden
+              >
+                ∞
+              </span>
+            </div>
             <div className="hl-eyebrow dark" style={{ marginBottom: 22 }}>welcome back</div>
             <h1 className="hl-serif hl-tight" style={{
               fontSize: 'clamp(40px, 5.5vw, 60px)',
@@ -159,28 +171,26 @@ export function Login() {
           </div>
         </main>
 
-        {/* right: specimen cloth on ink */}
-        <aside aria-hidden style={{
-          background: 'var(--ink)', position: 'relative', overflow: 'hidden',
-          minHeight: 360, display: 'flex', alignItems: 'center',
-        }}>
-          <div style={{ width: '100%', padding: '0 8px' }}>
-            <Loom
-              entries={SPECIMEN_ENTRIES}
-              startYear={1948}
-              endYear={2026}
-              height={420}
-              showLigatures={false}
-              showYears={false}
-              ambientShuttle={false}
-            />
-          </div>
+        {/* Right: 3D cloth canvas on ink */}
+        <aside
+          aria-hidden
+          style={{
+            background: '#0e0e0c',
+            position: 'relative',
+            overflow: 'hidden',
+            minHeight: 360,
+          }}
+        >
+          <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
+            <ClothCanvas3D entries={LOGIN_3D_ENTRIES} />
+          </Suspense>
           <div className="hl-mono" style={{
-            position: 'absolute', left: 28, bottom: 28,
+            position: 'absolute', left: 24, bottom: 24,
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
+            color: 'rgba(244,236,216,0.22)',
+            pointerEvents: 'none',
           }}>
-specimen · 78 years · 4,318 entries
+            specimen · 70 years · 4,318 entries
           </div>
         </aside>
       </div>
@@ -199,17 +209,14 @@ specimen · 78 years · 4,318 entries
   );
 }
 
-// Dense static specimen — no real data, same layout as the auth handoff
-const SPECIMEN_KINDS = ['memory', 'photo', 'letter', 'voice', 'memory', 'photo'] as const;
-const SPECIMEN_ENTRIES: LoomEntry[] = Array.from({ length: 96 }, (_, i) => {
-  const t = Math.sin(i * 12.9898) * 43758.5453;
-  const r = t - Math.floor(t);
-  const year = 1948 + Math.floor((i / 96) * 78);
-  return {
-    year,
-    month: 1 + Math.floor(r * 12),
-    lane: i % 5,
-    kind: SPECIMEN_KINDS[i % SPECIMEN_KINDS.length],
-    locked: year > 2018 && r > 0.7,
-  };
-});
+// Pre-generated 3D cloth entries — deterministic, no Math.random()
+const LOGIN_DYE_KEYS = ['madder','cochineal','kermes','saffron','weld','walnut','oakgall','woad','indigo','iron'] as const;
+function loginHash(n: number): number {
+  const x = Math.sin(n * 9301 + 49297) * 233280;
+  return x - Math.floor(x);
+}
+const LOGIN_3D_ENTRIES = Array.from({ length: 80 }, (_, i) => ({
+  date: new Date(1960 + Math.floor(loginHash(i * 17 + 1) * 70), 0, 1),
+  dye: LOGIN_DYE_KEYS[i % LOGIN_DYE_KEYS.length] as typeof LOGIN_DYE_KEYS[number],
+  locked: i % 4 === 0,
+}));

@@ -1,5 +1,6 @@
 import { useListener } from '../../hooks/useListener';
-import { Frame } from '../components/Frame';
+import { ClothShell } from '../components/ClothShell';
+import { HLogo } from '../components/HLogo';
 
 /**
  * Screen 06 — The Listener (Echo)
@@ -11,9 +12,13 @@ export function Echo() {
   const prompt = useListener();
 
   return (
-    <Frame left="echo">
+    <ClothShell
+      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarCenter="the listener"
+      backdropOpacity={0.5}
+    >
       <div style={{
-        position: 'absolute', inset: 0,
+        height: '100%',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end',
         paddingBottom: 56,
       }}>
@@ -37,6 +42,6 @@ export function Echo() {
           </p>
         </div>
       </div>
-    </Frame>
+    </ClothShell>
   );
 }

@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
-import { LoomShell } from '../components/LoomShell';
-import { Frame } from '../components/Frame';
+import { Link } from 'react-router-dom';
+import { ClothShell } from '../components/ClothShell';
 import { ELEANOR_KIN } from '../data/mock';
 
 /**
@@ -22,18 +22,35 @@ export function Constellation() {
   const xOf = (y: number) => ((y - minYear) / (maxYear - minYear)) * 100;
 
   return (
-    <LoomShell>
-      <Frame active="kin">
-        <div
+    <ClothShell
+      topbarLeft={
+        <Link
+          to="/loom/weft"
           style={{
-            position: 'absolute',
-            inset: 0,
-            padding: '44px 80px 0',
-            display: 'grid',
-            gridTemplateRows: 'auto 1fr auto',
-            gap: 28,
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textDecoration: 'none',
           }}
         >
+          ← cloth
+        </Link>
+      }
+      topbarCenter="bloodline"
+      backdropOpacity={0.3}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          padding: '44px 80px 0',
+          display: 'grid',
+          gridTemplateRows: 'auto 1fr auto',
+          gap: 28,
+        }}
+      >
           <div>
             <div className="loom-eyebrow">kin · five threads, four generations</div>
             <div
@@ -253,9 +270,8 @@ export function Constellation() {
               </span>
             </div>
           </div>
-        </div>
-      </Frame>
-    </LoomShell>
+      </div>
+    </ClothShell>
   );
 }
 

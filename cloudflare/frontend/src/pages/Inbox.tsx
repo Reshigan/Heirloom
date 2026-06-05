@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
-import { Frame, TapestryEdge } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 
 /**
  * Inbox — Loom 3 native "What is waiting."
@@ -91,7 +91,10 @@ export function Inbox() {
   const loading = upcomingQ.isLoading || recentQ.isLoading;
 
   return (
-    <Frame left="inbox">
+    <ClothShell
+      topbarLeft={<Link to="/loom/today" style={{ fontSize: 12, color: 'rgba(244,236,216,0.5)', textDecoration: 'none', letterSpacing: '0.08em', fontFamily: 'var(--mono)' }}>← today</Link>}
+      topbarCenter="inbox"
+    >
       {/* scrollable content column */}
       <div
         style={{
@@ -197,7 +200,7 @@ export function Inbox() {
           </>
         )}
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 
@@ -434,5 +437,3 @@ function formatDate(iso: string): string {
     return iso;
   }
 }
-
-export { TapestryEdge };

@@ -2,18 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { threadsApi, familyReferralsApi } from '../services/api';
+import { ClothShell } from '../loom/components/ClothShell';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 type Step = 'thread' | 'entry' | 'invite';
 const STEPS: Step[] = ['thread', 'entry', 'invite'];
 
 // ── Styles ────────────────────────────────────────────────────────────────
-const screen: React.CSSProperties = {
-  minHeight: '100vh',
-  background: 'var(--ink)',
-  display: 'flex',
-  flexDirection: 'column',
-};
 
 const body: React.CSSProperties = {
   flex: 1,
@@ -277,7 +272,7 @@ export function Onboarding() {
     :                      'invite →';
 
   return (
-    <div style={screen}>
+    <ClothShell noTopbar>
       {/* Hairline progress */}
       <div style={{ height: 1, background: 'var(--rule)', position: 'relative', flexShrink: 0 }}>
         <div
@@ -326,6 +321,6 @@ export function Onboarding() {
           )}
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }

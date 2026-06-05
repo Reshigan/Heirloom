@@ -228,7 +228,7 @@ function ToField({
 }
 
 /* ─── Delivery trigger selector ──────────────────────────────────────── */
-type DeliveryTrigger = 'now' | 'date' | 'death' | 'milestone';
+type DeliveryTrigger = 'now' | 'date' | 'death' | 'milestone' | 'event';
 
 const TRIGGER_OPTIONS: {
   value: DeliveryTrigger;
@@ -239,6 +239,7 @@ const TRIGGER_OPTIONS: {
   { value: 'date',      label: 'on a date',      hint: 'sealed until a date you choose' },
   { value: 'death',     label: 'after death',    hint: 'unseals when your thread is closed' },
   { value: 'milestone', label: 'on a milestone', hint: 'unseals on a family milestone you define later' },
+  { value: 'event' as const, label: 'on an event', hint: 'unseals on a named family event — a birth, an age, a milestone you define' },
 ];
 
 function DeliveryField({
@@ -305,7 +306,7 @@ function DeliveryField({
               </span>
 
               {/* Hint — shown for all options when active, or for death/milestone always */}
-              {(active || opt.value === 'death' || opt.value === 'milestone') && opt.hint && (
+              {(active || opt.value === 'death' || opt.value === 'milestone' || opt.value === 'event') && opt.hint && (
                 <span
                   style={{
                     display: 'block',
@@ -583,6 +584,7 @@ export function Compose() {
     }
     if (deliveryTrigger === 'death') return 'seal until death →';
     if (deliveryTrigger === 'milestone') return 'seal for milestone →';
+    if (deliveryTrigger === 'event') return 'seal for event →';
     return 'seal and save →';
   }, [isLetter, deliveryTrigger, scheduledDate]);
 
@@ -594,7 +596,7 @@ export function Compose() {
             ? 'SCHEDULED'
             : deliveryTrigger === 'death'
               ? 'AFTER_DEATH'
-              : deliveryTrigger === 'milestone'
+              : (deliveryTrigger === 'milestone' || deliveryTrigger === 'event')
                 ? 'MILESTONE'
                 : 'IMMEDIATE';
 

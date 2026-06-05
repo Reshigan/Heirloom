@@ -36,15 +36,17 @@ export function InviteCard() {
         </p>
 
         <p className="hl-serif" style={{ fontSize: 20, lineHeight: 1.7, fontWeight: 300, color: 'var(--parchment-ink)', margin: '0 0 32px' }}>
-          {senderName} has invited you to contribute to <em>{threadName}</em> — a family archive that will outlast us both.
+          You have been included in <em>{threadName}</em>.
         </p>
 
         <p className="hl-prose dark" style={{ marginTop: 0 }}>
-          Heirloom is a place to write memories, letters, and stories for family members who haven't been born yet. Entries are append-only. Nothing is silently rewritten. You can lock an entry for a specific date, an age, or after your death.
+          {senderName} has been weaving a family thread — a permanent record of memories, letters, and stories
+          that belongs to your bloodline. You are part of it now. Add your voice, or simply read what has been written.
+          Entries are append-only. Nothing is silently deleted or rewritten.
         </p>
 
         <div style={{ margin: '48px 0', padding: '24px 32px', borderLeft: '1px solid var(--parchment-rule)' }}>
-          <p className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-faint)', margin: '0 0 8px' }}>to join</p>
+          <p className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-faint)', margin: '0 0 8px' }}>to read the thread</p>
           <p className="hl-serif" style={{ fontSize: 18, color: 'var(--parchment-ink)', margin: 0 }}>
             heirloom.blue/signup
           </p>

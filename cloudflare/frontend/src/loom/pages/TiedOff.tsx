@@ -1,5 +1,5 @@
-import { LoomShell } from '../components/LoomShell';
-import { Frame } from '../components/Frame';
+import { Link } from 'react-router-dom';
+import { ClothShell } from '../components/ClothShell';
 import { ELEANOR_TIED } from '../data/mock';
 
 /**
@@ -15,18 +15,35 @@ import { ELEANOR_TIED } from '../data/mock';
  */
 export function TiedOff() {
   return (
-    <LoomShell>
-      <Frame active="tied">
-        <div
+    <ClothShell
+      topbarLeft={
+        <Link
+          to="/loom/weft"
           style={{
-            position: 'absolute',
-            inset: 0,
-            padding: '44px 80px 0',
-            display: 'grid',
-            gridTemplateRows: 'auto auto 1fr',
-            gap: 32,
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textDecoration: 'none',
           }}
         >
+          ← cloth
+        </Link>
+      }
+      topbarCenter="tied off"
+      backdropOpacity={0.35}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          padding: '44px 80px 0',
+          display: 'grid',
+          gridTemplateRows: 'auto auto 1fr',
+          gap: 32,
+        }}
+      >
           <div>
             <div className="loom-eyebrow">tied off · {ELEANOR_TIED.length * 2} threads waiting</div>
             <div
@@ -144,9 +161,8 @@ export function TiedOff() {
               <TiedCard key={i} {...it} />
             ))}
           </div>
-        </div>
-      </Frame>
-    </LoomShell>
+      </div>
+    </ClothShell>
   );
 }
 
@@ -163,7 +179,6 @@ function TiedCard({ date, recip, years, kind }: TiedCardProps) {
       style={{
         border: '1px solid var(--rule)',
         padding: '26px 22px',
-        background: 'rgba(8,8,6,0.35)',
         position: 'relative',
         display: 'grid',
         gap: 14,

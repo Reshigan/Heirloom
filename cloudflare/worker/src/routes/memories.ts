@@ -461,7 +461,7 @@ memoriesRoutes.post('/', async (c) => {
   // Email notification when a memory is explicitly addressed to a family member
   // who has a verified email on file. We look up by recipientId (explicit link)
   // rather than by free-text name, so no name-based matching is ever used here.
-  const addressedTo = enrichedMetadata?.to as string | undefined;
+  const addressedTo = (enrichedMetadata as Record<string, unknown>)?.to as string | undefined;
   if (addressedTo && recipientIds && recipientIds.length > 0) {
     const sender = await c.env.DB.prepare(
       `SELECT first_name, last_name FROM users WHERE id = ?`

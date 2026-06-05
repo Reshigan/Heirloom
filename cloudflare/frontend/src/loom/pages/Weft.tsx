@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { LoomShell } from '../components/LoomShell';
-import { Frame } from '../components/Frame';
+import { ClothShell } from '../components/ClothShell';
+import { HLogo } from '../components/HLogo';
 import { Loom, type LoomEntry, type LoomLigature } from '../components/Loom';
 import { ViewToggle } from '../components/ViewToggle';
 import { EmptyThread } from '../components/EmptyThread';
@@ -125,128 +125,151 @@ export function Weft() {
     />
   );
 
+  const entryCount = (
+    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'rgba(244,236,216,0.38)', textTransform: 'uppercase' }}>
+      {wovenCount} woven
+    </span>
+  );
+
   if (mode === 'empty' || entries.length === 0) {
     return (
-      <LoomShell>
-        <Frame active="weft" right={toggle}>
-          <EmptyThread onWeave={() => navigate('/compose')} onRecord={() => navigate('/record')} />
-        </Frame>
-      </LoomShell>
+      <ClothShell
+        topbarLeft={<HLogo size="sm" wordmark />}
+        topbarCenter="the tapestry"
+        topbarRight={toggle}
+        backdropOpacity={0.3}
+      >
+        <EmptyThread onWeave={() => navigate('/compose')} onRecord={() => navigate('/record')} />
+      </ClothShell>
     );
   }
 
   if (mode === 'pull') {
     return (
-      <LoomShell>
-        <Frame active="weft" right={toggle}>
-          <WeftPull />
-        </Frame>
-      </LoomShell>
+      <ClothShell
+        topbarLeft={<HLogo size="sm" wordmark />}
+        topbarCenter="the tapestry"
+        topbarRight={toggle}
+        backdropOpacity={0.3}
+      >
+        <WeftPull />
+      </ClothShell>
     );
   }
 
   if (mode === 'century') {
     return (
-      <LoomShell>
-        <Frame active="weft" right={toggle}>
-          <WeftCentury />
-        </Frame>
-      </LoomShell>
+      <ClothShell
+        topbarLeft={<HLogo size="sm" wordmark />}
+        topbarCenter="the tapestry"
+        topbarRight={toggle}
+        backdropOpacity={0.3}
+      >
+        <WeftCentury />
+      </ClothShell>
     );
   }
 
   return (
-    <LoomShell>
-      <Frame active="weft" right={toggle}>
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-          <style>{`
-            .weft-padding { padding: 0 56px; }
-            .weft-header-left { position: absolute; top: 28px; left: 56px; max-width: 360px; }
-            .weft-header-right { position: absolute; top: 28px; right: 56px; max-width: 320px; text-align: right; }
-            @media (max-width: 639px) {
-              .weft-padding { padding: 0 16px; }
-              .weft-header-left { left: 16px; max-width: calc(100% - 32px); }
-              .weft-header-right { display: none; }
-            }
-          `}</style>
-          <div className="weft-padding" style={{ position: 'absolute', inset: 0, top: 64, bottom: 96 }}>
-            <Loom
-              entries={entries}
-              ligatures={ligatures}
-              startYear={startYear}
-              endYear={endYear}
-              highlight={hover}
-              onHover={setHover}
-              height={typeof window !== 'undefined' ? Math.max(420, window.innerHeight - 320) : 480}
-              nowYear={NOW_YEAR}
-              appendCount={wovenCount}
-              ambientShuttle
-            />
-          </div>
+    <ClothShell
+      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarCenter="the tapestry"
+      topbarRight={
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {entryCount}
+          {toggle}
+        </div>
+      }
+      backdropOpacity={0.3}
+    >
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+        <style>{`
+          .weft-padding { padding: 0 56px; }
+          .weft-header-left { position: absolute; top: 28px; left: 56px; max-width: 360px; }
+          .weft-header-right { position: absolute; top: 28px; right: 56px; max-width: 320px; text-align: right; }
+          @media (max-width: 639px) {
+            .weft-padding { padding: 0 16px; }
+            .weft-header-left { left: 16px; max-width: calc(100% - 32px); }
+            .weft-header-right { display: none; }
+          }
+        `}</style>
+        <div className="weft-padding" style={{ position: 'absolute', inset: 0, top: 64, bottom: 96 }}>
+          <Loom
+            entries={entries}
+            ligatures={ligatures}
+            startYear={startYear}
+            endYear={endYear}
+            highlight={hover}
+            onHover={setHover}
+            height={typeof window !== 'undefined' ? Math.max(420, window.innerHeight - 320) : 480}
+            nowYear={NOW_YEAR}
+            appendCount={wovenCount}
+            ambientShuttle
+          />
+        </div>
 
-          <div className="weft-header-left">
-            <div className="loom-eyebrow" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              <span style={{ color: 'var(--warm)' }}>·</span> the weft &nbsp;·&nbsp; {displayName} &nbsp;·&nbsp; {startYear} — {endYear}
-            </div>
-            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 8, letterSpacing: '0.18em' }}>
-              ∞ {wovenCount} woven &nbsp;·&nbsp; {sealedCount} sealed
-            </div>
+        <div className="weft-header-left">
+          <div className="loom-eyebrow" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ color: 'var(--warm)' }}>·</span> the weft &nbsp;·&nbsp; {displayName} &nbsp;·&nbsp; {startYear} — {endYear}
           </div>
-
-          <div className="weft-header-right">
-            <div
-              className="loom-eyebrow"
-              style={{ marginBottom: 8, color: 'var(--bone-faint)', transition: 'opacity 360ms var(--loom-ease)', opacity: showAI ? 1 : 0 }}
-            >
-              the listener
-            </div>
-            <div
-              className="loom-serif"
-              style={{
-                fontSize: 13,
-                color: 'var(--bone-dim)',
-                fontStyle: 'italic',
-                lineHeight: 1.6,
-                transition: 'opacity 360ms var(--loom-ease)',
-                opacity: showAI ? 1 : 0,
-              }}
-            >
-              {listenerPrompt}
-            </div>
-          </div>
-
-          <div
-            className="weft-padding"
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 28,
-              paddingTop: 16,
-              borderTop: '1px solid var(--rule)',
-              transition: 'opacity 360ms var(--loom-ease)',
-            }}
-          >
-            {focusedEntry ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 24, alignItems: 'baseline' }}>
-                <div className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>
-                  {focusedEntry.year}·{String(focusedEntry.month ?? 1).padStart(2, '0')}
-                </div>
-                <div className="loom-body" style={{ fontSize: 18 }}>
-                  {focusedEntry.title}
-                </div>
-                <div className="loom-eyebrow" style={{ fontSize: 10 }}>
-                  {focusedEntry.locked ? 'sealed' : focusedEntry.kind}
-                </div>
-              </div>
-            ) : (
-              <div className="loom-body loom-dim" style={{ fontStyle: 'italic', fontSize: 16 }}>
-                {listenerPrompt}
-              </div>
-            )}
+          <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 8, letterSpacing: '0.18em' }}>
+            ∞ {wovenCount} woven &nbsp;·&nbsp; {sealedCount} sealed
           </div>
         </div>
-      </Frame>
-    </LoomShell>
+
+        <div className="weft-header-right">
+          <div
+            className="loom-eyebrow"
+            style={{ marginBottom: 8, color: 'var(--bone-faint)', transition: 'opacity 360ms var(--loom-ease)', opacity: showAI ? 1 : 0 }}
+          >
+            the listener
+          </div>
+          <div
+            className="loom-serif"
+            style={{
+              fontSize: 13,
+              color: 'var(--bone-dim)',
+              fontStyle: 'italic',
+              lineHeight: 1.6,
+              transition: 'opacity 360ms var(--loom-ease)',
+              opacity: showAI ? 1 : 0,
+            }}
+          >
+            {listenerPrompt}
+          </div>
+        </div>
+
+        <div
+          className="weft-padding"
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 28,
+            paddingTop: 16,
+            borderTop: '1px solid var(--rule)',
+            transition: 'opacity 360ms var(--loom-ease)',
+          }}
+        >
+          {focusedEntry ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 24, alignItems: 'baseline' }}>
+              <div className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>
+                {focusedEntry.year}·{String(focusedEntry.month ?? 1).padStart(2, '0')}
+              </div>
+              <div className="loom-body" style={{ fontSize: 18 }}>
+                {focusedEntry.title}
+              </div>
+              <div className="loom-eyebrow" style={{ fontSize: 10 }}>
+                {focusedEntry.locked ? 'sealed' : focusedEntry.kind}
+              </div>
+            </div>
+          ) : (
+            <div className="loom-body loom-dim" style={{ fontStyle: 'italic', fontSize: 16 }}>
+              {listenerPrompt}
+            </div>
+          )}
+        </div>
+      </div>
+    </ClothShell>
   );
 }

@@ -851,8 +851,22 @@ export interface BookOrder {
   updated_at: string;
 }
 
+export interface ShippingAddress {
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state_code?: string;
+  country_code: string;
+  postcode: string;
+  phone_number: string;
+  email: string;
+}
+
 export const booksApi = {
   getOrder: (id: string) => api.get<{ book_order: BookOrder }>(`/book-orders/${id}`),
+  booksCheckout: (data: { ship_to: ShippingAddress; cover_type: 'hardcover' | 'softcover'; thread_id?: string }) =>
+    api.post<{ url: string }>('/book-orders/checkout', data),
 };
 
 export default api;

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { LoomShell } from '../components/LoomShell';
-import { Frame } from '../components/Frame';
+import { ClothShell } from '../components/ClothShell';
 
 /**
  * Screen 05 — The Unlock
@@ -41,33 +40,33 @@ export function Unlock() {
   }, [paused]);
 
   return (
-    <LoomShell>
-      <Frame
-        active="weft"
-        right={
+    <ClothShell
+      topbarCenter="sealed"
+      topbarRight={
+        <span
+          className="loom-mono loom-faint"
+          style={{ display: 'flex', gap: 14, alignItems: 'center' }}
+        >
           <span
-            className="loom-mono loom-faint"
-            style={{ display: 'flex', gap: 14, alignItems: 'center' }}
+            aria-hidden
+            style={{ width: 5, height: 5, background: 'var(--warm)' }}
+          />
+          a thread unties · today
+          <span
+            onClick={() => setPaused((p) => !p)}
+            style={{
+              cursor: 'pointer',
+              borderLeft: '1px solid var(--rule)',
+              paddingLeft: 14,
+              color: 'var(--bone-dim)',
+            }}
           >
-            <span
-              aria-hidden
-              style={{ width: 5, height: 5, background: 'var(--warm)' }}
-            />
-            a thread unties · today
-            <span
-              onClick={() => setPaused((p) => !p)}
-              style={{
-                cursor: 'pointer',
-                borderLeft: '1px solid var(--rule)',
-                paddingLeft: 14,
-                color: 'var(--bone-dim)',
-              }}
-            >
-              {paused ? 'play' : 'pause'}
-            </span>
+            {paused ? 'play' : 'pause'}
           </span>
-        }
-      >
+        </span>
+      }
+      backdropOpacity={0.5}
+    >
         <div
           style={{
             position: 'absolute',
@@ -244,9 +243,8 @@ export function Unlock() {
               </div>
             ))}
           </div>
-        </div>
-      </Frame>
-    </LoomShell>
+      </div>
+    </ClothShell>
   );
 }
 

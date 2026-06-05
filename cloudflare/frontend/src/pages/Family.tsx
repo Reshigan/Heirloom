@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { familyApi, engagementApi } from '../services/api';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 
 interface FamilyMember {
   id: string;
@@ -228,7 +228,13 @@ export function Family() {
   const atLimit = members.length >= 5;
 
   return (
-    <Frame left="family">
+    <ClothShell
+      topbarLeft={<span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(244,236,216,0.5)', letterSpacing: '0.08em' }}>← <a href="/loom/today" style={{ color: 'inherit', textDecoration: 'none' }}>today</a></span>}
+      topbarCenter="family"
+      topbarRight={!atLimit && !showForm ? (
+        <button type="button" className="hl-btn" onClick={() => openForm('add')} style={{ fontSize: 10, padding: '5px 12px' }}>add →</button>
+      ) : undefined}
+    >
       <div style={{ padding: 'clamp(24px, 5vw, 56px)', paddingBottom: 80, maxWidth: 760 }}>
 
         {/* Delete confirmation — inline, no overlay */}
@@ -780,7 +786,7 @@ export function Family() {
           </div>
         )}
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

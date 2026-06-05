@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
 import { memoriesApi } from '../../services/api';
 import { HLogo } from './HLogo';
-import { ThemeToggle } from './ThemeToggle';
 import { useSwUpdate } from '../../hooks/useSwUpdate';
 
 // ── §1.5-B invariant: append-only counter always visible ──────────────────────
@@ -123,6 +122,7 @@ function UserMenu() {
         </div>
         <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
           <Link to="/memories" className="hl-menu-item" onClick={() => setOpen(false)}>Memories</Link>
+          <Link to="/ask" className="hl-menu-item" onClick={() => setOpen(false)}>Ask the thread</Link>
           <Link to="/family" className="hl-menu-item" onClick={() => setOpen(false)}>Family</Link>
         </div>
         <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
@@ -315,7 +315,6 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           ) : (
             <Link to="/compose" className="hl-link warm hl-topbar-action">compose →</Link>
           )}
-          <span className="hl-topbar-action"><ThemeToggle /></span>
           <SecurityDot />
           <UserMenu />
         </span>

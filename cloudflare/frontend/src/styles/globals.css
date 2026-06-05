@@ -1225,6 +1225,18 @@ html {
   50%      { opacity: 1.0; }
 }
 
+/* Logo 3D float — applied by HLogo to the icon mark */
+@keyframes hl-logo-float {
+  0%, 100% {
+    transform: perspective(280px) rotateY(-2deg) rotateX(1deg);
+    filter: drop-shadow(0 2px 5px rgba(176,122,74,0.18));
+  }
+  50% {
+    transform: perspective(280px) rotateY(2deg) rotateX(-0.5deg);
+    filter: drop-shadow(0 4px 10px rgba(176,122,74,0.32));
+  }
+}
+
 /* ─── Page-level grain ─────────────────────────────────────────── */
 .loom-grain {
   position: absolute; inset: 0;
@@ -1818,3 +1830,132 @@ html {
   }
 }
 /* ─── loom-bridge.css merged ─── */
+
+/* ══════════════════════════════════════════════════════════════════════
+   WORLD-FIRST 3D BRAND SYSTEM — Heirloom v4
+   "The cloth is the interface."
+   Every screen is a view of the cloth: folding, breathing, permanent.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Fibonacci spacing — organic, not computed ───────────────────────── */
+:root {
+  --sp-1:  8px;
+  --sp-2: 13px;
+  --sp-3: 21px;
+  --sp-4: 34px;
+  --sp-5: 55px;
+  --sp-6: 89px;
+  --sp-7: 144px;
+  --sp-8: 233px;
+
+  /* Reading measure */
+  --measure: 65ch;
+  --measure-tight: 45ch;
+
+  /* 3D cloth parameters */
+  --cloth-perspective: 1400px;
+  --cloth-fold-dur: 360ms;
+  --cloth-weave-dur: 1400ms;
+  --seal-crack-dur: 720ms;
+  --seal-ceremony-dur: 1400ms;
+
+  /* Cooled sealing wax — less orange, more gravitas */
+  --wax: #9c6535;
+  --wax-bright: #b07a4a;
+  --wax-dim: #6b3a1a;
+  --wax-glow: rgba(156, 101, 53, 0.22);
+}
+
+/* ── ∞ mark — 3D float animation ───────────────────────────────────── */
+@keyframes hl-infinity-float {
+  0%   { transform: perspective(800px) rotateY(-4deg) rotateX(2deg)  translateY(0px); }
+  33%  { transform: perspective(800px) rotateY( 4deg) rotateX(-3deg) translateY(-4px); }
+  66%  { transform: perspective(800px) rotateY(-2deg) rotateX( 4deg) translateY(-2px); }
+  100% { transform: perspective(800px) rotateY(-4deg) rotateX(2deg)  translateY(0px); }
+}
+
+.hl-infinity-3d {
+  display: inline-block;
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 72, 'wght' 200;
+  color: var(--warm);
+  animation: hl-infinity-float 10s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  filter:
+    drop-shadow(0 0 40px rgba(176, 122, 74, 0.18))
+    drop-shadow(0 2px 8px rgba(176, 122, 74, 0.13));
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* ── Thread-weave — new entries appear woven in ─────────────────────── */
+@keyframes hl-thread-weave {
+  0%   { clip-path: inset(0 100% 0 0); opacity: 0.5; }
+  12%  { opacity: 1; }
+  100% { clip-path: inset(0 0% 0 0);   opacity: 1; }
+}
+
+.hl-thread-new {
+  animation: hl-thread-weave var(--cloth-weave-dur) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Breathing cursor — Composer blank page ──────────────────────────── */
+@keyframes hl-cursor-breathe {
+  0%, 47%  { opacity: 1; }
+  50%, 97% { opacity: 0; }
+  100%     { opacity: 1; }
+}
+
+.hl-composer-cursor-after::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: var(--ink);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: hl-cursor-breathe 1.2s step-end infinite;
+}
+
+.loom[data-theme="dark"] .hl-composer-cursor-after::after {
+  background: var(--bone);
+}
+
+/* ── Reading column — longform prose ─────────────────────────────────── */
+.hl-reading {
+  max-width: var(--measure);
+  margin: 0 auto;
+  font-family: var(--serif);
+  font-size: clamp(16px, 1.6vw, 19px);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 18;
+  line-height: 1.72;
+  color: var(--bone);
+}
+
+.loom[data-theme="light"] .hl-reading { color: var(--ink); }
+
+.hl-reading p + p { text-indent: 2em; }
+
+.hl-reading p:first-of-type::first-letter {
+  font-size: 3.4em;
+  font-weight: 300;
+  font-variation-settings: 'opsz' 72, 'wght' 300;
+  line-height: 0.75;
+  float: left;
+  margin: 0.06em 0.12em 0 0;
+  color: var(--warm);
+}
+
+/* ── CSS cloth breathe — landing fallback / CSS 3D rotation ──────────── */
+@keyframes hl-cloth-breathe {
+  0%,  100% { transform: perspective(900px) rotateX(5deg) rotateY(-1.2deg); }
+  50%        { transform: perspective(900px) rotateX(8deg) rotateY( 1.2deg); }
+}
+
+/* ── Reduced motion overrides ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hl-infinity-3d              { animation: none; }
+  .hl-thread-new               { animation: none; clip-path: none; opacity: 1; }
+  .hl-composer-cursor-after::after { animation: none; }
+  .hl-cloth-breathe-el        { animation: none; }
+}

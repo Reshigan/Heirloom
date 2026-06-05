@@ -1,67 +1,47 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TapestryCanvas } from '../components/TapestryCanvas';
 import { HLogo } from '../components/HLogo';
-import { ThemeToggle } from '../components/ThemeToggle';
 import { SecurityDot } from '../components/Frame';
-import { useListener } from '../../hooks/useListener';
 import {
   getDeferredPrompt, isIOS, isStandalone,
   onInstallStateChange, promptInstall, wasInstalled,
 } from '../../lib/pwa';
 
-// ── Demo cloth (120 entries, 1948 → today) ───────────────────────────────────
-const DEMO_ENTRIES = Array.from({ length: 120 }, (_, i) => ({
-  date: new Date(1948 + Math.floor(i * 0.65), (i * 3) % 12, 1),
+// Lazy-load the 3D cloth — pulls Three.js (~600KB)
+const ClothCanvas3D = lazy(() =>
+  import('../components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
+);
+
+// ── Demo cloth — a fictional family's 70-year thread ─────────────────
+// Deterministic dye assignment: no random, always the same specimen
+const DYE_NAMES = ['madder','indigo','saffron','weld','woad','cochineal','walnut','oakgall'] as const;
+
+const DEMO_ENTRIES = Array.from({ length: 280 }, (_, i) => ({
+  date: new Date(1952 + Math.floor(i * 0.25), (i * 5) % 12, 1),
   n: i,
-  dye: (['madder','indigo','saffron','weld','woad','cochineal'] as const)[i % 6],
+  dye: DYE_NAMES[i % 8],
   tier: 'family' as const,
 }));
 
-// ── Three editorial pillars (replaces the 5-bullet grid) ────────────────────
-const PILLARS = [
-  [
-    'A thousand-year horizon.',
-    'Not a season. Not a subscription cycle. An archive that outlives its founders and holds the record of a bloodline — perpetually, structurally, by design.',
-  ],
-  [
-    'Entries only append.',
-    'No silent edits. No deletion. Future generations read exactly what you wrote, exactly when you wrote it. The past is sealed the moment you weave it in.',
-  ],
-  [
-    'Write now. Let it arrive then.',
-    'Lock an entry to open on a date, an age, or a death. A letter to someone not yet born. A voice note for the next century. Time-locked by cryptographic seal.',
-  ],
+const DEMO_3D_ENTRIES = DEMO_ENTRIES.map((e, i) => ({
+  date: e.date,
+  dye: e.dye,
+  locked: i % 9 === 3,  // ~11% sealed — deterministic
+}));
+
+// ── Permanence answers ────────────────────────────────────────────────
+const PERMANENCE = [
+  ['If you stop paying.', 'Your sealed letters survive subscription changes. Once sealed, a letter holds regardless of account status.'],
+  ['If Heirloom folds.', 'Your archive exports at any time in open formats. IPFS pinning and a succession commitment ensure delivery. The letters find their people.'],
+  ['If you die first.', 'Designate a letter guardian — someone who inherits delivery when you\'re gone. Set this in Settings. They ensure your letters reach exactly who you wrote them for.'],
+  ['If they have no account.', 'Letters arrive as a direct link. No signup. No app. A notification, a link, a letter.'],
 ] as const;
 
-// ── Nav ───────────────────────────────────────────────────────────────────────
-function MktTopbar({ dark }: { dark?: boolean }) {
-  const color = dark ? 'rgba(244,236,216,0.55)' : 'var(--parchment-dim)';
-  const borderColor = dark ? 'rgba(244,236,216,0.10)' : 'var(--parchment-rule)';
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: 'calc(clamp(16px, 2.5vh, 22px) + env(safe-area-inset-top, 0px)) clamp(20px, 5vw, 56px) clamp(16px, 2.5vh, 22px)',
-      borderBottom: `1px solid ${borderColor}`,
-      fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.28em', textTransform: 'uppercase',
-    }}>
-      <HLogo size={20} wordmark wordColor={dark ? 'rgba(244,236,216,0.85)' : 'var(--parchment-ink)'} />
-      <span style={{ display: 'flex', gap: 'clamp(14px, 3vw, 28px)', alignItems: 'center', color }}>
-        <Link to="/loom/weft" className="mkt-nav-hide-sm" style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
-        <Link to="/founder"   className="mkt-nav-hide-sm" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
-        <Link to="/pricing"   style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
-        <Link to="/login"     style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
-        <span className="mkt-nav-hide-sm"><ThemeToggle /></span>
-        <SecurityDot size={7} />
-      </span>
-    </div>
-  );
-}
-
-// ── Install state ─────────────────────────────────────────────────────────────
+// ── Install state ─────────────────────────────────────────────────────
 function useInstallState() {
   const [tick, setTick] = useState(0);
-  useEffect(() => onInstallStateChange(() => setTick((t) => t + 1)), []);
+  useEffect(() => onInstallStateChange(() => setTick(t => t + 1)), []);
   if (typeof window === 'undefined') return { mode: 'none' as const };
   if (isStandalone() || wasInstalled()) return { mode: 'none' as const };
   if (getDeferredPrompt()) return { mode: 'prompt' as const, tick };
@@ -69,8 +49,8 @@ function useInstallState() {
   return { mode: 'none' as const, tick };
 }
 
-// ── Scroll reveal hook ────────────────────────────────────────────────────────
-function useReveal(threshold = 0.15) {
+// ── Scroll-reveal ─────────────────────────────────────────────────────
+function useReveal(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -78,23 +58,33 @@ function useReveal(threshold = 0.15) {
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
-      { threshold },
+      { threshold }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [threshold]);
+  }, []);
   return { ref, visible };
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── WebGL detection ───────────────────────────────────────────────────
+function detectWebGL(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const c = document.createElement('canvas');
+    return !!(c.getContext('webgl2') || c.getContext('webgl'));
+  } catch { return false; }
+}
+
 export function Marketing() {
-  const prompt = useListener();
   const install = useInstallState();
   const [vpH, setVpH] = useState(typeof window !== 'undefined' ? window.innerHeight : 900);
   const [vpW, setVpW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1440);
-  const [heroRevealed, setHeroRevealed] = useState(false);
-  const pillarsReveal = useReveal(0.1);
-  const ctaReveal = useReveal(0.1);
+  const [taglineIn, setTaglineIn] = useState(false);
+  const [use3D, setUse3D] = useState(false);
+  const pillars  = useReveal(0.08);
+  const permSect = useReveal(0.06);
+  const finalCta = useReveal(0.1);
+  const ease = 'cubic-bezier(0.16,1,0.3,1)';
 
   useEffect(() => {
     const sync = () => { setVpH(window.innerHeight); setVpW(window.innerWidth); };
@@ -102,294 +92,365 @@ export function Marketing() {
     return () => window.removeEventListener('resize', sync);
   }, []);
 
+  // Tagline arrives 800ms after first paint
   useEffect(() => {
-    const t = setTimeout(() => setHeroRevealed(true), 180);
+    const t = setTimeout(() => setTaglineIn(true), 800);
     return () => clearTimeout(t);
   }, []);
 
-  const ease = 'cubic-bezier(0.16,1,0.3,1)';
+  // Check WebGL — deferred to avoid SSR issues
+  useEffect(() => { setUse3D(detectWebGL()); }, []);
 
   return (
-    <main className="hl-screen parchment" style={{ overflowY: 'auto', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--ink)', color: 'var(--bone)', overflowX: 'hidden' }}>
 
-      {/* ── HERO: full-viewport canvas with text overlaid ── */}
-      <div style={{ position: 'relative', height: vpH, minHeight: 580, background: '#0e0e0c', overflow: 'hidden' }}>
+      {/* ════════════════════════════════════════════════════════════
+          HERO — the cloth IS the hero. Full viewport. No above-fold
+          text. The cloth speaks first. The headline arrives at 800ms.
+          ════════════════════════════════════════════════════════════ */}
+      <section style={{ position: 'relative', height: vpH, minHeight: 520, overflow: 'hidden' }}>
 
-        {/* Animated cloth — capped to upper 60% so threads never cross into the text zone */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '62%', overflow: 'hidden', zIndex: 1 }}>
-          <TapestryCanvas
-            width={vpW}
-            height={Math.round(vpH * 0.62)}
-            entries={DEMO_ENTRIES}
-            kind="specimen"
-            animate
-            opts={{
-              tStart: new Date(1948, 0, 1),
-              tEnd:   new Date(2026, 0, 1),
-              nowFrac: 0.93,
-              background: '#0e0e0c',
-              warpEvery: 9,
-              showFraySelvedge: true,
-              showWarpHair: true,
-            }}
-          />
-        </div>
-
-        {/* Nav on top of canvas */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20 }}>
-          <MktTopbar dark />
-        </div>
-
-        {/* Gradient: fades canvas edge into plain dark background where text sits */}
-        <div style={{
-          position: 'absolute', top: '38%', left: 0, right: 0, height: '32%',
-          background: 'linear-gradient(to bottom, transparent 0%, #0e0e0c 100%)',
-          pointerEvents: 'none',
-          zIndex: 2,
-        }} />
-
-        {/* Hero text — bottom-anchored, fades in */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          padding: '0 clamp(20px, 6vw, 80px) clamp(44px, 7vh, 72px)',
-          zIndex: 20,
+        {/* Nav — minimal, barely there */}
+        <nav style={{
+          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: 'calc(clamp(14px, 2.5vh, 20px) + env(safe-area-inset-top, 0px)) clamp(20px, 5vw, 56px) clamp(14px, 2.5vh, 20px)',
         }}>
-          <div
-            style={{
-              fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.32em',
-              textTransform: 'uppercase', color: 'rgba(244,236,216,0.38)',
-              marginBottom: 20,
-              opacity: heroRevealed ? 1 : 0,
-              transition: `opacity 720ms ${ease}`,
-            }}
-          >
-            heirloom · the family thread
-          </div>
+          <HLogo size="md" wordmark />
+          <span style={{
+            display: 'flex', gap: 'clamp(16px, 3vw, 28px)', alignItems: 'center',
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+            textTransform: 'uppercase', color: 'rgba(244,236,216,0.40)',
+          }}>
+            <Link to="/pricing"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">pricing</Link>
+            <Link to="/founder"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">founder</Link>
+            <Link to="/login"    style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
+            <SecurityDot size={6} />
+          </span>
+        </nav>
 
-          <h1
-            style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 'clamp(34px, 5.2vw, 74px)',
-              fontWeight: 300,
-              lineHeight: 1.06,
-              color: 'rgba(244,236,216,0.95)',
-              fontVariationSettings: '"opsz" 72',
-              maxWidth: '16ch',
-              margin: 0,
-              opacity: heroRevealed ? 1 : 0,
-              transform: heroRevealed ? 'translateY(0)' : 'translateY(20px)',
-              transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
-              transitionDelay: '180ms',
-            }}
-          >
-            {prompt}
+        {/* ── The cloth — fills the entire hero ── */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+          {use3D ? (
+            <Suspense fallback={<FallbackCloth entries={DEMO_ENTRIES} vpW={vpW} vpH={vpH} />}>
+              <ClothCanvas3D
+                entries={DEMO_3D_ENTRIES}
+                yearStart={1952}
+                yearEnd={2026}
+                style={{ width: '100%', height: '100%' }}
+              />
+            </Suspense>
+          ) : (
+            <FallbackCloth entries={DEMO_ENTRIES} vpW={vpW} vpH={vpH} />
+          )}
+          {/* Gradient so headline is legible over cloth */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: '58%',
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(14,14,12,0.65) 50%, rgba(14,14,12,0.97) 100%)',
+            pointerEvents: 'none',
+          }} />
+        </div>
+
+        {/* ── The single intention statement — arrives at 800ms ── */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
+          padding: '0 clamp(24px, 6vw, 80px) clamp(52px, 8vh, 80px)',
+        }}>
+          <h1 style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(28px, 4.6vw, 66px)',
+            fontWeight: 300,
+            lineHeight: 1.07,
+            fontVariationSettings: '"opsz" 72',
+            color: 'rgba(244,236,216,0.94)',
+            margin: '0 0 clamp(22px, 3.5vh, 36px)',
+            maxWidth: '13ch',
+            opacity: taglineIn ? 1 : 0,
+            transform: taglineIn ? 'translateY(0)' : 'translateY(24px)',
+            transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
+          }}>
+            Write to someone<br />who hasn't been<br />born yet.
           </h1>
 
           <div style={{
-            marginTop: 40, display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap',
-            opacity: heroRevealed ? 1 : 0,
-            transform: heroRevealed ? 'translateY(0)' : 'translateY(12px)',
-            transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
-            transitionDelay: '360ms',
+            display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap',
+            opacity: taglineIn ? 1 : 0,
+            transition: `opacity 1400ms ${ease}`,
+            transitionDelay: '220ms',
           }}>
             <Link
               to="/signup"
-              className="hl-cta-warm"
               style={{
-                display: 'inline-block',
-                padding: '11px 28px',
-                background: 'var(--warm)',
-                border: '1px solid var(--warm)',
-                color: 'var(--ink)',
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
-                textDecoration: 'none',
-                cursor: 'pointer',
-                transition: `transform 180ms cubic-bezier(0.16,1,0.3,1)`,
+                display: 'inline-block', padding: '12px 28px',
+                background: 'var(--warm)', color: 'var(--ink)',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                textTransform: 'uppercase', textDecoration: 'none',
+                transition: `opacity 180ms ${ease}`,
               }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
             >
-              Begin your thread — free
+              begin the thread →
             </Link>
 
             {install.mode === 'prompt' && (
               <button
                 type="button"
-                onClick={async () => { await promptInstall(); }}
+                onClick={() => promptInstall()}
                 style={{
-                  display: 'inline-block', padding: '10px 24px', background: 'transparent',
-                  border: '1px solid rgba(244,236,216,0.30)', color: 'rgba(244,236,216,0.70)',
-                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
-                  cursor: 'pointer',
+                  background: 'transparent', border: '1px solid rgba(244,236,216,0.25)',
+                  color: 'rgba(244,236,216,0.60)', fontFamily: 'var(--mono)', fontSize: 10,
+                  letterSpacing: '0.22em', textTransform: 'uppercase',
+                  cursor: 'pointer', padding: '11px 24px',
                 }}
               >
-                ↓ Install app
+                ↓ install
               </button>
             )}
             {install.mode === 'ios' && (
               <span style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
-                color: 'rgba(244,236,216,0.38)', borderBottom: '1px dashed rgba(244,236,216,0.20)', paddingBottom: 1,
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em',
+                textTransform: 'uppercase', color: 'rgba(244,236,216,0.35)',
+                borderBottom: '1px dashed rgba(244,236,216,0.20)',
               }}>
                 Share → Add to Home Screen
               </span>
             )}
-
-            <Link
-              to="/loom/weft"
-              style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.20em', textTransform: 'uppercase',
-                color: 'rgba(244,236,216,0.50)',
-                textDecoration: 'none', borderBottom: '1px solid rgba(244,236,216,0.20)', paddingBottom: 1,
-              }}
-            >
-              See the cloth →
-            </Link>
           </div>
+
+          <p style={{
+            marginTop: 20,
+            fontFamily: 'var(--mono)', fontSize: 9,
+            letterSpacing: '0.24em', textTransform: 'uppercase',
+            color: 'rgba(244,236,216,0.18)',
+            opacity: taglineIn ? 1 : 0,
+            transition: `opacity 1400ms ${ease}`,
+            transitionDelay: '480ms',
+          }}>
+            scroll ↓
+          </p>
         </div>
 
-        {/* Specimen label — top-right of canvas */}
+        {/* Specimen label — vertical, far right */}
         <div style={{
-          position: 'absolute', top: 68, right: 'clamp(20px, 5vw, 56px)',
-          fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(244,236,216,0.28)',
-          letterSpacing: '0.24em', textTransform: 'uppercase',
-          opacity: heroRevealed ? 1 : 0,
+          position: 'absolute',
+          top: 'calc(clamp(14px, 2.5vh, 20px) + env(safe-area-inset-top, 0px) + 48px)',
+          right: 'clamp(20px, 5vw, 56px)',
+          zIndex: 5,
+          fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.26em',
+          textTransform: 'uppercase', color: 'rgba(244,236,216,0.15)',
+          writingMode: 'vertical-rl',
+          opacity: taglineIn ? 1 : 0,
           transition: `opacity 1400ms ${ease}`,
           transitionDelay: '720ms',
         }}>
-          specimen · the Okonkwo family thread · 1948 – today · entry 4,318
+          specimen · the Okonkwo thread · 1952 – today
         </div>
+      </section>
 
-        {/* Scroll nudge */}
-        <div style={{
-          position: 'absolute', bottom: 'clamp(44px, 7vh, 72px)', right: 'clamp(20px, 6vw, 80px)',
-          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.28em', textTransform: 'uppercase',
-          color: 'rgba(244,236,216,0.22)', writingMode: 'vertical-rl',
-          opacity: heroRevealed ? 1 : 0, transition: `opacity 1400ms ${ease}`, transitionDelay: '720ms',
-        }}>
-          scroll
-        </div>
-      </div>
-
-      {/* ── THREE EDITORIAL PILLARS ── */}
-      <div
-        ref={pillarsReveal.ref}
+      {/* ════════════════════════════════════════════════════════════
+          THREE EDITORIAL PILLARS
+          ════════════════════════════════════════════════════════════ */}
+      <section
+        ref={pillars.ref}
         style={{
-          padding: 'clamp(64px, 9vh, 112px) clamp(20px, 6vw, 80px)',
-          background: 'var(--parchment)',
-          opacity: pillarsReveal.visible ? 1 : 0,
-          transform: pillarsReveal.visible ? 'translateY(0)' : 'translateY(24px)',
+          padding: 'clamp(72px, 10vh, 120px) clamp(24px, 6vw, 80px)',
+          borderTop: '1px solid rgba(244,236,216,0.07)',
+        }}
+      >
+        {([
+          ['Write now. Let it arrive then.',
+           'Seal a letter for a date, a milestone, or a death. Time-locked by design — cryptographic commitment, permanent delivery. It holds safe and finds them exactly when you intended.'],
+          ['A thousand-year horizon.',
+           'Not a season. Not a subscription cycle. An archive that outlives its founders and holds the record of a bloodline — perpetually, structurally, by design.'],
+          ['Entries only append.',
+           'No silent edits. No deletion. Future generations read exactly what you wrote, exactly when you wrote it. The past is sealed the moment you weave it in.'],
+        ] as const).map(([title, body], i) => (
+          <div key={i} style={{
+            borderTop: '1px solid rgba(244,236,216,0.10)',
+            padding: 'clamp(36px, 5.5vh, 60px) 0',
+            display: 'grid',
+            gridTemplateColumns: vpW < 680 ? '1fr' : '5fr 4fr',
+            gap: vpW < 680 ? '18px' : 'clamp(40px, 8vw, 120px)',
+            opacity: pillars.visible ? 1 : 0,
+            transform: pillars.visible ? 'translateY(0)' : 'translateY(20px)',
+            transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+            transitionDelay: `${i * 160}ms`,
+          }}>
+            <h2 style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(22px, 3.4vw, 48px)',
+              fontWeight: 300, lineHeight: 1.08, margin: 0,
+              fontVariationSettings: '"opsz" 48',
+              color: 'rgba(244,236,216,0.92)',
+            }}>{title}</h2>
+            <p style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(15px, 1.4vw, 17px)',
+              lineHeight: 1.72, margin: 0,
+              color: 'rgba(244,236,216,0.46)',
+              paddingTop: vpW < 680 ? 0 : 'clamp(4px, 0.6vh, 8px)',
+            }}>{body}</p>
+          </div>
+        ))}
+        <div style={{ borderTop: '1px solid rgba(244,236,216,0.10)' }} />
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════
+          PERMANENCE — what happens when things go wrong
+          ════════════════════════════════════════════════════════════ */}
+      <section
+        ref={permSect.ref}
+        style={{
+          padding: 'clamp(72px, 10vh, 120px) clamp(24px, 6vw, 80px)',
+          borderTop: '1px solid rgba(244,236,216,0.07)',
+          opacity: permSect.visible ? 1 : 0,
+          transform: permSect.visible ? 'translateY(0)' : 'translateY(24px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
-        {PILLARS.map(([title, body], i) => (
-          <div
-            key={i}
-            style={{
-              borderTop: '1px solid var(--parchment-rule)',
-              paddingTop: 'clamp(32px, 5vh, 52px)',
-              paddingBottom: 'clamp(32px, 5vh, 52px)',
-              display: 'grid',
-              gridTemplateColumns: vpW < 640 ? '1fr' : 'minmax(0, 5fr) minmax(0, 4fr)',
-              gap: vpW < 640 ? '0' : '0 clamp(40px, 8vw, 120px)',
-              alignItems: 'start',
-              opacity: pillarsReveal.visible ? 1 : 0,
-              transform: pillarsReveal.visible ? 'translateY(0)' : 'translateY(16px)',
-              transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
-              transitionDelay: `${i * 180}ms`,
-            }}
-          >
-            <h2
-              style={{
-                fontFamily: 'var(--serif)',
-                fontSize: 'clamp(26px, 3.8vw, 52px)',
-                fontWeight: 300, lineHeight: 1.08, margin: 0,
-                fontVariationSettings: '"opsz" 48',
-                color: 'var(--parchment-ink)',
-              }}
-            >
-              {title}
-            </h2>
-            <p
-              style={{
-                fontFamily: 'var(--serif)',
-                fontSize: vpW < 640 ? 16 : 'clamp(15px, 1.4vw, 18px)',
-                lineHeight: 1.68, margin: 0,
-                color: 'var(--parchment-dim)',
-                paddingTop: vpW < 640 ? 18 : 'clamp(4px, 0.8vh, 10px)',
-              }}
-            >
-              {body}
-            </p>
-          </div>
-        ))}
-        {/* final hairline */}
-        <div style={{ borderTop: '1px solid var(--parchment-rule)' }} />
-      </div>
-
-      {/* ── PRIVACY STRIP ── */}
-      <div style={{ padding: 'clamp(48px, 6vh, 80px) clamp(20px, 6vw, 80px)', borderTop: '1px solid var(--parchment-rule)', background: 'var(--parchment)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <div className="hl-eyebrow dark">Protected by design · globally compliant</div>
-          <SecurityDot size={7} />
+        <div style={{
+          fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.32em',
+          textTransform: 'uppercase', color: 'rgba(244,236,216,0.26)',
+          marginBottom: 'clamp(40px, 6vh, 60px)',
+        }}>
+          permanence
         </div>
-        <p className="hl-prose dark" style={{ maxWidth: '56ch', marginTop: 0, marginBottom: 36, fontSize: 16, lineHeight: 1.65 }}>
-          Your family's story is the most sensitive information there is. We treat it that way — by architecture, by law, and by principle. AES-256-GCM at rest. Zero-knowledge. We cannot read your entries.
-        </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 'clamp(16px, 2.5vh, 28px) clamp(20px, 4vw, 48px)' }}>
-          {([
-            ['GDPR · POPIA · CCPA', 'Right to access, right to erasure, right to portability. All three frameworks honored by architecture.'],
-            ['No third-party tracking', 'No ad pixels. No social trackers. No analytics that share your data. Your family stays yours.'],
-            ['Right to erasure', 'Delete your account and all data is permanently purged within 30 days. Export your full archive at any time.'],
-            ['HTTPS everywhere', 'All traffic encrypted in transit via TLS 1.3. Cloudflare edge enforces HSTS. No plaintext, ever.'],
-          ] as [string, string][]).map(([title, body]) => (
-            <div key={title}>
-              <div className="hl-eyebrow dark" style={{ marginBottom: 8 }}>{title}</div>
-              <p className="hl-prose dark" style={{ marginTop: 0, fontSize: 13, lineHeight: 1.6 }}>{body}</p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: vpW < 680 ? '1fr' : 'repeat(2, 1fr)',
+          gap: 'clamp(32px, 5vh, 52px) clamp(40px, 6vw, 80px)',
+        }}>
+          {PERMANENCE.map(([q, a], i) => (
+            <div key={i}>
+              <p style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(16px, 1.8vw, 22px)',
+                fontWeight: 300, lineHeight: 1.2,
+                margin: '0 0 14px',
+                fontVariationSettings: '"opsz" 24',
+                color: 'rgba(244,236,216,0.88)',
+              }}>{q}</p>
+              <p style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(14px, 1.3vw, 16px)',
+                lineHeight: 1.72, margin: 0,
+                color: 'rgba(244,236,216,0.42)',
+              }}>{a}</p>
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 36, paddingTop: 24, borderTop: '1px solid var(--parchment-rule)', display: 'flex', gap: 28, flexWrap: 'wrap', alignItems: 'center' }}>
-          <Link to="/privacy" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Privacy policy →</Link>
-          <Link to="/terms"   style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2 }}>Terms of service →</Link>
-        </div>
-      </div>
+      </section>
 
-      {/* ── CTA FOOTER ── */}
-      <div
-        ref={ctaReveal.ref}
+      {/* ════════════════════════════════════════════════════════════
+          FINAL CTA — the cloth waits
+          ════════════════════════════════════════════════════════════ */}
+      <section
+        ref={finalCta.ref}
         style={{
-          padding: 'clamp(64px, 9vh, 104px) clamp(20px, 6vw, 80px)',
-          borderTop: '1px solid var(--parchment-rule)',
-          background: 'var(--parchment)',
-          opacity: ctaReveal.visible ? 1 : 0,
-          transform: ctaReveal.visible ? 'translateY(0)' : 'translateY(16px)',
+          padding: 'clamp(80px, 12vh, 140px) clamp(24px, 6vw, 80px)',
+          borderTop: '1px solid rgba(244,236,216,0.07)',
+          textAlign: 'center',
+          opacity: finalCta.visible ? 1 : 0,
+          transform: finalCta.visible ? 'translateY(0)' : 'translateY(24px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
-        <div className="hl-eyebrow dark" style={{ marginBottom: 20 }}>Start free. No credit card. No limit on time.</div>
-        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-          <Link
-            to="/signup"
-            style={{
-              display: 'inline-block', padding: '11px 28px',
-              background: 'var(--ink)', border: '1px solid var(--ink)',
-              color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 10,
-              letterSpacing: '0.24em', textTransform: 'uppercase', textDecoration: 'none',
-            }}
-          >
-            Begin your thread →
+        <p style={{
+          fontFamily: 'var(--serif)',
+          fontSize: 'clamp(24px, 3.5vw, 52px)',
+          fontWeight: 300, lineHeight: 1.1,
+          margin: '0 0 clamp(32px, 5vh, 48px)',
+          fontVariationSettings: '"opsz" 48',
+          color: 'rgba(244,236,216,0.90)',
+          maxWidth: '18ch', marginLeft: 'auto', marginRight: 'auto',
+        }}>
+          The cloth waits.<br />Start your thread.
+        </p>
+        <Link
+          to="/signup"
+          style={{
+            display: 'inline-block', padding: '14px 36px',
+            background: 'var(--warm)', color: 'var(--ink)',
+            fontFamily: 'var(--mono)', fontSize: 11,
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            textDecoration: 'none',
+            transition: `opacity 180ms ${ease}`,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+        >
+          begin the thousand-year thread →
+        </Link>
+        <p style={{
+          marginTop: 24,
+          fontFamily: 'var(--mono)', fontSize: 9.5,
+          letterSpacing: '0.20em', textTransform: 'uppercase',
+          color: 'rgba(244,236,216,0.20)',
+        }}>
+          free to start ·{' '}
+          <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(244,236,216,0.18)' }}>
+            see pricing
           </Link>
-          <Link
-            to="/pricing"
-            style={{
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.20em', textTransform: 'uppercase',
-              color: 'var(--parchment-dim)', textDecoration: 'none',
-              borderBottom: '1px solid var(--parchment-rule)', paddingBottom: 2,
-            }}
-          >
-            See all plans →
-          </Link>
-        </div>
-      </div>
+        </p>
+      </section>
+
+      {/* Footer */}
+      <footer style={{
+        padding: 'clamp(32px, 4vh, 48px) clamp(24px, 6vw, 80px)',
+        borderTop: '1px solid rgba(244,236,216,0.07)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        flexWrap: 'wrap', gap: 16,
+        fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.18em',
+        textTransform: 'uppercase', color: 'rgba(244,236,216,0.20)',
+      }}>
+        <HLogo size="sm" wordmark />
+        <span style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          {[['privacy','/privacy'],['terms','/terms'],['contact','/contact']].map(([l, to]) => (
+            <Link key={l} to={to} style={{ color: 'inherit', textDecoration: 'none' }}>{l}</Link>
+          ))}
+        </span>
+        <span>heirloom.blue · est. 2025 · running until ∞</span>
+      </footer>
+
+      <style>{`
+        .mkt-nav-hide-sm { display: inline; }
+        @media (max-width: 520px) { .mkt-nav-hide-sm { display: none; } }
+      `}</style>
     </main>
+  );
+}
+
+// ── CSS fallback — no WebGL or while 3D loads ─────────────────────────
+function FallbackCloth({ entries, vpW, vpH }: { entries: typeof DEMO_ENTRIES; vpW: number; vpH: number }) {
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      <div
+        className="hl-cloth-breathe-el"
+        style={{
+          animation: 'hl-cloth-breathe 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
+          transformOrigin: 'center 72%',
+          position: 'absolute', inset: 0,
+        }}
+      >
+        <TapestryCanvas
+          width={vpW}
+          height={vpH}
+          entries={entries}
+          kind="specimen"
+          animate
+          opts={{
+            tStart: new Date(1952, 0, 1),
+            tEnd:   new Date(2026, 0, 1),
+            nowFrac: 0.80,
+            background: '#0e0e0c',
+            warpEvery: 8,
+            showFraySelvedge: true,
+            showWarpHair: false,
+            ghostTargetCount: 200,
+          }}
+        />
+      </div>
+    </div>
   );
 }

@@ -28,6 +28,48 @@
  */
 
 import type { AppEnv } from '../index';
+import { sendEmail } from '../utils/email';
+
+/**
+ * Notify the purchaser of a book order that their book has shipped.
+ * Looks up the purchaser's email and sends a plain-text shipping notice.
+ * Safe to call from waitUntil() — swallows lookup/send failures.
+ */
+export async function sendBookShippedEmail(
+  env: AppEnv['Bindings'],
+  bookOrderId: string,
+  trackingUrl?: string | null,
+): Promise<void> {
+  try {
+    const order = await env.DB.prepare(
+      `SELECT purchaser_user_id, tracking_url FROM book_orders WHERE id = ?`,
+    ).bind(bookOrderId).first<{ purchaser_user_id: string; tracking_url: string | null }>();
+    if (!order?.purchaser_user_id) return;
+
+    const user = await env.DB.prepare(
+      `SELECT email FROM users WHERE id = ?`,
+    ).bind(order.purchaser_user_id).first<{ email: string }>();
+    if (!user?.email) return;
+
+    const tracking = trackingUrl ?? order.tracking_url ?? '';
+    const body =
+      `Your book is on its way. Tracking: ${tracking}. ` +
+      `Thank you for printing your family's thread.`;
+
+    await sendEmail(
+      env,
+      {
+        from: 'Heirloom <noreply@heirloom.blue>',
+        to: user.email,
+        subject: 'Your Heirloom book has shipped',
+        html: body,
+      },
+      'BOOK_SHIPPED',
+    );
+  } catch (err) {
+    console.error('sendBookShippedEmail failed', err);
+  }
+}
 
 interface LuluCredentials {
   clientKey: string;
@@ -261,6 +303,13 @@ export async function syncOpenPrintJobs(env: AppEnv['Bindings']): Promise<{ upda
            updated_at = datetime('now')
        WHERE id = ?`,
     ).bind(status.status, localStatus, status.trackingUrl ?? null, status.cost ?? null, o.id).run();
+
+    // Notify the purchaser when the book ships. This runs from the daily
+    // cron backstop, so we send inline (no executionCtx here).
+    if (localStatus === 'SHIPPED') {
+      await sendBookShippedEmail(env, o.id, status.trackingUrl);
+    }
+
     updated++;
   }
   return { updated };

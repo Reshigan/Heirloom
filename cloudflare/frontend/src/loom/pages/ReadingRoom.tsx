@@ -1,324 +1,427 @@
-import { useState, type ReactNode } from 'react';
-import { LoomShell } from '../components/LoomShell';
-import { Frame } from '../components/Frame';
-import { ViewToggle } from '../components/ViewToggle';
+import { useState, lazy, Suspense, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { ClothPage } from '../components/ClothPage';
+
+const ClothCanvas3D = lazy(() =>
+  import('../components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
+);
 
 /**
- * Screen 07 — The Reading Room
+ * Screen 07 — The Reading Room (world-first 3D rebuild)
  *
- * The unified artifact view. Photos, voice, letters — every kind is
- * a "thread." The AI links across formats: a voice memo can rhyme
- * with a photograph. The left rail lists the threads; the centre is
- * the artifact in its medium-appropriate rendering; the right rail
- * is what this thread rhymes with elsewhere in the loom.
- *
- * Two view-modes, switched by the loom-mono ViewToggle in the top bar:
- *   wall — the canonical three-column reader (below)
- *   book — the descendant's large-type book-spread reader (BookView),
- *          a generous two-page reading surface with page-turn paging
- *          and ∞ chapter marks.
+ * Three.js ClothCanvas3D backdrop, selvedge nav, ClothPage artifact reader,
+ * AI margin annotations, full-screen BookView on cloth.
  */
-type Kind = 'photo' | 'voice' | 'letter';
-type RoomView = 'wall' | 'book';
 
-interface Thread {
-  kind: Kind;
-  date: string;
-  title: string;
-  who: string;
-  duration?: string;
+// ── Dye palette ───────────────────────────────────────────────────────────────
+const DYE_HEX: Record<string, string> = {
+  madder:   '#c0614a', indigo:  '#3d5a8a', weld:    '#d4a843',
+  saffron:  '#e8a825', kermes:  '#9e3a5a', walnut:  '#7a5c3a',
+  oakgall:  '#5a4a3a', woad:    '#5b7fa6', cochineal:'#b84060', iron: '#4a4a4a',
+};
+
+// ── Deterministic hash (no Math.random) ───────────────────────────────────────
+function sineHash(n: number): number {
+  const x = Math.sin(n * 9301 + 49297) * 233280;
+  return x - Math.floor(x);
 }
 
-const THREADS: Thread[] = [
-  { kind: 'photo',  date: '1986·05·14', title: 'the kitchen window, daffodils', who: 'Margaret' },
-  { kind: 'voice',  date: '1992·01·07', title: 'humming, sunday',                who: 'Margaret', duration: '0:38' },
-  { kind: 'letter', date: '2026·05·04', title: 'the kitchen window, in late may', who: 'Eleanor' },
-  { kind: 'voice',  date: '2013·07·22', title: 'Maya, calling from Berlin',      who: 'Maya', duration: '2:14' },
-  { kind: 'photo',  date: '2024·06·02', title: 'Iris asleep on the windowsill', who: 'Eleanor' },
-];
+// ── CLOTH_BG_ENTRIES — 48 deterministic entries ───────────────────────────────
+const DYE_KEYS = ['madder','cochineal','kermes','saffron','weld','walnut','oakgall','woad','indigo','iron'] as const;
+type DyeKey = typeof DYE_KEYS[number];
 
-// ∞ is the only mark; kind is distinguished by the loom-mono label text.
+const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
+  date: new Date(1960 + Math.floor(sineHash(i * 17 + 1) * 66), 0, 1),
+  dye: DYE_KEYS[i % DYE_KEYS.length] as DyeKey,
+  locked: i % 4 === 0,
+}));
+
+// ── AI_ANNOTATIONS ────────────────────────────────────────────────────────────
+const AI_ANNOTATIONS: Record<number, { text: string; passage: string }> = {
+  0: { text: 'Eleanor wrote this · 2026', passage: 'slanted, low' },
+  1: { text: 'Maya hums this · 2013',     passage: 'six notes' },
+  2: { text: 'Margaret · 1986',           passage: 'kitchen window' },
+  3: { text: 'same hum · 1992',           passage: 'six notes' },
+  4: { text: 'Margaret sat here · 1986',  passage: 'windowsill' },
+};
+
+// ── THREADS data ──────────────────────────────────────────────────────────────
+const THREADS = [
+  { kind: 'photo'  as const, date: '1986·05·14', title: 'the kitchen window, daffodils',   who: 'Margaret', dye: 'weld' },
+  { kind: 'voice'  as const, date: '1992·01·07', title: 'humming, sunday',                 who: 'Margaret', dye: 'weld',    duration: '0:38' },
+  { kind: 'letter' as const, date: '2026·05·04', title: 'the kitchen window, in late may', who: 'Eleanor',  dye: 'madder' },
+  { kind: 'voice'  as const, date: '2013·07·22', title: 'Maya, calling from Berlin',       who: 'Maya',     dye: 'indigo',  duration: '2:14' },
+  { kind: 'photo'  as const, date: '2024·06·02', title: 'Iris asleep on the windowsill',   who: 'Eleanor',  dye: 'madder' },
+];
+type Thread = typeof THREADS[number];
+type Kind = Thread['kind'];
+
+// ── ∞ is the only mark ────────────────────────────────────────────────────────
 const GLYPH: Record<Kind, string> = { photo: '∞', voice: '∞', letter: '∞' };
 
-export function ReadingRoom() {
-  const [active, setActive] = useState(2);
-  const [view, setView] = useState<RoomView>('wall');
-  const t = THREADS[active];
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
-  const toggle = (
-    <ViewToggle<RoomView>
-      value={view}
-      onChange={setView}
-      options={[
-        { value: 'wall', label: 'wall' },
-        { value: 'book', label: 'book' },
-      ]}
-    />
-  );
-
-  if (view === 'book') {
-    return (
-      <LoomShell>
-        <Frame active="weft" right={toggle} showHorizon={false} showGrain={false}>
-          <BookView />
-        </Frame>
-      </LoomShell>
-    );
-  }
-
+// ── ReadingContent ────────────────────────────────────────────────────────────
+function ReadingContent({
+  t, dye, annotation, onPrev, onNext, activeIndex, total,
+}: {
+  t: Thread;
+  dye: string;
+  annotation?: { text: string; passage: string };
+  onPrev?: () => void;
+  onNext?: () => void;
+  activeIndex: number;
+  total: number;
+}) {
   return (
-    <LoomShell>
-      <Frame
-        active="weft"
-        right={
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
-            {toggle}
-            <span className="loom-mono loom-faint">reading · {t.date}</span>
-          </span>
-        }
-      >
-        <div
-          style={{
+    <div style={{
+      position: 'absolute', inset: 0,
+      overflowY: 'auto',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      padding: '52px 24px 40px',
+    }}>
+      <div style={{ maxWidth: 660, width: '100%', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+
+        {/* AI margin annotation */}
+        {annotation && (
+          <div style={{
             position: 'absolute',
-            inset: 0,
-            display: 'grid',
-            gridTemplateColumns: '300px 1fr 320px',
-            height: '100%',
-          }}
-        >
-          {/* LEFT — thread list */}
-          <aside
-            style={{
-              padding: '44px 28px',
-              borderRight: '1px solid var(--rule)',
-              overflow: 'auto',
-            }}
-          >
-            <div className="loom-eyebrow" style={{ marginBottom: 18 }}>
-              five threads · this rhyme
-            </div>
-            <div style={{ display: 'grid', gap: 0 }}>
-              {THREADS.map((th, i) => (
-                <div key={th.date + th.title}>
-                  {i > 0 && (
-                    <hr style={{ border: 0, borderTop: '1px solid var(--rule)', margin: '0' }} />
-                  )}
-                  <ThreadRow
-                    {...th}
-                    active={i === active}
-                    onClick={() => setActive(i)}
-                  />
-                </div>
-              ))}
-            </div>
-            <hr className="loom-hairline" style={{ margin: '26px 0' }} />
-            <div className="loom-eyebrow" style={{ marginBottom: 12 }}>
-              filter
-            </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {(['all', 'letters', 'photos', 'voice'] as const).map((f, i) => (
-                <span
-                  key={f}
-                  style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: 11,
-                    color: i === 0 ? 'var(--warm)' : 'var(--bone-dim)',
-                    padding: '4px 10px',
-                    border:
-                      i === 0
-                        ? '1px solid var(--warm)'
-                        : '1px solid var(--rule)',
-                    cursor: 'pointer',
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  {f}
-                </span>
-              ))}
-            </div>
-          </aside>
-
-          {/* CENTER — artifact */}
-          <main style={{ padding: '44px 60px', overflow: 'hidden', position: 'relative' }}>
-            <div
-              className="loom-mono"
-              style={{
-                fontSize: 10,
-                color: 'var(--warm)',
-                marginBottom: 8,
-                letterSpacing: '0.04em',
-              }}
-            >
-              ∞ &nbsp; {t.kind} · written by {t.who}
-            </div>
-            <div
-              className="loom-h2"
-              style={{
-                fontSize: 30,
-                fontWeight: 300,
-                fontStyle: 'italic',
-                marginBottom: 6,
-                letterSpacing: '-0.014em',
-                color: 'var(--bone)',
-              }}
-            >
-              {t.title}
-            </div>
-            <div
-              className="loom-mono"
-              style={{
-                fontSize: 10,
-                color: 'var(--bone-faint)',
-                letterSpacing: '0.04em',
-                marginBottom: 32,
-              }}
-            >
-              {t.date} &nbsp;·&nbsp; oak street &nbsp;·&nbsp; thread n°148 of 312
-            </div>
-
-            {t.kind === 'photo' && <PhotoView title={t.title} />}
-            {t.kind === 'voice' && <VoiceView duration={t.duration ?? ''} />}
-            {t.kind === 'letter' && <LetterView />}
-          </main>
-
-          {/* RIGHT — what it rhymes with */}
-          <aside
-            style={{
-              padding: '44px 28px',
-              borderLeft: '1px solid var(--rule)',
-              background: 'var(--ink-card)',
-              overflow: 'auto',
-            }}
-          >
-            <div className="loom-eyebrow" style={{ marginBottom: 12 }}>
-              ∞ &nbsp; the loom links this to
-            </div>
-            <div
-              className="loom-body"
-              style={{
-                fontSize: 13,
-                fontStyle: 'italic',
-                color: 'var(--bone-dim)',
-                lineHeight: 1.6,
-                marginBottom: 24,
-              }}
-            >
-              this {t.kind} rhymes with three threads across formats. the loom heard the same hum,
-              saw the same window, found the same phrase.
-            </div>
-            <div style={{ display: 'grid', gap: 14 }}>
-              <RhymeCard
-                kind="photo"
-                date="1986·05·14"
-                who="Margaret"
-                note="the same window, 40 yrs earlier"
-                onClick={() => setActive(0)}
-              />
-              <RhymeCard
-                kind="voice"
-                date="1992·01·07"
-                who="Margaret"
-                note="she hummed at this same sill"
-                onClick={() => setActive(1)}
-              />
-              <RhymeCard
-                kind="photo"
-                date="2024·06·02"
-                who="Eleanor"
-                note="iris, asleep where margaret used to sit"
-                onClick={() => setActive(4)}
-              />
-            </div>
-            <hr className="loom-hairline" style={{ margin: '28px 0' }} />
-            <div className="loom-eyebrow" style={{ marginBottom: 8 }}>
-              delivery
-            </div>
-            <div style={{ display: 'grid', gap: 8 }}>
-              <DeliverRow name="Maya" status="on her 40th · 2031" />
-              <DeliverRow name="Iris" status="on her 18th · 2042" warm />
-              <DeliverRow name="future" status="open archive · 2076" />
-            </div>
-          </aside>
-        </div>
-      </Frame>
-    </LoomShell>
-  );
-}
-
-function ThreadRow({
-  kind,
-  date,
-  title,
-  who,
-  active,
-  onClick,
-}: Thread & { active: boolean; onClick: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        padding: '10px 12px',
-        cursor: 'pointer',
-        background: active ? 'rgba(176,122,74,0.08)' : 'transparent',
-        borderLeft: active ? '1px solid var(--warm)' : '1px solid transparent',
-        display: 'grid',
-        gap: 4,
-        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
-      }}
-    >
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '16px 1fr auto',
-          gap: 10,
-          alignItems: 'baseline',
-        }}
-      >
-        <span
-          style={{
-            color: active ? 'var(--warm)' : 'var(--bone-dim)',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 13,
-            textAlign: 'center',
-          }}
-        >
-          {GLYPH[kind]}
-        </span>
-        <span
-          className="loom-serif"
-          style={{
-            fontVariationSettings: "'opsz' 14",
-            fontSize: 14,
-            color: active ? 'var(--bone)' : 'var(--bone-dim)',
-            fontStyle: active ? 'italic' : 'normal',
-            fontWeight: 400,
-            lineHeight: 1.3,
-          }}
-        >
-          {title}
-        </span>
-        <span
-          className="loom-mono"
-          style={{ fontSize: 9, color: 'var(--bone-faint)' }}
-        >
-          {date.slice(0, 4)}
-        </span>
-      </div>
-      <div style={{ paddingLeft: 26 }} className="loom-mono">
-        <span
-          style={{
+            right: 'calc(100% + 32px)',
+            top: 180,
+            width: 110,
+            textAlign: 'right',
+            fontFamily: 'var(--mono)',
             fontSize: 9,
-            color: 'var(--bone-faint)',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}
-        >
-          {kind} · {who}
-        </span>
+            lineHeight: 1.55,
+            color: 'var(--warm)',
+            opacity: 0.5,
+          }}>
+            <div>∞ {annotation.text}</div>
+            <div style={{ borderTop: '1px solid rgba(176,122,74,0.3)', marginTop: 6, paddingTop: 6, fontSize: 8, fontStyle: 'italic' }}>
+              re: "{annotation.passage}"
+            </div>
+          </div>
+        )}
+
+        {/* Header */}
+        <div style={{
+          fontFamily: 'var(--mono)',
+          fontSize: 10,
+          color: dye,
+          letterSpacing: '0.04em',
+          marginBottom: 12,
+        }}>
+          ∞ &nbsp; {t.kind} · written by {t.who}
+        </div>
+
+        {/* Title */}
+        <div style={{
+          fontFamily: 'var(--serif)',
+          fontSize: 'clamp(24px, 3.5vw, 34px)',
+          fontWeight: 300,
+          fontStyle: 'italic',
+          fontVariationSettings: '"opsz" 36',
+          margin: '0 0 8px',
+          color: 'var(--bone)',
+          lineHeight: 1.2,
+        }}>
+          {t.title}
+        </div>
+
+        {/* Dateline */}
+        <div style={{
+          fontFamily: 'var(--mono)',
+          fontSize: 9,
+          color: 'var(--bone-faint)',
+          letterSpacing: '0.12em',
+          marginBottom: 40,
+        }}>
+          {t.date} · oak street · thread n°148 of 312
+        </div>
+
+        {/* Content with dye border */}
+        <div style={{ borderLeft: `3px solid ${dye}`, paddingLeft: 28 }}>
+          {t.kind === 'photo'  && <PhotoView title={t.title} />}
+          {t.kind === 'voice'  && <VoiceView duration={'duration' in t ? (t.duration ?? '') : ''} />}
+          {t.kind === 'letter' && <LetterView />}
+        </div>
+
+        {/* Listener line */}
+        <div style={{
+          marginTop: 32, paddingTop: 16,
+          borderTop: '1px solid rgba(244,236,216,0.07)',
+          fontFamily: 'var(--serif)',
+          fontSize: 13,
+          fontStyle: 'italic',
+          color: 'rgba(176,122,74,0.55)',
+          lineHeight: 1.6,
+        }}>
+          ∞ {annotation
+            ? `the loom connects this to ${annotation.text.toLowerCase()}`
+            : 'the loom is listening across this thread.'}
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Time navigation */}
+        <div style={{
+          width: '100%', maxWidth: 660,
+          paddingTop: 24,
+          borderTop: '1px solid rgba(244,236,216,0.07)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <button
+            type="button"
+            onClick={onPrev}
+            disabled={!onPrev}
+            style={{
+              background: 'transparent', border: 0, padding: 0,
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: onPrev ? 'var(--bone-faint)' : 'rgba(244,236,216,0.15)',
+              cursor: onPrev ? 'pointer' : 'default',
+            }}
+          >
+            ← earlier
+          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {Array.from({ length: total }, (_, i) => (
+              <div key={i} style={{
+                width: i === activeIndex ? 20 : 6,
+                height: 2,
+                background: i === activeIndex ? dye : 'rgba(244,236,216,0.18)',
+                transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
+              }} />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={onNext}
+            disabled={!onNext}
+            style={{
+              background: 'transparent', border: 0, padding: 0,
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: onNext ? dye : 'rgba(244,236,216,0.15)',
+              cursor: onNext ? 'pointer' : 'default',
+            }}
+          >
+            later →
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
+// ── ReadingRoom ───────────────────────────────────────────────────────────────
+export function ReadingRoom() {
+  const [active, setActive]     = useState(2);
+  const [clothOpen, setClothOpen] = useState(true);
+  const [view, setView]         = useState<'wall' | 'book'>('wall');
+  const [navOpen, setNavOpen]   = useState(false);
+  const t   = THREADS[active];
+  const dye = DYE_HEX[t.dye] ?? '#b07a4a';
+
+  const handleSelect = (i: number) => {
+    if (i === active) return;
+    setNavOpen(false);
+    setClothOpen(false);
+    setTimeout(() => { setActive(i); setClothOpen(true); }, 380);
+  };
+
+  // book view
+  if (view === 'book') {
+    return (
+      <div className="loom" data-theme="dark" style={{ position: 'fixed', inset: 0, background: '#0e0e0c' }}>
+        <div aria-hidden style={{ position: 'absolute', inset: 0, opacity: 0.35, pointerEvents: 'none' }}>
+          <Suspense fallback={null}>
+            <ClothCanvas3D entries={CLOTH_BG_ENTRIES} />
+          </Suspense>
+        </div>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+          <BookView />
+        </div>
+        <button
+          onClick={() => setView('wall')}
+          style={{
+            position: 'fixed', top: 20, left: 28, zIndex: 20,
+            background: 'transparent', border: 0,
+            fontFamily: 'var(--mono)', fontSize: 10,
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'var(--bone-faint)', cursor: 'pointer',
+          }}
+        >
+          ← wall
+        </button>
+      </div>
+    );
+  }
+
+  // wall view
+  return (
+    <div
+      className="loom"
+      data-theme="dark"
+      style={{ position: 'fixed', inset: 0, background: '#0e0e0c' }}
+    >
+      {/* Layer 0: ClothCanvas3D backdrop */}
+      <div aria-hidden style={{ position: 'absolute', inset: 0, opacity: 0.45, pointerEvents: 'none', zIndex: 0 }}>
+        <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
+          <ClothCanvas3D entries={CLOTH_BG_ENTRIES} />
+        </Suspense>
+      </div>
+
+      {/* Layer 1: Topbar */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 20,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 24px',
+        background: 'rgba(14,14,12,0.75)',
+        borderBottom: '1px solid rgba(244,236,216,0.08)',
+      }}>
+        {/* Left */}
+        <Link
+          to="/loom/weft"
+          style={{
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+            textTransform: 'uppercase', color: 'var(--bone-faint)',
+            textDecoration: 'none',
+          }}
+        >
+          ← cloth
+        </Link>
+
+        {/* Centre */}
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 15 }}>∞</span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>
+            {t.kind}
+          </span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)' }}>·</span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>
+            {t.who}
+          </span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)' }}>·</span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.35)', letterSpacing: '0.08em' }}>
+            {t.date}
+          </span>
+        </span>
+
+        {/* Right */}
+        <button
+          type="button"
+          onClick={() => setView('book')}
+          style={{
+            background: 'transparent', border: '1px solid rgba(244,236,216,0.15)', padding: '3px 12px',
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+            textTransform: 'uppercase', color: 'var(--bone-faint)', cursor: 'pointer',
+          }}
+        >
+          book view
+        </button>
+      </div>
+
+      {/* Layer 2: Selvedge nav */}
+      <div
+        onMouseEnter={() => setNavOpen(true)}
+        onMouseLeave={() => setNavOpen(false)}
+        style={{
+          position: 'absolute', top: 56, bottom: 0, left: 0, zIndex: 15,
+          width: navOpen ? 260 : 6,
+          background: navOpen ? 'rgba(14,14,12,0.94)' : 'transparent',
+          borderRight: navOpen ? '1px solid rgba(244,236,216,0.08)' : '1px solid transparent',
+          transition: `width 360ms ${EASE}, background 360ms ${EASE}, border-color 360ms ${EASE}`,
+          overflow: 'hidden',
+          display: 'flex', flexDirection: 'column',
+        }}
+      >
+        {/* Dye strips */}
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          {THREADS.map((th, i) => (
+            <div
+              key={th.date + th.title}
+              onClick={() => handleSelect(i)}
+              style={{
+                flex: 1,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center',
+                overflow: 'hidden',
+                borderLeft: `3px solid ${DYE_HEX[th.dye] ?? '#b07a4a'}`,
+                opacity: i === active ? 1 : 0.28,
+                transition: `opacity 180ms ${EASE}`,
+              }}
+            >
+              {/* Thread label — only visible when nav is open */}
+              <div style={{
+                paddingLeft: 14,
+                opacity: navOpen ? 1 : 0,
+                transition: `opacity 220ms ${EASE}`,
+                whiteSpace: 'nowrap',
+                minWidth: 0,
+              }}>
+                <div style={{
+                  fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',
+                  color: 'var(--bone)', fontWeight: 300, lineHeight: 1.3,
+                  overflow: 'hidden', textOverflow: 'ellipsis',
+                }}>
+                  {th.title}
+                </div>
+                <div style={{
+                  fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)',
+                  letterSpacing: '0.08em', marginTop: 2,
+                }}>
+                  {th.kind} · {th.who} · {th.date.slice(0, 4)}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Layer 3: ClothPage */}
+      <div style={{ position: 'absolute', inset: 0, top: 56, zIndex: 10 }}>
+        <ClothPage
+          isOpen={clothOpen}
+          page={
+            <ReadingContent
+              t={t}
+              dye={dye}
+              annotation={AI_ANNOTATIONS[active]}
+              onPrev={active > 0 ? () => handleSelect(active - 1) : undefined}
+              onNext={active < THREADS.length - 1 ? () => handleSelect(active + 1) : undefined}
+              activeIndex={active}
+              total={THREADS.length}
+            />
+          }
+        >
+          {/* Cloth face cover — visible during fold transition */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            gap: 14, padding: 44,
+            background: 'var(--ink)',
+          }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--warm)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+              ∞ &nbsp; {t.kind} · {t.date}
+            </div>
+            <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 300, fontStyle: 'italic', textAlign: 'center', maxWidth: '18ch', lineHeight: 1.25, color: 'var(--bone)' }}>
+              {t.title}
+            </div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+              {t.who}
+            </div>
+          </div>
+        </ClothPage>
+      </div>
+    </div>
+  );
+}
+
+// ── Inner components (unchanged) ──────────────────────────────────────────────
 
 function PhotoView({ title }: { title: string }) {
   return (
@@ -335,7 +438,6 @@ function PhotoView({ title }: { title: string }) {
         }}
       >
         <div
-          className="loom-mono"
           style={{
             fontSize: 10,
             color: 'var(--bone-faint)',
@@ -344,6 +446,7 @@ function PhotoView({ title }: { title: string }) {
             textAlign: 'center',
             position: 'relative',
             zIndex: 2,
+            fontFamily: 'var(--mono)',
           }}
         >
           [ photograph ]
@@ -354,6 +457,7 @@ function PhotoView({ title }: { title: string }) {
               fontStyle: 'italic',
               textTransform: 'none',
               letterSpacing: 0,
+              fontFamily: 'var(--serif)',
             }}
           >
             {title}
@@ -364,16 +468,15 @@ function PhotoView({ title }: { title: string }) {
       </div>
 
       <div
-        className="loom-body"
         style={{
           fontSize: 15,
           fontStyle: 'italic',
           color: 'var(--bone-dim)',
           lineHeight: 1.7,
-          textWrap: 'pretty',
+          fontFamily: 'var(--serif)',
         }}
       >
-        <span className="loom-warm-text">∞ </span>
+        <span style={{ color: 'var(--warm)' }}>∞ </span>
         the loom hears:{' '}
         <span style={{ color: 'var(--bone)' }}>
           "slanted late-may light, the color of a strong tea. daffodils on the sill. the
@@ -425,18 +528,17 @@ function VoiceView({ duration }: { duration: string }) {
           }}
         >
           <div
-            className="loom-mono"
             style={{
               fontSize: 10,
               color: 'var(--warm)',
               letterSpacing: '0.04em',
+              fontFamily: 'var(--mono)',
             }}
           >
             voice &nbsp;·&nbsp; {duration} &nbsp;·&nbsp; recorded on a sunday morning
           </div>
           <div
-            className="loom-mono"
-            style={{ fontSize: 10, color: 'var(--bone-faint)' }}
+            style={{ fontSize: 10, color: 'var(--bone-faint)', fontFamily: 'var(--mono)' }}
           >
             0:14 / {duration}
           </div>
@@ -460,14 +562,13 @@ function VoiceView({ duration }: { duration: string }) {
         </div>
 
         <div
-          className="loom-body"
           style={{
             fontSize: 16,
             color: 'var(--bone)',
             lineHeight: 1.85,
             fontStyle: 'italic',
-            textWrap: 'pretty',
-            fontVariationSettings: "'opsz' 14",
+            fontFamily: 'var(--serif)',
+            fontVariationSettings: '"opsz" 14',
           }}
         >
           <span style={{ color: 'var(--bone-dim)' }}>
@@ -482,15 +583,15 @@ function VoiceView({ duration }: { duration: string }) {
       </div>
 
       <div
-        className="loom-body"
         style={{
           fontSize: 14,
           fontStyle: 'italic',
           color: 'var(--bone-dim)',
           lineHeight: 1.7,
+          fontFamily: 'var(--serif)',
         }}
       >
-        <span className="loom-warm-text">∞ </span>
+        <span style={{ color: 'var(--warm)' }}>∞ </span>
         the loom recognized this hum. it appears in{' '}
         <span
           style={{
@@ -534,12 +635,11 @@ function LetterView() {
       }}
     >
       <div
-        className="loom-body"
         style={{
           fontSize: 16,
           lineHeight: 1.9,
           color: 'var(--bone)',
-          textWrap: 'pretty',
+          fontFamily: 'var(--serif)',
         }}
       >
         <p style={{ margin: '0 0 12px' }}>
@@ -585,7 +685,7 @@ function RhymeCard({
         cursor: 'pointer',
         display: 'grid',
         gap: 4,
-        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+        transition: `border-color 180ms ${EASE}`,
       }}
     >
       <div
@@ -596,30 +696,29 @@ function RhymeCard({
         }}
       >
         <span
-          className="loom-mono"
           style={{
             fontSize: 9,
             color: 'var(--warm)',
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
+            fontFamily: 'var(--mono)',
           }}
         >
           {GLYPH[kind]} {kind} · {who}
         </span>
         <span
-          className="loom-mono"
-          style={{ fontSize: 9, color: 'var(--bone-faint)' }}
+          style={{ fontSize: 9, color: 'var(--bone-faint)', fontFamily: 'var(--mono)' }}
         >
           {date}
         </span>
       </div>
       <div
-        className="loom-serif"
         style={{
           fontSize: 13,
           fontStyle: 'italic',
           color: 'var(--bone-dim)',
           lineHeight: 1.4,
+          fontFamily: 'var(--serif)',
         }}
       >
         {note}
@@ -643,6 +742,36 @@ function Tag({ children, warm }: { children: ReactNode; warm?: boolean }) {
     >
       {children}
     </span>
+  );
+}
+
+function DeliverRow({ name, status, warm }: { name: string; status: string; warm?: boolean }) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr auto',
+        alignItems: 'baseline',
+        padding: '6px 0',
+        borderBottom: '1px solid var(--rule)',
+      }}
+    >
+      <span
+        style={{
+          fontSize: 14,
+          color: warm ? 'var(--warm)' : 'var(--bone)',
+          fontStyle: warm ? 'italic' : 'normal',
+          fontFamily: 'var(--serif)',
+        }}
+      >
+        {name}
+      </span>
+      <span
+        style={{ fontSize: 9, color: 'var(--bone-faint)', fontFamily: 'var(--mono)' }}
+      >
+        {status}
+      </span>
+    </div>
   );
 }
 
@@ -675,7 +804,7 @@ const CHAPTERS: Chapter[] = [
       'Written by Eleanor Hartshorn on the 14th of May, 1986. The daffodils were out for the last spring her mother saw them.',
     body: [
       'Tonight I sat at the kitchen window. The light came through the daffodils the way it used to when my mother was alive — slanted, low, the colour of a strong tea. I thought I should write this down before it goes.',
-      'I do not know who will read it. Maybe Iris, in some year I will not see. We don’t get to keep each other for as long as we want. But we get the window. We get the late-may light. We get this.',
+      "I do not know who will read it. Maybe Iris, in some year I will not see. We don't get to keep each other for as long as we want. But we get the window. We get the late-may light. We get this.",
     ],
     closing: 'She kept the daffodils on the sill every May after.',
     leftPage: 148,
@@ -705,7 +834,7 @@ const CHAPTERS: Chapter[] = [
       'To my granddaughter, today: you are asleep on the windowsill where my mother used to sit. I do not know who you will become. I am writing so that you will know who we were.',
       'You do not have to read all of this at once. The thread cannot be deleted, and it will wait. Read it on the day you are ready, and then put it down, and then come back. That is what it is for.',
     ],
-    closing: 'She didn’t wake her. She just wrote.',
+    closing: 'She didn\'t wake her. She just wrote.',
     leftPage: 152,
     rightPage: 153,
   },
@@ -730,7 +859,6 @@ function BookView() {
     >
       {/* running heads */}
       <div
-        className="loom-mono"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -739,6 +867,7 @@ function BookView() {
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
           color: 'var(--parchment-faint)',
+          fontFamily: 'var(--mono)',
         }}
       >
         <span>book mode · the Hartshorn thread</span>
@@ -760,31 +889,31 @@ function BookView() {
           }}
         >
           <div
-            className="loom-mono"
             style={{
               fontSize: 10,
               color: 'var(--parchment-faint)',
               letterSpacing: '0.32em',
               textTransform: 'uppercase',
               marginBottom: 36,
+              fontFamily: 'var(--mono)',
             }}
           >
             {c.eyebrow}
           </div>
           <h2
-            className="loom-display"
             style={{
               fontSize: 46,
               fontStyle: 'italic',
               margin: 0,
               maxWidth: '14ch',
               color: 'var(--parchment-ink)',
+              fontFamily: 'var(--display)',
+              fontWeight: 300,
             }}
           >
             {c.title}
           </h2>
           <div
-            className="loom-serif"
             style={{
               fontStyle: 'italic',
               fontSize: 17,
@@ -792,14 +921,14 @@ function BookView() {
               marginTop: 32,
               maxWidth: '38ch',
               lineHeight: 1.7,
+              fontFamily: 'var(--serif)',
             }}
           >
             {c.byline}
           </div>
           <div style={{ flex: 1 }} />
           <div
-            className="loom-mono"
-            style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.18em' }}
+            style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.18em', fontFamily: 'var(--mono)' }}
           >
             p. {c.leftPage}
           </div>
@@ -818,24 +947,24 @@ function BookView() {
             {c.body.map((p, i) => (
               <p
                 key={i}
-                className="loom-body"
                 style={{
                   fontSize: 19,
                   lineHeight: 1.9,
                   color: 'var(--parchment-ink)',
                   margin: '0 0 18px',
+                  fontFamily: 'var(--serif)',
                 }}
               >
                 {p}
               </p>
             ))}
             <div
-              className="loom-serif"
               style={{
                 fontStyle: 'italic',
                 fontSize: 16,
                 color: 'var(--parchment-dim)',
                 marginTop: 10,
+                fontFamily: 'var(--serif)',
               }}
             >
               {c.closing}
@@ -843,12 +972,12 @@ function BookView() {
           </div>
           <div style={{ flex: 1 }} />
           <div
-            className="loom-mono"
             style={{
               fontSize: 10,
               color: 'var(--parchment-faint)',
               letterSpacing: '0.18em',
               textAlign: 'right',
+              fontFamily: 'var(--mono)',
             }}
           >
             p. {c.rightPage}
@@ -856,7 +985,7 @@ function BookView() {
         </div>
       </div>
 
-      {/* page-turn pager — ∞ chapter marks */}
+      {/* page-turn pager */}
       <div
         style={{
           display: 'flex',
@@ -869,7 +998,6 @@ function BookView() {
           type="button"
           onClick={() => turn(-1)}
           disabled={ch === 0}
-          className="loom-mono"
           style={{
             background: 'transparent',
             border: 0,
@@ -879,6 +1007,7 @@ function BookView() {
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: ch === 0 ? 'var(--parchment-faint)' : 'var(--parchment-dim)',
+            fontFamily: 'var(--mono)',
           }}
         >
           ← earlier
@@ -892,7 +1021,6 @@ function BookView() {
               aria-label={`chapter ${i + 1}`}
               aria-current={i === ch}
               onClick={() => setCh(i)}
-              className="loom-serif"
               style={{
                 background: 'transparent',
                 border: 0,
@@ -901,7 +1029,8 @@ function BookView() {
                 fontSize: 14,
                 lineHeight: 1,
                 color: i === ch ? 'var(--warm)' : 'var(--parchment-faint)',
-                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: `color 180ms ${EASE}`,
+                fontFamily: 'var(--serif)',
               }}
             >
               ∞
@@ -913,7 +1042,6 @@ function BookView() {
           type="button"
           onClick={() => turn(1)}
           disabled={ch === CHAPTERS.length - 1}
-          className="loom-mono"
           style={{
             background: 'transparent',
             border: 0,
@@ -922,15 +1050,15 @@ function BookView() {
             fontSize: 10,
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
-            color:
-              ch === CHAPTERS.length - 1 ? 'var(--parchment-faint)' : 'var(--warm)',
+            color: ch === CHAPTERS.length - 1 ? 'var(--parchment-faint)' : 'var(--warm)',
+            fontFamily: 'var(--mono)',
           }}
         >
           later →
         </button>
       </div>
 
-      {/* parchment edge — paler, ~6px, anchors the book as a physical object */}
+      {/* parchment edge */}
       <div
         aria-hidden
         style={{
@@ -964,33 +1092,7 @@ function BookView() {
   );
 }
 
-function DeliverRow({ name, status, warm }: { name: string; status: string; warm?: boolean }) {
-  return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr auto',
-        alignItems: 'baseline',
-        padding: '6px 0',
-        borderBottom: '1px solid var(--rule)',
-      }}
-    >
-      <span
-        className="loom-serif"
-        style={{
-          fontSize: 14,
-          color: warm ? 'var(--warm)' : 'var(--bone)',
-          fontStyle: warm ? 'italic' : 'normal',
-        }}
-      >
-        {name}
-      </span>
-      <span
-        className="loom-mono"
-        style={{ fontSize: 9, color: 'var(--bone-faint)' }}
-      >
-        {status}
-      </span>
-    </div>
-  );
-}
+// Keep RhymeCard, Tag, DeliverRow accessible from this module
+// (used inside ReadingContent's rhyme panel if needed in future)
+void (RhymeCard);
+void (DeliverRow);
