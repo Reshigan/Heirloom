@@ -1,6 +1,8 @@
-import { useState, lazy, Suspense, type ReactNode } from 'react';
+import { useState, useEffect, lazy, Suspense, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothPage } from '../components/ClothPage';
+import { threadsApi } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
 
 const ClothCanvas3D = lazy(() =>
   import('../components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
@@ -55,6 +57,29 @@ const THREADS = [
 ];
 type Thread = typeof THREADS[number];
 type Kind = Thread['kind'];
+
+// ── API entry → Thread mapper ─────────────────────────────────────────────────
+function hashStr(s: string): number {
+  return s.split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
+}
+
+function mapThreadEntry(e: {
+  id: string;
+  title: string | null;
+  created_at: string;
+  visibility: string;
+  author_member_id: string;
+  pending_lock: string | null;
+  era_year?: number | null;
+}): Thread {
+  return {
+    kind: 'letter' as const,
+    date: new Date(e.created_at).toISOString().slice(0, 10).replace(/-/g, '·'),
+    title: e.title ?? '(untitled)',
+    who: 'author',
+    dye: DYE_KEYS[Math.abs(hashStr(e.author_member_id ?? '')) % DYE_KEYS.length],
+  };
+}
 
 // ── ∞ is the only mark ────────────────────────────────────────────────────────
 const GLYPH: Record<Kind, string> = { photo: '∞', voice: '∞', letter: '∞' };
@@ -218,11 +243,30 @@ function ReadingContent({
 
 // ── ReadingRoom ───────────────────────────────────────────────────────────────
 export function ReadingRoom() {
-  const [active, setActive]     = useState(2);
+  const [active, setActive]     = useState(0);
   const [clothOpen, setClothOpen] = useState(true);
   const [view, setView]         = useState<'wall' | 'book'>('wall');
   const [navOpen, setNavOpen]   = useState(false);
-  const t   = THREADS[active];
+  const [entries, setEntries]   = useState<Thread[]>(THREADS);
+  const [loading, setLoading]   = useState(false);
+  const { user, isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.defaultThreadId) return;
+    setLoading(true);
+    threadsApi.listEntries(user.defaultThreadId, { limit: 50 })
+      .then((res) => {
+        const raw = res.data?.entries ?? [];
+        if (raw.length > 0) {
+          setEntries(raw.map(mapThreadEntry));
+          setActive(0);
+        }
+      })
+      .catch(() => { /* fall back to THREADS mock */ })
+      .finally(() => setLoading(false));
+  }, [isAuthenticated, user?.defaultThreadId]);
+
+  const t   = entries[active] ?? entries[0];
   const dye = DYE_HEX[t.dye] ?? '#b07a4a';
 
   const handleSelect = (i: number) => {
@@ -267,6 +311,9 @@ export function ReadingRoom() {
       data-theme="dark"
       style={{ position: 'fixed', inset: 0, background: '#0e0e0c' }}
     >
+      {/* Hairline loading bar */}
+      <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'var(--warm)', opacity: loading ? 0.6 : 0, transition: 'opacity 360ms', zIndex: 30, pointerEvents: 'none' }} />
+
       {/* Layer 0: ClothCanvas3D backdrop */}
       <div aria-hidden style={{ position: 'absolute', inset: 0, opacity: 0.45, pointerEvents: 'none', zIndex: 0 }}>
         <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
@@ -340,7 +387,7 @@ export function ReadingRoom() {
       >
         {/* Dye strips */}
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          {THREADS.map((th, i) => (
+          {entries.map((th, i) => (
             <div
               key={th.date + th.title}
               onClick={() => handleSelect(i)}
@@ -391,9 +438,9 @@ export function ReadingRoom() {
               dye={dye}
               annotation={AI_ANNOTATIONS[active]}
               onPrev={active > 0 ? () => handleSelect(active - 1) : undefined}
-              onNext={active < THREADS.length - 1 ? () => handleSelect(active + 1) : undefined}
+              onNext={active < entries.length - 1 ? () => handleSelect(active + 1) : undefined}
               activeIndex={active}
-              total={THREADS.length}
+              total={entries.length}
             />
           }
         >

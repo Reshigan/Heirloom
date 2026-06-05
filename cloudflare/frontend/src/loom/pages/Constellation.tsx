@@ -1,7 +1,9 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../components/ClothShell';
 import { ELEANOR_KIN } from '../data/mock';
+import { useAuthStore } from '../../stores/authStore';
+import { familyApi } from '../../services/api';
 
 /**
  * Screen 08 — The Constellation
@@ -14,9 +16,37 @@ import { ELEANOR_KIN } from '../data/mock';
  * "you" is rendered in warm; the rest in bone. Past lives terminate
  * at their death year (no glow); living lives fade out toward 2070.
  */
+
+type KinEntry = {
+  name: string;
+  born: number;
+  died: number | null;
+  you: boolean;
+  picks: number[];
+};
+
 export function Constellation() {
+  const { user, isAuthenticated } = useAuthStore();
+  const [kin, setKin] = useState<KinEntry[]>(ELEANOR_KIN);
   const [hovered, setHovered] = useState<number | null>(null);
   const minYear = 1890;
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    familyApi.getAll().then((r) => {
+      const members: Array<{ id: string; name: string; born?: number; died?: number }> =
+        r.data ?? [];
+      if (members.length === 0) return; // keep mock if empty
+      const mapped: KinEntry[] = members.map((m, i) => ({
+        name: m.name,
+        born: m.born ?? 1980 + i * 10,
+        died: m.died ?? null,
+        you: m.id === user?.id,
+        picks: [], // no resonance picks yet from API
+      }));
+      setKin(mapped);
+    }).catch(() => {}); // silent fallback to mock
+  }, [isAuthenticated, user?.id]);
   const maxYear = 2070;
   const today = 2026;
   const xOf = (y: number) => ((y - minYear) / (maxYear - minYear)) * 100;
@@ -128,7 +158,7 @@ export function Constellation() {
               </Fragment>
             ))}
 
-            {ELEANOR_KIN.map((k, i) => {
+            {kin.map((k, i) => {
               const top = 22 + i * 64;
               const dead = k.died != null;
               const endYear = k.died ?? today;

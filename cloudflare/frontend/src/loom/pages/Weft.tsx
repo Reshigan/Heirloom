@@ -8,7 +8,7 @@ import { ViewToggle } from '../components/ViewToggle';
 import { EmptyThread } from '../components/EmptyThread';
 import { WeftPull } from '../components/WeftPull';
 import { WeftCentury } from '../components/WeftCentury';
-import { memoriesApi, lettersApi, voiceApi } from '../../services/api';
+import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 import { useListener } from '../../hooks/useListener';
 
@@ -84,6 +84,15 @@ export function Weft() {
     queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
   });
 
+  const { data: threadMembersData } = useQuery({
+    queryKey: ['weft-thread-members', user?.defaultThreadId],
+    enabled: !!user?.defaultThreadId,
+    queryFn: () =>
+      threadsApi.listMembers(user!.defaultThreadId!)
+        .then((r) => r.data?.members ?? [])
+        .catch(() => []),
+  });
+
   const allEntries = useMemo(() => {
     const mems = Array.isArray((memoriesData as any)?.data) ? (memoriesData as any).data : [];
     const lets = Array.isArray((lettersData as any)?.data) ? (lettersData as any).data : [];
@@ -125,9 +134,10 @@ export function Weft() {
     />
   );
 
+  const memberCount = Array.isArray(threadMembersData) ? threadMembersData.length : null;
   const entryCount = (
     <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'rgba(244,236,216,0.38)', textTransform: 'uppercase' }}>
-      {wovenCount} woven
+      {allEntries.length} entries{memberCount != null ? ` · ${memberCount} members` : ''}
     </span>
   );
 

@@ -1,4 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
+import type { ClothEntry } from './ClothCanvas3D';
 
 const ClothCanvas3D = lazy(() =>
   import('./ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
@@ -24,6 +25,7 @@ interface ClothShellProps {
   topbarRight?: ReactNode;
   backdropOpacity?: number;
   noTopbar?: boolean;
+  entries?: ClothEntry[];
 }
 
 export function ClothShell({
@@ -33,6 +35,7 @@ export function ClothShell({
   topbarRight,
   backdropOpacity = 0.4,
   noTopbar = false,
+  entries,
 }: ClothShellProps) {
   return (
     <div
@@ -51,7 +54,7 @@ export function ClothShell({
         }}
       >
         <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
-          <ClothCanvas3D entries={CLOTH_BG_ENTRIES} />
+          <ClothCanvas3D entries={entries ?? CLOTH_BG_ENTRIES} />
         </Suspense>
       </div>
 

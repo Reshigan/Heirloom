@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
-    baseURL: process.env.BASE_URL || 'https://heirloom.blue',
+    baseURL: process.env.BASE_URL || 'http://localhost:5177',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'off',

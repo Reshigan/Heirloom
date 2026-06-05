@@ -4,10 +4,44 @@ import { ClothShell } from '../components/ClothShell';
 import { TapestryCanvas } from '../components/TapestryCanvas';
 import { useListener } from '../../hooks/useListener';
 import { useTapestryEntries } from '../../hooks/useTapestryEntries';
+import { useAuthStore } from '../../stores/authStore';
+import { aiApi, engagementApi } from '../../services/api';
+
+interface OnThisDayEntry {
+  id: string;
+  title?: string | null;
+  description?: string | null;
+  type?: string;
+  createdAt?: string;
+  yearsAgo?: number;
+}
 
 export function Today() {
-  const prompt = useListener();
+  const localPrompt = useListener();
+  const { isAuthenticated } = useAuthStore();
+  const [prompt, setPrompt] = useState<string>(localPrompt);
+  const [onThisDay, setOnThisDay] = useState<OnThisDayEntry[]>([]);
   const entries = useTapestryEntries();
+
+  // Fetch real AI prompt when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    aiApi.getPrompt()
+      .then(r => { if (r.data?.text) setPrompt(r.data.text); })
+      .catch(() => {});
+  }, [isAuthenticated]);
+
+  // Fetch "on this day" memories when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    engagementApi.getOnThisDay()
+      .then(r => {
+        const raw = r.data;
+        const list: OnThisDayEntry[] = Array.isArray(raw) ? raw : (raw?.memories ?? raw?.data ?? []);
+        setOnThisDay(list);
+      })
+      .catch(() => {});
+  }, [isAuthenticated]);
   const [revealed, setRevealed] = useState(false);
   const [vpW, setVpW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1440);
 
@@ -170,6 +204,30 @@ export function Today() {
                 <span key={c.author} className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                   {String(c.author ?? '').slice(0, 8)}
                 </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* On this day — real data when authenticated */}
+        {onThisDay.length > 0 && (
+          <div
+            style={{ marginTop: 40, borderTop: '1px solid var(--rule)', paddingTop: 20,
+              opacity: revealed ? 1 : 0, transition: `opacity 1400ms ${ease}`, transitionDelay: '540ms' }}
+          >
+            <div className="hl-eyebrow" style={{ marginBottom: 14 }}>on this day</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {onThisDay.slice(0, 3).map((m) => (
+                <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {m.yearsAgo !== undefined && (
+                    <span className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                      {m.yearsAgo} {m.yearsAgo === 1 ? 'year' : 'years'} ago
+                    </span>
+                  )}
+                  <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, color: 'var(--bone-dim)', fontStyle: 'italic', lineHeight: 1.5 }}>
+                    {m.title ?? m.description ?? '—'}
+                  </span>
+                </div>
               ))}
             </div>
           </div>

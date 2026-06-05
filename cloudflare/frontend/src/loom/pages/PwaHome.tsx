@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRole } from '../../hooks/useRole';
 import { useTapestryEntries } from '../../hooks/useTapestryEntries';
 import { useListener } from '../../hooks/useListener';
 import { useAuthStore } from '../../stores/authStore';
+import { memoriesApi } from '../../services/api';
 import { ClothShell } from '../components/ClothShell';
 import { HLogo } from '../components/HLogo';
 import { BottomNav } from '../components/BottomNav';
@@ -159,15 +160,22 @@ function AuthHome({
   role,
   entries,
   prompt,
+  stats,
 }: {
   role: UserRole;
   entries: CanvasEntry[];
   prompt: string;
+  stats: { entries: number; members: number } | null;
 }) {
+  const { user, isAuthenticated } = useAuthStore();
   const count = entries.length;
   const stage = getStage(count);
   const P = 'clamp(20px, 5vw, 28px)';
   const TARGET = 400;
+
+  const greeting = isAuthenticated && user
+    ? `${user.firstName}'s thread.`
+    : "Start your family’s thousand-year thread.";
 
   // Visitor — no cloth, just invite
   if (role === 'visitor') {
@@ -175,7 +183,7 @@ function AuthHome({
       <div style={{ padding: `36px ${P}` }}>
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>preview</span>
         <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 24px', lineHeight: 1.15 }}>
-          Start your family&#39;s thousand-year thread.
+          {greeting}
         </h2>
         <Link to="/signup" className="hl-btn" style={{ fontSize: 13 }}>Begin free →</Link>
       </div>
@@ -273,8 +281,18 @@ function AuthHome({
         letterSpacing: '0.30em',
         textTransform: 'uppercase',
         color: 'var(--bone-faint)',
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: 16,
+        flexWrap: 'wrap',
       }}>
-        {todayStamp()}
+        <span>{todayStamp()}</span>
+        {stats && (
+          <span style={{ fontSize: 8, letterSpacing: '0.22em' }}>
+            {stats.entries} {stats.entries === 1 ? 'entry' : 'entries'}
+            {stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'member' : 'members'}` : ''}
+          </span>
+        )}
       </div>
 
       {/* Thread-open hero — cloth now provided by ClothShell backdrop */}
@@ -443,6 +461,15 @@ export function PwaHome() {
   const entries = useTapestryEntries();
   const prompt  = useListener();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
+  const { isAuthenticated } = useAuthStore();
+  const [stats, setStats] = useState<{ entries: number; members: number } | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    memoriesApi.getStats()
+      .then(r => setStats({ entries: r.data?.total ?? 0, members: 0 }))
+      .catch(() => {});
+  }, [isAuthenticated]);
 
   return (
     <ClothShell
@@ -462,7 +489,7 @@ export function PwaHome() {
           overflowX: 'hidden',
         }}
       >
-        <AuthHome role={role} entries={entries} prompt={prompt} />
+        <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
       </div>
 
       <BottomNav />
