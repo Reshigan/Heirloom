@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useRole } from '../../hooks/useRole';
 import { useTapestryEntries } from '../../hooks/useTapestryEntries';
 import { useListener } from '../../hooks/useListener';
+import { useIsNewUser } from '../../hooks/useIsNewUser';
 import { useAuthStore } from '../../stores/authStore';
 import { memoriesApi } from '../../services/api';
 import { ClothShell } from '../components/ClothShell';
@@ -460,6 +461,7 @@ export function PwaHome() {
   const role = useRole();
   const entries = useTapestryEntries();
   const prompt  = useListener();
+  const { isNewUser } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
   const { isAuthenticated } = useAuthStore();
   const [stats, setStats] = useState<{ entries: number; members: number } | null>(null);
@@ -479,18 +481,120 @@ export function PwaHome() {
     >
       {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}
 
-      {/* Scrollable content — transparent so cloth shows through */}
-      <div
-        className="hl-frame-scroll"
-        style={{
+      {/* First-run experience — shown when the user has no entries yet */}
+      {isNewUser && (
+        <div style={{
           position: 'absolute',
           inset: 0,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}
-      >
-        <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
-      </div>
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 48,
+          padding: '0 40px',
+          textAlign: 'center',
+        }}>
+          <div>
+            <div
+              style={{
+                fontFamily: 'var(--serif)',
+                fontVariationSettings: "'opsz' 48",
+                fontSize: 'clamp(26px, 5vw, 40px)',
+                fontWeight: 300,
+                color: 'var(--bone)',
+                lineHeight: 1.25,
+                letterSpacing: '-0.01em',
+                marginBottom: 20,
+              }}
+            >
+              your thread begins here.
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 17,
+                fontStyle: 'italic',
+                color: 'var(--bone-dim)',
+                lineHeight: 1.6,
+                maxWidth: 440,
+              }}
+            >
+              write one thing. a memory, a letter to someone not yet born, a voice note before you forget.
+              the cloth takes whatever you give it.
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 360 }}>
+            <Link
+              to="/compose"
+              style={{
+                display: 'block',
+                padding: '14px 28px',
+                border: '1px solid var(--bone-dim)',
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--bone)',
+                textDecoration: 'none',
+                textAlign: 'center',
+                transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1), color 360ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--warm)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--warm)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--bone-dim)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone)'; }}
+            >
+              write a memory
+            </Link>
+            <Link
+              to="/record"
+              style={{
+                display: 'block',
+                padding: '14px 28px',
+                border: '1px solid var(--rule)',
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-dim)',
+                textDecoration: 'none',
+                textAlign: 'center',
+                transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1), color 360ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--bone-dim)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--rule)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-dim)'; }}
+            >
+              record your voice
+            </Link>
+          </div>
+          <div
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 14,
+              fontStyle: 'italic',
+              color: 'var(--bone-faint)',
+              maxWidth: 360,
+              lineHeight: 1.7,
+            }}
+          >
+            the listener is waiting.<br />
+            what did you almost forget to write down today?
+          </div>
+        </div>
+      )}
+
+      {/* Scrollable content — transparent so cloth shows through */}
+      {!isNewUser && (
+        <div
+          className="hl-frame-scroll"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+          }}
+        >
+          <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
+        </div>
+      )}
 
       <BottomNav />
     </ClothShell>

@@ -127,7 +127,7 @@ export function Login() {
                   </label>
                   <Link to="/forgot-password" className="hl-mono" style={{
                     fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase',
-                    color: 'var(--parchment-faint)', textDecoration: 'none',
+                    color: 'var(--bone-dim)', textDecoration: 'none',
                   }}>
                     forgot?
                   </Link>

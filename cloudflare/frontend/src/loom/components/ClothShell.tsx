@@ -60,7 +60,8 @@ export function ClothShell({
 
       {/* Topbar */}
       {!noTopbar && (
-        <div
+        <header
+          aria-label="Navigation"
           style={{
             position: 'absolute', top: 0, left: 0, right: 0, height: 56,
             zIndex: 20,
@@ -79,11 +80,11 @@ export function ClothShell({
           <div style={{ minWidth: 120, display: 'flex', justifyContent: 'flex-end' }}>
             {topbarRight}
           </div>
-        </div>
+        </header>
       )}
 
       {/* Content layer */}
-      <div
+      <main
         style={{
           position: 'absolute',
           inset: 0,
@@ -93,7 +94,7 @@ export function ClothShell({
         }}
       >
         {children}
-      </div>
+      </main>
     </div>
   );
 }

@@ -23,7 +23,8 @@ export function BottomNav() {
   const { pathname } = useLocation();
 
   return (
-    <div
+    <nav
+      aria-label="Loom navigation"
       style={{
         position: 'fixed',
         bottom: 0,
@@ -67,7 +68,7 @@ export function BottomNav() {
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 }
 

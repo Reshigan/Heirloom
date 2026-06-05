@@ -120,7 +120,7 @@ export function Pricing() {
                 borderBottom: '1px solid var(--parchment-rule)',
               }}
             >
-              <div className="hl-eyebrow dark" style={{ marginBottom: 16 }}>{tier.name}</div>
+              <h2 className="hl-eyebrow dark" style={{ marginBottom: 16, margin: 0, padding: 0, font: 'inherit' }}>{tier.name}</h2>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 8 }}>
                 <span className="hl-serif" style={{ fontSize: 40, fontWeight: 300, color: 'var(--parchment-ink)' }}>
                   {annual && tier.priceBilledAnnually ? tier.priceBilledAnnually : tier.price}

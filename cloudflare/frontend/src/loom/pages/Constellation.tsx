@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../components/ClothShell';
 import { useAuthStore } from '../../stores/authStore';
-import { familyApi } from '../../services/api';
+import { familyApi, threadsApi, memoriesApi } from '../../services/api';
 
 /**
  * Screen 08 — The Constellation
@@ -28,23 +28,82 @@ export function Constellation() {
   const { user, isAuthenticated } = useAuthStore();
   const [kin, setKin] = useState<KinEntry[]>([]);
   const [hovered, setHovered] = useState<number | null>(null);
+  const [resonances, setResonances] = useState<{ year: number; memberIds: string[] }[]>([]);
   const minYear = 1890;
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    familyApi.getAll().then((r) => {
+
+    const familyPromise = familyApi.getAll();
+
+    // Fetch entries: try thread entries first, fall back to memories
+    const entriesPromise: Promise<Array<{ author_member_id?: string; author_id?: string; authorId?: string; user_id?: string; era_year?: number | null; created_at?: string; createdAt?: string; memory_date?: string }>> =
+      user?.defaultThreadId
+        ? threadsApi.listEntries(user.defaultThreadId, { limit: 500 })
+            .then(r => (r.data as { entries: typeof r.data extends { entries: infer E } ? E : never[] }).entries ?? [])
+            .catch(() => memoriesApi.getAll({ limit: 500 }).then(r => {
+              const d = r.data as any;
+              return Array.isArray(d?.data) ? d.data : Array.isArray(d) ? d : [];
+            }).catch(() => []))
+        : memoriesApi.getAll({ limit: 500 }).then(r => {
+            const d = r.data as any;
+            return Array.isArray(d?.data) ? d.data : Array.isArray(d) ? d : [];
+          }).catch(() => []);
+
+    Promise.all([familyPromise, entriesPromise]).then(([familyResp, entries]) => {
       const members: Array<{ id: string; name: string; born?: number; died?: number }> =
-        r.data ?? [];
+        familyResp.data ?? [];
+
+      // Compute resonances: group by authorId → years with entries
+      const authorYears = new Map<string, Set<number>>();
+      for (const entry of entries) {
+        const authorId =
+          (entry as any).author_member_id ??
+          (entry as any).author_id ??
+          (entry as any).authorId ??
+          (entry as any).user_id;
+        if (!authorId) continue;
+        // Use era_year if present, otherwise fall back to date fields
+        let year: number | null = null;
+        if ((entry as any).era_year != null) {
+          year = Number((entry as any).era_year);
+        } else {
+          const raw = (entry as any).memory_date ?? (entry as any).createdAt ?? (entry as any).created_at;
+          if (raw) {
+            const d = new Date(raw);
+            if (!isNaN(d.getTime())) year = d.getFullYear();
+          }
+        }
+        if (year == null || isNaN(year)) continue;
+        if (!authorYears.has(authorId)) authorYears.set(authorId, new Set());
+        authorYears.get(authorId)!.add(year);
+      }
+
+      // Find years where ≥2 different authors have entries
+      const yearAuthors = new Map<number, Set<string>>();
+      for (const [authorId, years] of authorYears) {
+        for (const y of years) {
+          if (!yearAuthors.has(y)) yearAuthors.set(y, new Set());
+          yearAuthors.get(y)!.add(authorId);
+        }
+      }
+      const res: { year: number; memberIds: string[] }[] = [];
+      for (const [y, ids] of yearAuthors) {
+        if (ids.size >= 2) res.push({ year: y, memberIds: [...ids] });
+      }
+      res.sort((a, b) => a.year - b.year);
+      setResonances(res);
+
       const mapped: KinEntry[] = members.map((m, i) => ({
         name: m.name,
         born: m.born ?? 1980 + i * 10,
         died: m.died ?? null,
         you: m.id === user?.id,
-        picks: [], // no resonance picks yet from API
+        picks: res.filter(r => r.memberIds.includes(m.id)).map(r => r.year),
       }));
       setKin(mapped);
     }).catch(() => {});
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, user?.defaultThreadId]);
   const maxYear = 2070;
   const today = 2026;
   const xOf = (y: number) => ((y - minYear) / (maxYear - minYear)) * 100;
@@ -160,6 +219,23 @@ export function Constellation() {
                   {y}
                 </div>
               </Fragment>
+            ))}
+
+            {resonances.map((r) => (
+              <div
+                key={r.year}
+                style={{
+                  position: 'absolute',
+                  left: `${xOf(r.year)}%`,
+                  top: 0,
+                  bottom: 0,
+                  width: 1,
+                  background: 'var(--warm)',
+                  opacity: 0.22,
+                  pointerEvents: 'none',
+                  transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+              />
             ))}
 
             {kin.length === 0 ? (
@@ -294,10 +370,10 @@ export function Constellation() {
             />
             <div style={{ marginLeft: 'auto' }} className="loom-mono">
               <span style={{ color: 'var(--warm)', fontSize: 10 }}>∞</span>
-              <span
-                style={{ fontSize: 10, color: 'var(--bone-faint)', marginLeft: 8 }}
-              >
-                resonances coming soon
+              <span style={{ fontSize: 10, color: 'var(--bone-faint)', marginLeft: 8 }}>
+                {resonances.length > 0
+                  ? `${resonances.length} resonance${resonances.length !== 1 ? 's' : ''} found`
+                  : 'no resonances yet'}
               </span>
             </div>
           </div>

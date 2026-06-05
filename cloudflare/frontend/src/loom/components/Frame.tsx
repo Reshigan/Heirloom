@@ -52,6 +52,7 @@ export function SecurityDot({ size = 6 }: { size?: number }) {
         width: size,
         height: size,
         background: status === 'green' ? 'var(--safe)' : 'var(--danger)',
+        borderRadius: 0,
         flexShrink: 0,
         verticalAlign: 'middle',
       }}

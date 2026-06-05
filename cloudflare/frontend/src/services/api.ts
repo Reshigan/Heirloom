@@ -65,7 +65,8 @@ api.interceptors.response.use(
       if (retryCount >= MAX_RETRY_ATTEMPTS) {
         retryCount = 0;
         clearTokens();
-        window.location.href = '/login?session_expired=true';
+        const hadSession = !!localStorage.getItem('heirloom-auth');
+        window.location.href = hadSession ? '/login?session_expired=true' : '/login';
         return Promise.reject(error);
       }
       
@@ -81,7 +82,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
         clearTokens();
-        window.location.href = '/login?session_expired=true';
+        const hadSession = !!localStorage.getItem('heirloom-auth');
+        window.location.href = hadSession ? '/login?session_expired=true' : '/login';
         return Promise.reject(refreshError);
       }
     }

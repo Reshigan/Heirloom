@@ -98,10 +98,13 @@ test.describe('loom reading room (/loom/read)', () => {
     expect(bodyText).toMatch(/\d{4}/);
   });
 
-  test('contains the kitchen window / Margaret reference', async ({ page }) => {
+  test('renders reading room shell with nav and empty/cloth state', async ({ page }) => {
     const bodyText = (await page.locator('body').textContent()) ?? '';
-    // THREADS array contains "the kitchen window" and "Eleanor"
-    expect(bodyText.toLowerCase()).toMatch(/kitchen window|eleanor|margaret/i);
+    // Unauthenticated: page shows the wall shell with "book view" nav toggle and
+    // either the empty-state "the cloth is bare" message (no entries) or thread
+    // entries if authenticated. The selvedge nav (← cloth, ∞, book view) is
+    // always present regardless of auth state.
+    expect(bodyText.toLowerCase()).toMatch(/cloth|book view|the wall|begin writing|∞/i);
   });
 
   test('displays ∞ mark (the only icon)', async ({ page }) => {

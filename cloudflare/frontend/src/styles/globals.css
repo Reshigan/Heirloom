@@ -1298,7 +1298,7 @@ html {
   position: absolute;
   width: 4px; height: 4px;
   background: var(--loom-warm);
-  border-radius: 50%;
+  border-radius: 0;
   left: -1.5px;
 }
 .loom-weft__bridge {
@@ -1958,4 +1958,15 @@ html {
   .hl-thread-new               { animation: none; clip-path: none; opacity: 1; }
   .hl-composer-cursor-after::after { animation: none; }
   .hl-cloth-breathe-el        { animation: none; }
+}
+
+/* ── Autofill override — Chrome blue autofill destroys the ink/bone palette ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--ink, #0e0e0c) inset !important;
+  -webkit-text-fill-color: var(--bone, #f4ecd8) !important;
+  caret-color: var(--bone, #f4ecd8);
+  transition: background-color 0s 9999s; /* prevent flash */
 }

@@ -20,7 +20,14 @@ import { enableWebPush, notificationPermission, webPushEnabled } from '../lib/we
  */
 type Mode = 'hidden' | 'install' | 'ios' | 'notify';
 
-const APPEAR_DELAY_MS = 8_000;
+const APPEAR_DELAY_MS = 15_000;
+
+// Only show after 3+ page views (not on the first landing page impression)
+const MIN_VIEWS = 3;
+const pageViewKey = 'hl-pwa-views';
+const pageViews = parseInt(localStorage.getItem(pageViewKey) ?? '0', 10) + 1;
+localStorage.setItem(pageViewKey, String(pageViews));
+const hasEnoughViews = pageViews >= MIN_VIEWS;
 
 function IOSSteps() {
   const stepStyle: React.CSSProperties = {
@@ -79,6 +86,7 @@ export function PwaNudge() {
   useEffect(() => onInstallStateChange(() => setTick((t) => t + 1)), []);
 
   useEffect(() => {
+    if (!hasEnoughViews) return; // wait for enough page views
     const t = setTimeout(() => setDwellElapsed(true), APPEAR_DELAY_MS);
     return () => clearTimeout(t);
   }, []);
