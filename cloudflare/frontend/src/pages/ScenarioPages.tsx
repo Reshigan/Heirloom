@@ -234,3 +234,17 @@ export function ScenarioFutureGrandchildren() {
     />
   );
 }
+
+export function ScenarioVoiceForTheUnborn() {
+  return (
+    <ScenarioPage
+      eyebrow="voice memo"
+      headline="Record your voice for the child who hasn't arrived yet."
+      subhead="They will never hear you say their name for the first time. But they can hear you now — your accent, your laugh, the way you pause before you say something true. Record it before it changes. Before you do."
+      sealedLabel="sealed · a voice note · for when they are old enough"
+      sealedTo="from the one who waited for you — recorded today"
+      sealedTrigger="awaiting · trigger: their birth · or your choice"
+      ctaLabel="Record your voice →"
+    />
+  );
+}

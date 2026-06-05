@@ -90,6 +90,7 @@ const ScenarioWeddingDay    = lazy(() => import('./pages/ScenarioPages').then(m 
 const ScenarioEighteenth    = lazy(() => import('./pages/ScenarioPages').then(m => ({ default: m.ScenarioEighteenthBirthday })));
 const ScenarioAfterIGo      = lazy(() => import('./pages/ScenarioPages').then(m => ({ default: m.ScenarioAfterIGo })));
 const ScenarioGrandchildren = lazy(() => import('./pages/ScenarioPages').then(m => ({ default: m.ScenarioFutureGrandchildren })));
+const ScenarioVoiceUnborn   = lazy(() => import('./pages/ScenarioPages').then(m => ({ default: m.ScenarioVoiceForTheUnborn })));
 
 // The Loom — the live marketing + design system.
 // See cloudflare/frontend/src/loom/DESIGN.md.
@@ -252,6 +253,7 @@ export default function App() {
           <Route path="/for/eighteenth-birthday" element={<ScenarioEighteenth />} />
           <Route path="/for/after-i-go" element={<ScenarioAfterIGo />} />
           <Route path="/for/grandchildren" element={<ScenarioGrandchildren />} />
+          <Route path="/for/voice-for-the-unborn" element={<ScenarioVoiceUnborn />} />
           <Route
             path="/login"
             element={
