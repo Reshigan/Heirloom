@@ -1970,3 +1970,14 @@ input:-webkit-autofill:active {
   caret-color: var(--bone, #f4ecd8);
   transition: background-color 0s 9999s; /* prevent flash */
 }
+
+@keyframes hl-echo-breath {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.06); }
+}
+
+/* ── Cloth parallax — responds to --cloth-parallax CSS var set by PwaHome scroll listener ── */
+.loom canvas {
+  transform: rotateX(var(--cloth-parallax, 0deg));
+  transition: transform 400ms cubic-bezier(0.16,1,0.3,1);
+}

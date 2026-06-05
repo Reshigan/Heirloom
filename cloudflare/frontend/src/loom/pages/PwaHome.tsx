@@ -375,8 +375,25 @@ function AuthHome({
           </p>
         )}
 
+        {/* Entry count progress hairline */}
+        <div style={{ position: 'relative', height: 1, width: '100%', marginTop: 24, marginBottom: 24 }}>
+          <div style={{
+            position: 'absolute', top: 0, left: 0,
+            height: 1,
+            width: '100%',
+            background: 'rgba(244,236,216,0.06)',
+          }} />
+          <div style={{
+            position: 'absolute', top: 0, left: 0,
+            height: 1,
+            width: `${Math.min(100, (count / TARGET) * 100)}%`,
+            background: 'linear-gradient(to right, rgba(176,122,74,0.3), rgba(176,122,74,0.7))',
+            transition: 'width 720ms cubic-bezier(0.16,1,0.3,1)',
+          }} />
+        </div>
+
         {/* Primary CTA */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 24, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 0, alignItems: 'center' }}>
           <Link to={primaryCta.to} className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
             {primaryCta.label}
           </Link>
@@ -472,6 +489,18 @@ export function PwaHome() {
       .then(r => setStats({ entries: r.data?.total ?? 0, members: 0 }))
       .catch(() => {});
   }, [isAuthenticated]);
+
+  /* ── Cloth parallax: nudge CSS var on ClothShell as user scrolls ── */
+  useEffect(() => {
+    const el = document.querySelector('.loom main');
+    if (!el) return;
+    const onScroll = () => {
+      const pct = (el as HTMLElement).scrollTop / Math.max(1, el.scrollHeight - el.clientHeight);
+      (document.querySelector('.loom') as HTMLElement)?.style.setProperty('--cloth-parallax', `${pct * 4}deg`);
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <ClothShell

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useListener } from '../../hooks/useListener';
 import { useAuthStore } from '../../stores/authStore';
 import { aiApi } from '../../services/api';
@@ -27,6 +28,24 @@ export function Echo() {
       .catch(() => {}); // silent fallback to local prompt
   }, [isAuthenticated]);
 
+  const [revealed, setRevealed] = useState(false);
+  const [revealKey, setRevealKey] = useState(0);
+
+  // Re-trigger reveal when prompt changes
+  useEffect(() => {
+    setRevealed(false);
+    const t = setTimeout(() => setRevealed(true), 120);
+    return () => clearTimeout(t);
+  }, [prompt, revealKey]);
+
+  const [showWriteNudge, setShowWriteNudge] = useState(false);
+
+  useEffect(() => {
+    setShowWriteNudge(false);
+    const t = setTimeout(() => setShowWriteNudge(true), 3000);
+    return () => clearTimeout(t);
+  }, [prompt]);
+
   function handlePromptInteract() {
     if (promptId) {
       aiApi.markPromptUsed(promptId).catch(() => {});
@@ -45,6 +64,7 @@ export function Echo() {
         paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
         paddingLeft: 24,
         paddingRight: 24,
+        animation: 'hl-echo-breath 6s ease-in-out infinite',
       }}>
         <div
           style={{ textAlign: 'center', maxWidth: '52ch', width: '100%', cursor: promptId ? 'pointer' : 'default' }}
@@ -64,9 +84,47 @@ export function Echo() {
               margin: 0,
               fontVariationSettings: '"opsz" 18',
             }}
+            onClick={() => setRevealKey(k => k + 1)}
           >
-            {prompt}
+            {prompt.split(' ').map((word, i) => (
+              <span
+                key={`${revealKey}-${i}`}
+                style={{
+                  display: 'inline-block',
+                  opacity: revealed ? 1 : 0,
+                  transform: revealed ? 'translateY(0)' : 'translateY(6px)',
+                  transition: `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms, transform 400ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms`,
+                  marginRight: '0.28em',
+                }}
+              >
+                {word}
+              </span>
+            ))}
           </p>
+          <div style={{
+            marginTop: 28,
+            opacity: showWriteNudge ? 1 : 0,
+            transform: showWriteNudge ? 'translateY(0)' : 'translateY(8px)',
+            transition: 'opacity 720ms cubic-bezier(0.16,1,0.3,1), transform 720ms cubic-bezier(0.16,1,0.3,1)',
+            pointerEvents: showWriteNudge ? 'auto' : 'none',
+          }}>
+            <Link
+              to="/compose"
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                textDecoration: 'none',
+                transition: 'color 180ms',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-dim)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+            >
+              write about this →
+            </Link>
+          </div>
         </div>
       </div>
     </ClothShell>

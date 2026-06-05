@@ -30,9 +30,10 @@ export function BottomNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        height: 64,
+        height: 'calc(64px + env(safe-area-inset-bottom, 0px))',
         zIndex: 30,
-        background: 'rgba(14,14,12,0.92)',
+        background: 'rgba(14,14,12,0.72)',
+        backdropFilter: 'blur(0px)',
         borderTop: '1px solid rgba(244,236,216,0.07)',
         display: 'flex',
         alignItems: 'stretch',
@@ -54,14 +55,16 @@ export function BottomNav() {
               justifyContent: 'center',
               gap: 3,
               textDecoration: 'none',
+              borderTop: isActive ? '2px solid var(--warm)' : '2px solid transparent',
+              paddingTop: isActive ? 0 : 2,
               color: isCenter
-                ? isActive ? 'var(--warm)' : 'rgba(176,122,74,0.5)'
+                ? isActive ? 'var(--warm)' : 'rgba(176,122,74,0.65)'
                 : isActive ? 'var(--bone)' : 'rgba(244,236,216,0.32)',
               fontFamily: isCenter ? 'var(--serif)' : 'var(--mono)',
-              fontSize: isCenter ? 18 : 9,
+              fontSize: isCenter ? 22 : 9,
               letterSpacing: isCenter ? undefined : '0.18em',
               textTransform: isCenter ? undefined : 'uppercase',
-              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
             }}
           >
             {item.label}

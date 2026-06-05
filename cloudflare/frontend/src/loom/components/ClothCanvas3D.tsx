@@ -64,7 +64,8 @@ const FRAGMENT_SHADER = `
     // Ink base + subtle bone thread glints
     vec3 ink  = vec3(0.055, 0.055, 0.047);
     vec3 bone = vec3(0.957, 0.925, 0.847);
-    vec3 col  = mix(ink, bone, thread * 0.11);
+    vec3 warm = vec3(0.686, 0.478, 0.290);
+    vec3 col  = mix(ink, mix(bone, warm, overUnder * 0.18), thread * 0.22);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
@@ -99,6 +100,7 @@ export function ClothCanvas3D({
 
     // ── Scene ─────────────────────────────────────────────────────
     const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0e0e0c, 22, 56);
     const camera = new THREE.PerspectiveCamera(42, el.clientWidth / el.clientHeight, 0.1, 600);
     camera.position.set(0, 1.5, 26);
 
@@ -141,7 +143,13 @@ export function ClothCanvas3D({
       const tubeGeo = new THREE.TubeGeometry(curve, 60, 0.045, 6, false);
       const color   = DYE_HEX[e.dye] ?? 0xf4ecd8;
       const opacity = e.locked ? 0.28 : 0.82;
-      const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity });
+      const tubeMat = new THREE.MeshPhongMaterial({
+        color,
+        transparent: true,
+        opacity,
+        shininess: 24,
+        specular: new THREE.Color(0xf4ecd8),
+      });
       threadGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
     });
 
@@ -157,6 +165,12 @@ export function ClothCanvas3D({
       mouseX = (ev.clientX / window.innerWidth  - 0.5) * 2;
       mouseY = (ev.clientY / window.innerHeight - 0.5) * 2;
     };
+    const onTouch = (ev: TouchEvent) => {
+      if (ev.touches.length === 0) return;
+      mouseX = (ev.touches[0].clientX / window.innerWidth  - 0.5) * 2;
+      mouseY = (ev.touches[0].clientY / window.innerHeight - 0.5) * 2;
+    };
+    window.addEventListener('touchmove', onTouch, { passive: true });
     window.addEventListener('mousemove', onMove);
 
     // ── Resize ────────────────────────────────────────────────────
@@ -171,7 +185,7 @@ export function ClothCanvas3D({
     // ── Animate ───────────────────────────────────────────────────
     let raf: number;
     let tick = 0;
-    const startZ = 26, targetZ = 33;
+    const startZ = 32, targetZ = 24;
 
     const animate = () => {
       raf = requestAnimationFrame(animate);
@@ -190,6 +204,7 @@ export function ClothCanvas3D({
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchmove', onTouch);
       window.removeEventListener('resize', onResize);
       renderer.dispose();
       clothGeo.dispose();
