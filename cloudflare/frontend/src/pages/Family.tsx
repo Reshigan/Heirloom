@@ -675,6 +675,38 @@ export function Family() {
                       >
                         {isEditing ? 'cancel' : 'edit →'}
                       </button>
+                      {!isEditing && (
+                        <div style={{ display: 'flex', gap: 20, marginTop: 6, flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/compose?recipientId=${m.id}`)}
+                            style={{
+                              background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                              fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)',
+                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                          >
+                            write a letter →
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/record?recipientId=${m.id}`)}
+                            style={{
+                              background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                              fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)',
+                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                          >
+                            record voice →
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="hl-mono" style={{ fontSize: 12, color: dyeText ? `${dyeText}99` : 'var(--bone-dim)', textAlign: 'right' }}>
                       {formatDate(m.createdAt)}

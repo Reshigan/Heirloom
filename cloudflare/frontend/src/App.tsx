@@ -30,7 +30,6 @@ const Terms = lazy(() => import('./pages/Terms').then(m => ({ default: m.Terms }
 const Inherit = lazy(() => import('./pages/Inherit').then(m => ({ default: m.Inherit })));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail').then(m => ({ default: m.VerifyEmail })));
 const FutureLetter = lazy(() => import('./pages/FutureLetter').then(m => ({ default: m.FutureLetter })));
-const ComposeLetter = lazy(() => import('./pages/ComposeLetter').then(m => ({ default: m.ComposeLetter })));
 const GiftPurchase = lazy(() => import('./pages/GiftPurchase').then(m => ({ default: m.GiftPurchase })));
 const GiftRedeem = lazy(() => import('./pages/GiftRedeem').then(m => ({ default: m.GiftRedeem })));
 const GiftSuccess = lazy(() => import('./pages/GiftSuccess').then(m => ({ default: m.GiftSuccess })));
@@ -470,7 +469,7 @@ export default function App() {
           <Route path="/threads" element={<ProtectedRoute><ThreadsIndex /></ProtectedRoute>} />
           <Route path="/threads/:id" element={<ProtectedRoute><ThreadDetail /></ProtectedRoute>} />
           <Route path="/threads/:id/compose" element={<ProtectedRoute><ThreadCompose /></ProtectedRoute>} />
-          <Route path="/letters/new" element={<ProtectedRoute><ComposeLetter /></ProtectedRoute>} />
+          <Route path="/letters/new" element={<Navigate to="/compose" replace />} />
 
                                                                                                                                                                 {/* Admin routes */}
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
