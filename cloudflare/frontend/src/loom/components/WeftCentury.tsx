@@ -1,5 +1,4 @@
 import { Loom, type LoomEntry } from './Loom';
-import { ELEANOR_ENTRIES, ELEANOR_KIN } from '../data/mock';
 
 /**
  * WeftCentury — the "century" view-mode of the tapestry home.
@@ -10,29 +9,38 @@ import { ELEANOR_ENTRIES, ELEANOR_KIN } from '../data/mock';
  * the rhythm; generations are labelled beneath.
  *
  * It reuses the canonical Loom primitive at a wide year span and folds
- * the kin's own picks (from ELEANOR_KIN) into the same cloth as faint
- * memory-weight threads — no parallel data model, just a wider window.
+ * the kin's own picks (from the entries prop) into the same cloth as
+ * faint memory-weight threads — no parallel data model, just a wider window.
  */
 
 const C_START = 1912;
 const C_END = 2068;
 
-// kin picks become faint weft on the compressed cloth, lane by generation
-const KIN_PICKS: LoomEntry[] = ELEANOR_KIN.flatMap((k, gen) =>
-  k.picks.map((year) => ({
-    year,
-    lane: gen % 5,
+export interface WeftCenturyProps {
+  entries: LoomEntry[];
+  kin: Array<{ name: string; born: number; died: number | null; you: boolean }>;
+}
+
+export function WeftCentury({ entries, kin }: WeftCenturyProps) {
+  // kin picks become faint weft on the compressed cloth, lane by generation
+  const kinEntries: LoomEntry[] = kin.map((k, i) => ({
+    year: k.born,
+    lane: i % 5,
     kind: k.you ? ('milestone' as const) : ('memory' as const),
     title: k.name,
-  })),
-);
+  }));
 
-const CENTURY_ENTRIES: LoomEntry[] = [...KIN_PICKS, ...ELEANOR_ENTRIES];
+  const combinedEntries: LoomEntry[] = [...kinEntries, ...entries];
+  const WOVEN_COUNT = combinedEntries.filter((e) => !e.locked).length;
 
-// the always-visible append-only count (invariant B) — woven = un-sealed
-const WOVEN_COUNT = CENTURY_ENTRIES.filter((e) => !e.locked).length;
+  const generations = kin.map((k, i) => ({
+    gen: i,
+    names: k.name,
+    label: k.you ? 'you' : `gen ${i}`,
+    align: (i === 0 ? 'left' : i === kin.length - 1 ? 'right' : 'center') as 'left' | 'center' | 'right',
+    warm: k.you,
+  }));
 
-export function WeftCentury() {
   return (
     <div
       style={{
@@ -58,7 +66,7 @@ export function WeftCentury() {
       {/* the compressed cloth */}
       <div style={{ position: 'relative', marginTop: 12 }}>
         <Loom
-          entries={CENTURY_ENTRIES}
+          entries={combinedEntries}
           startYear={C_START}
           endYear={C_END}
           height={360}
@@ -80,47 +88,48 @@ export function WeftCentury() {
           gap: 40,
         }}
       >
-        {GENERATIONS.map((g) => (
-          <div key={g.gen} style={{ textAlign: g.align }}>
-            <div
-              className="loom-serif"
-              style={{
-                fontSize: 15,
-                color: g.warm ? 'var(--warm)' : 'var(--bone-dim)',
-                fontStyle: g.warm ? 'italic' : 'normal',
-                lineHeight: 1.4,
-              }}
-            >
-              {g.names}
-            </div>
-            <div
-              className="loom-mono"
-              style={{
-                fontSize: 9,
-                color: 'var(--bone-faint)',
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                marginTop: 4,
-              }}
-            >
-              {g.label}
-            </div>
+        {generations.length === 0 ? (
+          <div
+            className="loom-mono"
+            style={{
+              fontSize: 10,
+              color: 'var(--bone-faint)',
+              letterSpacing: '0.18em',
+              fontStyle: 'italic',
+            }}
+          >
+            invite family to see their threads here
           </div>
-        ))}
+        ) : (
+          generations.map((g) => (
+            <div key={g.gen} style={{ textAlign: g.align }}>
+              <div
+                className="loom-serif"
+                style={{
+                  fontSize: 15,
+                  color: g.warm ? 'var(--warm)' : 'var(--bone-dim)',
+                  fontStyle: g.warm ? 'italic' : 'normal',
+                  lineHeight: 1.4,
+                }}
+              >
+                {g.names}
+              </div>
+              <div
+                className="loom-mono"
+                style={{
+                  fontSize: 9,
+                  color: 'var(--bone-faint)',
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  marginTop: 4,
+                }}
+              >
+                {g.label}
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 }
-
-const GENERATIONS: {
-  gen: number;
-  names: string;
-  label: string;
-  align: 'left' | 'center' | 'right';
-  warm?: boolean;
-}[] = [
-  { gen: 0, names: 'August · Margaret', label: 'gen 0 · the elders', align: 'left' },
-  { gen: 1, names: 'Eleanor', label: 'gen 1 · the keeper', align: 'center', warm: true },
-  { gen: 2, names: 'Maya', label: 'gen 2 · the author', align: 'center' },
-  { gen: 3, names: '∞ Iris', label: 'gen 3 · the inheritor', align: 'right', warm: true },
-];

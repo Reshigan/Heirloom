@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../components/ClothShell';
-import { ELEANOR_TIED } from '../data/mock';
+import { lettersApi } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
 
 /**
  * Screen 04 — Tied Off
@@ -13,7 +15,63 @@ import { ELEANOR_TIED } from '../data/mock';
  * remaining time. Each card has a single ∞ glyph in the top right
  * corner — the only icon the product uses.
  */
+
+interface TiedEntry {
+  date: string;
+  recip: string;
+  years: string;
+  kind: string;
+  weft: number;
+}
+
 export function TiedOff() {
+  const { isAuthenticated } = useAuthStore();
+  const [locked, setLocked] = useState<TiedEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    setLoading(true);
+    lettersApi
+      .getAll({ limit: 100 })
+      .then((r) => {
+        const raw: any[] = Array.isArray(r.data?.data)
+          ? r.data.data
+          : Array.isArray(r.data)
+          ? r.data
+          : [];
+        const now = new Date();
+        const today = now.getFullYear();
+        const futureHorizon = today + 50;
+
+        const future: TiedEntry[] = raw
+          .filter((l: any) => l.sealedAt && l.scheduledDeliveryDate)
+          .map((l: any): TiedEntry => {
+            const deliverDate = new Date(l.scheduledDeliveryDate);
+            const yearsUntil = deliverDate.getFullYear() - today;
+            const weft = Math.min(
+              0.9,
+              Math.max(0.02, (deliverDate.getFullYear() - today) / (futureHorizon - today)),
+            );
+            const recipient =
+              Array.isArray(l.recipientNames) && l.recipientNames.length > 0
+                ? l.recipientNames[0]
+                : (l.salutation?.replace(/^dear\s+/i, '') ?? 'someone');
+            return {
+              date: deliverDate.toISOString().slice(0, 10).replace(/-/g, '·'),
+              recip: recipient,
+              years: yearsUntil <= 0 ? 'due' : yearsUntil === 1 ? '+1 yr' : `+${yearsUntil} yrs`,
+              kind: 'letter',
+              weft,
+            };
+          });
+
+        setLocked(future);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [isAuthenticated]);
+
   return (
     <ClothShell
       topbarLeft={
@@ -44,136 +102,155 @@ export function TiedOff() {
           gap: 32,
         }}
       >
-          <div>
-            <div className="loom-eyebrow">tied off · {ELEANOR_TIED.length * 2} threads waiting</div>
-            <div
-              className="loom-h2"
-              style={{ fontSize: 44, marginTop: 12, fontStyle: 'italic', fontWeight: 300 }}
-            >
-              sealed against time
-            </div>
-            <div
-              className="loom-body loom-dim"
-              style={{ fontSize: 15, fontStyle: 'italic', marginTop: 8, maxWidth: 620 }}
-            >
-              each is a thread tied off at the loom's edge. when its date arrives, the loom unties
-              it and weaves it back into the cloth — for whoever is reading then.
-            </div>
+        <div>
+          <div className="loom-eyebrow">
+            tied off ·{' '}
+            {loading
+              ? '…'
+              : `${locked.length} ${locked.length === 1 ? 'thread' : 'threads'} waiting`}
           </div>
+          <div
+            className="loom-h2"
+            style={{ fontSize: 44, marginTop: 12, fontStyle: 'italic', fontWeight: 300 }}
+          >
+            sealed against time
+          </div>
+          <div
+            className="loom-body loom-dim"
+            style={{ fontSize: 15, fontStyle: 'italic', marginTop: 8, maxWidth: 620 }}
+          >
+            each is a thread tied off at the loom's edge. when its date arrives, the loom unties
+            it and weaves it back into the cloth — for whoever is reading then.
+          </div>
+        </div>
 
-          {/* horizon ribbon */}
+        {/* horizon ribbon */}
+        <div
+          style={{
+            position: 'relative',
+            height: 64,
+            borderTop: '1px solid var(--rule)',
+            borderBottom: '1px solid var(--rule)',
+          }}
+        >
           <div
             style={{
-              position: 'relative',
-              height: 64,
-              borderTop: '1px solid var(--rule)',
-              borderBottom: '1px solid var(--rule)',
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              height: '100%',
+              width: '26%',
+              background:
+                'linear-gradient(to right, rgba(244,236,216,0.06), rgba(244,236,216,0.02))',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: '26%',
+              top: 0,
+              bottom: 0,
+              width: 1,
+              background: 'var(--warm)',
+              opacity: 0.5,
+            }}
+          />
+          <div
+            className="loom-mono"
+            style={{
+              position: 'absolute',
+              left: '26%',
+              top: -16,
+              transform: 'translateX(-50%)',
+              fontSize: 10,
+              color: 'var(--warm)',
             }}
           >
+            today
+          </div>
+          {locked.map((it, i) => (
             <div
+              key={i}
               style={{
                 position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: '26%',
-                background: 'linear-gradient(to right, rgba(244,236,216,0.06), rgba(244,236,216,0.02))',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                left: '26%',
-                top: 0,
-                bottom: 0,
-                width: 1,
-                background: 'var(--warm)',
-                opacity: 0.5,
-              }}
-            />
-            <div
-              className="loom-mono"
-              style={{
-                position: 'absolute',
-                left: '26%',
-                top: -16,
-                transform: 'translateX(-50%)',
-                fontSize: 10,
-                color: 'var(--warm)',
+                left: `calc(26% + ${it.weft * 70}%)`,
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                display: 'grid',
+                justifyItems: 'center',
+                gap: 4,
               }}
             >
-              today
-            </div>
-            {ELEANOR_TIED.map((it, i) => (
               <div
-                key={i}
                 style={{
-                  position: 'absolute',
-                  left: `calc(26% + ${it.weft * 70}%)`,
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  display: 'grid',
-                  justifyItems: 'center',
-                  gap: 4,
+                  color: 'var(--warm)',
+                  fontFamily: "'Source Serif 4', serif",
+                  fontSize: 18,
+                  lineHeight: 1,
                 }}
               >
-                <div
-                  style={{
-                    color: 'var(--warm)',
-                    fontFamily: "'Source Serif 4', serif",
-                    fontSize: 18,
-                    lineHeight: 1,
-                  }}
-                >
-                  ∞
-                </div>
-                <div className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)' }}>
-                  {it.date.slice(0, 4)}
-                </div>
+                ∞
               </div>
-            ))}
-            <div
-              className="loom-mono"
-              style={{
-                position: 'absolute',
-                right: 0,
-                top: -16,
-                fontSize: 10,
-                color: 'var(--bone-faint)',
-              }}
-            >
-              +50 yrs
+              <div className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)' }}>
+                {it.date.slice(0, 4)}
+              </div>
             </div>
-          </div>
-
-          {/* card grid */}
+          ))}
           <div
+            className="loom-mono"
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 24,
-              alignContent: 'start',
-              overflowY: 'auto',
-              paddingBottom: 80,
+              position: 'absolute',
+              right: 0,
+              top: -16,
+              fontSize: 10,
+              color: 'var(--bone-faint)',
             }}
           >
-            {ELEANOR_TIED.map((it, i) => (
-              <TiedCard key={i} {...it} />
-            ))}
+            +50 yrs
           </div>
+        </div>
+
+        {/* card grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 24,
+            alignContent: 'start',
+            overflowY: 'auto',
+            paddingBottom: 80,
+          }}
+        >
+          {!loading && locked.length === 0 ? (
+            <div
+              style={{
+                gridColumn: '1/-1',
+                paddingTop: 48,
+                fontFamily: 'var(--serif)',
+                fontSize: 17,
+                fontStyle: 'italic',
+                color: 'var(--bone-faint)',
+                textAlign: 'center',
+              }}
+            >
+              no threads are tied off yet.{' '}
+              <Link
+                to="/loom/compose"
+                style={{ color: 'var(--warm)', textDecoration: 'none' }}
+              >
+                seal a letter →
+              </Link>
+            </div>
+          ) : (
+            locked.map((it, i) => <TiedCard key={i} {...it} />)
+          )}
+        </div>
       </div>
     </ClothShell>
   );
 }
 
-interface TiedCardProps {
-  date: string;
-  recip: string;
-  years: string;
-  kind: string;
-}
-
-function TiedCard({ date, recip, years, kind }: TiedCardProps) {
+function TiedCard({ date, recip, years, kind }: Omit<TiedEntry, 'weft'>) {
   return (
     <div
       style={{

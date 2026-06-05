@@ -28,12 +28,6 @@ import { familyApi, lettersApi, threadsApi } from '../../services/api';
 const FULL_TEXT =
   'Tonight I sat at the kitchen window. The light came through the daffodils the way it used to when my mother was alive — slanted, low, the color of a strong tea. I thought I should write this down before it goes.';
 
-const DEMO_FAMILY = [
-  { id: 'demo-1', name: 'Maya Hartshorn', born: 1991 },
-  { id: 'demo-2', name: 'Iris Hartshorn-Vega', born: 2024 },
-  { id: 'demo-3', name: 'August Hartshorn', born: 2018 },
-];
-
 type ComposerMode = 'paper' | 'letter' | 'speak';
 
 interface FamilyMember {
@@ -94,14 +88,12 @@ export function Composer() {
             born: m.birthDate ? new Date(m.birthDate).getFullYear() : undefined,
           }),
         );
-        if (members.length > 0) setFamily(members);
+        setFamily(members);
       })
       .catch(() => {
-        // network error — fall back to demo names silently
+        // network error — leave family list empty
       });
   }, [isAuthenticated]);
-
-  const displayFamily = family.length > 0 ? family : DEMO_FAMILY;
 
   // Paper mode: save entry to the family thread
   const handleSave = async () => {
@@ -563,16 +555,31 @@ export function Composer() {
             delivery
           </div>
           <div className="loom-nameroll" style={{ marginBottom: 36 }}>
-            {displayFamily.map((member, idx) => (
-              <div key={member.id} className={idx === 1 ? 'row warm' : 'row'}>
-                <span className="name loom-serif" style={{ fontSize: 16 }}>
-                  {member.name}
-                </span>
-                {member.born != null && (
-                  <span className="dates">b. {member.born}</span>
-                )}
+            {family.length === 0 ? (
+              <div style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 13,
+                fontStyle: 'italic',
+                color: 'var(--bone-faint)',
+                lineHeight: 1.6,
+              }}>
+                no family members yet.{' '}
+                <Link to="/family" style={{ color: 'var(--warm)', textDecoration: 'none' }}>
+                  invite someone →
+                </Link>
               </div>
-            ))}
+            ) : (
+              family.map((member, idx) => (
+                <div key={member.id} className={idx === 1 ? 'row warm' : 'row'}>
+                  <span className="name loom-serif" style={{ fontSize: 16 }}>
+                    {member.name}
+                  </span>
+                  {member.born != null && (
+                    <span className="dates">b. {member.born}</span>
+                  )}
+                </div>
+              ))
+            )}
           </div>
 
           <div className="loom-eyebrow" style={{ marginBottom: 18 }}>

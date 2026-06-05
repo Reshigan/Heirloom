@@ -91,9 +91,10 @@ test.describe('login page', () => {
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
 
+    // Use force:true to bypass any loading overlay that may intercept the click
     const submitBtn = page.locator('button[type="submit"]').first();
     if (await submitBtn.isVisible()) {
-      await submitBtn.click();
+      await submitBtn.click({ force: true });
       await page.waitForTimeout(800);
     }
     expect(errors).toHaveLength(0);

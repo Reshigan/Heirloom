@@ -154,6 +154,13 @@ export function Weft() {
     );
   }
 
+  const kinForCentury = (Array.isArray(threadMembersData) ? threadMembersData : []).map((m: any, i: number) => ({
+    name: m.name ?? m.display_name ?? 'member',
+    born: m.born_year ?? m.birthYear ?? new Date().getFullYear() - 30 - i * 10,
+    died: m.died_year ?? null,
+    you: m.user_id === user?.id || m.id === user?.id,
+  }));
+
   if (mode === 'pull') {
     return (
       <ClothShell
@@ -162,7 +169,7 @@ export function Weft() {
         topbarRight={toggle}
         backdropOpacity={0.3}
       >
-        <WeftPull />
+        <WeftPull entries={allEntries} />
       </ClothShell>
     );
   }
@@ -175,7 +182,7 @@ export function Weft() {
         topbarRight={toggle}
         backdropOpacity={0.3}
       >
-        <WeftCentury />
+        <WeftCentury entries={allEntries} kin={kinForCentury} />
       </ClothShell>
     );
   }

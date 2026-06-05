@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../components/ClothShell';
-import { ELEANOR_KIN } from '../data/mock';
 import { useAuthStore } from '../../stores/authStore';
 import { familyApi } from '../../services/api';
 
@@ -27,7 +26,7 @@ type KinEntry = {
 
 export function Constellation() {
   const { user, isAuthenticated } = useAuthStore();
-  const [kin, setKin] = useState<KinEntry[]>(ELEANOR_KIN);
+  const [kin, setKin] = useState<KinEntry[]>([]);
   const [hovered, setHovered] = useState<number | null>(null);
   const minYear = 1890;
 
@@ -36,7 +35,6 @@ export function Constellation() {
     familyApi.getAll().then((r) => {
       const members: Array<{ id: string; name: string; born?: number; died?: number }> =
         r.data ?? [];
-      if (members.length === 0) return; // keep mock if empty
       const mapped: KinEntry[] = members.map((m, i) => ({
         name: m.name,
         born: m.born ?? 1980 + i * 10,
@@ -45,11 +43,17 @@ export function Constellation() {
         picks: [], // no resonance picks yet from API
       }));
       setKin(mapped);
-    }).catch(() => {}); // silent fallback to mock
+    }).catch(() => {});
   }, [isAuthenticated, user?.id]);
   const maxYear = 2070;
   const today = 2026;
   const xOf = (y: number) => ((y - minYear) / (maxYear - minYear)) * 100;
+
+  const familyName = kin.length > 0 && !kin.some(k => k.you)
+    ? 'your bloodline, woven'
+    : kin.length > 0
+      ? `${kin.find(k => k.you)?.name.split(' ').slice(-1)[0] ?? ''} line, woven`.trim()
+      : 'your bloodline';
 
   return (
     <ClothShell
@@ -82,7 +86,7 @@ export function Constellation() {
         }}
       >
           <div>
-            <div className="loom-eyebrow">kin · five threads, four generations</div>
+            <div className="loom-eyebrow">{`kin · ${kin.length} thread${kin.length !== 1 ? 's' : ''}`}</div>
             <div
               className="loom-h2"
               style={{
@@ -92,7 +96,7 @@ export function Constellation() {
                 letterSpacing: '-0.014em',
               }}
             >
-              The Hartshorn line, woven
+              {familyName}
             </div>
             <div
               className="loom-body loom-dim"
@@ -158,118 +162,115 @@ export function Constellation() {
               </Fragment>
             ))}
 
-            {kin.map((k, i) => {
-              const top = 22 + i * 64;
-              const dead = k.died != null;
-              const endYear = k.died ?? today;
-              const isLit = hovered === i || k.you;
-              return (
-                <Fragment key={i}>
-                  <div
-                    onMouseEnter={() => setHovered(i)}
-                    onMouseLeave={() => setHovered(null)}
-                    style={{
-                      position: 'absolute',
-                      left: `${xOf(k.born)}%`,
-                      width: `${xOf(endYear) - xOf(k.born)}%`,
-                      top,
-                      height: k.you ? 3 : 2,
-                      background: k.you
-                        ? 'var(--warm)'
-                        : isLit
-                          ? 'var(--bone)'
-                          : 'var(--bone-dim)',
-                      boxShadow: k.you ? '0 0 8px rgba(207,147,90,0.4)' : 'none',
-                      cursor: 'pointer',
-                      transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
-                    }}
-                  />
-                  {!dead ? (
+            {kin.length === 0 ? (
+              <div style={{
+                position: 'absolute', inset: 0, display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                flexDirection: 'column', gap: 12,
+              }}>
+                <div style={{ fontFamily: 'var(--serif)', fontSize: 17, fontStyle: 'italic', color: 'var(--bone-faint)' }}>
+                  the bloodline has no threads yet.
+                </div>
+                <Link to="/family" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}>
+                  invite family →
+                </Link>
+              </div>
+            ) : (
+              kin.map((k, i) => {
+                const top = 22 + i * 64;
+                const dead = k.died != null;
+                const endYear = k.died ?? today;
+                const isLit = hovered === i || k.you;
+                return (
+                  <Fragment key={i}>
                     <div
+                      onMouseEnter={() => setHovered(i)}
+                      onMouseLeave={() => setHovered(null)}
                       style={{
                         position: 'absolute',
-                        left: `${xOf(endYear)}%`,
-                        width: `${xOf(maxYear) - xOf(endYear)}%`,
+                        left: `${xOf(k.born)}%`,
+                        width: `${xOf(endYear) - xOf(k.born)}%`,
                         top,
                         height: k.you ? 3 : 2,
-                        background: `linear-gradient(to right, ${
-                          k.you ? 'var(--warm)' : 'var(--bone-dim)'
-                        }, transparent)`,
-                        opacity: 0.4,
-                        pointerEvents: 'none',
+                        background: k.you
+                          ? 'var(--warm)'
+                          : isLit
+                            ? 'var(--bone)'
+                            : 'var(--bone-dim)',
+                        boxShadow: k.you ? '0 0 8px rgba(207,147,90,0.4)' : 'none',
+                        cursor: 'pointer',
+                        transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     />
-                  ) : null}
-                  {k.picks.map((py, j) => (
+                    {!dead ? (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: `${xOf(endYear)}%`,
+                          width: `${xOf(maxYear) - xOf(endYear)}%`,
+                          top,
+                          height: k.you ? 3 : 2,
+                          background: `linear-gradient(to right, ${
+                            k.you ? 'var(--warm)' : 'var(--bone-dim)'
+                          }, transparent)`,
+                          opacity: 0.4,
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    ) : null}
+                    {k.picks.map((py, j) => (
+                      <div
+                        key={j}
+                        style={{
+                          position: 'absolute',
+                          left: `${xOf(py)}%`,
+                          top: top - 2,
+                          width: 4,
+                          height: 6,
+                          background: k.you ? 'var(--warm-bright)' : 'var(--bone)',
+                          transform: 'translateX(-50%)',
+                        }}
+                      />
+                    ))}
                     <div
-                      key={j}
                       style={{
                         position: 'absolute',
-                        left: `${xOf(py)}%`,
-                        top: top - 2,
-                        width: 4,
-                        height: 6,
-                        background: k.you ? 'var(--warm-bright)' : 'var(--bone)',
-                        transform: 'translateX(-50%)',
+                        left: `${xOf(k.born)}%`,
+                        top: top - 26,
+                        transform: 'translateX(-2px)',
+                        fontFamily: "'Source Serif 4', serif",
+                        fontVariationSettings: "'opsz' 28",
+                        fontSize: 15,
+                        fontWeight: 400,
+                        color: k.you
+                          ? 'var(--warm)'
+                          : isLit
+                            ? 'var(--bone)'
+                            : 'var(--bone-dim)',
+                        fontStyle: k.you ? 'italic' : 'normal',
+                        whiteSpace: 'nowrap',
                       }}
-                    />
-                  ))}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: `${xOf(k.born)}%`,
-                      top: top - 26,
-                      transform: 'translateX(-2px)',
-                      fontFamily: "'Source Serif 4', serif",
-                      fontVariationSettings: "'opsz' 28",
-                      fontSize: 15,
-                      fontWeight: 400,
-                      color: k.you
-                        ? 'var(--warm)'
-                        : isLit
-                          ? 'var(--bone)'
-                          : 'var(--bone-dim)',
-                      fontStyle: k.you ? 'italic' : 'normal',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {k.name}
-                  </div>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: `${xOf(k.born)}%`,
-                      top: top + 8,
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 9,
-                      letterSpacing: '0.04em',
-                      color: 'var(--bone-faint)',
-                    }}
-                  >
-                    {k.born} — {k.died ?? '∞'}
-                  </div>
-                </Fragment>
-              );
-            })}
-
-            {[
-              { x: 1962, top: 22 + 1 * 64, bottom: 22 + 2 * 64 },
-              { x: 2019, top: 22 + 2 * 64, bottom: 22 + 3 * 64 },
-              { x: 2024, top: 22 + 2 * 64, bottom: 22 + 4 * 64 },
-            ].map((r, i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: `${xOf(r.x)}%`,
-                  top: r.top,
-                  height: r.bottom - r.top,
-                  width: 1,
-                  background: 'var(--warm)',
-                  opacity: 0.55,
-                }}
-              />
-            ))}
+                    >
+                      {k.name}
+                    </div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: `${xOf(k.born)}%`,
+                        top: top + 8,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 9,
+                        letterSpacing: '0.04em',
+                        color: 'var(--bone-faint)',
+                      }}
+                    >
+                      {k.born} — {k.died ?? '∞'}
+                    </div>
+                  </Fragment>
+                );
+              })
+            )}
           </div>
 
           <div
@@ -294,9 +295,9 @@ export function Constellation() {
             <div style={{ marginLeft: 'auto' }} className="loom-mono">
               <span style={{ color: 'var(--warm)', fontSize: 10 }}>∞</span>
               <span
-                style={{ fontSize: 10, color: 'var(--bone-dim)', marginLeft: 8 }}
+                style={{ fontSize: 10, color: 'var(--bone-faint)', marginLeft: 8 }}
               >
-                3 resonances active
+                resonances coming soon
               </span>
             </div>
           </div>

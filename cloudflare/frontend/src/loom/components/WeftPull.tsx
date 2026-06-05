@@ -1,47 +1,69 @@
 import { useState } from 'react';
-import { Loom } from './Loom';
-import { ELEANOR_ENTRIES } from '../data/mock';
+import { Loom, type LoomEntry } from './Loom';
+import { useAuthStore } from '../../stores/authStore';
 
 /**
  * WeftPull — the "pull" view-mode of the tapestry home.
  *
  * A vertical paging hybrid onto one thread at a time. The full cloth
- * dims to wallpaper behind a radial vignette; a single entry stands
+ * dims to wallpaper behind a flat ink veil; a single entry stands
  * large and centred. The only paging affordance is a thin dot rail on
  * the right edge — one mark per thread, the current one warm and tall.
  *
- * It reads from the same ELEANOR_ENTRIES as the canonical Weft — no
- * parallel data model. Open (unlocked) entries page; the visible body
- * is drawn from each entry's own metadata so the mode shows real
- * content rather than lorem.
+ * Reads from the entries prop (real data from Weft.tsx). Open (unlocked)
+ * entries page; the visible body is derived from each entry's kind so
+ * the mode shows real content rather than hardcoded prose.
  */
 
-// A short reflective body per open entry, in the thread's own voice.
-// Keyed by entry index into ELEANOR_ENTRIES. Sealed entries are skipped.
-const BODIES: Record<number, string> = {
-  7: 'Tonight the light came through the daffodils on the kitchen sill the way it used to when my mother was alive — slanted, low, the colour of a strong tea. I thought I should write it down before it goes.',
-  9: 'A kettle, a sunday, six notes I have hummed my whole life without knowing where I learned them. Maya hums them now. She does not know she does.',
-  16: 'She called from Berlin at an hour that was the middle of her night and the start of my morning. We did not say anything that mattered. That was the point of the call.',
-  20: 'To my granddaughter, today: you are asleep on the windowsill where my mother used to sit. I do not know who you will become. I am writing so that you will know who we were.',
+const bodyText = (e: LoomEntry): string => {
+  if (e.kind === 'letter') return 'a letter sealed in this thread, waiting to be read.';
+  if (e.kind === 'voice') return 'a voice memo — play to hear.';
+  if (e.kind === 'milestone') return 'a milestone woven into the cloth.';
+  return 'a memory in this thread.';
 };
 
-const OPEN_INDICES = ELEANOR_ENTRIES
-  .map((e, i) => ({ e, i }))
-  .filter(({ e }) => !e.locked)
-  .map(({ i }) => i);
+export function WeftPull({ entries }: { entries: LoomEntry[] }) {
+  const { user } = useAuthStore();
+  const displayName = user ? `${user.firstName} ${user.lastName}`.trim() : 'you';
 
-const WOVEN_COUNT = ELEANOR_ENTRIES.filter((e) => !e.locked).length;
+  const OPEN_ENTRIES = entries.filter((e) => !e.locked);
+  const WOVEN_COUNT = OPEN_ENTRIES.length;
 
-export function WeftPull() {
-  // start on the daffodils thread if present, else the first open one
-  const startAt = OPEN_INDICES.indexOf(7);
-  const [pos, setPos] = useState(startAt >= 0 ? startAt : 0);
-  const idx = OPEN_INDICES[pos];
-  const e = ELEANOR_ENTRIES[idx];
+  const [pos, setPos] = useState(0);
 
   const go = (delta: number) => {
-    setPos((p) => Math.min(OPEN_INDICES.length - 1, Math.max(0, p + delta)));
+    setPos((p) => Math.min(OPEN_ENTRIES.length - 1, Math.max(0, p + delta)));
   };
+
+  if (OPEN_ENTRIES.length === 0) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <p
+          className="loom-body"
+          style={{
+            fontSize: 18,
+            color: 'var(--bone-faint)',
+            fontStyle: 'italic',
+            textAlign: 'center',
+          }}
+        >
+          the cloth has no open threads yet · start writing
+        </p>
+      </div>
+    );
+  }
+
+  const e = OPEN_ENTRIES[pos];
+  // idx is the position in the full entries array for highlight
+  const idx = entries.indexOf(e);
 
   return (
     <div
@@ -69,14 +91,14 @@ export function WeftPull() {
       {/* dim cloth as wallpaper */}
       <div style={{ position: 'absolute', inset: 0, opacity: 0.3 }}>
         <Loom
-          entries={ELEANOR_ENTRIES}
+          entries={entries}
           startYear={1958}
           endYear={2068}
           height={680}
           showLigatures={false}
           showYears={false}
           ambientShuttle={false}
-          highlight={idx}
+          highlight={idx >= 0 ? idx : undefined}
           nowYear={2026}
           appendCount={WOVEN_COUNT}
         />
@@ -106,7 +128,7 @@ export function WeftPull() {
           textTransform: 'uppercase',
         }}
       >
-        today's thread · {pos + 1} of {OPEN_INDICES.length}
+        today's thread · {pos + 1} of {OPEN_ENTRIES.length}
       </div>
 
       {/* the single thread, centred */}
@@ -121,7 +143,7 @@ export function WeftPull() {
         }}
       >
         <div
-          key={idx}
+          key={pos}
           className="weftpull-thread"
           style={{ width: 720, maxWidth: '60ch' }}
         >
@@ -155,7 +177,7 @@ export function WeftPull() {
               color: 'var(--bone)',
             }}
           >
-            {e.title}
+            {e.title ?? '—'}
           </h2>
           <div
             className="loom-mono"
@@ -176,36 +198,22 @@ export function WeftPull() {
                 color: 'var(--bone-dim)',
               }}
             >
-              Eleanor Hartshorn
+              {displayName}
             </span>
-            &nbsp;·&nbsp; thread n°{idx + 1} of {ELEANOR_ENTRIES.length}
+            &nbsp;·&nbsp; thread n°{pos + 1} of {entries.length}
           </div>
-          {BODIES[idx] ? (
-            <p
-              className="loom-body"
-              style={{
-                fontSize: 19,
-                marginTop: 28,
-                color: 'var(--bone)',
-                maxWidth: '60ch',
-              }}
-            >
-              {BODIES[idx]}
-            </p>
-          ) : (
-            <p
-              className="loom-body"
-              style={{
-                fontSize: 18,
-                marginTop: 28,
-                color: 'var(--bone-dim)',
-                fontStyle: 'italic',
-                maxWidth: '60ch',
-              }}
-            >
-              An entry on this thread. Pull to read the next one the loom has kept.
-            </p>
-          )}
+          <p
+            className="loom-body"
+            style={{
+              fontSize: 18,
+              marginTop: 28,
+              color: 'var(--bone-dim)',
+              fontStyle: 'italic',
+              maxWidth: '60ch',
+            }}
+          >
+            {bodyText(e)}
+          </p>
         </div>
       </div>
 
@@ -222,7 +230,7 @@ export function WeftPull() {
           alignItems: 'center',
         }}
       >
-        {OPEN_INDICES.map((_, i) => (
+        {OPEN_ENTRIES.map((_, i) => (
           <button
             key={i}
             type="button"

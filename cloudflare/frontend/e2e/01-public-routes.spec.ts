@@ -31,8 +31,16 @@ for (const route of PUBLIC_ROUTES) {
     page.on('console', msg => {
       if (msg.type() === 'error') {
         const text = msg.text();
-        // Filter out known benign noise
-        if (!text.includes('DevTools') && !text.includes('favicon') && !text.includes('net::ERR_')) {
+        // Filter out known benign noise: DevTools, favicon, and CORS errors from
+        // localhost that would not occur on the production origin (api.heirloom.blue
+        // only allowlists heirloom.blue in CORS, not localhost).
+        if (
+          !text.includes('DevTools') &&
+          !text.includes('favicon') &&
+          !text.includes('net::ERR_') &&
+          !text.includes('CORS policy') &&
+          !text.includes('Failed to fetch')
+        ) {
           criticalErrors.push(text);
         }
       }

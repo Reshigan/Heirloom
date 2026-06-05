@@ -2,23 +2,15 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { foundersApi, type FounderCount } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
-import { TapestryCanvas } from '../loom/components/TapestryCanvas';
+import { TapestryCanvas, type CanvasEntry } from '../loom/components/TapestryCanvas';
 
-// ─── mock continuity-record rows (replace with real API when available) ───────
-const MOCK_ROWS: { pledge: string; name: string; location: string }[] = [
-  { pledge: '001', name: 'Yusra Al-Rashid',      location: 'Dubai · UAE'       },
-  { pledge: '002', name: 'Thomas Beaumont-Carr',  location: 'Edinburgh · UK'    },
-  { pledge: '003', name: '— reserved',            location: ''                  },
-  { pledge: '004', name: 'Mei-Ling Sorenson',     location: 'Vancouver · CA'    },
-  { pledge: '005', name: 'Rafael Mendes',         location: 'São Paulo · BR'    },
-  { pledge: '006', name: '— reserved',            location: ''                  },
-  { pledge: '007', name: 'Priya Nair-Holloway',   location: 'London · UK'       },
-  { pledge: '008', name: 'James Okafor',          location: 'Lagos · NG'        },
-  { pledge: '009', name: '— reserved',            location: ''                  },
-  { pledge: '010', name: 'Ingrid Halvorsen',      location: 'Oslo · NO'         },
-  { pledge: '011', name: 'David Chen-Whitfield',  location: 'Sydney · AU'       },
-  { pledge: '012', name: '— reserved',            location: ''                  },
-];
+// Deterministic hero backdrop — module-level so it's stable across renders
+const HERO_ENTRIES: CanvasEntry[] = Array.from({ length: 80 }, (_, i) => ({
+  date: new Date(1948 + Math.floor(i * 0.65), (i * 3) % 12, 1),
+  n: i,
+  dye: (['madder', 'indigo', 'saffron', 'weld', 'woad', 'cochineal'] as const)[i % 6],
+  tier: 'family' as const,
+}));
 
 const BENEFITS: { heading: string; body: string }[] = [
   {
@@ -44,12 +36,6 @@ const BENEFITS: { heading: string; body: string }[] = [
 ];
 
 export function Founder() {
-  const demoEntries = Array.from({ length: 80 }, (_, i) => ({
-    date: new Date(1948 + Math.floor(i * 0.65), (i * 3) % 12, 1),
-    n: i,
-    dye: ['madder', 'indigo', 'saffron', 'weld', 'woad', 'cochineal'][i % 6] as string,
-    tier: 'family' as const,
-  }));
 
   const [count, setCount] = useState<FounderCount | null>(null);
 
@@ -134,7 +120,7 @@ export function Founder() {
         <TapestryCanvas
           width={typeof window !== 'undefined' ? window.innerWidth : 1280}
           height={240}
-          entries={demoEntries}
+          entries={HERO_ENTRIES}
           kind="specimen"
           animate
           opts={{ tStart: new Date(1948, 0, 1), tEnd: new Date(2026, 0, 1), background: '#0e0e0c' }}
@@ -543,89 +529,35 @@ export function Founder() {
             )}
           </div>
 
-          {/* rows */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {MOCK_ROWS.map((row) => {
-              const isReserved = row.name.startsWith('—');
-              return (
-                <div
-                  key={row.pledge}
-                  style={{
-                    display:        'flex',
-                    alignItems:     'baseline',
-                    gap:             16,
-                    borderBottom:   '1px solid var(--rule)',
-                    paddingTop:      8,
-                    paddingBottom:   8,
-                  }}
-                >
-                  {/* pledge number */}
-                  <span
-                    className="hl-mono"
-                    style={{
-                      width:         56,
-                      flexShrink:     0,
-                      fontSize:       11,
-                      color:         'var(--bone-faint)',
-                      letterSpacing: '0.08em',
-                    }}
-                  >
-                    {row.pledge}
-                  </span>
-
-                  {/* name */}
-                  <span
-                    className="hl-serif"
-                    style={{
-                      flex:       1,
-                      fontSize:   16,
-                      color:      'var(--bone)',
-                      fontStyle:  isReserved ? 'italic' : 'normal',
-                      opacity:    isReserved ? 0.38 : 1,
-                    }}
-                  >
-                    {row.name}
-                  </span>
-
-                  {/* location */}
-                  {row.location && (
-                    <span
-                      className="hl-mono"
-                      style={{
-                        fontSize:       9.5,
-                        textTransform: 'uppercase',
-                        color:         'var(--bone-faint)',
-                        letterSpacing: '0.08em',
-                        flexShrink:     0,
-                      }}
-                    >
-                      {row.location}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* tail — remaining slots */}
+          {/* sealed record placeholder */}
+          <div
+            style={{
+              border:    '1px solid var(--rule)',
+              padding:   '32px 40px',
+              marginTop:  48,
+            }}
+          >
             <div
               style={{
-                paddingTop:  16,
-                paddingBottom: 8,
+                fontFamily:    'var(--mono)',
+                fontSize:       10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color:         'var(--bone-faint)',
+                marginBottom:   24,
               }}
             >
-              <p
-                className="hl-mono"
-                style={{
-                  fontSize:       10,
-                  color:         'var(--bone-faint)',
-                  letterSpacing: '0.14em',
-                  margin:         0,
-                }}
-              >
-                {remaining !== null
-                  ? `${remaining} names yet to be written.`
-                  : 'loading record…'}
-              </p>
+              continuity record
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize:    17,
+                fontStyle:  'italic',
+                color:      'var(--bone-faint)',
+              }}
+            >
+              pledge records are sealed until we reach the founding cohort.
             </div>
           </div>
         </div>

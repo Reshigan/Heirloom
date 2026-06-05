@@ -47,15 +47,15 @@ const AI_ANNOTATIONS: Record<number, { text: string; passage: string }> = {
   4: { text: 'Margaret sat here · 1986',  passage: 'windowsill' },
 };
 
-// ── THREADS data ──────────────────────────────────────────────────────────────
-const THREADS = [
-  { kind: 'photo'  as const, date: '1986·05·14', title: 'the kitchen window, daffodils',   who: 'Margaret', dye: 'weld' },
-  { kind: 'voice'  as const, date: '1992·01·07', title: 'humming, sunday',                 who: 'Margaret', dye: 'weld',    duration: '0:38' },
-  { kind: 'letter' as const, date: '2026·05·04', title: 'the kitchen window, in late may', who: 'Eleanor',  dye: 'madder' },
-  { kind: 'voice'  as const, date: '2013·07·22', title: 'Maya, calling from Berlin',       who: 'Maya',     dye: 'indigo',  duration: '2:14' },
-  { kind: 'photo'  as const, date: '2024·06·02', title: 'Iris asleep on the windowsill',   who: 'Eleanor',  dye: 'madder' },
-];
-type Thread = typeof THREADS[number];
+// ── Thread type ───────────────────────────────────────────────────────────────
+type Thread = {
+  kind: 'photo' | 'voice' | 'letter';
+  date: string;
+  title: string;
+  who: string;
+  dye: string;
+  duration?: string;
+};
 type Kind = Thread['kind'];
 
 // ── API entry → Thread mapper ─────────────────────────────────────────────────
@@ -247,7 +247,7 @@ export function ReadingRoom() {
   const [clothOpen, setClothOpen] = useState(true);
   const [view, setView]         = useState<'wall' | 'book'>('wall');
   const [navOpen, setNavOpen]   = useState(false);
-  const [entries, setEntries]   = useState<Thread[]>(THREADS);
+  const [entries, setEntries]   = useState<Thread[]>([]);
   const [loading, setLoading]   = useState(false);
   const { user, isAuthenticated } = useAuthStore();
 
@@ -262,12 +262,12 @@ export function ReadingRoom() {
           setActive(0);
         }
       })
-      .catch(() => { /* fall back to THREADS mock */ })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [isAuthenticated, user?.defaultThreadId]);
 
-  const t   = entries[active] ?? entries[0];
-  const dye = DYE_HEX[t.dye] ?? '#b07a4a';
+  const t   = entries[active] ?? entries[0] ?? null;
+  const dye = t ? (DYE_HEX[t.dye] ?? '#b07a4a') : '#b07a4a';
 
   const handleSelect = (i: number) => {
     if (i === active) return;
@@ -344,17 +344,25 @@ export function ReadingRoom() {
         {/* Centre */}
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 15 }}>∞</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>
-            {t.kind}
-          </span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)' }}>·</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>
-            {t.who}
-          </span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)' }}>·</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.35)', letterSpacing: '0.08em' }}>
-            {t.date}
-          </span>
+          {t ? (
+            <>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>
+                {t.kind}
+              </span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)' }}>·</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>
+                {t.who}
+              </span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)' }}>·</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.35)', letterSpacing: '0.08em' }}>
+                {t.date}
+              </span>
+            </>
+          ) : (
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)', letterSpacing: '0.08em' }}>
+              the wall
+            </span>
+          )}
         </span>
 
         {/* Right */}
@@ -428,41 +436,59 @@ export function ReadingRoom() {
         </div>
       </div>
 
-      {/* Layer 3: ClothPage */}
+      {/* Layer 3: ClothPage or empty state */}
       <div style={{ position: 'absolute', inset: 0, top: 56, zIndex: 10 }}>
-        <ClothPage
-          isOpen={clothOpen}
-          page={
-            <ReadingContent
-              t={t}
-              dye={dye}
-              annotation={AI_ANNOTATIONS[active]}
-              onPrev={active > 0 ? () => handleSelect(active - 1) : undefined}
-              onNext={active < entries.length - 1 ? () => handleSelect(active + 1) : undefined}
-              activeIndex={active}
-              total={entries.length}
-            />
-          }
-        >
-          {/* Cloth face cover — visible during fold transition */}
+        {entries.length === 0 && !loading && (
           <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', flexDirection: 'column',
+            position: 'absolute', inset: 0, display: 'flex',
             alignItems: 'center', justifyContent: 'center',
-            gap: 14, padding: 44,
-            background: 'var(--ink)',
+            flexDirection: 'column', gap: 14,
           }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--warm)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-              ∞ &nbsp; {t.kind} · {t.date}
+            <div style={{ fontFamily: 'var(--serif)', fontSize: 19, fontStyle: 'italic', color: 'var(--bone-faint)' }}>
+              the cloth is bare.
             </div>
-            <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 300, fontStyle: 'italic', textAlign: 'center', maxWidth: '18ch', lineHeight: 1.25, color: 'var(--bone)' }}>
-              {t.title}
-            </div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-              {t.who}
-            </div>
+            <Link to="/loom/compose" style={{ fontFamily: 'var(--mono)', fontSize: 10,
+              letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--warm)',
+              textDecoration: 'none' }}>
+              begin writing →
+            </Link>
           </div>
-        </ClothPage>
+        )}
+        {t && (
+          <ClothPage
+            isOpen={clothOpen}
+            page={
+              <ReadingContent
+                t={t}
+                dye={dye}
+                annotation={AI_ANNOTATIONS[active]}
+                onPrev={active > 0 ? () => handleSelect(active - 1) : undefined}
+                onNext={active < entries.length - 1 ? () => handleSelect(active + 1) : undefined}
+                activeIndex={active}
+                total={entries.length}
+              />
+            }
+          >
+            {/* Cloth face cover — visible during fold transition */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              gap: 14, padding: 44,
+              background: 'var(--ink)',
+            }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--warm)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+                ∞ &nbsp; {t.kind} · {t.date}
+              </div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 300, fontStyle: 'italic', textAlign: 'center', maxWidth: '18ch', lineHeight: 1.25, color: 'var(--bone)' }}>
+                {t.title}
+              </div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                {t.who}
+              </div>
+            </div>
+          </ClothPage>
+        )}
       </div>
     </div>
   );
