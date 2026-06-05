@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 
 export function useIsNewUser() {
+  const { isAuthenticated } = useAuthStore();
+
   const { data: memCount, isLoading: ml } = useQuery({
     queryKey: ['new-user-check-memories'],
     queryFn: () =>
@@ -13,6 +16,7 @@ export function useIsNewUser() {
         })
         .catch(() => 0),
     staleTime: 60_000,
+    enabled: isAuthenticated,
   });
   const { data: letCount, isLoading: ll } = useQuery({
     queryKey: ['new-user-check-letters'],
@@ -25,6 +29,7 @@ export function useIsNewUser() {
         })
         .catch(() => 0),
     staleTime: 60_000,
+    enabled: isAuthenticated,
   });
   const { data: voiceCount, isLoading: vl } = useQuery({
     queryKey: ['new-user-check-voice'],
@@ -37,8 +42,9 @@ export function useIsNewUser() {
         })
         .catch(() => 0),
     staleTime: 60_000,
+    enabled: isAuthenticated,
   });
   const isLoading = ml || ll || vl;
   const totalEntries = (memCount ?? 0) + (letCount ?? 0) + (voiceCount ?? 0);
-  return { isNewUser: !isLoading && totalEntries === 0, isLoading };
+  return { isNewUser: isAuthenticated && !isLoading && totalEntries === 0, isLoading };
 }

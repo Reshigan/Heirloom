@@ -486,8 +486,8 @@ app.post('/api/contact', async (c) => {
 });
 
 // Public billing routes (pricing and detect don't require auth)
-// NOTE: /api/billing/pricing is handled by the billingRoutes sub-app mounted on protectedApp,
-// which correctly serves both authenticated and unauthenticated pricing requests.
+// /api/billing/pricing is in PUBLIC_API_PREFIXES so it bypasses the JWT guard on protectedApp.
+// /api/billing/detect is registered on the public app so it never needs the prefix.
 
 app.get('/api/billing/detect', async (c) => {
   const COUNTRY_CURRENCY: Record<string, string> = {
@@ -740,6 +740,7 @@ const PUBLIC_API_PREFIXES = [
   '/api/founders/by-session', // public lookup post-Stripe-checkout
   '/api/book-orders/webhook', // Lulu webhook (HMAC verified)
   '/api/billing/webhook',     // Stripe webhook (HMAC verified inside handler)
+  '/api/billing/pricing',     // pricing is public — unauthenticated visitors see plans
 ];
 
 // JWT middleware for protected routes. Bypasses for paths in

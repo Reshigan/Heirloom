@@ -63,11 +63,13 @@ export function ClothShell({
         <header
           aria-label="Navigation"
           style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 56,
+            position: 'absolute', top: 0, left: 0, right: 0,
+            height: 'calc(56px + env(safe-area-inset-top, 0px))',
             zIndex: 20,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
             padding: '0 24px',
-            background: 'rgba(14,14,12,0.72)',
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+            background: 'rgba(14,14,12,0.92)',
             borderBottom: '1px solid rgba(244,236,216,0.07)',
           }}
         >
@@ -88,7 +90,7 @@ export function ClothShell({
         style={{
           position: 'absolute',
           inset: 0,
-          top: noTopbar ? 0 : 56,
+          top: noTopbar ? 0 : 'calc(56px + env(safe-area-inset-top, 0px))',
           zIndex: 10,
           overflowY: 'auto',
         }}

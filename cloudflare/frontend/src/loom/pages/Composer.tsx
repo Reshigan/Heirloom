@@ -1,4 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+
+function subscribe(cb: () => void) {
+  window.addEventListener('resize', cb);
+  return () => window.removeEventListener('resize', cb);
+}
+function useIsMobile() {
+  return useSyncExternalStore(subscribe, () => window.innerWidth < 768, () => false);
+}
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../components/ClothShell';
 import { SealedNote } from '../components/SealedNote';
@@ -38,6 +46,7 @@ interface FamilyMember {
 
 export function Composer() {
   const { user, isAuthenticated } = useAuthStore();
+  const isMobile = useIsMobile();
 
   const [typed, setTyped] = useState('');
   const [showWhisper, setShowWhisper] = useState(false);
@@ -204,7 +213,7 @@ export function Composer() {
         style={{
           height: '100%',
           display: 'grid',
-          gridTemplateColumns: '1fr 360px',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 360px',
         }}
       >
         {/* center: the page */}
@@ -543,8 +552,8 @@ export function Composer() {
           )}
         </div>
 
-        {/* right: the silent shuttle */}
-        <aside
+        {/* right: the silent shuttle — hidden on mobile, full sidebar on desktop */}
+        {!isMobile && <aside
           style={{
             borderLeft: '1px solid var(--rule)',
             padding: '72px 36px',
@@ -615,7 +624,7 @@ export function Composer() {
               cooldown · 48 hours
             </div>
           </div>
-        </aside>
+        </aside>}
       </div>
     </ClothShell>
   );

@@ -40,25 +40,27 @@ export function Echo() {
       backdropOpacity={0.5}
     >
       <div style={{
-        height: '100%',
+        minHeight: '100%',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end',
-        paddingBottom: 56,
+        paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
+        paddingLeft: 24,
+        paddingRight: 24,
       }}>
         <div
-          style={{ textAlign: 'center', maxWidth: '52ch', padding: '0 32px', cursor: promptId ? 'pointer' : 'default' }}
+          style={{ textAlign: 'center', maxWidth: '52ch', width: '100%', cursor: promptId ? 'pointer' : 'default' }}
           onClick={handlePromptInteract}
         >
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 16 }}>
-            the listener
+          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 20, color: 'var(--bone-faint)' }}>
+            the listener asks
           </span>
           <p
             className="hl-serif"
             style={{
-              fontSize: 22,
-              lineHeight: 1.5,
+              fontSize: 'clamp(18px, 4vw, 24px)',
+              lineHeight: 1.6,
               fontWeight: 400,
               fontStyle: 'italic',
-              color: 'var(--bone-dim)',
+              color: 'var(--bone)',
               margin: 0,
               fontVariationSettings: '"opsz" 18',
             }}
