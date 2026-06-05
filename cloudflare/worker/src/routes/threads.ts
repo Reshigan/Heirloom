@@ -88,6 +88,27 @@ threadsRoutes.post('/', async (c) => {
     return c.json({ error: 'Thread name too long (max 200)' }, 400);
   }
 
+  // Check thread creation limit by tier
+  const threadSubscription = await c.env.DB.prepare(
+    'SELECT tier FROM subscriptions WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
+  ).bind(userId).first<{ tier: string }>();
+
+  const threadTier = threadSubscription?.tier?.toUpperCase() ?? 'STARTER';
+  const threadLimit = (threadTier === 'LEGACY' || threadTier === 'FOREVER') ? Infinity
+    : threadTier === 'FAMILY' || threadTier === 'ESSENTIAL' ? 5
+    : 1; // STARTER: 1 thread
+
+  const threadCount = await c.env.DB.prepare(
+    'SELECT COUNT(*) as count FROM threads WHERE founder_user_id = ?'
+  ).bind(userId).first<{ count: number }>();
+
+  if ((threadCount?.count ?? 0) >= threadLimit) {
+    return c.json({
+      error: 'Thread limit reached for your plan. Upgrade to create more threads.',
+      limit: threadLimit,
+    }, 403);
+  }
+
   const threadId = crypto.randomUUID();
   const memberId = crypto.randomUUID();
 
@@ -202,15 +223,33 @@ threadsRoutes.post('/:id/members', async (c) => {
     return c.json({ error: 'Invalid role' }, 400);
   }
 
-  // Atomic: INSERT only executes when the subquery confirms fewer than 5 active members.
-  // This eliminates the TOCTOU race between a separate COUNT and INSERT.
+  // Get requester's subscription tier
+  const memberSubscription = await c.env.DB.prepare(
+    'SELECT tier FROM subscriptions WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
+  ).bind(userId).first<{ tier: string }>();
+
+  const memberTier = memberSubscription?.tier?.toUpperCase() ?? 'STARTER';
+  const memberLimit = (memberTier === 'LEGACY' || memberTier === 'FOREVER') ? Infinity
+    : memberTier === 'FAMILY' || memberTier === 'ESSENTIAL' ? 10
+    : 5; // STARTER free tier
+
+  const memberCount = await c.env.DB.prepare(
+    'SELECT COUNT(*) as count FROM thread_members WHERE thread_id = ? AND revoked_at IS NULL'
+  ).bind(threadId).first<{ count: number }>();
+
+  if ((memberCount?.count ?? 0) >= memberLimit) {
+    return c.json({ error: 'Member limit reached for your plan. Upgrade to add more family members.' }, 403);
+  }
+
+  // Atomic INSERT using the tier-aware limit to eliminate TOCTOU races.
+  const effectiveLimit = Number.isFinite(memberLimit) ? memberLimit : 999999;
   const id = crypto.randomUUID();
   const result = await c.env.DB.prepare(
     `INSERT INTO thread_members
       (id, thread_id, display_name, email, relation_label, role, age_gate_years, target_role,
        birth_date, parent_member_id, generation_offset, granted_by_member_id)
      SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-     WHERE (SELECT COUNT(*) FROM thread_members WHERE thread_id = ? AND revoked_at IS NULL) < 5`,
+     WHERE (SELECT COUNT(*) FROM thread_members WHERE thread_id = ? AND revoked_at IS NULL) < ?`,
   )
     .bind(
       id,
@@ -226,11 +265,12 @@ threadsRoutes.post('/:id/members', async (c) => {
       body.generation_offset ?? 0,
       inviter.id,
       threadId,
+      effectiveLimit,
     )
     .run();
 
   if (result.meta.changes === 0) {
-    return c.json({ error: 'Family threads are limited to 5 members' }, 400);
+    return c.json({ error: 'Member limit reached for your plan. Upgrade to add more family members.' }, 403);
   }
 
   // Send invitation email if recipient has an email address.

@@ -86,11 +86,12 @@ authRoutes.post('/register', async (c) => {
     } else {
       periodEnd.setMonth(periodEnd.getMonth() + (pendingVoucher.duration_months as number));
       
-      // Create subscription from voucher
+      // Create subscription from voucher — normalize the tier value so legacy
+      // voucher tier strings (e.g. 'PREMIUM', 'ESSENTIAL') map to canonical tiers.
       await c.env.DB.prepare(`
         INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, current_period_start, current_period_end, created_at, updated_at)
         VALUES (?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?)
-      `).bind(crypto.randomUUID(), userId, pendingVoucher.tier, pendingVoucher.billing_cycle, periodStart, periodEnd.toISOString(), now, now).run();
+      `).bind(crypto.randomUUID(), userId, normalizeTier(pendingVoucher.tier as string), pendingVoucher.billing_cycle, periodStart, periodEnd.toISOString(), now, now).run();
     }
     
     // Mark voucher as redeemed
@@ -704,6 +705,18 @@ authRoutes.post('/resend-verification', async (c) => {
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
+
+/**
+ * Normalize legacy or variant tier strings to the canonical set used in the DB.
+ * Mirrors the LEGACY_MAP in billing.ts so voucher redemption is consistent.
+ */
+function normalizeTier(t: string): string {
+  const upper = (t ?? '').toUpperCase();
+  if (upper === 'PREMIUM' || upper === 'FAMILY' || upper === 'PLUS') return 'FAMILY';
+  if (upper === 'FOREVER' || upper === 'LEGACY') return 'LEGACY';
+  if (upper === 'ESSENTIAL') return 'STARTER';
+  return 'STARTER';
+}
 
 async function hashToken(token: string): Promise<string> {
   const encoder = new TextEncoder();

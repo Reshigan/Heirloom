@@ -38,19 +38,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Token refresh retry limit to prevent infinite loops (BUG-004 fix)
-const MAX_RETRY_ATTEMPTS = 3;
-let retryCount = 0;
-
 // Handle token refresh on 401 and rate limiting on 429
+// Per-request retry tracking via originalRequest._retry (H5: removed shared
+// module-level retryCount which caused a race condition under concurrent calls).
 api.interceptors.response.use(
-  (response) => {
-    retryCount = 0; // Reset on successful response
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
+
     // Handle rate limiting (BUG-008 fix)
     if (error.response?.status === 429) {
       const retryAfter = error.response.headers['retry-after'] || 60;
@@ -58,19 +53,10 @@ api.interceptors.response.use(
       error.message = errorMessage;
       return Promise.reject(error);
     }
-    
+
     const isAuthEndpoint = originalRequest?.url?.startsWith('/auth/');
 
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
-      if (retryCount >= MAX_RETRY_ATTEMPTS) {
-        retryCount = 0;
-        clearTokens();
-        const hadSession = !!localStorage.getItem('heirloom-auth');
-        window.location.href = hadSession ? '/login?session_expired=true' : '/login';
-        return Promise.reject(error);
-      }
-      
-      retryCount++;
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refreshToken');

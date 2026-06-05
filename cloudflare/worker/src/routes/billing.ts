@@ -333,11 +333,20 @@ const LEGACY_MAP: Record<string, string> = {
 // NOTE: These price IDs need to be updated in Stripe Dashboard with new prices
 // =============================================================================
 const STRIPE_PRICE_IDS: Record<string, Record<string, Record<string, string>>> = {
+  // USD: FAMILY tier has real price_1 IDs. STARTER and LEGACY are pending creation.
+  // TODO: Create Stripe products for USD STARTER/LEGACY tiers in Stripe Dashboard → Products.
+  // Until real price_1 IDs are set here, checkout falls back to dynamic price_data
+  // which Stripe accepts for most currencies but isn't tracked in the Dashboard.
+  // Steps: Dashboard → Products → Add product → Add price → copy price_1... ID here.
   USD: {
     STARTER: { monthly: '', yearly: '' },
     FAMILY: { monthly: 'price_1TdZWS0wv1f1SxUquiLv7wes', yearly: 'price_1TdZWT0wv1f1SxUq9UtXdiVx' },
     LEGACY: { monthly: '', yearly: '' },
   },
+  // TODO: Create Stripe products for GBP/EUR tiers in Stripe Dashboard → Products.
+  // Until real price_1 IDs are set here, checkout falls back to dynamic price_data
+  // which Stripe accepts for most currencies but isn't tracked in the Dashboard.
+  // Steps: Dashboard → Products → Add product → Add price → copy price_1... ID here.
   GBP: {
     STARTER: { monthly: '', yearly: '' },
     FAMILY: { monthly: '', yearly: '' },
@@ -348,6 +357,10 @@ const STRIPE_PRICE_IDS: Record<string, Record<string, Record<string, string>>> =
     FAMILY: { monthly: '', yearly: '' },
     LEGACY: { monthly: '', yearly: '' },
   },
+  // TODO: ZAR/INR/NGN entries below use placeholder price IDs (not real price_1... IDs).
+  // These must be replaced with real Stripe price IDs before ZAR/INR/NGN checkout can work.
+  // Steps: Dashboard → Products → Add product → Add price (select ZAR/INR/NGN currency)
+  // → copy the price_1... ID and replace the placeholder string here.
   ZAR: {
     STARTER: { monthly: 'price_starter_monthly_zar', yearly: 'price_starter_yearly_zar' },
     FAMILY: { monthly: 'price_family_monthly_zar', yearly: 'price_family_yearly_zar' },

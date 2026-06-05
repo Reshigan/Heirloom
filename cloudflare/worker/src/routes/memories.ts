@@ -212,11 +212,16 @@ memoriesRoutes.put('/upload/*', async (c) => {
 
   const contentType = c.req.header('Content-Type') || 'application/octet-stream';
   
+  const MAX_UPLOAD_BYTES = 500 * 1024 * 1024; // 500 MB hard cap
+
   try {
     // Get the raw body as ArrayBuffer for R2
     const bodyData = await c.req.arrayBuffer();
-    if (!bodyData || bodyData.byteLength === 0) {
-      return c.json({ error: 'No file data' }, 400);
+    if (bodyData.byteLength === 0) {
+      return c.json({ error: 'Empty file' }, 400);
+    }
+    if (bodyData.byteLength > MAX_UPLOAD_BYTES) {
+      return c.json({ error: 'File too large. Maximum upload size is 500 MB.' }, 413);
     }
 
     await c.env.STORAGE.put(key, bodyData, {
@@ -251,12 +256,17 @@ memoriesRoutes.post('/upload/*', async (c) => {
   }
 
   const contentType = c.req.header('Content-Type') || 'application/octet-stream';
-  
+
+  const MAX_UPLOAD_BYTES = 500 * 1024 * 1024; // 500 MB hard cap
+
   try {
     // Get the raw body as ArrayBuffer for R2
     const bodyData = await c.req.arrayBuffer();
-    if (!bodyData || bodyData.byteLength === 0) {
-      return c.json({ error: 'No file data' }, 400);
+    if (bodyData.byteLength === 0) {
+      return c.json({ error: 'Empty file' }, 400);
+    }
+    if (bodyData.byteLength > MAX_UPLOAD_BYTES) {
+      return c.json({ error: 'File too large. Maximum upload size is 500 MB.' }, 413);
     }
 
     await c.env.STORAGE.put(key, bodyData, {
@@ -270,33 +280,6 @@ memoriesRoutes.post('/upload/*', async (c) => {
   } catch (err: any) {
     console.error('Error uploading memory to R2:', err);
     return c.json({ error: 'Failed to upload file', details: err.message }, 500);
-  }
-});
-
-// Serve file from R2
-memoriesRoutes.get('/file/*', async (c) => {
-  const url = new URL(c.req.url);
-  const pathAfterFile = url.pathname.split('/memories/file/')[1];
-  if (!pathAfterFile) {
-    return c.json({ error: 'Invalid file key' }, 400);
-  }
-
-  const key = decodeURIComponent(pathAfterFile);
-
-  try {
-    const object = await c.env.STORAGE.get(key);
-    if (!object) {
-      return c.json({ error: 'File not found' }, 404);
-    }
-
-    const headers = new Headers();
-    headers.set('Content-Type', object.httpMetadata?.contentType || 'application/octet-stream');
-    headers.set('Cache-Control', 'public, max-age=31536000');
-
-    return new Response(object.body, { headers });
-  } catch (err: any) {
-    console.error('Error serving file from R2:', err);
-    return c.json({ error: 'Failed to retrieve file' }, 500);
   }
 });
 
@@ -341,6 +324,119 @@ memoriesRoutes.get('/received', async (c) => {
       from: `${m.from_first || ''} ${m.from_last || ''}`.trim(),
       metadata: m.metadata ? JSON.parse(m.metadata) : null,
     })),
+  });
+});
+
+// ============================================
+// FULL-TEXT SEARCH
+// Defined BEFORE /:id so the literal segment /search is not swallowed by the param route.
+// ============================================
+
+memoriesRoutes.get('/search', async (c) => {
+  const userId = c.get('userId');
+  const q = c.req.query('q');
+  const typeParam = c.req.query('type') || 'all'; // 'memory'|'voice'|'letter'|'all'
+  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 50);
+
+  if (!q || q.trim().length < 2) {
+    return c.json({ error: 'Search query must be at least 2 characters' }, 400);
+  }
+
+  // Helper: count non-overlapping occurrences of needle in haystack (case-insensitive)
+  const countOccurrences = (haystack: string, needle: string): number => {
+    if (!haystack) return 0;
+    const lower = haystack.toLowerCase();
+    const lowerNeedle = needle.toLowerCase();
+    let count = 0;
+    let pos = 0;
+    while ((pos = lower.indexOf(lowerNeedle, pos)) !== -1) {
+      count++;
+      pos += lowerNeedle.length;
+    }
+    return count;
+  };
+
+  // Escape LIKE metacharacters to prevent crafted % / _ patterns causing full table scans.
+  const safQ = q.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+  const likePattern = `%${safQ}%`;
+  const results: Array<{
+    id: unknown;
+    type: 'memory' | 'voice' | 'letter';
+    title: string;
+    snippet: string;
+    created_at: unknown;
+    score: number;
+  }> = [];
+
+  // Search memories (title, description)
+  if (typeParam === 'all' || typeParam === 'memory') {
+    const rows = await c.env.DB.prepare(`
+      SELECT id, title, description, created_at
+      FROM memories
+      WHERE user_id = ? AND deleted_at IS NULL
+        AND (title LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')
+      ORDER BY created_at DESC
+    `).bind(userId, likePattern, likePattern).all();
+
+    for (const r of rows.results) {
+      const title = (r.title as string) || '';
+      const description = (r.description as string) || '';
+      const snippet = description.slice(0, 120);
+      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
+      results.push({ id: r.id, type: 'memory', title, snippet, created_at: r.created_at, score });
+    }
+  }
+
+  // Search voice recordings (title, transcript)
+  if (typeParam === 'all' || typeParam === 'voice') {
+    const rows = await c.env.DB.prepare(`
+      SELECT id, title, transcript, created_at
+      FROM voice_recordings
+      WHERE user_id = ? AND deleted_at IS NULL
+        AND (title LIKE ? ESCAPE '\\' OR transcript LIKE ? ESCAPE '\\')
+      ORDER BY created_at DESC
+    `).bind(userId, likePattern, likePattern).all();
+
+    for (const r of rows.results) {
+      const title = (r.title as string) || '';
+      const transcript = (r.transcript as string) || '';
+      const snippet = transcript.slice(0, 120);
+      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
+      results.push({ id: r.id, type: 'voice', title, snippet, created_at: r.created_at, score });
+    }
+  }
+
+  // Search letters (subject, body)
+  if (typeParam === 'all' || typeParam === 'letter') {
+    const rows = await c.env.DB.prepare(`
+      SELECT id, subject, body, created_at
+      FROM letters
+      WHERE user_id = ? AND deleted_at IS NULL
+        AND (subject LIKE ? ESCAPE '\\' OR body LIKE ? ESCAPE '\\')
+      ORDER BY created_at DESC
+    `).bind(userId, likePattern, likePattern).all();
+
+    for (const r of rows.results) {
+      const title = (r.subject as string) || '';
+      const body = (r.body as string) || '';
+      const snippet = body.slice(0, 120);
+      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
+      results.push({ id: r.id, type: 'letter', title, snippet, created_at: r.created_at, score });
+    }
+  }
+
+  // Sort by score DESC, then created_at DESC
+  results.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return new Date(b.created_at as string).getTime() - new Date(a.created_at as string).getTime();
+  });
+
+  const sliced = results.slice(0, limit);
+
+  return c.json({
+    results: sliced,
+    total: results.length,
+    query: q,
   });
 });
 
@@ -467,9 +563,12 @@ memoriesRoutes.post('/', async (c) => {
       `SELECT first_name, last_name FROM users WHERE id = ?`
     ).bind(userId).first();
     // Use only explicitly linked recipients with a verified email.
+    // AND user_id = ? is defense-in-depth (TOCTOU): the ownership check above
+    // already validated these IDs, but re-scoping to the current user here
+    // ensures stale IDs from a concurrent request cannot leak another user's email.
     const recipientRows = await c.env.DB.prepare(
-      `SELECT email FROM family_members WHERE id IN (${recipientIds.map(() => '?').join(',')}) AND email IS NOT NULL LIMIT 5`
-    ).bind(...recipientIds).all();
+      `SELECT email FROM family_members WHERE id IN (${recipientIds.map(() => '?').join(',')}) AND user_id = ? AND email IS NOT NULL LIMIT 5`
+    ).bind(...recipientIds, userId).all();
     for (const row of recipientRows.results) {
       const recipientEmail = row.email as string;
       const fromName = `${sender?.first_name || ''} ${sender?.last_name || ''}`.trim() || 'Someone';
@@ -616,116 +715,6 @@ memoriesRoutes.delete('/:id', async (c) => {
   await mirrorMemoryDelete(c.env, memoryId);
 
   return c.body(null, 204);
-});
-
-// ============================================
-// FULL-TEXT SEARCH
-// ============================================
-
-memoriesRoutes.get('/search', async (c) => {
-  const userId = c.get('userId');
-  const q = c.req.query('q');
-  const typeParam = c.req.query('type') || 'all'; // 'memory'|'voice'|'letter'|'all'
-  const limit = Math.min(parseInt(c.req.query('limit') || '20'), 50);
-
-  if (!q || q.trim().length < 2) {
-    return c.json({ error: 'Search query must be at least 2 characters' }, 400);
-  }
-
-  // Helper: count non-overlapping occurrences of needle in haystack (case-insensitive)
-  const countOccurrences = (haystack: string, needle: string): number => {
-    if (!haystack) return 0;
-    const lower = haystack.toLowerCase();
-    const lowerNeedle = needle.toLowerCase();
-    let count = 0;
-    let pos = 0;
-    while ((pos = lower.indexOf(lowerNeedle, pos)) !== -1) {
-      count++;
-      pos += lowerNeedle.length;
-    }
-    return count;
-  };
-
-  const likePattern = `%${q}%`;
-  const results: Array<{
-    id: unknown;
-    type: 'memory' | 'voice' | 'letter';
-    title: string;
-    snippet: string;
-    created_at: unknown;
-    score: number;
-  }> = [];
-
-  // Search memories (title, description)
-  if (typeParam === 'all' || typeParam === 'memory') {
-    const rows = await c.env.DB.prepare(`
-      SELECT id, title, description, created_at
-      FROM memories
-      WHERE user_id = ? AND deleted_at IS NULL
-        AND (title LIKE ? OR description LIKE ?)
-      ORDER BY created_at DESC
-    `).bind(userId, likePattern, likePattern).all();
-
-    for (const r of rows.results) {
-      const title = (r.title as string) || '';
-      const description = (r.description as string) || '';
-      const snippet = description.slice(0, 120);
-      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
-      results.push({ id: r.id, type: 'memory', title, snippet, created_at: r.created_at, score });
-    }
-  }
-
-  // Search voice recordings (title, transcript)
-  if (typeParam === 'all' || typeParam === 'voice') {
-    const rows = await c.env.DB.prepare(`
-      SELECT id, title, transcript, created_at
-      FROM voice_recordings
-      WHERE user_id = ? AND deleted_at IS NULL
-        AND (title LIKE ? OR transcript LIKE ?)
-      ORDER BY created_at DESC
-    `).bind(userId, likePattern, likePattern).all();
-
-    for (const r of rows.results) {
-      const title = (r.title as string) || '';
-      const transcript = (r.transcript as string) || '';
-      const snippet = transcript.slice(0, 120);
-      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
-      results.push({ id: r.id, type: 'voice', title, snippet, created_at: r.created_at, score });
-    }
-  }
-
-  // Search letters (subject, body)
-  if (typeParam === 'all' || typeParam === 'letter') {
-    const rows = await c.env.DB.prepare(`
-      SELECT id, subject, body, created_at
-      FROM letters
-      WHERE user_id = ? AND deleted_at IS NULL
-        AND (subject LIKE ? OR body LIKE ?)
-      ORDER BY created_at DESC
-    `).bind(userId, likePattern, likePattern).all();
-
-    for (const r of rows.results) {
-      const title = (r.subject as string) || '';
-      const body = (r.body as string) || '';
-      const snippet = body.slice(0, 120);
-      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
-      results.push({ id: r.id, type: 'letter', title, snippet, created_at: r.created_at, score });
-    }
-  }
-
-  // Sort by score DESC, then created_at DESC
-  results.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return new Date(b.created_at as string).getTime() - new Date(a.created_at as string).getTime();
-  });
-
-  const sliced = results.slice(0, limit);
-
-  return c.json({
-    results: sliced,
-    total: results.length,
-    query: q,
-  });
 });
 
 // ============================================

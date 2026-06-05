@@ -253,17 +253,22 @@ export function ReadingRoom() {
 
   useEffect(() => {
     if (!isAuthenticated || !user?.defaultThreadId) return;
+    let ignored = false;
     setLoading(true);
     threadsApi.listEntries(user.defaultThreadId, { limit: 50 })
       .then((res) => {
+        if (ignored) return;
         const raw = res.data?.entries ?? [];
         if (raw.length > 0) {
           setEntries(raw.map(mapThreadEntry));
           setActive(0);
         }
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!ignored) setEntries([]);
+      })
+      .finally(() => { if (!ignored) setLoading(false); });
+    return () => { ignored = true; };
   }, [isAuthenticated, user?.defaultThreadId]);
 
   const t   = entries[active] ?? entries[0] ?? null;

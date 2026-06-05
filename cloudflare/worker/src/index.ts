@@ -269,10 +269,14 @@ app.use('/api/auth/*', async (c, next) => {
       );
     }
   } catch (error) {
-    // If rate limiter fails, allow the request (fail open)
-    console.error('Rate limiter error:', error);
+    console.error('Rate limiter DO error:', error);
+    // Fail closed on limiter outage for sensitive endpoints
+    if (c.req.url.includes('/api/auth/')) {
+      return c.json({ error: 'Service temporarily unavailable' }, 503);
+    }
+    // Non-auth routes: fail open is acceptable
   }
-  
+
   return next();
 });
 
@@ -336,6 +340,16 @@ app.route('/api/archive', archiveRoutes);
 app.route('/api/book-orders', bookOrderRoutes);
 // Founder pledge intake — public form, idempotent on email.
 app.route('/api/founders', founderRoutes);
+
+// HTML escape helper — prevents XSS when interpolating user input into email HTML
+function escHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 // Public contact form endpoint (rate limited to prevent abuse)
 app.post('/api/contact', async (c) => {
@@ -403,14 +417,14 @@ app.post('/api/contact', async (c) => {
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #D4AF37;">New Contact Form Submission</h2>
             <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
-            <p><strong>From:</strong> ${body.name} (${body.email})</p>
-            <p><strong>Subject:</strong> ${body.subject}</p>
+            <p><strong>From:</strong> ${escHtml(body.name)} (${escHtml(body.email)})</p>
+            <p><strong>Subject:</strong> ${escHtml(body.subject)}</p>
             <hr style="border: 1px solid #333;" />
             <h3>Message:</h3>
-            <p style="white-space: pre-wrap;">${body.message}</p>
+            <p style="white-space: pre-wrap;">${escHtml(body.message)}</p>
             <hr style="border: 1px solid #333;" />
             <p style="color: #666; font-size: 12px;">
-              Reply directly to ${body.email} to respond.
+              Reply directly to ${escHtml(body.email)} to respond.
             </p>
           </div>
         `,
@@ -472,54 +486,8 @@ app.post('/api/contact', async (c) => {
 });
 
 // Public billing routes (pricing and detect don't require auth)
-app.get('/api/billing/pricing', async (c) => {
-  // Import the billing logic inline to avoid circular dependencies
-  const COUNTRY_CURRENCY: Record<string, string> = {
-    ZA: 'ZAR', NG: 'NGN', KE: 'KES', GH: 'GHS', TZ: 'TZS', UG: 'UGX', 
-    RW: 'RWF', ZW: 'USD', BW: 'BWP', NA: 'NAD', MZ: 'MZN', ZM: 'ZMW',
-    GB: 'GBP',
-    DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', 
-    IE: 'EUR', PT: 'EUR', FI: 'EUR', GR: 'EUR', SK: 'EUR', SI: 'EUR', LT: 'EUR',
-    LV: 'EUR', EE: 'EUR', CY: 'EUR', MT: 'EUR', LU: 'EUR',
-    IN: 'INR', PK: 'PKR', BD: 'BDT', PH: 'PHP', ID: 'IDR', MY: 'MYR', 
-    SG: 'SGD', TH: 'THB', VN: 'VND', JP: 'JPY', KR: 'KRW', CN: 'CNY', 
-    HK: 'HKD', TW: 'TWD', AE: 'AED', SA: 'SAR',
-    US: 'USD', CA: 'CAD', MX: 'MXN', BR: 'BRL', AR: 'ARS', CO: 'COP', CL: 'CLP', PE: 'PEN',
-    AU: 'AUD', NZ: 'NZD',
-  };
-
-  const PRICING: Record<string, any> = {
-    USD: { symbol: '$', code: 'USD', STARTER: { monthly: 1, yearly: 10 }, FAMILY: { monthly: 5, yearly: 50 }, FOREVER: { monthly: 15, yearly: 150 } },
-    ZAR: { symbol: 'R', code: 'ZAR', STARTER: { monthly: 18, yearly: 180 }, FAMILY: { monthly: 90, yearly: 900 }, FOREVER: { monthly: 270, yearly: 2700 } },
-    GBP: { symbol: '£', code: 'GBP', STARTER: { monthly: 0.79, yearly: 7.90 }, FAMILY: { monthly: 3.99, yearly: 39.90 }, FOREVER: { monthly: 11.99, yearly: 119.90 } },
-    EUR: { symbol: '€', code: 'EUR', STARTER: { monthly: 0.99, yearly: 9.90 }, FAMILY: { monthly: 4.99, yearly: 49.90 }, FOREVER: { monthly: 14.99, yearly: 149.90 } },
-    CAD: { symbol: 'C$', code: 'CAD', STARTER: { monthly: 1.39, yearly: 13.90 }, FAMILY: { monthly: 6.99, yearly: 69.90 }, FOREVER: { monthly: 20.99, yearly: 209.90 } },
-    AUD: { symbol: 'A$', code: 'AUD', STARTER: { monthly: 1.49, yearly: 14.90 }, FAMILY: { monthly: 7.49, yearly: 74.90 }, FOREVER: { monthly: 22.49, yearly: 224.90 } },
-    INR: { symbol: '₹', code: 'INR', STARTER: { monthly: 50, yearly: 500 }, FAMILY: { monthly: 250, yearly: 2500 }, FOREVER: { monthly: 750, yearly: 7500 } },
-  };
-
-  const cfCountry = c.req.raw?.cf?.country as string;
-  const headerCountry = c.req.header('cf-ipcountry') || c.req.header('x-country');
-  const country = cfCountry || headerCountry || 'US';
-  
-  const overrideCurrency = c.req.query('currency')?.toUpperCase();
-  const detectedCurrency = COUNTRY_CURRENCY[country?.toUpperCase()] || 'USD';
-  const currency = overrideCurrency && PRICING[overrideCurrency] ? overrideCurrency : (PRICING[detectedCurrency] ? detectedCurrency : 'USD');
-  const prices = PRICING[currency];
-
-  return c.json({
-    country,
-    currency,
-    symbol: prices.symbol,
-    tiers: [
-      { id: 'STARTER', name: 'Starter', storage: '500 MB', monthly: { amount: prices.STARTER.monthly, display: `${prices.symbol}${prices.STARTER.monthly}` }, yearly: { amount: prices.STARTER.yearly, display: `${prices.symbol}${prices.STARTER.yearly}`, perMonth: `${prices.symbol}${(prices.STARTER.yearly / 12).toFixed(2)}` } },
-      { id: 'FAMILY', name: 'Family', storage: '5 GB', popular: true, monthly: { amount: prices.FAMILY.monthly, display: `${prices.symbol}${prices.FAMILY.monthly}` }, yearly: { amount: prices.FAMILY.yearly, display: `${prices.symbol}${prices.FAMILY.yearly}`, perMonth: `${prices.symbol}${(prices.FAMILY.yearly / 12).toFixed(2)}` } },
-      { id: 'FOREVER', name: 'Forever', storage: '50 GB', monthly: { amount: prices.FOREVER.monthly, display: `${prices.symbol}${prices.FOREVER.monthly}` }, yearly: { amount: prices.FOREVER.yearly, display: `${prices.symbol}${prices.FOREVER.yearly}`, perMonth: `${prices.symbol}${(prices.FOREVER.yearly / 12).toFixed(2)}` } },
-    ],
-    allFeatures: ['Unlimited memories', 'Unlimited letters', 'Unlimited voice recordings', 'Posthumous delivery', 'Dead man\'s switch', 'AI writing help', 'Year Wrapped', 'Family tree'],
-    annualSavings: '2 months free',
-  });
-});
+// NOTE: /api/billing/pricing is handled by the billingRoutes sub-app mounted on protectedApp,
+// which correctly serves both authenticated and unauthenticated pricing requests.
 
 app.get('/api/billing/detect', async (c) => {
   const COUNTRY_CURRENCY: Record<string, string> = {
@@ -544,6 +512,24 @@ app.get('/api/billing/detect', async (c) => {
 // Security: key must exist in the memories/voice_recordings table (UUID-based keys prevent guessing).
 // IMPORTANT: Must set Cross-Origin-Resource-Policy: cross-origin to allow embedding from heirloom.blue
 app.get('/api/memories/file/*', async (c) => {
+  // Require authentication — verify JWT so we can confirm the caller owns the file
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  let requestingUserId: string;
+  try {
+    const token = authHeader.replace('Bearer ', '');
+    const payload = await verifyJWT(token, c.env.JWT_SECRET);
+    const session = await c.env.KV.get(`session:${payload.sessionId}`);
+    if (!session) {
+      return c.json({ error: 'Session expired' }, 401);
+    }
+    requestingUserId = payload.sub;
+  } catch {
+    return c.json({ error: 'Invalid token' }, 401);
+  }
+
   const url = new URL(c.req.url);
   const pathAfterFile = url.pathname.split('/memories/file/')[1];
   if (!pathAfterFile) {
@@ -556,10 +542,10 @@ app.get('/api/memories/file/*', async (c) => {
     return c.json({ error: 'Invalid file key format' }, 400);
   }
 
-  // Verify the key exists in the DB before serving — prevents access to arbitrary R2 paths
+  // Verify the key exists in the DB AND belongs to the requesting user
   const row = await c.env.DB.prepare(
-    'SELECT id FROM memories WHERE file_key = ? AND deleted_at IS NULL LIMIT 1'
-  ).bind(key).first();
+    'SELECT id FROM memories WHERE file_key = ? AND user_id = ? AND deleted_at IS NULL LIMIT 1'
+  ).bind(key, requestingUserId).first();
   if (!row) {
     return c.json({ error: 'File not found' }, 404);
   }
@@ -583,6 +569,24 @@ app.get('/api/memories/file/*', async (c) => {
 });
 
 app.get('/api/voice/file/*', async (c) => {
+  // Require authentication — verify JWT so we can confirm the caller owns the file
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  let requestingUserId: string;
+  try {
+    const token = authHeader.replace('Bearer ', '');
+    const payload = await verifyJWT(token, c.env.JWT_SECRET);
+    const session = await c.env.KV.get(`session:${payload.sessionId}`);
+    if (!session) {
+      return c.json({ error: 'Session expired' }, 401);
+    }
+    requestingUserId = payload.sub;
+  } catch {
+    return c.json({ error: 'Invalid token' }, 401);
+  }
+
   const url = new URL(c.req.url);
   const pathAfterFile = url.pathname.split('/voice/file/')[1];
   if (!pathAfterFile) {
@@ -595,10 +599,10 @@ app.get('/api/voice/file/*', async (c) => {
     return c.json({ error: 'Invalid file key format' }, 400);
   }
 
-  // Verify the key exists in the DB before serving — prevents access to arbitrary R2 paths
+  // Verify the key exists in the DB AND belongs to the requesting user
   const voiceRow = await c.env.DB.prepare(
-    'SELECT id FROM voice_recordings WHERE file_key = ? LIMIT 1'
-  ).bind(key).first();
+    'SELECT id FROM voice_recordings WHERE file_key = ? AND user_id = ? LIMIT 1'
+  ).bind(key, requestingUserId).first();
   if (!voiceRow) {
     return c.json({ error: 'File not found' }, 404);
   }
@@ -852,11 +856,11 @@ app.onError((err, c) => {
     return c.json({ error: 'Invalid request body' }, 400);
   }
 
-  return c.json({
-    error: c.env.ENVIRONMENT === 'production' 
-      ? 'Internal server error' 
-      : err.message,
-  }, 500);
+  const body: Record<string, string> = { error: 'Internal server error' };
+  if (c.env.ENVIRONMENT === 'development') {
+    body.debug = err.message;
+  }
+  return c.json(body, 500);
 });
 
 app.notFound((c) => {

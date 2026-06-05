@@ -843,6 +843,29 @@ settingsRoutes.delete('/account', async (c) => {
   // Delete Stripe customer — personal data must leave the data processor (GDPR Art. 17 / POPIA §23)
   const stripeCustomerId = userRow.stripe_customer_id as string | null;
   if (stripeCustomerId && c.env.STRIPE_SECRET_KEY) {
+    // Cancel active subscriptions before deleting customer
+    try {
+      const subsRes = await fetch(
+        `https://api.stripe.com/v1/subscriptions?customer=${stripeCustomerId}&status=active&limit=5`,
+        { headers: { 'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}` } },
+      );
+      if (subsRes.ok) {
+        const subsData = await subsRes.json<{ data: Array<{ id: string }> }>();
+        await Promise.all(subsData.data.map(sub =>
+          fetch(`https://api.stripe.com/v1/subscriptions/${sub.id}/cancel`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${c.env.STRIPE_SECRET_KEY}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'cancellation_details[comment]=Account+deleted+by+user',
+          })
+        ));
+      }
+    } catch (subErr) {
+      console.error('Failed to cancel subscriptions before account deletion:', subErr);
+      // Continue with deletion even if cancellation fails
+    }
     try {
       await fetch(`https://api.stripe.com/v1/customers/${stripeCustomerId}`, {
         method: 'DELETE',

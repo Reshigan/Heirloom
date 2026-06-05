@@ -81,35 +81,33 @@ familyRoutes.get('/:id', async (c) => {
     return c.json({ error: 'Family member not found' }, 404);
   }
   
-  // Get recent memories
-  const recentMemories = await c.env.DB.prepare(`
-    SELECT m.* FROM memories m
-    JOIN memory_recipients mr ON m.id = mr.memory_id
-    WHERE mr.family_member_id = ? AND m.deleted_at IS NULL
-    ORDER BY m.created_at DESC
-    LIMIT 10
-  `).bind(memberId).all();
+  // Run all three content queries in parallel to avoid N+1 latency
+  const [recentMemories, recentLetters, recentVoice] = await Promise.all([
+    c.env.DB.prepare(`
+      SELECT m.* FROM memories m
+      JOIN memory_recipients mr ON m.id = mr.memory_id
+      WHERE mr.family_member_id = ? AND m.deleted_at IS NULL
+      ORDER BY m.created_at DESC
+      LIMIT 10
+    `).bind(memberId).all(),
+    c.env.DB.prepare(`
+      SELECT l.* FROM letters l
+      JOIN letter_recipients lr ON l.id = lr.letter_id
+      WHERE lr.family_member_id = ? AND l.deleted_at IS NULL
+      ORDER BY l.created_at DESC
+      LIMIT 10
+    `).bind(memberId).all(),
+    c.env.DB.prepare(`
+      SELECT v.* FROM voice_recordings v
+      JOIN voice_recipients vr ON v.id = vr.voice_recording_id
+      WHERE vr.family_member_id = ? AND v.deleted_at IS NULL
+      ORDER BY v.created_at DESC
+      LIMIT 10
+    `).bind(memberId).all(),
+  ]);
   for (const m of recentMemories.results as any[]) {
     m.description = await readDescription(c.env, m);
   }
-
-  // Get recent letters
-  const recentLetters = await c.env.DB.prepare(`
-    SELECT l.* FROM letters l
-    JOIN letter_recipients lr ON l.id = lr.letter_id
-    WHERE lr.family_member_id = ? AND l.deleted_at IS NULL
-    ORDER BY l.created_at DESC
-    LIMIT 10
-  `).bind(memberId).all();
-  
-  // Get recent voice recordings
-  const recentVoice = await c.env.DB.prepare(`
-    SELECT v.* FROM voice_recordings v
-    JOIN voice_recipients vr ON v.id = vr.voice_recording_id
-    WHERE vr.family_member_id = ? AND v.deleted_at IS NULL
-    ORDER BY v.created_at DESC
-    LIMIT 10
-  `).bind(memberId).all();
   
   return c.json({
     id: member.id,

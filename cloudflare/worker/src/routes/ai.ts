@@ -27,13 +27,38 @@ const PROMPT_CATEGORIES = [
 // AI MEMORY PROMPTS
 // ============================================
 
+// Module-level rate limit map (in-memory fallback if KV unavailable)
+const aiRateMap = new Map<string, { count: number; resetAt: number }>();
+
 aiRoutes.get('/prompt', async (c) => {
   const userId = c.get('userId');
-  
+
   if (!userId) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
-  
+
+  // Rate limit: 10 AI calls per user per minute
+  const rateLimitKey = `ai:${userId}:${Math.floor(Date.now() / 60000)}`;
+  try {
+    const count = parseInt(await c.env.KV.get(rateLimitKey) ?? '0', 10);
+    if (count >= 10) {
+      return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+    }
+    await c.env.KV.put(rateLimitKey, String(count + 1), { expirationTtl: 60 });
+  } catch {
+    // KV unavailable — fall back to in-memory map
+    const now = Date.now();
+    const entry = aiRateMap.get(rateLimitKey);
+    if (entry && entry.resetAt > now) {
+      if (entry.count >= 10) {
+        return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+      }
+      entry.count++;
+    } else {
+      aiRateMap.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
+    }
+  }
+
   try {
     // Get user's existing memories to understand what they've captured
     const memories = await c.env.DB.prepare(`
@@ -130,15 +155,19 @@ aiRoutes.get('/prompts', async (c) => {
       });
     }
     
-    // Cache miss or insufficient prompts - generate fresh batch and cache
-    console.log('AI prompts cache miss - generating fresh batch');
-    const prompts = await generateAndCachePrompts(c.env, 50);
-    
-    // Return requested count
-    const shuffled = [...prompts].sort(() => 0.5 - Math.random());
-    return c.json({ 
-      prompts: shuffled.slice(0, count),
-      cached: false
+    // Cache miss or insufficient prompts — kick off generation in background
+    // and return fallbacks immediately to avoid Worker timeout.
+    console.log('AI prompts cache miss - generating fresh batch in background');
+    c.executionCtx.waitUntil(generateAndCachePrompts(c.env, 50));
+    const fallbackPrompts = FALLBACK_PROMPTS.slice(0, count).map(p => ({
+      id: crypto.randomUUID(),
+      prompt: p,
+      category: 'general'
+    }));
+    return c.json({
+      prompts: fallbackPrompts,
+      cached: false,
+      generating: true
     });
   } catch (error) {
     console.error('AI prompts error:', error);
@@ -277,11 +306,32 @@ aiRoutes.post('/prompt/:id/shared', async (c) => {
 
 aiRoutes.post('/future-letter', async (c) => {
   const userId = c.get('userId');
-  
+
   if (!userId) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
-  
+
+  // Rate limit: 10 AI calls per user per minute
+  const rateLimitKey = `ai:${userId}:${Math.floor(Date.now() / 60000)}`;
+  try {
+    const count = parseInt(await c.env.KV.get(rateLimitKey) ?? '0', 10);
+    if (count >= 10) {
+      return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+    }
+    await c.env.KV.put(rateLimitKey, String(count + 1), { expirationTtl: 60 });
+  } catch {
+    const now = Date.now();
+    const entry = aiRateMap.get(rateLimitKey);
+    if (entry && entry.resetAt > now) {
+      if (entry.count >= 10) {
+        return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+      }
+      entry.count++;
+    } else {
+      aiRateMap.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
+    }
+  }
+
   const body = await c.req.json();
   const { currentAge, values, hopes, fears, lovedOnes } = body;
   
@@ -646,6 +696,27 @@ aiRoutes.post('/suggest-dye', async (c) => {
   const userId = c.get('userId');
   if (!userId) return c.json({ error: 'Unauthorized' }, 401);
 
+  // Rate limit: 10 AI calls per user per minute
+  const rateLimitKey = `ai:${userId}:${Math.floor(Date.now() / 60000)}`;
+  try {
+    const count = parseInt(await c.env.KV.get(rateLimitKey) ?? '0', 10);
+    if (count >= 10) {
+      return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+    }
+    await c.env.KV.put(rateLimitKey, String(count + 1), { expirationTtl: 60 });
+  } catch {
+    const now = Date.now();
+    const entry = aiRateMap.get(rateLimitKey);
+    if (entry && entry.resetAt > now) {
+      if (entry.count >= 10) {
+        return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+      }
+      entry.count++;
+    } else {
+      aiRateMap.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
+    }
+  }
+
   let text = '';
   try {
     const body = await c.req.json();
@@ -692,6 +763,27 @@ aiRoutes.post('/suggest-dye', async (c) => {
 aiRoutes.post('/on-this-day-narration', async (c) => {
   const userId = c.get('userId');
   if (!userId) return c.json({ error: 'Unauthorized' }, 401);
+
+  // Rate limit: 10 AI calls per user per minute
+  const rateLimitKey = `ai:${userId}:${Math.floor(Date.now() / 60000)}`;
+  try {
+    const count = parseInt(await c.env.KV.get(rateLimitKey) ?? '0', 10);
+    if (count >= 10) {
+      return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+    }
+    await c.env.KV.put(rateLimitKey, String(count + 1), { expirationTtl: 60 });
+  } catch {
+    const now = Date.now();
+    const entry = aiRateMap.get(rateLimitKey);
+    if (entry && entry.resetAt > now) {
+      if (entry.count >= 10) {
+        return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+      }
+      entry.count++;
+    } else {
+      aiRateMap.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
+    }
+  }
 
   let memories: { title?: string; description?: string; yearsAgo?: number; type?: string }[] = [];
   try {
