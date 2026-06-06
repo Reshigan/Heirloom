@@ -300,7 +300,7 @@ export function GiftSubscriptions() {
                       flexDirection:   'column',
                       textAlign:       'left',
                       padding:         '36px 32px',
-                      background:      isFamily ? 'var(--ink)' : 'transparent',
+                      background:      isFamily ? 'rgba(244,236,216,0.04)' : 'transparent',
                       color:           isFamily ? 'var(--bone)' : 'var(--bone)',
                       borderTop:       isFamily || selected
                         ? '1px solid var(--warm)'
