@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { familyApi, engagementApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { copyToClipboard } from '../utils/clipboard';
 
 interface FamilyMember {
   id: string;
@@ -87,7 +88,6 @@ export function Family() {
   const [inviteSent, setInviteSent] = useState(false);
   const [lastInviteCode, setLastInviteCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<FamilyMember | null>(null);
   const [editTarget, setEditTarget] = useState<FamilyMember | null>(null);
   const [editName, setEditName] = useState('');
   const [editRelationship, setEditRelationship] = useState('');
@@ -150,10 +150,9 @@ export function Family() {
     mutationFn: (id: string) => familyApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
-      setDeleteTarget(null);
     },
     onError: () => {
-      setDeleteTarget(null);
+      queryClient.invalidateQueries({ queryKey: ['family'] });
     },
   });
 
@@ -209,12 +208,13 @@ export function Family() {
   };
 
   const copyLink = (code?: string | null) => {
-    const url = code
-      ? `https://heirloom.blue/join?code=${code}`
-      : 'https://heirloom.blue/signup';
-    navigator.clipboard.writeText(url).then(() => {
+    const origin = window.location.origin;
+    const url = code ? `${origin}/join?code=${code}` : `${origin}/signup`;
+    copyToClipboard(url).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      // nothing — button stays in default state
     });
   };
 
@@ -233,7 +233,7 @@ export function Family() {
   <Link
     to="/loom"
     style={{
-      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
+      fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.12em',
       textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
     }}
   >
@@ -242,76 +242,11 @@ export function Family() {
 }
       topbarCenter="family"
       topbarRight={!atLimit && !showForm ? (
-        <button type="button" className="hl-btn" onClick={() => openForm('add')} style={{ fontSize: 10, padding: '5px 12px' }}>add →</button>
+        <button type="button" className="hl-btn" onClick={() => openForm('add')} style={{ fontSize: 12, padding: '6px 14px' }}>add →</button>
       ) : undefined}
     >
       <div style={{ padding: 'clamp(24px, 5vw, 56px)', paddingBottom: 80, maxWidth: 760 }}>
 
-        {/* Delete confirmation — inline, no overlay */}
-        {deleteTarget && (
-          <div
-            style={{
-              border: '1px solid var(--dye-madder)',
-              opacity: 0.92,
-              padding: 'clamp(20px, 4vw, 32px)',
-              marginBottom: 32,
-              animation: 'hl-rise 180ms var(--ease) both',
-            }}
-          >
-            <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.4 }}>
-              Untether {deleteTarget.name} from the thread?
-            </p>
-            <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 16px' }}>
-              7 days to change your mind
-            </p>
-            <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 24px', lineHeight: 1.7, fontStyle: 'italic' }}>
-              All memories, letters, and voice recordings addressed to them will be queued for removal. This becomes permanent after 7 days.
-            </p>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => deleteMember.mutate(deleteTarget.id)}
-                disabled={deleteMember.isPending}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--dye-madder)',
-                  borderRadius: 0,
-                  padding: '10px 20px',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 13,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--dye-madder)',
-                  opacity: deleteMember.isPending ? 0.5 : 1,
-                  transition: 'opacity 180ms var(--ease)',
-                  touchAction: 'manipulation',
-                }}
-              >
-                {deleteMember.isPending ? 'untethering…' : 'untether from thread'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(null)}
-                style={{
-                  background: 'transparent',
-                  border: 0,
-                  padding: '10px 0',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 13,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--bone-dim)',
-                  transition: 'color 180ms var(--ease)',
-                  touchAction: 'manipulation',
-                }}
-              >
-                keep them
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* heading row */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32, gap: 16 }}>
@@ -681,7 +616,7 @@ export function Family() {
                         }}
                         style={{
                           background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                          fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)',
+                          fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
                           letterSpacing: '0.18em', textTransform: 'uppercase',
                           transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                           marginTop: 6, display: 'block',
@@ -698,7 +633,7 @@ export function Family() {
                             onClick={() => navigate(`/compose?recipientId=${m.id}`)}
                             style={{
                               background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                              fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)',
+                              fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
                               letterSpacing: '0.18em', textTransform: 'uppercase',
                               transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                             }}
@@ -712,7 +647,7 @@ export function Family() {
                             onClick={() => navigate(`/record?recipientId=${m.id}`)}
                             style={{
                               background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                              fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)',
+                              fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
                               letterSpacing: '0.18em', textTransform: 'uppercase',
                               transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                             }}
@@ -729,11 +664,12 @@ export function Family() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setDeleteTarget(m)}
+                      onClick={() => deleteMember.mutate(m.id)}
+                      disabled={deleteMember.isPending}
                       className="family-member-delete"
                       style={{
                         background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                        width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: 'transparent', fontSize: 18, lineHeight: 1,
                         transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                       }}
@@ -768,7 +704,7 @@ export function Family() {
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       {editError && (
-                        <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
+                        <p className="hl-mono" style={{ fontSize: 12, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
                       )}
                       <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginTop: 4 }}>
                         <button
@@ -776,14 +712,14 @@ export function Family() {
                           className="hl-btn"
                           onClick={() => updateMember.mutate()}
                           disabled={!editName.trim() || !editRelationship.trim() || updateMember.isPending}
-                          style={{ fontSize: 11, padding: '9px 18px', opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.5 : 1 }}
+                          style={{ fontSize: 13, padding: '9px 18px', opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.5 : 1 }}
                         >
                           {updateMember.isPending ? 'holding…' : 'hold changes →'}
                         </button>
                         <button
                           type="button"
                           onClick={() => { setEditTarget(null); setEditError(null); }}
-                          style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}
+                          style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', padding: '8px 0', touchAction: 'manipulation' }}
                         >
                           cancel
                         </button>

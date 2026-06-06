@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HLogo } from '../loom/components/HLogo';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api from '../services/api';
+import { copyToClipboard } from '../utils/clipboard';
 
 // ── MktBar ────────────────────────────────────────────────────────────────────
 function MktBar() {
@@ -311,7 +312,7 @@ export function LegacyPlan() {
                     {shareUrl}
                   </span>
                   <button
-                    onClick={() => navigator.clipboard.writeText(shareUrl)}
+                    onClick={() => copyToClipboard(shareUrl).catch(() => {})}
                     className="hl-mono"
                     style={{
                       background: 'none',

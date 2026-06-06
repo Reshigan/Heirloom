@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Frame } from '../loom/components/Frame';
 import { memorialsApi } from '../services/api';
+import { copyToClipboard } from '../utils/clipboard';
 
 // Design styles kept for API compatibility; not displayed as a visual style chooser
 const designStyles = [
@@ -84,7 +85,7 @@ export function Memorials() {
         url,
       });
     } else {
-      navigator.clipboard.writeText(url);
+      copyToClipboard(url).catch(() => {});
     }
   };
 

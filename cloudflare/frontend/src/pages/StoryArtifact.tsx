@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Frame } from '../loom/components/Frame';
 import api, { memoriesApi, voiceApi } from '../services/api';
+import { copyToClipboard } from '../utils/clipboard';
 
 // Quick Create wizard templates
 const STORY_TEMPLATES = [
@@ -479,7 +480,7 @@ export function StoryArtifact() {
               />
               <button
                 type="button"
-                onClick={() => navigator.clipboard.writeText(shareUrl)}
+                onClick={() => copyToClipboard(shareUrl).catch(() => {})}
                 className="hl-btn"
                 style={{ padding: '10px 18px', flexShrink: 0 }}
               >

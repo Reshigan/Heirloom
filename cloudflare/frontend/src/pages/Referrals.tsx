@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Frame } from '../loom/components/Frame';
 import { familyReferralsApi } from '../services/api';
+import { copyToClipboard } from '../utils/clipboard';
 
 export function Referrals() {
   const queryClient = useQueryClient();
@@ -27,9 +28,9 @@ export function Referrals() {
   });
 
   const copyInviteLink = (code: string) => {
-    navigator.clipboard.writeText(`https://heirloom.blue/signup?ref=${code}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    copyToClipboard(`${window.location.origin}/signup?ref=${code}`)
+      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); })
+      .catch(() => {});
   };
 
   const familyBranches = [

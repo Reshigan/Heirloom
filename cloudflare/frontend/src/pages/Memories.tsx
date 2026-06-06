@@ -43,17 +43,22 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
     return () => io.disconnect();
   }, []);
 
+  const [mutError, setMutError] = useState<string | null>(null);
+
   const updateMut = useMutation({
     mutationFn: () => memoriesApi.update(m.id, { description: editText }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
       setEditing(false);
+      setMutError(null);
     },
+    onError: () => setMutError('Could not save changes.'),
   });
 
   const deleteMut = useMutation({
     mutationFn: () => memoriesApi.delete(m.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] }),
+    onError: () => setMutError('Could not remove this entry.'),
   });
 
   const dyeColor = DYE_COLORS[(m.type as string) ?? 'memory'] ?? DYE_COLORS['memory'];
@@ -151,20 +156,23 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
       )}
 
       {confirmDelete && (
-        <div style={{ marginTop: 12, display: 'flex', gap: 16, alignItems: 'center' }}>
-          <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Delete this memory?</span>
+        <div style={{ marginTop: 12, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Delete this memory?</span>
           <button type="button" onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}
-            style={{ background: 'transparent', border: '1px solid var(--dye-madder)', borderRadius: 0, padding: '5px 12px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dye-madder)', opacity: deleteMut.isPending ? 0.6 : 1 }}>
+            style={{ background: 'transparent', border: '1px solid var(--dye-madder)', borderRadius: 0, padding: '6px 14px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dye-madder)', opacity: deleteMut.isPending ? 0.6 : 1, touchAction: 'manipulation', minHeight: 44 }}>
             {deleteMut.isPending ? 'deleting…' : 'confirm'}
           </button>
-          <button type="button" onClick={() => setConfirmDelete(false)}
-            style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+          <button type="button" onClick={() => { setConfirmDelete(false); setMutError(null); }}
+            style={{ background: 'transparent', border: 0, padding: '6px 0', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)', touchAction: 'manipulation', minHeight: 44 }}>
             cancel
           </button>
         </div>
       )}
+      {mutError && (
+        <p className="hl-mono" role="alert" style={{ fontSize: 12, color: 'var(--dye-madder)', letterSpacing: '0.1em', marginTop: 8 }}>{mutError}</p>
+      )}
 
-      <div className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.1em', marginTop: 10 }}>
+      <div className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.1em', marginTop: 10 }}>
         #{(index + 1).toString().padStart(3, '0')}
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Frame } from '../loom/components/Frame';
 import { challengesApi } from '../services/api';
+import { copyToClipboard } from '../utils/clipboard';
 
 export function Challenges() {
   const queryClient = useQueryClient();
@@ -45,14 +46,14 @@ export function Challenges() {
     const challenge = currentChallenge;
     if (!challenge) return;
     const text = `I just shared a memory for the ${challenge.title} challenge on Heirloom! ${challenge.hashtag}`;
-    const url = 'https://heirloom.blue/challenges';
+    const url = `${window.location.origin}/challenges`;
     let shareUrl = '';
     switch (platform) {
       case 'instagram':
-        navigator.clipboard.writeText(`${text}\n\n${url}`);
+        copyToClipboard(`${text}\n\n${url}`).catch(() => {});
         break;
       case 'tiktok':
-        navigator.clipboard.writeText(`${text}\n\n${url}`);
+        copyToClipboard(`${text}\n\n${url}`).catch(() => {});
         break;
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
