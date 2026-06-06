@@ -63,7 +63,7 @@ export function Weft() {
   const [hover, setHover] = useState<number | null>(null);
   const [showAI, setShowAI] = useState(false);
   const [mode, setMode] = useState<WeftMode>('canon');
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,15 +73,18 @@ export function Weft() {
 
   const { data: memoriesData } = useQuery({
     queryKey: ['weft-memories'],
-    queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+    queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => r.data),
+    enabled: isAuthenticated,
   });
   const { data: lettersData } = useQuery({
     queryKey: ['weft-letters'],
-    queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+    queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => r.data),
+    enabled: isAuthenticated,
   });
   const { data: voiceData } = useQuery({
     queryKey: ['weft-voice'],
-    queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+    queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data),
+    enabled: isAuthenticated,
   });
 
   const { data: threadMembersData } = useQuery({

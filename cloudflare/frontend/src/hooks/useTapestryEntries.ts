@@ -21,28 +21,30 @@ function pickDye(type: string): string {
  * Uses the same weft-* query keys as Weft.tsx so both surfaces share
  * one cache — invalidating after a write updates both instantly.
  */
-export function useTapestryEntries(): CanvasEntry[] {
+export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean } {
   const { isAuthenticated } = useAuthStore();
 
-  const { data: memoriesData } = useQuery({
+  const { data: memoriesData, isError: me } = useQuery({
     queryKey: ['weft-memories'],
-    queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+    queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
 
-  const { data: lettersData } = useQuery({
+  const { data: lettersData, isError: le } = useQuery({
     queryKey: ['weft-letters'],
-    queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+    queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
 
-  const { data: voiceData } = useQuery({
+  const { data: voiceData, isError: ve } = useQuery({
     queryKey: ['weft-voice'],
-    queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+    queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
 
-  return useMemo(() => {
+  const isError = me || le || ve;
+
+  const entries = useMemo(() => {
     const mems: any[] = Array.isArray((memoriesData as any)?.data) ? (memoriesData as any).data : [];
     const lets: any[] = Array.isArray((lettersData as any)?.data) ? (lettersData as any).data : [];
     const vox: any[] = Array.isArray((voiceData as any)?.data) ? (voiceData as any).data : [];
@@ -68,4 +70,6 @@ export function useTapestryEntries(): CanvasEntry[] {
 
     return all.sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [memoriesData, lettersData, voiceData]);
+
+  return { entries, isError };
 }

@@ -191,20 +191,10 @@ function AuthHome({
     );
   }
 
-  // Awaiting / legacy — no cloth
-  if (role === 'future_member') {
-    return (
-      <div style={{ padding: `36px ${P}`, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
-        <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>awaiting</span>
-        <p className="hl-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.6 }}>
-          A thread is being prepared for you.
-        </p>
-      </div>
-    );
-  }
-
   // First-run: no entries yet — show sealed letter prompt
-  if (count === 0 && role !== 'reader' && role !== 'successor') {
+  // (role !== 'reader' && role !== 'successor' conditions removed — those
+  // values are not yet returned by useRole(); see hooks/useRole.ts TODO)
+  if (count === 0) {
     return (
       <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
@@ -266,11 +256,8 @@ function AuthHome({
   }
 
   // Primary CTA depends on role
-  const primaryCta = role === 'reader'
-    ? { label: 'open the cloth →', to: '/loom/read' }
-    : role === 'successor'
-    ? { label: 'accept the inheritance →', to: '/loom/weft' }
-    : { label: 'write →', to: '/compose' };
+  // TODO: add 'reader' and 'successor' branches when backend returns those roles
+  const primaryCta = { label: 'write →', to: '/compose' };
 
   return (
     <>
@@ -397,11 +384,10 @@ function AuthHome({
           <Link to={primaryCta.to} className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
             {primaryCta.label}
           </Link>
-          {role !== 'reader' && role !== 'successor' && (
-            <Link to="/record" className="hl-btn text" style={{ fontSize: 13 }}>
-              speak →
-            </Link>
-          )}
+          {/* TODO: hide 'speak →' for 'reader' and 'successor' roles once backend returns them */}
+          <Link to="/record" className="hl-btn text" style={{ fontSize: 13 }}>
+            speak →
+          </Link>
           {role === 'trial' && (
             <Link to="/billing" className="hl-btn text" style={{ fontSize: 12 }}>
               upgrade →
@@ -476,7 +462,7 @@ function AuthHome({
 /* ─── Main export ────────────────────────────────────────────────────────── */
 export function PwaHome() {
   const role = useRole();
-  const entries = useTapestryEntries();
+  const { entries } = useTapestryEntries();
   const prompt  = useListener();
   const { isNewUser, isLoading: isNewUserLoading } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());

@@ -2,17 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi } from '../services/api';
 
+// Only the four values this function can actually return are in the type.
+// TODO: 'author' | 'reader' | 'successor' | 'future_member' | 'legacy' | 'admin'
+// require backend changes before they can be surfaced here.
 export type UserRole =
   | 'visitor'
   | 'trial'
   | 'family'
-  | 'founder'
-  | 'author'
-  | 'reader'
-  | 'successor'
-  | 'future_member'
-  | 'legacy'
-  | 'admin';
+  | 'founder';
 
 export function useRole(): UserRole {
   const { user, isAuthenticated } = useAuthStore();
