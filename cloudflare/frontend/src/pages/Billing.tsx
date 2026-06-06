@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { planLabel, isPaidTier, isFounderTier, isFreeTier, PLAN_LIMITS } from '../lib/plans';
 
 const BILLING_CSS = `
@@ -63,10 +63,22 @@ export function Billing() {
     : 'free plan';
 
   return (
-    <>
+    <ClothShell
+      topbarLeft={
+        <Link
+          to="/loom"
+          style={{
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
+            textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
+          }}
+        >
+          ← heirloom
+        </Link>
+      }
+      topbarCenter="billing"
+    >
       <style>{BILLING_CSS}</style>
-      <Frame left="billing" right={<Link to="/settings" className="hl-link warm" style={{ fontSize: 12 }}>settings →</Link>}>
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 40px) 80px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 40px) 80px' }}>
 
           <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, margin: '0 0 6px', letterSpacing: '-0.016em' }}>
             Billing
@@ -191,7 +203,6 @@ export function Billing() {
 
           </div>
         </div>
-      </Frame>
-    </>
+    </ClothShell>
   );
 }
