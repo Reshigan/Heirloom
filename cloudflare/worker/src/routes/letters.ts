@@ -303,7 +303,7 @@ lettersRoutes.patch('/:id', async (c) => {
   const letterId = c.req.param('id');
   const body = await c.req.json();
   
-  // Verify ownership and not sealed (a soft-deleted letter is also un-editable)
+  // Verify ownership (a soft-deleted letter is also un-editable)
   const existing = await c.env.DB.prepare(`
     SELECT * FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(letterId, userId).first();
